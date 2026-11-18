@@ -336,8 +336,8 @@ Champs facultatifs, tous ignorés quand ils manquent :
 - Unicité : deux bâtiments d'une même carte ne partagent jamais mur + toit + couleur de porte
   (le test le vérifie). Dans l'ordre du fichier, ce que le JSON n'impose pas (`wall`, puis
   `roof`, puis `door_color`) est modifié pour lever le conflit. Les toits de tuiles, d'ardoises
-  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, mousse vers
-  l'avant-toit, quelques tuiles manquantes, ombre des lucarnes ; le toit d'herbe des Grobittes
+  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, petites touffes de mousse vers
+  l'avant-toit, quelques tuiles manquantes (volige brune avec fine ombre, jamais de trou noir), ombre des lucarnes ; le toit d'herbe des Grobittes
   est plus clair, avec une crête lumineuse et des raies de gazon qui suivent la courbe.
 - `extra` : accessoire contre le mur, loin de la porte (`"barrel"`, `"crates"`, `"flowers"`,
   `""` pour aucun) ; tiré au hasard sinon.
@@ -515,7 +515,7 @@ or, braise des forges, et la raie sombre du fromage dans les murs.
 `nain_dalle` (dalles sombres), `nain_veine` (dalle à veine d'or), `nain_voie` et `nain_voie_v`
 (rail de wagonnet, horizontal et vertical), `nain_pont` (tablier de pont, franchissable sur
 un abîme), `nain_marbre` (marbre de la Grande Salle, motif de forge), `nain_pate` (croûte du
-(Sols `nain_roche_humide` : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
+(Sols `nain_roche_humide` (drapeau `puddles` de la table `GROUND` : flaques éparpillées par bruit, en amas irréguliers, par `MapBuilder._scatter_puddles`) : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
 fromage), `nain_abime` (vide solide), `nain_neige`, `nain_sentier`, `nain_roc`,
 `nain_marches`, `nain_pierre`, et les murs `nain_mur`, `nain_mur_morbier`, `nain_mur_forge`.
 
@@ -1218,3 +1218,9 @@ Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale a
 « Quête mise à jour », « Quête terminée » (l'encart glisse depuis la gauche et s'allume d'un éclat
 doré). La touche `journal` (J au clavier, Y à la manette) ouvre le journal de quêtes directement ;
 elle est rappelée par le rappel et par le conseil « journal ».
+
+
+### Sols : mouchetage et décor des maisons
+
+- `MapBuilder.MOTTLE` : par type de sol, `[teinte sombre, teinte claire, force, luminosité]`, appliqué après la peinture du sol (bruit à deux échelles, interpolé) pour casser la répétition des cases. Sans entrée, le sol n'est pas touché.
+- Maisons au style par défaut : jardinières sous les fenêtres du rez-de-chaussée (`flowers`) et lierre (`ivy`) sont en volume (cartes à feuilles découpées, tirages stables selon la carte et la maison).

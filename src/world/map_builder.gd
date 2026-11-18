@@ -27,7 +27,7 @@ const GROUND := {
 	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
 	# style nain (voir docs/FORMAT_DONNEES.md)
 	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
-	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true}, "nain_roche_humide": {"hard": true}, "nain_galets": {"hard": true},
+	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true}, "nain_roche_humide": {"hard": true, "puddles": true}, "nain_galets": {"hard": true},
 	"nain_abime": {"hard": true, "solid": true}, "nain_neige": {}, "nain_sentier": {},
 	# styles du chapitre 5 : cavalier, fongorn, isengarde, chutes (voir docs/FORMAT_DONNEES.md)
 	"cav_herbe": {}, "cav_chemin": {}, "cav_planches": {"hard": true}, "cav_botte_sol": {},
@@ -35,6 +35,17 @@ const GROUND := {
 	"isen_dalle": {"hard": true}, "isen_fonte": {"hard": true}, "isen_farine": {},
 	"isen_fosse": {"hard": true, "solid": true},
 	"chu_roche": {"hard": true}, "chu_gravier": {},
+}
+
+## Sols dont les grandes plaques sont teintées (voir `_mottle`) : [sombre, clair, force, clarté].
+const MOTTLE := {
+	"cav_herbe": ["#6f9a3c", "#d0aa50", 0.62, 0.14],
+	"cav_chemin": ["#8a6c40", "#d8bc82", 0.5, 0.1],
+	"nain_neige": ["#9db2d8", "#f4f2ee", 0.5, 0.08],
+	"nain_sentier": ["#8a8590", "#d4cec8", 0.5, 0.1],
+	"nain_roche_humide": ["#223048", "#4e6684", 0.42, 0.14],
+	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
+	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
 }
 
 ## Accessoires affichés comme des sprites debout.
@@ -464,7 +475,96 @@ func _paint_ground() -> ImageTexture:
 						elif use == "grass" and (_cell_at_pixel(wx, wy + 2.0) != "grass" or _cell_at_pixel(wx + 2.0, wy) != "grass"):
 							c = PA.shade(c, -0.14)
 					img.set_pixel(gx, gy, c)
+	_mottle(img)
+	_scatter_puddles(img)
 	return PA.texture(img)
+
+
+## Teintes de grandes plaques, par type de sol (table MOTTLE) : `[teinte sombre, teinte claire, force,
+## variation de clarté]`. Un bruit lent (plaques de 38 pixels, puis de 12) mélange le sol vers l'une ou
+## l'autre teinte : la tuile, répétée toutes les deux cases, ne dessine plus de grille, et une plaine
+## n'est plus d'une seule couleur. Calculé sur une grille au quart de la définition (rapide).
+func _mottle(img: Image) -> void:
+	var any := false
+	for t: String in cells:
+		if MOTTLE.has(t):
+			any = true
+			break
+	if not any:
+		return
+	var hp := preload("res://src/gfx/house_painter.gd")
+	var lw := w * PPU / 4 + 3
+	var lh := h * PPU / 4 + 3
+	var nl: PackedFloat32Array = hp.noise_map(lw, lh, 927, 9.5)
+	var ns: PackedFloat32Array = hp.noise_map(lw, lh, 928, 3.0)
+	var parsed := {}
+	for ty in h:
+		for tx in w:
+			var t := cells[ty * w + tx]
+			if not MOTTLE.has(t):
+				continue
+			if not parsed.has(t):
+				var m: Array = MOTTLE[t]
+				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3])]
+			var pm: Array = parsed[t]
+			for py in PPU:
+				for px in PPU:
+					var gx := tx * PPU + px
+					var gy := ty * PPU + py
+					# échantillonnage bilinéaire de la grille au quart de définition (pas de carrés visibles)
+					var fx := float(gx & 3) * 0.25
+					var fy := float(gy & 3) * 0.25
+					var i := (gy >> 2) * lw + (gx >> 2)
+					var vl := lerpf(lerpf(nl[i], nl[i + 1], fx), lerpf(nl[i + lw], nl[i + lw + 1], fx), fy)
+					var vs := lerpf(lerpf(ns[i], ns[i + 1], fx), lerpf(ns[i + lw], ns[i + lw + 1], fx), fy)
+					var k := (vl - 0.5) * 2.0 + (vs - 0.5) * 0.7   # environ -1 à 1
+					var c := img.get_pixel(gx, gy)
+					if k < -0.12:
+						c = c.lerp(pm[0], minf(1.0, (-k - 0.12) * 1.3) * float(pm[2]))
+					elif k > 0.12:
+						c = c.lerp(pm[1], minf(1.0, (k - 0.12) * 1.3) * float(pm[2]))
+					img.set_pixel(gx, gy, PA.shade(c, (vs - 0.5) * float(pm[3])))
+
+
+## Flaques semées sur les sols qui portent le flag `puddles` (roche mouillée des lacs souterrains). Positions,
+## tailles et formes viennent d'un bruit lent et d'un tirage par case de 13 pixels, jamais d'une grille :
+## des amas de flaques, de grands vides, quelques longues flaques plates. Chaque flaque tient entièrement sur
+## des cases à flaques (quatre points de son contour sont vérifiés).
+func _scatter_puddles(img: Image) -> void:
+	var any := false
+	for t: String in cells:
+		if _flag(t, "puddles"):
+			any = true
+			break
+	if not any:
+		return
+	var hp := preload("res://src/gfx/house_painter.gd")
+	var cs := 13
+	for gy in range(0, h * PPU, cs):
+		for gx in range(0, w * PPU, cs):
+			var ix := gx / cs
+			var iy := gy / cs
+			var zone := hp.vnoise(float(gx), float(gy), 931, 90.0)
+			var zone2 := hp.vnoise(float(gx), float(gy), 932, 34.0)
+			var p := clampf((zone - 0.38) * 1.7, 0.0, 0.7) * (0.35 + zone2)
+			if PA.rnd(ix, iy, 933) >= p:
+				continue
+			var cx := float(gx) + PA.rnd(ix, iy, 934) * float(cs)
+			var cy := float(gy) + PA.rnd(ix, iy, 935) * float(cs)
+			var big := PA.rnd(ix, iy, 936)
+			var rx := 3.0 + 11.0 * big * big * big + zone2 * 2.0
+			var ry := rx * (0.32 + 0.3 * PA.rnd(ix, iy, 937))
+			var ok := true
+			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry), Vector2(0, 0)]:
+				if not _flag(_cell_at_pixel(cx + q.x - 1.0, cy + q.y - 1.0), "puddles") or not _flag(_cell_at_pixel(cx + q.x + 1.0, cy + q.y + 1.0), "puddles"):
+					ok = false
+			if not ok:
+				continue
+			PA.ellipse(img, cx, cy, rx, ry, Color("#1c2c46"))
+			PA.ellipse(img, cx - 0.5, cy - 0.7, rx * 0.82, ry * 0.7, Color("#2a4a6e"))
+			if rx > 5.5:
+				PA.ellipse(img, cx - 0.5, cy - 1.0, rx * 0.74, ry * 0.42, Color("#3e6a92"))
+				PA.ellipse(img, cx - rx * 0.3, cy - ry * 0.4, rx * 0.26, 0.9, Color("#a8d4f4"))
 
 
 func _build_ground() -> void:
