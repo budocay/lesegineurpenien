@@ -347,6 +347,13 @@ Mêmes champs que la maison de village (`rect`, `height`, `roof_height`, `door`,
 (étirement en hauteur des murs et du toit, 1.22 par défaut : l'emprise ne change pas ; 1.0 rend
 les anciennes proportions). `door_color`,
 `awning` et `chimney` sont ignorés.
+La façade se complète toute seule : un bandeau doré à denticules à mi-hauteur et, dans chaque
+travée nue entre deux ouvertures (44 pixels de large au moins, 1,8 case), une baie aveugle
+(ogive creuse et vase de pierre) ou une treille chargée de raisin, en alternance ; les
+pilastres cèdent la place à ces ornements. Règle des portes (test `_test_door_clearance`, toutes
+les cartes) : aucun objet (lampadaire de carte, bannière, statue, haie...) ne se dresse dans la
+bande d'une porte de maison (0,9 de part et d'autre, de 0,3 en arrière à 1,6 devant) ni sur
+ses deux lampadaires (à 1,25 de la porte), pour ne jamais les cacher.
 
 ### Accessoires (sprites debout, comme `tree` ou `bush`)
 

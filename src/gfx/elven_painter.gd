@@ -1123,13 +1123,103 @@ static func facade(w_units: float, h_units: float, door_x: float, windows: Array
 	for k in range(spots.size() - 1):
 		if spots[k + 1] - spots[k] >= 40.0:
 			posts.append(int((spots[k] + spots[k + 1]) * 0.5) - 3)
+	# bandeau d'appui à mi-hauteur : filet doré sur un rang de denticules (sous les baies et le portail)
+	var band := int(float(h) * 0.56)
+	PA.rect(img, 0, band - 1, w, 3, IV_HI)
+	PA.rect(img, 0, band + 2, w, 1, GOLD)
+	PA.rect(img, 0, band + 3, w, 1, GOLD_D)
+	for x in range(1, w, 4):
+		PA.rect(img, x, band + 4, 2, 3, IV_D)
+	# travées nues entre les ouvertures : baie aveugle ou treille, en alternance
+	var fill_from := 0.0
+	var edges: Array[Vector2] = []
+	var occupied: Array[float] = []
+	for wx: Variant in windows:
+		occupied.append(float(wx) * 24.0)
+	if door_x >= 0.0:
+		occupied.append(door_x * 24.0)
+	occupied.sort()
+	var left := 6.0
+	for k in range(occupied.size() + 1):
+		var right := float(w) - 6.0 if k == occupied.size() else occupied[k] - (22.0 if (door_x >= 0.0 and absf(occupied[k] - door_x * 24.0) < 1.0) else 16.0)
+		if k > 0 and absf(occupied[k - 1] - door_x * 24.0) < 1.0 and door_x >= 0.0:
+			left = occupied[k - 1] + 22.0
+		elif k > 0:
+			left = occupied[k - 1] + 16.0
+		edges.append(Vector2(left, right))
+	fill_from = 0.0
+	var n := 0
+	var decor_x: Array[float] = []
+	for span: Vector2 in edges:
+		var free := span.y - span.x
+		if free < 44.0:
+			continue
+		var mid := (span.x + span.y) * 0.5
+		var count := 1 if free < 120.0 else 2
+		for i in count:
+			var cx := mid if count == 1 else span.x + free * (0.25 + 0.5 * float(i))
+			if free < 60.0 or (n + int(cx)) % 2 == 0:
+				_niche(img, cx, h)
+			else:
+				_trellis(img, cx, h)
+			decor_x.append(cx)
+			n += 1
 	for px: int in posts:
-		_pilaster(img, px, 9, h - 18)
+		var hidden := false
+		for dx: float in decor_x:
+			if absf(float(px + 3) - dx) < 24.0 and px > 0 and px < w - 6:
+				hidden = true   # une baie aveugle ou une treille occupe déjà cette travée
+		if not hidden:
+			_pilaster(img, px, 9, h - 18)
 	for wx: Variant in windows:
 		_window(img, emi, float(wx) * 24.0, h, lit, tall)
 	if door_x >= 0.0:
 		_door(img, emi, door_x * 24.0, h, door_open, lit)
 	return {"albedo": img, "emission": emi}
+
+
+## Baie aveugle : une ogive creusée dans le mur, moulurée, avec un vase de pierre au fond.
+static func _niche(img: Image, cx: float, h: int) -> void:
+	var a := 7.0
+	var rr := 15.0
+	var sill := h - 22
+	var spring := sill - 26
+	_fill_ogive(img, cx, spring, a + 2.0, rr + 2.0, IV_L, sill + 2)
+	_fill_ogive(img, cx, spring, a, rr, IV_D, sill)
+	_fill_ogive(img, cx + 1.0, spring + 1, a - 1.0, rr - 1.0, IV_S, sill)   # fond éclairé, ombre à gauche
+	PA.rect(img, int(cx) - 9, sill, 18, 3, IV_L)
+	PA.rect(img, int(cx) - 9, sill + 3, 18, 1, IV_D)
+	PA.ellipse(img, cx, float(sill) - 5.0, 3.5, 4.5, IV_L)
+	PA.rect(img, int(cx) - 2, sill - 2, 4, 2, IV)
+	PA.rect(img, int(cx) - 1, sill - 11, 2, 3, LEAF_G)
+	PA.px(img, int(cx) + 1, sill - 12, GOLD)
+
+
+## Treille : un cadre de bois à losanges, une vigne qui grimpe et quelques grappes dorées.
+static func _trellis(img: Image, cx: float, h: int) -> void:
+	var x0 := int(cx) - 15
+	var y1 := h - 14
+	var y0 := y1 - 50
+	PA.rect(img, x0 - 2, y0 - 2, 34, 54, WOOD_D)
+	PA.rect(img, x0, y0, 30, 50, IV_S)
+	for k in range(-50, 40, 8):
+		for t in 50:
+			var xa := x0 + t + k
+			if xa >= x0 and xa < x0 + 30:
+				PA.px(img, xa, y0 + t, WOOD)
+			var xb := x0 + 30 - (t + k) - 1
+			if xb >= x0 and xb < x0 + 30:
+				PA.px(img, xb, y0 + t, WOOD_L)
+	PA.rect(img, x0 - 2, y0 - 2, 34, 2, WOOD_L)
+	for i in 26:
+		var lx := x0 + 2 + int(PA.rnd(i, int(cx), 4101) * 26.0)
+		var ly := y0 + 3 + int(PA.rnd(i, int(cx), 4102) * 44.0 * (0.5 + 0.5 * PA.rnd(i, 1, 4103)))
+		_leaf_px(img, lx, ly, LEAF_G if i % 3 != 0 else Color("#5c8840"))
+	for i in 4:
+		var gx := x0 + 4 + int(PA.rnd(i, int(cx), 4104) * 22.0)
+		var gy := y0 + 14 + int(PA.rnd(i, int(cx), 4105) * 30.0)
+		PA.rect(img, gx, gy, 2, 3, GOLD)
+		PA.px(img, gx, gy, IV_HI)
 
 
 static func _pilaster(img: Image, x: int, y0: int, hh: int) -> void:

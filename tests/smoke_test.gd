@@ -101,6 +101,7 @@ func _ready() -> void:
 	_test_equipment()
 	await _test_settings()
 	await _test_houses()
+	_test_door_clearance()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -5137,6 +5138,38 @@ func _test_lanternes_mines() -> void:
 			dup += 1
 		names[m.get_string(1)] = true
 	check(keys.size() > 20 and dup == 0, "ambiances : aucune clé en double dans ambiances.json (%d doublon(s))" % dup)
+
+
+## Règle : rien ne se dresse devant une porte de maison (ni lampadaire, ni bannière, ni statue...) :
+## ni dans la bande de la porte, ni sur ses deux lampadaires. Données seules, aucune carte construite.
+func _test_door_clearance() -> void:
+	print("== Abords des portes ==")
+	var skip := ["house", "npc", "warp", "trigger", "light", "encounter_zone", "scatter", "elf_rail", "cav_palissade", "fence", "elf_medallion",
+		"elf_bridge_face", "rug", "isen_flamme", "elf_fountain", "elf_flowers", "elf_pergola", "monster", "sign"]
+	var bad := 0
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		var objs: Array = map.get("objects", [])
+		for h: Variant in objs:
+			if not (h is Dictionary) or str((h as Dictionary).get("type", "")) != "house" or not (h as Dictionary).has("door"):
+				continue
+			var r: Array = (h as Dictionary).get("rect", [0, 0, 5, 4])
+			var xd := float(r[0]) + float((h as Dictionary)["door"])
+			var z1 := float(r[1]) + float(r[3])
+			for o: Variant in objs:
+				if not (o is Dictionary) or skip.has(str((o as Dictionary).get("type", ""))) or not (o as Dictionary).has("pos"):
+					continue
+				var p: Array = (o as Dictionary)["pos"]
+				if p.size() < 2:
+					continue
+				var dx := absf(float(p[0]) - xd)
+				var dz := float(p[1]) - z1
+				var in_strip := dx < 0.9 and dz > -0.3 and dz < 1.6
+				var on_lamp := absf(dx - 1.25) < 0.55 and dz > -0.3 and dz < 0.9 and not ["elf_lantern", "lantern"].has(str((o as Dictionary).get("type", "")))
+				if in_strip or on_lamp:
+					bad += 1
+					check(false, "portes : « %s » (%s en %s) gêne la porte de la maison %s" % [str((o as Dictionary).get("type", "")), id, str(p), str(r)])
+	check(bad == 0, "portes : aucun objet devant une porte de maison")
 
 
 ## Maisons du style par défaut : volumes, variété stable, jouabilité inchangée (emprise, porte, estompage).
