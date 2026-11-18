@@ -38,7 +38,7 @@ Un objet par personnage, rangé par identifiant.
 
 Une ambiance règle la lumière d'un lieu : couleur de fond, lumière ambiante, soleil
 (couleur, force, direction), brume, brume volumétrique, halo, exposition, saturation,
-contraste, et particules (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`,
+contraste, et particules (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`, `embruns`, `feuilles_dorees`, `lueurs`,
 `smoke`).
 
 Champ facultatif `rays` : des rayons de lumière obliques plantés dans le lieu.
@@ -172,6 +172,89 @@ des rampes pour passer de l'un à l'autre :
 
 Tout objet qui porte un champ `dialogue` devient examinable ; `label` change le texte de
 l'invite (« Parler », « Lire », « Examiner »…) et `reach` la distance d'interaction.
+
+## Styles d'architecture : le style elfe
+
+**Règle : le style d'une carte se choisit par les données, jamais par le code.** Une carte
+sans champ `style` garde le village rustique des chapitres 1 et 2 (maisons à colombages,
+pavés, talus brun). Le champ `"style": "elfe"` à la racine d'une carte active les décors
+de Fondue-Combe ; une maison peut aussi porter `"style": "elfe"` seule. Pour donner leur
+architecture aux Nains ou à Mordor, on ajoutera de la même façon un style (un peintre
+`src/gfx/<style>_painter.gd`, un constructeur `src/world/<style>_builder.gd`, un accrochage
+dans `MapBuilder`), sans toucher aux cartes existantes.
+
+### Champs de carte propres au style elfe
+
+- `style` : `"elfe"`.
+- `water` : couleurs de l'eau (`deep`, `shallow`, `ripple`, `glint`) ; torrent et bassins.
+- `valley` : fond de vallée au nord d'une carte d'extérieur (étages boisés, parois de roche
+  claire, cascades). `trees` (arbres par étage, 20), `pine_ratio` (part de pins sur les
+  étages hauts, 0,45), `ledges` (liste de `[z, hauteur]`, par défaut quatre étages),
+  `falls` (liste de `{x, from, to}` : une cascade par étage de `to` à `from`), `enabled`
+  (faux : on garde les talus ordinaires). Les arbres des abords sont ceux du style.
+- `wall_tile` (intérieur) : tuile de mur parmi `elf_wall` (arcature aveugle),
+  `elf_wall_vista` (baies sur la vallée), `elf_wall_books` (niches de livres),
+  `elf_wall_vault` (voûte de pierre grise, grilles) ; `wall_cap` (couleur du chapeau des
+  murs), `wall_glow` (part d'auto-illumination des murs, 0,3).
+- Ambiances `fondue_combe` (fin d'après-midi dorée, rayons obliques, feuilles dorées, lueurs)
+  et `fondue_combe_interieur` (lumière pâle, lueurs).
+
+### Sols (champ `ground`)
+
+`elf_flag` (dallage ivoire), `elf_flag_dim` (dallage assombri), `elf_path` (chemin de gravier
+clair), `elf_lawn` (pelouse, aussi celle des abords), `elf_bridge` (tablier de pont ; à poser
+sur de l'eau, il est franchissable), `elf_parquet` (parquet de bois pâle), `elf_floor_dark`
+(dalles bleu nuit des profondeurs). Les parois du relief utilisent `elf_terrace` (mur de
+terrasse à liseré de lierre), les rampes `elf_steps`. Autres tuiles peintes, pour les
+constructeurs : `elf_wall`, `elf_wall_vista`, `elf_wall_books`, `elf_wall_vault`, `elf_cliff`
+(roche de la vallée), `elf_wood`, `elf_stone`, `elf_column` (fût cannelé), `elf_roof` (toit
+bleu-gris), `elf_roof_vert` (toit vert-de-gris), `elf_glow`.
+
+### Maisons
+
+`{"type": "house", ...}` dans une carte `elfe` devient un pavillon : pierre ivoire, façade
+à arcs brisés, porche à colonnes fines, toit bas bleu-gris ou vert-de-gris à épi doré.
+Mêmes champs que la maison de village (`rect`, `height`, `roof_height`, `door`, `windows`,
+`lit`, `to`, `dialogue`, `if`, `unless`), plus `roof` (`"bleu"` par défaut ou
+`"vert-de-gris"`), `door_open` (arche ouverte et éclairée ; vrai par défaut si `to`),
+`tall` (baies jusqu'à la balustrade), `columns` et `finial` (vrais par défaut). `door_color`,
+`awning` et `chimney` sont ignorés.
+
+### Accessoires (sprites debout, comme `tree` ou `bush`)
+
+Champs communs : `pos`, `variant`, `scale`, `height`, `dialogue`, `label`.
+`elf_column` (colonne, 2 variantes), `elf_arcade` (rangée d'arcades à arcs brisés, 4 variantes :
+1 à 3 arches, la 3 avec balustrade), `elf_tree` (arbre doré, cuivre, bouleau ou vert tendre ;
+4 variantes), `elf_pine` (pin taillé, 2), `elf_hedge` (haie taillée : 0 cône, 1 longue haie,
+2 boule, 3 arche), `elf_bench`, `elf_statue` (2), `elf_fountain` (vasque à deux étages),
+`elf_desk` (pupitre : 0 simple, 1 triple), `elf_forms` (piles de formulaires, 3),
+`elf_seat` (siège à dossier brisé, 2), `elf_bookcase` (bibliothèque en ogive, 3),
+`elf_table` (0 ronde, 1 ovale), `elf_flowers` (3), `elf_leaves` (feuilles mortes au sol, 3),
+`elf_gate` (grande arche d'entrée : 0 large, 1 étroite ; ses deux piles bloquent le passage),
+`elf_banner` (bannière, 2 couleurs), `elf_urn` (urne fleurie, 2), `elf_pergola` (treille),
+`elf_bridge_face` (face d'arche d'un pont de pierre), `elf_ivy` (lierre pendant, 2),
+`elf_stamp` (tampon et encrier).
+
+### Objets construits (propres au style)
+
+- `elf_rail` : balustrade ajourée. `points` (liste de `[x, z]` en cases, au centre de la
+  case ; avec `"exact": true`, en unités), `height` (0,95), `solid` (vrai : bloque le
+  passage). Elle suit la hauteur du relief.
+- `elf_lantern` : lanterne de pierre à verre bleu pâle. `pos`, `height` (2,2), `energy`,
+  `range`, `color`, `shadow`.
+- `elf_column3d` : colonne en volume, `pos`, `height` (3,4) ; bloque le passage.
+- `elf_arcade`, `elf_gate` : le sprite du même nom avec ses obstacles aux piliers.
+- `elf_waterfall` : cascade animée. `pos` (pied de la chute), `base` (hauteur du pied),
+  `height`, `width`, `pool` (bassin d'écume au pied).
+- `elf_pool` : bassin d'eau. `rect`, `y`.
+- `elf_counter` : comptoir de bois pâle avec grille de laiton. `rect`, `height` (1,0),
+  `grille` (vrai).
+- `elf_medallion` : disque d'or et de feuilles posé au sol. `pos`, `radius` (2).
+
+### Particules d'ambiance du style
+
+`embruns` (brume des cascades, posée par les cascades elles-mêmes), `feuilles_dorees`
+(feuilles d'or qui tombent), `lueurs` (lueurs bleu pâle flottantes).
 
 ## Dialogues — `data/dialogues/*.json`
 

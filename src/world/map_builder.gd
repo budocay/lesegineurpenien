@@ -7,6 +7,7 @@ const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const TilePainter = preload("res://src/gfx/tile_painter.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Npc = preload("res://src/world/npc.gd")
+const ElvenBuilder = preload("res://src/world/elven_builder.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -18,6 +19,9 @@ const GROUND := {
 	"planks": {"hard": true}, "floor": {"hard": true},
 	"water": {"hole": true, "solid": true},
 	"void": {"hole": true, "solid": true, "hard": true},
+	# style elfe (voir docs/FORMAT_DONNEES.md)
+	"elf_flag": {}, "elf_flag_dim": {}, "elf_path": {}, "elf_lawn": {},
+	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
 }
 
 ## Accessoires affichés comme des sprites debout.
@@ -49,6 +53,29 @@ const PROPS := {
 	"boat": {"variants": 2},
 	"shelf": {},
 	"window": {"glow": 0.9},
+	# style elfe
+	"elf_column": {"variants": 2, "solid": 0.3},
+	"elf_arcade": {"variants": 4},
+	"elf_tree": {"variants": 4, "solid": 0.42, "sway": 0.05, "flip": true, "jitter": 0.18},
+	"elf_pine": {"variants": 2, "solid": 0.4, "sway": 0.03, "flip": true},
+	"elf_hedge": {"variants": 4, "solid": 0.5},
+	"elf_bench": {"solid": 0.5},
+	"elf_statue": {"variants": 2, "solid": 0.4},
+	"elf_fountain": {"solid": 1.0},
+	"elf_desk": {"variants": 2, "solid": 0.6},
+	"elf_forms": {"variants": 3},
+	"elf_seat": {"variants": 2, "solid": 0.3},
+	"elf_bookcase": {"variants": 3, "solid": 0.5},
+	"elf_table": {"variants": 2, "solid": 0.6},
+	"elf_flowers": {"variants": 3, "sway": 0.02},
+	"elf_leaves": {"variants": 3},
+	"elf_gate": {"variants": 2},
+	"elf_banner": {"variants": 2},
+	"elf_urn": {"variants": 2, "solid": 0.3},
+	"elf_pergola": {},
+	"elf_bridge_face": {},
+	"elf_ivy": {"variants": 2, "sway": 0.02},
+	"elf_stamp": {},
 }
 
 var world: Node3D
@@ -92,6 +119,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		_build_interior_walls()
 	else:
 		_build_outskirts()
+	if ElvenBuilder.is_elven(self):
+		ElvenBuilder.restyle(self)
 
 	var spawns: Dictionary = map.get("spawns", {})
 	for key: String in spawns:
@@ -453,7 +482,8 @@ func _build_outskirts() -> void:
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
-	for i in 120:
+	var rustic := not ElvenBuilder.is_elven(self)   # le style elfe plante ses propres arbres
+	for i in (120 if rustic else 0):
 		var p := Vector3.ZERO
 		if i < 76:
 			p = Vector3(rng.randf_range(-18.0, w + 18.0), 0, rng.randf_range(-18.0, -0.8))
@@ -464,7 +494,7 @@ func _build_outskirts() -> void:
 		p.y = _terrace_height(p.x, p.z)
 		_prop("tree", {"solid": 0.0}, p)
 	# sous-bois des abords : buissons, fougères et touffes au pied de la forêt
-	for i in 150:
+	for i in (150 if rustic else 0):
 		var p := Vector3(rng.randf_range(-12.0, w + 12.0), 0, rng.randf_range(-9.0, -0.4))
 		if i >= 110:
 			var left := i % 2 == 0
@@ -593,7 +623,11 @@ func _object(o: Dictionary) -> void:
 	match type:
 		"monster": _monster(o)
 		"encounter_zone": world.encounter_zones.append({"rect": _rect2(o), "table": str(o.get("table", ""))})
-		"house": _house(o)
+		"house":
+			if ElvenBuilder.style_of(self, o) == "elfe":
+				ElvenBuilder.house(self, o)
+			else:
+				_house(o)
 		"lantern": _lantern(o)
 		"fence": _fence(o)
 		"npc": _npc(o)
@@ -610,6 +644,8 @@ func _object(o: Dictionary) -> void:
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
+			elif ElvenBuilder.object(self, type, o):
+				pass
 			else:
 				push_warning("Type d'objet inconnu dans la carte %s : %s" % [str(map.get("id", "")), type])
 

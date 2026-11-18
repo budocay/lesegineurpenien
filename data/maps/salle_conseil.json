@@ -2,253 +2,58 @@
 	"id": "salle_conseil",
 	"name": "La Salle du Conseil",
 	"region": "Fondue-Combe",
-	"size": [
-		30,
-		16
-	],
+	"size": [30, 16],
 	"interior": true,
 	"wall_height": 3.6,
-	"ambiance": "interieur_chaud",
+	"ambiance": "fondue_combe_interieur",
 	"music": "village",
-	"camera": {
-		"distance": 21,
-		"pitch": 34,
-		"fov": 24,
-		"dof": 0.09,
-		"bounds": [
-			15,
-			7.0,
-			12,
-			6.0
-		]
-	},
-	"ground": {
-		"default": "void",
-		"fills": [
-			{
-				"type": "floor",
-				"rect": [
-					1,
-					2,
-					28,
-					12
-				]
-			},
-			{
-				"type": "floor",
-				"rect": [
-					14,
-					14,
-					2,
-					1
-				]
-			}
-		]
-	},
-	"spawns": {
-		"entree": {
-			"pos": [
-				15.0,
-				12.6
-			],
-			"facing": "up"
-		}
-	},
+	"camera": {"distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [15, 7.0, 12, 6.0]},
+	"ground": {"default": "void", "fills": [{"type": "elf_flag", "rect": [1, 2, 28, 12]}, {"type": "elf_flag", "rect": [14, 14, 2, 1]}]},
+	"spawns": {"entree": {"pos": [15.0, 12.6], "facing": "up"}},
+	"style": "elfe",
+	"wall_tile": "elf_wall_vista",
+	"wall_cap": "#b9b29c",
+	"wall_glow": 0.35,
 	"objects": [
-		{
-			"type": "rug",
-			"rect": [
-				9,
-				7,
-				12,
-				6
-			],
-			"color": "#3a4a6a",
-			"border": "#c9a24a"
-		},
-		{
-			"type": "counter",
-			"rect": [
-				7,
-				4.6,
-				16,
-				1.2
-			]
-		},
-		{
-			"type": "window",
-			"pos": [
-				6,
-				1.56
-			],
-			"height": 1.4,
-			"shadow": false
-		},
-		{
-			"type": "window",
-			"pos": [
-				24,
-				1.56
-			],
-			"height": 1.4,
-			"shadow": false
-		},
-		{
-			"type": "shelf",
-			"pos": [
-				11,
-				1.56
-			],
-			"height": 1.4,
-			"shadow": false
-		},
-		{
-			"type": "shelf",
-			"pos": [
-				19,
-				1.56
-			],
-			"height": 1.4,
-			"shadow": false
-		},
-		{
-			"type": "fireplace",
-			"pos": [
-				15,
-				2
-			],
-			"dialogue": "cheminee_conseil",
-			"label": "Regarder le feu"
-		},
-		{
-			"type": "stool",
-			"pos": [
-				8.5,
-				6.4
-			]
-		},
-		{
-			"type": "stool",
-			"pos": [
-				21.5,
-				6.4
-			]
-		},
-		{
-			"type": "table",
-			"pos": [
-				3.4,
-				9.6
-			],
-			"candle": true
-		},
-		{
-			"type": "table",
-			"pos": [
-				26.6,
-				9.6
-			],
-			"candle": true
-		},
-		{
-			"type": "sign",
-			"pos": [
-				24.5,
-				11.4
-			],
-			"dialogue": "ordre_du_jour",
-			"label": "Lire l'ordre du jour"
-		},
-		{
-			"type": "barrel",
-			"pos": [
-				2.0,
-				3.2
-			]
-		},
-		{
-			"type": "barrel",
-			"pos": [
-				28.0,
-				3.2
-			]
-		},
-		{
-			"type": "light",
-			"pos": [
-				15,
-				6
-			],
-			"height": 2.9,
-			"color": "#ffd890",
-			"energy": 1.6,
-			"range": 12.0
-		},
-		{
-			"type": "light",
-			"pos": [
-				4,
-				8
-			],
-			"height": 1.8,
-			"color": "#ff9a5a",
-			"energy": 0.7,
-			"range": 5.0
-		},
-		{
-			"type": "light",
-			"pos": [
-				26,
-				8
-			],
-			"height": 1.8,
-			"color": "#ff9a5a",
-			"energy": 0.7,
-			"range": 5.0
-		},
-		{
-			"type": "npc",
-			"id": "elrond",
-			"pos": [
-				15,
-				3.6
-			],
-			"facing": "down",
-			"reach": 2.4
-		},
-		{
-			"type": "npc",
-			"id": "bromure",
-			"pos": [
-				11,
-				3.8
-			],
-			"facing": "down",
-			"reach": 2.2,
-			"dialogue": "bromure_salle"
-		},
-		{
-			"type": "npc",
-			"id": "huissier",
-			"pos": [
-				15,
-				9.8
-			],
-			"facing": "down",
-			"reach": 2.0
-		},
-		{
-			"type": "warp",
-			"rect": [
-				14,
-				14.4,
-				2,
-				0.6
-			],
-			"to": {
-				"map": "fondue_combe",
-				"spawn": "conseil_porte"
-			}
-		}
+		{"type": "elf_medallion", "pos": [15, 8.6], "radius": 3.4},
+		{"type": "elf_seat", "pos": [10.2, 10.8], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [9.4, 9.1], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [9.7, 7.3], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [10.8, 5.7], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [12.7, 4.6], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [15.0, 4.2], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [17.3, 4.6], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [19.2, 5.7], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [20.3, 7.3], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [20.6, 9.1], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [19.8, 10.8], "variant": 0, "scale": 0.7},
+		{"type": "elf_table", "pos": [12.8, 5.0], "variant": 0, "scale": 0.85},
+		{"type": "elf_table", "pos": [17.2, 5.0], "variant": 0, "scale": 0.85},
+		{"type": "elf_column3d", "pos": [5.5, 4.2], "height": 3.4},
+		{"type": "elf_column3d", "pos": [5.5, 9.0], "height": 3.4},
+		{"type": "elf_column3d", "pos": [24.5, 4.2], "height": 3.4},
+		{"type": "elf_column3d", "pos": [24.5, 9.0], "height": 3.4},
+		{"type": "elf_banner", "pos": [7.5, 3.6], "variant": 0},
+		{"type": "elf_banner", "pos": [22.5, 3.6], "variant": 1},
+		{"type": "elf_statue", "pos": [2.8, 4.2], "variant": 0},
+		{"type": "elf_statue", "pos": [27.2, 4.2], "variant": 1},
+		{"type": "elf_flowers", "pos": [3.4, 11.6]},
+		{"type": "elf_flowers", "pos": [26.6, 11.6]},
+		{"type": "elf_urn", "pos": [2.4, 12.4], "variant": 0},
+		{"type": "elf_urn", "pos": [27.6, 12.4], "variant": 1},
+		{"type": "elf_desk", "pos": [24.5, 11.4], "variant": 0, "dialogue": "ordre_du_jour", "label": "Lire l'ordre du jour"},
+		{"type": "brazier", "pos": [19.4, 3.0], "dialogue": "cheminee_conseil", "label": "Regarder le feu"},
+		{"type": "brazier", "pos": [10.6, 3.0]},
+		{"type": "elf_lantern", "pos": [3, 13], "height": 2.3, "energy": 1.6},
+		{"type": "elf_lantern", "pos": [27, 13], "height": 2.3, "energy": 1.6},
+		{"type": "elf_lantern", "pos": [8, 2.6], "height": 2.3, "energy": 1.6},
+		{"type": "elf_lantern", "pos": [22, 2.6], "height": 2.3, "energy": 1.6},
+		{"type": "light", "pos": [15, 6], "height": 3.0, "color": "#ffe6b0", "energy": 1.5, "range": 13.0},
+		{"type": "light", "pos": [4, 8], "height": 2.0, "color": "#bcd0ff", "energy": 0.8, "range": 6.0},
+		{"type": "light", "pos": [26, 8], "height": 2.0, "color": "#bcd0ff", "energy": 0.8, "range": 6.0},
+		{"type": "npc", "id": "elrond", "pos": [15, 3.6], "facing": "down", "reach": 2.4},
+		{"type": "npc", "id": "bromure", "pos": [11, 3.8], "facing": "down", "reach": 2.2, "dialogue": "bromure_salle"},
+		{"type": "npc", "id": "huissier", "pos": [15, 9.8], "facing": "down", "reach": 2.0},
+		{"type": "warp", "rect": [14, 14.4, 2, 0.6], "to": {"map": "fondue_combe", "spawn": "conseil_porte"}}
 	]
 }

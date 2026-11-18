@@ -132,6 +132,10 @@ func _ready() -> void:
 	await _frames(150)
 	await _idle()
 	await _shot("44_roseliere")
+	await _elven_shots()
+	main.change_map("roseliere", "ouest")
+	await _frames(150)
+	await _idle()
 
 	# étape 4 : l'étal d'Ursule, le journal, l'équipe, l'inventaire, la boutique
 	await _idle()
@@ -273,6 +277,24 @@ func _save_shots() -> void:
 	await _frames(40)
 	await _shot("53_defaite_sauvegardes")
 	main.saves.close()
+
+
+## Chapitre 3 : Fondue-Combe elfique (place, pont sur le torrent, salle du Conseil).
+func _elven_shots() -> void:
+	for f: String in ["fondue_vue", "archives_vues", "col_vu", "ouest_dit"]:
+		GameState.set_flag(f)
+	main.change_map("fondue_combe", "conseil_porte")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(31.0, 0.0, 12.0), "up")
+	await _shot("54_fondue_combe_place")
+	await _goto(Vector3(46.2, 0.0, 21.2), "left")
+	await _shot("55_fondue_combe_pont")
+	main.change_map("salle_conseil", "entree")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(15.0, 0.0, 11.0), "up")
+	await _shot("56_salle_conseil")
 
 
 func _frames(n: int) -> void:

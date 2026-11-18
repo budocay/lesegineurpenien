@@ -2,234 +2,45 @@
 	"id": "auberge_elfique",
 	"name": "Au Repos Feuillu",
 	"region": "Auberge de Fondue-Combe",
-	"size": [
-		22,
-		13
-	],
+	"size": [22, 13],
 	"interior": true,
 	"wall_height": 3.0,
-	"ambiance": "interieur_chaud",
+	"ambiance": "fondue_combe_interieur",
 	"music": "auberge",
-	"camera": {
-		"distance": 21,
-		"pitch": 34,
-		"fov": 24,
-		"dof": 0.09,
-		"bounds": [
-			11,
-			6.0,
-			9,
-			7.0
-		]
-	},
-	"ground": {
-		"default": "void",
-		"fills": [
-			{
-				"type": "floor",
-				"rect": [
-					1,
-					2,
-					20,
-					9
-				]
-			},
-			{
-				"type": "floor",
-				"rect": [
-					10,
-					11,
-					2,
-					1
-				]
-			}
-		]
-	},
-	"spawns": {
-		"entree": {
-			"pos": [
-				11.0,
-				9.9
-			],
-			"facing": "up"
-		}
-	},
+	"camera": {"distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [11, 6.0, 9, 7.0]},
+	"ground": {"default": "void", "fills": [{"type": "elf_parquet", "rect": [1, 2, 20, 9]}, {"type": "elf_parquet", "rect": [10, 11, 2, 1]}]},
+	"spawns": {"entree": {"pos": [11.0, 9.9], "facing": "up"}},
+	"style": "elfe",
+	"wall_tile": "elf_wall",
+	"wall_cap": "#b9b29c",
+	"wall_glow": 0.3,
 	"objects": [
-		{
-			"type": "rug",
-			"rect": [
-				7.2,
-				6.4,
-				7.6,
-				2.4
-			],
-			"color": "#4a6a7a",
-			"border": "#c9a24a"
-		},
-		{
-			"type": "fireplace",
-			"pos": [
-				3,
-				2
-			],
-			"dialogue": "cheminee_auberge",
-			"label": "Regarder le feu"
-		},
-		{
-			"type": "counter",
-			"rect": [
-				11.0,
-				4.4,
-				5.4,
-				0.6
-			]
-		},
-		{
-			"type": "window",
-			"pos": [
-				7.0,
-				1.56
-			],
-			"height": 1.3,
-			"shadow": false
-		},
-		{
-			"type": "shelf",
-			"pos": [
-				9.4,
-				1.56
-			],
-			"height": 1.35,
-			"shadow": false
-		},
-		{
-			"type": "shelf",
-			"pos": [
-				14.5,
-				1.56
-			],
-			"height": 1.35,
-			"shadow": false
-		},
-		{
-			"type": "table",
-			"pos": [
-				4.2,
-				6.2
-			],
-			"candle": true
-		},
-		{
-			"type": "stool",
-			"pos": [
-				3.0,
-				6.2
-			]
-		},
-		{
-			"type": "stool",
-			"pos": [
-				5.4,
-				6.2
-			]
-		},
-		{
-			"type": "table",
-			"pos": [
-				16.8,
-				8.6
-			],
-			"candle": true
-		},
-		{
-			"type": "stool",
-			"pos": [
-				15.6,
-				8.6
-			]
-		},
-		{
-			"type": "stool",
-			"pos": [
-				18.0,
-				8.6
-			]
-		},
-		{
-			"type": "table",
-			"pos": [
-				3.2,
-				9.6
-			]
-		},
-		{
-			"type": "barrel",
-			"pos": [
-				1.2,
-				3.4
-			]
-		},
-		{
-			"type": "barrel",
-			"pos": [
-				20.4,
-				9.8
-			]
-		},
-		{
-			"type": "crate",
-			"pos": [
-				20.2,
-				6.6
-			],
-			"dialogue": "coffre_auberge",
-			"label": "Ouvrir",
-			"turn": 12
-		},
-		{
-			"type": "light",
-			"pos": [
-				10.5,
-				5.6
-			],
-			"height": 2.7,
-			"color": "#ffc880",
-			"energy": 1.6,
-			"range": 11.0
-		},
-		{
-			"type": "light",
-			"pos": [
-				3.0,
-				9.0
-			],
-			"height": 1.6,
-			"color": "#ff9a5a",
-			"energy": 0.7,
-			"range": 5.0
-		},
-		{
-			"type": "npc",
-			"id": "clairefontaine",
-			"pos": [
-				13.5,
-				3.3
-			],
-			"facing": "down",
-			"reach": 2.4
-		},
-		{
-			"type": "warp",
-			"rect": [
-				10,
-				11.4,
-				2,
-				0.6
-			],
-			"to": {
-				"map": "fondue_combe",
-				"spawn": "auberge_porte"
-			}
-		}
+		{"type": "rug", "rect": [7.2, 6.4, 7.6, 2.4], "color": "#6f8fa6", "border": "#d8b862"},
+		{"type": "fireplace", "pos": [3, 2], "dialogue": "cheminee_auberge", "label": "Regarder le feu"},
+		{"type": "elf_counter", "rect": [11.0, 4.4, 5.4, 0.6], "grille": false},
+		{"type": "elf_bookcase", "pos": [9.4, 2.6], "variant": 1},
+		{"type": "elf_bookcase", "pos": [18.6, 2.6], "variant": 2},
+		{"type": "elf_table", "pos": [4.2, 6.2], "variant": 0, "scale": 0.85},
+		{"type": "elf_seat", "pos": [3.0, 6.2], "variant": 0, "scale": 0.7},
+		{"type": "elf_seat", "pos": [5.4, 6.2], "variant": 1, "scale": 0.7},
+		{"type": "elf_table", "pos": [16.8, 8.6], "variant": 0, "scale": 0.85},
+		{"type": "elf_seat", "pos": [15.6, 8.6], "variant": 1, "scale": 0.7},
+		{"type": "elf_seat", "pos": [18.0, 8.6], "variant": 0, "scale": 0.7},
+		{"type": "elf_table", "pos": [3.2, 9.6], "variant": 0, "scale": 0.85},
+		{"type": "elf_urn", "pos": [1.2, 3.4], "variant": 0},
+		{"type": "elf_urn", "pos": [20.4, 9.8], "variant": 1},
+		{"type": "elf_flowers", "pos": [1.4, 10.2]},
+		{"type": "elf_flowers", "pos": [20.4, 3.2]},
+		{"type": "crate", "pos": [20.2, 6.6], "dialogue": "coffre_auberge", "label": "Ouvrir", "turn": 12},
+		{"type": "elf_banner", "pos": [6.6, 2.6], "variant": 0},
+		{"type": "elf_column3d", "pos": [7, 4.6], "height": 3.0},
+		{"type": "elf_column3d", "pos": [15, 10.4], "height": 3.0},
+		{"type": "elf_lantern", "pos": [1.5, 6.6], "height": 2.2, "energy": 1.5},
+		{"type": "elf_lantern", "pos": [20.5, 4.4], "height": 2.2, "energy": 1.5},
+		{"type": "elf_lantern", "pos": [8, 10.2], "height": 2.2, "energy": 1.5},
+		{"type": "light", "pos": [10.5, 5.6], "height": 2.7, "color": "#ffe0a8", "energy": 1.5, "range": 11.0},
+		{"type": "light", "pos": [3.0, 9.0], "height": 1.6, "color": "#ffb070", "energy": 0.7, "range": 5.0},
+		{"type": "npc", "id": "clairefontaine", "pos": [13.5, 3.3], "facing": "down", "reach": 2.4},
+		{"type": "warp", "rect": [10, 11.4, 2, 0.6], "to": {"map": "fondue_combe", "spawn": "auberge_porte"}}
 	]
 }
