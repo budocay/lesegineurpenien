@@ -8,6 +8,7 @@ render_mode cull_disabled, depth_draw_opaque, specular_disabled;
 uniform sampler2D sheet : source_color, filter_nearest, repeat_disable;
 uniform float sway = 0.0;   // balancement au vent (végétation)
 uniform float glow = 0.0;   // part d'auto-illumination
+uniform float see_through = 1.0;   // 1 : décor qui s'ajoure devant le héros ; 0 : personnage, jamais tramé
 instance uniform vec4 frame_rect = vec4(0.0, 0.0, 1.0, 1.0);
 instance uniform float sway_phase = 0.0;
 instance uniform float flash = 0.0;   // éclair blanc quand un combattant est touché
@@ -31,7 +32,7 @@ void fragment() {
 	if (c.a < 0.5) {
 		discard;
 	}
-	if (in_front > 0.5 && !IN_SHADOW_PASS && focus_clip.w > 0.0) {
+	if (see_through > 0.5 && in_front > 0.5 && !IN_SHADOW_PASS && focus_clip.w > 0.0) {
 		vec2 f = focus_clip.xy / focus_clip.w * 0.5 + 0.5;
 		vec2 d = (SCREEN_UV - f) * vec2(VIEWPORT_SIZE.x / VIEWPORT_SIZE.y, 1.0);
 		float r = length(d * vec2(1.0, 0.75));

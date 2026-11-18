@@ -244,8 +244,10 @@ func cached(key: String, builder: Callable) -> Variant:
 
 # ----------------------------------------------------------------- matériaux
 
-func sprite_material(tex: Texture2D, sway: float = 0.0, glow: float = 0.0) -> ShaderMaterial:
-	var key := "%d:%.3f:%.2f" % [tex.get_instance_id(), sway, glow]
+## « see_through » : le sprite s'ajoure quand il passe devant le héros. Vrai pour les décors,
+## faux pour les personnages et les combattants (un personnage n'est jamais tramé).
+func sprite_material(tex: Texture2D, sway: float = 0.0, glow: float = 0.0, see_through: bool = true) -> ShaderMaterial:
+	var key := "%d:%.3f:%.2f:%s" % [tex.get_instance_id(), sway, glow, see_through]
 	if _materials.has(key):
 		return _materials[key]
 	var m := ShaderMaterial.new()
@@ -253,6 +255,7 @@ func sprite_material(tex: Texture2D, sway: float = 0.0, glow: float = 0.0) -> Sh
 	m.set_shader_parameter("sheet", tex)
 	m.set_shader_parameter("sway", sway)
 	m.set_shader_parameter("glow", glow)
+	m.set_shader_parameter("see_through", 1.0 if see_through else 0.0)
 	_materials[key] = m
 	return m
 

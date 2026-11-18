@@ -28,7 +28,7 @@ func setup(p_sheet: Dictionary) -> void:
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(w, h)
 	_quad.mesh = mesh
-	_quad.material_override = Sprites.sprite_material(tex)
+	_quad.material_override = Sprites.sprite_material(tex, 0.0, 0.0, false)
 	_quad.position.y = h * 0.5 - float(sheet.foot) / ppu
 	_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 	add_child(_quad)

@@ -47,7 +47,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		var glow := float(sp.get("glow", 0.0))
 		if glow > 0.0:
 			var tex: Texture2D = Sprites.character(str(sp["character"]))["texture"]
-			_quad.material_override = Sprites.sprite_material(tex, 0.0, glow)
+			_quad.material_override = Sprites.sprite_material(tex, 0.0, glow, false)
 	else:
 		_sheet = Sprites.monster(str(sp.get("monster", "")))
 		var ppu := float(_sheet["ppu"])
@@ -57,7 +57,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		var mesh := QuadMesh.new()
 		mesh.size = Vector2(w, h)
 		_quad.mesh = mesh
-		_quad.material_override = Sprites.sprite_material(_sheet["texture"], 0.0, float(sp.get("glow", 0.0)))
+		_quad.material_override = Sprites.sprite_material(_sheet["texture"], 0.0, float(sp.get("glow", 0.0)), false)
 		_quad.position.y = h * 0.5 - float(_sheet["foot"]) / ppu
 		_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 		_body.add_child(_quad)

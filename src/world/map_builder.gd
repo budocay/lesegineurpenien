@@ -927,7 +927,7 @@ func _monster(o: Dictionary) -> void:
 	mesh.size = Vector2(float(sheet["frame_w"]) / ppu, float(sheet["frame_h"]) / ppu)
 	quad.mesh = mesh
 	var tex: Texture2D = sheet["texture"]
-	quad.material_override = Sprites.sprite_material(tex)
+	quad.material_override = Sprites.sprite_material(tex, 0.0, 0.0, false)
 	quad.position.y = mesh.size.y * 0.5 - float(sheet["foot"]) / ppu
 	quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 	node.add_child(quad)
