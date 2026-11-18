@@ -3427,10 +3427,27 @@ func _test_arenas() -> void:
 		var arena: Dictionary = Database.arenas[id]
 		var stage: Dictionary = arena.get("stage", {})
 		for key: String in stage:
-			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center"].has(key), "arène %s : champ stage.%s connu" % [id, key])
+			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck"].has(key), "arène %s : champ stage.%s connu" % [id, key])
 		check(float(stage.get("edge", 0.2)) >= 0.0 and float(stage.get("edge", 0.2)) <= 1.0, "arène %s : bords assombris dans [0, 1]" % id)
 		check(float(stage.get("flatten", 0.6)) >= 0.0 and float(stage.get("flatten", 0.6)) <= 1.0, "arène %s : aplat du sol dans [0, 1]" % id)
 		check(float(stage.get("boost", 0.5)) >= 0.0 and float(stage.get("key", 1.6)) >= 0.0, "arène %s : lumière positive" % id)
+		# le sol est celui de son lieu : sa texture reste visible (pas aplatie en terre unie), il est connu et peint
+		check(float(stage.get("flatten", 0.15)) <= 0.35, "arène %s : le sol garde sa texture (aplat %.2f)" % [id, float(stage.get("flatten", 0.15))])
+		check(float(stage.get("desat", 0.0)) <= 0.2, "arène %s : le sol garde ses couleurs" % id)
+		var ground_tiles: Array = [str(arena.get("ground", "grass"))]
+		if (stage.get("patches", {}) as Dictionary).has("tile"):
+			ground_tiles.append(str(stage["patches"]["tile"]))
+		for tile: String in ground_tiles:
+			var timg: Image = Sprites.tile_image(tile)
+			check(timg != null and not timg.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "arène %s : tuile de sol %s peinte" % [id, tile])
+		check(str(arena.get("ground", "grass")) != "soil", "arène %s : pas de terre nue (le sol est celui du lieu)" % id)
+		for key: String in ["tint"]:
+			check(str(stage.get(key, "#ffffff")).begins_with("#"), "arène %s : stage.%s est une couleur" % [id, key])
+		for group: String in ["patches", "puddles", "fleck"]:
+			check(stage.get(group, {}) is Dictionary, "arène %s : stage.%s est un bloc" % [id, group])
+		check(float((stage.get("patches", {}) as Dictionary).get("amount", 0.3)) <= 1.0, "arène %s : taches de sol dans [0, 1]" % id)
+		check(float((stage.get("puddles", {}) as Dictionary).get("amount", 0.1)) <= 0.4, "arène %s : flaques au plus 40 %%" % id)
+		check(float((stage.get("fleck", {}) as Dictionary).get("density", 0.04)) <= 0.2, "arène %s : semis de fleurs léger" % id)
 		var radius: Array = stage.get("radius", [12.0, 7.5])
 		check(radius.size() == 2 and float(radius[0]) > 3.0 and float(radius[1]) > 3.0, "arène %s : nappe de lumière assez large" % id)
 		check(str(stage.get("light", "#ffd9a0")).begins_with("#"), "arène %s : couleur de lumière" % id)
@@ -3568,12 +3585,25 @@ func _test_elven_scenery() -> void:
 	await get_tree().process_frame
 
 
-## Composition du combat : camps de chaque côté, tout le monde dans le cadre, interface dans la fenêtre.
+## Composition du combat : camps de chaque côté, tout le monde dans le cadre, interface dans la fenêtre,
+## et rien qui se chevauche : plaques d'ennemis entre elles, menu de chacun des héros face aux autres
+## combattants, aux plaques et aux fiches.
 func _test_battle_layout() -> void:
+	var foes5 := ["limace_molle", "guepe_cidre", "limace_molle", "guepe_cidre", "limace_molle"]
 	var cases := [
 		{"allies": ["pepin"], "enemies": ["limace_molle"], "arena": "pre"},
-		{"allies": ["pepin", "sam", "froton"], "enemies": ["limace_molle", "guepe_cidre", "limace_molle", "guepe_cidre", "limace_molle"], "arena": "bois"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": foes5, "arena": "bois"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": foes5, "arena": "marais"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": ["vacherin"], "arena": "pre"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": ["crapaud_buffle"], "arena": "place"},
+		{"allies": ["pepin", "sam"], "enemies": ["gardien_archives", "limace_molle", "guepe_cidre"], "arena": "grand_four"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": ["vacherin", "crapaud_buffle", "vacherin", "crapaud_buffle", "vacherin"], "arena": "bois"},
 	]
+	# la fenêtre sans écran est carrée : on la met au format du jeu (16/9) pour mesurer la mise en page
+	var win := get_window()
+	var old_size := win.size
+	win.size = Vector2i(1280, 720)
+	await get_tree().process_frame
 	for cs: Dictionary in cases:
 		GameState.new_game()
 		for who: String in cs["allies"]:
@@ -3588,35 +3618,92 @@ func _test_battle_layout() -> void:
 		scene.fast = true
 		scene.setup({"enemies": cs["enemies"], "arena": cs["arena"]}, ui, 5)
 		scene.run()
-		for _i in 600:
-			await get_tree().process_frame
-			if ui._state == ui.S.ROOT:
+		var tag: String = "%s (%d alliés, %d ennemis)" % [cs["arena"], cs["allies"].size() + 1, cs["enemies"].size()]
+		var seen := {}
+		for _turn in 40:
+			for _i in 600:
+				await get_tree().process_frame
+				if ui._state == ui.S.ROOT or scene.engine.result != "":
+					break
+			if scene.engine.result != "" or ui._state != ui.S.ROOT:
 				break
-		await get_tree().process_frame
-		await get_tree().process_frame
-		var view: Rect2 = ui.get_viewport_rect()
-		var tag: String = "%s (%d ennemis)" % [cs["arena"], cs["enemies"].size()]
-		check(scene.engine.party.size() <= 4, "%s : au plus quatre alliés" % tag)
-		check(scene.engine.enemies.size() >= 1 and scene.engine.enemies.size() <= 5, "%s : un à cinq ennemis" % tag)
-		for a: RefCounted in scene.engine.party:
-			check(_in_frame(scene, a), "%s : allié dans le cadre" % tag)
-			check(scene.actors[a.key].anchor("center").x > 0.0, "%s : alliés à droite" % tag)
-		for e: RefCounted in scene.engine.enemies:
-			check(_in_frame(scene, e), "%s : ennemi dans le cadre" % tag)
-			check(scene.actors[e.key].anchor("center").x < 0.0, "%s : ennemis à gauche" % tag)
-		check(ui._state == ui.S.ROOT, "%s : menu de commande ouvert" % tag)
-		var mr: Rect2 = ui._root_panel.get_global_rect()
-		check(mr.size.x > 0.0 and view.encloses(mr), "%s : menu dans la fenêtre" % tag)
-		check(ui._rows.size() == scene.engine.party.size(), "%s : une fiche par allié" % tag)
-		for k: Variant in ui._rows:
-			var card: Control = ui._rows[k]["card"]
-			check(view.encloses(card.get_global_rect()), "%s : fiche alliée dans la fenêtre" % tag)
-		var fr: Rect2 = ui._timeline.get_global_rect()
-		check(ui._timeline.get_child_count() > 2 and view.encloses(fr), "%s : frise des tours dans la fenêtre" % tag)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var hero: RefCounted = ui._actor
+			for pc: RefCounted in scene.engine.party:   # les héros ne tombent pas pendant la mesure
+				pc.hp = pc.max_hp()
+			if not seen.has(hero.key):
+				seen[hero.key] = true
+				_check_battle_frame(scene, ui, tag, seen.size() == 1)
+				_check_menu_clear(scene, ui, "%s, menu de %s" % [tag, str(hero.name)])
+			if seen.size() >= scene.engine.party.size():
+				break
+			ui._choose({"type": "defend"})
+		check(seen.size() == scene.engine.party.size(), "%s : le menu s'ouvre pour chacun des %d héros (%d vus)" % [tag, scene.engine.party.size(), seen.size()])
 		ui.close()
 		remove_child(scene)
 		scene.queue_free()
 		layer.queue_free()
+	win.size = old_size
+
+
+## Cadre, fiches, frise et plaques d'un combat arrivé au premier menu.
+func _check_battle_frame(scene: Node3D, ui: Control, tag: String, first: bool) -> void:
+	var view: Rect2 = ui.get_viewport_rect()
+	if first:
+		check(is_equal_approx(view.size.x / view.size.y, 16.0 / 9.0), "%s : fenêtre de mesure au format 16/9 (%s)" % [tag, str(view.size)])
+	check(scene.engine.party.size() <= 4, "%s : au plus quatre alliés" % tag)
+	check(scene.engine.enemies.size() >= 1 and scene.engine.enemies.size() <= 5, "%s : un à cinq ennemis" % tag)
+	for a: RefCounted in scene.engine.party:
+		check(_in_frame(scene, a), "%s : allié dans le cadre" % tag)
+		check(scene.actors[a.key].anchor("center").x > 0.0, "%s : alliés à droite" % tag)
+	for e: RefCounted in scene.engine.enemies:
+		check(_in_frame(scene, e), "%s : ennemi %s entier dans le cadre" % [tag, str(e.name)])
+		check(scene.actors[e.key].anchor("center").x < 0.0, "%s : ennemis à gauche" % tag)
+	if not first:
+		return
+	var mr: Rect2 = ui._root_panel.get_global_rect()
+	check(mr.size.x > 0.0 and view.encloses(mr), "%s : menu dans la fenêtre" % tag)
+	check(ui._rows.size() == scene.engine.party.size(), "%s : une fiche par allié" % tag)
+	for k: Variant in ui._rows:
+		var card: Control = ui._rows[k]["card"]
+		check(view.encloses(card.get_global_rect()), "%s : fiche alliée dans la fenêtre" % tag)
+	var fr: Rect2 = ui._timeline.get_global_rect()
+	check(ui._timeline.get_child_count() > 2 and view.encloses(fr), "%s : frise des tours dans la fenêtre" % tag)
+	# plaques des ennemis : dans la fenêtre, jamais l'une sur l'autre, jamais sur le sprite d'un autre ennemi
+	var keys: Array = []
+	for e: RefCounted in scene.engine.enemies:
+		if e.alive():
+			keys.append(e)
+	for i in keys.size():
+		var ri: Rect2 = (ui._plates[keys[i].key]["root"] as Control).get_global_rect()
+		check(view.encloses(ri), "%s : plaque de %s dans la fenêtre" % [tag, str(keys[i].name)])
+		for j in range(i + 1, keys.size()):
+			var rj: Rect2 = (ui._plates[keys[j].key]["root"] as Control).get_global_rect()
+			check(not ri.intersects(rj), "%s : plaques de %s et %s sans recouvrement" % [tag, str(keys[i].name), str(keys[j].name)])
+		for j in keys.size():
+			if j != i:
+				check(not ri.intersects(scene.screen_rect(keys[j])), "%s : plaque de %s hors du sprite de %s" % [tag, str(keys[i].name), str(keys[j].name)])
+
+
+## Le menu de celui qui joue ne couvre ni un autre combattant, ni une plaque, ni les fiches, ni la frise.
+func _check_menu_clear(scene: Node3D, ui: Control, tag: String) -> void:
+	var mr: Rect2 = ui._root_panel.get_global_rect()
+	check(mr.size.x > 0.0 and ui.get_viewport_rect().encloses(mr), "%s : dans la fenêtre" % tag)
+	for c: RefCounted in scene.engine.all():
+		if c == ui._actor or (c.side == "enemy" and not c.alive()):
+			continue
+		var body: Rect2 = scene.screen_rect(c).grow(-4.0)
+		check(not mr.intersects(body), "%s : ne couvre pas %s" % [tag, str(c.name)])
+	var own: Rect2 = scene.screen_rect(ui._actor, true).grow(-20.0)   # marge : quand la place manque, un coin du menu peut frôler le bord du sprite
+	check(not mr.intersects(own), "%s : ne couvre pas celui qui joue" % tag)
+	for k: String in ui._plates:
+		var root: Control = ui._plates[k]["root"]
+		if root.visible:
+			check(not mr.intersects(root.get_global_rect()), "%s : ne couvre pas la plaque de %s" % [tag, k])
+	for k: Variant in ui._rows:
+		check(not mr.intersects((ui._rows[k]["card"] as Control).get_global_rect()), "%s : ne couvre pas une fiche" % tag)
+	check(not mr.intersects(ui._timeline.get_global_rect()), "%s : ne couvre pas la frise" % tag)
 
 
 ## Vrai si le combattant tient dans un écran 16/9 (calcul en espace monde : la fenêtre sans écran n'a pas le bon format).
@@ -3815,3 +3902,4 @@ func _test_equipment() -> void:
 		for key: String in Rules.EXTRA:
 			check(st.has(key), "%s : la caractéristique %s existe après chargement" % [who, key])
 	SaveManager.delete_save()
+	return absf(p.x) + scene.actors[c.key].half_width() < half_w - 0.05

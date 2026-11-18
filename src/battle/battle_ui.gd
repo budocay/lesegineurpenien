@@ -45,6 +45,9 @@ var _last_list := {}        # "skill"/"item" -> dernier identifiant choisi
 var _last_enemy := ""
 var _target_frame := -1
 var _time := 0.0
+var _menu_sig := 0           # signature de la scène au dernier placement des menus
+var _root_pos := Vector2.ZERO
+var _list_pos := Vector2.ZERO
 
 var _timeline: HBoxContainer      # frise des tours : actif, cinq suivants, « Ensuite », cinq autres
 var _tl_gap: Label                # étiquette de la seconde frise
@@ -587,9 +590,16 @@ func show_hint(text: String) -> void:
 
 
 ## Texte qui s'envole au-dessus d'un combattant (dégâts, soins, états).
-func popup(at: Vector2, text: String, color: Color = Color.WHITE, size: int = 30) -> void:
+## « lift » : de combien le texte est remonté au-dessus de « at » (chiffre, puis « Faiblesse ! » au-dessus).
+## Un texte qui retomberait sur les fiches de l'équipe est descendu d'un même décalage pour toute sa pile.
+func popup(at: Vector2, text: String, color: Color = Color.WHITE, size: int = 30, lift: float = 0.0) -> void:
 	if scene == null or scene.fast:
 		return
+	at.y -= lift
+	var panel := _party_panel.get_global_rect()
+	if panel.size.x > 0.0 and at.x > panel.position.x - 40.0 and at.x < panel.end.x + 40.0:
+		var stack_top := at.y + lift - 110.0   # le haut de la plus haute ligne d'une pile
+		at.y += maxf(0.0, panel.end.y + 6.0 - stack_top)
 	var l := UI.label(text, size, color, true)
 	l.add_theme_constant_override("outline_size", 8)
 	l.add_theme_color_override("font_outline_color", Color(0.05, 0.035, 0.09))
@@ -651,35 +661,89 @@ func _has_usable_item() -> bool:
 	return false
 
 
-## Le menu s'ouvre à côté du personnage qui joue, sans sortir de l'image ; la liste
-## (compétences, objets) se décale en cascade vers le bas et la gauche.
+## Rectangles d'écran que les menus ne doivent couvrir : combattants (celui qui joue à la place
+## où il se tient), plaques des ennemis, fiches de l'équipe, bandeau du haut (frise, cartouche,
+## conseil) et rappels de touches.
+func _obstacles(view: Vector2) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for c: RefCounted in engine.all():
+		if c.side == "enemy" and not c.alive():
+			continue
+		out.append(scene.screen_rect(c, c == _actor).grow(6.0))
+	for key: String in _plates:
+		var root: Control = (_plates[key] as Dictionary)["root"]
+		if root.visible:
+			out.append(Rect2(root.position, root.size).grow(4.0))
+	out.append(_party_panel.get_global_rect().grow(6.0))
+	out.append(Rect2(0.0, 0.0, view.x, 172.0))
+	if _hint.visible:
+		out.append(_hint.get_global_rect().grow(6.0))
+	out.append(Rect2(0.0, view.y - 56.0, 460.0, 56.0))
+	return out
+
+
+## Meilleure place pour un rectangle de cette taille : la plus proche de « prefer » parmi celles
+## qui ne couvrent aucun obstacle ; s'il n'y en a pas, celle qui en couvre le moins.
+static func free_spot(size: Vector2, prefer: Vector2, obstacles: Array[Rect2], view: Vector2) -> Vector2:
+	var x_max := maxf(10.0, view.x - size.x - 10.0)
+	var y_max := maxf(10.0, view.y - size.y - 14.0)
+	var best := Vector2(clampf(prefer.x, 10.0, x_max), clampf(prefer.y, 10.0, y_max))
+	var best_score := INF
+	var coarse := 28.0
+	var passes := 2
+	var span_x := Vector2(10.0, x_max)
+	var span_y := Vector2(10.0, y_max)
+	var step := coarse
+	for _p in passes:
+		var y := span_y.x
+		while y <= span_y.y + 0.01:
+			var x := span_x.x
+			while x <= span_x.y + 0.01:
+				var r := Rect2(x, y, size.x, size.y)
+				var area := 0.0
+				for o: Rect2 in obstacles:
+					if r.intersects(o):
+						area += r.intersection(o).get_area()
+				var score := area * 30.0 + Vector2(x, y).distance_to(prefer)
+				if score < best_score:
+					best_score = score
+					best = Vector2(x, y)
+				x += step
+			y += step
+		# seconde passe : affinage autour du meilleur point
+		span_x = Vector2(maxf(10.0, best.x - coarse), minf(x_max, best.x + coarse))
+		span_y = Vector2(maxf(10.0, best.y - coarse), minf(y_max, best.y + coarse))
+		step = 7.0
+	return best
+
+
+## Le menu s'ouvre près du personnage qui joue, mais jamais sur un autre combattant, une plaque,
+## une fiche ou la frise : on cherche la place libre la plus proche (voir free_spot). La liste
+## (compétences, objets) se range de même, de préférence en cascade sous le menu.
 func _place_menu() -> void:
 	if not _menu_box.visible or _actor == null or scene == null:
 		return
 	var view := size if size.x > 0.0 else Vector2(1280, 720)
 	_root_panel.reset_size()
 	_list_panel.reset_size()
-	var c: Vector2 = scene.screen_point(_actor, "center")
-	var rw := _root_panel.size.x
-	var rh := _root_panel.size.y
-	var top := clampf(c.y - 96.0, 120.0, view.y - rh - 18.0)
-	var edge := c.x - 64.0
-	for o: RefCounted in engine.party:
-		if o != _actor and o.alive():
-			var q: Vector2 = scene.screen_point(o, "center")
-			if q.x < c.x and q.y > top - 60.0 and q.y < top + rh + 20.0:
-				edge = minf(edge, q.x - 56.0)   # le menu se range à gauche des alliés qu'il couvrirait...
-	var min_left := 10.0
-	for e: RefCounted in engine.enemies:
-		if e.alive():
-			min_left = maxf(min_left, (scene.screen_point(e, "center") as Vector2).x + 70.0)   # ...sans jamais couvrir un ennemi
-	var x := minf(maxf(edge - rw, min_left), c.x - 40.0 - rw)
-	var root_pos := Vector2(clampf(x, 10.0, view.x - rw - 10.0), top)
-	_root_panel.position = root_pos
+	var obstacles := _obstacles(view)
+	var sig := hash([_state, _list_panel.visible, Vector2i(_root_panel.size), Vector2i(_list_panel.size), Vector2i(view)])
+	for o: Rect2 in obstacles:
+		sig = hash([sig, int(o.position.x / 5.0), int(o.position.y / 5.0), int(o.size.x / 5.0), int(o.size.y / 5.0)])
+	if sig != _menu_sig:
+		_menu_sig = sig
+		var c: Vector2 = scene.screen_point(_actor, "center")
+		var rw := _root_panel.size.x
+		var rh := _root_panel.size.y + 14.0   # marge : la ligne choisie s'ouvre sous son nom (une ou deux lignes d'aide)
+		var stepped: Rect2 = scene.screen_rect(_actor, true)
+		_root_pos = free_spot(Vector2(rw, rh), Vector2(stepped.position.x - 24.0 - rw, c.y - 96.0), obstacles, view)
+		if _list_panel.visible:
+			var lw := _list_panel.size.x
+			var lh := _list_panel.size.y
+			_list_pos = free_spot(Vector2(lw, lh), Vector2(_root_pos.x - 40.0, _root_pos.y + 44.0), obstacles, view)
+	_root_panel.position = _root_pos
 	if _list_panel.visible:
-		var lw := _list_panel.size.x
-		var lh := _list_panel.size.y
-		_list_panel.position = Vector2(clampf(root_pos.x - 40.0, 10.0, view.x - lw - 10.0), clampf(root_pos.y + 44.0, 120.0, view.y - lh - 18.0))
+		_list_panel.position = _list_pos
 
 
 func _set_root_live(live: bool) -> void:
@@ -871,22 +935,72 @@ func _process(delta: float) -> void:
 	if scene == null or engine == null:
 		return
 	_time += delta
-	for c: RefCounted in engine.enemies:
-		var plate: Dictionary = _plates.get(c.key, {})
-		if plate.is_empty():
-			continue
-		var root: Control = plate["root"]
-		if root.visible:
-			var p: Vector2 = scene.screen_point(c, "feet")
-			root.position = (p + Vector2(-root.size.x * 0.5, 8.0)).round()
+	_layout_plates()
 	if _state == S.TARGET:
+		var panel := _party_panel.get_global_rect()
 		for i in _cands.size():
 			if i >= _cursors.size() or not _cursors[i].visible:
 				continue
-			var p: Vector2 = scene.screen_point(_cands[i], "top")
-			_cursors[i].position = p + Vector2(0.0, -34.0 + sin(_time * 7.0) * 4.0)
+			var p: Vector2 = scene.screen_point(_cands[i], "top") + Vector2(0.0, -34.0)
+			# le curseur ne se cache jamais derrière les fiches : il descend sous elles
+			if p.x > panel.position.x - 20.0 and p.y - 22.0 < panel.end.y + 4.0:
+				p.y = panel.end.y + 28.0
+			_cursors[i].position = p + Vector2(0.0, sin(_time * 7.0) * 4.0)
 	_place_menu()
 
+
+## Plaques des ennemis : chacune sous les pieds de son ennemi, puis écartées jusqu'à ne plus se
+## toucher ni toucher un autre ennemi (on pousse sur l'axe où le recouvrement est le plus faible).
+func _layout_plates() -> void:
+	var view := size if size.x > 0.0 else Vector2(1280, 720)
+	var keys: Array = []
+	var rects: Dictionary = {}
+	var own: Dictionary = {}
+	for c: RefCounted in engine.enemies:
+		var plate: Dictionary = _plates.get(c.key, {})
+		if plate.is_empty() or not (plate["root"] as Control).visible:
+			continue
+		var root: Control = plate["root"]
+		var body: Rect2 = scene.screen_rect(c)   # sous le sprite visible (un volant a sa plaque sous lui, pas sous son ombre)
+		rects[c.key] = Rect2((Vector2(body.get_center().x - root.size.x * 0.5, body.end.y + 8.0)).round(), root.size)
+		own[c.key] = body
+		keys.append(c.key)
+	for _pass in 12:
+		var moved := false
+		for i in keys.size():
+			var ka: String = keys[i]
+			var ra: Rect2 = rects[ka]
+			for j in range(i + 1, keys.size()):
+				var kb: String = keys[j]
+				var rb: Rect2 = rects[kb]
+				var ov := ra.grow(3.0).intersection(rb.grow(3.0))
+				if not ra.grow(3.0).intersects(rb.grow(3.0)):
+					continue
+				moved = true
+				if ov.size.x <= ov.size.y:
+					var sign_a := 1.0 if ra.get_center().x >= rb.get_center().x else -1.0
+					ra.position.x += sign_a * (ov.size.x * 0.5 + 1.0)
+					rb.position.x -= sign_a * (ov.size.x * 0.5 + 1.0)
+				elif ra.get_center().y >= rb.get_center().y:
+					ra.position.y += ov.size.y + 1.0
+				else:
+					rb.position.y += ov.size.y + 1.0
+				rects[kb] = rb
+			# jamais sur le sprite d'un autre ennemi : on descend sous lui
+			for kc: String in keys:
+				if kc == ka:
+					continue
+				var sp: Rect2 = own[kc]
+				if ra.intersects(sp):
+					ra.position.y = sp.end.y + 2.0
+					moved = true
+			ra.position.x = clampf(ra.position.x, 6.0, maxf(6.0, view.x - ra.size.x - 6.0))
+			ra.position.y = clampf(ra.position.y, 6.0, maxf(6.0, view.y - ra.size.y - 6.0))
+			rects[ka] = ra
+		if not moved:
+			break
+	for k: String in keys:
+		((_plates[k] as Dictionary)["root"] as Control).position = (rects[k] as Rect2).position.round()
 
 
 func _input(event: InputEvent) -> void:
@@ -947,6 +1061,8 @@ func _end_panel(title: String, color: Color) -> VBoxContainer:
 	_menu_box.visible = false
 	_keys.visible = false
 	_hide_cursors()
+	for k: String in _plates:   # les plaques des ennemis ne transparaissent pas sous l'écran de fin
+		((_plates[k] as Dictionary)["root"] as Control).visible = false
 	for c in _end_layer.get_children():
 		c.queue_free()
 	_end_layer.visible = true

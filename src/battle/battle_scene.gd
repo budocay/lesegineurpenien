@@ -56,6 +56,7 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	_build_camera()
 	_place(engine.party, 1.0)
 	_place(engine.enemies, -1.0)
+	_fit_steps()
 	fx = BattleFx.new()
 	fx.name = "Fx"
 	add_child(fx)
@@ -105,11 +106,29 @@ func _ground_material(tile: String, size: Vector2, stage: Dictionary) -> ShaderM
 	m.set_shader_parameter("tex", Sprites.tile_texture(tile))
 	m.set_shader_parameter("uv_scale", size / MeshKit.TEX_UNITS)
 	m.set_shader_parameter("base", Color(avg.r, avg.g, avg.b))
-	m.set_shader_parameter("flatten", float(stage.get("flatten", 0.6)))
-	m.set_shader_parameter("grain", float(stage.get("grain", 0.05)))
-	m.set_shader_parameter("pool_color", Database.color(stage.get("light", "#ffd9a0"), Color("#ffd9a0")))
-	m.set_shader_parameter("pool_boost", float(stage.get("boost", 0.5)))
-	m.set_shader_parameter("edge", float(stage.get("edge", 0.2)))
+	m.set_shader_parameter("flatten", float(stage.get("flatten", 0.15)))
+	m.set_shader_parameter("grain", float(stage.get("grain", 0.04)))
+	m.set_shader_parameter("variation", float(stage.get("variation", 0.09)))
+	m.set_shader_parameter("tint", Database.color(stage.get("tint", "#ffffff"), Color.WHITE))
+	m.set_shader_parameter("pool_color", Database.color(stage.get("light", "#ffe9c8"), Color("#ffe9c8")))
+	m.set_shader_parameter("pool_boost", float(stage.get("boost", 0.45)))
+	m.set_shader_parameter("edge", float(stage.get("edge", 0.45)))
+	var patches: Dictionary = stage.get("patches", {})
+	if not patches.is_empty():
+		m.set_shader_parameter("tex2", Sprites.tile_texture(str(patches.get("tile", "grass"))))
+		m.set_shader_parameter("patch_amount", float(patches.get("amount", 0.3)))
+		m.set_shader_parameter("patch_tint", Database.color(patches.get("tint", "#ffffff"), Color.WHITE))
+	var puddles: Dictionary = stage.get("puddles", {})
+	if not puddles.is_empty():
+		m.set_shader_parameter("puddle_amount", float(puddles.get("amount", 0.15)))
+		m.set_shader_parameter("puddle_color", Database.color(puddles.get("color", "#3d6466"), Color("#3d6466")))
+	var fleck: Dictionary = stage.get("fleck", {})
+	if not fleck.is_empty():
+		m.set_shader_parameter("fleck_density", float(fleck.get("density", 0.04)))
+		var cols: Array = fleck.get("colors", ["#f4f0e0", "#f2d24a"])
+		m.set_shader_parameter("fleck_a", Database.color(cols[0], Color("#f4f0e0")))
+		m.set_shader_parameter("fleck_b", Database.color(cols[cols.size() - 1], Color("#f2d24a")))
+		m.set_shader_parameter("tuft_color", Database.color(fleck.get("tuft", "#73b150"), Color("#73b150")))
 	m.set_shader_parameter("desat", float(stage.get("desat", 0.0)))
 	var r: Array = stage.get("radius", [12.0, 7.5])
 	m.set_shader_parameter("pool_radius", Vector2(float(r[0]), float(r[1])))
@@ -368,6 +387,52 @@ func actor_of(c: RefCounted) -> Node3D:
 	return actors.get(c.key)
 
 
+## Rectangle (pixels) que le sprite d'un combattant couvre à l'écran. Avec « stepped », à la
+## place qu'il prend quand il joue (un pas en avant) ; sinon à sa place de départ.
+func screen_rect(c: RefCounted, stepped: bool = false) -> Rect2:
+	var a: Node3D = actors.get(c.key)
+	if a == null or camera == null:
+		return Rect2()
+	var at: Vector3 = a.stepped_home() if stepped else a.home
+	var hw: float = a.half_width()
+	var tall: float = a.height
+	if a.down:   # un combattant à terre est couché : plus large que haut
+		hw *= 1.5
+		tall *= 0.4
+	var bottom := camera.unproject_position(at + Vector3(-hw, a._hover, 0.0))
+	var top := camera.unproject_position(at + Vector3(hw, tall + a._hover, 0.0))
+	return Rect2(bottom.x, top.y, top.x - bottom.x, bottom.y - top.y).abs()
+
+
+## Longueur du pas en avant d'un combattant : le pas normal, réduit au besoin pour qu'il ne
+## recouvre aucun voisin (calcul sur les rectangles d'écran, pas de valeur au cas par cas).
+## Refait au début de chaque tour : un voisin tombé ne se trouve pas au même endroit qu'un voisin debout.
+func _fit_step(c: RefCounted) -> void:
+	var a: Node3D = actors[c.key]
+	var best := 0.7
+	var best_area := INF
+	var s := 0.7
+	while s >= -0.001:
+		a.step = s
+		var r := screen_rect(c, true).grow_individual(-6.0, 0.0, -6.0, 0.0)
+		var area := 0.0
+		for o: RefCounted in engine.all():
+			if o != c and (o.alive() or o.side == "party"):
+				area += r.intersection(screen_rect(o).grow_individual(-6.0, 0.0, -6.0, 0.0)).get_area()
+		if area < best_area - 1.0:
+			best_area = area
+			best = s
+		if area <= 0.0:
+			break
+		s -= 0.05
+	a.step = best
+
+
+func _fit_steps() -> void:
+	for c: RefCounted in engine.all():
+		_fit_step(c)
+
+
 ## Position à l'écran d'un combattant ("top", "center" ou "feet").
 func screen_point(c: RefCounted, where: String = "center") -> Vector2:
 	var a: Node3D = actors.get(c.key)
@@ -442,6 +507,7 @@ func run() -> void:
 		ui.set_active(actor)
 		await _play(engine.start_turn(actor))
 		if engine.result == "" and engine.can_act:
+			_fit_step(actor)
 			a.set_active(true)
 			var action: Dictionary
 			if actor.side == "enemy":
@@ -541,9 +607,9 @@ func _play(events: Array) -> void:
 					fx.screen_flash(Color.WHITE, 0.18, 0.15)
 				ui.popup(screen_point(target, "top"), str(int(e.get("amount", 0))), color, 40 if (weak or bool(e.get("crit", false))) else 32)
 				if weak:
-					ui.popup(screen_point(target, "top") + Vector2(0, -52), "Faiblesse !", Color("#ffd27a"), 22)
+					ui.popup(screen_point(target, "top"), "Faiblesse !", Color("#ffd27a"), 22, 52.0)
 				elif bool(e.get("crit", false)):
-					ui.popup(screen_point(target, "top") + Vector2(0, -52), "Critique !", Color("#ffb060"), 22)
+					ui.popup(screen_point(target, "top"), "Critique !", Color("#ffb060"), 22, 52.0)
 				ui.refresh()
 				await _wait(0.42)
 			"break":
@@ -570,7 +636,7 @@ func _play(events: Array) -> void:
 			"mana":
 				if int(e.get("amount", 0)) > 0:
 					fx.puff("drop", ta, "rise", 3)
-					ui.popup(screen_point(target, "top") + Vector2(0, -28), "+%d PM" % int(e["amount"]), Color("#8ab8ff"), 24)
+					ui.popup(screen_point(target, "top"), "+%d PM" % int(e["amount"]), Color("#8ab8ff"), 24, 28.0)
 					ui.refresh()
 					await _wait(0.3)
 			"status":
@@ -592,7 +658,7 @@ func _play(events: Array) -> void:
 				ui.refresh()
 				await _wait(0.4)
 			"wake":
-				ui.popup(screen_point(target, "top") + Vector2(0, -30), "Se réveille", Color("#d8c8ff"), 22)
+				ui.popup(screen_point(target, "top"), "Se réveille", Color("#d8c8ff"), 22, 30.0)
 				ui.refresh()
 			"status_end":
 				ui.refresh()
@@ -638,9 +704,9 @@ func _play(events: Array) -> void:
 			"steal":
 				if int(e.get("amount", 0)) > 0:
 					Sfx.play("coin")
-					ui.popup(screen_point(target, "top") + Vector2(0, -30), "+%d écus" % int(e["amount"]), Color("#ffd27a"), 24)
+					ui.popup(screen_point(target, "top"), "+%d écus" % int(e["amount"]), Color("#ffd27a"), 24, 30.0)
 				else:
-					ui.popup(screen_point(target, "top") + Vector2(0, -30), "Poches vides", Color("#b9b2a6"), 22)
+					ui.popup(screen_point(target, "top"), "Poches vides", Color("#b9b2a6"), 22, 30.0)
 				await _wait(0.4)
 			"flee":
 				if bool(e.get("ok", false)):
