@@ -231,14 +231,14 @@ static func _morfale_arm(sx: float, sy: float, arms: String, s: int, sleeve: Arr
 
 # ------------------------------------------------------------------------ Naze
 
-static func _naze(view: int) -> void:
+static func _naze(look: Dictionary, view: int) -> void:
 	var cx := 44.0
 	var bob := float(_p["bob"])
 	var lean := float(_p["lean"]) if view == 1 else 0.0
 	var arms := str(_p["arms"])
 	var robe: Array = _c["top"]
 	var iron: Array = _c["iron"]
-	var glow := Color("#b8f0ff")
+	var glow := Color(str(look.get("glow", "#b8f0ff")))
 	var void_c := Color("#07060c")
 	var foot := float(FRAME_H - 1 - FOOT_MARGIN)
 	var top_y := foot - 94.0 + bob

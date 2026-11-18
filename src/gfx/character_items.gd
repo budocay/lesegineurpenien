@@ -326,7 +326,7 @@ static func _stow_front(kind: String, cx: float, belt_y: float) -> void:
 		"serpe":
 			_obj("serpe", Vector2(ax + 1.0, belt_y - 1.0), 100.0)
 		"hache", "marteau":
-			_obj(kind, Vector2(ax, belt_y + 22.0), -97.0)
+			_obj(kind, Vector2(ax + 4.0, belt_y + 22.0), -97.0)
 		"poele":
 			_obj("poele", Vector2(ax + 1.0, belt_y + 1.0), 95.0)
 		"registre":

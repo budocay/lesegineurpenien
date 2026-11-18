@@ -49,7 +49,7 @@ static func _paint_cell(look: Dictionary, c: Dictionary, col: int, row: int) -> 
 		"morfale":
 			Species._morfale(look, view)
 		"naze":
-			Species._naze(view)
+			Species._naze(look, view)
 		_:
 			match view:
 				0:

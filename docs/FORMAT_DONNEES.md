@@ -29,6 +29,14 @@ Un objet par personnage, rangé par identifiant.
   - `hat` : `none`, `magicien`, `toque`, `casquette`, `capuche`, `chapeau_paille`,
     `foulard` ; `hat_color`, `band`.
   - `item` : `baton`, `pipe`.
+  - `held` : objet tenu en main (arme ou outil), dessiné dans les quatre directions :
+    `poele`, `epee`, `rapiere`, `dague`, `serpe`, `hache`, `marteau`, `arc`, `registre`,
+    `gigot` (objets courts) ; `fourche`, `lance`, `balai` (longues hampes). Au repos,
+    un objet court est rangé (ceinture, dos, hanche) et une hampe reste droite dans la main ;
+    en marche il est en main ; à l'attaque et au sort il est brandi ; au KO il tombe à terre.
+    Les Morfales (`species`) le tiennent toujours en main. Vide ou absent : rien en main.
+  - `glow` : couleur de la lueur (yeux, bouche, lame) d'un Naze (`species` `naze`) ;
+    défaut bleu pâle.
   - Facultatifs (dessin des personnages) : `cape` (couleur d'une cape dans le dos),
     `eye` (couleur des yeux), `ears` (`elfe` : longues oreilles pointues), `crest`
     (`cornes` : cornes sur un `heaume`). Les planches peintes par code font 48 x 72 px
