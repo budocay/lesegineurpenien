@@ -22,14 +22,16 @@
 		{"rect": [16, 6, 2, 2], "dir": "up", "from": 0.0, "to": 1.2}
 	],
 	"spawns": {
-		"est": {"pos": [49.8, 8.5], "facing": "left"}
+		"est": {"pos": [49.8, 8.5], "facing": "left"},
+		"ouest": {"pos": [3.0, 8.5], "facing": "right"}
 	},
 	"on_enter": [
 		{"dialogue": "arrivee_route", "unless": "route_vue"}
 	],
 	"objects": [
 		{"type": "warp", "rect": [51.4, 7.5, 0.6, 3], "to": {"map": "bittebourg", "spawn": "route_ouest"}},
-		{"type": "trigger", "rect": [0.8, 7.5, 1.2, 3], "dialogue": "fin_chapitre_1"},
+		{"type": "trigger", "rect": [0.8, 7.5, 1.2, 3], "dialogue": "fin_chapitre_1", "unless": "chapitre_1_fini"},
+		{"type": "warp", "rect": [0, 7.5, 0.7, 3], "to": {"map": "brie", "spawn": "route"}, "if": "chapitre_1_fini"},
 
 		{"type": "encounter_zone", "rect": [30, 2, 14, 5], "table": "route_brie"},
 		{"type": "encounter_zone", "rect": [8, 11, 14, 5], "table": "route_brie"},

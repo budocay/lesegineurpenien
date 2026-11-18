@@ -21,9 +21,12 @@ const FACES := {
 	"sanglier": {"eyes": [[35, 15, 3, 2]], "mouth": [36, 21, 4, 2]},
 	"grenouille": {"eyes": [[22, 6, 3, 3], [28, 7, 3, 3]], "mouth": [24, 14, 8, 3]},
 	"follet": {"eyes": [[8, 16, 3, 3], [14, 16, 3, 3]], "mouth": [10, 21, 4, 3]},
+	"rat": {"eyes": [[30, 12, 3, 3]], "mouth": [33, 18, 5, 2]},
+	"coq": {"eyes": [[30, 8, 3, 3]], "mouth": [33, 12, 4, 2]},
 }
 const FAMILY := {"baveuse": "limace", "sangsue": "limace", "frelon": "guepe", "amanite": "champignon",
-	"solitaire": "sanglier", "crapaud": "grenouille"}
+	"solitaire": "sanglier", "crapaud": "grenouille",
+	"asticot": "limace", "vacherin": "limace", "mouche": "guepe", "moisi": "champignon"}
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -39,6 +42,12 @@ const SIZES := {
 	"grenouille": Vector2i(36, 28),
 	"crapaud": Vector2i(36, 28),
 	"follet": Vector2i(24, 32),
+	"rat": Vector2i(40, 26),
+	"coq": Vector2i(40, 40),
+	"asticot": Vector2i(38, 26),
+	"vacherin": Vector2i(38, 26),
+	"mouche": Vector2i(32, 30),
+	"moisi": Vector2i(32, 34),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -433,3 +442,77 @@ static func _wisp(img: Image, ox: int, f: int) -> void:
 	PA.px(img, ox + 11, 22, dark)
 	PA.px(img, ox + 12, 21, dark)
 	PA.px(img, ox + 13, 22, dark)
+
+
+## Rat de cave : long, gris, les dents en avant, la queue qui traîne.
+static func _rat(img: Image, ox: int, f: int) -> void:
+	var dark := _c("#4a4650")
+	var mid := _c("#7c7886")
+	var light := _c("#aaa6b4")
+	var pink := _c("#e0a0a8")
+	var dy := f
+	# pattes
+	for x: int in [12, 15, 23, 26]:
+		PA.rect(img, ox + x, 20 + dy, 2, 5 - dy, dark)
+	# queue en point d'interrogation
+	PA.line(img, ox + 8, 17 + dy, ox + 3, 18 + dy, pink)
+	PA.line(img, ox + 3, 18 + dy, ox + 1, 14 + dy, pink)
+	PA.px(img, ox + 1, 13 + dy, pink)
+	# corps, ventre clair, tête, museau
+	PA.ellipse(img, ox + 18.0, 16.0 + dy, 11.0, 6.0, mid)
+	PA.ellipse(img, ox + 18.0, 19.5 + dy, 8.0, 2.4, light)
+	PA.ellipse(img, ox + 29.0, 15.0 + dy, 6.0, 5.0, mid)
+	PA.ellipse(img, ox + 35.0, 16.5 + dy, 3.5, 2.5, light)
+	# oreille ronde, œil, nez, dents
+	PA.ellipse(img, ox + 26.5, 9.5 + dy, 3.0, 3.0, mid)
+	PA.ellipse(img, ox + 26.5, 9.5 + dy, 1.6, 1.6, pink)
+	PA.rect(img, ox + 30, 12 + dy, 3, 3, Color.WHITE)
+	PA.px(img, ox + 32, 13 + dy, dark)
+	PA.px(img, ox + 38, 16 + dy, pink)
+	PA.rect(img, ox + 35, 19 + dy, 2, 2, Color.WHITE)
+	# moustaches
+	PA.line(img, ox + 36, 17 + dy, ox + 39, 15 + dy, light)
+	PA.line(img, ox + 36, 18 + dy, ox + 39, 19 + dy, light)
+
+
+## Coq : droit comme un i, crête haute, queue en panache. Rien ne le ramollit.
+static func _rooster(img: Image, ox: int, f: int) -> void:
+	var rust := _c("#b4562c")
+	var rust_l := _c("#e08a48")
+	var gold := _c("#e8b84a")
+	var red := _c("#d8302c")
+	var green := _c("#2e8a6a")
+	var blue := _c("#2a5aa0")
+	var beak := _c("#f0c040")
+	var dark := _c("#2b1b2e")
+	var puff := f   # la poitrine se gonfle à la seconde pose
+	# queue en panache, derrière le corps
+	PA.line(img, ox + 9, 24, ox + 2, 8, green)
+	PA.line(img, ox + 10, 23, ox + 5, 6, blue)
+	PA.line(img, ox + 11, 24, ox + 9, 5, green)
+	PA.line(img, ox + 8, 26, ox + 1, 14, blue)
+	PA.line(img, ox + 3, 8, ox + 5, 7, green)
+	# pattes et éperons
+	PA.rect(img, ox + 15, 32, 2, 6, beak)
+	PA.rect(img, ox + 22, 32, 2, 6, beak)
+	PA.rect(img, ox + 13, 37, 5, 1, beak)
+	PA.rect(img, ox + 20, 37, 5, 1, beak)
+	# corps, poitrine, aile
+	PA.ellipse(img, ox + 17.0, 25.0, 11.0, 8.5, rust)
+	PA.ellipse(img, ox + 24.0, 25.0, 7.0 + puff, 7.0 + puff, rust_l)
+	PA.ellipse(img, ox + 15.0, 25.0, 7.0, 4.5, _c("#8a3a20"))
+	# cou et collerette dorée, tête
+	PA.ellipse(img, ox + 26.0, 16.0, 4.5, 7.0, gold)
+	PA.ellipse(img, ox + 29.0, 10.0, 4.5, 4.5, rust_l)
+	# crête, barbillon, bec
+	PA.ellipse(img, ox + 27.0, 4.5, 1.8, 2.2, red)
+	PA.ellipse(img, ox + 29.5, 4.0, 1.8, 2.4, red)
+	PA.ellipse(img, ox + 32.0, 5.0, 1.6, 2.0, red)
+	PA.ellipse(img, ox + 33.0, 14.5, 1.4, 2.6, red)
+	PA.rect(img, ox + 33, 9, 5, 2, beak)
+	PA.px(img, ox + 37, 10, beak)
+	PA.rect(img, ox + 33, 11, 4, 1, _c("#c89a2c"))
+	# œil rond et sourcil sévère
+	PA.rect(img, ox + 30, 8, 3, 3, Color.WHITE)
+	PA.px(img, ox + 31, 9, dark)
+	PA.rect(img, ox + 30, 7, 4, 1, dark)

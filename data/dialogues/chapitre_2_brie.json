@@ -1,0 +1,259 @@
+{
+	"arrivee_brie": [
+		{
+			"banner": "Chapitre 2",
+			"sub": "Brie"
+		},
+		{
+			"text": "Brie. Une enseigne à chaque porte, une charrette à chaque coin, et partout la même odeur de croûte."
+		},
+		{
+			"who": "sam",
+			"text": "Ça sent le fromage. Beaucoup. De tous les côtés à la fois."
+		},
+		{
+			"who": "pepine",
+			"text": "Regardez entre les pavés. L'herbe se tient. À peine, mais elle se tient."
+		},
+		{
+			"who": "fripon",
+			"text": "Trois mille bourses dans cette seule rue. Je dis ça comme ça."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une auberge, d'abord. Un lit, une chope, puis nous demanderons ce que Brie sait de l'anneau. Dans cet ordre, de préférence."
+		},
+		{
+			"text": "Au nord de la place, une enseigne se balance : un poney bleu, la tête basse, les genoux fléchis. LE PONEY FLAGADA. Lits pour toutes les tailles."
+		},
+		{
+			"set": "brie_vue"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"lambert": [
+		{
+			"if": "nazes_vaincu",
+			"then": [
+				{
+					"text": "Lambert salue de la pique, ce qu'il n'avait jamais fait."
+				},
+				{
+					"who": "lambert",
+					"text": "On dit qu'il y a eu du bruit, cette nuit, au Poney. Je n'ai rien entendu. Je dormais. Au poste. C'est un tort."
+				}
+			],
+			"else": [
+				{
+					"who": "lambert",
+					"text": "Lambert, garde de la porte de Brie. On ferme à la nuit, à cause du courant d'air."
+				},
+				{
+					"who": "lambert",
+					"text": "Hier, trois cavaliers noirs sont passés. Pas un mot. Ils ont reniflé une tomme, longuement, et ils sont repartis vers l'ouest. Les chevaux, eux, avaient l'air de s'excuser."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Ils ne se sont pas arrêtés en ville ?"
+				},
+				{
+					"who": "lambert",
+					"text": "Non. Mais ils ont demandé le chemin du Poney Flagada. Poliment. C'est ce qui m'a le plus inquiété."
+				}
+			]
+		}
+	],
+	"hermine": [
+		{
+			"who": "hermine",
+			"text": "Mon fromage a coulé du plat, ce matin. Pas fondu : coulé. Il avait l'air triste."
+		},
+		{
+			"who": "hermine",
+			"text": "De mon temps, un fromage mou restait mou. On ne lui demandait pas davantage. Maintenant, tout est mou, et plus rien n'est ferme sur sa position."
+		},
+		{
+			"who": "pepine",
+			"text": "Elle n'a pas tort."
+		}
+	],
+	"colin": [
+		{
+			"who": "colin",
+			"text": "On joue à qui reste debout le plus longtemps. Je gagne toujours. Les autres s'assoient."
+		},
+		{
+			"who": "colin",
+			"text": "Même mon chien s'est assis. Il a dit qu'il réfléchissait."
+		},
+		{
+			"who": "sam",
+			"text": "Un chien qui réfléchit. Nous sommes en retard sur le Comté, monsieur Glandoulf."
+		}
+	],
+	"panneau_brie_est": [
+		{
+			"name": "Panneau",
+			"text": "BRIE. Foire permanente, fromages de saison, auberge du Poney Flagada. « Ici, on ne ferme jamais, sauf à la nuit. »"
+		},
+		{
+			"text": "Quelqu'un a ajouté au charbon : « Et le dimanche. Et quand il pleut. »"
+		}
+	],
+	"panneau_brie_ouest": [
+		{
+			"name": "Panneau",
+			"text": "Route de l'ouest : FONDUE-COMBE, cinq jours. « Les voyageurs sont priés de s'annoncer. Les Elfes aiment savoir qui arrive. Ils aiment surtout qu'on le leur ait écrit. »"
+		}
+	],
+	"enseigne_poney": [
+		{
+			"text": "Un poney bleu, peint à plat, qui a l'air de vouloir s'allonger. Dessous, en lettres soigneuses : « Le Poney Flagada. Lits pour toutes les tailles. Fondé par un homme qui avait besoin de s'asseoir. »"
+		}
+	],
+	"porte_mairie": [
+		{
+			"text": "La mairie de Brie. Un papier est cloué sur la porte : « Fermée. Revenez demain. Ou après-demain. Le maire est parti chercher un maire. »"
+		}
+	],
+	"porte_forgeron": [
+		{
+			"text": "La forge. À l'intérieur, on entend un marteau, puis un soupir, puis le même marteau. Quelqu'un redresse des fers à cheval qui se recourbent aussitôt."
+		},
+		{
+			"who": "fripon",
+			"text": "Il y en a pour la nuit."
+		}
+	],
+	"porte_cure": [
+		{
+			"text": "Une maison de brique, volets clos. Sur le seuil, un plat de lait caillé, intact. Un chat dort dessus, ou dedans."
+		}
+	],
+	"sidonie": [
+		{
+			"if": "sidonie_vue",
+			"then": [
+				{
+					"who": "sidonie",
+					"text": "Du frais, du sec, du mou et de l'utile. Servez-vous, mais sans trop vous pencher sur l'étal : il n'est plus très droit.",
+					"choice": [
+						{
+							"text": "Voir l'étal",
+							"then": [
+								{
+									"shop": "marche_sidonie"
+								},
+								{
+									"who": "sidonie",
+									"text": "À votre service. Je ne bouge pas, de toute façon."
+								}
+							]
+						},
+						{
+							"text": "Plus tard",
+							"then": [
+								{
+									"who": "glandoulf",
+									"text": "Plus tard. J'ai horreur de compter debout."
+								}
+							]
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"who": "sidonie",
+					"text": "Sidonie Rissole, marchande de tout et de ce qui reste. Vous venez du Comté ? Ça se voit à la poussière : elle est couchée sur vos épaules."
+				},
+				{
+					"who": "sidonie",
+					"text": "Je vends de quoi se soigner, de quoi se battre et de quoi s'habiller pour les deux. Et je prends en paiement ce qui brille, ce qui roule et ce qui tient debout."
+				},
+				{
+					"who": "fripon",
+					"text": "Ce qui tient debout. Voilà un moyen de paiement que je n'avais pas envisagé."
+				},
+				{
+					"set": "sidonie_vue"
+				},
+				{
+					"shop": "marche_sidonie"
+				}
+			]
+		}
+	],
+	"fin_chapitre_2": [
+		{
+			"if": "chapitre_2_fini",
+			"then": [
+				{
+					"who": "glandoulf",
+					"text": "Fondue-Combe est par là. Cinq jours de marche. Rien ne presse : le formulaire nous attendra."
+				},
+				{
+					"text": "(La suite du voyage arrivera avec le chapitre 3. En attendant, Brie reste ouverte.)"
+				}
+			],
+			"else": [
+				{
+					"text": "La route de l'ouest quitte Brie entre deux murets. Au loin, derrière les collines, une brume claire, presque bleue : la vallée des Elfes."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Je vous accompagne jusqu'à Fondue-Combe. Pas pour l'anneau. Pour savoir qui l'aura, et ce qu'il en fera."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Vous avez mille fois mieux à faire, rôdeur."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Non. Je n'ai que des choses que j'évite, ce qui prend beaucoup de temps."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Il me regarde encore. Il me regarde depuis hier. [i](Qu'est-ce qu'il croit voir ? Un vieux monsieur qui n'a pas dormi.)[/i]"
+				},
+				{
+					"who": "pepine",
+					"text": "La convocation dit trois exemplaires. Je n'ai qu'un exemplaire de patience."
+				},
+				{
+					"who": "sam",
+					"text": "J'ai pris du fromage. Il tient. C'est le seul."
+				},
+				{
+					"who": "fripon",
+					"text": "Un Conseil. Avec des Elfes. Des gens qui décident à plusieurs de ce qui revient à un seul. Ça sent la bourse mal gardée."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Allons. Et que personne ne marche trop vite : nous avons des formulaires à remplir sur la route."
+				},
+				{
+					"set": "chapitre_2_fini"
+				},
+				{
+					"chapter": "chapitre_3"
+				},
+				{
+					"banner": "Fin du chapitre 2",
+					"sub": "Brie"
+				},
+				{
+					"action": "save"
+				},
+				{
+					"text": "FIN DU CHAPITRE 2. La partie est sauvegardée. Le voyage reprendra à Fondue-Combe, au chapitre 3."
+				},
+				{
+					"text": "(En attendant, vous pouvez rester à Brie pour terminer ce qui reste à faire.)"
+				}
+			]
+		}
+	]
+}

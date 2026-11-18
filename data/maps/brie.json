@@ -1,0 +1,634 @@
+{
+	"id": "brie",
+	"name": "Brie",
+	"region": "Bourg marchand, aux portes du Comté",
+	"size": [
+		60,
+		32
+	],
+	"ambiance": "crepuscule",
+	"music": "brie",
+	"ramollissement": 0.15,
+	"title_focus": [
+		30,
+		14
+	],
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "grass",
+		"fills": [
+			{
+				"type": "path",
+				"rect": [
+					0,
+					14,
+					60,
+					2
+				]
+			},
+			{
+				"type": "cobble",
+				"rect": [
+					22,
+					10,
+					14,
+					9
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					41,
+					10,
+					2,
+					4
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					15,
+					10,
+					2,
+					4
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					29,
+					19,
+					2,
+					13
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					26,
+					10,
+					1,
+					1
+				]
+			}
+		]
+	},
+	"spawns": {
+		"route": {
+			"pos": [
+				57.5,
+				15.0
+			],
+			"facing": "left"
+		},
+		"sud": {
+			"pos": [
+				30.0,
+				29.6
+			],
+			"facing": "up"
+		},
+		"poney_porte": {
+			"pos": [
+				42.5,
+				10.7
+			],
+			"facing": "down"
+		},
+		"fromagerie_porte": {
+			"pos": [
+				16.5,
+				10.7
+			],
+			"facing": "down"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "arrivee_brie",
+			"unless": "brie_vue"
+		}
+	],
+	"objects": [
+		{
+			"type": "house",
+			"rect": [
+				36,
+				4,
+				12,
+				6
+			],
+			"height": 3.4,
+			"roof_height": 2.2,
+			"roof": "rouge",
+			"door": 6,
+			"windows": [
+				1.6,
+				4.0,
+				8.0,
+				10.4
+			],
+			"door_color": "#3a5a8a",
+			"to": {
+				"map": "poney_flagada",
+				"spawn": "entree"
+			}
+		},
+		{
+			"type": "house",
+			"rect": [
+				12,
+				5,
+				8,
+				5
+			],
+			"roof": "chaume",
+			"door": 4,
+			"windows": [
+				1.2,
+				6.2
+			],
+			"door_color": "#d9a23a",
+			"to": {
+				"map": "fromagerie",
+				"spawn": "entree"
+			}
+		},
+		{
+			"type": "house",
+			"rect": [
+				23,
+				5,
+				7,
+				5
+			],
+			"roof": "ardoise",
+			"door": 3.5,
+			"windows": [
+				1.0,
+				5.4
+			],
+			"door_color": "#6a4a3a",
+			"dialogue": "porte_mairie"
+		},
+		{
+			"type": "house",
+			"rect": [
+				4,
+				6,
+				6,
+				4
+			],
+			"roof": "vert",
+			"door": 3,
+			"windows": [
+				1.0,
+				4.4
+			],
+			"door_color": "#3f7a52",
+			"lit": false,
+			"dialogue": "porte_cure"
+		},
+		{
+			"type": "house",
+			"rect": [
+				51,
+				5,
+				6,
+				5
+			],
+			"roof": "ardoise",
+			"door": 3,
+			"windows": [
+				1.2,
+				4.2
+			],
+			"door_color": "#5a3a2a",
+			"dialogue": "porte_forgeron"
+		},
+		{
+			"type": "house",
+			"rect": [
+				50,
+				11,
+				5,
+				3
+			],
+			"height": 2.2,
+			"roof_height": 1.4,
+			"roof": "chaume",
+			"door": 2.5,
+			"windows": [
+				0.8,
+				4.0
+			],
+			"door_color": "#7a5a3a",
+			"dialogue": "ecurie",
+			"label": "Entrer dans l'écurie"
+		},
+		{
+			"type": "sign",
+			"pos": [
+				39.4,
+				10.7
+			],
+			"dialogue": "enseigne_poney",
+			"label": "Lire"
+		},
+		{
+			"type": "sign",
+			"pos": [
+				56.2,
+				13.3
+			],
+			"dialogue": "panneau_brie_est",
+			"label": "Lire"
+		},
+		{
+			"type": "sign",
+			"pos": [
+				3.6,
+				13.3
+			],
+			"dialogue": "panneau_brie_ouest",
+			"label": "Lire"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				0.8,
+				13,
+				1.2,
+				4
+			],
+			"dialogue": "fin_chapitre_2",
+			"if": "nazes_vaincu"
+		},
+		{
+			"type": "npc",
+			"id": "lambert",
+			"pos": [
+				55.3,
+				16.9
+			],
+			"facing": "up",
+			"reach": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "sidonie",
+			"pos": [
+				31.0,
+				12.3
+			],
+			"facing": "down",
+			"reach": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "hermine",
+			"pos": [
+				20.5,
+				17.2
+			],
+			"facing": "right",
+			"wander": 1.2
+		},
+		{
+			"type": "npc",
+			"id": "colin",
+			"pos": [
+				26.0,
+				16.8
+			],
+			"facing": "down",
+			"wander": 2.0
+		},
+		{
+			"type": "crate",
+			"pos": [
+				29.6,
+				11.4
+			],
+			"turn": 8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				32.5,
+				11.5
+			],
+			"turn": -12
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				33.4,
+				12.2
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				28.6,
+				12.3
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				24.2,
+				17.8
+			],
+			"turn": 20
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				34.4,
+				17.6
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				34.4,
+				12.0
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				21,
+				11
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				37,
+				11
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				21,
+				18
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				37,
+				18
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				8,
+				13.4
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				18,
+				16.6
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				46,
+				13.4
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				52,
+				16.6
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				28.2,
+				22
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				31.8,
+				26
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				44.5,
+				10.6
+			]
+		},
+		{
+			"type": "warp",
+			"rect": [
+				59.3,
+				13.5,
+				0.7,
+				3
+			],
+			"to": {
+				"map": "route_brie",
+				"spawn": "ouest"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				28.5,
+				31.2,
+				3,
+				0.8
+			],
+			"to": {
+				"map": "ferme_pinard",
+				"spawn": "nord"
+			}
+		},
+		{
+			"type": "tree",
+			"pos": [
+				10.5,
+				18.5
+			],
+			"variant": 1
+		},
+		{
+			"type": "tree",
+			"pos": [
+				47.5,
+				19.5
+			],
+			"variant": 2
+		},
+		{
+			"type": "tree",
+			"pos": [
+				19.5,
+				12.0
+			],
+			"variant": 3
+		},
+		{
+			"type": "tree",
+			"pos": [
+				58.0,
+				11.0
+			],
+			"variant": 0
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				0,
+				60,
+				3.6
+			],
+			"count": 44,
+			"min_dist": 1.6,
+			"seed": 21,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				17,
+				26,
+				15
+			],
+			"count": 22,
+			"min_dist": 2.2,
+			"seed": 22,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				34,
+				17,
+				26,
+				15
+			],
+			"count": 22,
+			"min_dist": 2.2,
+			"seed": 23,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				4,
+				3,
+				10
+			],
+			"count": 6,
+			"min_dist": 1.8,
+			"seed": 24,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "bush",
+			"rect": [
+				0,
+				3,
+				60,
+				28
+			],
+			"count": 24,
+			"min_dist": 2.2,
+			"seed": 25,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				0,
+				17,
+				60,
+				14
+			],
+			"count": 6,
+			"min_dist": 3.5,
+			"seed": 26,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "flowers",
+			"rect": [
+				0,
+				3,
+				60,
+				28
+			],
+			"count": 50,
+			"min_dist": 0.9,
+			"seed": 27,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "grass",
+			"rect": [
+				0,
+				3,
+				60,
+				28
+			],
+			"count": 150,
+			"min_dist": 0.55,
+			"seed": 28,
+			"on": [
+				"grass"
+			]
+		}
+	]
+}

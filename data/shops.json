@@ -1,4 +1,8 @@
 {
+	"marche_sidonie": {"name": "L'étal de Sidonie", "keeper": "sidonie", "sell_ratio": 0.5, "greeting": "Du frais, du sec, du mou et de l'utile. Sidonie rachète aussi, à moitié prix.", "stock": [{"item": "tisane"}, {"item": "tisane_corsee"}, {"item": "cidre"}, {"item": "decoction"}, {"item": "remontant"}, {"item": "tomme_fermiere"}, {"item": "fusee_poche"}, {"item": "racine", "if": "poney_couche_vu"}, {"item": "pourpoint_cuir"}, {"item": "epee_voyageur"}, {"item": "bottines_brie"}]},
+	"fromagerie_persille": {"name": "La fromagerie Persillé", "keeper": "persille", "sell_ratio": 0.5, "greeting": "Tout est ferme. Je le répète, pour que cela devienne vrai.", "stock": [{"item": "tomme_fermiere", "price": 10}, {"item": "bleu_persille", "price": 16}, {"item": "tisane_corsee"}]},
+	"marche_sidonie": {"name": "L'étal de Sidonie", "keeper": "sidonie", "sell_ratio": 0.5, "greeting": "Du frais, du sec, du mou et de l'utile. Sidonie rachète aussi, à moitié prix.", "stock": [{"item": "tisane"}, {"item": "tisane_corsee"}, {"item": "cidre"}, {"item": "decoction"}, {"item": "remontant"}, {"item": "tomme_fermiere"}, {"item": "fusee_poche"}, {"item": "racine", "if": "poney_couche_vu"}, {"item": "pourpoint_cuir"}, {"item": "epee_voyageur"}, {"item": "bottines_brie"}]},
+	"fromagerie_persille": {"name": "La fromagerie Persillé", "keeper": "persille", "sell_ratio": 0.5, "greeting": "Tout est ferme. Je le répète, pour que cela devienne vrai.", "stock": [{"item": "tomme_fermiere", "price": 10}, {"item": "bleu_persille", "price": 16}, {"item": "tisane_corsee"}]},
 	"etal_ursule": {
 		"name": "L'étal d'Ursule",
 		"keeper": "ursule",

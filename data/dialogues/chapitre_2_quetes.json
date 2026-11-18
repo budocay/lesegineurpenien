@@ -1,0 +1,535 @@
+{
+	"persille": [
+		{
+			"if": "persille_paye",
+			"then": [
+				{
+					"who": "persille",
+					"text": "Le Vacherin est parti, la cave respire, et mes bleus ont repris leurs bonnes manières : ils moisissent chez eux, tranquillement. Je vous dois tout. Surtout de l'argent, mais je suis en train de le gagner.",
+					"choice": [
+						{
+							"text": "Voir les fromages",
+							"then": [
+								{
+									"shop": "fromagerie_persille"
+								},
+								{
+									"who": "persille",
+									"text": "Mangez-les vite. Un fromage de Brie n'attend pas : il a déjà beaucoup attendu."
+								}
+							]
+						},
+						{
+							"text": "Au revoir",
+							"then": [
+								{
+									"who": "glandoulf",
+									"text": "Que vos meules tiennent, maître Persillé."
+								}
+							]
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"if": "vacherin_vaincu",
+					"then": [
+						{
+							"who": "persille",
+							"text": "Alors ? Vous êtes remontés ? Vous avez l'air d'avoir croisé quelque chose de très crémeux."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Le Vacherin est parti. Il ne reviendra pas, ou alors beaucoup plus lentement."
+						},
+						{
+							"text": "Anatole Persillé reste un instant sans voix. Puis il se précipite à la trappe, descend trois barreaux, et revient, les yeux brillants, un bleu à la main."
+						},
+						{
+							"who": "persille",
+							"text": "Il est ferme. Ferme ! Pas dur : ferme. Un fromage qui se tient. Mon père en pleurerait. Ma dette en pleurera aussi : je vais pouvoir payer Barnabé."
+						},
+						{
+							"who": "persille",
+							"text": "Je ne peux pas vous donner d'écus, je n'en ai plus. Mais prenez ce que j'ai de meilleur, et dites partout que la fromagerie Persillé rouvre. On y mange sur place, et on y reste debout."
+						},
+						{
+							"set": "persille_paye"
+						}
+					],
+					"else": [
+						{
+							"if": "cave_ouverte",
+							"then": [
+								{
+									"who": "persille",
+									"text": "La trappe est derrière le comptoir. Prenez un pot de graisse pour les barreaux : ils glissent. Et ne mangez rien, en bas. Même si ça vous le propose."
+								}
+							],
+							"else": [
+								{
+									"who": "persille",
+									"text": "Anatole Persillé, fromager de père en fils, de fils en dette. Vous avez l'air de gens qui cherchent quelque chose. Moi, je cherche à ne plus rien perdre."
+								},
+								{
+									"who": "persille",
+									"text": "J'ai trois ans de dettes chez Barnabé du Poney. Trois ans de petits déjeuners, payés en promesses. Ma seule chance, c'était la cave : bleus, tommes, vacherins, de quoi rembourser Brie entière."
+								},
+								{
+									"who": "persille",
+									"text": "Depuis dix jours, tout ce qui est mou, dans ma cave, est vivant. Et tout ce qui est vivant est fâché. Un fromage mou, c'est normal. Un fromage mou qui avance vers vous, non."
+								},
+								{
+									"who": "sam",
+									"text": "Un fromage qui avance. Voilà une chose que je n'ai pas encore cuisinée."
+								},
+								{
+									"who": "persille",
+									"text": "Descendez, nettoyez ma cave, et ce que vous y trouvez est à vous. Plus ce que j'ai de meilleur en boutique, quand tout sera fini. C'est peu. C'est tout."
+								},
+								{
+									"choice": [
+										{
+											"text": "Accepter",
+											"then": [
+												{
+													"who": "glandoulf",
+													"text": "Une cave. Des marches. Des fromages vivants. Je suis déjà fatigué, mais je veux bien."
+												},
+												{
+													"who": "persille",
+													"text": "La trappe est derrière le comptoir, à droite. Elle est ouverte."
+												},
+												{
+													"set": "persille_vu"
+												},
+												{
+													"set": "cave_ouverte"
+												}
+											]
+										},
+										{
+											"text": "Réfléchir",
+											"then": [
+												{
+													"who": "glandoulf",
+													"text": "Je réfléchis. Je réfléchis très bien debout, mais je préfère assis."
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"arrivee_cave": [
+		{
+			"text": "Les barreaux grincent. En bas, l'air est frais, humide, chargé d'une odeur qui ressemble à celle d'une chaussette, mais honorable. Des meules s'empilent le long des murs, certaines dressées, d'autres affaissées, d'autres qui bougent."
+		},
+		{
+			"who": "fripon",
+			"text": "Cette tomme vient de me regarder."
+		},
+		{
+			"who": "pepine",
+			"text": "Elles n'ont pas d'yeux, Fripon."
+		},
+		{
+			"who": "fripon",
+			"text": "Elle a trouvé de quoi s'en faire."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Je passe devant. Ça glisse. Et ça mord, apparemment."
+		},
+		{
+			"set": "cave_vue"
+		}
+	],
+	"vacherin": [
+		{
+			"text": "Au fond de la cave, sur une planche d'affinage trop petite pour lui, trône le Vacherin : une croûte de la taille d'un tonneau, une cervelle de crème qui déborde, et, quelque part là-dedans, quelque chose qui respire."
+		},
+		{
+			"choice": [
+				{
+					"text": "Approcher",
+					"then": [
+						{
+							"who": "sam",
+							"text": "Je peux vous dire une chose, monsieur Glandoulf ? Celui-là, on ne le mange pas à la cuillère."
+						},
+						{
+							"who": "glandoulf",
+							"text": "On ne le mange pas du tout, Sam. On le laisse s'écouler. Ou on l'aide."
+						},
+						{
+							"text": "La croûte se plisse, la crème bouge. Le Vacherin se déplie lentement, comme un dormeur très gros, et exhale une puanteur honnête."
+						},
+						{
+							"battle": "vacherin"
+						},
+						{
+							"if": "combat_vacherin",
+							"then": [
+								{
+									"text": "Le Vacherin s'affaisse dans un long soupir tiède et s'écoule vers un fossé que personne n'avait prévu."
+								},
+								{
+									"who": "pepine",
+									"text": "Il y avait une cave entière qui lui obéissait. Et personne pour le contredire."
+								},
+								{
+									"who": "aragrogne",
+									"text": "Une cave humide et mal dirigée. Voilà tout le secret."
+								},
+								{
+									"set": "vacherin_vaincu"
+								},
+								{
+									"text": "Le long des murs, les meules cessent de bouger. Quelques-unes se redressent même, un peu surprises."
+								}
+							]
+						}
+					]
+				},
+				{
+					"text": "Reculer",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Un fromage de cette taille a le droit de finir sa sieste."
+						}
+					]
+				}
+			]
+		}
+	],
+	"coffre_cave_1": [
+		{
+			"if": "coffre_cave_1_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide."
+				}
+			],
+			"else": [
+				{
+					"text": "Une caisse de croûtes oubliées, intactes, et deux tommes en meilleur état que les autres."
+				},
+				{
+					"give": "tomme_fermiere",
+					"count": 2
+				},
+				{
+					"money": 20
+				},
+				{
+					"set": "coffre_cave_1_pris"
+				}
+			]
+		}
+	],
+	"coffre_cave_2": [
+		{
+			"if": "coffre_cave_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide."
+				}
+			],
+			"else": [
+				{
+					"text": "Un tonnelet à demi plein de bleu persillé, avec, au fond, une tisane que quelqu'un avait cachée là. Peut-être pour se calmer."
+				},
+				{
+					"give": "bleu_persille"
+				},
+				{
+					"give": "tisane"
+				},
+				{
+					"set": "coffre_cave_2_pris"
+				}
+			]
+		}
+	],
+	"coffre_cave_3": [
+		{
+			"if": "coffre_cave_3_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide."
+				}
+			],
+			"else": [
+				{
+					"text": "Une caisse marquée « Réserve du père ». Les bleus qui s'y trouvent ont l'air très sûrs d'eux."
+				},
+				{
+					"give": "bleu_persille",
+					"count": 2
+				},
+				{
+					"money": 35
+				},
+				{
+					"set": "coffre_cave_3_pris"
+				}
+			]
+		}
+	],
+	"panneau_cave": [
+		{
+			"name": "Planche",
+			"text": "Sur une planche d'affinage, au fusain : « NE PAS GOÛTER AVANT LE MARDI. Si quelque chose répond, ne pas insister. »"
+		}
+	],
+	"arrivee_ferme": [
+		{
+			"text": "La ferme Pinard. Les poules sont couchées en rang d'oignons dans la cour, et le chien aussi. Seuls les piquets de la clôture se tiennent encore debout, de travers, mais debout."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Les traces sont là. Quatre doigts, bien droits, un éperon derrière. Nette, la piste."
+		},
+		{
+			"who": "fripon",
+			"text": "Des traces de poule."
+		},
+		{
+			"who": "aragrogne",
+			"text": "De poule, oui. D'une poule qui aurait des projets."
+		},
+		{
+			"set": "ferme_vue"
+		}
+	],
+	"pinard": [
+		{
+			"if": "chantecler_vaincu",
+			"then": [
+				{
+					"who": "pinard",
+					"text": "Mon coq est calme, depuis. Il chante à l'aube, il se couche au soir, il ne cherche plus personne. Et mes poules se sont relevées, une à une, pour voir. C'est très émouvant. Je ne le dirai à personne."
+				}
+			],
+			"else": [
+				{
+					"who": "pinard",
+					"text": "Mathurin Pinard, fermier. Depuis trois jours, mes poules sont couchées, mon chien est couché, ma femme est couchée, et le coq, lui, est au bout du champ, debout sur son tas de paille. Il chante dès qu'on approche. Il a l'air fier."
+				},
+				{
+					"who": "pinard",
+					"text": "Fier de quoi, je ne sais pas. Je n'ose pas lui demander. Il a un regard qui vous donne envie de vous lever tôt."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Il est là-bas ?"
+				},
+				{
+					"who": "pinard",
+					"text": "Au fond, derrière le potager. Prenez de quoi vous défendre. Même le coq a pris la mouche. Et les mouches ont pris le coq."
+				}
+			]
+		}
+	],
+	"traces_ferme": [
+		{
+			"if": "traces_vu",
+			"then": [
+				{
+					"text": "Vous avez déjà regardé ici. Rien n'a bougé, ce qui est, ici, un événement."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans la boue du chemin, quatre doigts nets, un éperon derrière, et le tout bien aligné. À côté, les traces de la ferme se traînent, s'écrasent, s'étalent."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Quatre doigts, un éperon. Cela marche droit, cela ne dérape pas. Aucune bête du pays ne fait cela."
+				},
+				{
+					"set": "traces_vu"
+				}
+			]
+		}
+	],
+	"plume_ferme": [
+		{
+			"if": "plume_vu",
+			"then": [
+				{
+					"text": "Vous avez déjà regardé ici. Rien n'a bougé, ce qui est, ici, un événement."
+				}
+			],
+			"else": [
+				{
+					"text": "Une plume rousse, plantée par le tuyau dans le sol, bien droite, comme une enseigne. Elle brille d'un reflet vert."
+				},
+				{
+					"money": 5
+				},
+				{
+					"who": "pepine",
+					"text": "Elle est ferme. Rigide, même. Ce n'est pas une plume qui a peur de l'air."
+				},
+				{
+					"set": "plume_vu"
+				}
+			]
+		}
+	],
+	"poulailler": [
+		{
+			"if": "poulailler_vu",
+			"then": [
+				{
+					"text": "Vous avez déjà regardé ici. Rien n'a bougé, ce qui est, ici, un événement."
+				}
+			],
+			"else": [
+				{
+					"text": "Le poulailler : toutes les poules sont couchées, en tas. Un panneau tient encore debout au milieu : « ŒUFS DU JOUR ». Une poule, très lasse, a écrit en dessous, ou quelqu'un a écrit pour elle : « Demain. »"
+				},
+				{
+					"who": "sam",
+					"text": "Demain. Voilà un mot que je commence à haïr, monsieur Glandoulf."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Il a ses mérites. On le prononce, et tout s'arrange. Jusqu'au lendemain."
+				},
+				{
+					"set": "poulailler_vu"
+				}
+			]
+		}
+	],
+	"chantecler": [
+		{
+			"text": "Au bout du champ, derrière le potager, un tas de paille. Sur le tas, un coq. Grand comme un chien, droit comme un i, la crête dressée, l'œil sévère. Autour de lui, tout est couché : l'herbe, les clôtures, les mouches. Lui seul n'a pas bougé d'une plume."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Chantecler. C'est ainsi que les paysans du nord l'appellent. Le coq qui ne s'est pas assis depuis neuf semaines."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Neuf semaines sans s'asseoir. Je me sens déjà fatigué pour lui."
+		},
+		{
+			"choice": [
+				{
+					"text": "S'approcher",
+					"then": [
+						{
+							"text": "Chantecler ouvre le bec. Un son en sort, pas un cri : une annonce. Les poules, au loin, tremblent d'une plume. Le chien se retourne, mal à l'aise."
+						},
+						{
+							"who": "aragrogne",
+							"text": "Il ne nous laissera pas passer sans une explication."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Alors donnons-la lui. Poliment."
+						},
+						{
+							"battle": "chantecler"
+						},
+						{
+							"if": "combat_chantecler",
+							"then": [
+								{
+									"text": "Chantecler recule, le jabot ébouriffé, la crête de travers. Puis il se redresse, d'un coup, et chante : un cocorico net, clair, qui fait trembler les piquets. Ils se tiennent droit. Un instant, tout se tient droit."
+								},
+								{
+									"who": "aragrogne",
+									"text": "Il se lève à l'aube. Chaque jour. Il n'attend pas qu'on le lui demande."
+								},
+								{
+									"who": "pepine",
+									"text": "C'est tout ?"
+								},
+								{
+									"who": "aragrogne",
+									"text": "C'est tout. Je cherchais un sort, une herbe, une bénédiction. C'est un coq qui n'a jamais remis son chant au lendemain."
+								},
+								{
+									"who": "glandoulf",
+									"text": "[i](Il ne remet rien à demain. Et c'est moi qu'on vise, ici, par volaille interposée.)[/i]"
+								},
+								{
+									"text": "Le coq lance un dernier regard à Glandoulf, long, interrogateur. Puis il laisse tomber une longue plume rousse, qui plante son tuyau dans la terre, bien droite."
+								},
+								{
+									"who": "sam",
+									"text": "Il vous donne sa plume. Pour vous, c'est beaucoup."
+								},
+								{
+									"give": "plume_chantecler"
+								},
+								{
+									"who": "fripon",
+									"text": "Il a quand même essayé de nous crever les yeux, je précise."
+								},
+								{
+									"who": "glandoulf",
+									"text": "Les gens qui se lèvent tôt ont de ces façons."
+								},
+								{
+									"who": "aragrogne",
+									"text": "La nuit tombe. Retournons au Poney. S'il y a des gens, des chaînes, des sorts qui font mollir un monde entier, ils ne tarderont pas à venir. Je préfère être couché dans un vrai lit, quand ils viendront."
+								},
+								{
+									"set": "chantecler_vaincu"
+								},
+								{
+									"action": "save"
+								}
+							]
+						}
+					]
+				},
+				{
+					"text": "Reculer",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Il n'a pas l'air commode. Je reviens quand il aura moins l'air d'avoir raison."
+						}
+					]
+				}
+			]
+		}
+	],
+	"porte_ferme": [
+		{
+			"text": "La porte de la ferme est fermée de l'intérieur. À travers le volet, on entend quelqu'un qui se rendort, puis qui se force à se réveiller, puis qui se rendort."
+		}
+	],
+	"porte_grange": [
+		{
+			"text": "La grange est cadenassée. Sur le cadenas, quelqu'un a écrit « clef sous le pot de fleurs ». Il n'y a pas de pot de fleurs."
+		},
+		{
+			"who": "fripon",
+			"text": "Dix secondes, et je vous ouvre ça."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Laissez, Fripon. Nous n'avons pas besoin de foin."
+		}
+	],
+	"cheminee_poney": [
+		{
+			"text": "Le feu crépite avec application. Une bûche, au fond, s'est affaissée en souriant. Personne ne l'a vue tenir debout."
+		}
+	]
+}

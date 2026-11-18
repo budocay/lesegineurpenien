@@ -1,0 +1,358 @@
+{
+	"id": "poney_flagada",
+	"name": "Le Poney Flagada",
+	"region": "Auberge de Brie",
+	"size": [
+		22,
+		13
+	],
+	"interior": true,
+	"wall_height": 3.0,
+	"ambiance": "interieur_chaud",
+	"music": "auberge",
+	"camera": {
+		"distance": 21,
+		"pitch": 34,
+		"fov": 24,
+		"dof": 0.09,
+		"bounds": [
+			11,
+			6.0,
+			9,
+			7.0
+		]
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "floor",
+				"rect": [
+					1,
+					2,
+					20,
+					9
+				]
+			},
+			{
+				"type": "floor",
+				"rect": [
+					10,
+					11,
+					2,
+					1
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				11.0,
+				9.9
+			],
+			"facing": "up"
+		},
+		"escalier": {
+			"pos": [
+				18.0,
+				5.4
+			],
+			"facing": "down"
+		}
+	},
+	"objects": [
+		{
+			"type": "rug",
+			"rect": [
+				7.2,
+				6.4,
+				7.6,
+				2.4
+			],
+			"color": "#7a3040",
+			"border": "#c9a24a"
+		},
+		{
+			"type": "rug",
+			"rect": [
+				10.1,
+				11.35,
+				1.8,
+				0.6
+			],
+			"color": "#6a5236",
+			"border": "#3c2c1c"
+		},
+		{
+			"type": "rug",
+			"rect": [
+				18.2,
+				2.1,
+				2.6,
+				1.8
+			],
+			"color": "#4a3a2c",
+			"border": "#2a2018"
+		},
+		{
+			"type": "fireplace",
+			"pos": [
+				3,
+				2
+			],
+			"dialogue": "cheminee_poney",
+			"label": "Regarder le feu"
+		},
+		{
+			"type": "counter",
+			"rect": [
+				11.0,
+				4.4,
+				5.4,
+				0.6
+			]
+		},
+		{
+			"type": "window",
+			"pos": [
+				7.0,
+				1.56
+			],
+			"height": 1.3,
+			"shadow": false
+		},
+		{
+			"type": "shelf",
+			"pos": [
+				9.4,
+				1.56
+			],
+			"height": 1.35,
+			"shadow": false
+		},
+		{
+			"type": "shelf",
+			"pos": [
+				14.5,
+				1.56
+			],
+			"height": 1.35,
+			"shadow": false
+		},
+		{
+			"type": "table",
+			"pos": [
+				4.2,
+				6.2
+			],
+			"candle": true
+		},
+		{
+			"type": "stool",
+			"pos": [
+				3.0,
+				6.2
+			]
+		},
+		{
+			"type": "stool",
+			"pos": [
+				5.4,
+				6.2
+			]
+		},
+		{
+			"type": "table",
+			"pos": [
+				16.8,
+				8.6
+			],
+			"candle": true
+		},
+		{
+			"type": "stool",
+			"pos": [
+				15.6,
+				8.6
+			]
+		},
+		{
+			"type": "stool",
+			"pos": [
+				18.0,
+				8.6
+			]
+		},
+		{
+			"type": "table",
+			"pos": [
+				9.4,
+				7.6
+			]
+		},
+		{
+			"type": "table",
+			"pos": [
+				11.6,
+				7.6
+			]
+		},
+		{
+			"type": "table",
+			"pos": [
+				3.2,
+				9.6
+			],
+			"candle": true
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				1.2,
+				2.4
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				1.3,
+				3.3
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				20.4,
+				9.8
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				20.2,
+				6.6
+			],
+			"turn": 12
+		},
+		{
+			"type": "sign",
+			"pos": [
+				12.4,
+				3.0
+			],
+			"dialogue": "affiche_concours",
+			"label": "Lire l'affiche"
+		},
+		{
+			"type": "light",
+			"pos": [
+				10.5,
+				5.6
+			],
+			"height": 2.7,
+			"color": "#ffc880",
+			"energy": 1.6,
+			"range": 11.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				3.0,
+				9.0
+			],
+			"height": 1.6,
+			"color": "#ff9a5a",
+			"energy": 0.7,
+			"range": 5.0
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				17.4,
+				3.6
+			],
+			"shadow": false
+		},
+		{
+			"type": "npc",
+			"id": "barnabe",
+			"pos": [
+				13.5,
+				3.3
+			],
+			"facing": "down",
+			"reach": 2.4
+		},
+		{
+			"type": "npc",
+			"id": "aragrogne",
+			"pos": [
+				4.8,
+				9.6
+			],
+			"facing": "left",
+			"unless": "aragrogne_equipe",
+			"reach": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "gaston",
+			"pos": [
+				7.9,
+				7.6
+			],
+			"facing": "right",
+			"reach": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "veuve",
+			"pos": [
+				13.2,
+				7.6
+			],
+			"facing": "left",
+			"reach": 1.8
+		},
+		{
+			"type": "warp",
+			"rect": [
+				18.5,
+				2.3,
+				2.0,
+				1.4
+			],
+			"to": {
+				"map": "poney_etage",
+				"spawn": "escalier"
+			},
+			"if": "chambre_prise"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				10,
+				11.4,
+				2,
+				0.6
+			],
+			"to": {
+				"map": "brie",
+				"spawn": "poney_porte"
+			}
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "entree_poney",
+			"unless": "poney_vu"
+		}
+	],
+	"music_states": [
+		{
+			"if": "chambre_prise & !nazes_vaincu",
+			"music": "menace"
+		}
+	]
+}

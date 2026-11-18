@@ -1,0 +1,791 @@
+{
+	"entree_poney": [
+		{
+			"text": "Le Poney Flagada. Une grande salle basse, des poutres qui ont vu passer trois générations de voyageurs, un feu de cheminée qui ronfle et, partout, des gens assis."
+		},
+		{
+			"who": "barnabe",
+			"text": "Bienvenue au Poney Flagada ! Le poney, c'est l'enseigne, pas moi. Moi, c'est Barnabé. Entrez, installez-vous, et ne vous gênez pas pour vous asseoir. Tout le monde s'assoit, ici."
+		},
+		{
+			"who": "sam",
+			"text": "Ça sent la soupe. Je reconnais : poireau, lard, et un peu d'abandon."
+		},
+		{
+			"set": "poney_vu"
+		}
+	],
+	"barnabe": [
+		{
+			"if": "nazes_vaincu & !convocation_recue",
+			"then": [
+				{
+					"who": "barnabe",
+					"text": "Ah ! Vous êtes debout. Moi aussi, je n'ai pas fermé l'œil, ce qui est inhabituel : c'est le seul service que je ne fais pas d'ordinaire."
+				},
+				{
+					"who": "barnabe",
+					"text": "Il y a un plancher à refaire, deux portes à changer et une rampe d'escalier qui a quitté le bâtiment par la fenêtre. Je ne vous présente pas la note. Les gens qui sauvent mon auberge d'une nuit pareille ne paient pas la tisane du matin."
+				},
+				{
+					"who": "barnabe",
+					"text": "Autre chose. Un pigeon est arrivé hier soir, avec trois jours de retard. Il dort encore dans la cuisine. Le message est pour vous, magicien : on vous a décrit, de façon assez fidèle, jusqu'au chapeau."
+				},
+				{
+					"text": "Barnabé tend un parchemin plié en trois, cacheté d'un sceau en forme de feuille. Il est tamponné quatre fois, d'une encre qui n'a pas séché."
+				},
+				{
+					"give": "convocation_elrond"
+				},
+				{
+					"who": "glandoulf",
+					"text": "« Le Conseil de Fondue-Combe, sous la présidence d'Elrond de Cuir, convoque Glandoulf, dit le Gris, ainsi que toute personne portant ou ayant porté un intérêt à l'objet. Prière de remplir le formulaire A-38, en trois exemplaires, avant l'entrée en salle. »"
+				},
+				{
+					"who": "aragrogne",
+					"text": "L'objet. Ils n'osent même pas le nommer."
+				},
+				{
+					"who": "pepine",
+					"text": "Le formulaire A-38 est joint ?"
+				},
+				{
+					"who": "glandoulf",
+					"text": "Non. Il faudra le réclamer sur place. En trois exemplaires, probablement."
+				},
+				{
+					"set": "convocation_recue"
+				},
+				{
+					"who": "barnabe",
+					"text": "La route de l'ouest sort par la porte du fond de la place. Cinq jours jusqu'aux Elfes. Prenez de quoi vous asseoir."
+				}
+			],
+			"else": [
+				{
+					"if": "chantecler_vaincu & !chambre_prise",
+					"then": [
+						{
+							"who": "barnabe",
+							"text": "Vous avez la mine de gens qui ont poursuivi un coq. Il se fait tard. J'ai des chambres à l'étage, un lit par tête, des draps encore secs."
+						},
+						{
+							"who": "barnabe",
+							"text": "L'escalier est au fond de la salle, à droite, sous la lanterne. Quatre lits, plus un pour monsieur le rôdeur. Je compte trois écus par personne, mais pour vous, la maison offre. Le Poney tient à ses clients : ils sont les seuls à tenir debout."
+						},
+						{
+							"choice": [
+								{
+									"text": "Prendre les chambres",
+									"then": [
+										{
+											"who": "glandoulf",
+											"text": "Une vraie nuit. Dans un vrai lit. Je n'en avais pas rêvé depuis trois cents ans."
+										},
+										{
+											"who": "barnabe",
+											"text": "Bonne nuit, alors. Si vous entendez quelque chose, c'est la maison qui travaille. Elle travaille toujours un peu la nuit."
+										},
+										{
+											"action": "rest"
+										},
+										{
+											"set": "chambre_prise"
+										},
+										{
+											"text": "L'escalier, au fond de la salle, est maintenant éclairé."
+										},
+										{
+											"action": "save"
+										}
+									]
+								},
+								{
+									"text": "Plus tard",
+									"then": [
+										{
+											"who": "glandoulf",
+											"text": "Encore une chope, d'abord. Pour la route de l'escalier."
+										}
+									]
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"if": "poney_couche_vu",
+							"then": [
+								{
+									"who": "barnabe",
+									"text": "Une chope ? Une soupe ? Un lit ? Dites, je sers tout, sauf la vérité, qui est trop épaisse.",
+									"choice": [
+										{
+											"text": "Se reposer (soigne l'équipe et sauvegarde)",
+											"then": [
+												{
+													"action": "rest"
+												},
+												{
+													"action": "save"
+												},
+												{
+													"who": "barnabe",
+													"text": "Voilà. Une table, une soupe, et le calme qui va avec. Revenez quand vous voulez."
+												}
+											]
+										},
+										{
+											"text": "Rien, merci",
+											"then": [
+												{
+													"who": "glandoulf",
+													"text": "Rien pour l'instant. Je réfléchis. De loin."
+												}
+											]
+										}
+									]
+								}
+							],
+							"else": [
+								{
+									"who": "barnabe",
+									"text": "Vous cherchez un lit, une soupe ou une explication ? Pour l'explication, je n'ai que le poney."
+								},
+								{
+									"who": "barnabe",
+									"text": "Flagada, le vrai, est dans l'écurie, derrière l'auberge. Il est couché depuis le début du printemps. Il mange, il boit, il regarde. Mais se lever, non. Il dit qu'il y réfléchit."
+								},
+								{
+									"who": "pepine",
+									"text": "Un animal qui refuse de se lever ? Voilà un patient que je connais."
+								},
+								{
+									"who": "barnabe",
+									"text": "Si vous connaissiez une plante qui réveille, je vous la paierais. Je ne dis pas que je vous la paierais bien."
+								},
+								{
+									"set": "poney_couche_vu"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"affiche_concours": [
+		{
+			"text": "Une affiche épinglée à la poutre, d'une écriture de boucher : « GRAND CONCOURS DE BRAS DE FER MOU. Le Poney Flagada reçoit ses champions. Inscription auprès de l'aubergiste. Règle unique : celui qui pose le poignet le premier perd. Si les deux le posent, on recommence demain. »"
+		},
+		{
+			"who": "barnabe",
+			"text": "C'est une tradition d'ici. Autrefois, on se cassait le bras. Depuis le Ramollissement, personne n'y arrive plus : on se tient la main un long moment, et le plus lent à la lâcher perd. C'est devenu un art."
+		},
+		{
+			"if": "concours_inscrit",
+			"then": [
+				{
+					"who": "barnabe",
+					"text": "Vous êtes inscrits, mes amis. Gaston Gros-Bras attend en demi-finale, la Veuve Poignet en finale. Le vainqueur reçoit la ceinture."
+				}
+			],
+			"else": [
+				{
+					"who": "barnabe",
+					"text": "Il manque un champion à la table. Votre nom ? Je note.",
+					"choice": [
+						{
+							"text": "Inscrire l'équipe",
+							"then": [
+								{
+									"who": "sam",
+									"text": "Le bras de fer, c'est comme la cuisine : tout est dans le poignet."
+								},
+								{
+									"who": "fripon",
+									"text": "Je tiens à signaler que je ne triche jamais. Seulement quand on regarde ailleurs."
+								},
+								{
+									"who": "barnabe",
+									"text": "Noté. Gaston Gros-Bras, bûcheron, tient la table depuis neuf ans. Il vous attend. La Veuve Poignet, elle, attend le gagnant. Elle attend toujours, c'est sa spécialité."
+								},
+								{
+									"set": "concours_inscrit"
+								}
+							]
+						},
+						{
+							"text": "Pas aujourd'hui",
+							"then": [
+								{
+									"who": "glandoulf",
+									"text": "Un bras de fer. Je me méfie des exercices qui exigent de la persévérance."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"gaston": [
+		{
+			"if": "combat_duel_gaston",
+			"then": [
+				{
+					"who": "gaston",
+					"text": "Neuf ans que je tiens cette table. Neuf ans. Et vous me la prenez en trois tours. Sans rancune : je n'ai plus la force d'en avoir."
+				}
+			],
+			"else": [
+				{
+					"if": "concours_inscrit",
+					"then": [
+						{
+							"who": "gaston",
+							"text": "Gaston Gros-Bras, bûcheron. Neuf ans de table. Pas un adversaire n'a tenu plus de deux tours, et ce n'était pas à cause de ma force : c'est parce que j'ai des mains moites, et que ça les décourage."
+						},
+						{
+							"who": "gaston",
+							"text": "Alors ? Lequel d'entre vous ?",
+							"choice": [
+								{
+									"text": "Sam s'y colle",
+									"then": [
+										{
+											"who": "sam",
+											"text": "Moi, monsieur Glandoulf ? Je n'ai jamais fait que de la poêle."
+										},
+										{
+											"who": "glandoulf",
+											"text": "C'est un poignet, Sam. La poêle, c'est un poignet, avec de la farine autour."
+										},
+										{
+											"who": "sam",
+											"text": "... Vu comme ça."
+										},
+										{
+											"text": "Gaston pose le coude sur la table. Sam retrousse ses manches. La salle retient son souffle, ce qui, à Brie, prend un certain temps."
+										},
+										{
+											"battle": "duel_gaston"
+										},
+										{
+											"if": "combat_duel_gaston",
+											"then": [
+												{
+													"text": "Le bras de Gaston s'incline, très lentement, et vient se poser sur le bois avec un petit soupir."
+												},
+												{
+													"who": "sam",
+													"text": "Je n'ai pas triché. J'ai juste pensé très fort à une omelette."
+												},
+												{
+													"who": "barnabe",
+													"text": "Demi-finale pour le Poney ! La Veuve Poignet attend le gagnant, à l'autre bout de la table."
+												}
+											]
+										}
+									]
+								},
+								{
+									"text": "Plus tard",
+									"then": [
+										{
+											"who": "glandoulf",
+											"text": "Il faut d'abord que Sam fasse quelques étirements."
+										}
+									]
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "gaston",
+							"text": "Pas inscrits, pas de table. Voyez l'aubergiste, ou l'affiche à la poutre. Moi, je ne discute pas avant d'avoir un adversaire : ça fatigue."
+						}
+					]
+				}
+			]
+		}
+	],
+	"veuve": [
+		{
+			"if": "concours_gagne",
+			"then": [
+				{
+					"who": "veuve",
+					"text": "Vous m'avez eue. Je n'ai rien vu venir. C'est la première fois depuis mon veuvage, et cela m'a fait un effet curieux : je crois que j'ai envie de recommencer."
+				}
+			],
+			"else": [
+				{
+					"if": "combat_duel_gaston",
+					"then": [
+						{
+							"text": "À l'extrémité de la grande table, une dame en noir, droite comme un piquet, tient sa main à plat devant elle, paume vers le plafond."
+						},
+						{
+							"who": "veuve",
+							"text": "Veuve Poignet. Mon mari est mort en perdant. Depuis, je ne perds plus. Qui est le champion ?"
+						},
+						{
+							"who": "veuve",
+							"text": "Je préviens : je ne serre pas fort. Je serre longtemps.",
+							"choice": [
+								{
+									"text": "Sam, une dernière fois",
+									"then": [
+										{
+											"who": "sam",
+											"text": "Ce n'est pas que j'aie peur, monsieur Glandoulf. C'est que j'ai déjà donné."
+										},
+										{
+											"who": "glandoulf",
+											"text": "Vous avez battu un bûcheron. Il vous reste une dame."
+										},
+										{
+											"who": "sam",
+											"text": "Justement. Je ne bats pas les dames. Je les nourris."
+										},
+										{
+											"battle": "duel_veuve"
+										},
+										{
+											"if": "combat_duel_veuve",
+											"then": [
+												{
+													"text": "La dame en noir cède d'un cheveu, après un très long silence. Le Poney entier applaudit à la façon de Brie : en frappant la table du plat de la main, doucement."
+												},
+												{
+													"who": "barnabe",
+													"text": "La ceinture du Poney Flagada ! Elle ne tient pas la taille, mais elle tient les promesses."
+												},
+												{
+													"give": "ceinture_champion"
+												},
+												{
+													"money": 40
+												},
+												{
+													"set": "concours_gagne"
+												},
+												{
+													"who": "sam",
+													"text": "Une ceinture. Je la porterai sous le tablier. Pour le cœur, pas pour les yeux."
+												}
+											]
+										}
+									]
+								},
+								{
+									"text": "Pas encore",
+									"then": [
+										{
+											"who": "glandoulf",
+											"text": "Elle nous attendra. Elle attend toujours."
+										}
+									]
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "veuve",
+							"text": "Le vainqueur de Gaston, et pas un autre. Revenez quand il aura perdu."
+						}
+					]
+				}
+			]
+		}
+	],
+	"ecurie": [
+		{
+			"if": "poney_leve",
+			"then": [
+				{
+					"text": "L'écurie est vide. Dans l'enclos, Flagada broute, debout, très droit, l'air de s'excuser d'avoir attendu si longtemps."
+				}
+			],
+			"else": [
+				{
+					"if": "poney_couche_vu",
+					"then": [
+						{
+							"text": "Au fond de l'écurie, dans la paille, un petit poney bleu est couché sur le flanc. Il lève un œil, puis le repose. Il a l'air d'avoir tout compris et de n'en rien conclure."
+						},
+						{
+							"if": "item:racine",
+							"then": [
+								{
+									"who": "pepine",
+									"text": "Une racine-qui-réveille. Pour les gens à terre, normalement. Mais un poney, quand c'est couché depuis le printemps..."
+								},
+								{
+									"choice": [
+										{
+											"text": "Lui donner la racine",
+											"then": [
+												{
+													"take": "racine"
+												},
+												{
+													"text": "Le poney mâche, longtemps, sans conviction. Puis une patte avant plie, se pose, pousse. Le second genou suit. Un long frisson parcourt le poil, de la croupe à la crinière."
+												},
+												{
+													"text": "Flagada se lève. Il se tient droit un instant, étonné de la vue, puis hennit, d'une voix un peu enrouée, comme un homme qui vient de se souvenir de son prénom."
+												},
+												{
+													"who": "barnabe",
+													"text": "Mon poney ! Il est debout ! Il est... il regarde la porte ! Depuis mars, il regardait le mur."
+												},
+												{
+													"who": "barnabe",
+													"text": "Gardez ça. C'est peu. C'est ce que j'avais, et le reste est au fond de la cave."
+												},
+												{
+													"set": "poney_leve"
+												}
+											]
+										},
+										{
+											"text": "Pas maintenant",
+											"then": [
+												{
+													"who": "pepine",
+													"text": "Je préfère être sûre de la dose."
+												}
+											]
+										}
+									]
+								}
+							],
+							"else": [
+								{
+									"who": "pepine",
+									"text": "Il lui faudrait de la racine-qui-réveille. Celle qui relève un allié à terre. Sidonie, sur la place, en vend peut-être."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"text": "La porte de l'écurie est entrouverte. De la paille, du silence, et une odeur de poney qui réfléchit."
+						}
+					]
+				}
+			]
+		}
+	],
+	"aragrogne": [
+		{
+			"if": "aragrogne_vu",
+			"then": [
+				{
+					"who": "aragrogne",
+					"text": "Alors ? On y va, ou vous attendez que la bête vienne à vous ? Elle ne viendra pas. Elle est occupée à rester debout."
+				},
+				{
+					"choice": [
+						{
+							"text": "Marcher ensemble",
+							"then": [
+								{
+									"who": "aragrogne",
+									"text": "Bon. Ne me parlez pas avant le café."
+								},
+								{
+									"join": "aragrogne"
+								},
+								{
+									"set": "aragrogne_equipe"
+								},
+								{
+									"text": "Aragrogne rejoint l'équipe."
+								}
+							]
+						},
+						{
+							"text": "Un instant",
+							"then": [
+								{
+									"who": "glandoulf",
+									"text": "Un instant. Le temps de finir ma chope et mes réflexions."
+								}
+							]
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "Dans le coin le plus sombre, un homme mange seul, capuche sur le nez. Devant lui, une carte tachée de bière et une épée rangée de travers contre le mur. Il ne lève pas les yeux."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Si c'est pour une chope, la patronne est là-bas. Si c'est pour la place, elle est prise."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Glandoulf le Gris. Voyageur. Fatigué."
+				},
+				{
+					"text": "L'homme repose sa chope. Un peu trop doucement."
+				},
+				{
+					"who": "aragrogne",
+					"text": "... Glandoulf."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Nous nous connaissons ?"
+				},
+				{
+					"who": "aragrogne",
+					"text": "Non. C'est un nom que j'ai déjà entendu, voilà tout. Dans une histoire de famille. Ça n'a pas d'importance."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Aragrogne. Rôdeur. Je n'ai pas de famille, sauf quand on m'interroge."
+				},
+				{
+					"who": "fripon",
+					"text": "[i](Il ment mal. Je m'y connais.)[/i]"
+				},
+				{
+					"who": "aragrogne",
+					"text": "Je piste quelque chose depuis le Gouda. Une bête. Elle traverse les champs sans que rien ne l'atteigne. Les épis se couchent sur son passage, les haies plient, les chiens s'assoient, et elle, elle reste droite. Rien ne la ramollit."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Une créature qu'on ne peut pas ramollir."
+				},
+				{
+					"who": "sam",
+					"text": "Je veux bien la recette."
+				},
+				{
+					"who": "pepine",
+					"text": "Si on savait pourquoi elle tient, on saurait peut-être pourquoi les autres cèdent."
+				},
+				{
+					"who": "aragrogne",
+					"text": "C'est ce que je me dis, madame. Ses traces vont à la ferme Pinard, au sud de la ville. J'y vais à l'aube. Seul, de préférence."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Mais une bête qui ne fléchit pas, on ne la prend pas seul. Et vous, vous avez l'air d'avoir vos raisons de la chercher."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Nous cherchons ce qui ramollit le Comté. Votre bête est peut-être ce qui l'empêche."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Alors nos routes se croisent. Pour l'instant."
+				},
+				{
+					"set": "aragrogne_vu"
+				},
+				{
+					"choice": [
+						{
+							"text": "Marcher ensemble",
+							"then": [
+								{
+									"who": "aragrogne",
+									"text": "Entendu. Je suis lent à faire confiance. Je suis plus rapide à manger, c'est déjà ça."
+								},
+								{
+									"join": "aragrogne"
+								},
+								{
+									"set": "aragrogne_equipe"
+								},
+								{
+									"text": "Aragrogne rejoint l'équipe. Il ne quitte plus Glandoulf des yeux. Glandoulf fait semblant de ne pas le remarquer, ce qui l'épuise."
+								}
+							]
+						},
+						{
+							"text": "Un instant",
+							"then": [
+								{
+									"who": "glandoulf",
+									"text": "Laissez-moi finir ma chope. Une décision se prend mieux avec la mousse."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"nazes_attente": [
+		{
+			"text": "Les deux silhouettes ne bougent pas. Elles attendent que vous soyez prêts, avec l'infinie patience de ceux qui n'ont plus rien d'autre à faire."
+		}
+	],
+	"nuit_nazes": [
+		{
+			"banner": "Minuit",
+			"sub": "Le Poney Flagada"
+		},
+		{
+			"music": "menace"
+		},
+		{
+			"text": "Vous avez dormi, un peu. Pas longtemps : Glandoulf a soupiré cinq fois dans son sommeil, ce qui est son record. Puis un froid est monté de l'escalier, un froid d'hiver sans neige."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Debout. Ils sont deux."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Il est trop tôt."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Il est minuit."
+		},
+		{
+			"who": "glandoulf",
+			"text": "C'est ce que je dis."
+		},
+		{
+			"text": "Sur le palier, deux silhouettes noires se tiennent côte à côte. Les capes ne bougent pas. Les planchers, eux, gémissent."
+		},
+		{
+			"who": "naze_aine",
+			"text": "Nous avons suivi la fatigue. Dans chaque village où l'on se couche sans raison, nous avons trouvé ta trace, magicien. Elle pue la sieste."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une odeur de sieste. C'est la première fois qu'on m'en fait compliment."
+		},
+		{
+			"who": "naze_cadet",
+			"text": "Je fus roi de l'Ouest. Mon frère, roi de l'Est. Nous ne nous parlons plus depuis cent ans. Au début, on se disputait. À la fin, on n'avait plus la force."
+		},
+		{
+			"who": "naze_aine",
+			"text": "Neuf anneaux. Trop serrés. Trois siècles de chaleur au doigt, et de froid partout ailleurs. Il suffit que tu nous dises où elle est, et nous te laisserons dormir."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Elle."
+		},
+		{
+			"who": "naze_aine",
+			"text": "L'anneau. Celui qui t'a échappé à toi aussi, d'une certaine façon."
+		},
+		{
+			"who": "fripon",
+			"text": "Il t'a échappé ? Quand ça ?"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je n'ai pas la moindre idée de ce qu'ils racontent. C'est la fatigue. Elle leur fait dire n'importe quoi."
+		},
+		{
+			"text": "Le Naze aîné tourne la tête vers Aragrogne. La capuche reste vide, mais l'attention est là, lourde, comme un doigt."
+		},
+		{
+			"who": "naze_aine",
+			"text": "Cette façon de tenir l'épée. Je l'ai déjà vue."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Les épées se tiennent toutes pareil."
+		},
+		{
+			"who": "naze_aine",
+			"text": "Pas dans cette famille."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Vous confondez."
+		},
+		{
+			"who": "naze_cadet",
+			"text": "Assez. Nos anneaux serrent. Le tien a de l'avance, magicien, et nous, du retard. Rends ce qui n'est pas à toi."
+		},
+		{
+			"who": "pepine",
+			"text": "Ils veulent le même objet, ils veulent le même résultat, ils veulent la même chose que tout le monde : que ça cesse."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Ça cessera quand j'aurai dormi. Pas avant. Sam ?"
+		},
+		{
+			"who": "sam",
+			"text": "Monsieur Glandoulf. Il y a du sol, ici, et du bois. Ça se casse. J'ai payé le lit."
+		},
+		{
+			"who": "aragrogne",
+			"text": "On tape."
+		},
+		{
+			"battle": "nazes_nuit"
+		},
+		{
+			"if": "combat_nazes_nuit",
+			"then": [
+				{
+					"text": "Le Naze aîné plie le genou. Le cadet s'appuie contre le mur, qui cède. Deux petits anneaux tintent sur le plancher, l'un contre l'autre, comme deux tasses qu'on entrechoque."
+				},
+				{
+					"who": "naze_cadet",
+					"text": "Vous avez gagné une nuit. Il en reste beaucoup."
+				},
+				{
+					"who": "naze_aine",
+					"text": "L'anneau n'est pas à Brie. Il est plus loin, sous la montagne des nains. Mais pour y aller, il faut passer par les Elfes, et chez les Elfes, on décide à plusieurs."
+				},
+				{
+					"who": "naze_cadet",
+					"text": "Ils ont convoqué tout le monde au Conseil de Fondue-Combe. Même nous. Nous avons reçu l'invitation, en trois exemplaires."
+				},
+				{
+					"who": "naze_aine",
+					"text": "Il manquait le tampon."
+				},
+				{
+					"text": "Les capes se relèvent, vides, et s'éloignent par la fenêtre qui n'a plus de vitre. Un cheval hennit, dehors. Puis plus rien."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Fondue-Combe. Alors c'est là que cela se joue."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Dormons, d'abord. Cela se jouera très bien sans moi."
+				},
+				{
+					"set": "nazes_vaincu"
+				},
+				{
+					"action": "rest"
+				},
+				{
+					"music": "auberge"
+				},
+				{
+					"action": "save"
+				},
+				{
+					"banner": "L'aube",
+					"sub": "Brie"
+				},
+				{
+					"text": "L'étage est dévasté, mais le plancher tient. Au rez-de-chaussée, quelqu'un fait chauffer de la soupe."
+				}
+			]
+		}
+	]
+}
