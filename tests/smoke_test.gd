@@ -74,6 +74,7 @@ func _ready() -> void:
 	await _test_arenas()
 	await _test_arena_by_place()
 	_test_retouches_2()
+	_test_lanternes_mines()
 	_test_equipment()
 	await _test_settings()
 	if OS.has_environment("GLAN_QUICK"):
@@ -4661,3 +4662,12 @@ func _test_icons() -> void:
 						magenta += 1
 		check(opaque >= 12 and magenta == 0, "icônes : « %s » est dessinée (%d pixels) sans magenta" % [str(id), opaque])
 		check(Sprites.icon(str(id)) != null, "icônes : « %s » passe par Sprites.icon" % str(id))
+
+
+## Les cartes des Mines de Morbier et des portes de l'Est donnent au héros une lumière propre.
+func _test_lanternes_mines() -> void:
+	for id: String in ["porte_morbier", "morbier_galeries", "morbier_halle", "morbier_pont", "morbier_profondeurs", "morbier_tombe", "morbier_antre", "portes_est"]:
+		if true:
+			var amb: Dictionary = Database.get_ambiance(str(Database.get_map(id).get("ambiance", "")))
+			var lan: Variant = amb.get("lantern")
+			check(lan is Dictionary and float((lan as Dictionary).get("energy", 0.0)) > 0.0, "lanterne : la carte « %s » a une lumière propre pour le héros" % id)

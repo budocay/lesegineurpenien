@@ -90,6 +90,12 @@ func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: Str
 		start.y = ground_y(start.x, start.z)
 		player.position = start
 		player.set_facing(face)
+	var lantern: Variant = Database.get_ambiance(str(map.get("ambiance", ""))).get("lantern")
+	if lantern is Dictionary:
+		for n: Node3D in npcs:
+			n.sprite.add_lantern(lantern, false)
+		if player != null:
+			player.sprite.add_lantern(lantern, true)
 	_cam_target = _desired_target()
 	_apply_camera()
 

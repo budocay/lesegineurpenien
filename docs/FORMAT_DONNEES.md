@@ -46,6 +46,13 @@ Champ facultatif `rays` : des rayons de lumière obliques plantés dans le lieu.
 rayons par case (3 au moins, 40 au plus), `strength` leur force (rester sous 0.08, le
 test le vérifie : au-delà ils font une brume grise), `height` et `tilt` sont facultatifs.
 
+Champ facultatif `lantern` : lumière propre du héros et des personnages dans un lieu sombre.
+`{"color": "#ffd9a0", "energy": 1.4, "range": 7.5, "halo": 3.4, "halo_alpha": 0.32, "rim": 0.7}` :
+le héros porte une lanterne (lumière ponctuelle sans ombre), un halo doux le suit au sol et un
+liseré clair souligne sa silhouette ; les autres personnages n'ont que le halo et le liseré,
+plus discrets. Absent : aucun effet. Posé sur les ambiances des Mines de Morbier,
+du lac noir, des monts de Morbier et des portes de l'Est.
+
 Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les talus du
 nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
 automatiquement sur les cartes d'extérieur.
@@ -275,7 +282,9 @@ bleu-gris), `elf_roof_vert` (toit vert-de-gris), `elf_glow`.
 Mêmes champs que la maison de village (`rect`, `height`, `roof_height`, `door`, `windows`,
 `lit`, `to`, `dialogue`, `if`, `unless`), plus `roof` (`"bleu"` par défaut ou
 `"vert-de-gris"`), `door_open` (arche ouverte et éclairée ; vrai par défaut si `to`),
-`tall` (baies jusqu'à la balustrade), `columns` et `finial` (vrais par défaut). `door_color`,
+`tall` (baies jusqu'à la balustrade), `columns` et `finial` (vrais par défaut), `stretch`
+(étirement en hauteur des murs et du toit, 1.22 par défaut : l'emprise ne change pas ; 1.0 rend
+les anciennes proportions). `door_color`,
 `awning` et `chimney` sont ignorés.
 
 ### Accessoires (sprites debout, comme `tree` ou `bush`)
@@ -950,3 +959,9 @@ flou 3, brume 3, occlusion 3.
 Pour qu'une scène suive ces réglages, l'objet créé passe par `Settings.apply_environment(env)`,
 `apply_camera(attributs)`, `apply_light(lumière)`, `apply_particles(émetteur)` ou
 `apply_rays(nœud)` : il est réglé tout de suite, puis suit les changements faits ensuite.
+
+### Bord sud des intérieurs
+
+Toute pièce d'intérieur (hors style nain) prolonge son sol au sud de sa dernière rangée de
+plancher, assombri peu à peu : la caméra, qui s'arrête à des bornes fixes, ne montre plus de
+bande noire. Purement décoratif, sans champ de données (`MapBuilder._build_interior_apron`).

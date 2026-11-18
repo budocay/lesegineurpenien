@@ -294,22 +294,43 @@ static func _column_tex() -> Image:
 
 ## Toit en écailles (ardoise bleu-gris ou vert-de-gris) : les rangs du haut recouvrent ceux du bas.
 static func _scales(tones: Array, edge: Color, light: Color) -> Image:
+	# Tuiles fines posées en assises décalées : chaque tuile est plus claire en haut et plus sombre
+	# en bas (l'assise du dessus lui fait de l'ombre), peu de contraste d'une tuile à l'autre,
+	# pour que le toit ne vibre pas de près (l'ancien motif d'écailles faisait un pied-de-poule).
 	var img := PA.new_image(T, T)
 	img.fill(edge)
-	var rows := T / 6
-	for ri in rows:
-		var r := rows - 1 - ri   # du bas vers le haut
-		var off := 4 if r % 2 == 1 else 0
-		for c in T / 8:
-			var cx := float(c * 8 + off) + 4.0
-			var cy := float(r * 6) + 2.0
-			var tone := Color.from_string(str(tones[int(PA.rnd(c, r, 271) * tones.size()) % tones.size()]), Color.GRAY)
-			TP._wrap_ellipse(img, cx, cy + 0.4, 4.4, 5.2, edge)
-			TP._wrap_ellipse(img, cx, cy, 4.0, 4.6, tone)
-			TP._wrap_ellipse(img, cx - 0.6, cy - 0.9, 3.0, 2.6, PA.shade(tone, 0.1))
-			for k in 3:
-				img.set_pixel(posmod(int(cx) - 2 + k, T), posmod(int(cy) - 2, T), light)
-			img.set_pixel(posmod(int(cx) + 2, T), posmod(int(cy) + 3, T), PA.shade(tone, -0.18))
+	var course := 4
+	var tw := 6
+	var rows := T / course
+	for r in rows:
+		var y0 := r * course
+		var off := 3 if r % 2 == 1 else 0
+		var row_k := (PA.rnd(r, 3, 271) - 0.5) * 0.05
+		for c in T / tw:
+			var x0 := c * tw + off
+			var base := Color.from_string(str(tones[int(PA.rnd(c, r, 271) * tones.size()) % tones.size()]), Color.GRAY)
+			base = PA.shade(base, row_k + (PA.rnd(c, r, 313) - 0.5) * 0.04)
+			for dy in course:
+				var k := -0.12 + 0.2 * (1.0 - float(dy) / float(course - 1))
+				var col := PA.shade(base, k)
+				for dx in tw:
+					var xx := posmod(x0 + dx, T)
+					var yy := y0 + dy
+					if dx == tw - 1:
+						col = PA.shade(base, -0.14)   # joint vertical discret
+					elif dx == 0 and dy == 0 and c % 3 == 0:
+						col = light
+					elif dy == 0 and dx < tw - 1:
+						col = PA.shade(base, 0.12)
+					img.set_pixel(xx, yy, col)
+				# angles du bas arrondis
+			img.set_pixel(posmod(x0, T), y0 + course - 1, edge)
+			img.set_pixel(posmod(x0 + tw - 2, T), y0 + course - 1, edge)
+	# ombre portée de chaque assise sur la suivante
+	for r in rows:
+		for x in T:
+			var yy := r * course + course - 1
+			img.set_pixel(x, yy, img.get_pixel(x, yy).lerp(edge, 0.55))
 	return img
 
 
@@ -1125,10 +1146,11 @@ static func _pilaster(img: Image, x: int, y0: int, hh: int) -> void:
 
 ## Baie en ogive : moulure claire, vitrail d'un bleu pâle (ou doré quand c'est allumé), meneau, oculus.
 static func _window(img: Image, emi: Image, cx: float, h: int, lit: bool, tall: bool) -> void:
-	var a := 9.0
-	var rr := 15.0
-	var sill := h - 22 if not tall else h - 12
-	var spring := sill - (24 if not tall else 34)
+	var a := 8.0
+	var rr := 19.0
+	var ext := maxi(0, int(float(h - 84) * 0.45))   # murs plus hauts : baies plus hautes, jamais plus larges
+	var sill := h - 22 - ext if not tall else h - 12
+	var spring := sill - (24 + ext if not tall else 34 + ext)
 	_fill_ogive(img, cx, spring, a + 2.0, rr + 2.0, IV_HI, sill + 2)
 	_fill_ogive(img, cx, spring, a, rr, Color("#7a96ba"), sill)
 	if lit:
@@ -1151,9 +1173,9 @@ static func _window(img: Image, emi: Image, cx: float, h: int, lit: bool, tall: 
 
 
 static func _door(img: Image, emi: Image, cx: float, h: int, open: bool, lit: bool) -> void:
-	var hd := mini(int(float(h) * 0.82), 84)
-	var a := 14.0
-	var rr := 23.0
+	var hd := mini(int(float(h) * 0.82), 100)
+	var a := 13.0
+	var rr := 28.0
 	var rise := int(sqrt(rr * rr - (rr - a) * (rr - a)))
 	var spring := h - 6 - (hd - rise)
 	var x0 := int(cx) - int(a) - 3
