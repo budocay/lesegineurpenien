@@ -27,7 +27,7 @@ const GROUND := {
 	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
 	# style nain (voir docs/FORMAT_DONNEES.md)
 	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
-	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true},
+	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true}, "nain_roche_humide": {"hard": true}, "nain_galets": {"hard": true},
 	"nain_abime": {"hard": true, "solid": true}, "nain_neige": {}, "nain_sentier": {},
 	# styles du chapitre 5 : cavalier, fongorn, isengarde, chutes (voir docs/FORMAT_DONNEES.md)
 	"cav_herbe": {}, "cav_chemin": {}, "cav_planches": {"hard": true}, "cav_botte_sol": {},

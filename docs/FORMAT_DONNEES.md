@@ -467,6 +467,7 @@ or, braise des forges, et la raie sombre du fromage dans les murs.
 `nain_dalle` (dalles sombres), `nain_veine` (dalle à veine d'or), `nain_voie` et `nain_voie_v`
 (rail de wagonnet, horizontal et vertical), `nain_pont` (tablier de pont, franchissable sur
 un abîme), `nain_marbre` (marbre de la Grande Salle, motif de forge), `nain_pate` (croûte du
+(Sols `nain_roche_humide` : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
 fromage), `nain_abime` (vide solide), `nain_neige`, `nain_sentier`, `nain_roc`,
 `nain_marches`, `nain_pierre`, et les murs `nain_mur`, `nain_mur_morbier`, `nain_mur_forge`.
 
