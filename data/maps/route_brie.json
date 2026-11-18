@@ -15,6 +15,12 @@
 			{"type": "soil", "rect": [8, 11, 14, 5]}
 		]
 	},
+	"heights": [
+		{"rect": [8, 2, 12, 4], "h": 1.2}
+	],
+	"stairs": [
+		{"rect": [16, 6, 2, 2], "dir": "up", "from": 0.0, "to": 1.2}
+	],
 	"spawns": {
 		"est": {"pos": [49.8, 8.5], "facing": "left"}
 	},

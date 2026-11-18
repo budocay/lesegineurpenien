@@ -60,6 +60,13 @@ func _process(delta: float) -> void:
 		elif absf(step.y) > 0.0001 and world.is_free(p + Vector2(0.0, step.y), RADIUS, self):
 			p.y += step.y
 			moved = true
-		position = Vector3(p.x, 0.0, p.y)
+		position.x = p.x
+		position.z = p.y
+	# la hauteur suit le sol (rampes, plateaux) en douceur
+	var gy: float = world.ground_y(position.x, position.z)
+	if absf(position.y - gy) < 0.002:
+		position.y = gy
+	else:
+		position.y = lerpf(position.y, gy, 1.0 - exp(-18.0 * delta))
 	sprite.facing = facing
 	sprite.moving = moved

@@ -75,6 +75,7 @@ Champs principaux :
 - `ground` : `default` (sol par défaut) puis `fills`, une liste de rectangles peints dans
   l'ordre. Sols : `grass`, `path`, `cobble`, `planks`, `soil`, `floor`, `water`
   (infranchissable), `void` (vide, infranchissable) ;
+- `heights` et `stairs` : relief jouable des cartes d'extérieur (voir plus bas, « Relief ») ;
 - `spawns` : points d'arrivée nommés, `{"pos": [x, y], "facing": "down"}` ;
 - `on_enter` : dialogues joués à l'arrivée, `{"dialogue": "...", "unless": "drapeau"}` ;
 - `objects` : la liste des objets.
@@ -93,6 +94,44 @@ Objets (champ `type`) :
 | `scatter` | semis aléatoire | `prop`, `rect`, `count`, `min_dist`, `seed`, `on` (sols autorisés) |
 | `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate` | mobilier | `pos` ou `rect` |
 | `tree`, `bush`, `rock`, `barrel`, `sign`, `bollard`, `monument`, `boat`, `shelf`, `window`… | décor | `pos`, `variant`, `lean`, `height` |
+
+### Relief
+
+Deux champs facultatifs (extérieurs seulement ; une carte qui n'en a pas se comporte comme
+avant) donnent de vrais plateaux sur lesquels on marche, des falaises entre deux niveaux et
+des rampes pour passer de l'un à l'autre :
+
+```json
+"heights": [
+	{"rect": [29, 2, 8, 6], "h": 1.2}
+],
+"stairs": [
+	{"rect": [32, 8, 2, 2], "dir": "up", "from": 0.0, "to": 1.2}
+],
+```
+
+- `heights` : rectangles **en cases entières** (`rect` : x, y, largeur, hauteur) portés à la
+  hauteur `h` (en unités ; le sol normal est à 0, un personnage mesure environ 1,9). Le
+  dernier rectangle écrit gagne en cas de recouvrement.
+- `stairs` : rampes, elles aussi en cases entières. `dir` est le sens de la **montée** :
+  `up` monte vers le haut de la carte (y décroissant), `down` vers le bas, `left` vers la
+  gauche, `right` vers la droite. `from` est la hauteur au bout bas, `to` au bout haut
+  (défauts 0 et 1). La rampe se dessine en marches ; la hauteur du sol y varie de façon
+  continue sur toute sa longueur.
+- Là où deux cases voisines n'ont pas la même hauteur, le moteur bâtit tout seul une paroi de
+  roche (texture `cliff`), un liseré d'herbe au sommet et une ombre au pied, et ce bord
+  devient infranchissable. Les bouts d'une rampe doivent donc toucher un sol de hauteur
+  `from` (en bas) et `to` (en haut), sinon on ne peut pas l'emprunter ; ses côtés sont des
+  parois. Le test automatique vérifie ces raccords et que tout est atteignable à pied.
+- Les objets (`pos`), personnages, lumières, clôtures et semis suivent la hauteur du sol
+  sous eux ; les semis évitent les bords et les rampes. Les déclencheurs, passages, points
+  d'arrivée et zones de rencontres restent en coordonnées de carte (x, y) : la hauteur ne
+  change rien.
+- Règles de bon goût : laisser les plateaux à une case au moins du bord de la carte ; ne pas
+  les poser sous une `house` ni sur l'eau ; ouvrir la rampe vers un chemin ou un espace
+  dégagé ; mettre les parois du côté du bas de la carte (face à la caméra), car une paroi
+  tournée vers le nord est cachée par son plateau et une zone située juste derrière un
+  plateau (environ deux cases pour 1,2 de haut) disparaît à l'écran.
 
 Tout objet qui porte un champ `dialogue` devient examinable ; `label` change le texte de
 l'invite (« Parler », « Lire », « Examiner »…) et `reach` la distance d'interaction.

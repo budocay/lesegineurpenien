@@ -51,6 +51,7 @@ func _ready() -> void:
 	print("== Musique ==")
 	_test_music()
 	_test_rendering()
+	_test_relief()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2057,3 +2058,173 @@ func _test_flow() -> void:
 	check(main.world != null and main.world.input_enabled, "le joueur garde la main après la fin du chapitre")
 	main.queue_free()
 	await get_tree().process_frame
+
+
+# -------------------------------------------------------------------- relief
+
+## Cartes à relief jouable (champs `heights` et `stairs`) : format valide, tout atteignable à
+## pied depuis les points d'arrivée (parcours par cases, bords à dénivelé infranchissables,
+## rampes franchissables), hauteur du joueur juste sur un plateau.
+func _test_relief() -> void:
+	print("== Relief ==")
+	var found := 0
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		if not map.has("heights") and not map.has("stairs"):
+			continue
+		found += 1
+		var size: Array = map["size"]
+		var gw := int(size[0])
+		var gh := int(size[1])
+		for e: Dictionary in map.get("heights", []):
+			var r: Array = e["rect"]
+			check(r.size() == 4 and int(r[0]) >= 0 and int(r[1]) >= 0 and int(r[0]) + int(r[2]) <= gw and int(r[1]) + int(r[3]) <= gh,
+					"relief %s : le plateau %s tient dans la carte" % [id, str(r)])
+			check(float(e.get("h", -1.0)) >= 0.0, "relief %s : hauteur du plateau %s valide" % [id, str(r)])
+		for e: Dictionary in map.get("stairs", []):
+			var r: Array = e["rect"]
+			check(r.size() == 4 and int(r[0]) >= 0 and int(r[1]) >= 0 and int(r[0]) + int(r[2]) <= gw and int(r[1]) + int(r[3]) <= gh,
+					"relief %s : la rampe %s tient dans la carte" % [id, str(r)])
+			check(str(e.get("dir", "")) in ["up", "down", "left", "right"], "relief %s : direction de la rampe %s connue" % [id, str(r)])
+			check(not is_equal_approx(float(e.get("from", 0.0)), float(e.get("to", 1.0))), "relief %s : la rampe %s monte vraiment" % [id, str(r)])
+
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		var spawns: Dictionary = map["spawns"]
+		world.setup(id, str(spawns.keys()[0]))
+		check(world.has_relief, "relief %s : le monde l'a chargé" % id)
+
+		# chaque bout de rampe se raccorde au sol voisin
+		for s: Dictionary in world.stairs:
+			var r: Rect2 = s["rect"]
+			var low := Vector2.ZERO
+			var high := Vector2.ZERO
+			var span := 0
+			var horizontal := str(s["dir"]) == "left" or str(s["dir"]) == "right"
+			span = int(r.size.y) if horizontal else int(r.size.x)
+			for k in span:
+				match str(s["dir"]):
+					"up":
+						low = Vector2(r.position.x + k + 0.5, r.end.y + 0.5)
+						high = Vector2(r.position.x + k + 0.5, r.position.y - 0.5)
+					"down":
+						low = Vector2(r.position.x + k + 0.5, r.position.y - 0.5)
+						high = Vector2(r.position.x + k + 0.5, r.end.y + 0.5)
+					"left":
+						low = Vector2(r.end.x + 0.5, r.position.y + k + 0.5)
+						high = Vector2(r.position.x - 0.5, r.position.y + k + 0.5)
+					_:
+						low = Vector2(r.position.x - 0.5, r.position.y + k + 0.5)
+						high = Vector2(r.end.x + 0.5, r.position.y + k + 0.5)
+				check(absf(world.ground_y(low.x, low.y) - float(s["from"])) < 0.01, "relief %s : le bas de la rampe %s touche un sol à %.2f" % [id, str(r), float(s["from"])])
+				check(absf(world.ground_y(high.x, high.y) - float(s["to"])) < 0.01, "relief %s : le haut de la rampe %s touche un sol à %.2f" % [id, str(r), float(s["to"])])
+
+		# parcours par cases : on ne passe d'une case à sa voisine que si le bord est ouvert
+		var seen := PackedByteArray()
+		seen.resize(gw * gh)
+		var queue: Array[Vector2i] = []
+		for key: String in spawns:
+			var sp: Vector3 = world.spawn_info(key)["pos"]
+			var c := Vector2i(int(sp.x), int(sp.z))
+			if seen[c.y * gw + c.x] == 0:
+				seen[c.y * gw + c.x] = 1
+				queue.append(c)
+		var head := 0
+		var dirs: Array[Vector2i] = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
+		while head < queue.size():
+			var c := queue[head]
+			head += 1
+			for k in 4:
+				var n := c + dirs[k]
+				if n.x < 0 or n.y < 0 or n.x >= gw or n.y >= gh or seen[n.y * gw + n.x] != 0:
+					continue
+				if world.blocked[n.y * gw + n.x] != 0 or (world.edge_block[c.y * gw + c.x] & (1 << k)) != 0:
+					continue
+				seen[n.y * gw + n.x] = 1
+				queue.append(n)
+		var unreachable := 0
+		var high_cells := 0
+		var mismatched := 0
+		for ty in gh:
+			for tx in gw:
+				var i := ty * gw + tx
+				if world.blocked[i] != 0:
+					continue
+				if world.cell_h[i] > 0.0 or world.stair_idx[i] >= 0:
+					high_cells += 1
+					if seen[i] == 0:
+						unreachable += 1
+				# deux cases plates de niveaux différents ne se touchent jamais par un bord ouvert
+				if tx + 1 < gw and world.blocked[i + 1] == 0 and world.stair_idx[i] < 0 and world.stair_idx[i + 1] < 0 \
+						and absf(world.cell_h[i] - world.cell_h[i + 1]) > 0.02 and (world.edge_block[i] & 2) == 0:
+					mismatched += 1
+				if ty + 1 < gh and world.blocked[i + gw] == 0 and world.stair_idx[i] < 0 and world.stair_idx[i + gw] < 0 \
+						and absf(world.cell_h[i] - world.cell_h[i + gw]) > 0.02 and (world.edge_block[i] & 4) == 0:
+					mismatched += 1
+		check(high_cells > 0, "relief %s : des cases en hauteur existent" % id)
+		check(unreachable == 0, "relief %s : toutes les cases en hauteur sont atteignables depuis les arrivées (%d sur %d hors d'atteinte)" % [id, unreachable, high_cells])
+		check(mismatched == 0, "relief %s : aucun passage direct entre deux niveaux sans rampe (%d)" % [id, mismatched])
+		for it: Dictionary in world.interactables:
+			if bool(it.get("gated", false)):
+				continue
+			var ip: Vector3 = world.interactable_position(it)
+			var near := false
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					var cx := int(ip.x) + dx
+					var cy := int(ip.z) + dy
+					if cx >= 0 and cy >= 0 and cx < gw and cy < gh and seen[cy * gw + cx] != 0:
+						near = true
+			check(near, "relief %s : « %s » reste à portée d'une case atteignable" % [id, str(it["dialogue"])])
+		for wp: Dictionary in world.warps:
+			var wr: Rect2 = wp["rect"]
+			check(seen[clampi(int(wr.get_center().y), 0, gh - 1) * gw + clampi(int(wr.get_center().x), 0, gw - 1)] != 0, "relief %s : passage vers %s atteignable" % [id, str(wp["map"])])
+
+		# un bord à dénivelé arrête réellement le joueur
+		var wall_ok := false
+		for ty in gh:
+			for tx in gw - 1:
+				var i := ty * gw + tx
+				if (world.edge_block[i] & 2) != 0 and world.stair_idx[i] < 0 and world.stair_idx[i + 1] < 0 and not wall_ok:
+					var low_side := tx if world.cell_h[i] < world.cell_h[i + 1] else tx + 1
+					var dir := -1.0 if low_side == tx + 1 else 1.0
+					var wx := float(tx + 1)
+					var p_low := Vector2(wx - dir * 0.05 + (0.0), ty + 0.5)
+					var p_high := Vector2(wx + dir * 0.05, ty + 0.5)
+					# p_low est du côté bas, p_high du côté haut : les deux sont trop près du bord
+					wall_ok = not world.is_free(p_low, 0.28, world.player) and not world.is_free(p_high, 0.28, world.player)
+		check(wall_ok, "relief %s : le bord d'un plateau arrête le joueur" % id)
+
+		# hauteur du joueur sur un plateau, puis retour au sol
+		var top := Vector2i(-1, -1)
+		var best := 0.0
+		for ty in gh:
+			for tx in gw:
+				var i := ty * gw + tx
+				if world.blocked[i] == 0 and world.stair_idx[i] < 0 and world.cell_h[i] > best and world.is_free(Vector2(tx + 0.5, ty + 0.5), 0.28, world.player):
+					best = world.cell_h[i]
+					top = Vector2i(tx, ty)
+		check(top.x >= 0, "relief %s : une case de plateau dégagée existe" % id)
+		if top.x >= 0:
+			world.player.position = Vector3(top.x + 0.5, 0.0, top.y + 0.5)
+			world.player._process(1.0)
+			check(absf(world.player.position.y - best) < 0.01, "relief %s : le joueur monte à %.2f sur le plateau (%.3f)" % [id, best, world.player.position.y])
+			check(absf(world.ground_y(top.x + 0.5, top.y + 0.5) - best) < 0.001, "relief %s : le sol du plateau est à %.2f" % [id, best])
+			world.player.position = Vector3(world.player.position.x, best, world.player.position.z)
+			var spawn: Vector3 = world.spawn_info(str(spawns.keys()[0]))["pos"]
+			world.player.position = Vector3(spawn.x, best, spawn.z)
+			world.player._process(1.0)
+			check(absf(world.player.position.y - world.ground_y(spawn.x, spawn.z)) < 0.01, "relief %s : le joueur redescend au niveau du point d'arrivée" % id)
+		remove_child(world)
+		world.queue_free()
+	check(found >= 3, "relief : au moins trois cartes en ont (%d)" % found)
+	# une carte sans relief reste inchangée : sol à zéro, aucun mur
+	var plain := Database.get_map("auberge")
+	check(not plain.has("heights") and not plain.has("stairs"), "relief : l'auberge n'a pas de relief")
+	var w2: Node3D = World.new()
+	add_child(w2)
+	w2.setup("auberge", str(plain["spawns"].keys()[0]))
+	check(not w2.has_relief and w2.ground_y(5.0, 5.0) == 0.0, "relief : une carte sans relief garde un sol à zéro")
+	remove_child(w2)
+	w2.queue_free()

@@ -16,6 +16,14 @@
 			{"type": "path", "rect": [32, 7, 2, 3]}
 		]
 	},
+	"heights": [
+		{"rect": [29, 2, 8, 6], "h": 1.2},
+		{"rect": [1, 2, 5, 6], "h": 1.0}
+	],
+	"stairs": [
+		{"rect": [32, 8, 2, 2], "dir": "up", "from": 0.0, "to": 1.2},
+		{"rect": [6, 4, 2, 2], "dir": "left", "from": 0.0, "to": 1.0}
+	],
 	"spawns": {
 		"ouest": {"pos": [1.5, 10.5], "facing": "right"}
 	},
