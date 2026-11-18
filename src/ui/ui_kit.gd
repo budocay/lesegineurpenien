@@ -338,7 +338,7 @@ static func screen(root: Control, title: String, min_size: Vector2, shade_alpha:
 	full_rect(center)
 	root.add_child(center)
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", soft_style(0.88, 26))
+	panel.add_theme_stylebox_override("panel", soft_style(0.95, 26))
 	panel.custom_minimum_size = min_size
 	center.add_child(panel)
 	var box := VBoxContainer.new()

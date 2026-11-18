@@ -972,7 +972,7 @@ func _obstacles(view: Vector2) -> Array[Rect2]:
 	for c: RefCounted in engine.all():
 		if c.side == "enemy" and not c.alive():
 			continue
-		out.append(scene.screen_rect(c, c == _actor).grow_individual(14.0, 14.0, 14.0, 30.0))   # marge : les chapeaux et les bras dépassent du cadre calculé
+		out.append(scene.screen_rect(c, c == _actor).grow_individual(8.0, 8.0, 8.0, 14.0))   # marge : les chapeaux et les bras dépassent du cadre calculé
 	for key: String in _plates:
 		var root: Control = (_plates[key] as Dictionary)["root"]
 		if root.visible:
@@ -1040,23 +1040,44 @@ func _place_menu() -> void:
 		var rw := _root_panel.size.x
 		var rh := _root_panel.size.y + 14.0   # marge : la ligne choisie s'ouvre sous son nom (une ou deux lignes d'aide)
 		var stepped: Rect2 = scene.screen_rect(_actor, true)
-		# la barre d'élan reste collée sous le panneau qu'elle sert : on place le bloc entier (panneau + barre)
 		var bar0: Control = _elan_bars[0]["panel"]
 		bar0.reset_size()
 		var bar1: Control = _elan_bars[1]["panel"]
 		bar1.reset_size()
-		var bh0 := bar0.size.y + 4.0 if bar0.visible else 0.0
-		_root_pos = free_spot(Vector2(rw, rh + bh0), Vector2(stepped.position.x - 24.0 - rw, c.y - 96.0), obstacles, view)
-		_bar_pos[0] = Vector2(_root_pos.x, _root_pos.y + _root_panel.size.y + 4.0)
+		_root_pos = free_spot(Vector2(rw, rh), Vector2(stepped.position.x - 24.0 - rw, c.y - 96.0), obstacles, view)
+		_bar_pos[0] = _bar_beside(bar0.size, Rect2(_root_pos, _root_panel.size), obstacles, view)
 		if _list_panel.visible:
 			var lw := _list_panel.size.x
-			var lh := _list_panel.size.y + bar1.size.y + 4.0
+			var lh := _list_panel.size.y
 			_list_pos = free_spot(Vector2(lw, lh), Vector2(_root_pos.x - 40.0, _root_pos.y + 44.0), obstacles, view)
-			_bar_pos[1] = Vector2(_list_pos.x, _list_pos.y + _list_panel.size.y + 4.0)
+			_bar_pos[1] = _bar_beside(bar1.size, Rect2(_list_pos, _list_panel.size), obstacles, view)
 	_root_panel.position = _root_pos
 	if _list_panel.visible:
 		_list_panel.position = _list_pos
 	(_elan_bars[1 if _list_panel.visible else 0]["panel"] as Control).position = _bar_pos[1 if _list_panel.visible else 0]
+
+
+## Place de la barre d'élan : collée au panneau qu'elle sert (dessous, puis dessus), à condition de ne
+## rien couvrir ; sinon la place libre la plus proche (voir free_spot).
+static func _bar_beside(size: Vector2, panel: Rect2, obstacles: Array[Rect2], view: Vector2) -> Vector2:
+	obstacles = obstacles.slice(0, obstacles.size() - 2)   # la barre peut se glisser dans les réserves du bas (touches, centre)
+	var below := Vector2(panel.position.x, panel.end.y + 4.0)
+	var above := Vector2(panel.position.x, panel.position.y - size.y - 4.0)
+	for spot: Vector2 in [below, above]:
+		var r := Rect2(spot, size)
+		if r.position.x < 6.0 or r.position.y < 6.0 or r.end.x > view.x - 6.0 or r.end.y > view.y - 6.0:
+			continue
+		var clear := true
+		for o: Rect2 in obstacles:
+			if r.intersects(o):
+				clear = false
+				break
+		if clear:
+			return spot
+	var obs2: Array[Rect2] = []
+	obs2.append_array(obstacles)
+	obs2.append(panel.grow(2.0))
+	return free_spot(size, below, obs2, view)
 
 
 func _set_root_live(live: bool) -> void:

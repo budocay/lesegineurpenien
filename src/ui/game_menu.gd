@@ -366,7 +366,8 @@ static func stats_table(keys: Array, before: Dictionary, after: Dictionary = {},
 					cell = UI.tint(_fmt(key, a), UI.INK_FAINT)
 				else:
 					var color: Color = UI.GOOD if b > a else UI.WARN
-					cell = "%s → %s" % [_fmt(key, a), UI.tint("%s %s" % [_fmt(key, b), "▲" if b > a else "▼"], color)]
+					# « » » et « (+3) » : des signes de la police du jeu (→ et ▲ venaient d'une autre police et décalaient la ligne)
+					cell = "%s » %s" % [_fmt(key, a), UI.tint("%s (%s)" % [_fmt(key, b), _fmt(key, b - a, true)], color)]
 			else:
 				cell = _fmt(key, a)
 				if not bare.is_empty() and int(bare.get(key, a)) != a:
