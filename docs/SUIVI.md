@@ -708,6 +708,14 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
   mise à l'échelle (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier),
   volumes. Réglages gardés d'une session à l'autre.
 - **Amélioration graphique** : chantier permanent, à poursuivre après chaque relecture.
+- **Respecter les environnements du récit d'origine.** Chaque région doit ressembler à son
+  modèle : Fondue-Combe est une cité elfique (vallée encaissée, cascades, ponts fins,
+  arcades et colonnes élancées de pierre claire, toits en pavillon, arbres d'or), pas un
+  village à colombages. Il faut donc un jeu de décors propre à chaque peuple (Grobittes :
+  collines et portes rondes ; Brie : bourg d'hommes ; Elfes ; Nains des Mines ; Mordgras),
+  à peindre dans `tile_painter.gd` / `prop_painter.gd` et à brancher dans `map_builder.gd`.
+  À faire dès que le chapitre 3 est fusionné (son agent n'avait pas le droit de toucher
+  aux décors : sa cité sera bâtie avec les maisons existantes en attendant).
 
 ## Préparé pour la suite, mais pas fait
 
