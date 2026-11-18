@@ -1,68 +1,68 @@
 {
-	"fripon": [
-		{"if": "fripon_avoue",
+	"froton": [
+		{"if": "froton_avoue",
 			"then": [
 				{"if": "party:sam",
 					"then": [
-						{"who": "sam", "text": "Fripon. Tu as vendu la poêle de ma mère."},
-						{"who": "fripon", "text": "Je comptais la racheter ! Une fois riche et célèbre. Tu aurais eu une poêle en or, Sam."},
+						{"who": "sam", "text": "Froton. Tu as vendu la poêle de ma mère."},
+						{"who": "froton", "text": "Je comptais la racheter ! Une fois riche et célèbre. Tu aurais eu une poêle en or, Sam."},
 						{"who": "sam", "text": "On ne cuisine pas dans l'or. Ça attache."},
-						{"text": "Un silence. Fripon regarde ses pieds, ce qui, pour un Grobitte, ne demande pas un grand effort."},
-						{"who": "fripon", "text": "Pardon, Sam. ... Et tenez, grand-père. Votre pipe. Elle tire mal, de toute façon."},
+						{"text": "Un silence. Froton regarde ses pieds, ce qui, pour un Grobitte, ne demande pas un grand effort."},
+						{"who": "froton", "text": "Pardon, Sam. ... Et tenez, grand-père. Votre pipe. Elle tire mal, de toute façon."},
 						{"give": "pipe_bruyere"},
 						{"who": "glandoulf", "text": "Elle tire très bien. Il faut seulement ne pas être pressé."},
 						{"who": "glandoulf", "text": "Vous vouliez voir du pays. Quelque chose ramollit le Comté, et je vais devoir aller voir d'où cela vient. À mon grand regret."},
 						{"who": "glandoulf", "text": "Venez. Je préfère vous avoir devant moi que derrière mes poches."},
-						{"who": "fripon", "text": "Jusqu'à Minas Tartine ?"},
+						{"who": "froton", "text": "Jusqu'à Minas Tartine ?"},
 						{"who": "glandoulf", "text": "Jusqu'au bout de la rue, pour commencer."},
-						{"join": "fripon"},
-						{"set": "fripon_equipe"}
+						{"join": "froton"},
+						{"set": "froton_equipe"}
 					],
 					"else": [
-						{"who": "fripon", "text": "Ursule tient son étal sur le quai, à côté des caisses. Elle ne vous fera pas de prix : elle n'en fait à personne."},
+						{"who": "froton", "text": "Ursule tient son étal sur le quai, à côté des caisses. Elle ne vous fera pas de prix : elle n'en fait à personne."},
 						{"who": "glandoulf", "text": "Ne bougez pas d'ici. Je reviens avec le propriétaire de la poêle."},
-						{"who": "fripon", "text": "Je ne bouge jamais quand on me le demande aussi gentiment."}
+						{"who": "froton", "text": "Je ne bouge jamais quand on me le demande aussi gentiment."}
 					]
 				}
 			],
 			"else": [
-				{"if": "fripon_vu",
+				{"if": "froton_vu",
 					"then": [
 						{"if": "sam_vu",
 							"then": [
 								{"who": "glandoulf", "text": "Une pipe disparaît l'après-midi. Une poêle en fonte disparaît la nuit. Je ne suis pas enquêteur, mais je sais compter jusqu'à deux."},
-								{"who": "fripon", "text": "Une poêle ? Qu'est-ce que je ferais d'une poêle ?"},
+								{"who": "froton", "text": "Une poêle ? Qu'est-ce que je ferais d'une poêle ?"},
 								{"who": "glandoulf", "text": "C'est la question que je me pose. Y répondre me fatigue d'avance, alors répondez à ma place."},
-								{"who": "fripon", "text": "... Je l'ai vendue. À Ursule, sur le quai. Douze écus."},
-								{"who": "fripon", "text": "Il faut des sous pour aller jusqu'à Minas Tartine ! Vous croyez qu'on devient quelqu'un les poches vides ?"},
+								{"who": "froton", "text": "... Je l'ai vendue. À Ursule, sur le quai. Douze écus."},
+								{"who": "froton", "text": "Il faut des sous pour aller jusqu'à Minas Tartine ! Vous croyez qu'on devient quelqu'un les poches vides ?"},
 								{"who": "glandoulf", "text": "On ne devient personne en vidant la cuisine d'un ami. Les douze écus."},
-								{"text": "Fripon compte les pièces une à une, avec la lenteur de quelqu'un qui espère un contrordre."},
+								{"text": "Froton compte les pièces une à une, avec la lenteur de quelqu'un qui espère un contrordre."},
 								{"money": 12},
-								{"who": "fripon", "text": "Elle en demandera plus du triple pour la rendre. Ursule a le sens des affaires. Moi, je n'ai que le sens des occasions."},
+								{"who": "froton", "text": "Elle en demandera plus du triple pour la rendre. Ursule a le sens des affaires. Moi, je n'ai que le sens des occasions."},
 								{"who": "glandoulf", "text": "Et ma pipe ?"},
-								{"who": "fripon", "text": "Quelle pipe ?"},
+								{"who": "froton", "text": "Quelle pipe ?"},
 								{"text": "Il tire une longue bouffée, très digne."},
 								{"who": "glandoulf", "text": "Nous en reparlerons. Devant témoin."},
-								{"set": "fripon_avoue"}
+								{"set": "froton_avoue"}
 							],
 							"else": [
-								{"who": "fripon", "text": "Vous me regardez bizarrement, grand-père. C'est la pipe ? Elle vous rappelle quelqu'un ?"},
+								{"who": "froton", "text": "Vous me regardez bizarrement, grand-père. C'est la pipe ? Elle vous rappelle quelqu'un ?"},
 								{"who": "glandoulf", "text": "Je réglerai ça demain. Mais je le réglerai."}
 							]
 						}
 					],
 					"else": [
-						{"who": "fripon", "text": "Belle soirée, grand-père. Vous cherchez quelque chose ?"},
+						{"who": "froton", "text": "Belle soirée, grand-père. Vous cherchez quelque chose ?"},
 						{"who": "glandoulf", "text": "Un fauteuil. Et accessoirement ma pipe. Je l'avais en arrivant, je ne l'ai plus."},
-						{"who": "fripon", "text": "Une pipe ? Quelle tristesse. On n'est plus en sécurité nulle part."},
+						{"who": "froton", "text": "Une pipe ? Quelle tristesse. On n'est plus en sécurité nulle part."},
 						{"text": "Il tire une longue bouffée d'une pipe en bruyère, grande comme son avant-bras."},
 						{"who": "glandoulf", "text": "Jolie pipe."},
-						{"who": "fripon", "text": "Héritage de famille. Très ancien. Depuis... cet après-midi."},
+						{"who": "froton", "text": "Héritage de famille. Très ancien. Depuis... cet après-midi."},
 						{"who": "glandoulf", "text": "..."},
-						{"who": "fripon", "text": "Je ne resterai pas ici toute ma vie, vous savez. À tailler du bois comme les autres. Un jour, on connaîtra mon nom jusqu'à Minas Tartine."},
+						{"who": "froton", "text": "Je ne resterai pas ici toute ma vie, vous savez. À tailler du bois comme les autres. Un jour, on connaîtra mon nom jusqu'à Minas Tartine."},
 						{"who": "glandoulf", "text": "Un Grobitte avec de l'ambition. Voilà qui est rare. [i](Et inquiétant.)[/i]"},
-						{"who": "fripon", "text": "Fripon Besace. Retenez-le. Ici, on dit « le petit Besace ». Ça changera."},
-						{"set": "fripon_vu"}
+						{"who": "froton", "text": "Froton Salfait. Retenez-le. Ici, on le prononce en deux mots, « Sale fait », comme un travail mal torché. Ça changera."},
+						{"set": "froton_vu"}
 					]
 				}
 			]
@@ -87,7 +87,7 @@
 			"else": [
 				{"if": "sam_vu",
 					"then": [
-						{"if": "fripon_avoue",
+						{"if": "froton_avoue",
 							"then": [
 								{"who": "sam", "text": "Chez Ursule ? Sur le quai ? Elle l'a mise en vente ? Avec les louches d'occasion ?"},
 								{"who": "sam", "text": "Je n'ai plus un écu, monsieur Glandoulf. Tout est parti dans le beurre du concours."},
@@ -254,18 +254,18 @@
 		{"if": "potager_soigne",
 			"then": [{"text": "Les poireaux se tiennent au garde-à-vous. C'est le seul carré du village qui ait l'air de bonne humeur."}],
 			"else": [
-				{"if": "racines_prises & party:pepine",
+				{"if": "racines_prises & party:pepin",
 					"then": [
-						{"who": "pepine", "text": "De la fraîche, cette fois. J'en ai gardé un brin dans ma poche. Reculez : ça pique les yeux."},
-						{"text": "Pépine écrase la racine-qui-réveille dans l'arrosoir et arrose le carré, rang par rang."},
+						{"who": "pepin", "text": "De la fraîche, cette fois. J'en ai gardé un brin dans ma poche. Reculez : ça pique les yeux."},
+						{"text": "Pépin écrase la racine-qui-réveille dans l'arrosoir et arrose le carré, rang par rang."},
 						{"text": "Un poireau frémit. Puis un autre. En un instant, tout le potager se redresse."},
-						{"who": "pepine", "text": "Ha ! Debout, mes grands ! ... Mais ce n'est qu'un remède. Demain, il faudra recommencer, et la racine ne repoussera jamais assez vite pour tout le Comté."},
-						{"who": "pepine", "text": "Le mal vient d'ailleurs. Il faut le prendre à la source."},
+						{"who": "pepin", "text": "Ha ! Debout, mes grands ! ... Mais ce n'est qu'un remède. Demain, il faudra recommencer, et la racine ne repoussera jamais assez vite pour tout le Comté."},
+						{"who": "pepin", "text": "Le mal vient d'ailleurs. Il faut le prendre à la source."},
 						{"who": "glandoulf", "text": "[i](À la source. C'est-à-dire loin. C'est toujours loin.)[/i]"},
-						{"who": "pepine", "text": "J'ai dit que je vous suivrais : je vous suis. Et prenez ce tuteur. Il a tenu droit mes plus beaux poireaux, il vous tiendra bien l'échine."},
+						{"who": "pepin", "text": "J'ai dit que je vous suivrais : je vous suis. Et prenez ce tuteur. Il a tenu droit mes plus beaux poireaux, il vous tiendra bien l'échine."},
 						{"set": "potager_soigne"}
 					],
-					"else": [{"text": "Le potager de Pépine. Les poireaux sont couchés dans la terre, comme après une mauvaise nouvelle."}]
+					"else": [{"text": "Le potager de Pépin. Les poireaux sont couchés dans la terre, comme après une mauvaise nouvelle."}]
 				}
 			]
 		}

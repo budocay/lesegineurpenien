@@ -65,10 +65,10 @@ func _ready() -> void:
 	await _goto(Vector3(8.2, 0.0, 11.5), "left")
 	print("  cible : ", main.world.focus.get("dialogue", "(aucune)"), "  commandes : ", main.world.input_enabled,
 			"  joueur : ", main.world.player.position, "  invite visible : ", main.hud._prompt.visible, " à ", main.hud._prompt.position)
-	await _shot("5_pepine_invite")
+	await _shot("5_pepin_invite")
 	main._on_interact(main.world.focus)
 	await _frames(140)
-	await _shot("6_pepine_dialogue")
+	await _shot("6_pepin_dialogue")
 	await _idle()
 	await _goto(Vector3(23.0, 0.0, 24.6), "down")
 	await _shot("7_quai")
@@ -88,7 +88,7 @@ func _ready() -> void:
 	await _frames(20)
 
 	# le Pré Couché et un combat de rencontre, à deux
-	GameState.add_to_party("pepine")
+	GameState.add_to_party("pepin")
 	GameState.heal_party()
 	main.change_map("pre_couche", "ouest")
 	await _frames(60)
@@ -135,7 +135,7 @@ func _ready() -> void:
 
 	# étape 4 : l'étal d'Ursule, le journal, l'équipe, l'inventaire, la boutique
 	await _idle()
-	for f: String in ["gedeon_vu", "cales_recues", "bitte_1", "sam_vu", "fripon_vu", "fripon_avoue", "ursule_vue"]:
+	for f: String in ["gedeon_vu", "cales_recues", "bitte_1", "sam_vu", "froton_vu", "froton_avoue", "ursule_vue"]:
 		GameState.set_flag(f)
 	GameState.money = 80
 	GameState.add_item("cale", 3)
@@ -162,7 +162,7 @@ func _ready() -> void:
 		await _frames(10)
 	# étape 3 : l'écran de talents, à quatre, avec des points dépensés et d'autres à dépenser
 	main.pause.close(true)
-	for id: String in ["sam", "fripon"]:
+	for id: String in ["sam", "froton"]:
 		GameState.add_to_party(id)
 	for id: Variant in GameState.party:
 		GameState.member(str(id))["level"] = 5
@@ -204,9 +204,9 @@ func _ready() -> void:
 	await _anim_shot("35_anim_bouquet_final", "bouquet_final", "glandoulf", false, false)
 	await _anim_shot("36_anim_sieste_collective", "sieste_collective", "glandoulf", false, false)
 	await _anim_shot("37_anim_tonnerre", "tonnerre", "glandoulf", false, false)
-	await _anim_shot("38_anim_coup_en_douce", "coup_en_douce", "fripon", false, false)
+	await _anim_shot("38_anim_coup_en_douce", "coup_en_douce", "froton", false, false)
 	await _anim_shot("39_anim_banquet", "banquet", "sam", false, true)
-	await _anim_shot("40_anim_purin_ortie", "purin_ortie", "pepine", false, false)
+	await _anim_shot("40_anim_purin_ortie", "purin_ortie", "pepin", false, false)
 	await _anim_shot("41_anim_charge_ennemie", "charge_molle", "", true, true)
 	await _anim_shot("42_anim_cri_strident", "cri_strident", "", true, true)
 	SaveManager.delete_save()

@@ -17,7 +17,7 @@ func _ready() -> void:
 		await get_tree().process_frame
 	main.title.close()
 	GameState.new_game()
-	for id: String in ["sam", "fripon", "pepine"]:
+	for id: String in ["sam", "froton", "pepin"]:
 		GameState.add_to_party(id)
 	main.mode = main.Mode.PLAY
 	GameState.playing = true

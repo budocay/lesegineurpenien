@@ -39,10 +39,10 @@
 			],
 			"else": [
 				{"text": "Au fond de l'enclos, quelques plants bien droits ont résisté à tout. De la racine-qui-réveille."},
-				{"if": "pepine_equipe",
+				{"if": "pepin_equipe",
 					"then": [
-						{"who": "pepine", "text": "De la racine-qui-réveille ! Et vigoureuse, avec ça. C'est bien la seule chose qui se tienne encore dans ce pré."},
-						{"who": "pepine", "text": "Une pincée sous le nez, et même un mort se relève pour se plaindre de l'odeur."}
+						{"who": "pepin", "text": "De la racine-qui-réveille ! Et vigoureuse, avec ça. C'est bien la seule chose qui se tienne encore dans ce pré."},
+						{"who": "pepin", "text": "Une pincée sous le nez, et même un mort se relève pour se plaindre de l'odeur."}
 					],
 					"else": [
 						{"who": "glandoulf", "text": "Ça sent le remède de bonne femme. J'en connais une que ça intéresserait."}

@@ -181,8 +181,8 @@ liste d'instructions lues dans l'ordre :
 ```json
 "exemple": [
 	{"text": "Une ligne de narration, sans nom."},
-	{"who": "pepine", "text": "Une réplique de Pépine."},
-	{"who": "pepine", "name": "Une voix", "text": "Même portrait, autre nom affiché."},
+	{"who": "pepin", "text": "Une réplique de Pépin."},
+	{"who": "pepin", "name": "Une voix", "text": "Même portrait, autre nom affiché."},
 	{"if": "drapeau_deja_pose", "then": [ ... ], "else": [ ... ]},
 	{"set": "drapeau_deja_pose"},
 	{"choice": [
@@ -270,7 +270,7 @@ Fête) ; `size` règle sa taille.
 	"greeting": "Phrase affichée à l'entrée.",
 	"stock": [
 		{"item": "tisane"},
-		{"item": "poele_gamelle", "price": 40, "if": "fripon_avoue", "once": "poele_rachetee"}
+		{"item": "poele_gamelle", "price": 40, "if": "froton_avoue", "once": "poele_rachetee"}
 	]
 }
 ```

@@ -56,6 +56,7 @@ func _ready() -> void:
 	_test_character_art()
 	_test_scenery()
 	_test_chapter_2_data()
+	_test_names_and_merri()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -421,7 +422,7 @@ func _test_sprites() -> void:
 		var t := Sprites.tile_image(kind)
 		check(t.get_width() == 48 and t.get_pixel(0, 0) != Color.MAGENTA, "texture %s" % kind)
 	if verbose:
-		for id: String in ["glandoulf", "sam", "pepine"]:
+		for id: String in ["glandoulf", "sam", "pepin"]:
 			var img: Image = Sprites.character(id)["image"]
 			print("  %s : face, pas de côté, dos" % id)
 			_ascii(img, Rect2i(0, 0, 32, 48))
@@ -713,7 +714,7 @@ func _test_engine() -> void:
 	# petit somme : soin contre un tour de sommeil
 	GameState.new_game()
 	GameState.member("glandoulf")["level"] = 2
-	GameState.add_to_party("pepine")
+	GameState.add_to_party("pepin")
 	GameState.heal_party()
 	e = BattleEngine.new()
 	e.setup({"enemies": ["guepe_cidre", "guepe_cidre"], "arena": "pre"}, 5)
@@ -738,7 +739,7 @@ func _test_engine() -> void:
 	check(p.alive(), "la racine-qui-réveille relève un allié")
 	g.hp = 4
 	e.perform(p, {"type": "skill", "id": "cataplasme", "target": g})
-	check(int(g.hp) > 4, "Pépine soigne un allié")
+	check(int(g.hp) > 4, "Pépin soigne un allié")
 	# ordre des tours : la guêpe (vitesse 13) joue plus souvent que Glandoulf (vitesse 8)
 	var order: Array = e.preview(30)
 	var wasp_turns := 0
@@ -781,11 +782,11 @@ func _test_engine() -> void:
 	check(immune and e.known_weak(e.enemies[0]).has("torpeur"), "Sauron craint la torpeur mais ne s'endort jamais")
 
 
-const TEAM := ["glandoulf", "sam", "fripon", "pepine"]
+const TEAM := ["glandoulf", "sam", "froton", "pepin"]
 
 
 ## Une rencontre nommée, avec le Ramollissement de la carte d'où elle est lancée.
-const BIBLE_TEAM := ["glandoulf", "sam", "fripon", "pepine", "aragrogne", "legolasse", "gimlette"]
+const BIBLE_TEAM := ["glandoulf", "sam", "froton", "pepin", "aragrogne", "digoulasse", "grimli", "merri"]
 const PASSIVES := ["crit", "element_boost", "status_chance", "heal_boost", "guard", "counter", "regen_mp", "regen_hp", "initiative", "money_bonus", "vs_afflicted", "fury", "immune"]
 
 
@@ -928,13 +929,13 @@ func _test_talents() -> void:
 	var events: Array = e.start_turn(g)
 	check(int(g.mp) == 1 and _has_event(events, "mana") and not bool(e.can_act), "Sommeil réparateur : un PM par tour, même endormi")
 
-	_solo(["glandoulf", "fripon"], 3, {"fripon": ["doigts_de_fee", "pieds_legers"]})
+	_solo(["glandoulf", "froton"], 3, {"froton": ["doigts_de_fee", "pieds_legers"]})
 	e = BattleEngine.new()
 	e.setup({"enemies": ["grande_baveuse"]}, 3)
-	var f := _find(e.party, "fripon")
+	var f := _find(e.party, "froton")
 	var boss: RefCounted = e.enemies[0]
-	check(is_equal_approx(float(f.wait), 500.0 / float(f.speed())), "Pieds légers : Fripon prend de l'avance au début du combat")
-	check(e.next_actor() == f, "Pieds légers : Fripon joue le premier")
+	check(is_equal_approx(float(f.wait), 500.0 / float(f.speed())), "Pieds légers : Froton prend de l'avance au début du combat")
+	check(e.next_actor() == f, "Pieds légers : Froton joue le premier")
 	f.wait = 0.0
 	events = e.perform(f, {"type": "skill", "id": "fauche", "target": boss})
 	var expected := maxi(1, int(round(int(boss.money) * 0.5)))
@@ -972,26 +973,26 @@ func _test_talents() -> void:
 			check(int(boss.hp) < hp_before, "Retour de poêle : la riposte fait mal")
 	check(counters >= 5 and counters <= 25, "Retour de poêle : Sam riposte environ une fois sur trois (%d/40)" % counters)
 
-	_solo(["glandoulf", "pepine"], 7, {"pepine": ["tabac_de_caractere", "nuage_tonique_t", "nuage_acre_t", "brouillard_epais_t"]})
+	_solo(["glandoulf", "pepin"], 7, {"pepin": ["tabac_de_caractere", "nuage_tonique_t", "nuage_acre_t", "brouillard_epais_t"]})
 	e = BattleEngine.new()
 	e.setup({"enemies": ["grande_baveuse"]}, 6)
-	var pepine := _find(e.party, "pepine")
+	var pepin := _find(e.party, "pepin")
 	boss = e.enemies[0]
-	e.perform(pepine, {"type": "skill", "id": "brouillard_epais"})
-	check(pepine.has_status("enfume") and e.party[0].has_status("enfume"), "Brouillard épais : toute l'équipe est enfumée")
+	e.perform(pepin, {"type": "skill", "id": "brouillard_epais"})
+	check(pepin.has_status("enfume") and e.party[0].has_status("enfume"), "Brouillard épais : toute l'équipe est enfumée")
 	var misses := 0
 	for i in 60:
-		pepine.hp = pepine.max_hp()
-		if _has_event(e.perform(boss, {"type": "attack", "target": pepine}), "miss"):
+		pepin.hp = pepin.max_hp()
+		if _has_event(e.perform(boss, {"type": "attack", "target": pepin}), "miss"):
 			misses += 1
 	check(misses >= 8 and misses <= 30, "Brouillard épais : un coup physique sur trois environ rate (%d/60)" % misses)
-	pepine.mp = pepine.max_mp()
-	e.perform(pepine, {"type": "skill", "id": "nuage_acre"})
+	pepin.mp = pepin.max_mp()
+	e.perform(pepin, {"type": "skill", "id": "nuage_acre"})
 	var def_before := float(boss.base.get("def", 0))
 	boss.statuses["demoralise"] = {"turns": 3, "fresh": false}
 	check(float(boss.stat("def")) < def_before or def_before == 0.0, "Démoralisé : défense réduite")
 
-	_solo(["gimlette"], 7, {"gimlette": ["crane_de_morbier", "meme_pas_mal"]})
+	_solo(["grimli"], 7, {"grimli": ["crane_de_morbier", "meme_pas_mal"]})
 	e = BattleEngine.new()
 	e.setup({"enemies": ["limace_molle"]}, 2)
 	check((e.party[0].immune as Array).has("sonne"), "Même pas mal : un talent peut immuniser contre un état")
@@ -1031,12 +1032,12 @@ func _test_balance() -> void:
 		["seul niv. 1 contre deux limaces", ["glandoulf"], 1, {"enemies": ["limace_molle", "limace_molle"]}, 0.5],
 		["seul niv. 1 contre deux guêpes", ["glandoulf"], 1, {"enemies": ["guepe_cidre", "guepe_cidre"]}, 0.4],
 		["seul niv. 1 contre un épouvantail", ["glandoulf"], 1, {"enemies": ["epouvantail_avachi"]}, 0.4],
-		["à deux niv. 2 contre trois guêpes", ["glandoulf", "pepine"], 2, {"enemies": ["guepe_cidre", "guepe_cidre", "guepe_cidre"]}, 0.5],
-		["à deux niv. 3 contre épouvantail et limaces", ["glandoulf", "pepine"], 3, {"enemies": ["epouvantail_avachi", "limace_molle", "limace_molle"]}, 0.5],
-		["à deux niv. 4 contre la Grande Baveuse", ["glandoulf", "pepine"], 4, Database.get_encounter("grande_baveuse"), 0.5],
-		["à quatre niv. 3 contre la Grande Baveuse", ["glandoulf", "sam", "fripon", "pepine"], 3, Database.get_encounter("grande_baveuse"), 0.8],
+		["à deux niv. 2 contre trois guêpes", ["glandoulf", "pepin"], 2, {"enemies": ["guepe_cidre", "guepe_cidre", "guepe_cidre"]}, 0.5],
+		["à deux niv. 3 contre épouvantail et limaces", ["glandoulf", "pepin"], 3, {"enemies": ["epouvantail_avachi", "limace_molle", "limace_molle"]}, 0.5],
+		["à deux niv. 4 contre la Grande Baveuse", ["glandoulf", "pepin"], 4, Database.get_encounter("grande_baveuse"), 0.5],
+		["à quatre niv. 3 contre la Grande Baveuse", ["glandoulf", "sam", "froton", "pepin"], 3, Database.get_encounter("grande_baveuse"), 0.8],
 		# Étape 5 : les alentours de Bittebourg, la Fête et la route de Brie.
-		["à deux niv. 3 contre un sanglier (bois)", ["glandoulf", "pepine"], 3, {"enemies": ["sanglier_flapi"], "ramollissement": 0.2}, 0.8],
+		["à deux niv. 3 contre un sanglier (bois)", ["glandoulf", "pepin"], 3, {"enemies": ["sanglier_flapi"], "ramollissement": 0.2}, 0.8],
 		["à quatre niv. 4 contre sanglier et frelon", TEAM, 4, {"enemies": ["sanglier_flapi", "frelon_bois"], "ramollissement": 0.2}, 0.9],
 		["à quatre niv. 4 contre sanglier et amanite", TEAM, 4, {"enemies": ["sanglier_flapi", "amanite_molle"], "ramollissement": 0.2}, 0.9],
 		["à quatre niv. 4 contre le Vieux Solitaire", TEAM, 4, _soft("vieux_solitaire", 0.2), 0.8],
@@ -1055,8 +1056,8 @@ func _test_balance() -> void:
 		["à quatre niv. 7 contre le péage de la route", TEAM, 7, _soft("morfales_route", 0.15), 0.9],
 		["à quatre niv. 7 contre deux Morfales (route)", TEAM, 7, {"enemies": ["morfale_eclaireur", "morfale_eclaireur"], "ramollissement": 0.15}, 0.9],
 		# Étape 3 : les mêmes combats avec les points de talent dépensés (dernier chiffre : 0 = première voie d'abord, 1 = seconde).
-		["talents A, à deux niv. 3 contre épouvantail et limaces", ["glandoulf", "pepine"], 3, {"enemies": ["epouvantail_avachi", "limace_molle", "limace_molle"]}, 0.5, 0],
-		["talents A, à deux niv. 4 contre la Grande Baveuse", ["glandoulf", "pepine"], 4, Database.get_encounter("grande_baveuse"), 0.5, 0],
+		["talents A, à deux niv. 3 contre épouvantail et limaces", ["glandoulf", "pepin"], 3, {"enemies": ["epouvantail_avachi", "limace_molle", "limace_molle"]}, 0.5, 0],
+		["talents A, à deux niv. 4 contre la Grande Baveuse", ["glandoulf", "pepin"], 4, Database.get_encounter("grande_baveuse"), 0.5, 0],
 		["talents A, à quatre niv. 4 contre le Vieux Solitaire", TEAM, 4, _soft("vieux_solitaire", 0.2), 0.8, 0],
 		["talents B, à quatre niv. 4 contre le Vieux Solitaire", TEAM, 4, _soft("vieux_solitaire", 0.2), 0.8, 1],
 		["talents A, à quatre niv. 5 contre Monseigneur", TEAM, 5, _soft("crapaud_buffle", 0.2), 0.8, 0],
@@ -1147,7 +1148,7 @@ func _test_animations() -> void:
 ## avec les animations, et les poses de coup reçu, de KO et de retour.
 func _test_animation_play() -> void:
 	GameState.new_game()
-	for who: String in ["pepine", "sam"]:
+	for who: String in ["pepin", "sam"]:
 		GameState.add_to_party(who)
 	for who: String in GameState.party:
 		GameState.member(who)["level"] = 9
@@ -1241,7 +1242,7 @@ func _test_animation_play() -> void:
 
 func _test_battle_scene() -> void:
 	GameState.new_game()
-	GameState.add_to_party("pepine")
+	GameState.add_to_party("pepin")
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	var ui: Control = BattleUI.new()
@@ -1304,7 +1305,7 @@ func _test_battle_scene() -> void:
 	# chaque rencontre nommée se construit et se joue toute seule, dans son arène
 	for id: String in Database.encounters:
 		GameState.new_game()
-		for who: String in ["pepine", "sam", "fripon"]:
+		for who: String in ["pepin", "sam", "froton"]:
 			GameState.add_to_party(who)
 		for who: String in GameState.party:
 			GameState.member(who)["level"] = 9
@@ -1534,7 +1535,7 @@ func _test_step4() -> void:
 	GameState.new_game()
 	check(GameState.from_dict(saved), "relecture d'une sauvegarde de l'étape 4")
 	check(GameState.quest_state("bittes") == "active" and GameState.equipped("glandoulf", "weapon") == "baton_ferre", "quêtes et équipement restaurés")
-	var old := {"map_id": "bittebourg", "flags": {"pepine_vue": true}, "party": ["glandoulf"], "roster": {"glandoulf": {"level": 3, "xp": 4, "hp": 20, "mp": 10}}}
+	var old := {"map_id": "bittebourg", "flags": {"pepin_vue": true}, "party": ["glandoulf"], "roster": {"glandoulf": {"level": 3, "xp": 4, "hp": 20, "mp": 10}}}
 	check(GameState.from_dict(old), "relecture d'une sauvegarde d'avant l'étape 4")
 	check(GameState.quest_state("potager") == "active" and GameState.equipped("glandoulf", "weapon") == "", "ancienne sauvegarde : journal reconstitué, équipement vide")
 	GameState.new_game()
@@ -1627,8 +1628,8 @@ func _test_menus() -> void:
 	await get_tree().process_frame
 	check((menu.entry_texts() as Array).size() == 3, "boutique : acheter, vendre, partir")
 	for offer: Dictionary in menu.shop_offers():
-		check(str(offer["item"]) != "poele_gamelle", "boutique : la poêle n'est pas en vente avant l'aveu de Fripon")
-	GameState.set_flag("fripon_avoue")
+		check(str(offer["item"]) != "poele_gamelle", "boutique : la poêle n'est pas en vente avant l'aveu de Froton")
+	GameState.set_flag("froton_avoue")
 	menu.press(0)
 	await get_tree().process_frame
 	check(str((menu.shop_offers() as Array)[0]["item"]) == "poele_gamelle", "boutique : la poêle apparaît après l'aveu")
@@ -1670,8 +1671,8 @@ func _test_talent_screen() -> void:
 	screen.closed.connect(func() -> void: closed[0] += 1)
 	GameState.new_game()
 	GameState.member("glandoulf")["level"] = 3   # deux points
-	GameState.add_to_party("pepine")
-	GameState.member("pepine")["level"] = 2      # un point
+	GameState.add_to_party("pepin")
+	GameState.member("pepin")["level"] = 2      # un point
 	screen.open()
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -1699,18 +1700,18 @@ func _test_talent_screen() -> void:
 	check(GameState.has_talent("glandoulf", "sommeil_reparateur") and GameState.talent_points("glandoulf") == 0, "talents : on peut piocher dans les deux voies")
 	screen.press("berceuse")
 	check(not GameState.has_talent("glandoulf", "berceuse"), "talents : rien ne s'apprend sans point")
-	screen.select("pepine")
+	screen.select("pepin")
 	await get_tree().process_frame
-	check(str(screen.who) == "pepine" and (screen.talent_ids() as Array).has("main_verte"), "talents : changer de personnage change l'arbre")
+	check(str(screen.who) == "pepin" and (screen.talent_ids() as Array).has("main_verte"), "talents : changer de personnage change l'arbre")
 	screen.press("main_verte")
 	await get_tree().process_frame
-	check(GameState.has_talent("pepine", "main_verte"), "talents : Pépine apprend un talent")
+	check(GameState.has_talent("pepin", "main_verte"), "talents : Pépin apprend un talent")
 	screen.select("glandoulf")
 	await get_tree().process_frame
 	screen.forget()
 	await get_tree().process_frame
 	check((GameState.talents_of("glandoulf") as Array).is_empty() and GameState.talent_points("glandoulf") == 2, "talents : tout oublier rend les points")
-	check(GameState.has_talent("pepine", "main_verte"), "talents : l'oubli ne touche que le personnage affiché")
+	check(GameState.has_talent("pepin", "main_verte"), "talents : l'oubli ne touche que le personnage affiché")
 	screen.forget()
 	check(str(screen.message_text()).contains("rien"), "talents : rien à oublier, message affiché")
 	screen.close()
@@ -1878,18 +1879,18 @@ func _test_flow() -> void:
 	check(int(GameState.member("glandoulf")["xp"]) > 0 or int(GameState.member("glandoulf")["level"]) > 1, "expérience gagnée")
 	main.world.set_input(true)
 
-	print("  [étape] Pépine rejoint")
-	# Pépine rejoint l'équipe : elle disparaît de la carte
-	GameState.set_flag("pepine_vue")
-	main.run_dialogue("pepine")
+	print("  [étape] Pépin rejoint")
+	# Pépin rejoint l'équipe : elle disparaît de la carte
+	GameState.set_flag("pepin_vue")
+	main.run_dialogue("pepin")
 	await _wait_idle(main)
-	check(GameState.party.has("pepine"), "Pépine rejoint l'équipe")
+	check(GameState.party.has("pepin"), "Pépin rejoint l'équipe")
 	check(GameState.item_count("tisane") >= 3, "elle apporte ses tisanes")
 	var still_there := false
 	for n: Node3D in main.world.npcs:
-		if str(n.data.get("id", "")) == "pepine":
+		if str(n.data.get("id", "")) == "pepin":
 			still_there = true
-	check(not still_there, "Pépine n'est plus plantée devant son potager")
+	check(not still_there, "Pépin n'est plus plantée devant son potager")
 	check(main.world.input_enabled, "le joueur a la main après la reconstruction de la carte")
 
 	print("  [étape] le Pré Couché")
@@ -2010,7 +2011,7 @@ func _test_flow() -> void:
 	check(main.world.input_enabled, "le joueur a la main après la pause")
 
 	print("  [étape] la Fête des Amarres, l'invasion et le Naze")
-	for who: String in ["sam", "fripon"]:
+	for who: String in ["sam", "froton"]:
 		if not GameState.party.has(who):
 			GameState.add_to_party(who)
 	for who: String in GameState.party:
@@ -2339,7 +2340,7 @@ func _test_scenery() -> void:
 
 # ------------------------------------------------------------------ chapitre 2
 
-const TEAM5 := ["glandoulf", "sam", "fripon", "pepine", "aragrogne"]
+const TEAM5 := ["glandoulf", "sam", "froton", "pepin", "aragrogne"]
 
 
 ## Taux de victoire d'une rencontre du chapitre 2 (jeu automatique, 40 combats).
@@ -2409,7 +2410,7 @@ func _test_chapter_2() -> void:
 	await _wait_idle(main)
 	check(main.world.map_id == "brie" and GameState.has_flag("brie_vue"), "arrivée à Brie")
 	check(GameState.chapter == "chapitre_2" or GameState.quest_state("brie") != "", "la quête de Brie est lancée")
-	for who: String in ["sam", "fripon", "pepine"]:
+	for who: String in ["sam", "froton", "pepin"]:
 		if not GameState.party.has(who):
 			GameState.add_to_party(who)
 	for who: String in GameState.party:
@@ -2508,3 +2509,148 @@ func _test_chapter_2() -> void:
 	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 2")
 	main.queue_free()
 	await get_tree().process_frame
+
+
+# ------------------------------------------------------------------ noms définitifs et Merri
+
+const TEAM6 := ["glandoulf", "sam", "froton", "pepin", "aragrogne", "merri"]
+
+
+## Cherche une instruction (clé, valeur) dans un dialogue, à n'importe quelle profondeur.
+func _dialogue_has(nodes: Variant, key: String, value: String) -> bool:
+	if nodes is Array:
+		for n: Variant in nodes:
+			if _dialogue_has(n, key, value):
+				return true
+	elif nodes is Dictionary:
+		var d: Dictionary = nodes
+		if str(d.get(key, "")) == value:
+			return true
+		for k: String in ["then", "else", "choice"]:
+			if d.has(k) and _dialogue_has(d[k], key, value):
+				return true
+	return false
+
+
+func _test_names_and_merri() -> void:
+	print("== Noms définitifs, reprise des sauvegardes, Merri ==")
+	# --- les nouveaux noms sont en place, les anciens ont disparu des données
+	for id: String in ["froton", "pepin", "digoulasse", "grimli", "merri"]:
+		check(not Database.get_character(id).is_empty(), "personnage %s présent" % id)
+	for id: String in ["fripon", "pepine", "legolasse", "gimlette"]:
+		check(Database.get_character(id).is_empty() and not Database.talents.has(id), "l'ancien identifiant %s n'existe plus" % id)
+	check(str(Database.get_character("froton").get("full_name", "")) == "Froton Salfait", "Froton Salfait")
+	check(str(Database.get_character("pepin").get("name", "")) == "Pépin Bontabac", "Pépin Bontabac")
+	check(Database.get_character("pepin")["look"].get("outfit") == "tunique" and Database.get_character("pepin")["look"].get("hair_style") == "court", "Pépin : ni jupe ni chignon")
+	check(str(Database.get_character("digoulasse").get("name", "")) == "Digoulasse", "Digoulasse")
+	check(str(Database.get_character("grimli").get("name", "")) == "Grimli", "Grimli")
+	check(str(Database.get_character("pepin").get("branches", [])[1]) == "Fumeur de Pipe", "la branche de Pépin est masculine")
+	var all_text := ""
+	for dir: String in ["res://data", "res://data/dialogues", "res://data/maps"]:
+		for f: String in DirAccess.get_files_at(dir):
+			if f.ends_with(".json"):
+				all_text += FileAccess.get_file_as_string(dir + "/" + f).to_lower() + "\n"
+	for old: String in ["fripon", "besace", "pépine", "pepine", "légolasse", "legolasse", "gimlette"]:
+		check(not all_text.contains(old), "plus aucune trace de « %s » dans les données" % old)
+	# --- reprise des sauvegardes : les anciens identifiants deviennent les nouveaux
+	var old_save := {
+		"version": 3, "chapter": "chapitre_2", "map_id": "brie", "spawn_id": "route",
+		"party": ["glandoulf", "sam", "fripon", "pepine"],
+		"roster": {
+			"glandoulf": {"level": 8, "xp": 3, "specialization": "", "talents": [], "equip": {}},
+			"fripon": {"level": 8, "xp": 0, "specialization": "pickpocket", "talents": [], "equip": {"weapon": "canif_batelier"}},
+			"pepine": {"level": 8, "xp": 0, "specialization": "fumeuse", "talents": [], "equip": {"weapon": "serpette_affutee"}},
+		},
+		"flags": {"fripon_equipe": true, "pepine_equipe": true, "pepine_vue": true, "fripon_avoue": true, "brie_vue": true},
+		"quests": {"potager": "done"}, "money": 33, "inventory": {"tisane": 2}, "bestiary": {}, "player_pos": [], "player_facing": "down", "playtime": 5.0,
+	}
+	var migrated: Dictionary = GameState.migrate_old_ids(old_save)
+	check(migrated["party"] == ["glandoulf", "sam", "froton", "pepin"], "sauvegarde : l'équipe est convertie (%s)" % str(migrated["party"]))
+	check((migrated["roster"] as Dictionary).has("froton") and (migrated["roster"] as Dictionary).has("pepin") and not (migrated["roster"] as Dictionary).has("fripon"), "sauvegarde : les fiches sont converties")
+	check((migrated["flags"] as Dictionary).has("froton_equipe") and (migrated["flags"] as Dictionary).has("pepin_vue") and not (migrated["flags"] as Dictionary).has("pepine_equipe"), "sauvegarde : les drapeaux sont convertis")
+	check(old_save["party"][2] == "fripon", "la conversion ne modifie pas l'original")
+	check(GameState.migrate_old_ids(migrated) == migrated, "la conversion est sans effet sur une sauvegarde déjà à jour")
+	check(GameState.migrate_old_ids({"party": ["legolasse", "gimlette"], "x": "gimlette_vu"}) == {"party": ["digoulasse", "grimli"], "x": "grimli_vu"}, "Digoulasse et Grimli aussi")
+	GameState.new_game()
+	check(GameState.from_dict(old_save), "une ancienne sauvegarde se charge")
+	check(GameState.party == ["glandoulf", "sam", "froton", "pepin"], "ancienne sauvegarde : équipe %s" % str(GameState.party))
+	check(int(GameState.member("froton")["level"]) == 8 and str(GameState.member("pepin")["equip"].get("weapon", "")) == "serpette_affutee", "ancienne sauvegarde : niveaux et équipement conservés")
+	check(GameState.has_flag("froton_equipe") and GameState.has_flag("pepin_equipe") and not GameState.has_flag("fripon_equipe"), "ancienne sauvegarde : drapeaux convertis")
+	check(GameState.quest_state("potager") == "done", "ancienne sauvegarde : quêtes conservées")
+	check(not (GameState.roster as Dictionary).has("fripon") and not (GameState.roster as Dictionary).has("pepine"), "ancienne sauvegarde : plus d'ancienne fiche")
+	var round_trip := GameState.to_dict()
+	check(not JSON.stringify(round_trip).contains("fripon") and not JSON.stringify(round_trip).contains("pepine"), "la sauvegarde réécrite ne contient plus les anciens noms")
+	# --- Merri : fiche, compétences, talents, animations
+	GameState.new_game()
+	var ch := Database.get_character("merri")
+	check(str(ch.get("name", "")) == "Merri Brandemou" and str(ch.get("role", "")) != "", "Merri : nom et rôle")
+	check(Rules.branches("merri").size() == 2 and (ch.get("branches", []) as Array).size() == 2, "Merri : deux voies de talents")
+	check(not str(Database.get_character("merri")["look"].get("hair_style", "")) in ["chignon"] and Database.get_character("merri")["look"] != Database.get_character("pepin")["look"], "Merri : apparence distincte de Pépin")
+	check((Rules.skills_at("merri", 1) as Array).has("estoc_de_cousin") and (Rules.skills_at("merri", 2) as Array).has("plan_ficele") and (Rules.skills_at("merri", 6) as Array).size() == 4, "Merri : compétences par niveau")
+	var fx: Node3D = BattleFx.new()
+	for sk: String in ["estoc_de_cousin", "plan_ficele", "second_petit_dejeuner", "diversion", "pause_dejeuner", "plan_b", "coup_dans_le_dos", "charge_des_cousins"]:
+		check(Database.skills.has(sk), "compétence %s existe" % sk)
+		check(Database.animations.has(sk), "compétence %s : animation à elle" % sk)
+	check(Database.animations.has(str(ch["battle"]["attack_anim"])), "Merri : animation de l'attaque de base")
+	check(fx.resolve("coup_de_dague_merri", "tranchant") == "coup_de_dague_merri", "attaque de Merri : animation à elle")
+	fx.free()
+	GameState.party = ["glandoulf"]
+	GameState.member("glandoulf")["level"] = 8
+	GameState.add_to_party("merri", true)
+	check(GameState.party.has("merri") and int(GameState.member("merri")["level"]) == 7, "Merri rejoint un niveau sous le meneur")
+	check(str(GameState.member("merri")["equip"].get("weapon", "")) == "dague_de_poche", "Merri arrive avec sa dague de poche")
+	check((GameState.member_skills("merri") as Array).has("second_petit_dejeuner") and (GameState.member_skills("merri") as Array).has("diversion"), "Merri niveau 7 : quatre compétences apprises")
+	GameState.member("merri")["level"] = 3
+	check((GameState.member_skills("merri") as Array).size() == 2 and not (GameState.member_skills("merri") as Array).has("second_petit_dejeuner"), "Merri niveau 3 : deux compétences seulement")
+	GameState.member("merri")["level"] = 7
+	_spend("merri", 0)
+	var sk0: Array = GameState.member_skills("merri")
+	check(sk0.has("pause_dejeuner") and sk0.has("plan_b"), "voie du Stratège : Pause déjeuner et Plan B")
+	GameState.new_game()
+	GameState.party = ["merri"]
+	GameState.member("merri")["level"] = 10
+	_spend("merri", 1)
+	var sk1: Array = GameState.member_skills("merri")
+	check(sk1.has("coup_dans_le_dos") and sk1.has("charge_des_cousins"), "voie de l'Estoc : Coup dans le dos et Charge des cousins")
+	# les compétences se lancent vraiment en combat
+	GameState.new_game()
+	GameState.party = ["glandoulf", "merri"]
+	GameState.member("merri")["level"] = 10
+	_spend("merri", 0)
+	GameState.heal_party()
+	var eng: RefCounted = BattleEngine.new()
+	eng.setup({"enemies": ["limace_molle", "limace_molle"], "arena": "pre"}, 3)
+	var merri_c: RefCounted = _find(eng.party, "merri")
+	check(merri_c != null, "Merri combat")
+	if merri_c != null:
+		merri_c.mp = 40
+		var ev: Array = eng.perform(merri_c, {"type": "skill", "id": "plan_ficele", "target": eng.party[0]})
+		check(ev.size() > 0 and str(ev[0].get("anim", "")) == "plan_ficele", "Plan bien ficelé : animation plan_ficele")
+		check(eng.party[0].has_status("galvanise"), "Plan bien ficelé galvanise l'allié")
+		ev = eng.perform(merri_c, {"type": "skill", "id": "pause_dejeuner", "target": null})
+		check(ev.size() > 0, "Pause déjeuner se lance")
+		ev = eng.perform(merri_c, {"type": "skill", "id": "charge_des_cousins", "target": eng.enemies[0]})
+		check(str(ev[0].get("anim", "")) == "charge_des_cousins", "Charge des cousins : animation")
+		ev = eng.perform(merri_c, {"type": "attack", "target": eng.enemies[1]})
+		check(str(ev[0].get("anim", "")) == "coup_de_dague_merri", "attaque de Merri : coup_de_dague_merri (%s)" % str(ev[0].get("anim", "")))
+	# --- recrutement : la scène d'arrivée à Brie le fait entrer dans l'équipe
+	check(_dialogue_has(Database.get_dialogue("arrivee_brie"), "join", "merri"), "arrivée à Brie : Merri rejoint l'équipe")
+	check(_dialogue_has(Database.get_dialogue("merri_brie"), "join", "merri"), "Merri sur la place de Brie : recrutement de rattrapage")
+	check(Database.has_dialogue("merri") and _dialogue_has(Database.get_dialogue("merri"), "who", "merri"), "Merri à Bittebourg : il se présente au chapitre 1")
+	var brie_npc := false
+	for o: Variant in Database.get_map("brie").get("objects", []):
+		if o is Dictionary and str(o.get("id", "")) == "merri":
+			brie_npc = true
+	check(brie_npc, "Merri est posé sur la carte de Brie")
+	# --- équilibre : une équipe à six (avec Merri) reste dans les fourchettes du chapitre 2
+	var cases6 := [
+		["Nazes, six niv. 9, talents A", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
+		["Nazes, six niv. 9, sans talents", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
+		["Chantecler, six niv. 8", TEAM6, 8, _soft("chantecler", 0.2), 0.7, 0],
+		["Vacherin, six niv. 8", TEAM6, 8, _soft("vacherin", 0.2), 0.7, 0],
+	]
+	for case: Array in cases6:
+		var rate := _c2_rate(case[1], int(case[2]), case[3], int(case[5]))
+		check(rate >= float(case[4]), "%s : %d %% de victoires (attendu : au moins %d %%)" % [str(case[0]), int(rate * 100.0), int(float(case[4]) * 100.0)])
+		print("  %-40s %3d %% de victoires" % [str(case[0]), int(rate * 100.0)])
+	GameState.new_game()

@@ -6,8 +6,8 @@
 		"desc": "Les épis se couchent, les bittes penchent, les gens n'ont plus envie de rien. Glandoulf a déjà vu cela, il y a très longtemps. Il s'en occupera demain. Enfin, bientôt.",
 		"start": "intro_vue",
 		"steps": [
-			{"text": "Trouver des compagnons : Pépine, Sam et Fripon", "done": "party:pepine & party:sam & party:fripon"},
-			{"text": "Redresser le potager de Pépine : elle sait peut-être d'où vient le mal", "done": "potager_soigne"},
+			{"text": "Trouver des compagnons : Pépin, Sam et Froton", "done": "party:pepin & party:sam & party:froton"},
+			{"text": "Redresser le potager de Pépin : il sait peut-être d'où vient le mal", "done": "potager_soigne"},
 			{"text": "Dormir à l'auberge jusqu'à la Fête des Amarres (parler à Berthe)", "done": "fete_commencee"},
 			{"text": "Monter à l'estrade, sur la place, pour ouvrir la cérémonie", "done": "naze_arrive"},
 			{"text": "Chasser les Morfales qui fouillent le village : le quai, le potager, l'auberge", "done": "morfales_chasses"},
@@ -20,14 +20,14 @@
 	"potager": {
 		"name": "Le potager en deuil",
 		"kind": "principale",
-		"giver": "Pépine Bontabac",
-		"desc": "Les poireaux de Pépine ont perdu l'envie de se dresser. Il leur faudrait de la racine-qui-réveille bien fraîche : il en pousse au Pré Couché, par la route de l'est.",
-		"start": "pepine_vue",
+		"giver": "Pépin Bontabac",
+		"desc": "Les poireaux de Pépin ont perdu l'envie de se dresser. Il leur faudrait de la racine-qui-réveille bien fraîche : il en pousse au Pré Couché, par la route de l'est.",
+		"start": "pepin_vue",
 		"steps": [
-			{"text": "Proposer son aide à Pépine, devant son potager", "done": "party:pepine"},
+			{"text": "Proposer son aide à Pépin, devant son potager", "done": "party:pepin"},
 			{"text": "Dégager l'entrée de l'enclos, au bout du Pré Couché", "done": "baveuse_vaincue"},
 			{"text": "Cueillir la racine-qui-réveille au fond de l'enclos", "done": "racines_prises"},
-			{"text": "Revenir au potager de Pépine, à Bittebourg", "done": "potager_soigne"}
+			{"text": "Revenir au potager de Pépin, à Bittebourg", "done": "potager_soigne"}
 		],
 		"complete": "potager_soigne",
 		"reward": {"xp": 30, "money": 15, "items": {"tuteur": 1}}
@@ -39,7 +39,7 @@
 		"desc": "On a volé la poêle de Sam la veille du concours de cuisine. Sans elle, il ne sait même plus avec quoi taper.",
 		"start": "sam_vu",
 		"steps": [
-			{"text": "Trouver qui a pris la poêle. Quelqu'un, sur la place, a les mains bien lestes", "done": "fripon_avoue"},
+			{"text": "Trouver qui a pris la poêle. Quelqu'un, sur la place, a les mains bien lestes", "done": "froton_avoue"},
 			{"text": "Racheter la poêle à Ursule, sur le quai (40 écus)", "done": "poele_rachetee"},
 			{"text": "Rapporter la poêle à Sam, à l'auberge", "done": "party:sam"}
 		],
@@ -50,13 +50,13 @@
 		"name": "Un héritage très récent",
 		"kind": "principale",
 		"giver": "Glandoulf",
-		"desc": "La pipe de Glandoulf a disparu à son arrivée. Fripon en fume une toute pareille, « héritage de famille depuis cet après-midi ».",
-		"start": "fripon_vu",
+		"desc": "La pipe de Glandoulf a disparu à son arrivée. Froton en fume une toute pareille, « héritage de famille depuis cet après-midi ».",
+		"start": "froton_vu",
 		"steps": [
-			{"text": "Faire avouer Fripon. Il parlera plus volontiers si l'on connaît son autre larcin", "done": "fripon_avoue"},
-			{"text": "Revenir voir Fripon avec un témoin : Sam", "done": "party:fripon"}
+			{"text": "Faire avouer Froton. Il parlera plus volontiers si l'on connaît son autre larcin", "done": "froton_avoue"},
+			{"text": "Revenir voir Froton avec un témoin : Sam", "done": "party:froton"}
 		],
-		"complete": "party:fripon",
+		"complete": "party:froton",
 		"reward": {"xp": 30}
 	},
 	"bittes": {

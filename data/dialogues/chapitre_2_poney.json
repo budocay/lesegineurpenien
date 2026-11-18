@@ -12,6 +12,15 @@
 			"text": "Ça sent la soupe. Je reconnais : poireau, lard, et un peu d'abandon."
 		},
 		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "Quatorze tables, une seule sortie, et un feu au milieu. Je note les issues. C'est un réflexe familial."
+				}
+			]
+		},
+		{
 			"set": "poney_vu"
 		}
 	],
@@ -46,8 +55,17 @@
 					"text": "L'objet. Ils n'osent même pas le nommer."
 				},
 				{
-					"who": "pepine",
+					"who": "pepin",
 					"text": "Le formulaire A-38 est joint ?"
+				},
+				{
+					"if": "party:merri",
+					"then": [
+						{
+							"who": "merri",
+							"text": "Trois exemplaires ? Je peux les recopier cette nuit. Je suis très bon pour recopier : c'est mon seul talent dont je sois certain."
+						}
+					]
 				},
 				{
 					"who": "glandoulf",
@@ -71,7 +89,7 @@
 						},
 						{
 							"who": "barnabe",
-							"text": "L'escalier est au fond de la salle, à droite, sous la lanterne. Quatre lits, plus un pour monsieur le rôdeur. Je compte trois écus par personne, mais pour vous, la maison offre. Le Poney tient à ses clients : ils sont les seuls à tenir debout."
+							"text": "L'escalier est au fond de la salle, à droite, sous la lanterne. Autant de lits que vous êtes, plus un pour monsieur le rôdeur. Je compte trois écus par personne, mais pour vous, la maison offre. Le Poney tient à ses clients : ils sont les seuls à tenir debout."
 						},
 						{
 							"choice": [
@@ -157,7 +175,7 @@
 									"text": "Flagada, le vrai, est dans l'écurie, derrière l'auberge. Il est couché depuis le début du printemps. Il mange, il boit, il regarde. Mais se lever, non. Il dit qu'il y réfléchit."
 								},
 								{
-									"who": "pepine",
+									"who": "pepin",
 									"text": "Un animal qui refuse de se lever ? Voilà un patient que je connais."
 								},
 								{
@@ -203,7 +221,7 @@
 									"text": "Le bras de fer, c'est comme la cuisine : tout est dans le poignet."
 								},
 								{
-									"who": "fripon",
+									"who": "froton",
 									"text": "Je tiens à signaler que je ne triche jamais. Seulement quand on regarde ailleurs."
 								},
 								{
@@ -421,7 +439,7 @@
 							"if": "item:racine",
 							"then": [
 								{
-									"who": "pepine",
+									"who": "pepin",
 									"text": "Une racine-qui-réveille. Pour les gens à terre, normalement. Mais un poney, quand c'est couché depuis le printemps..."
 								},
 								{
@@ -455,8 +473,8 @@
 											"text": "Pas maintenant",
 											"then": [
 												{
-													"who": "pepine",
-													"text": "Je préfère être sûre de la dose."
+													"who": "pepin",
+													"text": "Je préfère être sûr de la dose."
 												}
 											]
 										}
@@ -465,7 +483,7 @@
 							],
 							"else": [
 								{
-									"who": "pepine",
+									"who": "pepin",
 									"text": "Il lui faudrait de la racine-qui-réveille. Celle qui relève un allié à terre. Sidonie, sur la place, en vend peut-être."
 								}
 							]
@@ -552,7 +570,7 @@
 					"text": "Aragrogne. Rôdeur. Je n'ai pas de famille, sauf quand on m'interroge."
 				},
 				{
-					"who": "fripon",
+					"who": "froton",
 					"text": "[i](Il ment mal. Je m'y connais.)[/i]"
 				},
 				{
@@ -568,12 +586,33 @@
 					"text": "Je veux bien la recette."
 				},
 				{
-					"who": "pepine",
+					"who": "pepin",
 					"text": "Si on savait pourquoi elle tient, on saurait peut-être pourquoi les autres cèdent."
 				},
 				{
+					"if": "party:merri",
+					"then": [
+						{
+							"who": "merri",
+							"text": "Une bête qui ne mollit pas, des traces vers le sud et une ferme. J'ai la carte de la région. Elle est périmée, mais elle est jolie."
+						},
+						{
+							"who": "aragrogne",
+							"text": "... Qui est-ce ?"
+						},
+						{
+							"who": "pepin",
+							"text": "Mon cousin. On ne s'en débarrasse pas."
+						},
+						{
+							"who": "merri",
+							"text": "Il est vrai que je suis tenace. C'est une qualité qui se compte dans la liste des défauts."
+						}
+					]
+				},
+				{
 					"who": "aragrogne",
-					"text": "C'est ce que je me dis, madame. Ses traces vont à la ferme Pinard, au sud de la ville. J'y vais à l'aube. Seul, de préférence."
+					"text": "C'est ce que je me dis, monsieur. Ses traces vont à la ferme Pinard, au sud de la ville. J'y vais à l'aube. Seul, de préférence."
 				},
 				{
 					"who": "aragrogne",
@@ -684,7 +723,7 @@
 			"text": "L'anneau. Celui qui t'a échappé à toi aussi, d'une certaine façon."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Il t'a échappé ? Quand ça ?"
 		},
 		{
@@ -715,8 +754,21 @@
 			"text": "Assez. Nos anneaux serrent. Le tien a de l'avance, magicien, et nous, du retard. Rends ce qui n'est pas à toi."
 		},
 		{
-			"who": "pepine",
+			"who": "pepin",
 			"text": "Ils veulent le même objet, ils veulent le même résultat, ils veulent la même chose que tout le monde : que ça cesse."
+		},
+		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "Je note que nous n'avions pas de plan pour l'escalier. Je le dis pour le prochain escalier."
+				},
+				{
+					"who": "sam",
+					"text": "Il y a toujours un prochain escalier."
+				}
+			]
 		},
 		{
 			"who": "glandoulf",

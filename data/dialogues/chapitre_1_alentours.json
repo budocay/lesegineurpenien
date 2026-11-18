@@ -216,7 +216,7 @@
 		{"text": "La route de Brie quitte le Comté entre deux haies. Les débris de la barrière d'Anselme jonchent encore le bas-côté."},
 		{"who": "glandoulf", "text": "Trois jours de marche. Deux, si l'on ne s'arrête pas."},
 		{"who": "sam", "text": "On s'arrêtera, monsieur Glandoulf. J'ai pris la marmite."},
-		{"who": "fripon", "text": "Il y a du monde, plus loin. Ça sent le graillon jusqu'ici. Les mangeurs du cavalier ne sont pas tous repartis."},
+		{"who": "froton", "text": "Il y a du monde, plus loin. Ça sent le graillon jusqu'ici. Les mangeurs du cavalier ne sont pas tous repartis."},
 		{"set": "route_vue"}
 	],
 	"feu_de_camp": [
@@ -278,12 +278,15 @@
 			"else": [
 				{"text": "La route monte en haut d'une dernière butte. Derrière, le Comté : les toits de Bittebourg, la rivière, et pas un épi debout."},
 				{"who": "sam", "text": "Je n'étais jamais allé plus loin que le Pré Couché."},
-				{"who": "fripon", "text": "Moi si. Une fois. J'avais fait demi-tour au panneau. ... Ne le répétez pas."},
-				{"who": "pepine", "text": "Regardez l'herbe, de ce côté. Elle se tient mieux. Le mal n'est pas encore arrivé jusqu'ici."},
+				{"who": "froton", "text": "Moi si. Une fois. J'avais fait demi-tour au panneau. ... Ne le répétez pas."},
+				{"who": "pepin", "text": "Regardez l'herbe, de ce côté. Elle se tient mieux. Le mal n'est pas encore arrivé jusqu'ici."},
 				{"who": "glandoulf", "text": "Il arrivera. Il suit la rivière, et les Nazes le suivent."},
 				{"who": "glandoulf", "text": "[i](Trois cents ans que je remets cette marche au lendemain. Vingt pas, à l'époque. Aujourd'hui, c'est la moitié du monde.)[/i]"},
 				{"who": "sam", "text": "Vous disiez, monsieur Glandoulf ?"},
 				{"who": "glandoulf", "text": "Je disais : en route. Et que personne ne marche trop vite."},
+				{"text": "Très loin derrière eux, sur la route de Bittebourg, quelqu'un agite une casquette en criant un prénom. Le vent emporte la moitié des syllabes."},
+				{"who": "pepin", "text": "Je connais cette voix. Il va nous rattraper. Il lui faut un plan avant de courir, mais une fois qu'il a couru..."},
+				{"who": "glandoulf", "text": "Nous ne ralentirons pas. Nous marcherons seulement d'une façon qui se laisse rattraper."},
 				{"text": "Loin devant, au bout de la plaine, une lumière s'allume. Puis deux. Brie, et l'enseigne du Poney Flagada."},
 				{"set": "chapitre_1_fini"},
 				{"chapter": "chapitre_2"},

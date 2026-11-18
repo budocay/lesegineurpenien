@@ -132,20 +132,29 @@
 			"text": "Les barreaux grincent. En bas, l'air est frais, humide, chargé d'une odeur qui ressemble à celle d'une chaussette, mais honorable. Des meules s'empilent le long des murs, certaines dressées, d'autres affaissées, d'autres qui bougent."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Cette tomme vient de me regarder."
 		},
 		{
-			"who": "pepine",
-			"text": "Elles n'ont pas d'yeux, Fripon."
+			"who": "pepin",
+			"text": "Elles n'ont pas d'yeux, Froton."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Elle a trouvé de quoi s'en faire."
 		},
 		{
 			"who": "aragrogne",
 			"text": "Je passe devant. Ça glisse. Et ça mord, apparemment."
+		},
+		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "Je tiens la corde. Si l'un de vous glisse sur un fromage, je ne pourrai pas le retenir, mais je saurai exactement où il est tombé."
+				}
+			]
 		},
 		{
 			"set": "cave_vue"
@@ -181,7 +190,7 @@
 									"text": "Le Vacherin s'affaisse dans un long soupir tiède et s'écoule vers un fossé que personne n'avait prévu."
 								},
 								{
-									"who": "pepine",
+									"who": "pepin",
 									"text": "Il y avait une cave entière qui lui obéissait. Et personne pour le contredire."
 								},
 								{
@@ -299,7 +308,7 @@
 			"text": "Les traces sont là. Quatre doigts, bien droits, un éperon derrière. Nette, la piste."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Des traces de poule."
 		},
 		{
@@ -377,7 +386,7 @@
 					"money": 5
 				},
 				{
-					"who": "pepine",
+					"who": "pepin",
 					"text": "Elle est ferme. Rigide, même. Ce n'est pas une plume qui a peur de l'air."
 				},
 				{
@@ -454,8 +463,17 @@
 									"text": "Il se lève à l'aube. Chaque jour. Il n'attend pas qu'on le lui demande."
 								},
 								{
-									"who": "pepine",
+									"who": "pepin",
 									"text": "C'est tout ?"
+								},
+								{
+									"if": "party:merri",
+									"then": [
+										{
+											"who": "merri",
+											"text": "Il se lève à l'aube sans liste, sans carte et sans plan. Je ne sais pas si je dois l'admirer ou le dénoncer."
+										}
+									]
 								},
 								{
 									"who": "aragrogne",
@@ -476,7 +494,7 @@
 									"give": "plume_chantecler"
 								},
 								{
-									"who": "fripon",
+									"who": "froton",
 									"text": "Il a quand même essayé de nous crever les yeux, je précise."
 								},
 								{
@@ -519,12 +537,12 @@
 			"text": "La grange est cadenassée. Sur le cadenas, quelqu'un a écrit « clef sous le pot de fleurs ». Il n'y a pas de pot de fleurs."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Dix secondes, et je vous ouvre ça."
 		},
 		{
 			"who": "glandoulf",
-			"text": "Laissez, Fripon. Nous n'avons pas besoin de foin."
+			"text": "Laissez, Froton. Nous n'avons pas besoin de foin."
 		}
 	],
 	"cheminee_poney": [

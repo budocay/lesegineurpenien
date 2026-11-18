@@ -37,7 +37,7 @@ de chaque nouvelle session de travail et à mettre à jour à la fin.
   (limaces molles, guêpes à cidre, champignons dormeurs, épouvantails avachis) ;
 - un mini-boss, **la Grande Baveuse**, qui dort en travers de l'entrée d'un enclos ; la
   vaincre donne accès à trois racines-qui-réveillent ;
-- **Pépine rejoint l'équipe** si on lui parle une deuxième fois devant son potager ;
+- **Pépin rejoint l'équipe** si on lui parle une deuxième fois devant son potager ;
 - se **reposer chez Berthe** (auberge) rend tous les PV et le mana ;
 - le menu de pause affiche l'équipe (niveau, PV, mana), l'argent et l'inventaire.
 
@@ -47,11 +47,11 @@ de chaque nouvelle session de travail et à mettre à jour à la fin.
   s'achèvent toutes seules selon ce que fait le joueur, un message l'annonce en haut à
   droite, et le journal montre l'étape en cours et les étapes déjà faites ;
 - **cinq quêtes à Bittebourg** : « Ce qui ramollit le Comté » (fil rouge du chapitre),
-  « Le potager en deuil » (Pépine), « La poêle des Gamelle » (Sam), « Un héritage très
-  récent » (la pipe, Fripon) et une annexe, « Sauver les apparences » (caler les bittes
+  « Le potager en deuil » (Pépin), « La poêle des Gamelle » (Sam), « Un héritage très
+  récent » (la pipe, Froton) et une annexe, « Sauver les apparences » (caler les bittes
   du port pour Maître Gédéon : elles se redressent à l'écran) ;
 - les **vraies scènes de recrutement** : Sam rejoint l'équipe quand on lui rapporte sa
-  poêle (rachetée 40 écus à la marchande), Fripon quand on revient le voir avec Sam ; il
+  poêle (rachetée 40 écus à la marchande), Froton quand on revient le voir avec Sam ; il
   rend alors la pipe de Glandoulf. L'équipe peut donc compter quatre membres ;
 - l'**équipement** : trois emplacements par personnage (arme, tenue, babiole), dix objets
   à porter, des bonus visibles dans la fiche du personnage et pris en compte en combat ;
@@ -62,7 +62,7 @@ de chaque nouvelle session de travail et à mettre à jour à la fin.
 - le **Ramollissement en mécanique de jeu** : sur une carte touchée (témoin rose en haut
   à gauche), tous les coups physiques, ceux des ennemis comme ceux de l'équipe, portent
   moins fort (10 % à Bittebourg, 25 % au Pré Couché). La magie n'est pas touchée. On y
-  échappe avec le tuteur en noisetier (récompense de Pépine) ou un petit remontant.
+  échappe avec le tuteur en noisetier (récompense de Pépin) ou un petit remontant.
 
 **Étape 5 (le chapitre 1 complet) : terminée.** Le chapitre se joue du prologue à la
 route de Brie. S'y ajoutent :
@@ -103,8 +103,8 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
 
 - des **points de talent** : un par niveau gagné. L'écran de victoire l'annonce, le menu
   de pause et l'écran d'équipe rappellent les points qui restent à dépenser ;
-- les **deux voies de chacun des sept personnages de la bible** (Glandoulf, Sam, Fripon,
-  Pépine, et déjà Aragrogne, Légolasse et Gimlette pour les chapitres suivants) : quatre
+- les **deux voies de chacun des sept personnages de la bible** (Glandoulf, Sam, Froton,
+  Pépin, et déjà Aragrogne, Digoulasse et Grimli pour les chapitres suivants) : quatre
   talents par voie, cinquante-six en tout, à apprendre dans l'ordre. Les deux premiers
   coûtent un point, les deux suivants deux : six points pour une voie entière ;
 - un **écran de talents** dédié (`src/ui/talent_screen.gd`) : menu de pause, « Talents »
@@ -213,6 +213,10 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
 - Captures d'avant dans `docs/captures/avant_hd2d/` ; deux captures ajoutées (bois,
   roselière).
 
+- **Noms définitifs et Merri** (décisions 105 à 110) : Froton Salfait, Pépin Bontabac
+  (un homme), Digoulasse, Grimli ; Merri Brandemou, cousin de Pépin, rejoint l'équipe à
+  l'arrivée à Brie. Les anciennes sauvegardes sont converties au chargement.
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -297,6 +301,7 @@ dossier du projet.
    deux séries de noms. Font foi partout : Sam Gamelle, Fripon Besace, Pépine Bontabac,
    Aragrogne, Légolasse, Gimlette. Les anciennes variantes ont été remplacées dans la
    bible, dans ce fichier et dans les données (voir décision 61). Ne plus les employer.
+   **Remplacée le 18 novembre au soir par la décision 105** (nouvelle liste de noms).
 3. **Prologue.** Le combat du prologue est reporté à l'étape « combat ». À la place, une
    courte narration ouvre la partie, sans dévoiler le secret de Glandoulf.
 4. **Heure.** Le village est montré au crépuscule : c'est l'heure qui met le mieux en
@@ -636,36 +641,62 @@ roche ; arbres d'arène trop grands pour les combattants ; le bras clair du Naze
 après coup, sans nouvelle relecture : points clairs isolés sur Glandoulf, ennemis qui se
 chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop marquées.
 
-### Noms : nouvelle décision de l'auteur (18 novembre 2026, soir) — À APPLIQUER
+### Noms définitifs et Merri (18 novembre 2026, soir)
 
-L'auteur corrige la liste des noms. Elle remplace la décision 2 et la décision 61. Le
-renommage se fait en une seule étape, après la fusion des chantiers en cours (chapitre 2,
-sauvegardes, musique), pour ne pas créer de conflits ; tant que cette note est là, les
-données portent encore les anciens noms.
-
-- Fripon Besace devient **Froton Salfait** (orthographe confirmée par l'auteur : Froton,
-  sans n au milieu). C'est le Frodon de l'histoire.
-- Pépine Bontabac est **un homme** (le Pippin de l'histoire) : **Pépin Bontabac**. Raison
-  du prénom : l'auteur veut un nom « amélioré » ; un pépin, c'est une graine (il est
-  herboriste) et un ennui (il est téméraire). Dessin (ni jupe ni chignon), accords et
-  branche « Fumeuse de Pipe » à corriger.
-- Légolasse devient **Digoulasse**. Gimlette devient **Grimli**.
-- Sam Gamelle, Aragrogne, Isidur : inchangés.
-- **Merry manque** : à créer. Proposition : **Merri Brandemou**, cousin de Pépin (dans le
-  thème du ramollissement). À valider par l'auteur avant de l'écrire dans l'histoire.
-- **Boromir** existe déjà dans la bible : **Bromure du Gouda** (chapitres 3 et 4).
-- Identifiants à renommer avec reprise des sauvegardes existantes : `fripon` → `froton`,
-  `pepine` → `pepin`, `legolasse` → `digoulasse`, `gimlette` → `grimli`.
-
-À faire ensuite, dans l'ordre : refonte des personnages par code (plus grands, visages et
-vêtements détaillés), vrai relief jouable, maisons et murs, parois d'arène irrégulières.
+105. **Liste de noms définitive, fixée par l'auteur, qui remplace les décisions 2 et 61.**
+     L'auteur trouvait que les noms avaient été changés à tort. Fripon Besace devient
+     **Froton Salfait** (le Frodon de l'histoire ; Froton, sans n au milieu), Pépine
+     Bontabac devient **Pépin Bontabac** et est **un homme** (le Pippin de l'histoire),
+     Légolasse devient **Digoulasse**, Gimlette devient **Grimli**. Inchangés : Glandoulf,
+     Sam Gamelle, Aragrogne, Isidur, Bromure du Gouda (le Boromir de l'histoire, chapitres
+     3 et 4). Identifiants : `fripon` → `froton`, `pepine` → `pepin`, `legolasse` →
+     `digoulasse`, `gimlette` → `grimli`, partout (données, code, tests, bible).
+     Raison du prénom de Pépin : un pépin est une graine (il est herboriste) et un ennui
+     (il est téméraire). Pépin n'a plus ni jupe ni chignon (tunique, cheveux courts roux,
+     chapeau de paille gardé) ; son rôle devient « soigneur », sa seconde voie « Fumeur de
+     Pipe ». Son identifiant de voie reste `fumeuse` : il est invisible, et le changer
+     aurait cassé les sauvegardes. Les accords ont été repris à la main dans les dialogues
+     (« maître Pépin », « seul », « sûr »...).
+106. **Réplique réécrite : « le petit Besace » devient « Sale fait ».** Froton se présente
+     en disant que son nom se prononce en deux mots, « comme un travail mal torché » :
+     double sens sur « salfait », cohérent avec un voleur qui se juge mal rangé.
+107. **Reprise des sauvegardes.** `GameState.migrate_old_ids` (petite fonction isolée de
+     `src/core/game_state.gd`, appelée au début de `from_dict`) remplace les quatre anciens
+     identifiants dans toute la sauvegarde, clés et valeurs : équipe, fiches (niveau,
+     équipement, talents), drapeaux (`fripon_equipe`, `pepine_vue`...), quêtes, bestiaire.
+     Le test charge une ancienne sauvegarde de chapitre 2 et vérifie le résultat. Ce code
+     est à garder : c'est le seul endroit où les anciens noms ont encore le droit d'exister.
+108. **Merri Brandemou entre dans l'histoire** (nom validé par l'auteur ; identifiant
+     `merri`). Cousin de Pépin, le Merry de l'histoire. Fiche complète dans la bible
+     (« Ajouts », Merri Brandemou). **Recrutement : à l'arrivée à Brie (chapitre 2)**, et
+     non au chapitre 1. Raison : tout le chapitre 1 est réglé et testé pour une équipe de
+     quatre (équilibre, scène des « quatre silhouettes », dialogue de Berthe) ; en
+     ajouter un cinquième aurait demandé de refaire ces réglages pour un gain faible. Il
+     apparaît quand même au chapitre 1 : cousin de Pépin, il se présente sur la place
+     (il tient l'intendance de la Fête), commente le nœud de Gédéon pendant la cérémonie,
+     et on l'entend courir derrière l'équipe à la fin du chapitre. À Brie il la rattrape
+     (scène d'arrivée) ; une ancienne partie déjà à Brie le trouve assis sur un tonneau de
+     la place (`merri_brie`).
+109. **Rôle de combat de Merri : stratège** (soutien et estoc). L'équipe avait un mage, un
+     tank-cuisinier, un voleur, un soigneur et un rôdeur ; il manquait quelqu'un qui
+     distribue le mana, l'initiative et les protections de groupe tout en frappant. Deux
+     voies : Stratège de Table (initiative, Pause déjeuner, Plan B) et Estoc de Poche
+     (riposte, Coup dans le dos, Charge des cousins). Quatre compétences de base (niveaux 1,
+     2, 4, 6) ; chacune, avec son attaque de base `coup_de_dague_merri`, a son animation.
+     Sa dague de poche est son équipement de départ ; l'estoc de la Marche s'achète à
+     l'étal de Sidonie une fois qu'il est dans l'équipe.
+110. **Équilibre avec Merri.** Une équipe de six rendait le combat contre les deux Nazes
+     de nuit presque gagné d'avance : leurs PV passent de 1500 à 1700 (Naze de l'Est) et de
+     1150 à 1300 (Naze de l'Ouest). Résultat du test (40 combats chacun, niveau 9) : cinq
+     personnages sans Merri 90 % avec talents et 60 % sans ; six avec Merri 97 % et 90 %.
+     Chantecler et le Vacherin sont déjà gagnés à 97-100 % à quatre : laissés tels quels.
 
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
   d'accroche du chapitre suivant (Brie, le Poney Flagada, la rencontre d'Aragrogne).
 - La Première Amarre est dans le sac (objet de quête) : elle peut servir plus tard.
-- Aragrogne, Légolasse et Gimlette ont déjà leur fiche de combat et leurs talents
+- Aragrogne, Digoulasse et Grimli ont déjà leur fiche de combat et leurs talents
   (`characters.json`, `talents.json`) : il suffira de les faire entrer dans l'équipe par un
   dialogue. Leur apparence et leurs chiffres sont provisoires.
 - Un talent, une voie ou un effet de talent s'ajoutent dans `talents.json` sans toucher au
