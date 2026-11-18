@@ -112,7 +112,13 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
   `rim` (1 par défaut) : force du liseré clair de leur silhouette (uniform `rim` de
   `sprite.gdshader`) ; `shafts` : `{"color": "#ffe6b0", "strength": 0.08, "slant": 0.55}`,
   larges rayons de lumière obliques posés sur l'image, sous l'interface (`shafts.gdshader`,
-  force 0,12 au plus).
+  force 0,25 au plus ; `scale` : largeur des rayons, `sharp` : netteté des bords, 0,55 par défaut).
+- `halos` (champ de l'arène, hors `stage`) : `[{"pos": [x, y, z], "color": "#ffb060", "size": 3.0,
+  "strength": 0.9}]`, halo flou et additif posé sur chaque source de lumière du décor.
+- `clouds` : `{"amount": 0.14, "scale": 0.07}`, ombres de nuages qui glissent sur le sol ;
+  `dapple` (0 à 1) : ombres de feuillage tachetées ; `stones` : densité de dalles plates ;
+  `blades` : `{"density": 0.3, "color": "#f0dc88", "shade": "#8a6a30"}`, brins d'herbe
+  peints, touffes dorées dans la plaine ; `light` : teinte de la flaque de lumière.
 - `variation` : amplitude des plaques de teinte du sol (0,09 par défaut) ; `tint` : couleur
   qui multiplie tout le sol (teinte du lieu, `#ffffff` par défaut).
 - `patches` : `{"tile": "grass", "amount": 0.3, "tint": "#ffffff"}`, seconde matière par
@@ -169,10 +175,15 @@ au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la
 héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
 large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique est `boss` ou la fuite impossible, l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
 la place qui reste, jusqu'à `BOSS_RATIO_MAX` (3,4) fois la hauteur d'un héros (plancher vérifié
-par le test : 1,7), en descendant au besoin vers la caméra ; il penche et bondit moins qu'un
-petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres peints par code sont affichés
-repeints plus fin (`MonsterPainter.upscale`, trois fois la définition, contours des diagonales
-arrondis) : un boss agrandi n'a plus des pixels dix fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
+par le test : 2,2), en descendant au besoin vers la caméra ; face à un boss, les héros sont un peu
+plus petits (`BOSS_HERO_K`). Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
+se tient en retrait (`BOSS_BACK`), au centre de son camp et jamais collé au bord (`BOSS_AIR`) ; ses
+sbires, plus petits (`MINION_K`), sont devant lui (`BOSS_FRONT`), de part et d'autre, sur deux rangs
+au besoin. Il penche et bondit moins qu'un petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres
+peints par code sont dessinés directement à la définition des héros (`MonsterPainter.paint_hd`, grille
+quatre à six fois plus fine que la planche logique de `paint`, grain de matière, verrues, pores, poils,
+contour épais ; mise en cache dans `user://cache_monstres/`) : un boss agrandi n'a plus des pixels dix
+fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
 taille relative aux autres monstres.
 Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des

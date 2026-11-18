@@ -273,11 +273,36 @@
 			"dim": 0.88,
 			"shafts": {
 				"color": "#fff0c0",
-				"strength": 0.09
+				"strength": 0.2,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"blades": {
+				"density": 0.1,
+				"color": "#8fc860",
+				"shade": "#2f5a22"
+			},
+			"dapple": 0.3,
+			"stones": 0.03,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"pollen"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					5.0,
+					-13
+				],
+				"color": "#ffd9a0",
+				"size": 8.0,
+				"strength": 0.5
+			}
 		]
 	},
 	"grand_four": {
@@ -502,9 +527,47 @@
 			"exposure": 1.35,
 			"fill": 0.8,
 			"fill_color": "#ff9a60",
-			"lift": 0.15
+			"lift": 0.15,
+			"shafts": {
+				"color": "#ff9050",
+				"strength": 0.1,
+				"scale": 3.0,
+				"sharp": 0.68
+			}
 		},
-		"particles": []
+		"particles": [],
+		"halos": [
+			{
+				"pos": [
+					0,
+					2.0,
+					-10.4
+				],
+				"color": "#ff6a30",
+				"size": 6.0,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-7,
+					1.7,
+					-5
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					7.2,
+					1.7,
+					-5
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			}
+		]
 	},
 	"bois": {
 		"ground": "humus",
@@ -738,12 +801,42 @@
 			"lift": 0.18,
 			"dim": 0.88,
 			"shafts": {
-				"color": "#f4e8a8",
-				"strength": 0.09
-			}
+				"color": "#f4ecb0",
+				"strength": 0.24,
+				"scale": 3.4,
+				"sharp": 0.62
+			},
+			"blades": {
+				"density": 0.1,
+				"color": "#8fc860",
+				"shade": "#2f5a22"
+			},
+			"dapple": 0.3
 		},
 		"particles": [
 			"pollen"
+		],
+		"halos": [
+			{
+				"pos": [
+					6,
+					3.0,
+					-9.8
+				],
+				"color": "#d8f0a0",
+				"size": 3.5,
+				"strength": 0.5
+			},
+			{
+				"pos": [
+					-7,
+					4.0,
+					-11
+				],
+				"color": "#ffe8b0",
+				"size": 4.0,
+				"strength": 0.4
+			}
 		]
 	},
 	"marais": {
@@ -1014,10 +1107,40 @@
 			"lift": 0.15,
 			"shafts": {
 				"color": "#d8f0d0",
-				"strength": 0.07
-			}
+				"strength": 0.17,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"blades": {
+				"density": 0.1,
+				"color": "#8fc860",
+				"shade": "#2f5a22"
+			},
+			"dapple": 0.3
 		},
-		"particles": []
+		"particles": [],
+		"halos": [
+			{
+				"pos": [
+					6.5,
+					1.6,
+					-9.6
+				],
+				"color": "#7fe0c8",
+				"size": 2.7,
+				"strength": 0.6
+			},
+			{
+				"pos": [
+					-8,
+					1.4,
+					-9.6
+				],
+				"color": "#a0e8b0",
+				"size": 2.4,
+				"strength": 0.5
+			}
+		]
 	},
 	"place": {
 		"ground": "cobble",
@@ -1287,10 +1410,46 @@
 			"dim": 0.8,
 			"shafts": {
 				"color": "#ffe8c0",
-				"strength": 0.08
-			}
+				"strength": 0.18,
+				"scale": 3.8,
+				"sharp": 0.6
+			},
+			"dapple": 0.3,
+			"stones": 0.03
 		},
-		"particles": []
+		"particles": [],
+		"halos": [
+			{
+				"pos": [
+					0.3,
+					3.0,
+					-9.8
+				],
+				"color": "#ffb45e",
+				"size": 2.7,
+				"strength": 0.6
+			},
+			{
+				"pos": [
+					6.8,
+					3.0,
+					-9.8
+				],
+				"color": "#ffb45e",
+				"size": 2.7,
+				"strength": 0.6
+			},
+			{
+				"pos": [
+					-6,
+					5.5,
+					-14
+				],
+				"color": "#ffcf90",
+				"size": 8.0,
+				"strength": 0.4
+			}
+		]
 	},
 	"taverne": {
 		"ground": "plank_worn",
@@ -1428,11 +1587,45 @@
 			"fill": 0.5,
 			"shafts": {
 				"color": "#ffd8a0",
-				"strength": 0.06
+				"strength": 0.16,
+				"scale": 3.2,
+				"sharp": 0.62
 			}
 		},
 		"particles": [
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					11,
+					2.2,
+					-9.6
+				],
+				"color": "#ff9440",
+				"size": 2.9,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-6,
+					3.0,
+					-9.6
+				],
+				"color": "#ffc060",
+				"size": 2.6,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					0.5,
+					3.4,
+					-9.6
+				],
+				"color": "#ffb060",
+				"size": 2.1,
+				"strength": 0.6
+			}
 		]
 	},
 	"etage_auberge": {
@@ -1553,11 +1746,49 @@
 			"exposure": 1.6,
 			"fill": 1.4,
 			"fill_color": "#ffb878",
-			"lift": 0.25
+			"lift": 0.25,
+			"shafts": {
+				"color": "#a8b8ff",
+				"strength": 0.1,
+				"scale": 3.0,
+				"sharp": 0.66
+			}
 		},
 		"particles": [
 			"dust",
 			"mist"
+		],
+		"halos": [
+			{
+				"pos": [
+					-12,
+					2.4,
+					-9.6
+				],
+				"color": "#ffb060",
+				"size": 2.4,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					12,
+					2.4,
+					-9.6
+				],
+				"color": "#ffb060",
+				"size": 2.4,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					1,
+					3.2,
+					-9.6
+				],
+				"color": "#7f9cff",
+				"size": 3.7,
+				"strength": 0.7
+			}
 		]
 	},
 	"ruelle_nuit": {
@@ -1686,6 +1917,38 @@
 		},
 		"particles": [
 			"mist"
+		],
+		"halos": [
+			{
+				"pos": [
+					-5.4,
+					3.4,
+					-9.8
+				],
+				"color": "#ffc060",
+				"size": 3.0,
+				"strength": 0.95
+			},
+			{
+				"pos": [
+					5.4,
+					3.4,
+					-9.8
+				],
+				"color": "#ffc060",
+				"size": 3.0,
+				"strength": 0.95
+			},
+			{
+				"pos": [
+					0,
+					4.4,
+					-11
+				],
+				"color": "#7a90e0",
+				"size": 4.0,
+				"strength": 0.4
+			}
 		]
 	},
 	"cave_fromage": {
@@ -1792,11 +2055,39 @@
 				6.2
 			],
 			"tint": "#e8f4e8",
-			"lift": 0.15
+			"lift": 0.15,
+			"shafts": {
+				"color": "#d8f0b8",
+				"strength": 0.12,
+				"scale": 3.0,
+				"sharp": 0.66
+			}
 		},
 		"particles": [
 			"spores",
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6.6,
+					3.2,
+					-9.6
+				],
+				"color": "#c8f0a0",
+				"size": 2.7,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					7.8,
+					3.2,
+					-9.6
+				],
+				"color": "#c8f0a0",
+				"size": 2.7,
+				"strength": 0.8
+			}
 		]
 	},
 	"ferme": {
@@ -1916,12 +2207,36 @@
 			"lift": 0.18,
 			"shafts": {
 				"color": "#ffe0a0",
-				"strength": 0.08
+				"strength": 0.2,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"blades": {
+				"density": 0.1,
+				"color": "#d8c060",
+				"shade": "#6a5420"
+			},
+			"dapple": 0.3,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"dust",
 			"leaves"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					5.0,
+					-13
+				],
+				"color": "#ffe0a0",
+				"size": 8.0,
+				"strength": 0.5
+			}
 		]
 	},
 	"route": {
@@ -2040,12 +2355,37 @@
 			"dim": 0.82,
 			"shafts": {
 				"color": "#ffe8b8",
-				"strength": 0.08
+				"strength": 0.2,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"blades": {
+				"density": 0.1,
+				"color": "#8fc860",
+				"shade": "#2f5a22"
+			},
+			"dapple": 0.3,
+			"stones": 0.03,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"dust",
 			"pollen"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					5.0,
+					-13
+				],
+				"color": "#ffe8b8",
+				"size": 8.0,
+				"strength": 0.5
+			}
 		]
 	},
 	"col": {
@@ -2070,9 +2410,9 @@
 					2.9
 				]
 			],
-			"dim": 0.4,
-			"desat": 0.25,
-			"haze": 0.25,
+			"dim": 0.85,
+			"desat": 0.1,
+			"haze": 0.12,
 			"panels": [
 				{
 					"kind": "col",
@@ -2153,17 +2493,36 @@
 				9.5,
 				6.2
 			],
-			"tint": "#74849e",
-			"exposure": 0.95,
-			"dim": 0.72,
+			"tint": "#98a8c4",
+			"exposure": 1.1,
+			"dim": 0.82,
 			"lift": 0.25,
 			"shafts": {
-				"color": "#e0ecff",
-				"strength": 0.08
+				"color": "#eaf2ff",
+				"strength": 0.22,
+				"scale": 3.4,
+				"sharp": 0.6
+			},
+			"stones": 0.03,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"snow"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					6.0,
+					-16
+				],
+				"color": "#f4f8ff",
+				"size": 9.0,
+				"strength": 0.6
+			}
 		]
 	},
 	"cite_elfique": {
@@ -2184,9 +2543,9 @@
 					0.9
 				]
 			],
-			"dim": 0.5,
-			"desat": 0.2,
-			"haze": 0.15,
+			"dim": 0.9,
+			"desat": 0.1,
+			"haze": 0.1,
 			"panels": [
 				{
 					"kind": "cite",
@@ -2273,18 +2632,37 @@
 				9.5,
 				6.2
 			],
-			"tint": "#aca088",
-			"exposure": 0.95,
-			"dim": 0.72,
+			"tint": "#b8ac8c",
+			"exposure": 1.1,
+			"dim": 0.74,
 			"lift": 0.22,
 			"shafts": {
 				"color": "#fff0c8",
-				"strength": 0.08
+				"strength": 0.22,
+				"scale": 3.4,
+				"sharp": 0.6
+			},
+			"stones": 0.03,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"feuilles_dorees",
 			"embruns"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					6.0,
+					-14
+				],
+				"color": "#fff0c8",
+				"size": 9.0,
+				"strength": 0.55
+			}
 		]
 	},
 	"salle_conseil": {
@@ -2293,12 +2671,12 @@
 		"music": "menace",
 		"backdrop": {
 			"steps": [],
-			"dim": 0.7,
-			"desat": 0.1,
+			"dim": 1.0,
+			"desat": 0.05,
 			"haze": 0.0,
 			"sky": [
-				"#3a3a48",
-				"#6a6a78"
+				"#5a5a6c",
+				"#9a9aaa"
 			],
 			"panels": [
 				{
@@ -2380,17 +2758,51 @@
 				9.5,
 				6.2
 			],
-			"tint": "#b4a894",
-			"exposure": 0.95,
+			"tint": "#c8bca6",
+			"exposure": 1.1,
 			"dim": 0.8,
 			"lift": 0.2,
 			"shafts": {
 				"color": "#fff0cc",
-				"strength": 0.06
+				"strength": 0.18,
+				"scale": 3.0,
+				"sharp": 0.64
 			}
 		},
 		"particles": [
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					3.6,
+					-9.6
+				],
+				"color": "#fff0c0",
+				"size": 6.0,
+				"strength": 0.7
+			},
+			{
+				"pos": [
+					-8,
+					3.2,
+					-9.6
+				],
+				"color": "#ffe8b0",
+				"size": 2.7,
+				"strength": 0.5
+			},
+			{
+				"pos": [
+					8,
+					3.2,
+					-9.6
+				],
+				"color": "#ffe8b0",
+				"size": 2.7,
+				"strength": 0.5
+			}
 		]
 	},
 	"archives": {
@@ -2501,12 +2913,36 @@
 			"dim": 0.8,
 			"shafts": {
 				"color": "#ffd8a0",
-				"strength": 0.06
+				"strength": 0.16,
+				"scale": 3.0,
+				"sharp": 0.64
 			}
 		},
 		"particles": [
 			"dust",
 			"paper"
+		],
+		"halos": [
+			{
+				"pos": [
+					-7,
+					3.0,
+					-9.6
+				],
+				"color": "#ffc060",
+				"size": 2.9,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					8,
+					3.0,
+					-9.6
+				],
+				"color": "#ffc060",
+				"size": 2.9,
+				"strength": 0.9
+			}
 		]
 	},
 	"quai": {
@@ -2515,9 +2951,9 @@
 		"music": "village",
 		"backdrop": {
 			"steps": [],
-			"dim": 0.95,
-			"desat": 0.2,
-			"haze": 0.2,
+			"dim": 1.0,
+			"desat": 0.15,
+			"haze": 0.12,
 			"far": "marsh",
 			"sky": [
 				"#2a2250",
@@ -2593,12 +3029,29 @@
 			"lift": 0.15,
 			"shafts": {
 				"color": "#ffd0a0",
-				"strength": 0.07
-			}
+				"strength": 0.18,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"exposure": 1.05,
+			"dim": 0.85,
+			"stones": 0.03
 		},
 		"particles": [
 			"mist",
 			"pollen"
+		],
+		"halos": [
+			{
+				"pos": [
+					5,
+					3.5,
+					-12
+				],
+				"color": "#ffb070",
+				"size": 8.0,
+				"strength": 0.5
+			}
 		]
 	},
 	"galerie_mine": {
@@ -2740,10 +3193,49 @@
 			"exposure": 1.35,
 			"fill": 1.0,
 			"fill_color": "#ffb070",
-			"lift": 0.2
+			"lift": 0.2,
+			"shafts": {
+				"color": "#ffe0a0",
+				"strength": 0.14,
+				"scale": 3.0,
+				"sharp": 0.66
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					2.4,
+					-7
+				],
+				"color": "#ffb060",
+				"size": 2.4,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					7,
+					2.4,
+					-7
+				],
+				"color": "#ffb060",
+				"size": 2.4,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					0,
+					2.8,
+					-11.5
+				],
+				"color": "#ffe0b0",
+				"size": 6.0,
+				"strength": 0.6
+			}
 		]
 	},
 	"halle_piliers": {
@@ -2901,10 +3393,49 @@
 			"desat": 0.1,
 			"vignette": 0.6,
 			"lift": 0.2,
-			"dim": 0.8
+			"dim": 0.8,
+			"shafts": {
+				"color": "#ffb070",
+				"strength": 0.1,
+				"scale": 3.0,
+				"sharp": 0.68
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"embers"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					2.0,
+					-10.4
+				],
+				"color": "#ff7030",
+				"size": 6.0,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-7,
+					1.7,
+					-5
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					7.2,
+					1.7,
+					-5
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			}
 		]
 	},
 	"bord_du_lac": {
@@ -2928,7 +3459,10 @@
 					-15.0,
 					4.0
 				]
-			]
+			],
+			"dim": 0.9,
+			"desat": 0.1,
+			"haze": 0.1
 		},
 		"props": [
 			{
@@ -3037,16 +3571,62 @@
 			],
 			"desat": 0.1,
 			"vignette": 0.6,
-			"exposure": 1.0,
-			"tint": "#8aa0c8",
+			"exposure": 1.2,
+			"tint": "#9ab4d8",
 			"lift": 0.25,
 			"shafts": {
 				"color": "#a8c8ff",
-				"strength": 0.06
-			}
+				"strength": 0.14,
+				"scale": 3.4,
+				"sharp": 0.62
+			},
+			"dim": 0.9,
+			"stones": 0.03
 		},
 		"particles": [
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					-9,
+					1.3,
+					-9.4
+				],
+				"color": "#6ad8ff",
+				"size": 2.2,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-3,
+					1.5,
+					-10.8
+				],
+				"color": "#6ad8ff",
+				"size": 2.1,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					6,
+					1.5,
+					-10.4
+				],
+				"color": "#6ad8ff",
+				"size": 2.2,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					11,
+					1.3,
+					-8
+				],
+				"color": "#6ad8ff",
+				"size": 2.1,
+				"strength": 0.8
+			}
 		]
 	},
 	"pont_abime": {
@@ -3197,10 +3777,49 @@
 			"desat": 0.1,
 			"vignette": 0.6,
 			"lift": 0.2,
-			"dim": 0.78
+			"dim": 0.78,
+			"shafts": {
+				"color": "#ff9060",
+				"strength": 0.1,
+				"scale": 3.0,
+				"sharp": 0.68
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"embers"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					1.8,
+					-11
+				],
+				"color": "#ff5a20",
+				"size": 7.0,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-6.4,
+					1.7,
+					-5.2
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					6.6,
+					1.7,
+					-5.2
+				],
+				"color": "#ff7a3a",
+				"size": 1.9,
+				"strength": 0.8
+			}
 		]
 	},
 	"chutes_gratin": {
@@ -3221,9 +3840,9 @@
 					1.0
 				]
 			],
-			"dim": 0.9,
-			"desat": 0.15,
-			"haze": 0.12
+			"dim": 1.0,
+			"desat": 0.1,
+			"haze": 0.08
 		},
 		"props": [
 			{
@@ -3291,17 +3910,36 @@
 				6.2
 			],
 			"tint": "#f0f6ff",
-			"exposure": 0.95,
-			"dim": 0.8,
+			"exposure": 1.05,
+			"dim": 0.85,
 			"lift": 0.18,
 			"shafts": {
-				"color": "#e0ecff",
-				"strength": 0.08
+				"color": "#e8f0ff",
+				"strength": 0.22,
+				"scale": 3.4,
+				"sharp": 0.6
+			},
+			"stones": 0.03,
+			"clouds": {
+				"amount": 0.14,
+				"scale": 0.07
 			}
 		},
 		"particles": [
 			"embruns",
 			"mist"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					6.0,
+					-14
+				],
+				"color": "#f4f8ff",
+				"size": 9.0,
+				"strength": 0.5
+			}
 		]
 	},
 	"plaine_roquefort": {
@@ -3322,9 +3960,9 @@
 					1.0
 				]
 			],
-			"dim": 0.5,
-			"desat": 0.15,
-			"haze": 0.12
+			"dim": 0.9,
+			"desat": 0.1,
+			"haze": 0.08
 		},
 		"props": [
 			{
@@ -3390,7 +4028,7 @@
 			}
 		],
 		"stage": {
-			"light": "#ffe8b0",
+			"light": "#fff2d8",
 			"boost": 0.4,
 			"key": 2.4,
 			"edge": 0.33,
@@ -3401,19 +4039,51 @@
 				9.5,
 				6.2
 			],
-			"tint": "#bcb092",
-			"exposure": 0.95,
+			"tint": "#c4c09a",
+			"exposure": 1.1,
 			"desat": 0.12,
-			"dim": 0.66,
+			"dim": 0.8,
 			"lift": 0.22,
 			"shafts": {
 				"color": "#ffe8b0",
-				"strength": 0.08
-			}
+				"strength": 0.22,
+				"scale": 3.6,
+				"sharp": 0.6
+			},
+			"fleck": {
+				"density": 0.06,
+				"colors": [
+					"#f4e8b0",
+					"#f2b84a"
+				],
+				"tuft": "#c0a040"
+			},
+			"blades": {
+				"density": 0.34,
+				"color": "#f0dc88",
+				"shade": "#8a6a30"
+			},
+			"clouds": {
+				"amount": 0.2,
+				"scale": 0.07
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"pollen",
 			"feuilles_dorees"
+		],
+		"halos": [
+			{
+				"pos": [
+					-6,
+					6.0,
+					-14
+				],
+				"color": "#ffe8b0",
+				"size": 9.0,
+				"strength": 0.55
+			}
 		]
 	},
 	"fongorn": {
@@ -3521,12 +4191,52 @@
 			"lift": 0.15,
 			"shafts": {
 				"color": "#d8f0b0",
-				"strength": 0.07
+				"strength": 0.22,
+				"scale": 3.2,
+				"sharp": 0.62
+			},
+			"dapple": 0.3,
+			"blades": {
+				"density": 0.12,
+				"color": "#a8e078",
+				"shade": "#2a5a2a"
 			}
 		},
 		"particles": [
 			"lueurs",
 			"spores"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					2.2,
+					-9.6
+				],
+				"color": "#b8f090",
+				"size": 4.0,
+				"strength": 0.55
+			},
+			{
+				"pos": [
+					-5,
+					2.0,
+					-10.8
+				],
+				"color": "#d0f8a0",
+				"size": 2.4,
+				"strength": 0.5
+			},
+			{
+				"pos": [
+					6,
+					1.8,
+					-10.4
+				],
+				"color": "#d0f8a0",
+				"size": 2.4,
+				"strength": 0.5
+			}
 		]
 	},
 	"bergerie_or": {
@@ -3629,11 +4339,25 @@
 			"lift": 0.18,
 			"shafts": {
 				"color": "#ffe0a8",
-				"strength": 0.06
+				"strength": 0.16,
+				"scale": 3.0,
+				"sharp": 0.64
 			}
 		},
 		"particles": [
 			"dust"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					3.6,
+					-9.6
+				],
+				"color": "#ffd890",
+				"size": 4.0,
+				"strength": 0.7
+			}
 		]
 	},
 	"garde_manger": {
@@ -3740,11 +4464,29 @@
 			"exposure": 1.6,
 			"fill": 1.4,
 			"fill_color": "#ffc890",
-			"lift": 0.22
+			"lift": 0.22,
+			"shafts": {
+				"color": "#c8d8f0",
+				"strength": 0.1,
+				"scale": 3.0,
+				"sharp": 0.66
+			}
 		},
 		"particles": [
 			"dust",
 			"mist"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					3.4,
+					-9.6
+				],
+				"color": "#a8c0e0",
+				"size": 3.5,
+				"strength": 0.6
+			}
 		]
 	},
 	"petrins": {
@@ -3855,11 +4597,50 @@
 			"exposure": 1.4,
 			"fill": 1.0,
 			"fill_color": "#ffa860",
-			"lift": 0.18
+			"lift": 0.18,
+			"shafts": {
+				"color": "#ffa060",
+				"strength": 0.12,
+				"scale": 3.0,
+				"sharp": 0.66
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"embers",
 			"smoke"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					2.4,
+					-10.4
+				],
+				"color": "#ff7a30",
+				"size": 6.0,
+				"strength": 0.9
+			},
+			{
+				"pos": [
+					-10,
+					1.8,
+					-10.2
+				],
+				"color": "#ff8a40",
+				"size": 2.9,
+				"strength": 0.8
+			},
+			{
+				"pos": [
+					10.5,
+					1.8,
+					-10.2
+				],
+				"color": "#ff8a40",
+				"size": 2.9,
+				"strength": 0.8
+			}
 		]
 	},
 	"terrasse_office": {
@@ -3950,11 +4731,40 @@
 			"tint": "#fff0e0",
 			"exposure": 1.1,
 			"fill": 0.6,
-			"lift": 0.12
+			"lift": 0.12,
+			"shafts": {
+				"color": "#ffc890",
+				"strength": 0.18,
+				"scale": 3.4,
+				"sharp": 0.62
+			},
+			"stones": 0.03
 		},
 		"particles": [
 			"embers",
 			"feuilles_dorees"
+		],
+		"halos": [
+			{
+				"pos": [
+					0,
+					5,
+					-14
+				],
+				"color": "#ff9a60",
+				"size": 9.0,
+				"strength": 0.6
+			},
+			{
+				"pos": [
+					11.5,
+					3.0,
+					-10.4
+				],
+				"color": "#ff7a30",
+				"size": 2.7,
+				"strength": 0.8
+			}
 		]
 	}
 }
