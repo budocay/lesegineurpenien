@@ -13,6 +13,7 @@ const MapBuilder = preload("res://src/world/map_builder.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const ArenaDecor = preload("res://src/battle/arena_decor.gd")
 const ARENA_GROUND_SHADER = preload("res://src/gfx/shaders/arena_ground.gdshader")
+const BattleUI = preload("res://src/battle/battle_ui.gd")
 
 ## Zone de jeu : aucun décor (ni arbre, ni brin d'herbe, ni lanterne) n'y est posé. Elle
 ## couvre tout le sol devant z = STAGE_BACK, sur |x| < STAGE_SIDE : les combattants se
@@ -37,11 +38,20 @@ var _rng := RandomNumberGenerator.new()
 # Les héros mesurent à peu près un sixième de la hauteur de l'image, un gros monstre un tiers.
 var _cam_home := Vector3(0.0, 4.7, 13.6)
 var _cam_look := Vector3(0.0, 1.3, 0.0)
-var _taken: Array[Vector3] = []     # places des combattants : aucun décor haut ne s'y adosse
 var _decor: RefCounted             # paroi et lointain (arena_decor.gd)
 var _shake := 0.0
 var foreground_props: Array[Vector3] = []   # premier plan flou (hors zone de jeu, au bord bas de l'image)
 var placed_props: Array[Vector3] = []   # décors posés (x, hauteur, z) : le test vérifie la zone de jeu
+var placed_nodes: Array[Node3D] = []    # leurs sprites (le test vérifie qu'ils ne cachent personne)
+var foreground_nodes: Array[Node3D] = []   # premier plan conservé (voir refit_foreground)
+var _fg_pool: Array[Node3D] = []           # tous les accessoires de premier plan de l'arène, gardés ou non
+var _fg_sides: Array[float] = []
+var _fg_base: Array[float] = []
+var _fg_flip: Array[float] = []
+var hero_k := 1.0               # taille d'affichage des héros, choisie par layout()
+var foe_k := 1.0                # taille d'affichage des monstres
+var hero_shift := Vector2.ZERO  # décalage (x, z) de la colonne des héros, choisi par layout()
+var foe_shift := Vector2.ZERO
 
 
 func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
@@ -52,11 +62,12 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	_arena_id = str(resolve(encounter).get("arena", "pre"))
 	var arena := Database.get_arena(_arena_id)
 	_rng.seed = hash(_arena_id)
-	_taken = _spots(engine.party, 1.0) + _spots(engine.enemies, -1.0)
 	_build_arena(arena)
 	_build_camera()
-	_place(engine.party, 1.0)
-	_place(engine.enemies, -1.0)
+	_place(engine.party)
+	_place(engine.enemies)
+	layout()
+	_foreground(arena.get("foreground", []))
 	_fit_steps()
 	fx = BattleFx.new()
 	fx.name = "Fx"
@@ -105,7 +116,6 @@ func _build_arena(arena: Dictionary) -> void:
 	for l: Variant in arena.get("lights", []):
 		if l is Dictionary:
 			_light(l)
-	_foreground(arena.get("foreground", []))
 	_stage_light(stage)
 	_stage_vignette(float(stage.get("vignette", 0.45)))
 	var amb := _stage_ambiance(Database.get_ambiance(str(arena.get("ambiance", "crepuscule"))), arena)
@@ -216,6 +226,21 @@ const HALF_VIEW := 5.7    # demi-largeur visible de l'arène au niveau des comba
 const FORM_DEPTH := 0.85  # profondeur de la file, par rapport à sa largeur (la diagonale se voit)
 const FOREGROUND_Z := [4.7, 5.5]   # profondeur du premier plan flou (arènes : champ « foreground »)
 
+# Mise en page (voir layout) : les tailles et les places des combattants se calculent à partir des
+# rectangles d'écran, jamais à la main arène par arène.
+const HERO_K_MAX := 0.62  # taille d'affichage maximale d'un héros (1 = taille de la planche, trop grande en combat)
+const HERO_K_MIN := 0.3
+const FOE_K_MAX := 1.2    # idem pour un monstre : un peu plus gros que les héros
+const FOE_K_MIN := 0.4
+const FOOT_MARGIN := 76.0  # place laissée sous les pieds d'un héros (ombre, bord de l'écran)
+const PLATE_H := 66.0      # plaque d'un ennemi sous ses pieds (états, nom)
+const PLATE_W := 190.0
+const FG_DIM := 0.5        # le premier plan est sombre
+const FG_BLUR := 14.0      # le flou déborde du sprite
+const FG_MAX_SHARE := 0.06 # part de l'écran qu'un coin de premier plan peut couvrir au plus
+const FG_CORNER_W := 0.2   # un accessoire de premier plan tient dans ces coins bas : largeur et hauteur
+const FG_CORNER_Y := 0.74  # (fraction de l'écran) en dessous de laquelle il se tient
+
 
 ## Place des combattants d'un camp, en diagonale : chacun un peu plus bas (plus près de la
 ## caméra) et plus à l'extérieur que le précédent ; le premier est le plus haut et le plus
@@ -242,11 +267,17 @@ static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPA
 
 
 ## Premier plan flou : rochers, herbes, souches posés tout en bas de l'image, entre la
-## caméra et la zone de jeu. Ils encadrent la scène sans rien cacher (champ « foreground »
-## de l'arène : [{"prop", "count", "scale", "x": [min, max]}]).
+## caméra et la zone de jeu (champ « foreground » de l'arène : [{"prop", "count", "scale", "x"}]).
+## Une amorce de photo, rien de plus : chaque accessoire est sombre, flou, et cadré dans l'un des
+## deux coins bas de l'image ; « x » ne sert qu'à choisir le coin (négatif : gauche). Aucun ne passe
+## devant un combattant, une plaque, une fiche, le menu ou la frise, et chaque coin en couvre au
+## plus FG_MAX_SHARE de l'écran. Un accessoire qui ne peut pas respecter cela est rapetissé,
+## enfoncé dans le sol, déplacé, puis retiré (voir refit_foreground).
 func _foreground(list: Array) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("fg" + _arena_id)
+	var all: Array[Node3D] = []
+	var sides: Array[float] = []
 	for entry: Variant in list:
 		if not (entry is Dictionary):
 			continue
@@ -254,18 +285,109 @@ func _foreground(list: Array) -> void:
 		var def: Dictionary = MapBuilder.PROPS.get(kind, {})
 		var variants := int(def.get("variants", 1))
 		var xr: Array = entry.get("x", [-10.0, 10.0])
+		var mid := (float(xr[0]) + float(xr[1])) * 0.5
 		var count := int(entry.get("count", 3))
 		for i in count:
 			var s := float(entry.get("scale", 1.5)) * rng.randf_range(0.8, 1.25)
 			var node := Sprites.make_sprite(Sprites.prop(kind, rng.randi() % variants), float(def.get("sway", 0.0)) * 0.5, float(def.get("glow", 0.0)))
 			var flip := rng.randf() < 0.5
 			node.scale = Vector3(-s if flip else s, s, s)
-			var t := (float(i) + rng.randf_range(0.15, 0.85)) / float(count)
-			var z: float = rng.randf_range(float(FOREGROUND_Z[0]), float(FOREGROUND_Z[1]))
-			node.position = Vector3(lerpf(float(xr[0]), float(xr[1]), t), 0.0, z)
-			foreground_props.append(node.position)
+			node.position = Vector3(0.0, 0.0, rng.randf_range(float(FOREGROUND_Z[0]), float(FOREGROUND_Z[1])))
 			add_child(node)
-			(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", rng.randf() * TAU)
+			var quad := node.get_child(0) as MeshInstance3D
+			quad.set_instance_shader_parameter("sway_phase", rng.randf() * TAU)
+			quad.set_instance_shader_parameter("dim", FG_DIM)
+			all.append(node)
+			sides.append(-1.0 if (mid < -2.0 or (absf(mid) <= 2.0 and (all.size() % 2) == 1)) else 1.0)
+	_fg_pool = all
+	_fg_sides = sides
+	for node: Node3D in all:
+		_fg_base.append(absf(node.scale.x))
+		_fg_flip.append(-1.0 if node.scale.x < 0.0 else 1.0)
+	refit_foreground([])
+
+
+## Rectangle d'écran d'un sprite posé (pivot aux pieds, une image rectangulaire centrée).
+func sprite_screen_rect(node: Node3D) -> Rect2:
+	var quad := node.get_child(0) as MeshInstance3D
+	var size: Vector2 = (quad.mesh as QuadMesh).size
+	var half := size.x * absf(node.scale.x) * 0.5
+	var top := size.y * node.scale.y
+	var a := camera.unproject_position(node.position + Vector3(-half, 0.0, 0.0))
+	var b := camera.unproject_position(node.position + Vector3(half, top, 0.0))
+	return Rect2(a.x, b.y, b.x - a.x, a.y - b.y).abs()
+
+
+## Place les accessoires de premier plan (voir _foreground). Les premiers de la liste ont la
+## préférence : ils prennent le coin, les suivants s'y rangent s'il reste de la place. « plates » :
+## les plaques des ennemis telles que l'interface les a posées (sans elles, une zone approchée
+## sous chaque ennemi). Refait quand les plaques bougent (voir BattleUI._layout_plates).
+func refit_foreground(plates: Array[Rect2]) -> void:
+	var view := _view()
+	var screen := Rect2(Vector2.ZERO, view)
+	var kept_left := 0.0
+	var kept_right := 0.0
+	var budget := view.x * view.y * FG_MAX_SHARE
+	var blocks := layout_blocks(view, plates.is_empty())
+	for p: Rect2 in plates:
+		blocks.append(p.grow(6.0))
+	foreground_nodes.clear()
+	foreground_props.clear()
+	for n in _fg_pool.size():
+		var node := _fg_pool[n]
+		var side := _fg_sides[n]
+		var quad_h := ((node.get_child(0) as MeshInstance3D).mesh as QuadMesh).size.y
+		var placed := false
+		for k: float in [1.0, 0.8, 0.64, 0.5, 0.4]:
+			var s := _fg_base[n] * k
+			node.scale = Vector3(_fg_flip[n] * s, s, s)
+			for sink: float in [0.0, 0.2, 0.35, 0.5]:
+				for fx: float in [0.05, 0.1, 0.15, 0.0]:
+					var sx := (fx if side < 0.0 else 1.0 - fx) * view.x
+					var ray_o := camera.project_ray_origin(Vector2(sx, view.y * 0.88))
+					var ray_d := camera.project_ray_normal(Vector2(sx, view.y * 0.88))
+					var t := (node.position.z - ray_o.z) / ray_d.z
+					node.position.x = ray_o.x + ray_d.x * t
+					node.position.y = -sink * quad_h * s
+					var vis := sprite_screen_rect(node).grow(FG_BLUR).intersection(screen)
+					if vis.get_area() <= 1.0:
+						continue
+					var in_corner := (side < 0.0 and vis.end.x <= view.x * FG_CORNER_W and vis.position.y >= view.y * FG_CORNER_Y) \
+							or (side > 0.0 and vis.position.x >= view.x * (1.0 - FG_CORNER_W) and vis.position.y >= view.y * FG_CORNER_Y)
+					if not in_corner:
+						continue
+					var clear := true
+					for b: Rect2 in blocks:
+						if vis.intersects(b):
+							clear = false
+							break
+					if not clear:
+						continue
+					if (kept_left if side < 0.0 else kept_right) + vis.get_area() > budget:
+						continue
+					if side < 0.0:
+						kept_left += vis.get_area()
+					else:
+						kept_right += vis.get_area()
+					placed = true
+					break
+				if placed:
+					break
+			if placed:
+				break
+		node.visible = placed
+		if placed:
+			foreground_nodes.append(node)
+			foreground_props.append(node.position)
+
+
+## Rectangles d'écran des accessoires de premier plan conservés, rognés à l'écran.
+func foreground_rects() -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	var screen := Rect2(Vector2.ZERO, _view())
+	for node: Node3D in foreground_nodes:
+		out.append(sprite_screen_rect(node).intersection(screen))
+	return out
 
 
 func _zone_point(zone: String) -> Vector2:
@@ -316,6 +438,7 @@ func _scatter(p: Dictionary) -> void:
 		node.scale = Vector3(-s if flip else s, s, s)
 		node.position = Vector3(pt.x, _step_height(pt.x, pt.y), pt.y)
 		placed_props.append(node.position)
+		placed_nodes.append(node)
 		add_child(node)
 		(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", _rng.randf() * TAU)
 
@@ -367,40 +490,151 @@ func _build_camera() -> void:
 	camera.make_current()
 
 
-## Places (monde) des combattants d'un camp.
-func _spots(list: Array, side: float) -> Array[Vector3]:
+## Taille d'affichage d'un combattant : les héros et les ennemis dessinés comme des personnages
+## prennent celle des héros, les monstres celle des monstres.
+func _view_k(c: RefCounted) -> float:
+	if c.side == "party" or (c.sprite as Dictionary).has("character"):
+		return hero_k
+	return foe_k
+
+
+## Places (monde) des combattants d'un camp, d'après leur taille d'affichage et le décalage de
+## leur colonne. Un grand monstre ne doit pas déborder de l'écran : on ramène son centre vers le milieu.
+func _spots(list: Array, side: float, shift: Vector2) -> Array[Vector3]:
 	var scales: Array = []
 	for c: RefCounted in list:
-		scales.append(float((c.sprite as Dictionary).get("scale", 1.0)))
+		var sp: Dictionary = c.sprite
+		scales.append((float(sp.get("scale", 1.0)) if sp.has("monster") else 1.0) * _view_k(c))
 	var out: Array[Vector3] = []
 	var i := 0
-	for sp: Vector3 in (formation(scales, 1.3, ENEMY_SPAN, ENEMY_X) if side < 0.0 else formation(scales)):
-		# un grand monstre ne doit pas déborder de l'écran : on ramène son centre vers le milieu
-		var limit := maxf(1.5, tan(deg_to_rad(CAM_FOV * 0.5)) * (16.0 / 9.0) * (_cam_home.z - sp.z) - 0.15 - _half_width(list[i]))
-		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z))
+	var form := formation(scales, 1.3, ENEMY_SPAN, ENEMY_X + shift.x) if side < 0.0 else formation(scales, 1.0, FORM_SPAN, FORM_X + shift.x)
+	for sp: Vector3 in form:
+		var limit := maxf(1.5, tan(deg_to_rad(CAM_FOV * 0.5)) * (_view().x / _view().y) * (_cam_home.z - sp.z) - 0.15 - _half_width(list[i]))
+		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z + shift.y))
 		i += 1
 	return out
 
 
 ## Demi-largeur (en x) occupée à l'écran par un combattant.
 func _half_width(c: RefCounted) -> float:
-	var sp: Dictionary = c.sprite
-	var s := float(sp.get("scale", 1.0))
-	if sp.has("monster"):
-		var sheet := Sprites.monster(str(sp["monster"]))
-		return float(sheet["frame_w"]) / float(sheet["ppu"]) * s * 0.45
-	return 0.4 * s
+	var a: Node3D = actors.get(c.key)
+	return a.half_width() if a != null else 0.4
 
 
-func _place(list: Array, side: float) -> void:
-	var spots := _spots(list, side)
-	for i in list.size():
-		var c: RefCounted = list[i]
+func _place(list: Array) -> void:
+	for c: RefCounted in list:
 		var actor := Actor.new()
 		actor.name = "Actor_" + str(c.key).replace("#", "_")
 		add_child(actor)
-		actor.setup(c, spots[i])
+		actor.setup(c, Vector3.ZERO)
 		actors[c.key] = actor
+
+
+func _view() -> Vector2:
+	return get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(1280.0, 720.0)
+
+
+func _apply_party(k: float, shift: Vector2) -> void:
+	hero_k = k
+	hero_shift = shift
+	for c: RefCounted in engine.party:
+		(actors[c.key] as Node3D).set_view_scale(k)
+	var spots := _spots(engine.party, 1.0, shift)
+	for i in engine.party.size():
+		(actors[engine.party[i].key] as Node3D).set_home(spots[i])
+
+
+func _apply_foes(k: float, shift: Vector2) -> void:
+	foe_k = k
+	foe_shift = shift
+	for c: RefCounted in engine.enemies:
+		(actors[c.key] as Node3D).set_view_scale(_view_k(c))
+	var spots := _spots(engine.enemies, -1.0, shift)
+	for i in engine.enemies.size():
+		(actors[engine.enemies[i].key] as Node3D).set_home(spots[i])
+
+
+## Rectangle d'écran d'un combattant avec son pas en avant et le débattement de ses poses.
+func _play_rect(c: RefCounted) -> Rect2:
+	return screen_rect(c, false, true).merge(screen_rect(c, true, true))
+
+
+## Mise en page du combat, calculée : la zone de jeu et la zone d'interface se règlent l'une
+## sur l'autre. Les fiches de l'équipe (coin haut droit) et la frise des tours (haut) prennent
+## leur place ; les héros prennent la plus grande taille (HERO_K_MAX au plus) pour laquelle,
+## dans toutes leurs poses, ils ne touchent ni les fiches, ni la frise, ni le bord de l'écran,
+## en descendant au besoin leur colonne vers la caméra ; les monstres prennent ensuite la plus
+## grande taille qui tient entre la frise, le bas de l'écran (leur plaque comprise) et les héros.
+func layout() -> void:
+	var view := _view()
+	var zones: Array[Rect2] = [BattleUI.cards_zone(engine.party.size(), view), BattleUI.top_band(view)]
+	var found := false
+	var k := HERO_K_MAX
+	while k >= HERO_K_MIN - 0.001 and not found:
+		for dx: float in [0.0, -0.3, -0.6, -0.9]:
+			for dz in 14:
+				_apply_party(k, Vector2(dx, float(dz) * 0.25))
+				if _party_fits(view, zones):
+					found = true
+					break
+			if found:
+				break
+		if not found:
+			k -= 0.02
+	if not found:
+		_apply_party(HERO_K_MIN, Vector2.ZERO)
+	found = false
+	k = FOE_K_MAX
+	while k >= FOE_K_MIN - 0.001 and not found:
+		for dz in 12:
+			_apply_foes(k, Vector2(0.0, float(dz) * 0.25))
+			if _foes_fit(view):
+				found = true
+				break
+		if not found:
+			k -= 0.05
+	if not found:
+		_apply_foes(FOE_K_MIN, Vector2.ZERO)
+
+
+func _party_fits(view: Vector2, zones: Array[Rect2]) -> bool:
+	for c: RefCounted in engine.party:
+		var r := _play_rect(c)
+		if r.position.x < 8.0 or r.end.x > view.x - 8.0 or r.end.y > view.y - FOOT_MARGIN:
+			return false
+		for z: Rect2 in zones:
+			if r.intersects(z):
+				return false
+	return true
+
+
+func _foes_fit(view: Vector2) -> bool:
+	var top := BattleUI.top_band(view)
+	for c: RefCounted in engine.enemies:
+		var r := _play_rect(c)   # dans toutes ses poses : ni sous la frise, ni hors de l'écran, sa plaque comprise
+		if r.position.x < 8.0 or r.end.y + PLATE_H > view.y - 8.0 or r.position.y < top.end.y + 4.0:
+			return false
+		for h: RefCounted in engine.party:
+			if r.intersects(screen_rect(h).grow(4.0)):
+				return false
+	return true
+
+
+## Zone approchée sous un ennemi où se pose sa plaque.
+func plate_zone(c: RefCounted) -> Rect2:
+	var r := screen_rect(c)
+	return Rect2(r.get_center().x - PLATE_W * 0.5, r.end.y, PLATE_W, PLATE_H).grow(6.0)
+
+
+## Rectangles que le premier plan ne doit jamais toucher : combattants (dans leurs poses),
+## plaques des ennemis, fiches de l'équipe, frise des tours.
+func layout_blocks(view: Vector2, with_plates: bool) -> Array[Rect2]:
+	var out: Array[Rect2] = [BattleUI.cards_zone(engine.party.size(), view), BattleUI.top_band(view)]
+	for c: RefCounted in engine.all():
+		out.append(_play_rect(c).grow(10.0))
+		if with_plates and c.side == "enemy":
+			out.append(plate_zone(c))
+	return out
 
 
 func actor_of(c: RefCounted) -> Node3D:
@@ -408,8 +642,9 @@ func actor_of(c: RefCounted) -> Node3D:
 
 
 ## Rectangle (pixels) que le sprite d'un combattant couvre à l'écran. Avec « stepped », à la
-## place qu'il prend quand il joue (un pas en avant) ; sinon à sa place de départ.
-func screen_rect(c: RefCounted, stepped: bool = false) -> Rect2:
+## place qu'il prend quand il joue (un pas en avant) ; sinon à sa place de départ. Avec « posed »,
+## élargi du débattement de ses poses (voir Actor.pose_reach).
+func screen_rect(c: RefCounted, stepped: bool = false, posed: bool = false) -> Rect2:
 	var a: Node3D = actors.get(c.key)
 	if a == null or camera == null:
 		return Rect2()
@@ -419,8 +654,11 @@ func screen_rect(c: RefCounted, stepped: bool = false) -> Rect2:
 	if a.down:   # un combattant à terre est couché : plus large que haut
 		hw *= 1.5
 		tall *= 0.4
-	var bottom := camera.unproject_position(at + Vector3(-hw, a._hover, 0.0))
-	var top := camera.unproject_position(at + Vector3(hw, tall + a._hover, 0.0))
+	var reach := Vector2.ZERO
+	if posed and not a.down:   # avec le débattement de ses poses (penché, sort lancé, coup reçu)
+		reach = a.pose_reach()
+	var bottom := camera.unproject_position(at + Vector3(-hw - reach.x, a._hover, 0.0))
+	var top := camera.unproject_position(at + Vector3(hw + reach.x, tall + a._hover + reach.y, 0.0))
 	return Rect2(bottom.x, top.y, top.x - bottom.x, bottom.y - top.y).abs()
 
 

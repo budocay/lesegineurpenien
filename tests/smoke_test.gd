@@ -49,6 +49,18 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_LAYOUT"):   # essai ciblé des cas de mise en page du combat
+		await _test_battle_layout()
+		print("%d vérifications, %d échec(s) (cas de mise en page seuls)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_STAGING"):   # essai ciblé de la mise en page du combat
+		await _test_battle_staging()
+		print("%d vérifications, %d échec(s) (mise en page du combat seule)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	print("== Données ==")
 	_test_data()
 	print("== Sprites ==")
@@ -99,6 +111,7 @@ func _ready() -> void:
 	await _test_animation_play()
 	print("== Combat : composition façon Octopath ==")
 	await _test_battle_layout()
+	await _test_battle_staging()
 	print("== Élan et icônes de combat ==")
 	_test_icons()
 	print("== Cartes ==")
@@ -4308,7 +4321,7 @@ func _check_menu_clear(scene: Node3D, ui: Control, tag: String) -> void:
 	for k: String in ui._plates:
 		var root: Control = ui._plates[k]["root"]
 		if root.visible:
-			check(not mr.intersects(root.get_global_rect()), "%s : ne couvre pas la plaque de %s" % [tag, k])
+			check(not mr.intersects(root.get_global_rect()), "%s : ne couvre pas la plaque de %s (menu %s, plaque %s)" % [tag, k, str(mr), str(root.get_global_rect())])
 	for k: Variant in ui._rows:
 		check(not mr.intersects((ui._rows[k]["card"] as Control).get_global_rect()), "%s : ne couvre pas une fiche" % tag)
 	check(not mr.intersects(ui._timeline.get_global_rect()), "%s : ne couvre pas la frise" % tag)
@@ -5431,3 +5444,139 @@ func _test_tutorials() -> void:
 	Tutorial.reset_seen()
 	main.queue_free()
 	await get_tree().process_frame
+
+
+# ----------------------------------------------- mise en page du combat, toutes les arènes
+
+## Recouvrement (en pixels carrés) de deux rectangles.
+func _overlap(a: Rect2, b: Rect2) -> float:
+	return a.intersection(b).get_area()
+
+
+## Pour chaque arène, à quatre héros (Glandoulf, le plus grand, compris) contre cinq ennemis puis
+## contre un boss large, aux deux tailles d'écran : tous les combattants sont entiers dans l'écran
+## et, dans toutes leurs poses (pas en avant, penché, sort lancé), ne touchent ni les fiches, ni
+## la frise, ni le menu, ni une plaque ; le premier plan ne couvre personne, reste dans les coins
+## bas et sous sa borne de surface ; aucun décor posé sur le terrain ne passe devant un combattant.
+func _test_battle_staging() -> void:
+	print("== Mise en page du combat : toutes les arènes, tous les formats ==")
+	var foes5 := ["limace_molle", "guepe_cidre", "champignon_dormeur", "limace_molle", "guepe_cidre"]
+	var cases := [
+		{"name": "4 héros, 5 ennemis", "allies": ["sam", "froton", "pepin"], "enemies": foes5},
+		{"name": "4 héros, boss", "allies": ["sam", "froton", "pepin"], "enemies": ["crapaud_buffle"]},
+	]
+	var extra := [
+		{"name": "2 héros, 1 ennemi", "allies": ["sam"], "enemies": ["limace_molle"]},
+		{"name": "3 héros, 3 ennemis", "allies": ["sam", "froton"], "enemies": ["vacherin", "guepe_cidre", "champignon_dormeur"]},
+		{"name": "4 héros, 5 grands", "allies": ["sam", "froton", "pepin"], "enemies": ["vacherin", "crapaud_buffle", "vacherin", "crapaud_buffle", "vacherin"]},
+	]
+	var win := get_window()
+	var old_size := win.size
+	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1600, 900)]:
+		win.size = size
+		await get_tree().process_frame
+		for id: String in Database.arenas:
+			var list := cases.duplicate()
+			if id == "pre" or id == "grand_four" or id == "taverne":
+				list.append_array(extra)
+			for cs: Dictionary in list:
+				GameState.new_game()
+				for who: String in cs["allies"]:
+					GameState.add_to_party(who)
+				var layer := CanvasLayer.new()
+				add_child(layer)
+				var ui: Control = BattleUI.new()
+				layer.add_child(ui)
+				await get_tree().process_frame
+				var scene: Node3D = BattleScene.new()
+				add_child(scene)
+				scene.fast = true
+				scene.setup({"enemies": cs["enemies"], "arena": id}, ui, 5)
+				scene.run()
+				for _i in 600:
+					await get_tree().process_frame
+					if ui._state == ui.S.ROOT:
+						break
+				await get_tree().process_frame
+				await get_tree().process_frame
+				_check_staging(scene, ui, "arène %s, %s, %dx%d" % [id, cs["name"], size.x, size.y])
+				ui.close()
+				remove_child(scene)
+				scene.queue_free()
+				layer.queue_free()
+	win.size = old_size
+
+
+func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
+	var view: Rect2 = ui.get_viewport_rect()
+	var ui_rects: Array[Rect2] = []
+	for k: Variant in ui._rows:
+		ui_rects.append((ui._rows[k]["card"] as Control).get_global_rect())
+	ui_rects.append(ui._timeline.get_global_rect())
+	ui_rects.append(ui._turn_tag.get_global_rect())
+	var plates: Array[Rect2] = []
+	for k: String in ui._plates:
+		var root: Control = ui._plates[k]["root"]
+		if root.visible:
+			plates.append(root.get_global_rect())
+	var menu: Array[Rect2] = [ui._root_panel.get_global_rect(), (ui._elan_bars[0]["panel"] as Control).get_global_rect()]
+	var bodies: Array[Rect2] = []
+	var hero_count := 0
+	var foe_count := 0
+	for c: RefCounted in scene.engine.all():
+		var home: Rect2 = scene.screen_rect(c)
+		var posed: Rect2 = scene.screen_rect(c, false, true).merge(scene.screen_rect(c, true, true))
+		bodies.append(posed)
+		check(view.encloses(home) and view.encloses(posed), "%s : %s entier dans l'écran, poses comprises" % [tag, str(c.name)])
+		var worst := 0.0
+		for r: Rect2 in ui_rects:
+			worst = maxf(worst, _overlap(posed, r))
+		check(worst < 1.0, "%s : %s ne touche ni fiche, ni frise (%.0f px²)" % [tag, str(c.name), worst])
+		worst = 0.0
+		for r: Rect2 in plates:   # un héros, dans toutes ses poses, ne touche aucune plaque ; un ennemi ne touche que la sienne (vérifié plus haut)
+			if c.side == "party":
+				worst = maxf(worst, _overlap(posed, r))
+		check(worst < 1.0, "%s : %s ne touche aucune plaque (%.0f px²)" % [tag, str(c.name), worst])
+		if c.side == "party":
+			hero_count += 1
+		else:
+			foe_count += 1
+	check(hero_count >= 2 and foe_count >= 1, "%s : %d héros et %d ennemis en place" % [tag, hero_count, foe_count])
+	# le menu : jamais sur un combattant, une plaque ou une fiche
+	var mw := 0.0
+	for r: Rect2 in menu:
+		check(view.encloses(r) or r.size.x <= 0.0, "%s : menu et barre d'élan dans l'écran" % tag)
+		for c: RefCounted in scene.engine.all():
+			if c == ui._actor or (c.side == "enemy" and not c.alive()):
+				continue
+			mw = maxf(mw, _overlap(r, scene.screen_rect(c).grow(-4.0)))
+		for p: Rect2 in plates:
+			mw = maxf(mw, _overlap(r, p))
+		for u: Rect2 in ui_rects:
+			mw = maxf(mw, _overlap(r, u))
+	check(mw < 1.0, "%s : le menu ne couvre ni combattant, ni plaque, ni fiche (%.0f px²)" % [tag, mw])
+	# premier plan : dans les coins bas, sous la borne, devant personne
+	var corner := {"left": 0.0, "right": 0.0}
+	for fr: Rect2 in scene.foreground_rects():
+		if fr.get_area() <= 0.0:
+			continue
+		var left: bool = fr.get_center().x < view.size.x * 0.5
+		corner["left" if left else "right"] += fr.get_area()
+		check(fr.position.y >= view.size.y * scene.FG_CORNER_Y - 1.0 and (fr.end.x <= view.size.x * scene.FG_CORNER_W + 1.0 if left else fr.position.x >= view.size.x * (1.0 - scene.FG_CORNER_W) - 1.0), "%s : premier plan dans un coin bas" % tag)
+		var cover := 0.0
+		for b: Rect2 in bodies:
+			cover = maxf(cover, _overlap(fr, b))
+		for r: Rect2 in ui_rects + plates + menu:
+			cover = maxf(cover, _overlap(fr, r))
+		check(cover < 1.0, "%s : le premier plan ne couvre ni combattant, ni plaque, ni fiche, ni menu (%.0f px²)" % [tag, cover])
+	for side: String in corner:
+		check(float(corner[side]) <= view.size.x * view.size.y * scene.FG_MAX_SHARE + 1.0, "%s : premier plan du coin %s sous la borne (%.1f %%)" % [tag, side, float(corner[side]) / (view.size.x * view.size.y) * 100.0])
+	# décors posés sur le terrain : aucun entre la caméra et un combattant
+	var hidden := 0.0
+	for node: Node3D in scene.placed_nodes:
+		var nr: Rect2 = scene.sprite_screen_rect(node)
+		for c: RefCounted in scene.engine.all():
+			var a: Node3D = scene.actors[c.key]
+			if node.position.z > a.home.z - 0.2:
+				hidden = maxf(hidden, _overlap(nr, scene.screen_rect(c, false, true)))
+	check(hidden < 1.0, "%s : aucun décor posé devant un combattant (%.0f px²)" % [tag, hidden])
