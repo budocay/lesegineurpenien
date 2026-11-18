@@ -15,7 +15,11 @@ personnages et les décors.
 L'identifiant est celui du fichier `data/characters.json` (`glandoulf`, `sam`, `fripon`,
 `pepine`, `gedeon`, `titou`, `meme_louchette`, `anselme`, `berthe`, `odilon`).
 
-Format par défaut, une planche de 128 × 192 pixels :
+Les planches peintes par le jeu font 352 × 192 pixels : 11 colonnes (repos, respiration,
+clignement ; quatre poses de marche ; attaque, sort, coup reçu, KO). Une planche déposée
+ici peut être plus simple.
+
+Format par défaut d'une planche déposée, 128 × 192 pixels :
 
 - cases de **32 × 48 pixels** ;
 - **4 colonnes**, dans cet ordre : immobile, premier pas, passage (jambes réunies),
@@ -41,6 +45,11 @@ toutes les clés sont facultatives :
 }
 ```
 
+Trois clés de plus pour une planche plus riche : `"idle_seq": [0, 0, 1, 1, 0, 2]` (colonnes
+jouées à l'arrêt, à `idle_fps` images par seconde, 4 par défaut) et
+`"poses": {"attack": 7, "cast": 8, "hit": 9, "ko": 10}` (colonnes des poses de combat ; une
+pose absente garde simplement le dessin de repos).
+
 Les valeurs ci-dessus sont celles prises par défaut. `walk` donne les numéros de colonnes à
 enchaîner pendant la marche, `idle` la colonne affichée à l'arrêt, `foot_margin` le nombre
 de pixels vides sous les pieds. La taille des cases se déduit de la taille de l'image, du
@@ -50,7 +59,10 @@ nombre de colonnes et du nombre de lignes.
 
 Types actuels : `limace`, `baveuse`, `guepe`, `champignon`, `epouvantail`.
 
-- Une seule rangée de poses côte à côte (deux par défaut), jouées en boucle.
+- Une seule rangée de poses côte à côte (deux par défaut), jouées en boucle. Les monstres
+  peints par le jeu en ont quatre : repos, respiration, attaque, coup reçu. Pour une image
+  déposée qui en a autant, ajouter au `.json` : `"columns": 4, "idle": [0, 1],
+  "poses": {"attack": 2, "hit": 3}`.
 - Le monstre regarde **vers la droite** (vers l'équipe), pieds en bas de l'image.
 - Fond transparent, pas de lissage.
 - Un fichier `monsters/<type>.json` facultatif précise le découpage :
@@ -61,7 +73,9 @@ Types actuels : `limace`, `baveuse`, `guepe`, `champignon`, `epouvantail`.
 ## Portraits — `portraits/<identifiant>.png`
 
 Image carrée affichée dans la boîte de dialogue (conseillé : 48 × 48 pixels, elle est
-agrandie sans lissage). Sans fichier, le portrait est découpé dans la planche du personnage.
+agrandie sans lissage). Sans fichier, le portrait est peint : la tête de face, agrandie deux
+fois avec lissage des diagonales. Il sert dans les dialogues, le menu Équipe, le choix d'une
+cible d'objet, l'écran de talents et la file des tours en combat.
 
 ## Décors — `props/<type>.png` ou `props/<type>_<variante>.png`
 

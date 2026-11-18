@@ -1,11 +1,30 @@
 extends RefCounted
-## Peint les monstres par code. Chaque planche contient deux poses côte à côte
-## (repos, respiration), le monstre regardant vers la DROITE.
+## Peint les monstres par code. Chaque planche contient quatre poses côte à côte
+## (repos, respiration, attaque, coup reçu), le monstre regardant vers la DROITE.
+## Les deux premières sont dessinées à la main ; l'attaque et le coup reçu reprennent le
+## repos avec un autre visage (FACES). Une passe de volume éclaire le haut gauche de chaque
+## forme et assombrit le bas droit.
 ## Format documenté dans assets/sprites/README.md.
 
 const PA = preload("res://src/gfx/pixel_art.gd")
 
-const COLUMNS := 2
+const COLUMNS := 4
+const IDLE := [0, 1]
+const POSES := {"attack": 2, "hit": 3}
+
+## Visage de chaque famille, en pixels dans la case : yeux [x, y, largeur, hauteur] et bouche.
+const FACES := {
+	"limace": {"eyes": [[26, 3, 3, 3], [31, 4, 3, 3]], "mouth": [30, 15, 4, 3]},
+	"guepe": {"eyes": [[25, 13, 3, 3]], "mouth": [26, 17, 3, 2]},
+	"champignon": {"eyes": [[12, 21, 3, 3], [17, 21, 3, 3]], "mouth": [14, 25, 4, 3]},
+	"epouvantail": {"eyes": [[18, 12, 2, 2], [23, 12, 2, 2]], "mouth": [19, 16, 5, 2]},
+	"sanglier": {"eyes": [[35, 15, 3, 2]], "mouth": [36, 21, 4, 2]},
+	"grenouille": {"eyes": [[22, 6, 3, 3], [28, 7, 3, 3]], "mouth": [24, 14, 8, 3]},
+	"follet": {"eyes": [[8, 16, 3, 3], [14, 16, 3, 3]], "mouth": [10, 21, 4, 3]},
+}
+const FAMILY := {"baveuse": "limace", "sangsue": "limace", "frelon": "guepe", "amanite": "champignon",
+	"solitaire": "sanglier", "crapaud": "grenouille"}
+
 const SIZES := {
 	"limace": Vector2i(38, 26),
 	"baveuse": Vector2i(38, 26),
@@ -35,8 +54,9 @@ static func has(kind: String) -> bool:
 static func paint(kind: String) -> Image:
 	var size: Vector2i = SIZES.get(kind, Vector2i(24, 24))
 	var img := PA.new_image(size.x * COLUMNS, size.y)
-	for f in COLUMNS:
-		var ox := f * size.x
+	for col in COLUMNS:
+		var f := col if col < 2 else 0
+		var ox := col * size.x
 		match kind:
 			"limace": _slug(img, ox, f, ["#5f8a3c", "#8fb552", "#c3dc7c", "#e9f2b8"], "#d9732e")
 			"baveuse": _slug(img, ox, f, ["#6a4f8a", "#9a78b8", "#c9a8dc", "#ecd8f4"], "#f0c040")
@@ -53,8 +73,72 @@ static func paint(kind: String) -> Image:
 			"epouvantail": _scarecrow(img, ox, f)
 			_:
 				PA.rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
+		_volume(img, Rect2i(ox, 0, size.x, size.y))
+		if col >= 2:
+			_mood(img, ox, kind, col == 2)
 		PA.outline(img, Rect2i(ox, 0, size.x, size.y))
 	return img
+
+
+## Donne du volume : lumière sur les bords tournés vers le haut gauche, ombre sur les
+## bords tournés vers le bas droit.
+static func _volume(img: Image, region: Rect2i) -> void:
+	var src := img.get_region(region)
+	var w := region.size.x
+	var h := region.size.y
+	for y in h:
+		for x in w:
+			var c := src.get_pixel(x, y)
+			if c.a < 0.5:
+				continue
+			var up := y == 0 or src.get_pixel(x, y - 1).a < 0.5
+			var left := x == 0 or src.get_pixel(x - 1, y).a < 0.5
+			var down := y == h - 1 or src.get_pixel(x, y + 1).a < 0.5
+			var right := x == w - 1 or src.get_pixel(x + 1, y).a < 0.5
+			if down or right:
+				img.set_pixel(region.position.x + x, region.position.y + y, PA.shade(c, -0.22))
+			elif up or left:
+				img.set_pixel(region.position.x + x, region.position.y + y, PA.shade(c, 0.2))
+
+
+## Visage d'attaque (yeux ouverts et furieux, gueule ouverte) ou de coup reçu (yeux
+## plissés, bouche tordue).
+static func _mood(img: Image, ox: int, kind: String, attack: bool) -> void:
+	var face: Dictionary = FACES.get(str(FAMILY.get(kind, kind)), {})
+	if face.is_empty():
+		return
+	var dark := _c("#2b1b2e")
+	var maw := _c("#4a1424")
+	for e: Array in face["eyes"]:
+		var x := ox + int(e[0])
+		var y := int(e[1])
+		var w := int(e[2])
+		var h := int(e[3])
+		if attack:
+			PA.rect(img, x, y, w, h, Color.WHITE)
+			PA.rect(img, x, y, w, 1, dark)                 # paupière basse, regard noir
+			PA.px(img, x + w - 1, y + h - 1, dark)
+			PA.px(img, x + w - 1, y + 1, dark)
+		else:
+			# œil plissé : un trait fermé, relevé aux coins, par-dessus l'œil d'origine
+			PA.rect(img, x, y + h / 2, w, 1, dark)
+			if h >= 3:
+				PA.px(img, x, y, dark)
+				PA.px(img, x, y + h - 1, dark)
+	var m: Array = face["mouth"]
+	var mx := ox + int(m[0])
+	var my := int(m[1])
+	var mw := int(m[2])
+	var mh := int(m[3])
+	if attack:
+		PA.rect(img, mx, my, mw, mh, maw)
+		for i in range(0, mw, 2):
+			PA.px(img, mx + i, my, Color.WHITE)
+		if mh >= 3:
+			PA.px(img, mx + mw / 2, my + mh - 1, _c("#d8506a"))
+	else:
+		for i in mw:
+			PA.px(img, mx + i, my + 1 - (i % 2), dark)
 
 
 static func _c(hex: String) -> Color:

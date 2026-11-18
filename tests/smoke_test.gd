@@ -277,11 +277,23 @@ func _test_sprites() -> void:
 	for id: String in Database.characters:
 		var sheet := Sprites.character(id)
 		var img: Image = sheet["image"]
-		check(img.get_width() == 128 and img.get_height() == 192, "planche de %s : 128 x 192" % id)
+		check(img.get_width() == 352 and img.get_height() == 192, "planche de %s : 352 x 192" % id)
 		var fw: int = sheet["frame_w"]
 		var fh: int = sheet["frame_h"]
+		check((sheet["walk"] as Array).size() >= 4, "planche de %s : au moins quatre poses de marche" % id)
+		check((sheet["idle_seq"] as Array).size() > 1, "planche de %s : repos animé" % id)
+		for pose_name: String in ["attack", "cast", "hit", "ko"]:
+			check((sheet["poses"] as Dictionary).has(pose_name), "planche de %s : pose %s" % [id, pose_name])
+		# les quatre poses de marche sont toutes différentes, dans chaque direction
 		for row in 4:
-			for col in 4:
+			var seen := {}
+			for col: int in sheet["walk"]:
+				seen[img.get_region(Rect2i(col * fw, row * fh, fw, fh)).get_data()] = true
+			check(seen.size() == 4, "planche de %s : quatre poses de marche distinctes, ligne %d" % [id, row])
+		var pimg: Image = Sprites.portrait(id).get_image()
+		check(pimg.get_width() == 48 and pimg.get_height() == 48, "portrait de %s : 48 x 48" % id)
+		for row in 4:
+			for col in int(sheet["columns"]):
 				var b := Sprites.PA.opaque_bounds(img, Rect2i(col * fw, row * fh, fw, fh))
 				check(b.size.y > 12 and b.size.y < fh and b.position.y > 0, "planche de %s : case %d,%d non vide et dans le cadre" % [id, col, row])
 				check(b.position.x > 0 and b.end.x < fw, "planche de %s : case %d,%d ne touche pas les bords" % [id, col, row])

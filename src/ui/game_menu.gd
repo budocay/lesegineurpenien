@@ -148,6 +148,13 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 		b.custom_minimum_size = Vector2(420, 0)
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.clip_text = true
+		if e.get("icon") is Texture2D:
+			# portrait du personnage devant sa ligne
+			b.icon = e["icon"]
+			b.expand_icon = true
+			b.add_theme_constant_override("icon_max_width", 44)
+			b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			b.custom_minimum_size = Vector2(420, 52)
 		if bool(e.get("dim", false)):
 			b.add_theme_color_override("font_color", UI.INK_DIM)
 		b.focus_entered.connect(_on_focus.bind(i))
@@ -380,6 +387,7 @@ func _item_targets(item: String, from: int, focus: int = 0) -> void:
 	for id: Variant in GameState.party:
 		entries.append({
 			"text": _member_line(str(id)),
+			"icon": Sprites.portrait(str(id)),
 			"detail": item_detail(item) + "\n\nDans le sac : %d" % GameState.item_count(item),
 			"action": _use_on.bind(item, str(id), from, entries.size()),
 		})
@@ -433,9 +441,10 @@ func _team(focus: int = 0) -> void:
 		var text := "%s   Nv %d" % [Database.get_character_name(who), int(GameState.member(who)["level"])]
 		var points := GameState.talent_points(who)
 		if points > 0:
-			text += "   ·   %s de talent" % _points(points)
+			text += "  ·  %s" % _points(points)
 		entries.append({
 			"text": text,
+			"icon": Sprites.portrait(who),
 			"detail": _member_detail(who),
 			"action": _member.bind(who, entries.size(), 0),
 		})

@@ -84,6 +84,9 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 	_animate(0.0)
 
 
+var _mpose := ""   # pose imposée à un monstre ("attack", "hit")
+
+
 func _process(delta: float) -> void:
 	_animate(delta)
 
@@ -95,12 +98,7 @@ func _animate(delta: float) -> void:
 		_quad.set_instance_shader_parameter("flash", _flash)
 	if down:
 		return
-	if _char == null and not _sheet.is_empty():
-		var cols := int(_sheet["columns"])
-		var f := int(_time * float(_sheet["fps"])) % cols
-		if f != _frame:
-			_frame = f
-			_quad.set_instance_shader_parameter("frame_rect", Vector4(float(f) / cols, 0.0, 1.0 / cols, 1.0))
+	_monster_frame()
 	if _hover > 0.0:
 		_body.position.y = _hover + sin(_time * 3.2) * 0.09
 
@@ -150,7 +148,36 @@ func _go_home() -> void:
 	tw.tween_property(self, "position", home, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
+## Dessin de pose du personnage (sans effet sur un monstre).
+func _set_pose(p: String) -> void:
+	if _char != null:
+		_char.pose = p
+		return
+	_mpose = p
+	if p == "ko":
+		_mpose = "hit"
+	elif p == "cast":
+		_mpose = "attack"
+	_monster_frame()
+
+
+## Image d'un monstre : sa pose imposée si la planche l'a, sinon la boucle de repos.
+func _monster_frame() -> void:
+	if _char != null or _sheet.is_empty() or _quad == null:
+		return
+	var cols := int(_sheet["columns"])
+	var idle: Array = _sheet.get("idle", [0])
+	var f := int(idle[int(_time * float(_sheet["fps"])) % idle.size()])
+	var poses: Dictionary = _sheet.get("poses", {})
+	if poses.has(_mpose):
+		f = int(poses[_mpose])
+	if f != _frame:
+		_frame = f
+		_quad.set_instance_shader_parameter("frame_rect", Vector4(float(f) / cols, 0.0, 1.0 / cols, 1.0))
+
+
 func _reset_body() -> void:
+	_set_pose("")
 	if _pose_tw != null and _pose_tw.is_valid():
 		_pose_tw.kill()
 	if _hit_tw != null and _hit_tw.is_valid():
@@ -188,6 +215,13 @@ func play_pose(pose: String, toward: Vector3, impact: float) -> void:
 	var near := from.lerp(Vector3(toward.x - _dir * 1.15, 0.0, toward.z), 0.92)   # au contact
 	var tw := create_tween()
 	_pose_tw = tw
+	var drawn := "attack"
+	if pose == "cast" or pose == "shout":
+		drawn = "cast"
+	elif pose == "sleep" or pose == "eat" or pose == "guard":
+		drawn = ""
+	_set_pose(drawn)
+	tw.finished.connect(_set_pose.bind(""))
 	match pose:
 		"strike":
 			var wind := maxf(0.06, impact - 0.1)
@@ -309,6 +343,9 @@ func play_hit(strong: bool = false) -> void:
 	tw.tween_property(_body, "position:x", _dir * 0.08, 0.07)
 	tw.tween_property(_body, "position:x", 0.0, 0.07)
 	tw.parallel().tween_property(_body, "rotation:z", 0.0, 0.12)
+	_set_pose("hit")
+	tw.tween_interval(0.12)
+	tw.tween_callback(_set_pose.bind(""))
 
 
 ## Un allié s'effondre sur place ; un ennemi se dissipe.
@@ -318,6 +355,7 @@ func play_ko() -> void:
 	if _move != null and _move.is_valid():
 		_move.kill()
 	_reset_body()
+	_set_pose("ko")
 	position = home
 	if combatant.side == "party":
 		if fast:

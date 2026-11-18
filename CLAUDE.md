@@ -64,17 +64,25 @@ construit, comment l'essayer en jouant, ce qui n'a pas pu être vérifié.
 ## État au 18 novembre 2026
 
 Chapitre 1 jouable de bout en bout (étapes 1 à 5). Talents terminés avec un écran dédié.
-Animations de combat terminées (107 animations décrites dans les données). Ordre de travail fixé par l'auteur pour la suite, une étape à la fois, en
-s'arrêtant après chacune pour qu'il teste :
+Animations de combat terminées (107 animations décrites dans les données). Pixel art
+terminé. Les trois priorités fixées par l'auteur sont faites :
 
 1. ~~Talents~~ (fait).
 2. ~~Animations de combat~~ (fait ; les poses sont des mouvements du sprite entier, à
    remplacer par de vrais dessins pendant l'étape pixel art).
-3. **Pixel art** : sprites refaits (quatre poses de marche par direction, repos animé),
-   sprites dédiés pour les Morfales et le Naze, monstres retravaillés, portraits dans les
-   dialogues et les menus, décors plus riches ; comparer les captures avant/après.
+3. ~~Pixel art~~ (fait : planches de 11 poses par direction, `species` pour Morfales et
+   Naze, monstres à quatre poses, portraits peints, décors enrichis ; captures d'avant
+   dans `docs/captures/avant_pixel_art/`).
+
+Demande suivante de l'auteur : reprendre toute l'histoire, qui a des trous (Isidur ne
+détruit pas l'anneau, il le garde pour lui).
 
 ## Pièges connus
+
+- Planches de personnages : colonnes 0-2 repos, 3-6 marche, 7-10 attaque, sort, coup reçu,
+  KO. Tout dessin doit rester à un pixel au moins des bords de sa case (le test le vérifie).
+- Voir les sprites sans lancer le jeu : `Godot --headless --path . -s tests/_dump_sheets.gd
+  -- <dossier>` écrit planches, portraits et monstres agrandis.
 
 - Un sprite d'effet translucide est flouté par le flou de profondeur : garder la découpe
   franche (`ALPHA_SCISSOR`) de `battle_fx.gd`.

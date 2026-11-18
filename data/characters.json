@@ -176,7 +176,7 @@
 		"full_name": "Titou Rondelet",
 		"look": {
 			"build": "enfant", "outfit": "tunique", "skin": "#efc29c",
-			"top": "#d9a23a", "bottom": "#7a5a3a",
+			"top": "#4f8a9a", "bottom": "#7a5a3a",
 			"hair": "#d8b45a", "hair_style": "boucles"
 		}
 	},
@@ -226,7 +226,7 @@
 	},
 	"nestor": {"name": "Nestor", "full_name": "Nestor Boutdebois, patron de barque", "look": {"build": "petit", "outfit": "tunique", "skin": "#d9a078", "top": "#b0483c", "bottom": "#e2d8c0", "belt": "#3a2a20", "hair": "#2a2420", "hair_style": "court", "beard": "courte", "beard_color": "#2a2420", "hat": "casquette", "hat_color": "#2f4a6e"}},
 	"basile": {"name": "Basile", "full_name": "Basile Trempette, pêcheur de la Roselière", "look": {"build": "petit", "outfit": "tunique", "skin": "#dba884", "top": "#5a7a6a", "bottom": "#4a4438", "belt": "#3a2a20", "hair": "#8a8a82", "hair_style": "court", "beard": "moustache", "beard_color": "#9a9a92", "hat": "chapeau_paille", "hat_color": "#c8b070", "band": "#4a6a5a"}},
-	"morfale_eclaireur": {"name": "Morfale", "full_name": "Morfale éclaireur", "look": {"build": "grand", "outfit": "tunique", "skin": "#8a9a6a", "top": "#5a3a34", "bottom": "#3a3430", "belt": "#c9a24a", "hair": "#1c1a18", "hair_style": "chauve", "hat": "capuche", "hat_color": "#4a3a30", "feet": "bottes", "boots": "#241c18"}},
-	"morfale_goinfre": {"name": "Morfale", "full_name": "Morfale goinfre", "look": {"build": "grand", "outfit": "tablier", "skin": "#7a8a5a", "top": "#6a4a3a", "bottom": "#3a3430", "hair": "#1c1a18", "hair_style": "chauve", "hat": "toque", "hat_color": "#b8ac94", "feet": "bottes", "boots": "#241c18"}},
-	"naze": {"name": "Le Naze", "full_name": "Un des Neuf Nazes", "look": {"build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c1a26", "belt": "#8a8aa0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#15131c", "feet": "bottes", "boots": "#0c0a10"}}
+	"morfale_eclaireur": {"name": "Morfale", "full_name": "Morfale éclaireur", "look": {"species": "morfale", "build": "grand", "outfit": "tunique", "skin": "#8a9a6a", "top": "#5a3a34", "bottom": "#3a3430", "belt": "#c9a24a", "hair": "#1c1a18", "hair_style": "chauve", "hat": "capuche", "hat_color": "#4a3a30", "feet": "bottes", "boots": "#241c18"}},
+	"morfale_goinfre": {"name": "Morfale", "full_name": "Morfale goinfre", "look": {"species": "morfale", "build": "grand", "outfit": "tablier", "skin": "#7a8a5a", "top": "#6a4a3a", "bottom": "#3a3430", "hair": "#1c1a18", "hair_style": "chauve", "hat": "toque", "hat_color": "#b8ac94", "feet": "bottes", "boots": "#241c18"}},
+	"naze": {"name": "Le Naze", "full_name": "Un des Neuf Nazes", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c1a26", "belt": "#8a8aa0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#15131c", "feet": "bottes", "boots": "#0c0a10"}}
 }

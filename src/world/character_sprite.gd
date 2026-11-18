@@ -7,11 +7,14 @@ var sheet: Dictionary = {}
 var facing: String = "down"
 var moving: bool = false
 var height: float = 2.0
+## Pose imposée ("attack", "cast", "hit", "ko") ; vide = marche ou repos.
+var pose: String = ""
 
 var _quad: MeshInstance3D
 var _time := 0.0
 var _shown := -1
 var _was_moving := false
+var _idle := randf() * 12.0
 
 
 func setup(p_sheet: Dictionary) -> void:
@@ -53,6 +56,7 @@ func _process(delta: float) -> void:
 			_time = 0.0
 		_time += delta * float(sheet.get("fps", 7.0))
 	_was_moving = moving
+	_idle += delta * float(sheet.get("idle_fps", 4.0))
 	_apply()
 
 
@@ -60,9 +64,16 @@ func _apply() -> void:
 	if _quad == null:
 		return
 	var col: int = int(sheet.idle)
-	if moving:
+	var poses: Dictionary = sheet.get("poses", {})
+	if pose != "" and poses.has(pose):
+		col = int(poses[pose])
+	elif moving:
 		var walk: Array = sheet.walk
 		col = int(walk[int(_time) % walk.size()])
+	else:
+		var seq: Array = sheet.get("idle_seq", [])
+		if not seq.is_empty():
+			col = int(seq[int(_idle) % seq.size()])
 	var rows: Dictionary = sheet.rows
 	var flip := false
 	var row := 0

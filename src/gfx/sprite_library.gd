@@ -67,8 +67,11 @@ func character(id: String) -> Dictionary:
 		"columns": CharacterPainter.COLUMNS,
 		"row_count": CharacterPainter.ROWS,
 		"rows": {"down": 0, "left": 1, "right": 2, "up": 3},
-		"walk": [1, 2, 3, 0],
+		"walk": CharacterPainter.WALK,
 		"idle": 0,
+		"idle_seq": CharacterPainter.IDLE,
+		"idle_fps": 4.0,
+		"poses": CharacterPainter.POSES,
 		"ppu": PPU,
 		"foot": CharacterPainter.FOOT_MARGIN,
 		"fps": 7.0,
@@ -84,9 +87,11 @@ func character(id: String) -> Dictionary:
 				map[str(rows[i])] = i
 			sheet["rows"] = map
 			sheet["row_count"] = (rows as Array).size()
-		if meta.get("walk") is Array:
-			sheet["walk"] = meta["walk"]
+		sheet["walk"] = meta["walk"] if meta.get("walk") is Array else [1, 2, 3, 0]
 		sheet["idle"] = int(meta.get("idle", 0))
+		sheet["idle_seq"] = meta["idle_seq"] if meta.get("idle_seq") is Array else [sheet["idle"]]
+		sheet["idle_fps"] = float(meta.get("idle_fps", 4.0))
+		sheet["poses"] = meta["poses"] if meta.get("poses") is Dictionary else {}
 		sheet["ppu"] = float(meta.get("pixels_per_unit", PPU))
 		sheet["foot"] = int(meta.get("foot_margin", CharacterPainter.FOOT_MARGIN))
 		sheet["fps"] = float(meta.get("fps", 7.0))
@@ -110,6 +115,10 @@ func portrait(id: String) -> Texture2D:
 	var img := _load_override("portraits/%s.png" % id)
 	if img != null:
 		tex = PA.texture(img)
+	elif Database.characters.has(id) and _load_override("characters/%s.png" % id) == null:
+		# portrait peint : la tête de face, agrandie deux fois et lissée
+		var look: Variant = Database.get_character(id).get("look", {})
+		tex = PA.texture(CharacterPainter.paint_portrait(look if look is Dictionary else {}))
 	elif Database.characters.has(id):
 		var sheet := character(id)
 		var fw: int = sheet.frame_w
@@ -132,11 +141,14 @@ func monster(kind: String) -> Dictionary:
 	var key := "monster:" + kind
 	if _cache.has(key):
 		return _cache[key]
-	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": PPU, "foot": 1, "fps": 2.2}
+	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": PPU, "foot": 1, "fps": 2.2,
+		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.POSES}
 	var img := _load_override("monsters/%s.png" % kind)
 	if img != null:
 		var meta := _load_meta("monsters/%s.json" % kind)
-		sheet["columns"] = maxi(1, int(meta.get("columns", MonsterPainter.COLUMNS)))
+		sheet["columns"] = maxi(1, int(meta.get("columns", 2)))
+		sheet["idle"] = meta["idle"] if meta.get("idle") is Array else range(int(sheet["columns"]))
+		sheet["poses"] = meta["poses"] if meta.get("poses") is Dictionary else {}
 		sheet["ppu"] = float(meta.get("pixels_per_unit", PPU))
 		sheet["foot"] = int(meta.get("foot_margin", 1))
 		sheet["fps"] = float(meta.get("fps", 2.2))

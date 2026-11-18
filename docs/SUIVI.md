@@ -146,6 +146,30 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
 - Une compétence future sans animation prend celle de son élément, puis `defaut` : le jeu
   ne plante pas, et le test automatique la signale.
 
+**Pixel art (priorité 3 de l'auteur, 18 novembre 2026) : terminé.**
+
+- **Personnages repeints** (`src/gfx/character_painter.gd`, entièrement réécrit) : planche
+  de 11 poses par direction au lieu de 4. Repos animé (respiration, clignement des yeux),
+  **quatre poses de marche** distinctes (appui, passage, appui, passage, avec balancement
+  des bras et déhanchement), et **quatre poses de combat dessinées** : attaque (bras levé,
+  sourcils froncés), sort (bras tendus, yeux fermés), coup reçu (bras en l'air, yeux
+  plissés, dents serrées), KO (affaissé).
+- Visages lisibles : yeux avec reflet, sourcils, joues, bouche qui change selon la pose ;
+  oreilles pointues, pieds nus poilus des Grobittes, ombres et lumières sur chaque pièce.
+- **Morfales et Naze ont leur propre corps** (champ `species` du `look`) : brutes voûtées
+  à défenses et gros poings, le goinfre en tablier et toque ; spectre sans jambes à cape
+  en lambeaux, capuche vide aux yeux qui luisent, couronne de fer et lame pâle.
+- **Monstres** : quatre poses au lieu de deux (repos, respiration, **attaque** gueule
+  ouverte, **coup reçu** yeux plissés) et une passe de volume (bord clair, bord sombre).
+- Le combat utilise ces dessins : pose d'attaque ou de sort pendant l'action, coup reçu,
+  KO, pour les héros comme pour les ennemis.
+- **Portraits** peints (tête de face agrandie et lissée, 48 × 48) : dialogues, écran de
+  talents, file des tours, et désormais menu Équipe et choix de la cible d'un objet.
+- **Décors plus riches** : brins, trèfles et fleurs dans l'herbe ; ornières et gravier
+  sur les chemins ; fêlures, reflets et mousse sur les pavés et les murs ; nœuds et clous
+  sur les planches ; mottes et pousses dans la terre ; lézardes dans l'enduit.
+- Captures d'avant conservées dans `docs/captures/avant_pixel_art/` pour comparer.
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -459,6 +483,27 @@ dossier du projet.
     (compagnons, potager, dormir chez Berthe, estrade, Morfales, Naze). À revoir si
     l'auteur bute encore.
 
+### Décisions du pixel art (18 novembre 2026)
+
+75. **Les sprites restent peints par code**, à partir du même `look` qu'avant. Raison :
+    rien dans l'éditeur, pas d'outil de dessin, et les vingt et un personnages profitent
+    d'un coup de chaque amélioration. Un PNG déposé dans `assets/sprites/` garde la main.
+76. **Cases de 32 × 48 conservées**, 11 colonnes. Raison : changer la taille des cases
+    aurait déplacé tous les personnages dans le décor et les combats.
+77. **Les poses de combat dessinées s'ajoutent aux mouvements du sprite** (élan, bond,
+    bascule) au lieu de les remplacer : les deux se renforcent, et un PNG déposé sans ces
+    poses continue de marcher.
+78. **Morfales et Naze restent des « personnages »** (quatre directions, marche) avec un
+    corps à eux, choisi par `species`. Raison : ils se promènent sur les cartes et parlent,
+    ce qu'un sprite de monstre ne sait pas faire.
+79. **Attaque et coup reçu des monstres : le dessin de repos avec un autre visage**, décrit
+    par une petite table (`FACES`). Raison : treize monstres, sept familles ; redessiner
+    chaque pose à la main aurait pris l'étape entière pour un gain peu visible en combat.
+80. **Titou change de tunique** (bleu-vert au lieu d'ocre) : ses cheveux blonds se
+    confondaient avec son vêtement.
+81. **Le menu Équipe affiche « 1 point » au lieu de « 1 point de talent »** : avec le
+    portrait, le texte était tronqué.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
@@ -478,12 +523,20 @@ dossier du projet.
 
 - L'aspect n'a pas pu être contrôlé de mes propres yeux (voir le rapport de session) : il a
   été vérifié par captures d'écran décrites par un assistant, et par des mesures.
-- Les sprites générés sont propres mais raides : deux poses de marche seulement, visages de
-  quelques pixels.
+- Pixel art : les planches et douze paires de captures avant/après ont été décrites deux
+  fois par un assistant (captures 7 sur 10, planches 6 puis 7 sur 10). Les dernières
+  corrections (bras du coup reçu reliés au corps, déhanchement à la marche, bras sous le
+  menton pendant un sort, cadrage des portraits, yeux plissés des monstres) sont testées
+  par programme mais n'ont pas été redécrites.
+- Le KO dessiné est un personnage tassé sur lui-même ; c'est la bascule du sprite en
+  combat qui le couche. La marche de face reste discrète (pieds et bras bougent de deux
+  à trois pixels). Glandoulf de dos est une colonne de robe assez raide.
+- En combat les héros se chevauchent quand l'un d'eux passe devant les autres pour frapper.
 - Pas de musique, pas d'options (volume, touches).
 - Combat : les poses d'attaque, de sort, de coup reçu et de KO sont des mouvements du
   sprite entier (penché, bond, aplatissement), pas des dessins dédiés : les bras ne
-  bougent pas, l'arme est un sprite à part. Les monstres n'ont que deux images.
+  bougent pas, l'arme est un sprite à part. (Depuis le pixel art, un dessin de pose
+  s'y ajoute pour les personnages et les monstres.)
 - Animations de combat : neuf sur 107 ont été capturées (`34` à `42`) et décrites par un
   assistant, trois fois de suite ; note de lisibilité passée de 4 à 6 sur 10. Les derniers
   réglages (poêle plus petite, éclair moins éblouissant, oreillers plus gros, sanglier
@@ -503,16 +556,14 @@ dossier du projet.
   Mise en page, longueur des textes et lisibilité sont donc à vérifier en jouant.
 - L'équilibre à quatre personnages et avec équipement n'a été contrôlé que par les combats
   simulés existants ; le Pré Couché devient sans doute trop facile en fin de chapitre.
-- Les compagnons n'ont pas de portrait dans les menus, et l'équipement ne change pas
-  l'apparence des sprites.
+- L'équipement ne change pas l'apparence des sprites.
 - Le test automatique signale en fin de course des « ObjectDB instances leaked » : c'est
   un avertissement de fermeture du programme de test, sans effet sur le jeu.
 - L'intérieur de l'auberge est une « maison de poupée » ouverte côté caméra, entourée de noir.
 - Étape 5 : les trois nouvelles cartes, la place en fête et les sept nouveaux sprites de
   créatures (sanglier, grenouille, feu follet et variantes) n'ont été vus par personne.
   Leur construction, leurs collisions et l'accès à chaque objet sont vérifiés par
-  programme, pas leur beauté. Les Morfales et le Naze utilisent des sprites de
-  personnages (silhouettes humaines), pas des sprites de monstres.
+  programme, pas leur beauté.
 - Étape 3 : l'écran de talents a été capturé (`30` à `33`) et décrit par un assistant, pas
   encore jugé par l'auteur en jouant. Le curseur au clavier est vérifié par le test ; la
   souris et la manette n'ont pas été essayées sur cet écran.
@@ -530,13 +581,10 @@ dossier du projet.
 
 1. Jouer le chapitre 1 en entier et noter ce qui est trop dur, trop facile ou trop long :
    l'équilibre n'a été réglé que par simulation.
-2. **Pixel art** (priorité 3 de l'auteur, prochaine étape) : sprites refaits, quatre poses
-   de marche, repos animé, Morfales et Naze dédiés, portraits, décors. En profiter pour
-   dessiner de vraies poses de combat (attaque, sort, coup reçu, KO) et les brancher dans
-   `battle_actor.gd` à la place des mouvements du sprite entier. Retoucher les animations
-   de combat que l'auteur trouvera peu lisibles (`data/animations.json`).
+2. Retoucher ce que l'auteur trouvera laid ou peu lisible en jouant : sprites
+   (`character_painter.gd`, `monster_painter.gd`), animations (`data/animations.json`).
 3. Essayer les talents en jouant : vérifier que les deux voies de chacun font envie, que
    l'écran se lit bien, et retoucher les chiffres (`data/talents.json`).
 4. Chapitre 2 : Brie, le Poney Flagada, la rencontre d'Aragrogne.
 5. Musique et ambiance sonore, en particulier une musique de combat et une de fête.
-6. Sprites dédiés pour les Morfales et le Naze ; pose d'attaque pour les héros.
+6. Vraies poses dessinées pour les monstres (corps qui bouge, pas seulement le visage).

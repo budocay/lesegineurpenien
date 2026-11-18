@@ -76,6 +76,30 @@ static func _grass() -> Image:
 		var y := int(PA.rnd(i, 2, 21) * T)
 		img.set_pixel(x, y, tip)
 		img.set_pixel(x, (y + 1) % T, light)
+	# brins dressés : pointe claire, pied sombre
+	for i in 26:
+		var x := int(PA.rnd(i, 3, 22) * T)
+		var y := int(PA.rnd(i, 4, 22) * T)
+		img.set_pixel(x, y, tip)
+		img.set_pixel(x, (y + 1) % T, tip)
+		img.set_pixel((x + 1) % T, (y + 1) % T, light)
+		img.set_pixel(x, (y + 2) % T, dark)
+		img.set_pixel((x + 1) % T, (y + 2) % T, Color("#2b5936"))
+	# trèfles
+	for i in 5:
+		var x := int(PA.rnd(i, 5, 23) * T)
+		var y := int(PA.rnd(i, 6, 23) * T)
+		for d: Vector2i in [Vector2i(0, 0), Vector2i(2, 0), Vector2i(1, 1), Vector2i(1, -1)]:
+			img.set_pixel(posmod(x + d.x, T), posmod(y + d.y, T), Color("#63a85a"))
+		img.set_pixel((x + 1) % T, y, Color("#2f6238"))
+	# pâquerettes et boutons d'or, rares
+	for i in 4:
+		var x := int(PA.rnd(i, 7, 24) * T)
+		var y := int(PA.rnd(i, 8, 24) * T)
+		var petal := Color("#f4f0e0") if i % 2 == 0 else Color("#f2d24a")
+		img.set_pixel(x, y, petal)
+		img.set_pixel((x + 1) % T, y, petal.darkened(0.12))
+		img.set_pixel(x, (y + 1) % T, dark)
 	return img
 
 
@@ -91,6 +115,26 @@ static func _dirt() -> Image:
 		PA.rect(img, x, y, 2, 2, Color("#9a948a"))
 		PA.px(img, x, y, Color("#bdb7ab"))
 		PA.rect(img, x, y + 2, 2, 1, Color("#80603f"))
+	# ornières légères et gravier
+	for i in 7:
+		var x := int(PA.rnd(i, 3, 35) * T)
+		var y := int(PA.rnd(i, 4, 35) * T)
+		var n := 5 + int(PA.rnd(i, 5, 35) * 7.0)
+		for k in n:
+			img.set_pixel((x + k) % T, y, Color("#9c7648"))
+			img.set_pixel((x + k) % T, (y + 1) % T, Color("#c9a878"))
+	for i in 22:
+		var x := int(PA.rnd(i, 6, 36) * T)
+		var y := int(PA.rnd(i, 7, 36) * T)
+		img.set_pixel(x, y, Color("#d6c8ae"))
+		img.set_pixel(x, (y + 1) % T, Color("#86643f"))
+	# quelques brins d'herbe qui repoussent
+	for i in 3:
+		var x := int(PA.rnd(i, 8, 37) * T)
+		var y := int(PA.rnd(i, 9, 37) * T)
+		img.set_pixel(x, y, Color("#6fa052"))
+		img.set_pixel((x + 1) % T, (y + 1) % T, Color("#4f8a48"))
+		img.set_pixel(x, (y + 1) % T, Color("#4f8a48"))
 	return img
 
 
@@ -118,6 +162,20 @@ static func _stones(tones: Array, mortar: Color, sw: int, sh: int) -> Image:
 					elif PA.rnd(x0 + x, y0 + y, 42) < 0.08:
 						col = PA.shade(base, -0.1)
 					img.set_pixel(posmod(x0 + x, T), y0 + y, col)
+			# reflet en coin et fêlure sur une pierre sur trois
+			img.set_pixel(posmod(x0 + 2, T), y0 + 2, PA.shade(base, 0.3))
+			if PA.rnd(c, r, 43) < 0.34 and sw > 6 and sh > 5:
+				var fx := 3 + int(PA.rnd(c, r, 44) * float(sw - 6))
+				for k in mini(4, sh - 3):
+					img.set_pixel(posmod(x0 + fx + (k / 2), T), y0 + 2 + k, PA.shade(base, -0.3))
+	# mousse dans les joints
+	for i in 9:
+		var mx := int(PA.rnd(i, 1, 45) * cols) * sw
+		var my := int(PA.rnd(i, 2, 45) * rows) * sh
+		var moss := Color("#5f7d4c").lerp(mortar, 0.35)
+		for k in 3 + int(PA.rnd(i, 3, 45) * 4.0):
+			img.set_pixel(posmod(mx + k, T), posmod(my, T), moss)
+		img.set_pixel(posmod(mx + 1, T), posmod(my, T), Color("#7c9a5c").lerp(mortar, 0.3))
 	return img
 
 
@@ -140,6 +198,15 @@ static func _planks(base: Color, dark: Color, light: Color) -> Image:
 		PA.rect(img, jx, y0, 1, 7, dark)
 		PA.px(img, (jx + 2) % T, y0 + 2, dark)
 		PA.px(img, (jx + T - 2) % T, y0 + 5, dark)
+		# clous de part et d'autre du joint, nœud du bois une planche sur deux
+		PA.px(img, (jx + 3) % T, y0 + 4, light)
+		PA.px(img, (jx + T - 3) % T, y0 + 3, light)
+		if r % 2 == 0:
+			var kx := 1 + (jx + 17 + r * 5) % (T - 6)
+			PA.rect(img, kx, y0 + 3, 4, 2, tone.lerp(dark, 0.55))
+			PA.rect(img, kx + 1, y0 + 3, 2, 1, dark)
+			PA.px(img, kx - 1, y0 + 4, tone.lerp(light, 0.4))
+			PA.px(img, kx + 4, y0 + 3, tone.lerp(light, 0.4))
 	return img
 
 
@@ -153,6 +220,19 @@ static func _soil() -> Image:
 		PA.rect(img, 0, y0 + 6, T, 1, Color("#463024"))
 	_specks(img, 61, 70, Color("#7b5b47"))
 	_specks(img, 62, 60, Color("#402b21"))
+	# mottes, cailloux et jeunes pousses
+	for i in 10:
+		var x := int(PA.rnd(i, 1, 63) * (T - 3))
+		var y := int(PA.rnd(i, 2, 63) * (T - 3))
+		PA.rect(img, x, y, 3, 2, Color("#7d5c46"))
+		PA.px(img, x, y, Color("#94705a"))
+		PA.rect(img, x, y + 2, 3, 1, Color("#3a261c"))
+	for i in 4:
+		var x := int(PA.rnd(i, 3, 64) * (T - 2))
+		var y := 1 + int(PA.rnd(i, 4, 64) * (T - 3))
+		PA.px(img, x, y, Color("#8fbf5a"))
+		PA.px(img, x + 1, y - 1, Color("#8fbf5a"))
+		PA.px(img, x, y + 1, Color("#5f8a3c"))
 	return img
 
 
@@ -162,6 +242,15 @@ static func _plaster(base: Color) -> Image:
 	_blotches(img, 71, 9, PA.shade(base, -0.07), 4.0, 9.0)
 	_blotches(img, 72, 8, PA.shade(base, 0.12), 3.0, 7.0)
 	_specks(img, 73, 40, PA.shade(base, -0.14))
+	# fines lézardes et grain de l'enduit
+	for i in 3:
+		var x := int(PA.rnd(i, 1, 74) * T)
+		var y := int(PA.rnd(i, 2, 74) * T)
+		for k in 6 + int(PA.rnd(i, 3, 74) * 6.0):
+			img.set_pixel(posmod(x, T), posmod(y + k, T), PA.shade(base, -0.24))
+			if PA.rnd(i, k, 75) < 0.4:
+				x += 1 if PA.rnd(k, i, 76) < 0.5 else -1
+	_specks(img, 77, 30, PA.shade(base, 0.16))
 	return img
 
 
