@@ -31,6 +31,7 @@ const PROPS := {
 	"barrel": {"solid": 0.36},
 	"sign": {"solid": 0.25},
 	"rock": {"variants": 2, "solid": 0.4},
+	"fern": {"variants": 3, "sway": 0.02},
 	"bollard": {"solid": 0.3},
 	"monument": {"solid": 1.1},
 	"boat": {"variants": 2},
@@ -46,6 +47,11 @@ var cells: Array[String] = []
 var rng := RandomNumberGenerator.new()
 var keep_clear: Array[Vector2] = []
 var wall_height := 3.0
+var _north_gaps: Array[Vector2] = []
+var _tree_spots: Array[Vector2] = []
+
+## Talus d'arrière-plan, au nord des cartes d'extérieur : (z du bord, hauteur).
+const TERRACES: Array[Vector2] = [Vector2(-2.4, 1.4), Vector2(-8.5, 2.9)]
 
 
 func build(p_world: Node3D, p_map: Dictionary) -> void:
@@ -87,9 +93,10 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 	for o: Dictionary in objects:
 		if str(o.get("type", "")) == "scatter":
 			_scatter(o)
+	_undergrowth()
 
 	var amb := Database.get_ambiance(str(map.get("ambiance", "crepuscule")))
-	world.followers = Atmosphere.build(world, amb)
+	world.followers = Atmosphere.build(world, amb, Rect2(0.0, 0.0, w, h))
 
 
 # ----------------------------------------------------------------------- sol
@@ -166,9 +173,7 @@ func _paint_ground() -> ImageTexture:
 
 func _build_ground() -> void:
 	var tex: Texture2D = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
-	var mat := MeshKit.pixel_material(tex)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-	mat.alpha_scissor_threshold = 0.5
+	var mat := MeshKit.ground_material(tex)
 	var st := MeshKit.begin()
 	MeshKit.quad(st, Vector3(0, 0, 0), Vector3(w, 0, 0), Vector3(w, 0, h), Vector3(0, 0, h))
 	var node := MeshKit.finish(st, mat, false)
@@ -190,13 +195,43 @@ func _build_outskirts() -> void:
 			river = ty
 			break
 	var z_end := float(river) if river >= 0 else float(h) + far
+	var grass_mat := MeshKit.ground_material(Sprites.tile_texture("grass"))
 	var st := MeshKit.begin()
 	_ground_quad(st, -far, -far, w + far, 0.0)
 	_ground_quad(st, -far, 0.0, 0.0, z_end)
 	_ground_quad(st, w, 0.0, w + far, z_end)
 	if river < 0:
 		_ground_quad(st, 0.0, h, w, h + far)
-	var node := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("grass")), false)
+	# Relief d'arrière-plan : deux talus rocheux au nord, ouverts là où un chemin ou l'eau sort.
+	_north_gaps.clear()
+	var tx := 0
+	while tx < w:
+		if _cell(tx, 0) != "grass":
+			var from := tx
+			while tx < w and _cell(tx, 0) != "grass":
+				tx += 1
+			_north_gaps.append(Vector2(float(from) - 1.6, float(tx) + 1.6))
+		else:
+			tx += 1
+	var cliffs := MeshKit.begin()
+	var x := -far
+	var spans: Array[Vector2] = []
+	for g: Vector2 in _north_gaps:
+		if g.x > x:
+			spans.append(Vector2(x, g.x))
+		x = maxf(x, g.y)
+	if x < w + far:
+		spans.append(Vector2(x, w + far))
+	for s: Vector2 in spans:
+		for t: Vector2 in TERRACES:
+			var depth := far + t.x
+			MeshKit.box(cliffs, Vector3((s.x + s.y) * 0.5, t.y * 0.5, t.x - depth * 0.5), Vector3(s.y - s.x, t.y, depth))
+			_ground_quad(st, s.x, -far, s.y, t.x, t.y + 0.03)
+	if not spans.is_empty():
+		var rock := MeshKit.finish(cliffs, MeshKit.ground_material(Sprites.tile_texture("cliff"), 0.12), true)
+		rock.name = "Cliffs"
+		world.add_child(rock)
+	var node := MeshKit.finish(st, grass_mat, false)
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
@@ -208,7 +243,46 @@ func _build_outskirts() -> void:
 			p = Vector3(rng.randf_range(-18.0, -0.9), 0, rng.randf_range(0.0, side_z))
 		else:
 			p = Vector3(rng.randf_range(w + 0.9, w + 18.0), 0, rng.randf_range(0.0, side_z))
+		p.y = _terrace_height(p.x, p.z)
 		_prop("tree", {"solid": 0.0}, p)
+	# sous-bois des abords : buissons, fougères et touffes au pied de la forêt
+	for i in 150:
+		var p := Vector3(rng.randf_range(-12.0, w + 12.0), 0, rng.randf_range(-9.0, -0.4))
+		if i >= 110:
+			var left := i % 2 == 0
+			p = Vector3(rng.randf_range(-9.0, -0.5) if left else rng.randf_range(w + 0.5, w + 9.0), 0, rng.randf_range(0.0, side_z))
+		p.y = _terrace_height(p.x, p.z)
+		var kinds: Array = ["grass", "fern", "grass", "bush", "fern", "flowers"]
+		_prop(str(kinds[i % kinds.size()]), {"solid": 0.0, "shadow": false}, p)
+
+
+## Hauteur du sol hors de la carte (talus du nord).
+func _terrace_height(x: float, z: float) -> float:
+	for g: Vector2 in _north_gaps:
+		if x > g.x - 0.4 and x < g.y + 0.4:
+			return 0.0
+	var y := 0.0
+	for t: Vector2 in TERRACES:
+		if z < t.x - 0.3:
+			y = t.y
+		elif z < t.x + 0.5:
+			return y   # trop près du bord : on reste en bas, devant la paroi
+	return y
+
+
+## Végétation basse au pied des arbres de la carte : une seconde couche, sans obstacle.
+func _undergrowth() -> void:
+	var kinds: Array = ["fern", "grass", "fern", "flowers", "grass"]
+	for spot: Vector2 in _tree_spots:
+		var n := 1 + (rng.randi() % 2)
+		for k in n:
+			var p := spot + Vector2(rng.randf_range(-0.7, 0.7), rng.randf_range(0.1, 0.45))
+			if p.x < 0.2 or p.y < 0.2 or p.x > w - 0.2 or p.y > h - 0.2:
+				continue
+			var cell := _cell(int(p.x), int(p.y))
+			if cell != "grass" and cell != "soil":
+				continue
+			_prop(str(kinds[rng.randi() % kinds.size()]), {"shadow": false}, Vector3(p.x, 0.0, p.y))
 
 
 func _build_water() -> void:
@@ -417,6 +491,8 @@ func _scatter(o: Dictionary) -> void:
 		if ok:
 			placed.append(p)
 			_prop(kind, {}, Vector3(p.x, 0.0, p.y))
+			if kind == "tree":
+				_tree_spots.append(p)
 
 
 func _mesh_box(center: Vector3, size: Vector3, material: Material, shadow: bool = true) -> MeshInstance3D:

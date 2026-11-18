@@ -3,6 +3,16 @@ extends RefCounted
 ## Convention : les faces avant sont dans le sens horaire, comme dans Godot.
 
 const TEX_UNITS := 2.0   # une texture répétable de 48 px couvre 2 unités monde
+const GROUND_SHADER = preload("res://src/gfx/shaders/ground.gdshader")
+
+
+## Matériau de sol : texture nette, nuancée par grandes plaques pour casser la répétition.
+static func ground_material(tex: Texture2D, variation: float = 0.07) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = GROUND_SHADER
+	m.set_shader_parameter("tex", tex)
+	m.set_shader_parameter("variation", variation)
+	return m
 
 
 ## a = haut-gauche, b = haut-droite, c = bas-droite, d = bas-gauche, vus de face.

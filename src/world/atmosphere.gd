@@ -3,6 +3,9 @@ extends RefCounted
 ## Tous les réglages viennent de data/ambiances.json.
 
 const Flicker = preload("res://src/world/light_flicker.gd")
+const RAYS_SHADER = preload("res://src/gfx/shaders/rays.gdshader")
+## Particules qu'une ambiance peut demander (le test automatique vérifie les données).
+const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke"]
 
 
 static func _c(d: Dictionary, key: String, fallback: String) -> Color:
@@ -17,7 +20,11 @@ static func _sub(d: Dictionary, key: String) -> Dictionary:
 
 
 ## Construit l'ambiance dans le monde. Renvoie les nœuds qui doivent suivre la caméra.
-static func build(world: Node3D, amb: Dictionary) -> Array:
+## « area » : le rectangle au sol (x, z) où planter les rayons de lumière, s'il y en a.
+static func build(world: Node3D, amb: Dictionary, area: Rect2 = Rect2()) -> Array:
+	var rays := _sub(amb, "rays")
+	if not rays.is_empty() and area.size.x > 0.0:
+		make_rays(world, area, rays)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = _c(amb, "background", "#14122a")
@@ -97,6 +104,32 @@ static func build(world: Node3D, amb: Dictionary) -> Array:
 	return followers
 
 
+## Rayons de lumière obliques, plantés au hasard dans la zone (toujours les mêmes pour un lieu).
+static func make_rays(world: Node3D, area: Rect2, spec: Dictionary) -> void:
+	var mat := ShaderMaterial.new()
+	mat.shader = RAYS_SHADER
+	var tint := _c(spec, "color", "#ffd9a0")
+	mat.set_shader_parameter("tint", Vector3(tint.r, tint.g, tint.b))
+	mat.set_shader_parameter("strength", float(spec.get("strength", 0.1)))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(area.size.x * 31.0 + area.size.y * 17.0) + 5
+	var count := clampi(int(area.get_area() * float(spec.get("density", 0.01))), 3, 40)
+	var tilt := float(spec.get("tilt", 0.5))
+	for i in count:
+		var height := float(spec.get("height", 9.0)) * rng.randf_range(0.8, 1.2)
+		var quad := QuadMesh.new()
+		quad.size = Vector2(rng.randf_range(2.0, 4.2), height)
+		var ray := MeshInstance3D.new()
+		ray.mesh = quad
+		ray.material_override = mat
+		ray.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var foot := Vector2(rng.randf_range(area.position.x, area.end.x), rng.randf_range(area.position.y, area.end.y))
+		ray.rotation.z = tilt
+		ray.position = Vector3(foot.x - sin(tilt) * height * 0.5, cos(tilt) * height * 0.5 - 0.3, foot.y)
+		world.add_child(ray)
+		ray.set_instance_shader_parameter("phase", rng.randf() * TAU)
+
+
 static func _gradient(colors: Array, offsets: Array) -> Gradient:
 	var g := Gradient.new()
 	g.offsets = PackedFloat32Array(offsets)
@@ -137,7 +170,7 @@ static func make_particles(kind: String) -> CPUParticles3D:
 		"fireflies":
 			quad.size = Vector2(0.13, 0.13)
 			quad.material = _particle_material(Color(2.6, 2.4, 0.9), true)
-			p.amount = 42
+			p.amount = 46
 			p.lifetime = 6.0
 			p.preprocess = 6.0
 			p.emission_box_extents = Vector3(13.0, 0.9, 9.0)
@@ -163,6 +196,21 @@ static func make_particles(kind: String) -> CPUParticles3D:
 			p.initial_velocity_max = 0.5
 			p.scale_amount_min = 0.6
 			p.scale_amount_max = 1.4
+			p.color_ramp = fade_in_out
+		"leaves":
+			quad.size = Vector2(0.1, 0.1)
+			quad.material = _particle_material(Color(0.95, 0.55, 0.2), false)
+			p.amount = 26
+			p.lifetime = 8.0
+			p.preprocess = 8.0
+			p.emission_box_extents = Vector3(14.0, 2.6, 9.0)
+			p.direction = Vector3(1, -0.6, 0.1)
+			p.spread = 30.0
+			p.gravity = Vector3(0.12, -0.22, 0)
+			p.initial_velocity_min = 0.2
+			p.initial_velocity_max = 0.6
+			p.scale_amount_min = 0.6
+			p.scale_amount_max = 1.3
 			p.color_ramp = fade_in_out
 		"dust":
 			quad.size = Vector2(0.05, 0.05)

@@ -27,6 +27,7 @@ static func paint(kind: String) -> Image:
 		"brick": return _stones(["#a85a44", "#9a4e3c", "#b56a50", "#a0604a"], Color("#6d5a50"), 12, 6)
 		"stone": return _stones(["#85828e", "#928f9a", "#777482", "#8d8880"], Color("#45414c"), 16, 12)
 		"iron": return _iron()
+		"cliff": return _stones(["#a39d94", "#b3ada2", "#928c85", "#c0b9ac"], Color("#55524d"), 16, 12)
 		"interior_wall": return _interior_wall()
 	if kind.begins_with("roof_"):
 		return _roof(kind.trim_prefix("roof_"))

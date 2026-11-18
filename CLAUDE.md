@@ -81,8 +81,10 @@ comble les trous des chapitres 2 à 7, pas encore construits et à valider par l
 Musique faite : onze morceaux synthétisés par `src/core/music.gd` (autoload `Music`) à
 partir de `data/music.json` ; champ `music` des cartes et des rencontres.
 
-Demande en attente de l'auteur : rapprocher le rendu d'Octopath Traveler (sprites, décors,
-lumière, animations).
+Rendu façon Octopath Traveler : première passe faite (caméra rapprochée `ZOOM` dans
+`world.gd`, sol nuancé `ground.gdshader`, eau, rayons `rays` des ambiances, vignette,
+talus d'arrière-plan, fougères). Reste, par ordre d'effet : vrai relief jouable, murs
+d'intérieur texturés, fonds d'arène plus riches, reflets dans l'eau.
 
 ## Pièges connus
 

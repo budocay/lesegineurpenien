@@ -119,6 +119,8 @@ func toast(text: String) -> void:
 		text = _toast_label.text + "\n" + text   # deux messages coup sur coup : on les empile
 	_toast_label.text = text
 	_toast.reset_size()
+	# toujours calé contre le bord droit, quelle que soit la longueur du message
+	_toast.position.x = size.x - _toast.size.x - 24.0
 	if _toast_tween != null and _toast_tween.is_valid():
 		_toast_tween.kill()
 	_toast_tween = create_tween()

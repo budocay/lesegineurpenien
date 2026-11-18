@@ -47,6 +47,11 @@ var _last_xz := Vector2.ZERO
 
 
 ## Vrai si un drapeau dont dépend le décor a changé (un objet doit apparaître ou disparaître).
+## Rapproche la caméra de toutes les cartes : les personnages occupent plus de place à
+## l'écran, comme dans les jeux HD-2D (1.0 = distance écrite dans la carte).
+const ZOOM := 0.87
+
+
 func needs_refresh() -> bool:
 	for flag: String in flag_deps:
 		if GameState.has_flag(flag) != bool(flag_deps[flag]):
@@ -162,7 +167,7 @@ func nearest_free(start: Vector3) -> Vector3:
 
 func _setup_camera() -> void:
 	var cam: Dictionary = map.get("camera", {})
-	cam_distance = float(cam.get("distance", 24.0))
+	cam_distance = float(cam.get("distance", 24.0)) * (1.0 if bool(map.get("interior", false)) else ZOOM)
 	cam_pitch = float(cam.get("pitch", 32.0))
 	camera = Camera3D.new()
 	camera.fov = float(cam.get("fov", 24.0))
@@ -172,21 +177,21 @@ func _setup_camera() -> void:
 	# Flou de profondeur « maquette » : net à la distance du héros, flou devant et derrière.
 	var attr := CameraAttributesPractical.new()
 	attr.dof_blur_far_enabled = true
-	attr.dof_blur_far_distance = cam_distance * float(cam.get("far_start", 1.12))
-	attr.dof_blur_far_transition = cam_distance * 0.38
+	attr.dof_blur_far_distance = cam_distance * float(cam.get("far_start", 1.15))
+	attr.dof_blur_far_transition = cam_distance * 0.45
 	attr.dof_blur_near_enabled = true
-	attr.dof_blur_near_distance = cam_distance * float(cam.get("near_start", 0.9))
+	attr.dof_blur_near_distance = cam_distance * float(cam.get("near_start", 0.87))
 	attr.dof_blur_near_transition = cam_distance * 0.14
 	attr.dof_blur_amount = float(cam.get("dof", 0.1))
 	camera.attributes = attr
 	add_child(camera)
 	camera.make_current()
 
-	var mx := 9.0
+	var mx := 9.0 * ZOOM
 	var x0 := minf(mx, grid_w * 0.5)
 	var x1 := maxf(grid_w - mx, grid_w * 0.5)
-	var z0 := minf(9.0, grid_h * 0.5)
-	var z1 := maxf(grid_h - 7.0, grid_h * 0.5)
+	var z0 := minf(9.0 * ZOOM, grid_h * 0.5)
+	var z1 := maxf(grid_h - 7.0 * ZOOM, grid_h * 0.5)
 	var b: Variant = cam.get("bounds")
 	if b is Array and (b as Array).size() == 4:
 		x0 = float(b[0])

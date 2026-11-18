@@ -9,7 +9,8 @@
 		"exposure": 1.05,
 		"saturation": 1.12,
 		"contrast": 1.05,
-		"particles": ["fireflies", "pollen"]
+		"rays": {"density": 0.004, "color": "#ffb060", "strength": 0.028},
+		"particles": ["fireflies", "pollen", "leaves"]
 	},
 	"grand_four": {
 		"background": "#1a0705",
@@ -19,9 +20,9 @@
 		"volumetric": {"density": 0.022, "albedo": "#ffb080", "emission": "#5a1408", "emission_energy": 0.7, "length": 60},
 		"glow": {"intensity": 0.95, "bloom": 0.08, "threshold": 1.0, "strength": 1.05},
 		"exposure": 1.05,
-		"saturation": 1.15,
+		"saturation": 1.06,
 		"contrast": 1.08,
-		"particles": ["fireflies", "dust"]
+		"particles": ["dust"]
 	},
 	"interieur_chaud": {
 		"background": "#07060b",
@@ -43,7 +44,8 @@
 		"exposure": 1.05,
 		"saturation": 1.12,
 		"contrast": 1.05,
-		"particles": ["fireflies", "pollen"]
+		"rays": {"density": 0.011, "color": "#ffc070", "strength": 0.045},
+		"particles": ["fireflies", "pollen", "leaves"]
 	},
 	"marais": {
 		"background": "#161c30",
@@ -55,6 +57,7 @@
 		"exposure": 1.05,
 		"saturation": 1.1,
 		"contrast": 1.05,
+		"rays": {"density": 0.006, "color": "#ffc88a", "strength": 0.032},
 		"particles": ["fireflies", "pollen"]
 	}
 }

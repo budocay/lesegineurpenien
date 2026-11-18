@@ -34,7 +34,17 @@ Un objet par personnage, rangé par identifiant.
 
 Une ambiance règle la lumière d'un lieu : couleur de fond, lumière ambiante, soleil
 (couleur, force, direction), brume, brume volumétrique, halo, exposition, saturation,
-contraste, et particules (`fireflies`, `pollen`, `dust`).
+contraste, et particules (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`,
+`smoke`).
+
+Champ facultatif `rays` : des rayons de lumière obliques plantés dans le lieu.
+`{"density": 0.006, "color": "#ffc88a", "strength": 0.03}` ; `density` est le nombre de
+rayons par case (3 au moins, 40 au plus), `strength` leur force (rester sous 0.08, le
+test le vérifie : au-delà ils font une brume grise), `height` et `tilt` sont facultatifs.
+
+Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les talus du
+nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
+automatiquement sur les cartes d'extérieur.
 
 ## Cartes — `data/maps/<identifiant>.json`
 

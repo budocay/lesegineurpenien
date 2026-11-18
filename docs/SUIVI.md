@@ -197,6 +197,22 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
 - Les morceaux sont calculés en tâche de fond au premier lancement (moins d'une seconde
   chacun) puis gardés sur le disque.
 
+**Rendu « HD-2D » façon Octopath, première passe (demande de l'auteur, 18 novembre 2026).**
+
+- Caméra d'exploration rapprochée de 13 % en extérieur : les personnages sont plus grands.
+- Sol nuancé par grandes plaques (`ground.gdshader`) : le motif ne se répète plus à l'œil.
+- Eau refaite : nappes qui dérivent, rides courtes, éclats qui scintillent.
+- Rayons de lumière obliques (champ `rays` des ambiances), vignette sur toute l'image.
+- Deux talus rocheux au nord de chaque carte d'extérieur, hors zone jouable, avec la
+  forêt dessus ; ils s'ouvrent là où un chemin ou la rivière sort de la carte.
+- Sous-bois : fougères (nouveau décor `fern`), touffes et fleurs au pied des arbres et
+  aux abords ; feuilles qui tombent.
+- Combat : ombres au sol plus marquées, alliés plus écartés, arène du Grand Four moins
+  saturée.
+- Corrigé au passage : le petit message en haut à droite pouvait être coupé par le bord.
+- Captures d'avant dans `docs/captures/avant_hd2d/` ; deux captures ajoutées (bois,
+  roselière).
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -568,6 +584,31 @@ dossier du projet.
     Bittebourg doit changer de musique entre le village, la fête et l'invasion sans
     changer de carte.
 93. **Pas de réglage du volume** pour l'instant : niveau fixe, sous les sons du jeu.
+
+### Décisions du rendu HD-2D (18 novembre 2026)
+
+94. **Partir des écarts constatés sur les captures**, pas d'une refonte : le jeu avait déjà
+    flou de profondeur, halos, brouillard et ombres. Un assistant qui voit les images a
+    listé douze écarts avec Octopath ; cette passe traite les plus rentables.
+95. **Relief en décor seulement** (talus hors zone jouable). Raison : un vrai relief
+    (marcher sur des hauteurs, escaliers) touche les collisions, la caméra, les cartes et
+    les tests ; c'est une étape à part entière.
+96. **Variation du sol par shader** plutôt qu'en repeignant chaque carte. Raison : gratuit
+    au chargement, et valable aussi pour les abords et les arènes à venir.
+97. **Caméra : facteur global `ZOOM` dans `world.gd`**, non appliqué aux intérieurs.
+    Raison : un seul réglage à retoucher ; l'auberge rapprochée coupait sa cheminée.
+98. **Rayons très discrets** après une première version jugée « brume sale » : force
+    divisée par 2,5, teinte plus chaude, deux fois moins nombreux.
+99. **Cadrage serré assumé en extérieur** : la seconde relecture note des barques et des
+    toits coupés par le bord (quai, quartier est). Raison : l'auteur veut des personnages
+    plus grands, comme dans Octopath ; `ZOOM` se règle en une ligne s'il préfère plus large.
+
+Restes constatés à la seconde relecture des captures, non corrigés : au Bois Penché, une
+plaque de sol sombre à bords droits près du lampadaire (cause non cherchée : cases de la
+carte ou ombre) ; à la Roselière, la moitié basse d'un feuillage orange assombrie par une
+ombre à bord net ; en combat à quatre, Pépine reste en partie cachée par ses voisins. Les
+talus (pierre éclaircie) et le dernier écartement des alliés ont été retouchés après cette
+relecture et n'ont pas été revus par un œil.
 
 ## Préparé pour la suite, mais pas fait
 

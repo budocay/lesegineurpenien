@@ -50,6 +50,7 @@ func _ready() -> void:
 	_test_animations()
 	print("== Musique ==")
 	_test_music()
+	_test_rendering()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -134,6 +135,34 @@ func _music_nodes(node: Variant, found: Array) -> void:
 			found.append(str(node["music"]))
 		for key: Variant in node:
 			_music_nodes(node[key], found)
+
+
+## Rendu HD-2D : ambiances bien formées, shaders et décors de la passe présents.
+func _test_rendering() -> void:
+	var atmosphere = preload("res://src/world/atmosphere.gd")
+	var with_rays := 0
+	for id: String in Database.ambiances:
+		var amb: Dictionary = Database.ambiances[id]
+		for kind: Variant in amb.get("particles", []):
+			check(atmosphere.PARTICLES.has(str(kind)), "ambiance %s : particules %s connues" % [id, kind])
+		if amb.has("rays"):
+			with_rays += 1
+			var rays: Variant = amb["rays"]
+			check(rays is Dictionary, "ambiance %s : rays est un dictionnaire" % id)
+			if rays is Dictionary:
+				var strength := float(rays.get("strength", 0.1))
+				check(strength > 0.0 and strength <= 0.08, "ambiance %s : rayons discrets (force %s)" % [id, strength])
+				check(float(rays.get("density", 0.01)) <= 0.02, "ambiance %s : rayons peu nombreux" % id)
+	check(with_rays >= 2, "des ambiances ont des rayons de lumière")
+	for path: String in ["ground", "water", "rays", "vignette"]:
+		check(load("res://src/gfx/shaders/%s.gdshader" % path) is Shader, "shader %s chargé" % path)
+	check(Sprites.tile_texture("cliff") != null, "texture de talus")
+	var painter = preload("res://src/gfx/prop_painter.gd")
+	for v in 3:
+		var img: Image = painter.fern(v)
+		check(img != null and not img.get_used_rect().size == Vector2i.ZERO, "fougère %d peinte" % v)
+	var world_script = preload("res://src/world/world.gd")
+	check(world_script.ZOOM > 0.7 and world_script.ZOOM <= 1.0, "caméra : rapprochement raisonnable")
 
 
 func _test_music() -> void:

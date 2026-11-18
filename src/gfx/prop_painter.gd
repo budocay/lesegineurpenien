@@ -18,6 +18,7 @@ static func paint(kind: String, variant: int = 0) -> Image:
 		"barrel": return barrel()
 		"sign": return sign_post()
 		"rock": return rock(variant)
+		"fern": return fern(variant)
 		"bollard": return bollard(1)
 		"monument": return monument()
 		"boat": return boat(variant)
@@ -123,6 +124,26 @@ static func flowers(v: int) -> Image:
 		PA.rect(img, x - 1, 12 - n, 3, 2, c)
 		PA.px(img, x, 12 - n, PA.shade(c, 0.4))
 		PA.px(img, x + 1, 13 - n, PA.shade(c, -0.25))
+	return img
+
+
+## Fougère : des frondes en arc qui retombent de part et d'autre (rousse une fois sur trois).
+static func fern(v: int) -> Image:
+	var img := PA.new_image(22, 13)
+	var pal := _palette(["#245a3c", "#3f8a4a", "#86c45e"] if v % 3 != 2 else ["#6a3a28", "#b0662e", "#e0a048"])
+	for i in 6:
+		var dir := -1.0 + 2.0 * float(i) / 5.0 + (PA.rnd(i, 1, 270 + v) - 0.5) * 0.25
+		var length := 7 + int(PA.rnd(i, 2, 270 + v) * 4.0)
+		var rise := 8.0 + PA.rnd(i, 3, 270 + v) * 3.0
+		for k in length:
+			var t := float(k) / float(length)
+			var x := int(round(11.0 + dir * t * 10.0))
+			var y := int(round(12.0 - sin(t * PI * 0.62) * rise))
+			if x < 0 or x > 21 or y < 0 or y > 12:
+				continue
+			if y + 1 <= 12:
+				PA.px(img, x, y + 1, pal[0])
+			PA.px(img, x, y, pal[2] if k >= length - 3 else pal[1])
 	return img
 
 
@@ -390,8 +411,8 @@ static func night_window() -> Image:
 
 static func blob_shadow() -> Image:
 	var img := PA.new_image(32, 14)
-	PA.ellipse(img, 16.0, 7.0, 15.0, 6.5, Color(0, 0, 0, 0.16))
-	PA.ellipse(img, 16.0, 7.0, 12.0, 5.0, Color(0, 0, 0, 0.3))
+	PA.ellipse(img, 16.0, 7.0, 15.0, 6.5, Color(0, 0, 0, 0.2))
+	PA.ellipse(img, 16.0, 7.0, 12.0, 5.0, Color(0, 0, 0, 0.42))
 	return img
 
 

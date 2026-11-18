@@ -120,6 +120,19 @@ func _ready() -> void:
 	main.battle_ui._on_end("ok")
 	await _frames(120)
 
+	# le Bois Penché et la Roselière, vus depuis leur entrée
+	await _idle()
+	GameState.set_flag("bois_vu")
+	GameState.set_flag("roseliere_vue")
+	main.change_map("bois_penche", "sud")
+	await _frames(150)
+	await _idle()
+	await _shot("43_bois_penche")
+	main.change_map("roseliere", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("44_roseliere")
+
 	# étape 4 : l'étal d'Ursule, le journal, l'équipe, l'inventaire, la boutique
 	await _idle()
 	for f: String in ["gedeon_vu", "cales_recues", "bitte_1", "sam_vu", "fripon_vu", "fripon_avoue", "ursule_vue"]:

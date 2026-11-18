@@ -67,7 +67,7 @@ func _build_arena(arena: Dictionary) -> void:
 		if l is Dictionary:
 			_light(l)
 	var amb := Database.get_ambiance(str(arena.get("ambiance", "crepuscule")))
-	Atmosphere.build(self, amb)
+	Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
 
 
 func _zone_point(zone: String) -> Vector2:
@@ -158,12 +158,12 @@ func _place(list: Array, side: float) -> void:
 	var n := list.size()
 	# en diagonale : celui du premier plan est le plus près du centre, ce qui évite que
 	# les sprites se cachent les uns les autres et dégage le coin du menu
-	var step := 0.0 if n <= 1 else minf(1.6, 3.0 / float(n - 1))
+	var step := 0.0 if n <= 1 else minf(1.7, 3.9 / float(n - 1))
 	for i in n:
 		var c: RefCounted = list[i]
 		var scale_k := float((c.sprite as Dictionary).get("scale", 1.0))
 		var z := (float(i) - float(n - 1) * 0.5) * step
-		var x := 3.6 - 0.7 * z + 0.55 * (scale_k - 1.0)
+		var x := 3.7 - 1.0 * z + 0.55 * (scale_k - 1.0)
 		var actor := Actor.new()
 		actor.name = "Actor_" + str(c.key).replace("#", "_")
 		add_child(actor)

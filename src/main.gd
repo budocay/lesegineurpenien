@@ -34,6 +34,18 @@ var _fade: ColorRect
 
 
 func _ready() -> void:
+	# Vignette : coins de l'image assombris, au-dessus du monde et sous l'interface.
+	var grade := CanvasLayer.new()
+	grade.layer = 0
+	add_child(grade)
+	var vignette := ColorRect.new()
+	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vignette_mat := ShaderMaterial.new()
+	vignette_mat.shader = preload("res://src/gfx/shaders/vignette.gdshader")
+	vignette.material = vignette_mat
+	grade.add_child(vignette)
+
 	var ui := CanvasLayer.new()
 	ui.name = "UI"
 	add_child(ui)
