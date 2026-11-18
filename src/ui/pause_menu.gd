@@ -5,13 +5,14 @@ signal resumed
 signal save_requested
 signal title_requested
 signal quit_requested
-signal screen_requested(which: String)   # "team", "inventory" ou "quests"
+signal screen_requested(which: String)   # "team", "talents", "inventory" ou "quests"
 
 const UI = preload("res://src/ui/ui_kit.gd")
 
 var _info: Label
 var _message: Label
 var _first: Button
+var _talents: Button
 var _opened_at := 0
 
 
@@ -48,6 +49,7 @@ func _ready() -> void:
 
 	_first = _button(box, "Reprendre", func() -> void: close())
 	_button(box, "Équipe", func() -> void: screen_requested.emit("team"))
+	_talents = _button(box, "Talents", func() -> void: screen_requested.emit("talents"))
 	_button(box, "Inventaire", func() -> void: screen_requested.emit("inventory"))
 	_button(box, "Quêtes", func() -> void: screen_requested.emit("quests"))
 	_button(box, "Sauvegarder", func() -> void: save_requested.emit())
@@ -78,6 +80,9 @@ static func toggle_fullscreen() -> void:
 func open(info: String) -> void:
 	_info.text = info
 	_message.text = ""
+	var points := GameState.party_talent_points()
+	_talents.text = "Talents" if points <= 0 else "Talents   ·   %d point%s à dépenser" % [points, "s" if points > 1 else ""]
+	_talents.add_theme_color_override("font_color", UI.INK if points <= 0 else Color("#bfe8ff"))
 	visible = true
 	_opened_at = Engine.get_process_frames()
 	_first.grab_focus()

@@ -10,6 +10,7 @@ const Hud = preload("res://src/ui/hud.gd")
 const BattleScene = preload("res://src/battle/battle_scene.gd")
 const BattleUI = preload("res://src/battle/battle_ui.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
+const TalentScreen = preload("res://src/ui/talent_screen.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
 
@@ -27,6 +28,8 @@ var title: Control
 var battle_ui: Control
 var menus: Control              # équipe, inventaire, journal de quêtes, boutiques
 var _menus_from := ""           # "pause" ou "dialogue" : à qui rendre la main quand ils se ferment
+var talents: Control            # écran de talents
+var _talents_from := ""         # "pause" ou "team" : où revenir quand il se ferme
 var _fade: ColorRect
 
 
@@ -46,6 +49,8 @@ func _ready() -> void:
 	ui.add_child(pause)
 	menus = GameMenu.new()
 	ui.add_child(menus)
+	talents = TalentScreen.new()
+	ui.add_child(talents)
 
 	var top := CanvasLayer.new()
 	top.layer = 10
@@ -72,6 +77,8 @@ func _ready() -> void:
 	dialogue.banner_requested.connect(func(text: String, sub: String) -> void: hud.banner(text, sub))
 	pause.screen_requested.connect(_on_pause_screen)
 	menus.closed.connect(_on_menus_closed)
+	menus.talents_requested.connect(_on_team_talents)
+	talents.closed.connect(_on_talents_closed)
 	GameState.quest_started.connect(_on_quest_started)
 	GameState.quest_completed.connect(_on_quest_completed)
 	SaveManager.before_save.connect(_sync_state)
@@ -115,6 +122,8 @@ func show_title() -> void:
 	_abort_flow = false
 	_menus_from = ""
 	menus.close(true)
+	_talents_from = ""
+	talents.close(true)
 	if mode != Mode.BOOT:
 		await _fade_to(1.0)
 	GameState.playing = false
@@ -257,6 +266,7 @@ func start_battle(encounter: Dictionary) -> String:
 		return "fled"
 	busy = true
 	hud.hide_prompt()
+	var points_before := GameState.party_talent_points()
 	var field := world
 	if field != null:
 		field.set_input(false)
@@ -301,6 +311,8 @@ func start_battle(encounter: Dictionary) -> String:
 		hud.set_softness(Database.softness(field.map))
 	await _fade_to(0.0, 0.4)
 	busy = false
+	if GameState.party_talent_points() > points_before:
+		hud.toast("Points de talent à dépenser : Échap, puis « Talents »")
 	return outcome
 
 
@@ -374,7 +386,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("fullscreen"):
 		PauseMenu.toggle_fullscreen()
 		return
-	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and event.is_action_pressed("menu"):
+	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		_open_pause()
 
@@ -389,8 +401,31 @@ func _open_pause() -> void:
 
 func _on_pause_screen(which: String) -> void:
 	pause.close(true)
+	if which == "talents":
+		_talents_from = "pause"
+		talents.open()
+		return
 	_menus_from = "pause"
 	menus.open(which)
+
+
+## La fiche d'un personnage (écran d'équipe) demande ses talents.
+func _on_team_talents(who: String) -> void:
+	menus.close(true)
+	_talents_from = "team"
+	talents.open(who)
+
+
+func _on_talents_closed() -> void:
+	var from := _talents_from
+	_talents_from = ""
+	if mode != Mode.PLAY or world == null or busy:
+		return
+	if from == "team":
+		_menus_from = "pause"
+		menus.open("team")
+	else:
+		_open_pause()
 
 
 func _on_dialogue_shop(shop_id: String) -> void:
@@ -445,7 +480,7 @@ func _sync_state() -> void:
 
 
 func _process(_delta: float) -> void:
-	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or world.focus.is_empty():
+	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or world.focus.is_empty():
 		hud.hide_prompt()
 		return
 	var it: Dictionary = world.focus

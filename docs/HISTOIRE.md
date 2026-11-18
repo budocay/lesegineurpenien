@@ -41,11 +41,11 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 
 - Glandoulf le Gris (mage) : puissant, flemmard, rongé par un secret. Branches : Pyrotechnicien (feux d'artifice, dégâts de zone) ou Maître de la Sieste (sommeil, contrôle, régénération).
 - Sam Gamelle (tank) : cuisinier grobitte, se bat à la poêle, loyal jusqu'à l'absurde. Branches : Poêle de Fer (défense, provocation) ou Cuistot de Campagne (plats qui renforcent l'équipe).
-- Frodon SaLfait (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
-- Pépin Bontabac (soigneuse) : herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeuse de Pipe (nuages qui renforcent ou affaiblissent).
-- Albatard (bretteur) : rôdeur bougon, héritier du trône du Gouda, qu'il fuit à cause de la paperasse. Branches : Rôdeur (duel, contre-attaques) ou Roi Malgré Lui (ordres qui galvanisent l'équipe).
-- Digoulasse (archer) : elfe de 2 900 ans, blasée de tout. Branches : Tir de Précision ou Mépris Elfique (affaiblit le moral ennemi).
-- Grimlit (berserker) : naine de Morbier, bruyante et rancunière. Branches : Hache Furieuse ou Tête Dure.
+- Fripon Besace (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
+- Pépine Bontabac (soigneuse) : herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeuse de Pipe (nuages qui renforcent ou affaiblissent).
+- Aragrogne (bretteur) : rôdeur bougon, héritier du trône du Gouda, qu'il fuit à cause de la paperasse. Branches : Rôdeur (duel, contre-attaques) ou Roi Malgré Lui (ordres qui galvanisent l'équipe).
+- Légolasse (archer) : elfe de 2 900 ans, blasée de tout. Branches : Tir de Précision ou Mépris Elfique (affaiblit le moral ennemi).
+- Gimlette (berserker) : naine de Morbier, bruyante et rancunière. Branches : Hache Furieuse ou Tête Dure.
 
 ## Les antagonistes
 
@@ -129,7 +129,7 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 - Sam, Fripon et Pépine sont présents au village et l'on peut leur parler, mais ils ne
   rejoignent pas encore l'équipe.
 - Noms retenus à ce stade, la bible hésitant entre plusieurs formes : Sam Gamelle,
-  « Frodon SaLfait, dit Fripon », Pépine Bontabac.
+  Fripon Besace, Pépine Bontabac.
 
 ### Étape 2 — Le prologue et le Pré Couché
 
@@ -314,15 +314,15 @@ dans l'ordre.
 - **Pépine.** Herboriste : Main verte, Baume du matin, Racines profondes, Remède de cheval
   (relève un allié). Fumeuse de Pipe : Tabac de caractère, Nuage tonique, Nuage âcre,
   Brouillard épais.
-- **Albatard.** Rôdeur : Œil du rôdeur, Riposte, Duel, Botte secrète. Roi Malgré Lui : Voix
+- **Aragrogne.** Rôdeur : Œil du rôdeur, Riposte, Duel, Botte secrète. Roi Malgré Lui : Voix
   qui porte, Ordre bref, Port de tête, Par décret. Il connaît dès le départ la **Taille
   royale** de son ancêtre Isidur.
-- **Digoulasse.** Tir de Précision : Souffle retenu, Flèche perçante, Trois mille ans de
+- **Légolasse.** Tir de Précision : Souffle retenu, Flèche perçante, Trois mille ans de
   pratique, Pluie de flèches. Mépris Elfique : Soupir, Regard de haut, Remarque blessante,
   Mépris souverain.
-- **Grimlit.** Hache Furieuse : Sang chaud, Moulinet, Rancune tenace, Coup du bûcheron.
+- **Gimlette.** Hache Furieuse : Sang chaud, Moulinet, Rancune tenace, Coup du bûcheron.
   Tête Dure : Crâne de Morbier, Même pas mal, Coup de boule, Bornée.
 - Trois nouveaux états : **Provocateur** (attire les coups), **Démoralisé** (défense et
   résistance réduites), **Enfumé** (les coups physiques ratent une fois sur trois).
-- Albatard, Digoulasse et Grimlit n'apparaissent pas encore dans l'histoire : seules leur
+- Aragrogne, Légolasse et Gimlette n'apparaissent pas encore dans l'histoire : seules leur
   fiche de combat, leur apparence provisoire et leurs talents sont prêts.

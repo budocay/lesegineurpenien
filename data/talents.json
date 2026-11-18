@@ -159,20 +159,20 @@
 			}
 		]
 	},
-	"albatard": {
+	"aragrogne": {
 		"branches": [
 			{
 				"id": "rodeur", "name": "Rôdeur",
-				"desc": "Duel et contre-attaques. Albatard se bat comme il parle : peu, et sèchement.",
+				"desc": "Duel et contre-attaques. Aragrogne se bat comme il parle : peu, et sèchement.",
 				"talents": [
 					{"id": "oeil_du_rodeur", "name": "Œil du rôdeur", "cost": 1,
 						"desc": "Coups critiques un peu plus fréquents.",
 						"mods": {"spd": 1}, "passives": {"crit": 0.08}},
 					{"id": "riposte", "name": "Riposte", "cost": 1,
-						"desc": "Trois fois sur dix, Albatard rend aussitôt le coup physique qu'il reçoit.",
+						"desc": "Trois fois sur dix, Aragrogne rend aussitôt le coup physique qu'il reçoit.",
 						"passives": {"counter": 0.3}},
 					{"id": "duel_t", "name": "Duel", "cost": 2,
-						"desc": "Un seul adversaire, et toute l'attention d'Albatard.",
+						"desc": "Un seul adversaire, et toute l'attention d'Aragrogne.",
 						"skills": ["duel"]},
 					{"id": "botte_secrete_t", "name": "Botte secrète", "cost": 2,
 						"desc": "Elle n'est secrète que parce qu'il refuse de l'expliquer. Riposte plus fréquente.",
@@ -193,17 +193,17 @@
 						"desc": "Il a beau faire, ça se voit qu'il est roi.",
 						"mods": {"hp": 12, "def": 2}},
 					{"id": "par_decret_t", "name": "Par décret", "cost": 2,
-						"desc": "Le seul formulaire qu'Albatard accepte de remplir.",
+						"desc": "Le seul formulaire qu'Aragrogne accepte de remplir.",
 						"skills": ["par_decret"]}
 				]
 			}
 		]
 	},
-	"digoulasse": {
+	"legolasse": {
 		"branches": [
 			{
 				"id": "tir_de_precision", "name": "Tir de Précision",
-				"desc": "Une flèche, un adversaire. Digoulasse a eu 2 900 ans pour s'entraîner et trouve ça long.",
+				"desc": "Une flèche, un adversaire. Légolasse a eu 2 900 ans pour s'entraîner et trouve ça long.",
 				"talents": [
 					{"id": "souffle_retenu", "name": "Souffle retenu", "cost": 1,
 						"desc": "Tous ses tirs ont 10 % de chances en plus d'être critiques.",
@@ -239,11 +239,11 @@
 			}
 		]
 	},
-	"grimlit": {
+	"gimlette": {
 		"branches": [
 			{
 				"id": "hache_furieuse", "name": "Hache Furieuse",
-				"desc": "Plus Grimlit prend de coups, plus elle en rend. Elle tient les comptes.",
+				"desc": "Plus Gimlette prend de coups, plus elle en rend. Elle tient les comptes.",
 				"talents": [
 					{"id": "sang_chaud", "name": "Sang chaud", "cost": 1,
 						"desc": "Moins il lui reste de PV, plus elle frappe fort (jusqu'à 30 % de dégâts en plus).",
@@ -261,7 +261,7 @@
 			},
 			{
 				"id": "tete_dure", "name": "Tête Dure",
-				"desc": "Grimlit encaisse, par principe. Céder serait donner raison à quelqu'un.",
+				"desc": "Gimlette encaisse, par principe. Céder serait donner raison à quelqu'un.",
 				"talents": [
 					{"id": "crane_de_morbier", "name": "Crâne de Morbier", "cost": 1,
 						"desc": "Dur dehors, et pas beaucoup plus tendre dedans.",

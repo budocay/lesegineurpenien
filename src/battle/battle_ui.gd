@@ -832,7 +832,7 @@ func show_victory(rewards: Dictionary, guest: bool) -> void:
 				_line(box, "Nouvelle compétence : %s" % str(s), Color("#ffd27a"), 20)
 			var points := int(up.get("points", 0))
 			if points > 0:
-				_line(box, "+%d point%s de talent (menu de pause, Équipe)" % [points, "s" if points > 1 else ""], Color("#bfe8ff"), 20)
+				_line(box, "+%d point%s de talent (menu de pause, Talents)" % [points, "s" if points > 1 else ""], Color("#bfe8ff"), 20)
 	var b := _end_button(box, "Continuer", "ok")
 	b.grab_focus.call_deferred()
 	await _closed

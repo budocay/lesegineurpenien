@@ -456,7 +456,7 @@ func party_summary() -> String:
 			Database.get_character_name(str(id)), int(m["level"]), int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])])
 	var points := party_talent_points()
 	if points > 0:
-		lines.append("%d point%s de talent à dépenser (Équipe)" % [points, "s" if points > 1 else ""])
+		lines.append("%d point%s de talent à dépenser (Talents)" % [points, "s" if points > 1 else ""])
 	return "\n".join(lines)
 
 

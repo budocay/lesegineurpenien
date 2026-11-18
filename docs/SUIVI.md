@@ -95,19 +95,26 @@ trentaine de combats, le chapitre demande à mon estimation de quarante à soixa
 minutes ; en ligne droite, sans annexes, autour de vingt-cinq à trente. Cette durée
 n'a pas été chronométrée par un joueur.
 
-**Étape 3 (spécialisations et talents) : terminée**, en rattrapage après les étapes 4 et
-5. L'écran d'équipe et les recrutements de Pépine, Sam et Fripon existaient déjà (étape
-4) ; il manquait les talents. S'y ajoutent :
+**Étape 3 (spécialisations et talents) : terminée.** Les règles et les données des
+talents avaient été écrites en rattrapage après les étapes 4 et 5, mais l'écran était une
+simple liste à cases « [x] » enfouie sous « Équipe », que personne n'avait jamais vue : pour
+le joueur, l'étape n'existait pas. La session du 18 novembre 2026 l'a reprise : vérification
+de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas). On a donc :
 
 - des **points de talent** : un par niveau gagné. L'écran de victoire l'annonce, le menu
   de pause et l'écran d'équipe rappellent les points qui restent à dépenser ;
 - les **deux voies de chacun des sept personnages de la bible** (Glandoulf, Sam, Fripon,
-  Pépine, et déjà Albatard, Digoulasse et Grimlit pour les chapitres suivants) : quatre
+  Pépine, et déjà Aragrogne, Légolasse et Gimlette pour les chapitres suivants) : quatre
   talents par voie, cinquante-six en tout, à apprendre dans l'ordre. Les deux premiers
   coûtent un point, les deux suivants deux : six points pour une voie entière ;
-- un **écran de talents** : menu de pause, « Équipe », choisir un personnage (sa fiche
-  propose maintenant « Équipement » et « Talents »). Chaque talent dit ce qu'il apporte
-  et ce qu'il faut pour l'apprendre ; « Tout oublier » rend les points, gratuitement ;
+- un **écran de talents** dédié (`src/ui/talent_screen.gd`) : menu de pause, « Talents »
+  (le bouton annonce les points à dépenser). Un onglet par membre de l'équipe avec son
+  portrait, ses deux voies côte à côte, quatre talents reliés de haut en bas, colorés selon
+  leur état (doré : appris ; bleu : on peut l'apprendre ; gris : fermé), le détail du talent
+  sous le curseur à droite, et « Tout oublier » qui rend les points gratuitement. On y
+  arrive aussi par « Équipe », fiche d'un personnage, « Talents » ;
+- un **rappel après un combat** qui fait gagner des points (message en haut à droite), et
+  la ligne de l'écran de victoire qui dit où aller ;
 - des talents qui **changent vraiment les combats** : vingt-six nouvelles compétences
   (Pétarade, Viens-y voir, Fauche, Brouillard épais...), des bonus de statistiques, et des
   effets permanents (riposte, coups critiques, vol d'écus, récupération de PV ou de mana,
@@ -155,15 +162,18 @@ dossier du projet.
   Depuis l'étape 3 il contrôle aussi les talents : les données des cinquante-six talents,
   les points gagnés et dépensés, l'ordre dans une voie, l'oubli, la sauvegarde, chaque
   effet en combat (riposte, provocation, vol, brouillard...), chaque compétence de talent
-  lancée une fois, l'écran de talents piloté ligne par ligne, et treize combats simulés
-  de plus avec les talents dépensés dans l'une ou l'autre voie.
+  lancée une fois, treize combats simulés de plus avec les talents dépensés dans l'une ou
+  l'autre voie, et l'écran de talents lui-même : ouverture, curseur, apprentissage, refus,
+  changement de personnage, oubli, les sept arbres de la bible appris en entier depuis
+  l'écran, puis l'ouverture depuis la pause et depuis la fiche d'un personnage dans le
+  vrai jeu.
   Ajouter `-- --verbose` affiche en plus les cartes et quelques sprites en caractères.
 - **Captures d'écran** (ouvre une fenêtre pendant environ deux minutes, ne pas
   toucher au clavier pendant ce temps) :
   `/Applications/Godot.app/Contents/MacOS/Godot --path . res://tests/capture.tscn -- "$PWD/docs/captures"`
-  Le jeu se joue tout seul et dépose trente images dans `docs/captures/` (les dernières
-  montrent l'étal d'Ursule, la pause, le journal, l'équipe, l'inventaire, la boutique et,
-  sous le nom `30_talents`, l'écran de talents). Compter plutôt cinq à dix minutes si la fenêtre reste en arrière-plan.
+  Le jeu se joue tout seul et dépose trente-trois images dans `docs/captures/` (les
+  dernières montrent l'étal d'Ursule, la pause, le journal, l'équipe, l'inventaire, la
+  boutique et, de `30_pause_talents` à `33_talents_sam`, l'écran de talents). Compter plutôt cinq à dix minutes si la fenêtre reste en arrière-plan.
 
 ## Organisation du projet
 
@@ -173,9 +183,9 @@ dossier du projet.
 - `src/gfx/` : dessin des sprites et textures par le code, et point d'accès unique aux
   images (`sprite_library.gd`).
 - `src/world/` : construction d'une carte, joueur, personnages, caméra, ambiance.
-- `src/ui/` : écran-titre, boîte de dialogue, menu de pause, affichage en jeu, et
+- `src/ui/` : écran-titre, boîte de dialogue, menu de pause, affichage en jeu,
   `game_menu.gd`, l'écran à liste commun à l'équipe, l'inventaire, le journal et les
-  boutiques.
+  boutiques, et `talent_screen.gd`, l'écran de talents.
 - `src/battle/` : le combat. `battle_engine.gd` contient **toutes les règles** sans rien
   afficher (c'est lui que les tests interrogent) ; `battle_scene.gd` construit l'arène et
   met les tours en scène ; `battle_actor.gd` anime un combattant ; `battle_ui.gd` est
@@ -193,11 +203,10 @@ dossier du projet.
 
 1. **Fichier de suivi.** Le cahier des charges annonce un fichier de suivi « décrit plus
    bas » mais ne le décrit pas. J'ai créé celui-ci.
-2. **Noms des personnages.** La bible n'est pas constante entre la liste de l'équipe et les
-   chapitres (Frodon SaLfait / Fripon, Pépin / Pépine, Albatard / Aragrogne,
-   Digoulasse / Légolasse, Grimlit / Gimlette). Pour l'étape 1 j'ai retenu : Sam Gamelle,
-   « Frodon SaLfait, dit Fripon », Pépine Bontabac. Les autres n'apparaissent pas encore.
-   **À trancher avant l'étape suivante.**
+2. **Noms des personnages : tranché par l'auteur le 18 novembre 2026.** La bible mélangeait
+   deux séries de noms. Font foi partout : Sam Gamelle, Fripon Besace, Pépine Bontabac,
+   Aragrogne, Légolasse, Gimlette. Les anciennes variantes ont été remplacées dans la
+   bible, dans ce fichier et dans les données (voir décision 61). Ne plus les employer.
 3. **Prologue.** Le combat du prologue est reporté à l'étape « combat ». À la place, une
    courte narration ouvre la partie, sans dévoiler le secret de Glandoulf.
 4. **Heure.** Le village est montré au crépuscule : c'est l'heure qui met le mieux en
@@ -344,11 +353,10 @@ dossier du projet.
     l'ordre. La fiche affiche comme « Voie » celle où l'on a mis le plus de points.
 55. **« Tout oublier » est gratuit et sans limite.** Le joueur visé n'est pas un habitué :
     aucun choix de talent ne doit pouvoir gâcher une partie.
-56. **Les sept personnages de la bible ont leurs talents**, y compris Albatard, Digoulasse
-    et Grimlit, qui n'entrent en scène qu'aux chapitres suivants. Ils ont reçu une fiche de
+56. **Les sept personnages de la bible ont leurs talents**, y compris Aragrogne, Légolasse
+    et Gimlette, qui n'entrent en scène qu'aux chapitres suivants. Ils ont reçu une fiche de
     combat, une compétence de départ et une apparence provisoires pour que leurs talents
-    puissent être testés dès maintenant. Noms retenus : ceux de la liste de l'équipe
-    (décision 2, toujours à trancher).
+    puissent être testés dès maintenant. Leurs noms sont ceux de la décision 2.
 57. **Le prologue ne connaît pas les talents** : Glandoulf et Isidur y ont leurs sorts de
     niveau 20, rien de plus. Les talents se découvrent au premier niveau gagné.
 58. **Vol d'écus.** La Fauche de Fripon vole la moitié des écus qu'un adversaire aurait
@@ -366,12 +374,45 @@ dossier du projet.
     mesures sous-estiment donc ce qu'un joueur tirera des talents. Si le chapitre paraît
     trop facile en vrai, c'est le premier endroit où regarder.
 
+### Décisions de la reprise de l'étape 3 (18 novembre 2026)
+
+61. **Noms.** Les identifiants internes suivent les noms définitifs (`aragrogne`,
+    `legolasse`, `gimlette`) pour qu'aucun ancien nom ne traîne dans les données. Aucun de
+    ces trois personnages n'est encore jouable : les sauvegardes existantes ne sont pas
+    touchées. Le nom complet de Fripon devient « Fripon Besace » ; la réplique où il se
+    présentait a été réécrite (« Ici, on dit “le petit Besace”. Ça changera. »), ce qui
+    garde son ambition, clé du personnage. « Grolas » et « Poilin » ne figuraient que dans
+    deux notes de ce fichier sur le chapitre 2 ; elles parlent maintenant d'Aragrogne,
+    que la bible fait rencontrer à Brie.
+62. **L'existant est gardé, pas refait.** Les règles, les 56 talents et leurs 26
+    compétences passaient déjà le test complet (6 845 vérifications, 0 échec, avant toute
+    modification). Les réécrire aurait coûté du temps sans rien apporter au joueur. Ce
+    qui manquait vraiment, c'était de les voir.
+63. **Un écran à part plutôt qu'une page de liste.** L'ancienne page (onze lignes, cases
+    « [x] ») ne montrait ni les deux voies côte à côte ni l'ordre des talents. Le nouvel
+    écran est un arbre : c'est ce que le mot « talents » promet. L'ancienne page a été
+    supprimée pour ne pas entretenir deux écrans.
+64. **« Talents » est un bouton du menu de pause**, à côté d'« Équipe », et il affiche le
+    nombre de points à dépenser. Raison : enfoui deux niveaux sous « Équipe », l'écran
+    n'avait pas été trouvé en jouant tout le chapitre.
+65. **L'écran s'ouvre sur le premier personnage qui a des points**, curseur sur le premier
+    talent qu'il peut apprendre : après une montée de niveau, il suffit d'appuyer sur
+    Entrée. Passer le curseur sur un onglet change de personnage sans validation.
+66. **Pas de nouveau rééquilibrage.** Les combats simulés ont été relancés avec et sans
+    talents : les chiffres sont ceux des décisions 48 et 59 (rencontres ordinaires à 97-100 %,
+    Naze à 20-37 % au niveau 5, 95-100 % au niveau 6 avec talents, 67 % sans aucun talent).
+    Le Naze renforcé de la décision 59 reste donc le seul ajustement. À revoir dès que
+    l'auteur aura joué avec les talents (voir décision 60).
+67. **Les captures sont décrites par un assistant.** Dans cette session, l'outil qui affiche
+    les images n'était pas disponible pour l'agent principal ; les captures de l'écran de
+    talents ont été regardées par un agent secondaire, qui en a fait un rapport de défauts.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
-  d'accroche du chapitre suivant (Brie, le Poney Flagada, Grolas, Poilin).
+  d'accroche du chapitre suivant (Brie, le Poney Flagada, la rencontre d'Aragrogne).
 - La Première Amarre est dans le sac (objet de quête) : elle peut servir plus tard.
-- Albatard, Digoulasse et Grimlit ont déjà leur fiche de combat et leurs talents
+- Aragrogne, Légolasse et Gimlette ont déjà leur fiche de combat et leurs talents
   (`characters.json`, `talents.json`) : il suffira de les faire entrer dans l'équipe par un
   dialogue. Leur apparence et leurs chiffres sont provisoires.
 - Un talent, une voie ou un effet de talent s'ajoutent dans `talents.json` sans toucher au
@@ -409,9 +450,9 @@ dossier du projet.
   Leur construction, leurs collisions et l'accès à chaque objet sont vérifiés par
   programme, pas leur beauté. Les Morfales et le Naze utilisent des sprites de
   personnages (silhouettes humaines), pas des sprites de monstres.
-- Étape 3 : l'écran de talents n'a été vu par personne (onze lignes dans la liste, des
-  cases « [x] » pour les talents appris) ; il est piloté par le test, pas regardé. La
-  capture `30_talents` n'a pas été prise pendant cette session.
+- Étape 3 : l'écran de talents a été capturé (`30` à `33`) et décrit par un assistant, pas
+  encore jugé par l'auteur en jouant. Le curseur au clavier est vérifié par le test ; la
+  souris et la manette n'ont pas été essayées sur cet écran.
 - Les talents n'ont pas d'animation propre : une riposte, un vol ou un coup raté
   s'affichent par un simple texte au-dessus du personnage.
 - Les récupérations de PV et de mana des talents ajoutent un petit temps d'affichage au
@@ -427,9 +468,12 @@ dossier du projet.
 
 1. Jouer le chapitre 1 en entier et noter ce qui est trop dur, trop facile ou trop long :
    l'équilibre n'a été réglé que par simulation.
-2. Trancher les noms (décision 2), toujours en suspens.
+2. **Animations de combat** (priorité 2 de l'auteur) : poses d'attaque, de sort, de coup
+   reçu et de KO ; un effet reconnaissable par compétence et par objet, décrit dans les
+   données ; secousses, flashs, sons. Puis **pixel art** (priorité 3) : sprites refaits,
+   quatre poses de marche, repos animé, Morfales et Naze dédiés, portraits, décors.
 3. Essayer les talents en jouant : vérifier que les deux voies de chacun font envie, que
    l'écran se lit bien, et retoucher les chiffres (`data/talents.json`).
-4. Chapitre 2 : Brie, le Poney Flagada, la rencontre de Grolas.
+4. Chapitre 2 : Brie, le Poney Flagada, la rencontre d'Aragrogne.
 5. Musique et ambiance sonore, en particulier une musique de combat et une de fête.
 6. Sprites dédiés pour les Morfales et le Naze ; pose d'attaque pour les héros.

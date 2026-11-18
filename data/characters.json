@@ -39,7 +39,7 @@
 	},
 	"fripon": {
 		"name": "Fripon",
-		"full_name": "Frodon SaLfait, dit Fripon",
+		"full_name": "Fripon Besace",
 		"role": "voleur",
 		"branches": ["Pickpocket", "Embrouilleur"],
 		"battle": {
@@ -92,9 +92,9 @@
 			"feet": "bottes", "boots": "#3a2a24"
 		}
 	},
-	"albatard": {
-		"name": "Albatard",
-		"full_name": "Albatard, rôdeur",
+	"aragrogne": {
+		"name": "Aragrogne",
+		"full_name": "Aragrogne, rôdeur",
 		"role": "bretteur",
 		"branches": ["Rôdeur", "Roi Malgré Lui"],
 		"battle": {
@@ -112,9 +112,9 @@
 			"feet": "bottes", "boots": "#2a221c"
 		}
 	},
-	"digoulasse": {
-		"name": "Digoulasse",
-		"full_name": "Digoulasse, elfe de 2 900 ans",
+	"legolasse": {
+		"name": "Légolasse",
+		"full_name": "Légolasse, elfe de 2 900 ans",
 		"role": "archère",
 		"branches": ["Tir de Précision", "Mépris Elfique"],
 		"battle": {
@@ -130,9 +130,9 @@
 			"feet": "bottes", "boots": "#4a3a2a"
 		}
 	},
-	"grimlit": {
-		"name": "Grimlit",
-		"full_name": "Grimlit, naine de Morbier",
+	"gimlette": {
+		"name": "Gimlette",
+		"full_name": "Gimlette, naine de Morbier",
 		"role": "berserker",
 		"branches": ["Hache Furieuse", "Tête Dure"],
 		"battle": {

@@ -14,6 +14,7 @@ const BattleUI = preload("res://src/battle/battle_ui.gd")
 const Rules = preload("res://src/battle/rules.gd")
 const MonsterPainter = preload("res://src/gfx/monster_painter.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
+const TalentScreen = preload("res://src/ui/talent_screen.gd")
 
 var failures := 0
 var checks := 0
@@ -66,6 +67,8 @@ func _ready() -> void:
 	_test_save()
 	print("== Menus : équipe, inventaire, journal, boutique ==")
 	await _test_menus()
+	print("== Écran de talents ==")
+	await _test_talent_screen()
 	print("== Déroulé complet ==")
 	await _test_flow()
 	SaveManager.delete_save()
@@ -654,7 +657,7 @@ const TEAM := ["glandoulf", "sam", "fripon", "pepine"]
 
 
 ## Une rencontre nommée, avec le Ramollissement de la carte d'où elle est lancée.
-const BIBLE_TEAM := ["glandoulf", "sam", "fripon", "pepine", "albatard", "digoulasse", "grimlit"]
+const BIBLE_TEAM := ["glandoulf", "sam", "fripon", "pepine", "aragrogne", "legolasse", "gimlette"]
 const PASSIVES := ["crit", "element_boost", "status_chance", "heal_boost", "guard", "counter", "regen_mp", "regen_hp", "initiative", "money_bonus", "vs_afflicted", "fury", "immune"]
 
 
@@ -860,7 +863,7 @@ func _test_talents() -> void:
 	boss.statuses["demoralise"] = {"turns": 3, "fresh": false}
 	check(float(boss.stat("def")) < def_before or def_before == 0.0, "Démoralisé : défense réduite")
 
-	_solo(["grimlit"], 7, {"grimlit": ["crane_de_morbier", "meme_pas_mal"]})
+	_solo(["gimlette"], 7, {"gimlette": ["crane_de_morbier", "meme_pas_mal"]})
 	e = BattleEngine.new()
 	e.setup({"enemies": ["limace_molle"]}, 2)
 	check((e.party[0].immune as Array).has("sonne"), "Même pas mal : un talent peut immuniser contre un état")
@@ -1337,27 +1340,10 @@ func _test_menus() -> void:
 	await get_tree().process_frame
 	check(str(menu._title.text) == "Glandoulf", "équipe : Annuler revient à la fiche du personnage")
 	GameState.member("glandoulf")["level"] = 3   # deux points de talent
+	var asked := [""]
+	menu.talents_requested.connect(func(w: String) -> void: asked[0] = w)
 	menu.press(1)
-	await get_tree().process_frame
-	check(str(menu._title.text).begins_with("Talents de Glandoulf") and str(menu._title.text).contains("2 points"), "talents : titre avec les points à dépenser (%s)" % str(menu._title.text))
-	check((menu.entry_texts() as Array).size() == 11, "talents : deux voies, huit talents et « Tout oublier »")
-	menu._on_focus(2)
-	check(str(menu._detail.text).contains("Pétarade") and str(menu._detail.text).contains("Il faut d'abord"), "talents : le détail dit ce qui manque")
-	menu.press(2)   # Pétarade, deuxième de sa voie : encore fermé
-	check(not GameState.has_talent("glandoulf", "petarade_t") and str(menu._message.text) != "", "talents : un talent fermé ne s'apprend pas, message affiché")
-	menu.press(1)   # Mèche courte
-	await get_tree().process_frame
-	check(GameState.has_talent("glandoulf", "meche_courte") and GameState.talent_points("glandoulf") == 1, "talents : talent appris depuis l'écran")
-	check(str((menu.entry_texts() as Array)[1]).contains("[x]"), "talents : le talent appris est coché")
-	menu.press(6)   # Sommeil réparateur, premier de l'autre voie
-	await get_tree().process_frame
-	check(GameState.has_talent("glandoulf", "sommeil_reparateur") and GameState.talent_points("glandoulf") == 0, "talents : on peut piocher dans les deux voies")
-	menu.press(7)
-	check(not GameState.has_talent("glandoulf", "berceuse"), "talents : rien ne s'apprend sans point")
-	menu.press(10)   # « Tout oublier »
-	await get_tree().process_frame
-	check((GameState.talents_of("glandoulf") as Array).is_empty() and GameState.talent_points("glandoulf") == 2, "talents : tout oublier rend les points")
-	menu.go_back()
+	check(asked[0] == "glandoulf", "équipe : la fiche demande l'écran de talents")
 	menu.go_back()
 	menu.go_back()
 	check(not menu.visible, "équipe : Annuler remonte puis referme")
@@ -1394,6 +1380,83 @@ func _test_menus() -> void:
 	check(GameState.money > money, "boutique : vente")
 	menu.close()
 	await get_tree().process_frame
+	GameState.new_game()
+	layer.queue_free()
+
+
+# ------------------------------------------------------------ écran de talents
+
+func _test_talent_screen() -> void:
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var screen: Control = TalentScreen.new()
+	layer.add_child(screen)
+	await get_tree().process_frame
+	var closed := [0]
+	screen.closed.connect(func() -> void: closed[0] += 1)
+	GameState.new_game()
+	GameState.member("glandoulf")["level"] = 3   # deux points
+	GameState.add_to_party("pepine")
+	GameState.member("pepine")["level"] = 2      # un point
+	screen.open()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(screen.visible and str(screen.who) == "glandoulf", "talents : l'écran s'ouvre sur le premier qui a des points")
+	check((screen.tab_ids() as Array).size() == 2, "talents : un onglet par membre de l'équipe")
+	check((screen.talent_ids() as Array).size() == 8, "talents : deux voies de quatre talents")
+	check(str(screen.points_text()).contains("2"), "talents : points à dépenser affichés (%s)" % str(screen.points_text()))
+	var first: Button = screen._nodes["meche_courte"]
+	check(str(first.focus_neighbor_bottom) != "" and str(first.focus_neighbor_right) != "", "talents : le curseur passe d'un talent à l'autre")
+	check(get_viewport().gui_get_focus_owner() == first, "talents : le curseur démarre sur un talent qu'on peut apprendre")
+	screen.focus_talent("petarade_t")
+	check(str(screen.detail_text()).contains("PÉTARADE") and str(screen.detail_text()).contains("Il faut d'abord"), "talents : le détail dit ce qui manque")
+	check(str(screen.detail_text()).contains("Nouvelle compétence"), "talents : le détail décrit la compétence débloquée")
+	screen.press("petarade_t")   # deuxième de sa voie : encore fermé
+	check(not GameState.has_talent("glandoulf", "petarade_t") and str(screen.message_text()) != "", "talents : un talent fermé ne s'apprend pas, message affiché")
+	screen.press("meche_courte")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(GameState.has_talent("glandoulf", "meche_courte") and str(screen.state_of("meche_courte")) == "learned", "talents : talent appris depuis l'écran")
+	check(str(screen.points_text()).contains("1"), "talents : le compteur de points baisse")
+	check(get_viewport().gui_get_focus_owner() == screen._nodes["meche_courte"], "talents : le curseur reste sur le talent appris")
+	check(str(screen.state_of("petarade_t")) == "available", "talents : le suivant de la voie s'ouvre")
+	screen.press("sommeil_reparateur")
+	await get_tree().process_frame
+	check(GameState.has_talent("glandoulf", "sommeil_reparateur") and GameState.talent_points("glandoulf") == 0, "talents : on peut piocher dans les deux voies")
+	screen.press("berceuse")
+	check(not GameState.has_talent("glandoulf", "berceuse"), "talents : rien ne s'apprend sans point")
+	screen.select("pepine")
+	await get_tree().process_frame
+	check(str(screen.who) == "pepine" and (screen.talent_ids() as Array).has("main_verte"), "talents : changer de personnage change l'arbre")
+	screen.press("main_verte")
+	await get_tree().process_frame
+	check(GameState.has_talent("pepine", "main_verte"), "talents : Pépine apprend un talent")
+	screen.select("glandoulf")
+	await get_tree().process_frame
+	screen.forget()
+	await get_tree().process_frame
+	check((GameState.talents_of("glandoulf") as Array).is_empty() and GameState.talent_points("glandoulf") == 2, "talents : tout oublier rend les points")
+	check(GameState.has_talent("pepine", "main_verte"), "talents : l'oubli ne touche que le personnage affiché")
+	screen.forget()
+	check(str(screen.message_text()).contains("rien"), "talents : rien à oublier, message affiché")
+	screen.close()
+	check(closed[0] == 1 and not screen.visible, "talents : écran refermé")
+	# Les sept personnages de la bible s'affichent, chaque talent a son détail.
+	for id: String in BIBLE_TEAM:
+		GameState.new_game()
+		GameState.party = []
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 13
+		screen.open(id)
+		await get_tree().process_frame
+		check(str(screen.who) == id and (screen.talent_ids() as Array).size() == 8, "talents : l'arbre de %s s'affiche" % id)
+		for tid: String in screen.talent_ids():
+			screen.focus_talent(tid)
+			check(str(screen.detail_text()).length() > 40, "talents : détail de %s/%s" % [id, tid])
+			screen.press(tid)
+		await get_tree().process_frame
+		check(GameState.talent_points(id) == 0 and (GameState.talents_of(id) as Array).size() == 8, "talents : %s apprend tout depuis l'écran" % id)
+		screen.close(true)
 	GameState.new_game()
 	layer.queue_free()
 
@@ -1643,6 +1706,29 @@ func _test_flow() -> void:
 		main.menus.close()
 		await get_tree().process_frame
 		check(main.pause.visible and not main.menus.visible, "retour au menu de pause après « %s »" % which)
+	main._on_pause_screen("talents")
+	await get_tree().process_frame
+	check(main.talents.visible and not main.pause.visible, "écran de talents ouvert depuis la pause")
+	main.talents.close()
+	await get_tree().process_frame
+	check(main.pause.visible and not main.talents.visible, "retour au menu de pause après les talents")
+	main._on_pause_screen("team")
+	await get_tree().process_frame
+	main.menus.press(0)
+	await get_tree().process_frame
+	main.menus.press(1)
+	await get_tree().process_frame
+	check(main.talents.visible and not main.menus.visible, "écran de talents ouvert depuis la fiche d'un personnage")
+	main.talents.close()
+	await get_tree().process_frame
+	check(main.menus.visible and not main.talents.visible, "retour à l'équipe après les talents")
+	main.menus.close()
+	await get_tree().process_frame
+	GameState.member(GameState.leader())["level"] = maxi(2, int(GameState.member(GameState.leader())["level"]))
+	GameState.reset_talents(GameState.leader())
+	main.pause.close(true)
+	main._open_pause()
+	check(str(main.pause._talents.text).contains("dépenser"), "la pause signale les points de talent à dépenser (%s)" % str(main.pause._talents.text))
 	main.pause.close()
 	check(main.world.input_enabled, "le joueur a la main après la pause")
 

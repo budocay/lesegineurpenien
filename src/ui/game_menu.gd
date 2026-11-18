@@ -6,6 +6,7 @@ extends Control
 ## et un retour (Callable) appelé par la touche Annuler ; sans retour, l'écran se ferme.
 
 signal closed
+signal talents_requested(who: String)   # la fiche d'un personnage demande l'écran de talents
 
 const UI = preload("res://src/ui/ui_kit.gd")
 const Rules = preload("res://src/battle/rules.gd")
@@ -449,7 +450,7 @@ func _member(who: String, from: int, focus: int = 0) -> void:
 		{
 			"text": "Talents" + ("   ·   %s à dépenser" % _points(points) if points > 0 else ""),
 			"detail": _talents_summary(who),
-			"action": _talents.bind(who, from, 0),
+			"action": func() -> void: talents_requested.emit(who),
 		},
 	]
 	_page(Database.get_character_name(who), entries, _team.bind(from), focus)
@@ -459,23 +460,6 @@ func _member(who: String, from: int, focus: int = 0) -> void:
 
 static func _points(n: int) -> String:
 	return "%d point%s" % [n, "s" if n > 1 else ""]
-
-
-## Ce qu'apporte un talent, en clair : bonus chiffrés et compétences débloquées.
-static func _talent_effects(def: Dictionary) -> String:
-	var lines: Array = []
-	var mods: Variant = def.get("mods", {})
-	if mods is Dictionary and not (mods as Dictionary).is_empty():
-		var bits: Array = []
-		for key: String in mods:
-			bits.append("%s +%d" % [str(GameState.STAT_NAMES.get(key, key)), int(mods[key])])
-		lines.append(", ".join(bits))
-	var skills: Variant = def.get("skills", [])
-	if skills is Array:
-		for s: Variant in skills:
-			var sk := Database.get_skill(str(s))
-			lines.append("Nouvelle compétence : %s (%d PM)\n%s" % [str(sk.get("name", s)), int(sk.get("cost", 0)), str(sk.get("desc", ""))])
-	return "\n".join(lines)
 
 
 ## Résumé des deux branches d'un personnage et de ce qu'il y a déjà appris.
@@ -495,90 +479,6 @@ static func _talents_summary(who: String) -> String:
 		if not known.is_empty():
 			lines.append("Appris : " + ", ".join(known))
 	return "\n".join(lines)
-
-
-static func _talent_detail(who: String, branch: Dictionary, def: Dictionary, state: String) -> String:
-	var cost := Rules.talent_cost(def)
-	var lines: Array = [str(def.get("name", ""))]
-	lines.append("Voie : %s   ·   Coût : %s" % [str(branch.get("name", "")), _points(cost)])
-	lines.append("")
-	lines.append(str(def.get("desc", "")))
-	var effects := _talent_effects(def)
-	if effects != "":
-		lines.append("")
-		lines.append(effects)
-	lines.append("")
-	match state:
-		"learned":
-			lines.append("Déjà appris.")
-		"available":
-			lines.append("Entrée : apprendre ce talent.")
-		"locked":
-			var need := Rules.talent_def(who, Rules.talent_requirement(who, str(def.get("id", ""))))
-			lines.append("Il faut d'abord apprendre : %s." % str(need.get("name", "")))
-		_:
-			lines.append("Pas assez de points : il en faut %d. On en gagne un à chaque niveau." % cost)
-	return "\n".join(lines)
-
-
-## L'arbre de talents d'un personnage : ses deux branches l'une sous l'autre.
-func _talents(who: String, from: int, focus: int = 0) -> void:
-	var branches := Rules.branches(who)
-	if branches.is_empty():
-		_say("%s n'a pas de talents à apprendre." % Database.get_character_name(who), false)
-		return
-	var entries: Array = []
-	var points := GameState.talent_points(who)
-	for b: Dictionary in branches:
-		entries.append({
-			"text": "— %s —" % str(b.get("name", "")),
-			"detail": "%s\n\n%s\n\nLes talents d'une voie s'apprennent dans l'ordre. Rien n'empêche de piocher dans les deux." % [str(b.get("name", "")), str(b.get("desc", ""))],
-		})
-		for t: Dictionary in Rules.branch_talents(b):
-			var tid := str(t.get("id", ""))
-			var state := GameState.talent_state(who, tid)
-			var text := "   [%s] %s" % ["x" if state == "learned" else "  ", str(t.get("name", ""))]
-			if state != "learned":
-				text += "   (%s)" % _points(Rules.talent_cost(t))
-			entries.append({
-				"text": text,
-				"detail": _talent_detail(who, b, t, state),
-				"dim": state in ["locked", "poor"],
-				"action": _learn.bind(who, tid, from, entries.size()),
-			})
-	var spent := GameState.talent_points_spent(who)
-	entries.append({
-		"text": "Tout oublier",
-		"detail": "Oublie tous les talents de %s et rend les points dépensés (%d).\n\nC'est gratuit et on peut le refaire autant de fois qu'on veut : aucun choix n'est définitif." % [Database.get_character_name(who), spent],
-		"dim": spent == 0,
-		"action": _forget.bind(who, from, entries.size()),
-	})
-	_page("Talents de %s   ·   %s" % [Database.get_character_name(who), _points(points)], entries, _member.bind(who, from, 1), focus)
-
-
-func _learn(who: String, talent: String, from: int, index: int) -> void:
-	var def := Rules.talent_def(who, talent)
-	match GameState.talent_state(who, talent):
-		"learned":
-			_say("%s connaît déjà ce talent." % Database.get_character_name(who), false)
-		"locked":
-			var need := Rules.talent_def(who, Rules.talent_requirement(who, talent))
-			_say("Il faut d'abord apprendre : %s." % str(need.get("name", "")), false)
-		"available":
-			if GameState.learn_talent(who, talent):
-				_talents(who, from, index)
-				_say("%s apprend : %s." % [Database.get_character_name(who), str(def.get("name", talent))])
-		_:
-			_say("Pas assez de points de talent.", false)
-
-
-func _forget(who: String, from: int, index: int) -> void:
-	var back := GameState.reset_talents(who)
-	if back <= 0:
-		_say("Il n'y a rien à oublier.", false)
-		return
-	_talents(who, from, index)
-	_say("%s oublie tout : %s rendu%s." % [Database.get_character_name(who), _points(back), "s" if back > 1 else ""])
 
 
 func _gear(who: String, from: int, focus: int = 0) -> void:
