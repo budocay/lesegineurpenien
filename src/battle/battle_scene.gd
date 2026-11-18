@@ -119,6 +119,9 @@ func _build_arena(arena: Dictionary) -> void:
 	for l: Variant in arena.get("lights", []):
 		if l is Dictionary:
 			_light(l)
+	for h: Variant in arena.get("halos", []):
+		if h is Dictionary:
+			_halo(h)
 	_stage_light(stage)
 	_stage_vignette(float(stage.get("vignette", 0.45)), stage)
 	var amb := _stage_ambiance(Database.get_ambiance(str(arena.get("ambiance", "crepuscule"))), arena)
@@ -166,6 +169,17 @@ func _ground_material(tile: String, size: Vector2, stage: Dictionary) -> ShaderM
 		m.set_shader_parameter("fleck_a", Database.color(cols[0], Color("#f4f0e0")))
 		m.set_shader_parameter("fleck_b", Database.color(cols[cols.size() - 1], Color("#f2d24a")))
 		m.set_shader_parameter("tuft_color", Database.color(fleck.get("tuft", "#73b150"), Color("#73b150")))
+	var clouds: Dictionary = stage.get("clouds", {})
+	if not clouds.is_empty():
+		m.set_shader_parameter("cloud_amount", float(clouds.get("amount", 0.2)))
+		m.set_shader_parameter("cloud_scale", float(clouds.get("scale", 0.06)))
+	m.set_shader_parameter("dapple_amount", float(stage.get("dapple", 0.0)))
+	m.set_shader_parameter("stone_density", float(stage.get("stones", 0.0)))
+	var blades: Dictionary = stage.get("blades", {})
+	if not blades.is_empty():
+		m.set_shader_parameter("blade_density", float(blades.get("density", 0.1)))
+		m.set_shader_parameter("blade_a", Database.color(blades.get("color", "#d8b84c"), Color("#d8b84c")))
+		m.set_shader_parameter("blade_b", Database.color(blades.get("shade", "#73571f"), Color("#73571f")))
 	m.set_shader_parameter("desat", float(stage.get("desat", 0.0)))
 	m.set_shader_parameter("dim", float(stage.get("dim", 1.0)))
 	var r: Array = stage.get("radius", [12.0, 7.5])
@@ -198,6 +212,8 @@ func _stage_vignette(strength: float, stage: Dictionary = {}) -> void:
 		sm.set_shader_parameter("strength", float(shafts.get("strength", 0.1)))
 		sm.set_shader_parameter("tint", Database.color(shafts.get("color", "#ffe6b0"), Color("#ffe6b0")))
 		sm.set_shader_parameter("slant", float(shafts.get("slant", 0.55)))
+		sm.set_shader_parameter("scale", float(shafts.get("scale", 5.5)))
+		sm.set_shader_parameter("sharp", float(shafts.get("sharp", 0.55)))
 		sr.material = sm
 		layer.add_child(sr)
 		layer.move_child(sr, 0)   # sous la vignette : les coins l'assombrissent aussi
@@ -517,6 +533,48 @@ func _light(l: Dictionary) -> void:
 		lamp.position = Vector3(pos.x, pos.y - 0.2, pos.z - 0.25)
 		lamp.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(lamp)
+
+
+static var _halo_tex: Texture2D = null
+
+
+## Halo d'une source de lumière (lanterne, fenêtre, braise, entrée de mine) : disque lumineux
+## doux, additif, tourné vers la caméra, posé dans le décor (champ « halos » de l'arène :
+## [{"pos": [x, y, z], "color": "#ffcf80", "size": 3.0, "strength": 0.8}]). Il vit au fond ou sur
+## les côtés ; le flou de profondeur l'adoucit encore. Un combattant passe devant, jamais derrière.
+func _halo(h: Dictionary) -> void:
+	if _halo_tex == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.12, 0.35, 0.65, 1.0])
+		g.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0.85), Color(1, 1, 1, 0.4), Color(1, 1, 1, 0.1), Color(1, 1, 1, 0)])
+		var gt := GradientTexture2D.new()
+		gt.gradient = g
+		gt.fill = GradientTexture2D.FILL_RADIAL
+		gt.fill_from = Vector2(0.5, 0.5)
+		gt.fill_to = Vector2(1.0, 0.5)
+		gt.width = 128
+		gt.height = 128
+		_halo_tex = gt
+	var a: Array = h.get("pos", [0, 3, -10])
+	var size := float(h.get("size", 3.0))
+	var quad := MeshInstance3D.new()
+	var mesh := QuadMesh.new()
+	mesh.size = Vector2(size, size)
+	quad.mesh = mesh
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.albedo_texture = _halo_tex
+	mat.albedo_color = Database.color(h.get("color", "#ffcf80"), Color("#ffcf80")) * float(h.get("strength", 0.8)) * 2.0
+	mat.no_depth_test = false
+	mat.disable_receive_shadows = true
+	quad.material_override = mat
+	quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	quad.position = Vector3(float(a[0]), float(a[1]), float(a[2]))
+	quad.name = "Halo"
+	add_child(quad)
 
 
 ## Réglages de lisibilité des combattants (champs « lift » et « rim » de « stage » : voir

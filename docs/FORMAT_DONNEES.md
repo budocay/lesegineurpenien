@@ -112,7 +112,13 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
   `rim` (1 par défaut) : force du liseré clair de leur silhouette (uniform `rim` de
   `sprite.gdshader`) ; `shafts` : `{"color": "#ffe6b0", "strength": 0.08, "slant": 0.55}`,
   larges rayons de lumière obliques posés sur l'image, sous l'interface (`shafts.gdshader`,
-  force 0,12 au plus).
+  force 0,25 au plus ; `scale` : largeur des rayons, `sharp` : netteté des bords, 0,55 par défaut).
+- `halos` (champ de l'arène, hors `stage`) : `[{"pos": [x, y, z], "color": "#ffb060", "size": 3.0,
+  "strength": 0.9}]`, halo flou et additif posé sur chaque source de lumière du décor.
+- `clouds` : `{"amount": 0.14, "scale": 0.07}`, ombres de nuages qui glissent sur le sol ;
+  `dapple` (0 à 1) : ombres de feuillage tachetées ; `stones` : densité de dalles plates ;
+  `blades` : `{"density": 0.3, "color": "#f0dc88", "shade": "#8a6a30"}`, brins d'herbe
+  peints, touffes dorées dans la plaine ; `light` : teinte de la flaque de lumière.
 - `variation` : amplitude des plaques de teinte du sol (0,09 par défaut) ; `tint` : couleur
   qui multiplie tout le sol (teinte du lieu, `#ffffff` par défaut).
 - `patches` : `{"tile": "grass", "amount": 0.3, "tint": "#ffffff"}`, seconde matière par

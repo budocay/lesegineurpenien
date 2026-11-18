@@ -4146,7 +4146,7 @@ func _test_arenas() -> void:
 		var arena: Dictionary = Database.arenas[id]
 		var stage: Dictionary = arena.get("stage", {})
 		for key: String in stage:
-			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck", "dim", "exposure", "saturation", "contrast", "fill", "fill_color", "lift", "rim", "shafts"].has(key), "arène %s : champ stage.%s connu" % [id, key])
+			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck", "clouds", "dapple", "stones", "blades", "dim", "exposure", "saturation", "contrast", "fill", "fill_color", "lift", "rim", "shafts"].has(key), "arène %s : champ stage.%s connu" % [id, key])
 		check(float(stage.get("edge", 0.2)) >= 0.0 and float(stage.get("edge", 0.2)) <= 1.0, "arène %s : bords assombris dans [0, 1]" % id)
 		check(float(stage.get("flatten", 0.6)) >= 0.0 and float(stage.get("flatten", 0.6)) <= 1.0, "arène %s : aplat du sol dans [0, 1]" % id)
 		check(float(stage.get("boost", 0.5)) >= 0.0 and float(stage.get("key", 1.6)) >= 0.0, "arène %s : lumière positive" % id)
@@ -5813,7 +5813,7 @@ func _test_arena_mood() -> void:
 		check(float(radius[0]) >= 8.0 and float(radius[0]) <= 11.0 and float(radius[1]) >= 5.0 and float(radius[1]) <= 7.5, "%s : nappe de lumière (radius) resserrée sur le combat" % t)
 		check(float(st.get("flatten", 0.15)) <= 0.35 and float(st.get("desat", 0.0)) <= 0.2, "%s : le sol garde sa texture et ses couleurs" % t)
 		var shafts: Dictionary = st.get("shafts", {})
-		check(float(shafts.get("strength", 0.0)) <= 0.12, "%s : rayons discrets (shafts)" % t)
+		check(float(shafts.get("strength", 0.0)) <= 0.25, "%s : rayons discrets (shafts)" % t)
 		var bd: Dictionary = a.get("backdrop", {})
 		check(float(bd.get("dim", 0.6)) >= 0.35 and float(bd.get("dim", 0.6)) <= 1.0, "%s : fond (backdrop dim) entre 0,35 et 1" % t)
 		# luminance estimée du sol (couleur moyenne de la tuile, teinte du lieu) : sombre, on compense ; clair, on assombrit
