@@ -787,6 +787,33 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      `Sprites.icon`), bouclier chiffré et faiblesses sous chaque ennemi, moment « Brisé »,
      main qui pointe, portraits et pastilles d'élan sur les fiches, écran de victoire refait.
 
+133. **Combats enchaînés** : `main.start_battle` attend la fermeture complète du combat
+     précédent (drapeau `_battle_running`). Sans cela, deux combats lancés coup sur coup
+     empilaient leurs décors. Trouvé par la relecture des captures.
+134. **Lanterne des Mines** : champ `lantern` des ambiances sombres ; le héros porte une
+     lumière sans ombre, un halo le suit et un liseré le détache. On garde l'obscurité, on
+     voit pour jouer.
+135. **Maisons de village** (`house_builder.gd`, `house_painter.gd`) : chaque maison est
+     tirée de façon stable d'après la carte et son emprise (mur, enduit, toit, lucarnes,
+     enseigne) ; `style: "grobitte"` pour les maisons rondes à toit d'herbe. L'auteur ne veut
+     pas de pack graphique : tout reste peint par code.
+136. **Personnages refondus** : cases de 88×132 (au lieu de 48×72), cinq tons par matière,
+     visages, portraits de 64 px, peintre découpé en `char_kit.gd`, `character_head.gd`,
+     `character_species.gd`. Les planches sont mises en cache dans `user://cache_persos/`
+     car la peinture est trois à quatre fois plus lente.
+137. **Conseils de jeu** (demande de l'auteur : accompagner le joueur) : `data/tutorials.json`,
+     autoload `Tutorial`, quinze conseils montrés une fois au moment utile, rappel de la quête
+     en cours à l'écran, page « Aide » dans la pause, réglage pour les couper ou les revoir.
+     Les anciennes sauvegardes considèrent tous les conseils comme vus.
+138. **Chapitre 5, le Roquefort et l'Isengarde-Manger** : mort de Bromure (un glaçon, au
+     milieu de son discours d'adieu, comme voulu par l'auteur), Ouroukouilles, Cabécou,
+     Bergerie d'Or, Fongorn, retour de Glandoulf, Garde-Manger, Sarumâle. Groupe scindé par
+     les données (`GameState.bench`, actions `groupe:`, `va:`, `equipe:`). Coupés : l'interlude
+     de Lothlorraine et le combat des captifs. La partie passe à `chapitre_6`.
+139. **Dépôt GitHub et Windows** : `origin` = `git@github.com:budocay/lesegineurpenien.git` ;
+     `installer_windows.bat` télécharge Godot 4.7.2 dans `tools/godot` et lance le jeu,
+     `jouer.bat` le relance. Jamais essayé sur un vrai Windows.
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :

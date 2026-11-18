@@ -119,7 +119,19 @@ Références : `docs/BESTIAIRE.md` (créatures et réponses de l'auteur), `docs/
 (arènes prévues), bible (scénario des chapitres 5 à 7). Suite : relecture visuelle, mort de
 Bromure, chapitre 5.
 
+Journée du 18 novembre, suite (décisions 133 à 139) : chapitre 5 jouable (styles de décor
+des cavaliers dans `rider_painter.gd` et `rider_builder.gd`, groupe scindé par
+`GameState.bench`), personnages refondus en cases de 88×132, maisons de village variées
+(`house_builder.gd`), lanterne des Mines, conseils de jeu (`data/tutorials.json`, autoload
+`Tutorial`), dépôt GitHub (`origin`), installation Windows (`installer_windows.bat`). Suite :
+relecture visuelle d'ensemble, relief jouable, chapitres 6 et 7.
+
 ## Pièges connus
+
+- Un agent secondaire peut signer son commit d'un autre nom de modèle : vérifier la ligne
+  `Co-Authored-By` avant chaque fusion.
+- Avant `git worktree add -b`, vérifier que la branche n'existe pas déjà : sinon l'agent
+  travaille dans un vieux dossier resté sur une ancienne version.
 
 - Toute carte où l'on peut se battre déclare son `arena` et figure dans la table `expected`
   de `_test_arena_by_place` ; le sol d'une arène garde `flatten` ≤ 0,35 et `desat` ≤ 0,2.
