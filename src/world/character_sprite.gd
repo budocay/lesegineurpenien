@@ -95,3 +95,48 @@ func _apply() -> void:
 	if flip:
 		rect = Vector4((col + 1) * cw, row * rh, -cw, rh)
 	_quad.set_instance_shader_parameter("frame_rect", rect)
+
+
+## Lumière propre du personnage (ambiances sombres, champ « lantern » de data/ambiances.json) :
+## halo doux au sol, liseré clair sur la silhouette et, si « strong », lanterne qui éclaire les alentours.
+func add_lantern(spec: Dictionary, strong: bool) -> void:
+	var col := Color.from_string(str(spec.get("color", "#ffd9a0")), Color(1.0, 0.85, 0.63))
+	var k := 1.0 if strong else 0.55
+	var halo := MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	var r := float(spec.get("halo", 3.2)) * (1.0 if strong else 0.7)
+	plane.size = Vector2(r, r)
+	halo.mesh = plane
+	var grad := Gradient.new()
+	grad.set_color(0, Color(1, 1, 1, 1))
+	grad.set_color(1, Color(1, 1, 1, 0))
+	grad.set_offset(1, 1.0)
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 64
+	tex.height = 64
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	mat.albedo_color = Color(col.r, col.g, col.b, float(spec.get("halo_alpha", 0.3)) * k)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	halo.material_override = mat
+	halo.position = Vector3(0.0, 0.05, 0.1)
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(halo)
+	if strong:
+		var l := OmniLight3D.new()
+		l.light_color = col
+		l.light_energy = float(spec.get("energy", 1.3))
+		l.omni_range = float(spec.get("range", 7.0))
+		l.omni_attenuation = 1.2
+		l.shadow_enabled = false
+		l.light_volumetric_fog_energy = 0.6
+		l.position = Vector3(0.0, height * 0.75, 0.9)
+		add_child(l)
+	if _quad != null:
+		_quad.set_instance_shader_parameter("rim", float(spec.get("rim", 0.7)) * k)

@@ -233,8 +233,10 @@ static func house(b, o: Dictionary) -> void:
 	var hd := float(r[3])
 	var x1 := x0 + hw
 	var z1 := z0 + hd
-	var wh := float(o.get("height", 3.4))
-	var rh := float(o.get("roof_height", 1.5))
+	# pavillons élancés : murs et toit étirés (`stretch`, 1.22 par défaut), sans toucher à l'emprise
+	var stretch := float(o.get("stretch", 1.22))
+	var wh := float(o.get("height", 3.4)) * stretch
+	var rh := float(o.get("roof_height", 1.5)) * (1.0 + (stretch - 1.0) * 0.8)
 	var door_x := float(o.get("door", hw * 0.5))
 	var windows: Array = o.get("windows", [])
 	var lit := bool(o.get("lit", true))
@@ -359,10 +361,10 @@ static func _column(b, parent: Node3D, base: Vector3, hgt: float, parts: Array =
 	var fluted := MeshKit.pixel_material(Sprites.tile_texture("elf_column"))
 	fluted.uv1_scale = Vector3(1.0, hgt / 2.0, 1.0)
 	var pale := MeshKit.pixel_material(Sprites.tile_texture("elf_stone"))
-	parts.append(_cyl_in(parent, base, 0.27, 0.3, 0.16, pale))
-	parts.append(_cyl_in(parent, base + Vector3(0, 0.16, 0), 0.13, 0.14, hgt - 0.42, fluted))
-	parts.append(_cyl_in(parent, base + Vector3(0, hgt - 0.26, 0), 0.3, 0.14, 0.26, pale))
-	parts.append(_box_in(parent, base + Vector3(0, hgt - 0.04, 0), Vector3(0.62, 0.1, 0.62), pale))
+	parts.append(_cyl_in(parent, base, 0.22, 0.25, 0.16, pale))
+	parts.append(_cyl_in(parent, base + Vector3(0, 0.16, 0), 0.1, 0.115, hgt - 0.42, fluted))
+	parts.append(_cyl_in(parent, base + Vector3(0, hgt - 0.26, 0), 0.25, 0.11, 0.26, pale))
+	parts.append(_box_in(parent, base + Vector3(0, hgt - 0.04, 0), Vector3(0.52, 0.1, 0.52), pale))
 	b.world.circles.append(Vector3(base.x, base.z, 0.24))
 
 

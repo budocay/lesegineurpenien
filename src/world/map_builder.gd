@@ -137,6 +137,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		_build_water()
 	if bool(map.get("interior", false)):
 		_build_interior_walls()
+		if not DwarvenBuilder.is_dwarven(self):
+			_build_interior_apron()
 	else:
 		_build_outskirts()
 	if ElvenBuilder.is_elven(self):
@@ -610,6 +612,56 @@ func _build_interior_walls() -> void:
 	world.add_child(caps)
 
 
+## Prolonge le sol d'une pièce au sud de son bord (reflet du dernier tiers du plancher), assombri
+## peu à peu : la caméra, qui s'arrête à des bornes fixes, ne voit plus jamais de bande noire sous
+## la pièce. Purement décoratif : ni collision ni passage.
+func _build_interior_apron() -> void:
+	# bord sud de la pièce : dernière rangée dont la moitié au moins des cases est du plancher
+	# (les renfoncements de porte dépassent et gardent leur propre sol)
+	var edge := h
+	for ty in range(h - 1, -1, -1):
+		var floor_n := 0
+		for tx in w:
+			if not _flag(_cell(tx, ty), "hole"):
+				floor_n += 1
+		if floor_n * 2 >= w:
+			edge = ty + 1
+			break
+	var depth := 8.0
+	var z0 := float(edge)
+	var z1 := float(h) + depth
+	var v0 := z0 / float(h)
+	var v1 := maxf(0.0, v0 - (z1 - z0) / float(h))
+	var st := MeshKit.begin()
+	MeshKit.quad(st, Vector3(-depth, -0.01, z0), Vector3(w + depth, -0.01, z0), Vector3(w + depth, -0.01, z1), Vector3(-depth, -0.01, z1),
+			Vector2(0.0, v0), Vector2(1.0, v1))
+	var tex: Texture2D = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
+	var floor_node := MeshKit.finish(st, MeshKit.ground_material(tex), false)
+	floor_node.name = "ApronFloor"
+	world.add_child(floor_node)
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.02, 0.015, 0.03, 0.0))
+	grad.set_color(1, Color(0.02, 0.015, 0.03, 1.0))
+	var gt := GradientTexture2D.new()
+	gt.gradient = grad
+	gt.fill_from = Vector2(0.0, 0.0)
+	gt.fill_to = Vector2(0.0, 1.0)
+	gt.width = 4
+	gt.height = 64
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = gt
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var fst := MeshKit.begin()
+	MeshKit.quad(fst, Vector3(-depth, 0.03, z0), Vector3(w + depth, 0.03, z0), Vector3(w + depth, 0.03, z1), Vector3(-depth, 0.03, z1),
+			Vector2(0.0, 0.0), Vector2(1.0, 1.0))
+	var fade := MeshKit.finish(fst, mat, false)
+	fade.name = "ApronFade"
+	fade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world.add_child(fade)
+
+
 ## Vrai si la case d'indice i laisse un vide contre lequel bâtir un mur. Dans le style nain,
 ## l'eau d'un lac souterrain n'en est pas un : on la longe sans mur, le lac s'étend dans le noir.
 func _wall_gap(i: int) -> bool:
@@ -901,17 +953,17 @@ func _house(o: Dictionary) -> void:
 		if bool(o.get("awning", true)) and wh >= 2.9:
 			# auvent de tuiles au-dessus de la porte, sur deux consoles de bois
 			var ast := MeshKit.begin()
-			MeshKit.quad(ast, Vector3(xd - 1.25, 2.58, z1), Vector3(xd + 1.25, 2.58, z1), Vector3(xd + 1.25, 2.24, z1 + 0.55), Vector3(xd - 1.25, 2.24, z1 + 0.55), Vector2.ZERO, Vector2(1.25, 0.35))
+			MeshKit.quad(ast, Vector3(xd - 1.25, 2.78, z1), Vector3(xd + 1.25, 2.78, z1), Vector3(xd + 1.25, 2.44, z1 + 0.5), Vector3(xd - 1.25, 2.44, z1 + 0.5), Vector2.ZERO, Vector2(1.25, 0.35))
 			var awn := MeshKit.finish(ast, MeshKit.pixel_material(Sprites.tile_texture("roof_" + roof)))
 			house.add_child(awn)
-			var awn_parts: Array = [awn, _mesh_box(Vector3(xd, 2.2, z1 + 0.55), Vector3(2.5, 0.07, 0.07), MeshKit.flat_material(Color("#3c281c")), false)]
+			var awn_parts: Array = [awn, _mesh_box(Vector3(xd, 2.4, z1 + 0.5), Vector3(2.5, 0.07, 0.07), MeshKit.flat_material(Color("#3c281c")), false)]
 			for sx: float in [-1.15, 1.15]:
-				awn_parts.append(_mesh_box(Vector3(xd + sx, 2.36, z1 + 0.3), Vector3(0.07, 0.07, 0.5), MeshKit.flat_material(Color("#3c281c")), false))
+				awn_parts.append(_mesh_box(Vector3(xd + sx, 2.56, z1 + 0.27), Vector3(0.07, 0.07, 0.5), MeshKit.flat_material(Color("#3c281c")), false))
 			(world.occluders.back()["nodes"] as Array).append_array(awn_parts)
 		# la lanterne se pose au-dessus de l'arc de la porte (dont le sommet est à 2,1 unités)
 		if wh >= 2.4:
-			_mesh_box(Vector3(xd, wh - 0.3, z1 + 0.1), Vector3(0.2, 0.26, 0.16), MeshKit.flat_material(Color("#ffd28a"), 4.0), false)
-			_mesh_box(Vector3(xd, wh - 0.14, z1 + 0.1), Vector3(0.28, 0.06, 0.24), MeshKit.flat_material(Color("#2f2c38")), false)
+			_mesh_box(Vector3(xd, maxf(wh - 0.3, 3.0), z1 + 0.1), Vector3(0.2, 0.26, 0.16), MeshKit.flat_material(Color("#ffd28a"), 4.0), false)
+			_mesh_box(Vector3(xd, maxf(wh - 0.14, 3.16), z1 + 0.1), Vector3(0.28, 0.06, 0.24), MeshKit.flat_material(Color("#2f2c38")), false)
 		_add_light(Vector3(xd, wh - 0.6, z1 + 0.55), WARM, 1.6, 4.6, true, 0.08)
 		var door_pos := Vector3(xd, 0.0, z1 + 0.35)
 		var to: Variant = o.get("to")
