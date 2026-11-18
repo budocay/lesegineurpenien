@@ -136,6 +136,208 @@ l'auteur peut rayer ce qui ne lui plaît pas.
 - **Épilogue.** De retour à Bittebourg, l'équipe trouve Sarumâle installé à la
   Capitainerie, qui a mis tout le village au travail. Dernière quête avant la sieste.
 
+### Scénario détaillé des chapitres 5 à 7
+
+Proposition à valider par l'auteur, scène par scène. Rien n'est construit. Les créatures citées ont leur fiche dans `docs/BESTIAIRE.md`, les arènes de combat dans `docs/AMBIANCES_COMBAT.md`. Règle de ton rappelée : tous les personnages prennent la situation au sérieux ; le rire vient du double sens, du décalage administratif et de la paresse de Glandoulf.
+
+**Réglages valables pour les trois chapitres.**
+
+- **Quatre combattants au plus** (décision 115). La réserve ne gagne pas d'XP en combat (décision 116) : chaque changement de groupe donne donc une **récompense d'étape** (quête ou scène) qui rattrape les absents, pour que personne ne revienne en retard de niveau.
+- **Changement de groupe.** Le jeu bascule seul à la fin d'une scène-charnière, par un fondu et un carton (« Pendant ce temps, à… »). Le joueur ne choisit pas, sauf aux deux points marqués « au choix » (chapitre 6, la nuit avant la bataille). Aucun groupe ne peut revenir en arrière tant que l'étape n'est pas finie.
+- **Le Raidissement** (proposition). Autour de Sauron, le monde ne se ramollit plus : il se **raidit**. On le note comme un Ramollissement négatif sur la carte (de -0,05 à -0,2) : les coups physiques portent plus fort, des deux côtés. Demande un petit changement de moteur (valeur négative admise). État du Ramollissement donné pour chaque chapitre ci-dessous, sur l'échelle 0 à 0,9 des cartes.
+- **Le titre, en filigrane.** Les jeux de mots sur le titre vivent dans les institutions, les objets et les proverbes, jamais dans la bouche d'un personnage qui rirait. Carnet en fin de section.
+
+---
+
+#### Interlude : la Lothlorraine (entre les chapitres 4 et 5)
+
+Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Bromure est resté au pont, Glandoulf est tombé. Le groupe joue à quatre (au choix du joueur parmi les sept), l'équipe étant en deuil et en désaccord.
+
+- **Lieu.** Bois d'arbres aux feuilles d'or, plateformes rondes en tourtière dans les branches, escaliers en spirale. Style architectural `elfe` doré. Lumière : matin qui ne finit pas. Ambiance de combat `lothlorraine`. Musique : chœur très doux sur harpe.
+- **Scène 1, l'accueil.** Dame Galadrielle les reçoit sur une plateforme. Elle ne dit pas bonjour : « Vous avez perdu quelqu'un, et vous en avez gardé un autre. » Elle regarde l'anneau de Froton sans le toucher.
+- **Scène 2, le Miroir.** Chacun voit ce qu'il ferait de la Vigueur. Sam voit une cuisine sans fin (il détourne les yeux). Merri voit un registre complet, tous les exemplaires signés (il pleure un peu, sérieusement). Aragrogne se voit assis sur un trône, très droit, très seul. Froton y reste trop longtemps : on doit l'arracher du bassin.
+- **Scène 3, le refus.** Froton tend l'anneau. Galadrielle : « Tous me désireraient, et plus personne ne dormirait. » Elle le lui rend et lui offre en échange la **Fiole d'Étoile du Soir**, qui tient sans mèche dans le noir.
+- **Scène 4, le doute.** Au départ, Digoulasse dit tout haut ce que les autres pensent : le magicien n'était peut-être pas tombé, il s'était **écarté**. Personne ne répond. C'est ici que le groupe commence à douter de Glandoulf.
+- **Quête annexe 1, « Le bon pli ».** Les Elfes plient leur linge en un pli unique. Merri doit apprendre le pli. Chute : le seul à y parvenir est Grimli, qui n'a pourtant jamais plié que des cartes de mines.
+- **Quête annexe 2, « Le lembas à emporter ».** Sam doit goûter le pain de voyage elfique sans avoir le droit de le commenter. Chute : il tient quatre minutes.
+- **Quête annexe 3, « Le Miroir des autres ».** Montrer au Miroir un objet qui n'appartient à personne. Il montre le formulaire A-38, vide.
+- **Objets.** Fiole d'Étoile du Soir ; **Manteau Tombant de Lothlorraine** (réduit le Serrage) ; **Corde de Galadrielle** (grappin, +1 esquive).
+- **Dernière image.** Le groupe repart en barques, Froton regarde l'anneau, puis regarde ses mains.
+
+---
+
+### Chapitre 5 : le Roquefort et l'Isengarde-Manger
+
+**Enjeu et thème.** Perdre confiance en celui qui devait guider, puis apprendre qu'il avait tort. Thème : on ne se relève pas seul, mais on ne se relève pas non plus à la place des autres. Le chapitre est le premier où le Ramollissement recule (par le feu des fosses) et où la menace est **dure**.
+
+**Lieux.**
+
+- **Les Chutes du Gratin.** Chute dorée comme une croûte de gratin, rive en galets. Style : aucun. Lumière : couchant. Combat : `chutes_gratin`. Musique : `menace`.
+- **Les plaines du Roquefort.** Herbe haute à épis, meules, brebis, collines à l'infini. Combat : `plaine_roquefort`. Musique : `plaine` (cor, cordes en galop).
+- **Cabécou, la Bergerie d'Or.** Grande salle de bois doré, poteaux sculptés de brebis cabrées. Style `rohan` (nouveau : bois, laiton, toits de chaume). Lumière : jour d'hiver, rais dorés. Combat : `bergerie_or`. Musique : `plaine` en version intérieure.
+- **La forêt de Fongorn.** Arbres géants à visages dans l'écorce. Combat : `fongorn`. Musique : basses de bois.
+- **L'Isengarde-Manger.** Cercle de pierre noire, fosses où lève la pâte, tour de l'Office au centre. Style `isengarde` (nouveau : fonte, tôle, cheminées). Lumière : nuit de forge. Combat : `petrins`, `garde_manger`, `terrasse_office`. Musique : `isengarde` (forge, percussions de tôle).
+
+**Qui joue.** Le chapitre commence **en deux groupes**, avec ce jeu de bascule.
+
+- **Les chasseurs : Aragrogne, Digoulasse, Grimli** (trois combattants) ; Glandoulf les rejoint en scène 7 et fait le quatrième.
+- **Les captifs : Froton, Sam, Merri, Pépin** (quatre combattants).
+- Bascule : fondu et carton après chaque scène-charnière (marquées ◆).
+
+**Scènes.**
+
+1. **Les Chutes du Gratin (captifs, jouable).** Au petit matin, les Ouroukandouilles tendent l'embuscade qu'on attendait depuis le col. Combat du sergent Uglouk. Pépin reconnaît une Louche Blanche sur un plastron : « Signé. » On ne comprend pas encore de qui. Les quatre Grobittes sont pris, le groupe des grands se bat plus loin sans pouvoir les rejoindre. *Chute :* Uglouk exige un reçu de livraison ; Merri le rédige, par réflexe.
+2. ◆ **La plaine, première nuit (chasseurs, jouable).** Aragrogne suit la piste, Digoulasse se plaint qu'elle sent le pain chaud, Grimli compte les traces. Rencontre avec les **Cavaliers du Roquefort**, qui les prennent pour des voleurs de brebis. Éolaine, nièce du roi, les escorte à Cabécou. *Chute :* elle les fouille ; on trouve dans le sac de Grimli un fromage qu'il n'avait pas déclaré.
+3. **Cabécou (chasseurs).** La Bergerie d'Or. Le roi **Théodort** dort sur son trône, veillé par **Grimace Langue-de-Bois**. Combat contre Grimace (boss de parole : lui couper la parole trois fois). Éomèche, banni, rentre avec les siens. Le roi ne se réveille pas pour autant : il lui faut un autre argument. *Chute :* en tombant, Grimace laisse un papier : « Rapport hebdomadaire à l'Ordre des Mages, sans objet. »
+4. ◆ **L'Isengarde-Manger, de l'intérieur (captifs).** Ils sont enfermés au Garde-Manger, cages à jambon, étiquettes « À conserver ». Froton regarde l'anneau de plus en plus souvent. Merri note tout. Sam compte les jours.
+5. **Sarumâle (captifs).** Entrée du Blanc : il ne dit rien de menaçant, il fait un **bilan**. Il révèle ce que le chapitre 3 n'avait dit qu'à moitié : la sieste de Glandoulf au Gué des Poireaux, les trois lettres du Conseil auxquelles il a répondu « tout est en règle », et un **Dossier Glandoulf** sur papier à en-tête de l'Ordre, où figure toute l'affaire. Froton, qui a vu tomber son ami au pont, comprend qu'il lui a fait confiance sans raison.
+6. **Froton Anneauté (captifs, boss).** Froton enfile l'anneau pour sortir de cage. Combat dans la cellule : jauge de Serrage à faire descendre, par les autres. Sam chante la soupe, Merri propose un plan bien ficelé, Pépin sert un antidote maison. À zéro, il lâche l'anneau et tombe à genoux. *Chute :* Sarumâle, qui regardait : « Tout s'est passé conformément au rapport. » Il les remet en cage.
+7. ◆ **Fongorn (chasseurs, Glandoulf revient).** Dans la forêt, un vieillard blanc-cassé s'est assis sur une racine, une pipe éteinte à la bouche. C'est Glandoulf le Blanc-Cassé, déposé par l'Aigle Grosse-Plume (qui lui a fait remplir un formulaire dans la nuit : première apparition du service des colis non réclamés). Il avoue tout aux chasseurs, scène longue, sans excuses ni défense. Aragrogne répond avec ce qu'il savait : « Ma lignée l'a su aussi. » Digoulasse : « Alors on est tous coupables. Ça arrange tout le monde. » Glandoulf rejoint l'équipe et débloque ses deux nouveaux sorts (**Veille de Pierre** et **Vrai Repos**).
+8. **Barbe-Molle (chasseurs).** Les Entremets se réunissent. Il leur faut trois jours pour décider. Le joueur a **une journée** pour les convaincre en leur rapportant trois nouvelles (quête annexe 2). Barbe-Molle se lève : « Nous ne sommes pas pressés. Mais nous avons compris que nous l'étions. » La forêt marche sur l'Isengarde.
+9. ◆ **Le roi (captifs, puis chasseurs).** Pendant ce temps, Merri, relâché pour « mise en forme du dossier », est envoyé à Cabécou porter un message : il prête serment au roi endormi, reçoit le titre d'**Écuyer Tranchant** et lui lit les cartes jusqu'à ce que Théodort rouvre l'œil. *Chute :* sa première phrase est « Qu'est-ce que j'ai manqué ? » ; Merri lui remet le résumé en trois exemplaires.
+10. **La bataille de l'Isengarde (tous).** Les chasseurs, les Entremets et les Cavaliers prennent la forteresse. Le joueur joue la brèche (Glandoulf, Aragrogne, Digoulasse, Grimli), puis le Garde-Manger (Froton, Sam, Pépin et Merri, qui revient). Barbe-Molle inonde les fosses ; la pâte lève trop, les fours s'éteignent.
+11. **Sarumâle, boss.** Sur la terrasse de l'Office. Première phase : robe blanche, *Réunion de service*. Seconde phase après l'inondation : *Heures supplémentaires*, *Dossier Glandoulf* (Glandoulf doit répondre à chaque accusation). Il est vaincu, sa robe est devenue bariolée. Il est condamné par Barbe-Molle à « rester sur place, le temps qu'il faut ».
+
+**Qui rejoint, qui part.** Glandoulf revient (scène 7). Merri quitte le groupe des captifs pour Cabécou (scène 9), puis les rejoint. Bromure est toujours au pont. Tout le monde est réuni à la fin, sauf Éolaine et Éomèche, qui restent chez eux.
+
+**Quêtes annexes.**
+
+- **« Le roi dort mal ».** Réveiller Théodort sans lui parler (il n'écoute plus les mots). Chute : on y parvient avec le bruit d'une brebis qu'on tond.
+- **« Les trois nouvelles des Entremets ».** Rapporter à Barbe-Molle trois nouvelles du monde. Chute : la plus ancienne date de quatre siècles, la plus récente de quarante ans, et Barbe-Molle les trouve « très fraîches ».
+- **« Pas de levain, pas de guerre ».** Sam cuit des Pâtons en brioches pour désarmer la fabrique. Chute : la fabrique, vaincue, offre un four à pain gratuit au village de Cabécou ; la livraison est de quarante brioches « non conformes ».
+
+**Boss et combats notables.** Uglouk et Grichnak (une querelle de cantine contre un service) ; Grimace Langue-de-Bois (parole) ; Froton Anneauté (Serrage) ; Sarumâle (voir la fiche).
+
+**Objets remarquables.** **Louche Blanche** (arme de Glandoulf, foudre) ; **Plume de l'Aigle, Service des colis** ; **Robe Bariolée** (armure légère) ; **Feuillet à Souche** (objet de quête, 3 exemplaires, à rendre).
+
+**État du Ramollissement.** 0,25 dans la plaine, **0** dans l'Isengarde (les fours le chassent). À la fin, la pâte lève trop, on la met dehors ; le Ramollissement revient à 0,25.
+
+**Dernière image.** Les Entremets repartent dans la forêt, très lentement, un par un, en s'enracinant tous les cent pas. Au premier plan, Sarumâle, assis, regarde sa robe.
+
+---
+
+### Chapitre 6 : Minas Tartine
+
+**Enjeu et thème.** Tenir : une cité, une promesse, un règne. Thème : refuser l'anneau ne veut pas dire refuser la fatigue ; on peut régner fatigué. Le Ramollissement est ici surtout un décor ; la menace est un **nombre**.
+
+**Lieux.**
+
+- **Minas Tartine.** Cité blanche en sept niveaux (Croûte, Beurre, Confiture, Miel, Fromage frais, Chantilly, Goûter) adossée au Mont Croûton. Style `gouda` (nouveau : pierre blanche, toits d'ardoise, escaliers). Lumière : aube trouble, fumée. Combat : `minas_remparts`, `minas_rues`, `citadelle`. Musique : `minas` (cuivres blancs, timbales).
+- **Le Sentier des Insomniaques.** Galerie sous le Mont Sans-Sommeil, lits de pierre au mur. Lumière : vert fantôme. Combat : `sentier_insomniaques`. Musique : `eveilles`.
+- **Port-Salé.** Quais de pierre, voiles de torchon noir. Combat : `port_sale`. Musique : `combat` marin.
+- **Les champs du Pelle-à-Tarte.** Herbe foulée, trébuchets en flammes. Combat : `pelle_a_tarte`. Musique : `bataille` (cors, tambour).
+
+**Qui joue.** **Trois groupes** (marqué ◆) puis réunion.
+
+- **La cité : Glandoulf, Froton, Sam, Pépin** (quatre).
+- **Le Sentier : Aragrogne, Digoulasse, Grimli** (trois), puis Merri au port (quatre).
+- **Merri** chevauche avec la cavalerie d'Éolaine et d'Éomèche depuis Cabécou ; il n'est pas jouable avant le port, où il rejoint le Sentier.
+- Réunion en scène 9 : Aragrogne ramène les Éveillés.
+
+**Scènes.**
+
+1. **Les remparts, la première nuit (cité).** Froton, Sam, Glandoulf, Pépin arrivent avec Bromure alité, **Dénigror**, l'Intendant, qui dénigre tout : l'armée venue les sauver, la cuisine, la défaite, la victoire. *Chute :* il dit au premier soldat : « C'est cela, votre aide ? » Le soldat répond : « Oui. »
+2. **Le ravitaillement des remparts (cité, quête).** Sam apprend à faire un pain de siège. Chute : « sans croûte, mais avec principe ».
+3. ◆ **Le Sentier des Insomniaques (Aragrogne, Digoulasse, Grimli).** Aragrogne descend vers l'armée des morts pour la convoquer, seul à pouvoir tenir son regard. Combat des **Éveillés** (quatre rencontres), puis du **Roi des Éveillés**. Aragrogne le vainc par *Par décret : dormez*. Les Éveillés prêtent allégeance à sa lignée.
+4. **La nuit avant la bataille (au choix).** Le joueur choisit : veiller avec Froton sur les remparts, ou suivre Glandoulf. Chacune est une scène facultative : Froton confie à Glandoulf ce qu'il a vu dans l'anneau ; Glandoulf n'explique rien, fait le thé. *Chute :* « C'est trop fort. » « C'est de la camomille. »
+5. ◆ **Port-Salé (Aragrogne, Digoulasse, Grimli, Merri).** Les Boucaniers d'Ombrine arrivent. Aragrogne et les Éveillés prennent leur flotte. Combat du capitaine Saumure. Merri rejoint le groupe.
+6. **La Grande Porte (cité).** La Grondine, les Morfales de siège, Gothmoque. Combat de la Grande Porte. On la tient par cinq manœuvres (huile, échelles, braise, couvercles, soupe).
+7. **Les champs du Pelle-à-Tarte (tous, bascule rapide).** La cavalerie d'Éolaine charge. Mammous et Cassoulétains. Le joueur joue trois combats à la suite sous trois groupes différents.
+8. **Le Dindon de la Farce et le Naze Suprême.** Le Naze Suprême attaque Éolaine. Elle tient seule un tour. Combat : Aragrogne ne peut pas le blesser (« Nul homme du Gouda… »). Merri porte le coup décisif **par-derrière** avec sa dague de poche (coup dans le dos, dégâts énormes). Le Naze Suprême tombe, son petit anneau se fend.
+9. **La couronne.** Aragrogne accepte enfin le trône, paperasse comprise. Dénigror lui tend les formulaires. *Chute :* « Prière de ne pas lire. Signer en bas. »
+
+**Qui rejoint, qui part.** Éolaine et Éomèche rejoignent la bataille en invités. Bromure revient, alité, enfin reposé. Les Éveillés dorment, délivrés. Personne ne quitte l'équipe.
+
+**Quêtes annexes.**
+
+- **« L'Intendant qui dénigre tout ».** Obtenir un compliment de Dénigror. Chute : on y arrive avec un mauvais coup (« Pas si mal, pour un raté »).
+- **« Le ravitaillement des remparts ».** Voir scène 2.
+- **« Le Poirier Blanc ».** Remplacer le tuteur du Poirier Blanc par un nouveau. Chute : le tuteur est le même depuis 1 200 ans, il refuse de partir.
+
+**Boss.** Gothmoque, la Grondine, le capitaine Saumure, le Roi des Éveillés, **le Dindon puis le Naze Suprême**.
+
+**Objets.** **Dague de poche de Merri** (arme, coup dans le dos) ; **Couronne en Remplacement** ; **Tartine Éternelle** (objet de soin) ; **Bonnet de nuit des Éveillés**.
+
+**État du Ramollissement.** 0,2 sur la cité, **0,3** autour de la bataille (les armées piétinent), retombe à 0,1 après la mort du Naze Suprême.
+
+**Dernière image.** Aragrogne, couronne de travers, signe un parchemin à la lumière de l'aube. Au loin, le Mordgras rougeoie.
+
+---
+
+### Chapitre 7 : le Mordgras
+
+**Enjeu et thème.** Savoir s'arrêter. Thème central : la paresse de Glandoulf et l'acharnement de Sauron sont une même maladie. Le Ramollissement s'inverse : on entre dans le **Raidissement**.
+
+**Lieux.**
+
+- **Le Marais du Bouillon d'Onze Heures.** Visages sous l'eau, planches noyées. Combat : `marais_bouillon`. Musique : `marais_morts`.
+- **Le Passe-Plat.** Porte noire à guichet horizontal. Style `mordgras` (nouveau : noir et fonte, grilles). Combat : `passe_plat`. Musique : `mordgras`.
+- **Le col de l'Arachnée.** Toiles, cocons. Combat : `col_arachnee`. Musique : `arachnee`.
+- **La Tour de la Barbaque.** Cuisines, salle du banquet. Combat : `cuisines`, `salle_banquet`. Musique : `cuisines`, `banquet`.
+- **Les Quatre Mille Marches.** Combat : `escalier`. Musique : `escalier`.
+- **Le Grand Four.** Combat : `grand_four`, `arena_oeil`. Musique : `boss`.
+
+**Qui joue.** **Deux groupes** qui se séparent à la Porte Noire.
+
+- **La Compagnie de la Cuisine : Froton, Sam, Merri, Glandoulf** (quatre), Goulûm invité de scène.
+- **L'Armée de l'Ouest : Aragrogne, Digoulasse, Grimli, Pépin** (quatre), qui monte devant la Porte pour tenir le regard de l'Œil.
+- Bascule par ◆ ; le joueur joue la Compagnie jusqu'au col, l'Armée à la Porte, puis alterne.
+
+**Scènes.**
+
+1. **Le Marais (Compagnie).** Goulûm les guide, plus sérieux que jamais. Les visages sous l'eau tendent la main. Règle : ne pas regarder. *Chute :* Merri tient le plan du banquet et compte les planches.
+2. ◆ **Le Passe-Plat (Armée).** Aragrogne parlemente. La **Bouche du Maître** lui propose la carte du jour (trois offres de reddition). Aragrogne refuse trois fois. Combat. Les Ologrills ouvrent. L'Armée tient le regard de l'Œil.
+3. **Le col de l'Arachnée (Compagnie).** Goulûm les trahit : il les lâche dans la toile pour reprendre l'anneau. Combat de l'**Arachnée** : on l'endort avec la berceuse de Sam. Elle s'endort, enfin.
+4. **Les cuisines (Compagnie).** Déguisés en serveurs. Combat des Morfales de cuisine. **Goulûm se sacrifie** pour attraper le plus gros poisson du monde, qui est au menu, et tombe dans la marmite. *Chute :* sa dernière phrase est « Il est à point ».
+5. **Le banquet (Compagnie).** Convives Insatiables, **brigade des Nazes du Service**. On gagne en servant mieux qu'eux (mini-jeu : placement). Merri sort le plan du banquet, que personne n'avait lu : la sortie est derrière le dessert.
+6. ◆ **Les Quatre Mille Marches (Glandoulf puis Froton).** Toutes jouables, en se plaignant à chacune. Glandoulf porte Froton sur la dernière portion. Les Marcheurs Infatigables.
+7. **Au Grand Four.** Sauron offre l'anneau à Glandoulf : ne plus jamais être fatigué. Il refuse. Froton ne parvient pas à lâcher l'anneau, comme Isidur ; Glandoulf fait cette fois les **vingt pas**. Il le tient et le jette.
+8. **Boss final en deux phases.** Le Grand Œil, puis Sauron en pleine Vigueur (voir fiche). La torpeur l'endort à la fin du combat, sans qu'on le tue.
+
+**Qui rejoint, qui part.** Goulûm part. Bromure reste à Minas Tartine. Éolaine et Éomèche ne suivent pas. Aucun nouveau compagnon.
+
+**Quêtes annexes.**
+
+- **« Le plan du banquet ».** Faire lire le plan du banquet à quelqu'un. Chute : personne ne le lit, Merri le lit à voix haute et tout le monde s'endort.
+- **« Les Marcheurs infatigables ».** Faire asseoir quatre Marcheurs. Chute : ils restent assis, et c'est le seul combat où l'on gagne en s'asseyant.
+- **« Le plus gros poisson du monde ».** Pêcher un poisson dans la marmite. Chute : c'est Goulûm.
+
+**Boss.** La Bouche du Maître, l'Arachnée, la brigade des Nazes, le Grand Ologrill, le Grand Œil, Sauron.
+
+**Objets.** **Louche à Glaner** (arme de Sam) ; **Serviette de l'Ordre du Garde-à-Vous** ; **Plan du Banquet** (jamais lu) ; **Anneau Annulaire** (objet unique).
+
+**État du Ramollissement.** **-0,05** au Passe-Plat, **-0,1** aux cuisines, **-0,2** au Grand Four. À la fin, 0,1 partout.
+
+**Dernière image.** Sauron endormi à sa table, le manteau de Glandoulf sur les épaules.
+
+---
+
+### La fin et l'épilogue
+
+Glandoulf jette l'anneau dans le Grand Four. La montagne s'effondre, les Aigles évacuent l'équipe, sans formulaire, enfin remplis cette fois par Merri en avance. Épilogue à Bittebourg : les bittes se redressent, Aragrogne règne en signant, Glandoulf fait sa sieste. Sarumâle, à la Capitainerie, tient le registre des siestes : dernière quête avant le fondu. Après le générique, les neuf petits anneaux roulent hors des décombres.
+
+---
+
+### Carnet de jeux sur le titre
+
+Tous les personnages le prennent au sérieux.
+
+- **L'Annulaire** : doigt du porteur, et nom d'un document de l'Ordre du Garde-à-Vous.
+- **« Au doigt et à l'œil »** : devise du Grand Œil.
+- **L'Alliance** : l'anneau qu'on porte à gauche, et le Conseil qui se réunit.
+- **L'Ordre du Garde-à-Vous** : l'ordre militaire des Mages d'Isengarde.
+- **Proverbes**, dits gravement par des vieillards : « On ne prête qu'aux doigts qui portent », « Rien ne sert de serrer, il faut mollir à point ».
+- **Chants** : l'hymne de Minas Tartine, *Les Sept Étages*.
+
+---
+
+### Écarts et tensions relevés dans cette section
+
+- Le chapitre 4 du texte ci-dessus fait tomber Glandoulf avec le Balourd, alors que « Reprise de l'histoire » dit que Bromure tient seul le pont : on garde les deux (Bromure couvre la retraite, Glandoulf barre le pont ensuite). À raccorder avec l'agent du chapitre 4.
+- Le chapitre 3 a déjà fait avouer à Glandoulf une partie de sa faute ; Sarumâle en révèle ici les **détails** (sieste, trois lettres, Dossier), ce qui garde la scène du chapitre 5.
+- Les quatre Grobittes sont capturés ensemble (la bible a besoin de Froton à l'Isengarde) ; le départ à deux de l'histoire d'origine n'est pas repris.
+- Dialogue du chapitre 3 : Bromure dit « trois mille ans » là où il faut « trois cents ans ».
+
 ## Ajouts
 
 Tout ce qui suit a été inventé pendant la réalisation pour donner corps au jeu. Rien ici
