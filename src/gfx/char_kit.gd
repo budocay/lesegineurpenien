@@ -44,6 +44,7 @@ static var _th := 30.0       # hauteur du torse
 static var _lh := 36.0       # longueur de jambe
 static var _hs := 11.0       # demi-largeur d'épaules
 static var _bulge := 1.0     # ventre
+static var _fk := ""         # expression au repos (champ « face » du look)
 
 
 # ------------------------------------------------------------------ couleurs

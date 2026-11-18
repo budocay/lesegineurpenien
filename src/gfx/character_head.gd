@@ -21,6 +21,7 @@ static func _head_front(look: Dictionary, cx: float, back: bool, item: String) -
 	var skin: Array = _c["skin"]
 	var hat := str(look.get("hat", "none"))
 	var hair_style := str(look.get("hair_style", "court"))
+	_fk = str(look.get("face", ""))
 	if hat == "capuche":
 		_hood_back(cx, hcy, rx, ry, 0)
 	if hair_style == "boucles" or hair_style == "chignon":
@@ -66,12 +67,16 @@ static func _face(look: Dictionary, cx: float, hcy: float) -> void:
 	var old := _elder(look)
 	var cxi := int(cx)
 	var brow_col: Color = (_c["beard"] if old and str(look.get("beard", "none")) != "none" else hr)[1]
+	var heavy := _fk in ["las", "hautain", "sournois", "renfrogne", "bourru"]
 	for s: int in [-1, 1]:
 		var x0 := cxi - 8 if s < 0 else cxi + 4
-		_eye(x0, ey, mood, s, fem, old)
+		_eye(x0, ey, mood, s, fem, old or heavy)
+		if mood == "open" and _fk == "las":
+			_put(x0 + 1, ey + 5, skin[1])
+			_put(x0 + 2, ey + 5, skin[1])
 		# sourcils
 		var by := ey - 3
-		var thick := 2 if old else 1
+		var thick := 2 if (old or _fk == "bourru") else 1
 		match mood:
 			"angry":
 				for i in 5:
@@ -90,6 +95,8 @@ static func _face(look: Dictionary, cx: float, hcy: float) -> void:
 					var lift := 1 if (i == 0 or i == 4) else 0
 					if mood == "closed":
 						lift += 1
+					elif mood == "open" and _fk != "":
+						lift = _brow_dy(i if s < 0 else 4 - i, s)
 					_put(x0 - 1 + i, by + lift, brow_col)
 					if thick == 2:
 						_put(x0 - 1 + i, by + lift + 1, brow_col)
@@ -108,6 +115,29 @@ static func _face(look: Dictionary, cx: float, hcy: float) -> void:
 	if old:
 		_put(cxi - 2, ey + 6, skin[1])
 		_put(cxi + 1, ey + 6, skin[1])
+
+
+## Décalage vertical d'un point du sourcil selon l'expression du personnage.
+## near : 0 (bout extérieur) à 4 (côté du nez) ; s : -1 œil gauche, 1 œil droit, 0 profil.
+static func _brow_dy(near: int, s: int) -> int:
+	match _fk:
+		"las":
+			return (1 if near < 2 else 0) - (1 if near == 4 else 0)   # coins tombants
+		"bonhomme":
+			return 0 if near == 0 or near == 4 else -1                # arqués, hauts
+		"vif":
+			return -1 if near == 0 else (-2 if near == 2 else -1)
+		"renfrogne":
+			return 1 + near / 2                                        # froncés, très bas côté nez
+		"bourru":
+			return 1 + near / 2
+		"hautain":
+			return (-1 if near != 2 else -2) if s >= 0 else near / 3  # un sourcil levé
+		"sournois":
+			return (-1 if near != 2 else -2) if s < 0 else 1 + near / 3
+		"placide":
+			return 0 if near > 0 and near < 4 else 1
+	return 1 if (near == 0 or near == 4) else 0
 
 
 static func _eye(x0: int, ey: int, mood: String, side: int, fem: bool, old: bool) -> void:
@@ -187,7 +217,40 @@ static func _mouth(cx: float, my: float, mode: String, hidden: bool) -> void:
 			_put(x - 4, y, MOUTH)
 			_put(x + 3, y, MOUTH)
 		_:
-			if not hidden:
+			if not hidden and _fk in ["renfrogne", "bourru"]:
+				# bouche tombante
+				for i in 4:
+					_put(x - 2 + i, y + 1, MOUTH)
+				_put(x - 3, y + 2, MOUTH)
+				_put(x + 2, y + 2, MOUTH)
+				_put(x - 1, y + 2, skin[3])
+			elif not hidden and _fk == "las":
+				# bouche plate, un peu de travers
+				for i in 5:
+					_put(x - 2 + i, y + 1, MOUTH)
+				_put(x + 3, y + 2, skin[1])
+				_put(x - 1, y + 2, skin[3])
+			elif not hidden and _fk == "bonhomme":
+				# grand sourire, dents, joues
+				_put(x - 4, y - 1, skin[1])
+				_put(x + 3, y - 1, skin[1])
+				_put(x - 3, y, MOUTH)
+				_put(x + 2, y, MOUTH)
+				for i in 4:
+					_put(x - 2 + i, y, SCLERA)
+					_put(x - 2 + i, y + 1, MOUTH)
+				_put(x - 1, y + 2, skin[3])
+				_put(x, y + 2, skin[3])
+			elif not hidden and (_fk == "hautain" or _fk == "sournois"):
+				# sourire en coin
+				_put(x - 2, y + 1, MOUTH)
+				_put(x - 1, y + 1, MOUTH)
+				_put(x, y + 1, MOUTH)
+				_put(x + 1, y, MOUTH)
+				_put(x + 2, y, skin[1])
+				_put(x - 3, y + 1, skin[1])
+				_put(x, y + 2, skin[3])
+			elif not hidden:
 				_put(x - 3, y - 1, skin[1])
 				_put(x - 2, y, MOUTH)
 				_put(x - 1, y + 1, MOUTH)
@@ -208,12 +271,19 @@ static func _fringe(style: String, dx: float, hcy: float, rx: float, ry: float, 
 	var base := hcy - ry * 0.32
 	var adx := absf(dx)
 	if view == 2:
-		return hcy + ry + 16.0 if style == "long" else hcy + ry * 0.6
+		if style == "long":
+			return hcy + ry + 16.0
+		var u := adx / (rx + 2.4)
+		return hcy + ry + 2.0 - u * u * ry * 1.6     # nuque arrondie, pas une barre
 	if view == 1:
-		if dx < -rx * 0.28:
+		if dx < -rx * 0.3:
 			var jag := 1.5 if posmod(int(floor(dx / 3.0)), 2) == 0 and style == "court" else 0.0
 			return base + 1.0 + jag + (1.0 if style == "chignon" else 0.0)
-		return hcy + ry + 16.0 if style == "long" else hcy + ry * 0.6
+		if dx < rx * 0.5:
+			# tempe : la ligne des cheveux descend jusqu'au-dessus de l'oreille, qui reste dégagée
+			var t := clampf((dx + rx * 0.3) / (rx * 0.8), 0.0, 1.0)
+			return lerpf(base + 1.5, hcy - 1.2, t)
+		return hcy + ry + 16.0 if style == "long" else hcy + ry * 0.78
 	if adx > rx * 0.84:
 		return hcy + ry * 0.45
 	match style:
@@ -257,8 +327,6 @@ static func _hair(hx: float, hcy: float, rx: float, ry: float, style: String, vi
 			var lim := _fringe(style, dx, hcy, rx, ry, view)
 			if y + 0.5 > lim:
 				continue
-			if view == 2 and style != "long" and y + 0.5 > hcy + ry * 0.6:
-				continue
 			var tone := _tone(nx, ny * 0.9, 0.0)
 			# mèches : bandes sombres et reflets en diagonale
 			var q := fposmod(dx * 0.9 + (y - hcy) * 0.7, 6.5)
@@ -301,15 +369,28 @@ static func _hair_back(hx: float, hcy: float, rx: float, ry: float, view: int, s
 	var hr: Array = _c["hair"]
 	if view == 1:
 		_ell(hx + 3.0, hcy, rx + 3.0, ry + 2.5, hr, -0.3)
-		_poly([Vector2(hx + 2.0, hcy - 2.0), Vector2(hx + rx + 5.0, hcy + 2.0), Vector2(hx + rx + 7.0 + sway, hcy + ry + 10.0),
-			Vector2(hx + rx + 3.0 + sway, hcy + ry + 21.0), Vector2(hx + 6.0 + sway, hcy + ry + 24.0), Vector2(hx - 2.0, hcy + ry + 12.0)], hr, -0.3)
+		_poly([Vector2(hx + 2.0, hcy - 2.0), Vector2(hx + rx + 5.0, hcy + 2.0), Vector2(hx + rx + 7.0 + sway, hcy + ry + 8.0),
+			Vector2(hx + rx + 5.0 + sway, hcy + ry + 14.0), Vector2(hx + 4.0 + sway, hcy + ry + 15.0), Vector2(hx - 2.0, hcy + ry + 9.0)], hr, -0.3)
+		# mèches effilées qui suivent le pas
+		for k in 3:
+			var lx := hx + 5.0 + float(k) * 4.4
+			var ln := 22.0 - float(k % 2) * 4.0 + float(k) * 0.8
+			_bend(Vector2(lx, hcy + ry + 10.0), Vector2(lx + 1.0 + sway * 0.4, hcy + ry + 10.0 + ln * 0.5),
+				Vector2(lx + 0.5 + sway * 0.9, hcy + ry + 10.0 + ln), 2.6, 0.5, hr, -0.25, 8)
 		for k in 4:
-			var lx := hx + 6.0 + float(k) * 3.4
-			_line(lx, hcy + 6.0, lx + 1.0 + sway * 0.5, hcy + ry + 18.0, hr[1])
+			var lx2 := hx + 6.0 + float(k) * 3.4
+			_line(lx2, hcy + 4.0, lx2 + 1.0 + sway * 0.5, hcy + ry + 15.0, hr[1])
+		_line(hx + rx + 1.0, hcy + 1.0, hx + rx + 4.0 + sway * 0.5, hcy + ry + 14.0, hr[3])
 		return
 	_ell(hx, hcy, rx + 3.0, ry + 2.5, hr, -0.3)
-	_trap(hcy, hcy + ry + 17.0, hx - rx - 3.0, hx + rx + 3.0, hx - rx - 4.5, hx + rx + 4.5, hr, -0.3,
-		[Vector2(0.28, 0.2), Vector2(0.5, 0.3), Vector2(0.74, 0.25)], true, sway)
+	_trap(hcy, hcy + ry + 14.0, hx - rx - 3.0, hx + rx + 3.0, hx - rx - 4.5, hx + rx + 4.5, hr, -0.3,
+		[Vector2(0.28, 0.2), Vector2(0.5, 0.3), Vector2(0.74, 0.25)], false, sway)
+	# mèches effilées de longueurs inégales, qui se chevauchent
+	for k in 5:
+		var lx := hx - rx - 1.5 + float(k) * (rx * 2.0 + 3.0) / 4.0
+		var ln := 7.0 - float(k % 2) * 3.0 + (2.0 if k == 2 else 0.0)
+		_bend(Vector2(lx, hcy + ry + 11.0), Vector2(lx + sway * 0.3, hcy + ry + 11.0 + ln * 0.5),
+			Vector2(lx + sway * 0.8, hcy + ry + 11.0 + ln), 4.6, 0.8, hr, -0.3, 8)
 
 
 ## Volume derrière le crâne : boucles ou chignon.
@@ -406,13 +487,17 @@ static func _beard_side(look: Dictionary, hx: float, hcy: float, rx: float, ry: 
 				tone = maxi(tone - 1, 0)
 			_put(x, y, br[tone])
 	if kind == "longue":
-		var y0 := hcy + ry - 3.0
+		# la barbe s'avance sous le menton, s'étire sur la poitrine et finit en pointe
+		var y0 := hcy + ry - 3.5
 		var len_b := _th * 0.78
-		_poly([Vector2(hx - rx + 1.0, y0), Vector2(hx + 2.0, y0), Vector2(hx + 1.5, y0 + 12.0),
-			Vector2(hx - 2.0, y0 + len_b - 2.0), Vector2(hx - rx + 4.5, y0 + len_b), Vector2(hx - rx + 1.0, y0 + 10.0)], br, 0.0)
-		for k in 3:
-			var lx := hx - rx + 4.0 + float(k) * 4.0
-			_line(lx, y0 + 6.0, lx - 1.0, y0 + len_b * 0.8, br[1])
+		_poly([Vector2(hx - rx * 0.95, y0 - 1.0), Vector2(hx + rx * 0.12, y0 - 3.0), Vector2(hx + rx * 0.38, y0 + 8.0),
+			Vector2(hx + 1.5, y0 + len_b * 0.72), Vector2(hx - rx * 0.28, y0 + len_b), Vector2(hx - rx * 0.78, y0 + len_b * 0.6),
+			Vector2(hx - rx * 1.08, y0 + 5.5)], br, 0.0)
+		for k in 4:
+			var lx := hx - rx * 0.72 + float(k) * 3.6
+			_line(lx, y0 + 4.0, lerpf(lx, hx - rx * 0.28, 0.6), y0 + len_b * (0.7 + 0.06 * float(k % 2)), br[1])
+		_line(hx - rx * 1.0, y0 + 5.5, hx - rx * 0.76, y0 + len_b * 0.55, br[4])
+		_cap(hx - rx * 0.28, y0 + len_b - 4.0, hx - rx * 0.22, y0 + len_b + 1.5, 1.6, 0.5, br)
 
 
 # --------------------------------------------------------------------- chapeaux

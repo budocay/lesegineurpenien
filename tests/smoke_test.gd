@@ -2363,7 +2363,23 @@ func _test_character_art() -> void:
 		var left := img.get_region(Rect2i(0, 132, 88, 132))
 		left.flip_x()
 		check(left.get_data() != img.get_region(Rect2i(0, 264, 88, 132)).get_data(), "planche de %s : ligne droite éclairée à part" % id)
+		# la marche a quatre images distinctes dans chaque direction (rien ne « saute » ni ne fige)
+		for row in 4:
+			var walk := {}
+			for col in [3, 4, 5, 6]:
+				walk[img.get_region(Rect2i(col * 88, row * 132, 88, 132)).get_data()] = true
+			check(walk.size() == 4, "planche de %s : marche à quatre poses distinctes (ligne %d)" % [id, row])
+		# profils : une vraie silhouette de profil, différente de la face
+		for row in [1, 2]:
+			check(img.get_region(Rect2i(0, row * 132, 88, 132)).get_data() != img.get_region(Rect2i(0, 0, 88, 132)).get_data(), "planche de %s : le profil (ligne %d) diffère de la face" % [id, row])
 		check(Sprites.portrait(id).get_width() == 64, "portrait de %s : 64 pixels" % id)
+	# chaque héros a son expression au repos (champ « face » du look)
+	var faces := {}
+	for hero: String in ["glandoulf", "sam", "froton", "pepin", "merri", "aragrogne", "digoulasse", "grimli"]:
+		var f := str(Database.characters[hero]["look"].get("face", ""))
+		check(f != "", "%s : expression au repos définie" % hero)
+		faces[f] = true
+	check(faces.size() == 8, "les huit héros ont chacun une expression différente")
 
 
 ## Décors, façades et arènes : paroi irrégulière, éléments connus, rien de magenta.
