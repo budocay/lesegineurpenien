@@ -780,3 +780,57 @@ tombé ; tout le chapitre repose sur un groupe qui se scinde (`groupe:`, voir `F
   (les cisailles de tonte jouées au chevet du roi endormi, avant que Merri ne le réveille pour
   de bon), « Les trois nouvelles des Entremets » et « Pas de levain, pas de guerre » (brioches
   non conformes à rendre à la boulangère).
+
+### Raccords (18 novembre 2026)
+
+Passe de correction après la construction en parallèle des chapitres 1 à 5 et les décisions de
+l'auteur arrivées entre-temps. Aucun identifiant n'a changé : seuls des textes affichés.
+
+- **Gobelins : les Gobelardons.** Gobe-Lard devient « Gobelardon fumé », Gobe-Pic « Gobelardon
+  piqueur », Gobe-Gras « Gros Gobelardon, contremaître » ; le camp, les panneaux, la quête de
+  Rondin et les adieux de Bromure disent « Gobelardons ». Les grands orques étaient déjà des
+  Ouroukouilles.
+- **Chronologie.** L'Alliance et la chute de Sauron datent de **trois cents ans** : le dialogue du
+  Conseil (« Pendant trois cents ans, tous les peuples ont cru… ») et le procès-verbal gardé aux
+  Archives suivent. Le Conseil nomme maintenant le bon lieu : l'anneau ne se détruit que dans le
+  Grand Four de la Montagne du Festin, au Mordgras, par la route des Mines de Morbier (il y avait
+  une « faille de la Montagne de Morbier » qui n'existe pas dans la bible).
+- **Bromure, du chapitre 4 au chapitre 5.** Il tente de prendre l'anneau **au bord du lac de
+  Maroilles** (et non devant le Conseil), renonce, puis tient le bout du pont, de l'autre côté de
+  la brèche. À la sortie des Mines, Aragrogne et Sam s'aperçoivent qu'il n'est pas sorti avec eux
+  (« Il tient. C'est ce qu'il sait faire »). Au chapitre 5 il revient « par en dessous » ; ses
+  adieux ne citent plus les Ouroukouilles, qu'il n'a pas encore croisées, mais le Guetteur du lac,
+  les Gobelardons et le Balourd ; Pépin, qui a entendu tirer avant le lac, parle de tirs
+  « derrière toi » plutôt que sur lui.
+- **Coupes du chapitre 5.** L'interlude de la Lothlorraine n'est plus renvoyé que par le panneau
+  des Portes de l'Est ; Sam y ajoute une phrase de liaison (« La Dame de la forêt dort… Par la
+  plaine »). Aucun texte ne parle plus de Galadrielle, de Grichnak ni du combat des captifs.
+- **Jeux sur le titre (chapitres 1 à 3).** Une trentaine d'ajouts, sans rien changer au déroulé :
+  - Mémé Louchette : « un anneau de volonté, disent les érudits, mais personne ne leur a jamais
+    demandé où cela se porte ».
+  - Odilon : « Moi, j'ai toujours fait les deux, et personne ne s'est jamais plaint de mes
+    dimensions. »
+  - Capitainerie : « Les réclamations déposées couchées sont classées sans suite, et sans entrain. »
+  - Brie : « Les voyageurs sont priés de déposer leurs anneaux à la consigne : ils y seront gardés,
+    tant qu'ils ne serrent pas. »
+  - Chancellerie : « Les demandes d'annulation se déposent au guichet de l'Annulaire, de 10 h à
+    10 h 05. »
+  - Conseil : ordre du jour « Quatre : définition du mot “serrer”, en séance restreinte » ; le
+    porteur « sera tenu de le porter en toutes circonstances, y compris celles où il préférerait
+    ne pas » ; « Pour demander la parole, lever le doigt : un seul, le règlement précise lequel. »
+  - Archives : « Rayon des anneaux, bagues et alliances : tout en haut, sur la pointe des pieds. »
+  - Fondue-Combe : « Les porteurs de bâton sont priés de le tenir baissé en ville. »
+  - Objets : Nœud de cabestan (« Plus il serre, mieux il tient »), Anneau de braise (« le doigt des
+    engagements »), Pipe en bruyère (« Pépin affirme que c'est tout l'art »), Tampon officiel
+    (« l'enfoncer bien droit, jusqu'à la garde »), Médaille d'assiduité (« décernée par l'Ordre du
+    Garde-à-Vous »), Racine-qui-réveille (« Le reste se dresse tout seul »), Petit remontant (« remet
+    d'aplomb ce qui s'était couché »), Procès-verbal de l'Alliance (« Alliance conclue. Anneau
+    gardé. À surveiller de près. »).
+  - Compétences : Coup de tonnerre (« Glandoulf dresse son bâton, ce qui est son seul effort de la
+    journée »), Taille royale (« toute la longueur de la lignée d'Isidur »), Botte secrète (« qu'on
+    sent longtemps »), Chandelle romaine (« se dresse, éclate et laisse l'assistance sans voix »),
+    Ordre bref (« Bref mais efficace »), Soupir (« l'adversaire se sent soudain bien petit »).
+- **Équilibre.** Le Gros Bleu, le Gardien des Archives, Chantecler, le Vacherin, Goulûm et
+  Sarumâle ont été resserrés ; les chiffres avant et après sont dans le compte rendu du chantier.
+  `GLAN_ONLY_MEASURE=1` (voir `tests/smoke_test.gd`) imprime le tableau de tous les combats
+  obligatoires.

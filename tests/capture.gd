@@ -402,8 +402,7 @@ func _dwarven_arenas(bosses: bool) -> void:
 		await _frames(50)
 		await _shot("%d_arene_%s" % [n, str(c[0])])
 		n += 1
-		(main.battle_ui._root_list.get_child(4) as Button).pressed.emit()
-		await _until_end()
+		await _flee()
 		main.battle_ui._on_end("ok")
 		await _frames(120)
 
@@ -516,8 +515,7 @@ func _rider_arenas(bosses: bool) -> void:
 		await _frames(50)
 		await _shot("%d_arene_%s" % [n, str(c[0])])
 		n += 1
-		(main.battle_ui._root_list.get_child(4) as Button).pressed.emit()
-		await _until_end()
+		await _flee()
 		main.battle_ui._on_end("ok")
 		await _frames(120)
 
@@ -560,6 +558,19 @@ func _until_menu() -> void:
 			else:
 				main.dialogue._advance()
 	print("  ATTENTION : le menu de combat n'est jamais apparu")
+
+
+## Quitte le combat par la fuite. Elle réussit trois fois sur quatre : à chaque échec le menu revient
+## (c'était la cause des « ATTENTION : le combat ne s'est pas terminé » : le script attendait sans rien rejouer).
+func _flee() -> void:
+	for _i in 12000:
+		if main.battle == null or main.battle_ui._end_layer.visible:
+			return
+		if main.battle_ui._state == main.battle_ui.S.ROOT:
+			(main.battle_ui._root_list.get_child(4) as Button).pressed.emit()
+			await _frames(10)
+		await get_tree().process_frame
+	print("  ATTENTION : la fuite n'a pas abouti")
 
 
 ## Attend l'écran de fin de combat (victoire ou défaite).

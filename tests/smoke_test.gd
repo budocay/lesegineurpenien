@@ -1138,7 +1138,7 @@ func _measure_forced() -> void:
 				GameState.party = []
 				for id: String in case[1]:
 					GameState.add_to_party(id)
-					GameState.member(id)["level"] = int(case[2])
+					GameState.member(id)["level"] = int(OS.get_environment("GLAN_LEVEL")) if OS.has_environment("GLAN_LEVEL") else int(case[2])
 					if talents >= 0:
 						_spend(id, talents)
 				GameState.heal_party()
@@ -3454,7 +3454,7 @@ func _test_chapter_3() -> void:
 	check(GameState.has_flag("chapitre_2_fini") and GameState.chapter == "chapitre_3", "reprise à la fin du chapitre 2")
 	check(GameState.party.has("merri") and GameState.party.size() == 6, "six compagnons au départ (%d)" % GameState.party.size())
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 14   # déroulé, pas équilibre : au-dessus du niveau attendu
+		GameState.member(who)["level"] = 30   # déroulé, pas équilibre : très au-dessus du niveau attendu (à 14 le Gardien se gagne à 97 %)
 	GameState.heal_party()
 	var to_col := false
 	for wp: Dictionary in main.world.warps:
@@ -3551,7 +3551,7 @@ func _test_chapter_3() -> void:
 	await _wait_idle(main)
 	check(GameState.item_count("tampon_officiel") == 4, "quatrième tampon, aux Archives")
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 16
+		GameState.member(who)["level"] = 30   # très au-dessus du niveau attendu : le déroulé ne dépend pas du hasard
 	GameState.heal_party()
 	main.run_dialogue("gardien_archives")
 	await _wait_idle(main, 200.0)
@@ -3631,7 +3631,7 @@ func _test_chapter_4() -> void:
 	check(GameState.has_flag("chapitre_3_fini") and GameState.chapter == "chapitre_4", "reprise à la fin du chapitre 3 (%s)" % GameState.chapter)
 	check(GameState.party.has("glandoulf") and GameState.party.has("grimli") and GameState.party.size() == 8, "huit compagnons au départ (%d)" % GameState.party.size())
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 16   # déroulé, pas équilibre : au-dessus du niveau attendu
+		GameState.member(who)["level"] = 30   # déroulé, pas équilibre : très au-dessus du niveau attendu (à 16 un combat se perdait une fois sur dix)
 	GameState.heal_party()
 
 	# Fondue-Combe mène à la porte de Morbier une fois le chapitre 3 fini
@@ -3715,7 +3715,7 @@ func _test_chapter_4() -> void:
 	main.change_map("morbier_antre", "entree")
 	await _wait_idle(main)
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 24   # le duel de devinettes puis le combat : au-dessus du niveau attendu
+		GameState.member(who)["level"] = 30   # le duel de devinettes puis le combat : très au-dessus du niveau attendu
 	GameState.heal_party()
 	await _c4_say(main, "goulum_duel", [0, 0, 0], 300.0)
 	check(GameState.has_flag("goulum_rencontre") and GameState.has_flag("devinette_1") and GameState.has_flag("devinette_2"), "deux devinettes sur trois résolues")
@@ -3729,7 +3729,7 @@ func _test_chapter_4() -> void:
 	await _wait_idle(main)
 	check(not _c4_has_warp(main, "portes_est"), "la sortie est est coupée avant le Balourd")
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 24
+		GameState.member(who)["level"] = 30
 	GameState.heal_party()
 	await _c4_say(main, "balourd_pont", [], 300.0)
 	check(GameState.has_flag("combat_balourd") and GameState.has_flag("glandoulf_tombe"), "le Balourd est tombé, Glandoulf avec lui")
