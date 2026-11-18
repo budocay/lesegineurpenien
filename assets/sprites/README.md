@@ -21,7 +21,7 @@ ici peut être plus simple.
 
 Format par défaut d'une planche déposée, 128 × 192 pixels :
 
-- cases de **32 × 48 pixels** ;
+- cases de **48 × 72 pixels** (taille des planches peintes par code ; avec une planche à vous, réglez `pixels_per_unit`) ;
 - **4 colonnes**, dans cet ordre : immobile, premier pas, passage (jambes réunies),
   second pas ;
 - **4 lignes**, dans cet ordre : vers le bas (face), vers la gauche, vers la droite, vers
