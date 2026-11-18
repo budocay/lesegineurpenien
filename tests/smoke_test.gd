@@ -14,6 +14,9 @@ const BattleUI = preload("res://src/battle/battle_ui.gd")
 const Rules = preload("res://src/battle/rules.gd")
 const MonsterPainter = preload("res://src/gfx/monster_painter.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
+const TitleScreen = preload("res://src/ui/title_screen.gd")
+const PauseMenu = preload("res://src/ui/pause_menu.gd")
+const Hud = preload("res://src/ui/hud.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const BattleFx = preload("res://src/battle/battle_fx.gd")
 const FxPainter = preload("res://src/gfx/fx_painter.gd")
@@ -59,6 +62,7 @@ func _ready() -> void:
 	_test_chapter_2_data()
 	await _test_saves()
 	_test_names_and_merri()
+	await _test_interface()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2878,3 +2882,148 @@ func _test_names_and_merri() -> void:
 		check(rate >= float(case[4]), "%s : %d %% de victoires (attendu : au moins %d %%)" % [str(case[0]), int(rate * 100.0), int(float(case[4]) * 100.0)])
 		print("  %-40s %3d %% de victoires" % [str(case[0]), int(rate * 100.0)])
 	GameState.new_game()
+
+
+# ---------------------------------------------------------------- interface
+
+## Tout le texte et les contrôles visibles d'un écran tiennent dans la fenêtre.
+func _ui_inside(root: Control, what: String) -> void:
+	var view := get_viewport().get_visible_rect().grow(2.0)
+	var bad := 0
+	for n: Node in root.find_children("*", "Control", true, false):
+		var c := n as Control
+		if not c.is_visible_in_tree() or c.size.x <= 0.0 or c.size.y <= 0.0:
+			continue
+		var clipped := false
+		var up: Node = c.get_parent()
+		while up != null and up != root:
+			if up is ScrollContainer:
+				clipped = true
+			up = up.get_parent()
+		if clipped:
+			continue
+		if not view.encloses(c.get_global_rect()):
+			bad += 1
+			if bad <= 3:
+				print("    hors écran (%s) : %s %s" % [what, c.get_class(), c.get_global_rect()])
+	check(bad == 0, "interface : %s tient dans la fenêtre" % what)
+
+
+func _ui_focus_in(root: Control, what: String) -> void:
+	var owner := get_viewport().gui_get_focus_owner()
+	check(owner != null and root.is_ancestor_of(owner), "interface : %s a un focus visible" % what)
+
+
+func _test_interface() -> void:
+	print("== Interface : chaque écran se construit, tient dans la fenêtre et rend le focus ==")
+	GameState.new_game()
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var wait := func() -> void:
+		await get_tree().create_timer(0.35).timeout
+
+	# titre
+	var title: Control = TitleScreen.new()
+	layer.add_child(title)
+	await get_tree().process_frame
+	title.open()
+	await wait.call()
+	_ui_inside(title, "écran-titre")
+	_ui_focus_in(title, "écran-titre")
+	var extra: Button = title.add_entry("Paramètres", func() -> void: pass)
+	check(extra != null and extra.get_index() < title._quit.get_index(), "interface : le titre accueille une entrée Paramètres avant Quitter")
+	extra.queue_free()
+	title.close()
+
+	# pause : le focus revient où il était après un sous-écran
+	var pause: Control = PauseMenu.new()
+	layer.add_child(pause)
+	await get_tree().process_frame
+	pause.open("Un lieu   ·   0h01 de jeu   ·   80 écus\nUne équipe de test\nPlusieurs lignes d'information")
+	await wait.call()
+	_ui_inside(pause, "pause")
+	_ui_focus_in(pause, "pause")
+	var second: Button = pause._list.get_child(3)
+	second.grab_focus()
+	second.pressed.emit()
+	pause.close(true)
+	await get_tree().process_frame
+	pause.open("autre")
+	await get_tree().process_frame
+	check(get_viewport().gui_get_focus_owner() == second, "interface : la pause rend le focus à la ligne d'où l'on revient")
+	var extra_pause: Button = pause.add_entry("Paramètres", func() -> void: pass)
+	check(extra_pause.get_index() == pause._list.get_child_count() - 3, "interface : la pause accueille une entrée Paramètres avant le retour au titre")
+	extra_pause.queue_free()
+	pause.close(true)
+
+	# titre de lieu, bulle d'interaction et message : jamais l'un sur l'autre
+	var hud: Control = Hud.new()
+	layer.add_child(hud)
+	await get_tree().process_frame
+	hud.banner("Un lieu au nom assez long", "Un sous-titre tout aussi long, pour voir comment il se range sur deux lignes si besoin")
+	hud.toast("Nouvelle quête : un intitulé de quête plutôt long, lui aussi")
+	await get_tree().create_timer(1.3).timeout
+	hud.show_prompt("Approcher", Vector2(640, 120))
+	_ui_inside(hud, "interface en jeu")
+	var banner_rect: Rect2 = hud._banner_rect()
+	check(banner_rect.size != Vector2.ZERO, "interface : le titre de lieu est affiché")
+	check(not Rect2(hud._prompt.position, hud._prompt.size).intersects(banner_rect), "interface : la bulle d'interaction ne chevauche pas le titre de lieu")
+	check(not Rect2(hud._toast.position, hud._toast.size).intersects(banner_rect), "interface : le message de quête ne chevauche pas le titre de lieu")
+	hud.clear()
+
+	# dialogue : texte long et choix
+	var who := str(GameState.party[0])
+	Database.dialogues["_test_interface"] = [
+		{"who": who, "text": "Un très long discours, pour vérifier que la boîte de dialogue ne laisse rien déborder de son bandeau : " + "il faut beaucoup de mots pour remplir les lignes pleines de texte, jusqu'à la limite des plus longues répliques du jeu.", "choice": [{"text": "Oui, bien sûr", "then": []}, {"text": "Non, certainement pas", "then": []}]},
+	]
+	var box: Control = DialogueBox.new()
+	layer.add_child(box)
+	await get_tree().process_frame
+	box.start("_test_interface")
+	await get_tree().create_timer(0.4).timeout
+	box._finish_typing()
+	await wait.call()
+	check(box._text.get_content_height() <= box._text.size.y + 2.0, "interface : le texte du dialogue tient dans le bandeau")
+	_ui_inside(box, "dialogue")
+	_ui_focus_in(box, "dialogue (choix)")
+	box.abort()
+	Database.dialogues.erase("_test_interface")
+
+	# menus à liste
+	var menu: Control = GameMenu.new()
+	layer.add_child(menu)
+	await get_tree().process_frame
+	GameState.add_item("tisane")
+	for which: String in ["team", "inventory", "quests"]:
+		menu.open(which)
+		await wait.call()
+		_ui_inside(menu, "menu " + which)
+		_ui_focus_in(menu, "menu " + which)
+		menu.close(true)
+	if not Database.shops.is_empty():
+		menu.open_shop(str(Database.shops.keys()[0]))
+		await wait.call()
+		_ui_inside(menu, "boutique")
+		_ui_focus_in(menu, "boutique")
+		menu.close(true)
+
+	# talents
+	var talents: Control = TalentScreen.new()
+	layer.add_child(talents)
+	await get_tree().process_frame
+	talents.open()
+	await wait.call()
+	_ui_inside(talents, "talents")
+	_ui_focus_in(talents, "talents")
+	talents.close(true)
+
+	# sauvegardes
+	var saves: Control = load("res://src/ui/save_screen.gd").new()
+	layer.add_child(saves)
+	await get_tree().process_frame
+	for mode: String in ["save", "load"]:
+		saves.open(mode, "test")
+		await wait.call()
+		_ui_inside(saves, "sauvegardes (%s)" % mode)
+		saves.close("", true)
+	layer.queue_free()

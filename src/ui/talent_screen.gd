@@ -9,9 +9,9 @@ signal closed
 const UI = preload("res://src/ui/ui_kit.gd")
 const Rules = preload("res://src/battle/rules.gd")
 
-const LEARNED := Color("#e2c27c")
+const LEARNED := Color("#e6c98a")
 const OPEN := Color("#bfe8ff")
-const SHUT := Color(0.5, 0.48, 0.52, 0.8)
+const SHUT := Color(0.5, 0.48, 0.52, 0.7)
 
 var who := ""                    # personnage affiché
 var _points: Label
@@ -21,6 +21,7 @@ var _detail: Label
 var _status: Label                   # ce qu'on peut faire du talent sous le curseur
 var _message: Label
 var _forget: Button
+var _panel: PanelContainer
 var _tab_buttons: Dictionary = {}    # id de personnage -> Button
 var _nodes: Dictionary = {}          # id de talent -> Button
 var _focused := ""                   # id du talent sous le curseur ("" : aucun)
@@ -30,69 +31,46 @@ var _opened_at := 0
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.02, 0.06, 0.9)
-	UI.full_rect(dim)
-	add_child(dim)
-
-	var center := CenterContainer.new()
-	UI.full_rect(center)
-	add_child(center)
-	var panel := PanelContainer.new()
-	var style := UI.panel_style()
-	style.set_content_margin_all(20)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 8)
-	panel.add_child(box)
-
-	var header := HBoxContainer.new()
-	box.add_child(header)
-	var title := UI.label("Talents", 34, UI.GOLD, false, true)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(title)
-	_points = UI.label("", 22, OPEN, true)
-	_points.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	header.add_child(_points)
-	var rule := ColorRect.new()
-	rule.color = UI.GOLD_DIM
-	rule.custom_minimum_size = Vector2(0, 2)
-	box.add_child(rule)
+	var frame := UI.screen(self, "Talents", Vector2(1120, 0), 0.9)
+	_panel = frame["panel"]
+	_points = frame["right"]
+	_points.add_theme_color_override("font_color", OPEN)
+	var box: VBoxContainer = frame["body"]
 
 	_tabs = HBoxContainer.new()
 	_tabs.add_theme_constant_override("separation", 8)
 	box.add_child(_tabs)
 
 	var body := HBoxContainer.new()
-	body.add_theme_constant_override("separation", 16)
+	body.add_theme_constant_override("separation", 14)
 	box.add_child(body)
 	_columns = HBoxContainer.new()
-	_columns.add_theme_constant_override("separation", 14)
+	_columns.add_theme_constant_override("separation", 12)
 	body.add_child(_columns)
 	var side := PanelContainer.new()
-	var side_style := UI.panel_style(Color(0.1, 0.09, 0.17, 0.9), UI.GOLD_DIM, 4, 1)
+	var side_style := UI.panel_style(Color(0.05, 0.06, 0.12, 0.5), Color(UI.GOLD_DIM, 0.3), 3, 1)
 	side_style.shadow_size = 0
-	side_style.set_content_margin_all(14)
+	side_style.set_content_margin_all(16)
 	side.add_theme_stylebox_override("panel", side_style)
 	body.add_child(side)
 	_detail = UI.label("", 18, UI.INK)
 	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail.custom_minimum_size = Vector2(380, 250)
+	_detail.custom_minimum_size = Vector2(340, 250)
 	_detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_detail.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var side_box := VBoxContainer.new()
 	side_box.add_theme_constant_override("separation", 10)
 	side.add_child(side_box)
 	side_box.add_child(_detail)
-	_status = UI.label("", 19, OPEN, true)
+	_status = UI.label("", 18, OPEN, true)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.custom_minimum_size = Vector2(380, 56)
+	_status.custom_minimum_size = Vector2(340, 56)
 	side_box.add_child(_status)
 
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 18)
 	box.add_child(footer)
+	footer.custom_minimum_size = Vector2(0, 40)
 	_forget = UI.menu_button("Tout oublier (rend les points)", 19)
 	_forget.pressed.connect(forget)
 	_forget.focus_entered.connect(func() -> void:
@@ -104,7 +82,7 @@ func _ready() -> void:
 	_message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_message.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	footer.add_child(_message)
-	box.add_child(UI.label("Flèches : se déplacer   ·   Entrée : apprendre   ·   Retour arrière ou X : fermer", 16, UI.INK_DIM))
+	(frame["foot"] as HBoxContainer).add_child(UI.hints([["Flèches", "se déplacer"], ["Entrée", "apprendre"], ["Page préc. / suiv.", "changer de personnage"], ["Échap", "retour"]]))
 
 
 # ------------------------------------------------------------------ ouverture
@@ -113,6 +91,7 @@ func _ready() -> void:
 func open(member_id: String = "") -> void:
 	visible = true
 	_opened_at = Engine.get_process_frames()
+	UI.pop(_panel)
 	Sfx.play("confirm")
 	_message.text = ""
 	if member_id == "" or not GameState.party.has(member_id):
@@ -142,6 +121,17 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		close()
+		return
+	var step := 0
+	if event.is_action_pressed("ui_page_up"):
+		step = -1
+	elif event.is_action_pressed("ui_page_down"):
+		step = 1
+	if step != 0 and _tab_buttons.size() > 1:
+		get_viewport().set_input_as_handled()
+		var ids: Array = _tab_buttons.keys()
+		select(str(ids[posmod(ids.find(who) + step, ids.size())]))
+		_focus_first.call_deferred()
 
 
 # -------------------------------------------------------------------- onglets
@@ -155,12 +145,12 @@ func _build_tabs() -> void:
 		var member_id := str(id)
 		if Rules.branches(member_id).is_empty():
 			continue
-		var b := UI.menu_button("", 20)
-		b.custom_minimum_size = Vector2(250, 60)
+		var b := UI.menu_button("", 19)
+		b.custom_minimum_size = Vector2(250, 58)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.icon = Sprites.portrait(member_id)
 		b.expand_icon = true
-		b.add_theme_constant_override("icon_max_width", 48)
+		b.add_theme_constant_override("icon_max_width", 44)
 		b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		b.focus_entered.connect(select.bind(member_id))
 		b.pressed.connect(func() -> void:
@@ -179,16 +169,17 @@ func _refresh_tabs() -> void:
 		if points > 0:
 			text += "   ·   %s" % _pts(points)
 		b.text = text
-		var style := StyleBoxFlat.new()
 		var chosen := member_id == who
-		style.bg_color = Color(0.42, 0.33, 0.14, 0.95) if chosen else Color(0.08, 0.08, 0.12, 0.6)
-		style.border_color = UI.GOLD if chosen else Color(0.4, 0.38, 0.42, 0.7)
-		style.set_border_width_all(2 if chosen else 1)
-		style.border_width_bottom = 5 if chosen else 1
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(UI.GOLD, 0.12) if chosen else Color(0, 0, 0, 0.0)
+		style.border_color = UI.GOLD if chosen else Color(UI.INK_FAINT, 0.35)
+		style.border_width_bottom = 2 if chosen else 1
+		style.content_margin_left = 12
+		style.content_margin_right = 10
+		style.content_margin_top = 4
+		style.content_margin_bottom = 5
 		b.add_theme_font_override("font", UI.font(chosen))
 		b.add_theme_color_override("font_color", UI.INK if chosen else UI.INK_DIM)
-		style.set_corner_radius_all(4)
-		style.set_content_margin_all(6)
 		b.add_theme_stylebox_override("normal", style)
 
 
@@ -210,30 +201,30 @@ static func _pts(n: int) -> String:
 
 func _node_style(state: String, hot: bool) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
-	s.set_corner_radius_all(5)
-	s.content_margin_left = 14
-	s.content_margin_right = 10
-	s.content_margin_top = 9
-	s.content_margin_bottom = 9
-	s.set_border_width_all(2)
+	s.set_corner_radius_all(3)
+	s.content_margin_left = 16
+	s.content_margin_right = 12
+	s.content_margin_top = 8
+	s.content_margin_bottom = 8
+	s.set_border_width_all(1)
 	match state:
 		"learned":
-			s.bg_color = Color(0.42, 0.33, 0.14, 0.95)
-			s.border_color = LEARNED
+			s.bg_color = Color(LEARNED, 0.2)
+			s.border_color = Color(LEARNED, 0.9)
 		"available":
-			s.bg_color = Color(0.12, 0.2, 0.3, 0.95)
-			s.border_color = OPEN
+			s.bg_color = Color(OPEN, 0.1)
+			s.border_color = Color(OPEN, 0.85)
 		"poor":   # le précédent est appris, mais les points manquent
-			s.bg_color = Color(0.1, 0.13, 0.19, 0.92)
-			s.border_color = Color(0.42, 0.56, 0.66, 0.9)
+			s.bg_color = Color(OPEN, 0.04)
+			s.border_color = Color(OPEN, 0.4)
 		_:
-			s.bg_color = Color(0.1, 0.1, 0.14, 0.9)
-			s.border_color = SHUT
+			s.bg_color = Color(1, 1, 1, 0.02)
+			s.border_color = Color(SHUT, 0.45)
 	if hot:
-		s.bg_color = s.bg_color.lightened(0.14)
-		s.border_color = Color.WHITE
-		s.set_border_width_all(3)
-		s.content_margin_left = 13
+		s.bg_color = Color(s.bg_color, 0.0).lerp(Color(UI.GOLD, 0.26), 1.0)
+		s.border_color = UI.GOLD
+		s.set_border_width_all(2)
+		s.content_margin_left = 15
 	return s
 
 
@@ -251,9 +242,9 @@ func _rebuild() -> void:
 	var grid: Array = []   # une liste de boutons par voie, pour régler le curseur
 	for b: Dictionary in Rules.branches(who):
 		var column := PanelContainer.new()
-		var cs := UI.panel_style(Color(0.09, 0.08, 0.16, 0.9), UI.GOLD if str(b.get("id", "")) == spec else UI.GOLD_DIM, 4, 1)
+		var cs := UI.panel_style(Color(0.05, 0.06, 0.12, 0.5), UI.GOLD_LINE if str(b.get("id", "")) == spec else Color(UI.GOLD_DIM, 0.3), 3, 1)
 		cs.shadow_size = 0
-		cs.set_content_margin_all(12)
+		cs.set_content_margin_all(14)
 		column.add_theme_stylebox_override("panel", cs)
 		_columns.add_child(column)
 		var v := VBoxContainer.new()
@@ -266,13 +257,13 @@ func _rebuild() -> void:
 				known += 1
 		var head := HBoxContainer.new()
 		v.add_child(head)
-		var name_label := UI.label(str(b.get("name", "")), 23, UI.GOLD, true)
+		var name_label := UI.label(str(b.get("name", "")), 23, UI.GOLD)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		head.add_child(name_label)
 		head.add_child(UI.label("%d / %d" % [known, talents.size()], 18, UI.GOLD if known > 0 else UI.INK_DIM))
 		var desc := UI.label(str(b.get("desc", "")), 15, UI.INK_DIM, false, true)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.custom_minimum_size = Vector2(330, 78)
+		desc.custom_minimum_size = Vector2(320, 70)
 		desc.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 		v.add_child(desc)
 		var buttons: Array = []
@@ -282,8 +273,8 @@ func _rebuild() -> void:
 			var state := GameState.talent_state(who, tid)
 			if not buttons.is_empty():   # trait qui relie ce talent au précédent
 				var link := ColorRect.new()
-				link.color = LEARNED if state == "learned" else (OPEN if state == "available" else SHUT)
-				link.custom_minimum_size = Vector2(4, 16)
+				link.color = Color(LEARNED if state == "learned" else (OPEN if state == "available" else SHUT), 0.8)
+				link.custom_minimum_size = Vector2(2, 14)
 				link.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				v.add_child(link)
 			previous_known = state == "learned"
@@ -291,7 +282,7 @@ func _rebuild() -> void:
 			node.text = str(t.get("name", ""))
 			node.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			node.focus_mode = Control.FOCUS_ALL
-			node.custom_minimum_size = Vector2(330, 0)
+			node.custom_minimum_size = Vector2(320, 0)
 			node.add_theme_font_override("font", UI.font(state == "learned"))
 			node.add_theme_font_size_override("font_size", 20)
 			var ink := UI.INK if state in ["learned", "available"] else UI.INK_DIM

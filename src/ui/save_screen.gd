@@ -12,7 +12,9 @@ var mode := "load"        # "save" ou "load"
 var context := ""         # à qui rendre la main : "title", "pause" ou "defeat" (lu par main.gd)
 
 var _title: Label
-var _hint: Label
+var _hint: HBoxContainer
+var _note: Label
+var _panel: PanelContainer
 var _scroll: ScrollContainer
 var _list: VBoxContainer
 var _modal: Control
@@ -29,45 +31,23 @@ var _last_focus: Control = null
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.02, 0.06, 0.82)
-	UI.full_rect(dim)
-	add_child(dim)
-
-	var center := CenterContainer.new()
-	UI.full_rect(center)
-	add_child(center)
-	var panel := PanelContainer.new()
-	var style := UI.panel_style()
-	style.set_content_margin_all(22)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	panel.add_child(box)
-
-	_title = UI.label("Charger", 36, UI.GOLD, false, true)
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(_title)
-	var rule := ColorRect.new()
-	rule.color = UI.GOLD
-	rule.custom_minimum_size = Vector2(240, 2)
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(rule)
-
+	var frame := UI.screen(self, "Charger", Vector2(980, 0), 0.82)
+	_panel = frame["panel"]
+	_title = frame["title"]
+	var body: VBoxContainer = frame["body"]
 	_scroll = ScrollContainer.new()
-	_scroll.custom_minimum_size = Vector2(900, 470)
+	_scroll.custom_minimum_size = Vector2(920, 430)
 	_scroll.follow_focus = true
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	box.add_child(_scroll)
+	body.add_child(_scroll)
 	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 3)
+	_list.add_theme_constant_override("separation", 2)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_list)
-
-	_hint = UI.label("", 16, UI.INK_DIM)
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(_hint)
+	_note = UI.label("", 17, UI.GOLD, false, true)
+	_note.custom_minimum_size = Vector2(0, 24)
+	body.add_child(_note)
+	_hint = frame["foot"]
 
 	# fenêtre de confirmation, par-dessus la liste
 	_modal = Control.new()
@@ -82,18 +62,17 @@ func _ready() -> void:
 	UI.full_rect(mcenter)
 	_modal.add_child(mcenter)
 	var mpanel := PanelContainer.new()
-	var mstyle := UI.panel_style()
-	mstyle.set_content_margin_all(24)
-	mpanel.add_theme_stylebox_override("panel", mstyle)
+	mpanel.add_theme_stylebox_override("panel", UI.soft_style(0.95, 34))
 	mcenter.add_child(mpanel)
 	var mbox := VBoxContainer.new()
 	mbox.add_theme_constant_override("separation", 8)
-	mbox.custom_minimum_size = Vector2(560, 0)
+	mbox.custom_minimum_size = Vector2(540, 0)
 	mpanel.add_child(mbox)
 	_modal_text = UI.label("", 22)
 	_modal_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_modal_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mbox.add_child(_modal_text)
+	mbox.add_child(UI.rule())
 	_modal_yes = UI.menu_button("Oui", 24)
 	_modal_yes.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_modal_yes.pressed.connect(_on_modal_yes)
@@ -114,6 +93,7 @@ func open(new_mode: String, new_context: String = "") -> void:
 	_modal.visible = false
 	visible = true
 	_rebuild("")
+	UI.pop(_panel)
 	Sfx.play("confirm")
 
 
@@ -149,8 +129,15 @@ func _rebuild(focus_id: String) -> void:
 		var id := str(e["id"])
 		if str(e["kind"]) == "auto" and not any_auto:
 			any_auto = true
-			var sep := UI.label("Sauvegardes automatiques (changement de lieu, avant les combats sans fuite)", 16, UI.GOLD_DIM, false, true)
-			_list.add_child(sep)
+			var sep := UI.caps("Sauvegardes automatiques", 14, UI.GOLD_DIM)
+			sep.tooltip_text = "Changement de lieu, avant les combats sans fuite"
+			var sep_box := VBoxContainer.new()
+			var sep_gap := Control.new()
+			sep_gap.custom_minimum_size = Vector2(0, 10)
+			sep_box.add_child(sep_gap)
+			sep_box.add_child(sep)
+			sep_box.add_child(UI.rule(0.0, "out"))
+			_list.add_child(sep_box)
 		_entries[id] = e
 		var row := _make_row(e)
 		_list.add_child(row)
@@ -174,7 +161,11 @@ func _rebuild(focus_id: String) -> void:
 	else:
 		var none := UI.label("Aucune sauvegarde pour l'instant.", 20, UI.INK_DIM, false, true)
 		_list.add_child(none)
-	_hint.text = "Entrée ou E : %s   ·   Suppr : effacer   ·   Échap : retour" % ("sauvegarder ici" if mode == "save" else "charger")
+	for c in _hint.get_children():
+		_hint.remove_child(c)
+		c.queue_free()
+	_note.text = ""
+	_hint.add_child(UI.hints([["Flèches", "choisir"], ["Entrée", "sauvegarder ici" if mode == "save" else "charger"], ["Suppr", "effacer"], ["Échap", "retour"]]))
 	_last_focus = null
 	previous = null
 
@@ -193,7 +184,7 @@ func _make_row(e: Dictionary) -> Button:
 	var margin := MarginContainer.new()
 	UI.full_rect(margin)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_left", 26)
 	margin.add_theme_constant_override("margin_right", 14)
 	margin.add_theme_constant_override("margin_top", 8 if bool(e["empty"]) else 5)
 	margin.add_theme_constant_override("margin_bottom", 4)
@@ -206,7 +197,7 @@ func _make_row(e: Dictionary) -> Button:
 	var top := HBoxContainer.new()
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(top)
-	var slot_name := UI.label(SaveManager.slot_label(id), 20, UI.GOLD if not empty else UI.INK_DIM, true)
+	var slot_name := UI.label(SaveManager.slot_label(id), 20, UI.GOLD if not empty else UI.INK_FAINT)
 	slot_name.custom_minimum_size = Vector2(190, 0)
 	top.add_child(slot_name)
 	if empty:
@@ -283,7 +274,7 @@ func _do_save(id: String) -> void:
 		close("", true)
 	else:
 		Sfx.play("cancel")
-		_hint.text = "Échec de la sauvegarde."
+		_note.text = "Échec de la sauvegarde."
 
 
 func _ask(text: String, yes_label: String, action: Callable) -> void:
