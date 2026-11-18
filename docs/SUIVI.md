@@ -636,6 +636,27 @@ roche ; arbres d'arène trop grands pour les combattants ; le bras clair du Naze
 après coup, sans nouvelle relecture : points clairs isolés sur Glandoulf, ennemis qui se
 chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop marquées.
 
+### Noms : nouvelle décision de l'auteur (18 novembre 2026, soir) — À APPLIQUER
+
+L'auteur corrige la liste des noms. Elle remplace la décision 2 et la décision 61. Le
+renommage se fait en une seule étape, après la fusion des chantiers en cours (chapitre 2,
+sauvegardes, musique), pour ne pas créer de conflits ; tant que cette note est là, les
+données portent encore les anciens noms.
+
+- Fripon Besace devient **Froton Salfait** (orthographe confirmée par l'auteur : Froton,
+  sans n au milieu). C'est le Frodon de l'histoire.
+- Pépine Bontabac est **un homme** (le Pippin de l'histoire) : **Pépin Bontabac**. Raison
+  du prénom : l'auteur veut un nom « amélioré » ; un pépin, c'est une graine (il est
+  herboriste) et un ennui (il est téméraire). Dessin (ni jupe ni chignon), accords et
+  branche « Fumeuse de Pipe » à corriger.
+- Légolasse devient **Digoulasse**. Gimlette devient **Grimli**.
+- Sam Gamelle, Aragrogne, Isidur : inchangés.
+- **Merry manque** : à créer. Proposition : **Merri Brandemou**, cousin de Pépin (dans le
+  thème du ramollissement). À valider par l'auteur avant de l'écrire dans l'histoire.
+- **Boromir** existe déjà dans la bible : **Bromure du Gouda** (chapitres 3 et 4).
+- Identifiants à renommer avec reprise des sauvegardes existantes : `fripon` → `froton`,
+  `pepine` → `pepin`, `legolasse` → `digoulasse`, `gimlette` → `grimli`.
+
 À faire ensuite, dans l'ordre : refonte des personnages par code (plus grands, visages et
 vêtements détaillés), vrai relief jouable, maisons et murs, parois d'arène irrégulières.
 
