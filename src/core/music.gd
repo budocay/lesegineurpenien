@@ -16,6 +16,7 @@ const VERSION := 1
 const VOLUME_DB := -9.0
 const SILENT_DB := -50.0
 const CACHE_DIR := "user://musique"
+const PERSONAL_DIR := "res://assets/music"
 const SEMITONES := {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}
 
 ## harm : force de chaque harmonique ; attack et release en secondes ; decay : vitesse à
@@ -56,6 +57,34 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------- lecture
 
+## Musique personnelle : un fichier assets/music/<identifiant>.ogg (ou .mp3, .wav) posé par
+## le joueur remplace le morceau généré du même nom. Ce dossier n'est pas distribué avec
+## le jeu (voir assets/music/LISEZMOI.md).
+func _personal(id: String) -> AudioStream:
+	if id == "":
+		return null
+	var loop := bool((Database.music.get(id, {}) as Dictionary).get("loop", true))
+	var base := PERSONAL_DIR + "/" + id
+	if FileAccess.file_exists(base + ".ogg"):
+		var ogg := AudioStreamOggVorbis.load_from_file(base + ".ogg")
+		if ogg != null:
+			ogg.loop = loop
+			return ogg
+	if FileAccess.file_exists(base + ".mp3"):
+		var mp3 := AudioStreamMP3.new()
+		mp3.data = FileAccess.get_file_as_bytes(base + ".mp3")
+		mp3.loop = loop
+		return mp3
+	if FileAccess.file_exists(base + ".wav"):
+		var wav := AudioStreamWAV.load_from_file(base + ".wav")
+		if wav != null:
+			if loop:
+				wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+				wav.loop_end = int(wav.get_length() * wav.mix_rate)
+			return wav
+	return null
+
+
 ## Joue un morceau en boucle, avec un fondu depuis le précédent. "" = silence.
 func play(id: String, fade: float = 0.9) -> void:
 	if id == current:
@@ -63,6 +92,10 @@ func play(id: String, fade: float = 0.9) -> void:
 	current = id
 	if not _enabled:
 		return
+	if not _streams.has(id):
+		var own := _personal(id)
+		if own != null:
+			_streams[id] = own
 	if _streams.has(id):
 		_start(id, fade)
 	else:

@@ -1,3 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# musiques personnelles du joueur (jamais distribuées)
+assets/music/*
+!assets/music/LISEZMOI.md
