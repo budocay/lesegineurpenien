@@ -5164,7 +5164,8 @@ func _test_door_clearance() -> void:
 					continue
 				var dx := absf(float(p[0]) - xd)
 				var dz := float(p[1]) - z1
-				var in_strip := dx < 0.9 and dz > -0.3 and dz < 1.6
+				var tall := ["elf_lantern", "lantern"].has(str((o as Dictionary).get("type", "")))
+				var in_strip := dx < 0.9 and dz > -0.3 and dz < (3.6 if tall else 1.6)
 				var on_lamp := absf(dx - 1.25) < 0.55 and dz > -0.3 and dz < 0.9 and not ["elf_lantern", "lantern"].has(str((o as Dictionary).get("type", "")))
 				if in_strip or on_lamp:
 					bad += 1
@@ -5221,6 +5222,11 @@ func _test_houses() -> void:
 			var sp: Dictionary = HB.spec(map, o)
 			check(str(HB.spec(map, o)) == str(sp), "maisons %s : le tirage de la maison %s est stable" % [id, str(r)])
 			seen_kinds[str(sp["wall"])] = true
+			# jamais deux bâtiments de la carte avec le même mur, le même toit et la même porte
+			for k2 in k:
+				var sp2b: Dictionary = HB.spec(map, list[k2] as Dictionary)
+				var same: bool = str(sp2b["wall"]) == str(sp["wall"]) and str(sp2b["roof"]) == str(sp["roof"]) and HB._same_door(sp2b["door_color"], sp["door_color"])
+				check(not same, "maisons %s : les bâtiments %s et %s diffèrent (mur, toit ou porte)" % [id, str(list[k2]["rect"]), str(r)])
 			check(HP.ROOF_PAL.has(str(sp["roof"])), "maisons %s : matière de toit connue (%s)" % [id, str(sp["roof"])])
 			if str(o.get("style", "")) == "grobitte":
 				check(sp["roof"] == "herbe" and sp["window"] == "rond", "maisons %s : la maison grobitte %s a son toit d'herbe et ses hublots" % [id, str(r)])

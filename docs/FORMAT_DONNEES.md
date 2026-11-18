@@ -288,9 +288,17 @@ Champs facultatifs, tous ignorés quand ils manquent :
   encorbellement (`jetty` : `false` le supprime) et la façade porte deux rangées de fenêtres.
 - `dormers` : nombre de lucarnes sur le pan avant (0 à 2 ; par défaut tiré pour les toits hauts
   et larges, jamais sur une maison à deux niveaux ni une maison grobitte).
-- `sign` : enseigne suspendue (`"auberge"`, `"fromage"`, `"forge"`, `"cheval"`, `"herbes"`). Sans
-  ce champ, elle se déduit du nom de la carte visée par `to` ou du `dialogue` de la porte
-  (`auberge`, `poney`, `fromag`, `forge`, `ecurie`). Pas d'enseigne sur une façade de moins de 6.
+- `sign` : enseigne suspendue (`"auberge"`, `"fromage"`, `"forge"`, `"cheval"`, `"herbes"`,
+  `"horloge"` pour la mairie, `"blason"` pour la capitainerie). Sans ce champ, elle se déduit du
+  nom de la carte visée par `to` ou du `dialogue` de la porte (`auberge`, `poney`, `fromag`,
+  `forge`, `ecurie`, `mairie`, `capitain` ou `garde`, `cure`). Pas d'enseigne sur une façade de
+  moins de 6.
+- Unicité : deux bâtiments d'une même carte ne partagent jamais mur + toit + couleur de porte
+  (le test le vérifie). Dans l'ordre du fichier, ce que le JSON n'impose pas (`wall`, puis
+  `roof`, puis `door_color`) est modifié pour lever le conflit. Les toits de tuiles, d'ardoises
+  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, mousse vers
+  l'avant-toit, quelques tuiles manquantes, ombre des lucarnes ; le toit d'herbe des Grobittes
+  est plus clair, avec une crête lumineuse et des raies de gazon qui suivent la courbe.
 - `extra` : accessoire contre le mur, loin de la porte (`"barrel"`, `"crates"`, `"flowers"`,
   `""` pour aucun) ; tiré au hasard sinon.
 
