@@ -35,6 +35,7 @@ const DEFAULTS: Dictionary = {
 	"musique": ["son", 100],
 	"effets": ["son", 100],
 	"compteur": ["divers", false],
+	"conseils": ["divers", true],
 }
 
 ## Réglages fins pilotés par la « Qualité ». Moyenne = le rendu d'origine.
@@ -75,6 +76,9 @@ const ROWS: Array = [
 	{"id": "effets", "label": "Effets sonores", "gauge": true},
 	{"section": "Divers"},
 	{"id": "compteur", "label": "Compteur d'images par seconde"},
+	{"section": "Aide au jeu"},
+	{"id": "conseils", "label": "Conseils de jeu"},
+	{"action": "revoir", "label": "Revoir les conseils"},
 ]
 
 const HELP: Dictionary = {
@@ -98,6 +102,7 @@ const HELP: Dictionary = {
 	"musique": "Le volume de la musique.",
 	"effets": "Le volume des bruitages.",
 	"compteur": "Affiche discrètement le nombre d'images par seconde dans un coin.",
+	"conseils": "Explique chaque système une seule fois, au moment où il sert. Les conseils déjà vus restent relisibles dans Pause, « Aide ».",
 }
 
 const SCALE_MODES: Dictionary = {
@@ -200,7 +205,7 @@ func choices(id: String) -> Array:
 			return [["fenetre", "Fenêtre"], ["plein_ecran", "Plein écran"], ["sans_bord", "Fenêtre sans bord"]]
 		"taille":
 			return SIZES.map(func(s: String) -> Array: return [s, s.replace("x", " × ")])
-		"vsync", "halo", "rayons", "compteur":
+		"vsync", "halo", "rayons", "compteur", "conseils":
 			return [[false, "Non"], [true, "Oui"]]
 		"fps_max":
 			return [[30, "30"], [60, "60"], [120, "120"], [0, "Sans limite"]]

@@ -34,6 +34,7 @@ var spawn_id: String = ""
 var player_pos: Array = []       # [x, z] en unités monde ; vide = utiliser spawn_id
 var player_facing: String = "down"
 var playtime: float = 0.0
+var tutorials_seen: Dictionary = {}   # conseils de jeu déjà montrés (data/tutorials.json) : id -> true
 var playing: bool = false
 
 var _refreshing := false
@@ -56,6 +57,7 @@ func new_game() -> void:
 			inventory[item] = int(start_inv[item])
 	roster = {}
 	bestiary = {}
+	tutorials_seen = {}
 	party = []
 	for id: Variant in start.get("party", ["glandoulf"]):
 		add_to_party(str(id))
@@ -82,6 +84,8 @@ func add_to_party(id: String, catch_up: bool = false) -> String:
 		m.erase("mp")
 		member(id)
 	refresh_quests()
+	if not is_active(id):
+		Tutorial.fire("reserve")
 	return "active" if is_active(id) else "reserve"
 
 
@@ -367,6 +371,8 @@ func add_item(id: String, count: int = 1) -> void:
 		inventory[id] = n
 	else:
 		inventory.erase(id)
+	if count > 0:
+		Tutorial.fire("item", {"id": id})
 	refresh_quests()
 
 
@@ -746,6 +752,7 @@ func to_dict() -> Dictionary:
 		"player_pos": player_pos.duplicate(),
 		"player_facing": player_facing,
 		"playtime": playtime,
+		"tutorials": tutorials_seen.duplicate(true),
 	}
 
 
@@ -779,6 +786,8 @@ func from_dict(d_in: Dictionary) -> bool:
 	player_pos = _array(d.get("player_pos"))
 	player_facing = str(d.get("player_facing", "down"))
 	playtime = float(d.get("playtime", 0.0))
+	# une sauvegarde d'avant les conseils de jeu : aucun n'est rejoué sur une partie déjà commencée
+	tutorials_seen = _dict(d.get("tutorials")) if d.has("tutorials") else Tutorial.all_seen()
 	refresh_quests(true)   # une sauvegarde d'avant les quêtes retrouve son journal, sans fanfare
 	return true
 

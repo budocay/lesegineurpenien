@@ -68,6 +68,7 @@ func _ready() -> void:
 	_test_chapter_4_data()
 	await _test_saves()
 	_test_names_and_merri()
+	await _test_tutorials()
 	await _test_interface()
 	_test_retouches()
 	await _test_active_party()
@@ -4794,3 +4795,232 @@ func _test_houses() -> void:
 		await get_tree().process_frame
 	check(total >= 12, "maisons : au moins douze bâtiments contrôlés (%d)" % total)
 	check(seen_kinds.size() >= 3, "maisons : au moins trois matières de mur dans les villages (%s)" % str(seen_kinds.keys()))
+
+
+# ----------------------------------------------------------- conseils de jeu
+
+const TUTORIAL_EVENTS := ["arrive", "interact_near", "quest_started", "item", "equip_item", "talent_point", "rest", "save", "shop", "reserve", "battle_start", "party_turn", "weak", "break", "ally_down"]
+
+
+func _first_tracker(main: Node) -> Node:
+	for c: Node in main.hud.get_children():
+		if c.has_method("update_now"):
+			return c
+	return null
+
+
+func _test_tutorials() -> void:
+	print("== Conseils de jeu et rappel de quête ==")
+	check(Tutorial.problems.is_empty() and Tutorial.tips.size() >= 12, "conseils : data/tutorials.json se lit sans erreur (%d conseils)" % Tutorial.tips.size())
+	var sources := ""
+	for f: String in ["res://src/main.gd", "res://src/core/game_state.gd", "res://src/battle/battle_scene.gd", "res://src/core/tutorial.gd"]:
+		sources += FileAccess.get_file_as_string(f)
+	var known_actions := ["move", "interact", "cancel", "menu", "elan", "choose"]
+	for tip: Dictionary in Tutorial.tips:
+		var id := str(tip["id"])
+		check(TUTORIAL_EVENTS.has(str(tip.get("trigger", ""))), "conseil %s : déclencheur connu (%s)" % [id, str(tip.get("trigger", ""))])
+		check(sources.contains("\"%s\"" % str(tip.get("trigger", ""))), "conseil %s : l'événement « %s » est bien déclenché par le jeu" % [id, str(tip.get("trigger", ""))])
+		check(str(tip.get("title", "")) != "" and str(tip.get("title", "")).length() <= 40, "conseil %s : titre court" % id)
+		var text := str(tip.get("text", ""))
+		check(text.length() > 20 and text.length() <= 320, "conseil %s : texte court (%d signes)" % [id, text.length()])
+		check(["note", "pause"].has(str(tip.get("mode", "note"))), "conseil %s : mode connu" % id)
+		for k: Variant in tip.get("keys", []):
+			check(k is Array and (k as Array).size() == 2 and (known_actions.has(str((k as Array)[0])) or InputMap.has_action(str((k as Array)[0]))) and str((k as Array)[1]) != "", "conseil %s : touche et verbe valides" % id)
+		var who: Variant = tip.get("who", "")
+		for w: Variant in (who if who is Array else [who]):
+			check(str(w) == "" or not Database.get_character(str(w)).is_empty(), "conseil %s : %s est un personnage connu" % [id, str(w)])
+		for term: String in str(tip.get("when", "")).split("&"):
+			var t := term.strip_edges().trim_prefix("!")
+			check(t == "" or t.begins_with("turn>=") or Tutorial.CTX_TERMS.has(t), "conseil %s : condition « %s » comprise" % [id, t])
+		for pad_mode in [false, true]:
+			Tutorial.pad = pad_mode
+			var view: Dictionary = Tutorial.resolve(tip)
+			check(not str(view["text"]).contains("{") and str(view["tag"]) != "", "conseil %s : texte résolu (%s)" % [id, "manette" if pad_mode else "clavier"])
+			for r: Dictionary in view["rows"]:
+				check(not (r["caps"] as Array).is_empty() and not (r["caps"] as Array).has(""), "conseil %s : pictogrammes présents (%s)" % [id, "manette" if pad_mode else "clavier"])
+	Tutorial.pad = false
+	check(Tutorial.caps_for("interact").size() >= 1 and Tutorial.caps_for("move").has("Flèches"), "conseils : touches lues dans les réglages de contrôles")
+	check(Tutorial.when_ok("elan & turn>=2", {"elan": true, "turn": 2}) and not Tutorial.when_ok("elan & turn>=2", {"elan": true, "turn": 1}) and not Tutorial.when_ok("boss", {}), "conseils : conditions « when »")
+
+	# réglage, vu une seule fois, sauvegarde
+	Tutorial.force_on = true
+	GameState.new_game()
+	var kept: Variant = Settings.get_value("conseils")
+	check(kept == true, "conseils : activés par défaut")
+	check(Tutorial.fire("arrive") == ["deplacement"], "conseils : le premier déclenchement met le conseil en file")
+	check(Tutorial.fire("arrive").is_empty() and Tutorial.is_seen("deplacement"), "conseils : un conseil ne s'affiche qu'une fois")
+	check(Tutorial.fire("party_turn").is_empty(), "conseils : un conseil de combat ne passe pas par fire()")
+	Tutorial.reset_seen()
+	Settings.set_value("conseils", false)
+	check(Tutorial.fire("arrive").is_empty() and not Tutorial.is_seen("deplacement"), "conseils : option désactivée, rien ne s'affiche ni ne se marque")
+	Settings.set_value("conseils", true)
+	Tutorial.reset_seen()
+	check(Tutorial.fire("item", {"id": "tisane"}).is_empty() and Tutorial.fire("item", {"id": "baton_noueux"}) == ["equipement"], "conseils : le premier équipement obtenu déclenche le conseil d'équipement")
+	Tutorial.fire("arrive")
+	check(Tutorial.seen_ids().size() == 2, "conseils : deux conseils vus")
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(GameState.to_dict()))
+	GameState.new_game()
+	check(GameState.tutorials_seen.is_empty(), "conseils : une nouvelle partie repart sans conseil vu")
+	check(GameState.from_dict(saved) and Tutorial.is_seen("deplacement") and Tutorial.is_seen("equipement") and not Tutorial.is_seen("boutique"), "conseils : les conseils vus survivent à une sauvegarde et à un chargement")
+	var old_save: Dictionary = saved.duplicate(true)
+	old_save.erase("tutorials")
+	GameState.new_game()
+	check(GameState.from_dict(old_save) and Tutorial.seen_ids().size() == Tutorial.tips.size(), "conseils : une ancienne sauvegarde se charge sans rejouer les conseils")
+	Tutorial.reset_seen()
+	check(Tutorial.seen_ids().is_empty(), "conseils : « Revoir les conseils » les remet tous à neuf")
+	var shown_before: int = Tutorial.shown_log.size()
+
+	# réglage dans l'écran des paramètres
+	var has_row := false
+	var has_action := false
+	for row: Dictionary in Settings.ROWS:
+		has_row = has_row or str(row.get("id", "")) == "conseils"
+		has_action = has_action or str(row.get("action", "")) == "revoir"
+	check(has_row and has_action, "conseils : « Conseils de jeu » et « Revoir les conseils » dans les paramètres")
+
+	# déroulé réel : nouvelle partie, conseils de passage, rappel de quête
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	check(Tutorial.help != null and is_instance_valid(Tutorial.help), "conseils : page d'aide installée dans le menu de pause")
+	var seen_dialogue_with_tip := false
+	main.start_new_game()
+	for _i in 6000:
+		await get_tree().process_frame
+		if main.dialogue.active and Tutorial.panel_rect().size != Vector2.ZERO:
+			seen_dialogue_with_tip = true
+		if main.battle != null or main.busy:
+			continue
+		if main.dialogue.active:
+			if main.dialogue.waiting:
+				continue
+			if main.dialogue._typing:
+				main.dialogue._finish_typing()
+			elif not main.dialogue._choosing:
+				main.dialogue._advance()
+		elif main.world != null and main.world.input_enabled:
+			break
+	check(main.mode == main.Mode.PLAY and GameState.has_flag("intro_vue"), "conseils : nouvelle partie jouée jusqu'à la main rendue")
+	check(not seen_dialogue_with_tip, "conseils : aucun encart ne passe par-dessus un dialogue")
+	for _i in 400:
+		await get_tree().process_frame
+		if Tutorial.current != "":
+			break
+	check(Tutorial.shown_log.size() > shown_before and Tutorial.shown_log.count("deplacement") == 1, "conseils : « se déplacer » s'affiche une fois en début de partie (%s)" % str(Tutorial.shown_log))
+	var tracker := _first_tracker(main)
+	check(tracker != null, "rappel de quête : posé dans le HUD")
+	if tracker != null:
+		for _i in 30:
+			await get_tree().process_frame
+		check(str(tracker.tracked) == "ramollissement" and str(tracker.step_text).begins_with("Trouver des compagnons"), "rappel de quête : quête principale et première étape (%s : %s)" % [str(tracker.tracked), str(tracker.step_text)])
+		check(tracker._log.any(func(e: Array) -> bool: return e[0] == "Nouvelle quête" and e[1] == "ramollissement"), "rappel de quête : « Nouvelle quête » annoncé")
+		var rect: Rect2 = tracker.panel_rect()
+		var screen := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size)
+		check(rect.size != Vector2.ZERO and screen.encloses(rect), "rappel de quête : visible et dans l'écran (%s)" % str(rect))
+		var tip_rect: Rect2 = Tutorial.panel_rect()
+		check(tip_rect.size == Vector2.ZERO or (screen.encloses(tip_rect) and not tip_rect.intersects(rect)), "conseils : l'encart reste dans l'écran et loin du rappel de quête (%s / %s)" % [str(tip_rect), str(rect)])
+		for id: String in ["pepin", "sam", "froton"]:
+			GameState.add_to_party(id)
+		await get_tree().process_frame
+		tracker.update_now()
+		check(str(tracker.step_text).begins_with("Redresser le potager") and tracker._log.any(func(e: Array) -> bool: return e[0] == "Quête mise à jour"), "rappel de quête : suit l'étape (%s)" % str(tracker.step_text))
+		GameState.set_flag("chapitre_1_fini")
+		await get_tree().process_frame
+		check(tracker._log.any(func(e: Array) -> bool: return e[0] == "Quête terminée" and e[1] == "ramollissement"), "rappel de quête : « Quête terminée » annoncé")
+		# un dialogue, un menu ou un combat passent devant : le rappel s'efface
+		main._open_pause()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		check(tracker.panel_rect().size == Vector2.ZERO and Tutorial.panel_rect().size == Vector2.ZERO, "rappel de quête et conseils : cachés quand le menu est ouvert")
+		main.pause.close(true)
+		main.world.set_input(true)
+
+	# conseil qui suspend le jeu : touche tapée trop tôt sans effet, puis fermeture à la touche
+	Tutorial.modal_in_tests = true
+	Tutorial.reset_seen()
+	Tutorial.call("fire_wait", "shop")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(Tutorial._modal and Tutorial.shown_log.back() == "boutique", "conseils : le conseil de boutique suspend le jeu")
+	var modal_rect: Rect2 = Tutorial.panel_rect()
+	check(modal_rect.size != Vector2.ZERO and Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size).encloses(modal_rect), "conseils : l'encart de pause est entièrement à l'écran (%s)" % str(modal_rect))
+	var press := InputEventAction.new()
+	press.action = "interact"
+	press.pressed = true
+	Input.parse_input_event(press)
+	await get_tree().process_frame
+	check(Tutorial._modal, "conseils : une touche tapée trop tôt ne ferme pas l'encart")
+	await get_tree().create_timer(0.7).timeout
+	Input.parse_input_event(press)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(not Tutorial._modal and Tutorial.is_seen("boutique") and Tutorial.panel_rect().size == Vector2.ZERO, "conseils : la touche ferme l'encart de pause")
+
+	# en combat : le conseil passe avant le menu, jamais en même temps que lui
+	Tutorial.reset_seen()
+	GameState.new_game()
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var ui: Control = BattleUI.new()
+	layer.add_child(ui)
+	await get_tree().process_frame
+	var scene: Node3D = BattleScene.new()
+	add_child(scene)
+	scene.setup({"enemies": ["limace_molle"], "arena": "pre"}, ui, 5)
+	scene.run()
+	var overlapped := false
+	var saw_modal := false
+	for _i in 2400:
+		await get_tree().process_frame
+		if Tutorial._modal:
+			saw_modal = true
+			if ui._state == ui.S.ROOT:
+				overlapped = true
+			if Tutorial._guard <= 0.0 and Tutorial.shown_log.back() == "combat_tours":
+				Input.parse_input_event(press)
+		elif ui._state == ui.S.ROOT:
+			break
+	check(saw_modal and not overlapped, "conseils : le conseil de combat s'affiche avant le menu et jamais en même temps")
+	check(ui._state == ui.S.ROOT and Tutorial.panel_rect().size == Vector2.ZERO and Tutorial.is_seen("combat_tours"), "conseils : une fois lu, le menu de combat s'ouvre et l'encart a disparu")
+	scene.auto = true
+	scene.fast = true
+	for _i in 6000:
+		await get_tree().process_frame
+		if str(scene.outcome) != "":
+			break
+	ui.close()
+	remove_child(scene)
+	scene.queue_free()
+	layer.queue_free()
+
+	# les combats joués tout seuls ne sont jamais interrompus
+	var n_before: int = Tutorial.shown_log.size()
+	Tutorial.reset_seen()
+	var auto_scene: Node3D = BattleScene.new()
+	var auto_layer := CanvasLayer.new()
+	add_child(auto_layer)
+	var auto_ui: Control = BattleUI.new()
+	auto_layer.add_child(auto_ui)
+	await get_tree().process_frame
+	add_child(auto_scene)
+	auto_scene.auto = true
+	auto_scene.fast = true
+	auto_scene.setup({"enemies": ["limace_molle"], "arena": "pre"}, auto_ui, 5)
+	auto_scene.run()
+	for _i in 6000:
+		await get_tree().process_frame
+		if str(auto_scene.outcome) != "":
+			break
+	check(str(auto_scene.outcome) != "" and Tutorial.shown_log.size() == n_before, "conseils : un combat automatique n'attend jamais de touche")
+	auto_ui.close()
+	remove_child(auto_scene)
+	auto_scene.queue_free()
+	auto_layer.queue_free()
+
+	Tutorial.modal_in_tests = false
+	Tutorial.force_on = false
+	Tutorial.clear()
+	Tutorial.reset_seen()
+	main.queue_free()
+	await get_tree().process_frame
