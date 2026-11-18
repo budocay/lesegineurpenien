@@ -3956,5 +3956,651 @@
 			"embers",
 			"feuilles_dorees"
 		]
+	},
+	"minas_remparts": {
+		"ground": "gou_dalle",
+		"ambiance": "minas",
+		"music": "minas",
+		"backdrop": {
+			"tile": "gou_mur",
+			"top": "gou_dalle",
+			"far": "peaks",
+			"sky": [
+				"#4a4658",
+				"#f0cfa0"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_creneau",
+				"at": [
+					[
+						-9.0,
+						-10.4
+					],
+					[
+						9.0,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_banniere",
+				"at": [
+					[
+						-4.5,
+						-10.2
+					],
+					[
+						4.5,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_trebuchet",
+				"at": [
+					[
+						-12.0,
+						-10.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_echelle",
+				"at": [
+					[
+						12.0,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffe8c0",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_baril",
+				"count": 2,
+				"scale": 1.5
+			}
+		],
+		"stage": {
+			"light": "#ffe0b0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#f0e4d8",
+			"exposure": 1.15,
+			"fill": 0.7,
+			"lift": 0.15,
+			"fill_color": "#ffe0b0",
+			"dim": 0.55
+		},
+		"particles": [
+			"dust",
+			"mist"
+		]
+	},
+	"minas_rues": {
+		"ground": "gou_pave",
+		"ambiance": "minas",
+		"music": "minas",
+		"backdrop": {
+			"tile": "gou_mur",
+			"top": "gou_pave",
+			"far": "town",
+			"sky": [
+				"#4a4658",
+				"#f0cfa0"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_etal",
+				"at": [
+					[
+						-9.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_banniere",
+				"at": [
+					[
+						-3.0,
+						-10.2
+					],
+					[
+						4.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_fontaine",
+				"at": [
+					[
+						10.0,
+						-10.0
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_baril",
+				"at": [
+					[
+						0.0,
+						-10.6
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffe8c0",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_baril",
+				"count": 2,
+				"scale": 1.5
+			}
+		],
+		"stage": {
+			"light": "#ffe0b0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#f0e4d8",
+			"exposure": 1.15,
+			"fill": 0.7,
+			"lift": 0.15,
+			"fill_color": "#ffe0b0",
+			"dim": 0.6
+		},
+		"particles": [
+			"dust",
+			"mist"
+		]
+	},
+	"citadelle": {
+		"ground": "gou_marbre",
+		"ambiance": "minas",
+		"music": "minas",
+		"backdrop": {
+			"tile": "gou_mur",
+			"top": "gou_marbre",
+			"far": "peaks",
+			"sky": [
+				"#5a5470",
+				"#f4d8b0"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_poirier",
+				"at": [
+					[
+						-8.0,
+						-10.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_statue",
+				"at": [
+					[
+						8.5,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_banniere",
+				"at": [
+					[
+						-1.5,
+						-10.2
+					],
+					[
+						2.5,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#fff0d0",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_statue",
+				"count": 1,
+				"scale": 1.4
+			}
+		],
+		"stage": {
+			"light": "#ffe0b0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#e6dcd0",
+			"exposure": 1.15,
+			"fill": 0.7,
+			"lift": 0.15,
+			"fill_color": "#ffe0b0",
+			"dim": 0.56
+		},
+		"particles": [
+			"pollen",
+			"dust"
+		]
+	},
+	"sentier_insomniaques": {
+		"ground": "gou_veille",
+		"ambiance": "sentier",
+		"music": "eveilles",
+		"backdrop": {
+			"tile": "gou_mur_veille",
+			"top": "gou_veille",
+			"far": "cavern",
+			"sky": [
+				"#04100a",
+				"#1a3a2a"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_lit_pierre",
+				"at": [
+					[
+						-9.0,
+						-10.2
+					],
+					[
+						-3.0,
+						-10.2
+					],
+					[
+						3.0,
+						-10.2
+					],
+					[
+						9.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#c8ffe0",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_lit_pierre",
+				"count": 2,
+				"scale": 1.4
+			}
+		],
+		"stage": {
+			"light": "#a8f0d0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#d8fff0",
+			"exposure": 1.3,
+			"fill": 0.9,
+			"lift": 0.22,
+			"fill_color": "#9ad8b8",
+			"dim": 0.95
+		},
+		"particles": [
+			"lueurs",
+			"mist"
+		]
+	},
+	"port_sale": {
+		"ground": "gou_quai",
+		"ambiance": "port",
+		"music": "port_sale",
+		"backdrop": {
+			"tile": "gou_rempart",
+			"top": "gou_quai",
+			"far": "marsh",
+			"sky": [
+				"#1c2230",
+				"#7a8aa8"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_voile",
+				"at": [
+					[
+						-9.5,
+						-10.4
+					],
+					[
+						9.5,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_ancre",
+				"at": [
+					[
+						-4.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_baril",
+				"at": [
+					[
+						4.5,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_boulets",
+				"at": [
+					[
+						0.0,
+						-10.6
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#c8d8f0",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_baril",
+				"count": 2,
+				"scale": 1.5
+			}
+		],
+		"stage": {
+			"light": "#c0d0f0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#e8f0ff",
+			"exposure": 1.2,
+			"fill": 0.8,
+			"lift": 0.18,
+			"fill_color": "#a8b8d8",
+			"dim": 0.8
+		},
+		"particles": [
+			"embruns",
+			"mist"
+		]
+	},
+	"pelle_a_tarte": {
+		"ground": "gou_herbe",
+		"ambiance": "pelle",
+		"music": "bataille",
+		"backdrop": {
+			"tile": "gou_boue",
+			"top": "gou_herbe",
+			"far": "hills",
+			"sky": [
+				"#3a1c1c",
+				"#f0a060"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.12,
+			"haze": 0.14
+		},
+		"props": [
+			{
+				"prop": "gou_trebuchet",
+				"at": [
+					[
+						-10.0,
+						-10.6
+					],
+					[
+						11.0,
+						-10.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_pieux",
+				"at": [
+					[
+						-4.0,
+						-10.2
+					],
+					[
+						4.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_tente",
+				"at": [
+					[
+						0.0,
+						-10.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "gou_brasier",
+				"at": [
+					[
+						-7.0,
+						-10.0
+					],
+					[
+						7.5,
+						-10.0
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffb878",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "gou_pieux",
+				"count": 2,
+				"scale": 1.5
+			}
+		],
+		"stage": {
+			"light": "#ffb878",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.55,
+			"radius": [
+				10.5,
+				6.8
+			],
+			"tint": "#ffe8d0",
+			"exposure": 1.2,
+			"fill": 0.8,
+			"lift": 0.18,
+			"fill_color": "#ffa860",
+			"dim": 0.85
+		},
+		"particles": [
+			"embers",
+			"smoke"
+		]
 	}
 }

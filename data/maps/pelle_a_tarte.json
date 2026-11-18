@@ -1,0 +1,304 @@
+{
+	"id": "pelle_a_tarte",
+	"name": "Les champs du Pelle-à-Tarte",
+	"region": "Gouda",
+	"size": [
+		62,
+		28
+	],
+	"ambiance": "pelle",
+	"music": "bataille",
+	"arena": "pelle_a_tarte",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_herbe",
+				"rect": [
+					2,
+					4,
+					58,
+					21
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					10,
+					10,
+					40,
+					8
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					44,
+					8,
+					14,
+					14
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				3.5,
+				15.0
+			],
+			"facing": "right"
+		}
+	},
+	"style": "champ",
+	"objects": [
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				8,
+				2,
+				12
+			],
+			"dialogue": "pelle_charge",
+			"unless": "combat_dindon_farce"
+		},
+		{
+			"type": "monster",
+			"id": "naze_supreme",
+			"pos": [
+				51,
+				16
+			],
+			"dialogue": "naze_face",
+			"solid": 1.2,
+			"label": "Affronter",
+			"reach": 3.2,
+			"unless": "combat_naze_supreme",
+			"if": "combat_dindon_farce"
+		},
+		{
+			"type": "npc",
+			"id": "denigror",
+			"pos": [
+				52.5,
+				16
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "denigror_champ",
+			"if": "combat_naze_supreme"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				47,
+				12.5
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "soldat_champ",
+			"if": "combat_naze_supreme"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				47,
+				19.5
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "soldat_champ",
+			"if": "combat_naze_supreme"
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				14,
+				8.6
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				14,
+				20.4
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				24,
+				7
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				25,
+				22
+			]
+		},
+		{
+			"type": "gou_boulets",
+			"pos": [
+				20,
+				14
+			]
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				5,
+				6.5
+			]
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				5,
+				22.6
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				7.5,
+				14.5
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				8.5,
+				9.0
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				8.5,
+				19.5
+			]
+		},
+		{
+			"type": "gou_trebuchet",
+			"pos": [
+				33,
+				6
+			]
+		},
+		{
+			"type": "gou_trebuchet",
+			"pos": [
+				35,
+				23
+			]
+		},
+		{
+			"type": "gou_boulets",
+			"pos": [
+				43,
+				14
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				42,
+				9
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				42,
+				21
+			]
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				28,
+				14.4
+			],
+			"dialogue": "pelle_panneau",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				56,
+				6.4
+			],
+			"dialogue": "coffre_pelle",
+			"label": "Ouvrir",
+			"turn": 10
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				12,
+				5,
+				28,
+				19
+			],
+			"table": "pelle_a_tarte"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				2.1,
+				12,
+				0.8,
+				8
+			],
+			"to": {
+				"map": "minas_croute",
+				"spawn": "pelle"
+			}
+		},
+		{
+			"type": "light",
+			"pos": [
+				7,
+				14
+			],
+			"height": 2.6,
+			"color": "#ff9a50",
+			"energy": 1.4,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				14
+			],
+			"height": 2.6,
+			"color": "#ffb878",
+			"energy": 1.2,
+			"range": 14
+		},
+		{
+			"type": "light",
+			"pos": [
+				50,
+				16
+			],
+			"height": 2.6,
+			"color": "#ffc890",
+			"energy": 1.4,
+			"range": 12
+		}
+	]
+}

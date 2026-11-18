@@ -26,6 +26,9 @@ func _ready() -> void:
 	if args.size() > 1 and args[1] == "chap5":
 		await _rider_only()
 		return
+	if args.size() > 1 and args[1] == "chap6":
+		await _gouda_only(args.size() > 2 and args[2] == "arenes")
+		return
 	await _shot("1_titre")
 
 	main.start_new_game()
@@ -636,3 +639,105 @@ func _shot(shot_name: String) -> void:
 		lum[b] /= float(n)
 	print("%s  %dx%d  luminosité haut/milieu/bas : %.3f %.3f %.3f   netteté haut/milieu/bas : %.4f %.4f %.4f" % [
 		shot_name, fw, fh, lum[0], lum[1], lum[2], bands[0], bands[1], bands[2]])
+
+
+## Chapitre 6 : Minas Tartine, le Sentier, Port-Salé et le Pelle-à-Tarte (mode « chap6 » seul ; « arenes » en
+## troisième argument : les arènes et les grands ennemis).
+func _gouda_only(arenas_only: bool) -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["glandoulf", "sam", "froton", "aragrogne", "pepin", "merri", "digoulasse", "grimli"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 24
+	GameState.set_flag("chapitre_5_fini")
+	GameState.set_flag("minas_vu")
+	GameState.map_id = "minas_croute"
+	GameState.spawn_id = "aigle"
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	if arenas_only:
+		await _gouda_arenas()
+	else:
+		await _gouda_shots()
+	SaveManager.delete_save()
+	print("CAPTURES CHAP6 OK : ", out_dir)
+	get_tree().quit()
+
+
+func _gouda_shots() -> void:
+	await _shot("200_croute_arrivee")
+	await _goto(Vector3(24.0, 0.0, 16.0), "right")
+	await _shot("201_croute_place")
+	await _goto(Vector3(41.0, 0.0, 16.5), "right")
+	await _shot("202_croute_porte")
+	await _goto(Vector3(56.0, 0.0, 16.5), "left")
+	await _shot("203_croute_siege")
+	await _goto(Vector3(14.0, 0.0, 8.0), "up")
+	await _shot("204_croute_poterne")
+	main.change_map("minas_rues", "bas")
+	await _frames(150)
+	await _idle()
+	await _shot("205_rues_bas")
+	await _goto(Vector3(17.0, 1.4, 28.5), "up")
+	await _shot("206_rues_confiture")
+	await _goto(Vector3(17.0, 2.8, 18.5), "up")
+	await _shot("207_rues_miel")
+	await _goto(Vector3(18.0, 4.2, 8.5), "up")
+	await _shot("208_rues_mie")
+	main.change_map("minas_citadelle", "bas")
+	await _frames(150)
+	await _idle()
+	await _shot("209_citadelle")
+	await _goto(Vector3(18.0, 0.0, 12.0), "up")
+	await _shot("210_citadelle_poirier")
+	main.change_map("minas_intendance", "entree")
+	await _frames(150)
+	await _idle()
+	await _shot("211_intendance")
+	await _goto(Vector3(14.0, 0.0, 8.0), "up")
+	await _shot("212_intendance_bureau")
+	main.change_map("sentier_insomniaques", "entree")
+	await _frames(150)
+	await _idle()
+	await _shot("213_sentier_entree")
+	await _goto(Vector3(26.0, 0.0, 10.0), "right")
+	await _shot("214_sentier_milieu")
+	await _goto(Vector3(44.0, 0.0, 10.5), "right")
+	await _shot("215_sentier_roi")
+	main.change_map("port_sale", "entree")
+	await _frames(150)
+	await _idle()
+	await _shot("216_port_arrivee")
+	await _goto(Vector3(26.0, 0.0, 14.5), "right")
+	await _shot("217_port_quai")
+	await _goto(Vector3(35.0, 0.0, 15.5), "right")
+	await _shot("218_port_saumure")
+	GameState.set_flag("combat_dindon_farce")
+	main.change_map("pelle_a_tarte", "entree")
+	await _frames(150)
+	await _idle()
+	await _shot("219_pelle_arrivee")
+	await _goto(Vector3(30.0, 0.0, 14.0), "right")
+	await _shot("220_pelle_champ")
+	await _goto(Vector3(48.0, 0.0, 16.0), "right")
+	await _shot("221_pelle_naze")
+
+
+func _gouda_arenas() -> void:
+	var cases := [["minas_remparts", ["cassouletain", "morfale_siege", "cassouletain"]], ["minas_rues", ["boucanier", "eveille"]], ["citadelle", ["eveille_veilleur", "eveille"]],
+		["sentier_insomniaques", ["eveille", "eveille_veilleur", "eveille"]], ["port_sale", ["boucanier", "boucanier", "boucanier"]], ["pelle_a_tarte", ["mammou", "cassouletain"]],
+		["sentier_insomniaques", ["roi_eveille"]], ["port_sale", ["saumure", "boucanier", "boucanier"]], ["minas_remparts", ["grondine", "morfale_siege"]],
+		["minas_remparts", ["gothmoque", "morfale_siege", "morfale_siege"]], ["pelle_a_tarte", ["dindon_farce", "cassouletain"]], ["pelle_a_tarte", ["naze_supreme"]]]
+	var n := 230
+	for c: Array in cases:
+		main.start_battle({"enemies": c[1], "arena": c[0], "flee": true})
+		await _until_menu()
+		await _frames(50)
+		await _shot("%d_arene_%s_%s" % [n, str(c[0]), str(c[1][0])])
+		n += 1
+		await _flee()
+		main.battle_ui._on_end("ok")
+		await _frames(120)

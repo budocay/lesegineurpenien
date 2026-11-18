@@ -49,6 +49,18 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_C6"):   # essai ciblé du chapitre 6
+		_test_chapter_6_data()
+		await _test_chapter_6()
+		await _test_gouda_scenery()
+		print("%d vérifications, %d échec(s) (chapitre 6 seul)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_MEASURE_C6"):   # tableau d'équilibre du chapitre 6
+		_measure_ch6()
+		get_tree().quit(0)
+		return
 	if OS.has_environment("GLAN_ONLY_MEASURE"):   # tableau d'équilibre des combats obligatoires (GLAN_RUNS = essais, 60 par défaut)
 		_measure_forced()
 		get_tree().quit(0)
@@ -92,6 +104,7 @@ func _ready() -> void:
 	_test_chapter_3_data()
 	_test_chapter_4_data()
 	_test_chapter_5_data()
+	_test_chapter_6_data()
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_tutorials()
@@ -145,12 +158,14 @@ func _ready() -> void:
 	await _test_chapter_3()
 	await _test_chapter_4()
 	await _test_chapter_5()
+	await _test_chapter_6()
 	print("== Décors elfiques (style de Fondue-Combe) ==")
 	await _test_elven_scenery()
 	print("== Décors nains (Mines de Morbier) ==")
 	await _test_dwarven_scenery()
 	print("== Décors des cavaliers, de Fongorn, de l'Isengarde et des chutes ==")
 	await _test_rider_scenery()
+	await _test_gouda_scenery()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -4858,6 +4873,8 @@ func _test_arena_by_place() -> void:
 		"chutes_gratin": "chutes_gratin", "plaine_roquefort": "plaine_roquefort", "cabecou": "plaine_roquefort",
 		"fongorn": "fongorn", "garde_manger": "garde_manger", "bergerie_or": "bergerie_or",
 		"isengarde": "petrins", "terrasse_office": "terrasse_office",
+		"minas_croute": "minas_remparts", "minas_rues": "minas_rues", "minas_citadelle": "citadelle", "minas_intendance": "citadelle",
+		"sentier_insomniaques": "sentier_insomniaques", "port_sale": "port_sale", "pelle_a_tarte": "pelle_a_tarte",
 	}
 	for map_id: String in Database.list_maps():
 		var map := Database.get_map(map_id)
@@ -5828,3 +5845,415 @@ func _test_arena_mood() -> void:
 			check(expo >= 1.1 and (fill >= 0.5 or lift >= 0.15), "%s : sol sombre (%.2f) relevé (exposition %.2f, appoint %.1f, lift %.2f)" % [t, floor_lum, expo, fill, lift])
 		check(floor_lum * dim <= 0.46, "%s : sol clair assombri (%.2f)" % [t, floor_lum * dim])
 		check(lift >= 0.15 or fill >= 0.5 or floor_lum * dim <= 0.4, "%s : combattants détachés d'un sol moyen (lift ou appoint)" % t)
+
+
+# =========================================================================== chapitre 6
+
+const C6_MAPS := ["minas_croute", "minas_rues", "minas_citadelle", "minas_intendance", "sentier_insomniaques", "port_sale", "pelle_a_tarte"]
+const C6_STYLES := {"minas_croute": "gouda", "minas_rues": "gouda", "minas_citadelle": "gouda", "minas_intendance": "gouda", "sentier_insomniaques": "veille", "port_sale": "port", "pelle_a_tarte": "champ"}
+const C6_MONSTERS := ["eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine"]
+const C6_CITY := ["glandoulf", "sam", "froton", "pepin"]
+const C6_SENTIER := ["aragrogne", "digoulasse", "grimli"]
+const C6_PORT := ["aragrogne", "digoulasse", "grimli", "merri"]
+const C6_GATE := ["glandoulf", "sam", "froton", "aragrogne"]
+const C6_RELIEF := ["pepin", "merri", "digoulasse", "grimli"]
+const C6_NAZE := ["aragrogne", "merri", "glandoulf", "pepin"]
+const C6_MIN_TABLE := 0.85
+const C6_MIN_BOSS := 0.6
+const C6_LEVEL := {"minas_croute": 21, "sentier": 20, "port_sale": 21, "pelle_a_tarte": 22, "minas_rues": 20}
+
+## Les combats du chapitre 6 : (nom, équipe, niveau, rencontre, type).
+func _c6_cases() -> Array:
+	return [
+		["6 Éveillés (1)", C6_SENTIER, 20, Database.get_encounter("eveilles_1"), "ordinaire"],
+		["6 Éveillés (3)", C6_SENTIER, 20, Database.get_encounter("eveilles_3"), "ordinaire"],
+		["6 Roi des Éveillés", C6_SENTIER, 20, Database.get_encounter("roi_eveille"), "boss"],
+		["6 Saumure", C6_PORT, 21, Database.get_encounter("saumure"), "boss"],
+		["6 Grondine", C6_GATE, 21, Database.get_encounter("grondine"), "boss"],
+		["6 Gothmoque", C6_GATE, 22, Database.get_encounter("gothmoque"), "boss"],
+		["6 Cassoulétains", C6_GATE, 22, Database.get_encounter("pelle_cassouletains"), "ordinaire"],
+		["6 Mammous", C6_RELIEF, 22, Database.get_encounter("pelle_mammous"), "ordinaire"],
+		["6 Dindon de la Farce", ["glandoulf", "sam", "aragrogne", "grimli"], 22, Database.get_encounter("dindon_farce"), "boss"],
+		["6 Naze Suprême", C6_NAZE, 23, Database.get_encounter("naze_supreme"), "boss"],
+		["6 Grondine sans soigneur", ["glandoulf", "froton", "aragrogne", "merri"], 21, Database.get_encounter("grondine"), "sans_soigneur"],
+		["6 Gothmoque sans soigneur", ["glandoulf", "froton", "aragrogne", "merri"], 22, Database.get_encounter("gothmoque"), "sans_soigneur"],
+		["6 Roi sans soigneur", ["aragrogne", "digoulasse", "grimli"], 20, Database.get_encounter("roi_eveille"), "sans_soigneur"],
+		["6 Naze sans soigneur", ["aragrogne", "merri", "glandoulf", "grimli"], 23, Database.get_encounter("naze_supreme"), "sans_soigneur"],
+	]
+
+
+## Équipement du chapitre 6 que l'équipe porte à ce moment : le Décret d'Aragrogne, la dague de Merri contre le Naze.
+func _c6_gear(case: Array) -> void:
+	for who: String in case[1]:
+		var piece := ""
+		if who == "aragrogne":
+			piece = "decret_de_la_lignee"
+		elif who == "merri" and str(case[0]).contains("Naze"):
+			piece = "dague_de_dos"
+		if piece != "":
+			GameState.add_item(piece)
+			GameState.equip(who, piece)
+
+
+func _c6_rate(case: Array) -> float:
+	var wins := 0
+	var runs := 40
+	for s in runs:
+		GameState.new_game()
+		GameState.party = []
+		for id: String in case[1]:
+			GameState.add_to_party(id)
+			GameState.member(id)["level"] = int(case[2])
+			_spend(id, 0)
+		_c6_gear(case)
+		GameState.heal_party()
+		var e := _fight(case[3], 100 + s)
+		if str(e.result) == "victory":
+			wins += 1
+	print("  taux : %s niv. %d contre %s : %d %%" % [str(case[1]), int(case[2]), str((case[3].get("enemies", []) as Array).slice(0, 3)), int(100.0 * wins / runs)])
+	return float(wins) / runs
+
+
+func _measure_ch6() -> void:
+	var runs := int(OS.get_environment("GLAN_RUNS")) if OS.has_environment("GLAN_RUNS") else 60
+	var filter := OS.get_environment("GLAN_FILTER")
+	print("  %-36s %-9s %5s %5s %6s" % ["combat", "type", "sans", "avecA", "tours"])
+	for case: Array in _c6_cases():
+		if filter != "" and not str(case[0]).contains(filter):
+			continue
+		var rates := []
+		var rounds := 0.0
+		for talents in [-1, 0]:
+			var wins := 0
+			var total_rounds := 0.0
+			for s in runs:
+				GameState.new_game()
+				GameState.party = []
+				for id: String in case[1]:
+					GameState.add_to_party(id)
+					GameState.member(id)["level"] = int(OS.get_environment("GLAN_LEVEL")) if OS.has_environment("GLAN_LEVEL") else int(case[2])
+					if talents >= 0:
+						_spend(id, talents)
+				_c6_gear(case)
+				GameState.heal_party()
+				var e: RefCounted = BattleEngine.new()
+				e.setup(case[3], 100 + s)
+				var guard := 0
+				var hero_turns := 0
+				while str(e.result) == "" and guard < 800:
+					guard += 1
+					var actor: RefCounted = e.next_actor()
+					if actor == null:
+						break
+					e.start_turn(actor)
+					if str(e.result) == "" and bool(e.can_act):
+						if str(actor.side) != "enemy":
+							hero_turns += 1
+						e.perform(actor, e.ai_action(actor) if str(actor.side) == "enemy" else e.auto_action(actor))
+					if str(e.result) == "":
+						e.end_turn(actor)
+				if str(e.result) == "victory":
+					wins += 1
+				total_rounds += float(hero_turns) / float(maxi(1, (case[1] as Array).size()))
+			rates.append(int(100.0 * wins / runs))
+			rounds = total_rounds / runs
+		print("  %-36s %-9s %4d%% %4d%% %6.1f" % [str(case[0]), str(case[4]), int(rates[0]), int(rates[1]), rounds])
+	GameState.new_game()
+
+
+func _test_chapter_6_data() -> void:
+	print("== Chapitre 6 : données et équilibre ==")
+	for id: String in C6_MAPS:
+		check(Database.has_map(id), "carte %s existe" % id)
+		var map := Database.get_map(id)
+		check(map.has("music") and Database.music.has(str(map["music"])), "carte %s : musique connue" % id)
+		check(str(map.get("style", "")) == str(C6_STYLES[id]), "carte %s : style %s" % [id, C6_STYLES[id]])
+		check(Database.arenas.has(str(map.get("arena", ""))), "carte %s : arène déclarée" % id)
+		check(Database.ambiances.has(str(map.get("ambiance", ""))), "carte %s : ambiance connue" % id)
+	for kind: String in C6_MONSTERS:
+		check(MonsterPainter.has(kind), "monstre %s : espèce connue" % kind)
+		var img: Image = MonsterPainter.paint(kind)
+		var magenta := 0
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					filled += 1
+					if c.r > 0.95 and c.g < 0.05 and c.b > 0.95:
+						magenta += 1
+		check(magenta == 0 and filled > 200, "monstre %s : dessiné, sans magenta (%d px)" % [kind, filled])
+	for q: String in ["minas_tartine", "pain_de_siege", "intendant_compliment", "poirier_blanc"]:
+		check(not Database.get_quest(q).is_empty(), "quête %s décrite" % q)
+	check(Database.get_quest("minas_tartine").get("kind") == "principale", "Minas Tartine est la quête principale")
+	for ch: String in ["denigror", "mie_dure", "heraut_poterne", "soldat_minas", "doigtiste", "jardinier_poirier", "cambusier", "fourrier", "greviste", "citoyen_mou"]:
+		check(Database.characters.has(ch), "personnage %s décrit" % ch)
+		check(Database.characters[ch].get("look", {}).has("face"), "personnage %s : un visage" % ch)
+	var slots := {}
+	for it: String in ["epee_de_la_garde_dressee", "baton_du_garde_a_vous", "louche_de_remparts", "canif_de_la_poterne", "serpe_du_poirier", "dague_de_dos", "heaume_de_la_garde_dressee", "bonnet_de_nuit_des_eveilles", "tricorne_de_saumure", "toque_de_marmite", "cotte_de_pain_d_epices", "robe_de_chantilly", "cuirasse_de_croute", "couronne_en_remplacement", "decret_de_la_lignee", "doigt_de_gant", "tuteur_de_poirier", "medaille_du_garde_a_vous", "cor_de_gothmoque"]:
+		check(Database.items.has(it), "équipement %s décrit" % it)
+		slots[str(Database.items.get(it, {}).get("slot", ""))] = true
+	check(slots.has("weapon") and slots.has("head") and slots.has("armor") and slots.has("trinket"), "chapitre 6 : armes, casques, armures et bijoux neufs (%s)" % str(slots.keys()))
+	for it: String in ["marmite_d_huile", "pot_de_braise", "couvercle_de_rempart", "echelle_renversee", "soupe_de_siege", "tartine_eternelle", "pain_de_siege", "farine_de_siege", "tuteur_neuf"]:
+		check(Database.items.has(it), "objet %s décrit" % it)
+	for sh: String in ["minas_marche", "port_cambuse"]:
+		check(not Database.get_shop(sh).is_empty(), "boutique %s" % sh)
+	for e: String in ["eveilles_1", "eveilles_2", "eveilles_3", "eveilles_4", "roi_eveille", "saumure", "grondine", "gothmoque", "pelle_cassouletains", "pelle_mammous", "dindon_farce", "naze_supreme"]:
+		var enc := Database.get_encounter(e)
+		check(not enc.is_empty(), "rencontre %s" % e)
+		if ["roi_eveille", "saumure", "grondine", "gothmoque", "dindon_farce", "naze_supreme"].has(e):
+			check(enc.has("boss") and Database.enemies.has(str(enc["boss"])), "rencontre %s : boss déclaré" % e)
+	for en: String in C6_MONSTERS + ["morfale_siege"]:
+		check(Database.enemies.has(en), "ennemi %s décrit" % en)
+	check(Database.music.has("minas") and Database.music.has("minas_haut") and Database.music.has("eveilles") and Database.music.has("port_sale") and Database.music.has("bataille"), "chapitre 6 : cinq morceaux neufs")
+	# la porte de l'Office mène à Minas Tartine, une fois le chapitre 5 fini
+	var terrasse := Database.get_map("terrasse_office")
+	var found := false
+	for o: Variant in terrasse.get("objects", []):
+		if o is Dictionary and str((o as Dictionary).get("type", "")) == "warp" and str(((o as Dictionary).get("to", {}) as Dictionary).get("map", "")) == "minas_croute" and str((o as Dictionary).get("if", "")) == "chapitre_5_fini":
+			found = true
+	check(found, "la terrasse de l'Office mène à Minas Tartine (chapitre_5_fini)")
+	# un repère de quête pour chaque étape de la quête principale
+	for st: Variant in Database.get_quest("minas_tartine")["steps"]:
+		check((st as Dictionary).has("target"), "minas_tartine : « %s » a un repère" % str((st as Dictionary)["text"]))
+	# tables et combats
+	for t: Array in [["minas_croute", 21, C6_GATE], ["minas_rues", 20, C6_GATE], ["sentier", 20, C6_SENTIER], ["port_sale", 21, C6_PORT], ["pelle_a_tarte", 22, C6_GATE]]:
+		check(Database.encounter_tables.has(str(t[0])), "table %s" % str(t[0]))
+		var r := _c5_table_rate(t[2], str(t[0]), int(t[1]))
+		check(float(r[0]) >= 0.7, "table %s, niv. %d : pire groupe %d %% (%s)" % [str(t[0]), int(t[1]), int(float(r[0]) * 100.0), str(r[1])])
+		print("  table %-14s pire groupe %3d %%  (%s)" % [str(t[0]), int(float(r[0]) * 100.0), str(r[1])])
+	for case: Array in _c6_cases():
+		var a := _c6_rate(case)
+		var lo := C6_MIN_TABLE if str(case[4]) == "ordinaire" else (0.45 if str(case[4]) == "sans_soigneur" else C6_MIN_BOSS)
+		var hi := 1.0 if str(case[4]) != "boss" else 0.85
+		check(a >= lo and a <= hi, "%s, équipe niv. %d : %d %% (visé %d à %d %%)" % [str(case[0]), int(case[2]), int(a * 100.0), int(lo * 100.0), int(hi * 100.0)])
+	GameState.new_game()
+
+
+## Style gouda : tuiles, accessoires, objets et styles documentés ; cartes construites.
+func _test_gouda_scenery() -> void:
+	var Gouda: GDScript = load("res://src/gfx/gouda_painter.gd")
+	var GoudaBuilder: GDScript = load("res://src/world/gouda_builder.gd")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for kind: String in Gouda.TILES:
+		var img: Image = Sprites.tile_image(kind)
+		check(img != null and img.get_width() >= 48, "style gouda : la tuile %s est peinte" % kind)
+		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style gouda : la tuile %s n'est pas le magenta de secours" % kind)
+		check(docs.contains(kind), "style gouda : la tuile %s est documentée" % kind)
+	for kind: String in Gouda.PROP_VARIANTS:
+		check(MapBuilder.PROPS.has(kind), "style gouda : %s est un accessoire déclaré" % kind)
+		check(docs.contains(kind), "style gouda : %s est documenté" % kind)
+		for v in int(Gouda.PROP_VARIANTS[kind]):
+			var tex: Texture2D = Sprites.prop(kind, v)
+			check(tex != null and tex.get_width() > 4 and tex.get_height() > 4, "style gouda : %s variante %d peint" % [kind, v])
+	for kind: String in GoudaBuilder.OBJECTS:
+		check(docs.contains(kind), "style gouda : l'objet %s est documenté" % kind)
+	for st: String in GoudaBuilder.STYLES:
+		check(docs.contains("\"%s\"" % st) or docs.contains("`%s`" % st), "style %s : documenté" % st)
+	for id: String in C6_MAPS:
+		var map := Database.get_map(id)
+		for f: Dictionary in (map.get("ground", {}) as Dictionary).get("fills", []):
+			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
+		for o: Dictionary in map.get("objects", []):
+			var t := str(o.get("type", ""))
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "tree", "table", "rug"] \
+					or MapBuilder.PROPS.has(t) or GoudaBuilder.OBJECTS.has(t)
+			check(known, "carte %s : objet « %s » connu" % [id, t])
+			if t == "scatter":
+				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
+			if o.has("dialogue"):
+				check(Database.has_dialogue(str(o["dialogue"])), "carte %s : dialogue « %s » existe" % [id, str(o["dialogue"])])
+	for id: String in C6_MAPS:
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await get_tree().process_frame
+		check(world.player != null, "carte %s : construite dans son style" % id)
+		if bool(Database.get_map(id).get("interior", false)):
+			check(world.get_node_or_null("Walls") != null, "carte %s : murs construits" % id)
+		else:
+			check(world.get_node_or_null("Outskirts") != null, "carte %s : abords construits" % id)
+		world.queue_free()
+		await get_tree().process_frame
+	# les cartes d'avant ne prennent aucun décor gouda
+	GameState.new_game()
+	var village: Node3D = World.new()
+	add_child(village)
+	village.setup("brie", str(Database.get_map("brie")["spawns"].keys()[0]))
+	await get_tree().process_frame
+	var any_gouda := false
+	for n: Node in village.get_children():
+		if n.name.begins_with("Gouda"):
+			any_gouda = true
+	check(not any_gouda, "Brie : aucun décor gouda (le style se choisit par les données)")
+	village.queue_free()
+	await get_tree().process_frame
+
+
+## Chapitre 6 : Minas Tartine, joué dans le vrai jeu, de la terrasse de l'Office à la signature.
+func _test_chapter_6() -> void:
+	print("== Chapitre 6 : déroulé complet ==")
+	var base := ["chapitre_5_fini", "sarumale_vaincu", "terrasse_vue"]
+	await _test_map("minas_croute", [], "arrivée")
+	await _test_map("minas_croute", ["minas_vu", "accueil_fait", "bromure_annonce", "sentier_envoye", "combat_roi_eveille", "combat_saumure", "nuit_vue", "manoeuvres_ok"], "avant la porte")
+	await _test_map("minas_croute", ["minas_vu", "accueil_fait", "bromure_annonce", "sentier_envoye", "combat_roi_eveille", "combat_saumure", "nuit_vue", "manoeuvres_ok", "porte_tenue"], "porte tenue")
+	await _test_map("minas_rues", [], "rues")
+	await _test_map("minas_citadelle", [], "citadelle")
+	await _test_map("minas_intendance", [], "intendance")
+	await _test_map("sentier_insomniaques", [], "sentier")
+	await _test_map("sentier_insomniaques", ["combat_roi_eveille"], "sentier, Roi couché")
+	await _test_map("port_sale", [], "port")
+	await _test_map("pelle_a_tarte", [], "champs")
+	await _test_map("pelle_a_tarte", ["combat_dindon_farce"], "champs, Dindon vaincu")
+	await _test_map("pelle_a_tarte", ["combat_dindon_farce", "combat_naze_supreme"], "champs, Naze vaincu")
+
+	GameState.new_game()
+	GameState.party = ["glandoulf", "sam", "froton", "aragrogne"]
+	GameState.bench = ["merri", "pepin", "digoulasse", "grimli"]
+	for who: String in GameState.party + GameState.bench:
+		GameState.member(who)["level"] = 30
+	for f: String in base:
+		GameState.set_flag(f)
+	GameState.set_flag("chapitre_5_fini")
+	GameState.chapter = "chapitre_6"
+	GameState.money = 800
+	GameState.map_id = "terrasse_office"
+	GameState.spawn_id = "entree"
+	GameState.heal_party()
+	check(SaveManager.save_game(), "sauvegarde au départ du chapitre 6")
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	check(main.world.map_id == "terrasse_office" and _c4_has_warp(main, "minas_croute"), "la terrasse de l'Office ouvre sur Minas Tartine")
+
+	# arrivée : l'aigle dépose l'équipe, les chasseurs montent en ville
+	main.change_map("minas_croute", "aigle")
+	await _wait_idle(main)
+	check(GameState.has_flag("minas_vu"), "l'arrivée à Minas Tartine est jouée")
+	check(GameState.party == ["glandoulf", "froton", "sam", "pepin"], "les chasseurs mènent en ville (%s)" % str(GameState.party))
+	check(GameState.bench.has("aragrogne") and GameState.bench.has("merri"), "les cavaliers attendent sur le banc (%s)" % str(GameState.bench))
+	check(GameState.quest_state("minas_tartine") != "", "la quête principale est lancée")
+	await _c4_say(main, "denigror_porte")
+	check(GameState.has_flag("accueil_fait"), "Dénigror accueille l'équipe")
+
+	# l'Intendance : la mort de Bromure est annoncée à son père
+	main.change_map("minas_rues", "bas")
+	await _wait_idle(main)
+	main.change_map("minas_citadelle", "bas")
+	await _wait_idle(main)
+	main.change_map("minas_intendance", "entree")
+	await _wait_idle(main)
+	await _c4_say(main, "denigror_bureau")
+	check(GameState.has_flag("bromure_annonce"), "l'Intendant apprend la mort de son fils")
+	await _c4_say(main, "denigror_bureau", [0])
+	check(GameState.has_flag("compliment_defie"), "défi du compliment lancé")
+	await _c4_say(main, "intendance_dossiers")
+	await _c4_say(main, "coffre_intendance_1")
+	check(GameState.item_count("couronne_en_remplacement") == 1, "le coffre de l'Intendance : la couronne de remplacement")
+	await _c4_say(main, "coffre_intendance_2")
+	var money_before := GameState.money
+	await _c4_say(main, "minas_repos", [0])
+	check(SaveManager.has_save(), "le lit de l'Intendance sauvegarde")
+
+	# quêtes annexes : pain, poirier
+	main.change_map("minas_croute", "porte")
+	await _wait_idle(main)
+	await _c4_say(main, "mie_dure_etal", [1])
+	check(GameState.has_flag("pain_demande"), "Mie-Dure confie sa quête")
+	main.change_map("minas_rues", "bas")
+	await _wait_idle(main)
+	for f: String in ["farine_1", "farine_2", "farine_3"]:
+		await _c4_say(main, f)
+	check(GameState.item_count("farine_de_siege") == 3, "trois sacs de farine de siège")
+	await _c4_say(main, "tuteur_caisse")
+	check(GameState.item_count("tuteur_neuf") == 0, "le tuteur reste en place tant que Verjus n'a rien demandé")
+	main.change_map("minas_citadelle", "bas")
+	await _wait_idle(main)
+	await _c4_say(main, "verjus_poirier")
+	check(GameState.has_flag("poirier_demande"), "Verjus confie sa quête")
+	await _c4_say(main, "coffre_citadelle")
+	main.change_map("minas_rues", "haut")
+	await _wait_idle(main)
+	await _c4_say(main, "tuteur_caisse")
+	check(GameState.item_count("tuteur_neuf") == 1, "le tuteur neuf en frêne")
+	main.change_map("minas_citadelle", "bas")
+	await _wait_idle(main)
+	await _c4_say(main, "poirier_tuteur")
+	check(GameState.has_flag("tuteur_essaye") and GameState.quest_state("poirier_blanc") == "done", "le Poirier Blanc a son tuteur (%s)" % GameState.quest_state("poirier_blanc"))
+	main.change_map("minas_croute", "porte")
+	await _wait_idle(main)
+	await _c4_say(main, "mie_dure_etal")
+	check(GameState.has_flag("pain_fait") and GameState.quest_state("pain_de_siege") == "done", "Sam a pétri : la quête du pain est finie")
+
+	# le Héraut : le groupe se scinde, le Sentier
+	await _c4_say(main, "heraut_poterne", [0])
+	check(GameState.party == ["aragrogne", "digoulasse", "grimli"] and GameState.has_flag("sentier_envoye"), "le Sentier : Aragrogne mène (%s)" % str(GameState.party))
+	check(main.world.map_id == "sentier_insomniaques", "le dialogue emmène le groupe au Sentier (%s)" % main.world.map_id)
+	check(GameState.worn_by("decret_de_la_lignee").size() == 1, "Aragrogne porte le Décret de la Lignée")
+	for n in [1, 2, 3, 4]:
+		GameState.heal_party()
+		await _c4_say(main, "eveille_%d" % n, [], 240.0)
+		check(GameState.has_flag("combat_eveilles_%d" % n), "les Éveillés (%d) sont couchés (%s)" % [n, str(GameState.party.map(func(w: String) -> String: return "%s:%d/%d" % [w, int(GameState.member(w)["hp"]), int(GameState.member(w)["level"])]))])
+	GameState.heal_party()
+	await _c4_say(main, "roi_eveille_face", [], 300.0)
+	check(GameState.has_flag("combat_roi_eveille"), "le Roi des Éveillés dort enfin")
+	check(GameState.party == ["aragrogne", "digoulasse", "grimli", "merri"], "Merri rejoint le groupe (%s)" % str(GameState.party))
+	main.change_map("sentier_insomniaques", "est")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "port_sale"), "le Sentier mène au port une fois le Roi couché")
+	main.change_map("port_sale", "entree")
+	await _wait_idle(main)
+	await _c4_say(main, "saumure_face", [], 300.0)
+	check(GameState.has_flag("combat_saumure"), "Saumure est battu")
+	check(main.world.map_id == "minas_croute", "retour à la Croûte (%s)" % main.world.map_id)
+	check(GameState.party == C6_GATE, "l'équipe se reforme à la Grande Porte (%s)" % str(GameState.party))
+	await _wait_idle(main)
+	check(GameState.has_flag("nuit_vue"), "la nuit avant l'assaut est jouée")
+
+	# les cinq manœuvres, la Grande Porte
+	await _c4_say(main, "gothmoque_face")
+	check(not GameState.has_flag("combat_grondine") if not GameState.has_flag("manoeuvres_ok") else true, "pas d'assaut tant que les postes ne sont pas prêts")
+	for st: String in ["huile", "braise", "couvercle", "echelle", "soupe"]:
+		await _c4_say(main, "manoeuvre_" + st)
+	check(GameState.has_flag("manoeuvres_ok"), "les cinq manœuvres sont prêtes")
+	check(GameState.item_count("marmite_d_huile") >= 1 and GameState.item_count("soupe_de_siege") >= 1, "les objets de manœuvre sont dans le sac")
+	GameState.heal_party()
+	await _c4_say(main, "gothmoque_face", [], 900.0)
+	check(GameState.has_flag("combat_grondine") and GameState.has_flag("combat_gothmoque") and GameState.has_flag("porte_tenue"), "la Grande Porte tient")
+	await _c4_say(main, "denigror_croute2")
+	check(GameState.has_flag("compliment_obtenu") and GameState.quest_state("intendant_compliment") == "done", "l'Intendant a fait un compliment")
+
+	# sauvegarde à mi-chemin, rechargement
+	check(SaveManager.save_game(), "sauvegarde à la Grande Porte")
+	main.queue_free()
+	await get_tree().process_frame
+	main = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	check(main.world.map_id == "minas_croute" and GameState.has_flag("porte_tenue") and _c4_has_warp(main, "pelle_a_tarte"), "rechargé à la Grande Porte : la route de l'est est ouverte")
+	money_before = GameState.money
+
+	# le Pelle-à-Tarte
+	main.change_map("pelle_a_tarte", "entree")
+	await _wait_idle(main)
+	await _c4_say(main, "pelle_charge", [], 900.0)
+	check(GameState.has_flag("combat_pelle_cassouletains") and GameState.has_flag("combat_pelle_mammous") and GameState.has_flag("combat_dindon_farce"), "les trois charges du Pelle-à-Tarte")
+	await _c4_say(main, "naze_face", [], 400.0)
+	check(GameState.has_flag("combat_naze_supreme"), "le Naze Suprême est abattu")
+	check(GameState.party == C6_NAZE, "l'équipe du Naze : %s" % str(GameState.party))
+	await _c4_say(main, "denigror_champ")
+	check(GameState.has_flag("chapitre_6_fini"), "le chapitre 6 est terminé")
+	check(GameState.chapter == "chapitre_7", "on passe au chapitre 7 (%s)" % GameState.chapter)
+	check(GameState.quest_state("minas_tartine") == "done", "la quête principale est terminée (%s)" % GameState.quest_state("minas_tartine"))
+	check(GameState.money > money_before and GameState.item_count("tartine_eternelle") >= 1, "récompenses reçues")
+	main.queue_free()
+	await get_tree().process_frame
+	GameState.new_game()

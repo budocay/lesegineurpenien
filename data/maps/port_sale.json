@@ -1,0 +1,290 @@
+{
+	"id": "port_sale",
+	"name": "Port-Salé",
+	"region": "Gouda",
+	"size": [
+		48,
+		26
+	],
+	"ambiance": "port",
+	"music": "port_sale",
+	"arena": "port_sale",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "water",
+		"fills": [
+			{
+				"type": "gou_quai",
+				"rect": [
+					2,
+					9,
+					44,
+					13
+				]
+			},
+			{
+				"type": "gou_quai",
+				"rect": [
+					14,
+					3,
+					22,
+					6
+				]
+			},
+			{
+				"type": "gou_quai",
+				"rect": [
+					3,
+					22,
+					12,
+					2
+				]
+			}
+		]
+	},
+	"water": {
+		"deep": "#10202e",
+		"shallow": "#2a5060",
+		"ripple": "#a0c0cc",
+		"glint": "#e8f4f8"
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				4.0,
+				14.5
+			],
+			"facing": "right"
+		}
+	},
+	"style": "port",
+	"objects": [
+		{
+			"type": "monster",
+			"id": "saumure",
+			"pos": [
+				38.5,
+				15.5
+			],
+			"dialogue": "saumure_face",
+			"solid": 1.1,
+			"label": "Aborder",
+			"reach": 3.0,
+			"unless": "combat_saumure"
+		},
+		{
+			"type": "npc",
+			"id": "cambusier",
+			"pos": [
+				14,
+				15.4
+			],
+			"facing": "down",
+			"reach": 2.2,
+			"dialogue": "cambusier_port"
+		},
+		{
+			"type": "npc",
+			"id": "fourrier",
+			"pos": [
+				9,
+				18.6
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "fourrier_port"
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				25,
+				12
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "citoyen_port",
+			"wander": 2.0
+		},
+		{
+			"type": "gou_ancre",
+			"pos": [
+				20,
+				20.4
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				6,
+				14
+			],
+			"dialogue": "port_baril",
+			"label": "Examiner"
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				7,
+				15
+			]
+		},
+		{
+			"type": "gou_boulets",
+			"pos": [
+				29,
+				14.5
+			]
+		},
+		{
+			"type": "gou_voile",
+			"pos": [
+				17,
+				8.4
+			]
+		},
+		{
+			"type": "gou_voile",
+			"pos": [
+				31,
+				8.0
+			]
+		},
+		{
+			"type": "gou_voile",
+			"pos": [
+				40,
+				20.5
+			]
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				8,
+				8.5
+			],
+			"dialogue": "port_tente",
+			"label": "Se reposer",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				22,
+				17.6
+			],
+			"dialogue": "port_panneau",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				43,
+				12.6
+			],
+			"dialogue": "coffre_port",
+			"label": "Ouvrir",
+			"turn": 10
+		},
+		{
+			"type": "crate",
+			"pos": [
+				4.6,
+				19.6
+			],
+			"dialogue": "coffre_port_2",
+			"label": "Ouvrir",
+			"turn": -8
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				26,
+				6,
+				9,
+				4
+			],
+			"door": 4.5,
+			"windows": [
+				1.5,
+				7.5
+			],
+			"lit": true,
+			"dialogue": "port_taverne",
+			"height": 3.8
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				3,
+				11,
+				40,
+				10
+			],
+			"table": "port_sale"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				2.1,
+				12.5,
+				0.8,
+				4
+			],
+			"to": {
+				"map": "sentier_insomniaques",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "light",
+			"pos": [
+				14,
+				15
+			],
+			"height": 2.4,
+			"color": "#ffd890",
+			"energy": 1.4,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				14
+			],
+			"height": 2.4,
+			"color": "#ffc080",
+			"energy": 1.3,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				40,
+				15
+			],
+			"height": 2.4,
+			"color": "#ff9a60",
+			"energy": 1.5,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				8,
+				12
+			],
+			"height": 2.4,
+			"color": "#ffe4ae",
+			"energy": 1.0,
+			"range": 7
+		}
+	]
+}
