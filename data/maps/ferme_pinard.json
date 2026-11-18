@@ -97,6 +97,7 @@
 		},
 		{
 			"type": "house",
+			"style": "grobitte",
 			"rect": [
 				4,
 				5,

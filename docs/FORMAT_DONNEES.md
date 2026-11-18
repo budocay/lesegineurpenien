@@ -151,7 +151,9 @@ Décors ajoutés (utilisables aussi dans les cartes) : `boulder`, `stump`, `log`
 `mushrooms`, `reeds`, `haystack`, `fence`, `pillar`, `brazier`, `anvil`, `forge`,
 `deadtree`. Les arbres `tree` ont quatre essences (chêne, bouleau, sapin, érable roux).
 Sols ajoutés : `basalt` ; parois `rock_face*` (96 x 96 px, soit 4 unités).
-Maisons des cartes : champ facultatif `awning` (`false` retire l'auvent de la porte).
+Maisons des cartes : champ facultatif `awning` (`false` retire l'auvent de la porte). Les
+maisons du style par défaut se construisent dans `src/world/house_builder.gd` (voir « Maisons
+des villages » plus bas).
 
 ## Cartes — `data/maps/<identifiant>.json`
 
@@ -237,6 +239,40 @@ des rampes pour passer de l'un à l'autre :
 
 Tout objet qui porte un champ `dialogue` devient examinable ; `label` change le texte de
 l'invite (« Parler », « Lire », « Examiner »…) et `reach` la distance d'interaction.
+
+## Maisons des villages (style par défaut)
+
+Chaque `house` d'une carte sans style est construite par `src/world/house_builder.gd`
+(textures dans `src/gfx/house_painter.gd`) : toit à deux pans débordant avec rives, faîtage,
+cheminée qui fume, lucarnes, marche de seuil, soubassement, enseigne, accessoires, fenêtres
+éclairées. Tout ce qui n'est pas dans le JSON est tiré **de façon stable** de l'identifiant
+de la carte et de `rect` (la même maison est identique à chaque lancement) : matière du mur,
+couleur d'enduit, hauteur, volets, lucarnes, côté de la cheminée. Tout champ donné dans le
+JSON l'emporte sur le tirage. `rect`, `door`, `windows`, `to`, `dialogue`, `lit`, `door_color`,
+`roof`, `height`, `roof_height`, `awning`, `chimney` gardent leur sens.
+
+Champs facultatifs, tous ignorés quand ils manquent :
+- `style` : `"grobitte"` pour une maison de Grobitte : toit d'herbe en tonneau (le champ `roof`
+  est ignoré), murs bas, porte ronde et hublots. Les autres maisons ont une porte à planches
+  (cintrée ou plate) et des fenêtres à croisillons.
+- `wall` : `"crepi"`, `"colombage"`, `"pierre"` ou `"planches"`. Par défaut : tirage selon le toit
+  (chaume : planches ou colombage ; ardoise : pierre ou crépi) ; une maison de 3,3 ou plus de
+  haut a deux niveaux et le plus souvent un colombage.
+- `plaster` : couleur d'enduit, `"#rrggbb"` (crépi, colombage, lucarnes).
+- `storeys` : 1 ou 2. À deux niveaux (par défaut dès `height` >= 3,3), l'étage est en
+  encorbellement (`jetty` : `false` le supprime) et la façade porte deux rangées de fenêtres.
+- `dormers` : nombre de lucarnes sur le pan avant (0 à 2 ; par défaut tiré pour les toits hauts
+  et larges, jamais sur une maison à deux niveaux ni une maison grobitte).
+- `sign` : enseigne suspendue (`"auberge"`, `"fromage"`, `"forge"`, `"cheval"`, `"herbes"`). Sans
+  ce champ, elle se déduit du nom de la carte visée par `to` ou du `dialogue` de la porte
+  (`auberge`, `poney`, `fromag`, `forge`, `ecurie`). Pas d'enseigne sur une façade de moins de 6.
+- `extra` : accessoire contre le mur, loin de la porte (`"barrel"`, `"crates"`, `"flowers"`,
+  `""` pour aucun) ; tiré au hasard sinon.
+
+Lumière : les fenêtres éclairées brillent pleinement au crépuscule et la nuit, et s'adoucissent
+dans une ambiance à soleil fort (lecture de `sun.energy` de l'ambiance, aucune lumière avec ombre
+en plus). `lit: false` éteint toujours les fenêtres. Toutes les pièces d'une maison s'estompent
+ensemble quand elle passe devant le héros (`occluders`).
 
 ## Styles d'architecture : le style elfe
 

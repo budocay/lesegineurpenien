@@ -77,6 +77,7 @@ func _ready() -> void:
 	_test_lanternes_mines()
 	_test_equipment()
 	await _test_settings()
+	await _test_houses()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -4671,3 +4672,102 @@ func _test_lanternes_mines() -> void:
 			var amb: Dictionary = Database.get_ambiance(str(Database.get_map(id).get("ambiance", "")))
 			var lan: Variant = amb.get("lantern")
 			check(lan is Dictionary and float((lan as Dictionary).get("energy", 0.0)) > 0.0, "lanterne : la carte « %s » a une lumière propre pour le héros" % id)
+
+
+## Maisons du style par défaut : volumes, variété stable, jouabilité inchangée (emprise, porte, estompage).
+func _test_houses() -> void:
+	print("== Maisons des villages ==")
+	var HB: GDScript = load("res://src/world/house_builder.gd")
+	var HP: GDScript = load("res://src/gfx/house_painter.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for field: String in ["grobitte", "storeys", "dormers", "plaster", "extra", "planches", "colombage", "jetty"]:
+		check(docs.contains(field), "maisons : le champ ou la valeur « %s » est documenté" % field)
+	check(is_equal_approx(HB.glow_factor({"ambiance": "crepuscule"}), 1.0), "maisons : fenêtres pleinement éclairées au crépuscule")
+	check(HB.glow_factor({"ambiance": "aube"}) < 0.5, "maisons : fenêtres bien plus discrètes en plein jour")
+	for kind: String in HP.ROOF_PAL:
+		var img: Image = HP.roof({"roof": kind, "seed": 11}, 6.0, 3.0)
+		var ok := img.get_width() == 144 and img.get_pixel(3, 3).a > 0.99 and img.get_pixel(100, 60).a > 0.99
+		check(ok and not img.get_pixel(50, 40).is_equal_approx(Color(1, 0, 1)), "maisons : toit « %s » peint en entier" % kind)
+	for kind: String in ["auberge", "fromage", "forge", "cheval", "herbes", "autre"]:
+		check(HP.sign_board(kind).get_pixel(14, 14).a > 0.5, "maisons : enseigne « %s » peinte" % kind)
+	var total := 0
+	var seen_kinds := {}
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		if str(map.get("style", "")) != "":
+			continue
+		var list: Array = []
+		for o: Variant in map.get("objects", []):
+			if o is Dictionary and str((o as Dictionary).get("type", "")) == "house" and str((o as Dictionary).get("style", "")) != "elfe" and str((o as Dictionary).get("if", "")) == "":
+				list.append(o)
+		if list.is_empty():
+			continue
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		var t0 := Time.get_ticks_msec()
+		world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
+		var ms := Time.get_ticks_msec() - t0
+		var nodes: Array = []
+		for n: Node in world.get_children():
+			if n.has_meta("spec"):
+				nodes.append(n)
+		check(nodes.size() == list.size(), "maisons %s : %d bâtiments construits sur %d (%d ms)" % [id, nodes.size(), list.size(), ms])
+		var sigs: Array = []
+		for k in list.size():
+			var o: Dictionary = list[k]
+			var r: Array = o["rect"]
+			var rect := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+			total += 1
+			check(world.rects.has(rect), "maisons %s : l'emprise %s est inchangée" % [id, str(r)])
+			var sp: Dictionary = HB.spec(map, o)
+			check(str(HB.spec(map, o)) == str(sp), "maisons %s : le tirage de la maison %s est stable" % [id, str(r)])
+			seen_kinds[str(sp["wall"])] = true
+			check(HP.ROOF_PAL.has(str(sp["roof"])), "maisons %s : matière de toit connue (%s)" % [id, str(sp["roof"])])
+			if str(o.get("style", "")) == "grobitte":
+				check(sp["roof"] == "herbe" and sp["window"] == "rond", "maisons %s : la maison grobitte %s a son toit d'herbe et ses hublots" % [id, str(r)])
+			# le bâtiment construit : toit au-dessus des murs, tout estompable
+			var node: Node3D = null
+			for n: Node3D in nodes:
+				if (n.get_meta("spec") as Dictionary)["seed"] == sp["seed"]:
+					node = n
+			check(node != null, "maisons %s : bâtiment %s retrouvé" % [id, str(r)])
+			if node == null:
+				continue
+			var top_y := 0.0
+			for c: Node in node.get_children():
+				if c is MeshInstance3D and (c as MeshInstance3D).mesh != null:
+					top_y = maxf(top_y, (c as MeshInstance3D).mesh.get_aabb().end.y)
+			check(top_y >= float(sp["wh"]) + float(sp["rh"]) * 0.9, "maisons %s : %s a un toit (faîte à %.1f)" % [id, str(r), top_y])
+			var fade_nodes: Array = []
+			for oc: Dictionary in world.occluders:
+				if (oc["rect"] as Rect2) == rect:
+					fade_nodes = oc["nodes"]
+			var all_fade := fade_nodes.size() >= 5
+			for c: Node in node.get_children():
+				if c is GeometryInstance3D and not fade_nodes.has(c):
+					all_fade = false
+			check(all_fade, "maisons %s : %s s'estompe en entier (%d pièces)" % [id, str(r), fade_nodes.size()])
+			var xd := float(r[0]) + float(o.get("door", float(r[2]) * 0.5))
+			var has_door := false
+			for wp: Dictionary in world.warps:
+				if (wp["rect"] as Rect2).has_point(Vector2(xd, float(r[1] + r[3]) + 0.2)):
+					has_door = true
+			for it: Dictionary in world.interactables:
+				if Vector2((it["pos"] as Vector3).x, (it["pos"] as Vector3).z).distance_to(Vector2(xd, float(r[1] + r[3]) + 0.35)) < 0.1:
+					has_door = true
+			if o.has("to") or o.has("dialogue"):
+				check(has_door, "maisons %s : la porte de %s garde son passage ou son interaction" % [id, str(r)])
+			sigs.append("%s|%s|%s|%d|%d|%s|%s|%s" % [str(sp["wall"]), str(sp["tint"]), str(sp["roof"]), int(sp["storeys"]), int(sp["dormers"]), str(sp["window"]), str(sp["door"]), str(sp["sign"])])
+		# deux maisons voisines (triées par x) ne se ressemblent pas
+		var order: Array = list.duplicate()
+		order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["rect"][0]) < float(b["rect"][0]))
+		var sig_of := func(o: Dictionary) -> String:
+			var sp2: Dictionary = HB.spec(map, o)
+			return "%s|%s|%s|%d|%d|%s|%s|%s" % [str(sp2["wall"]), str(sp2["tint"]), str(sp2["roof"]), int(sp2["storeys"]), int(sp2["dormers"]), str(sp2["window"]), str(sp2["door"]), str(sp2["sign"])]
+		for k in range(order.size() - 1):
+			check(sig_of.call(order[k]) != sig_of.call(order[k + 1]), "maisons %s : deux voisines diffèrent (%s et %s)" % [id, str(order[k]["rect"]), str(order[k + 1]["rect"])])
+		world.queue_free()
+		await get_tree().process_frame
+	check(total >= 12, "maisons : au moins douze bâtiments contrôlés (%d)" % total)
+	check(seen_kinds.size() >= 3, "maisons : au moins trois matières de mur dans les villages (%s)" % str(seen_kinds.keys()))
