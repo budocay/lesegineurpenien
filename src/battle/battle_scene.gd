@@ -274,7 +274,13 @@ const DEFAULT_LIFT := 0.1   # lumière propre des combattants, par défaut (cham
 const DEFAULT_RIM := 1.0    # liseré de contre-jour par défaut (champ « rim » de stage)
 const BOSS_MUL_MAX := 3.2    # un boss peut grossir jusqu'à tant de fois la taille des monstres...
 const BOSS_RATIO_MAX := 3.4  # ...sans dépasser tant de fois la hauteur d'un héros
-const BOSS_RATIO_FLOOR := 1.7  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
+const BOSS_RATIO_FLOOR := 2.2  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
+const BOSS_HERO_K := 0.88    # part de la taille maximale d'un héros quand il affronte un boss (le boss domine)
+const BOSS_BACK := 0.9       # un boss se tient en retrait de la file normale (vers le fond)...
+const BOSS_FRONT := 1.4      # ...et ses sbires devant lui, de tant plus près de la caméra
+const BOSS_CENTER := 0.4     # centre du camp du boss : un peu plus vers l'équipe que la file ordinaire
+const BOSS_AIR := 0.5        # place laissée entre le bord de l'écran et un boss
+const MINION_K := 0.85       # les sbires d'un boss sont plus petits que les monstres ordinaires
 const BOSS_HEAVY := 0.4      # un boss penche beaucoup moins qu'un petit monstre (Actor.heavy)
 const FOOT_MARGIN := 76.0  # place laissée sous les pieds d'un héros (ombre, bord de l'écran)
 const PLATE_H := 66.0      # plaque d'un ennemi sous ses pieds (états, nom)
@@ -547,7 +553,11 @@ func _view_k(c: RefCounted) -> float:
 	var k := foe_k
 	if c.side == "party" or (c.sprite as Dictionary).has("character"):
 		k = hero_k
-	return k * boss_mul if c == boss else k
+	if c == boss:
+		return k * boss_mul
+	if boss != null and c.side != "party":
+		return k * MINION_K
+	return k
 
 
 ## Le boss de la rencontre : l'ennemi nommé par son champ « boss » (identifiant d'ennemi ; faux : aucun
@@ -580,6 +590,8 @@ func find_boss() -> RefCounted:
 ## Places (monde) des combattants d'un camp, d'après leur taille d'affichage et le décalage de
 ## leur colonne. Un grand monstre ne doit pas déborder de l'écran : on ramène son centre vers le milieu.
 func _spots(list: Array, side: float, shift: Vector2) -> Array[Vector3]:
+	if side < 0.0 and boss != null and list.has(boss):
+		return _boss_spots(list, shift)
 	var scales: Array = []
 	for c: RefCounted in list:
 		var sp: Dictionary = c.sprite
@@ -591,6 +603,36 @@ func _spots(list: Array, side: float, shift: Vector2) -> Array[Vector3]:
 		var limit := maxf(1.5, tan(deg_to_rad(CAM_FOV * 0.5)) * (_view().x / _view().y) * (_cam_home.z - sp.z) - 0.15 - _half_width(list[i]))
 		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z + shift.y))
 		i += 1
+	return out
+
+
+## Camp d'un boss : le boss en retrait, au centre de son camp (jamais collé au bord), ses sbires
+## devant lui et plus petits, de part et d'autre, sur deux rangs au besoin (BOSS_BACK, BOSS_FRONT).
+## Un sbire se place d'abord du côté de l'équipe, puis de l'autre, en s'écartant d'autant que
+## le boss est large.
+func _boss_spots(list: Array, shift: Vector2) -> Array[Vector3]:
+	var vw := _view().x / _view().y
+	var out: Array[Vector3] = []
+	out.resize(list.size())
+	var hb := _half_width(boss)
+	var zb := shift.y - BOSS_BACK
+	var reach := tan(deg_to_rad(CAM_FOV * 0.5)) * vw * (_cam_home.z - zb) - 0.15
+	var xb := -clampf(ENEMY_X + BOSS_CENTER + shift.x, 0.0, maxf(0.0, reach - hb - BOSS_AIR))
+	xb = clampf(xb, -(reach - hb), reach - hb)
+	out[list.find(boss)] = Vector3(xb, 0.0, zb)
+	var n := 0
+	for c: RefCounted in list:
+		if c == boss:
+			continue
+		var hm := _half_width(c)
+		var rank := n / 2
+		var inner := n % 2 == 0
+		var dx := (hb * 0.62 + hm * 0.8) + rank * (2.0 * hm + 0.1)
+		var zf := zb + BOSS_FRONT + (0.5 if rank % 2 == 1 else 0.0) + rank * 0.15
+		var lim := tan(deg_to_rad(CAM_FOV * 0.5)) * vw * (_cam_home.z - zf) - 0.15 - hm
+		var x := xb + (dx if inner else -dx)
+		out[list.find(c)] = Vector3(clampf(x, -lim, lim), 0.0, zf)
+		n += 1
 	return out
 
 
@@ -649,7 +691,7 @@ func layout() -> void:
 	var view := _view()
 	var zones: Array[Rect2] = [BattleUI.cards_zone(engine.party.size(), view), BattleUI.top_band(view)]
 	var found := false
-	var k := HERO_K_MAX
+	var k := HERO_K_MAX * (BOSS_HERO_K if find_boss() != null else 1.0)   # face à un boss, l'équipe est plus petite
 	while k >= HERO_K_MIN - 0.001 and not found:
 		for dx: float in [0.0, -0.3, -0.6, -0.9]:
 			for dz in 14:

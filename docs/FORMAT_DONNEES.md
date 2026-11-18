@@ -169,10 +169,15 @@ au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la
 héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
 large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique est `boss` ou la fuite impossible, l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
 la place qui reste, jusqu'à `BOSS_RATIO_MAX` (3,4) fois la hauteur d'un héros (plancher vérifié
-par le test : 1,7), en descendant au besoin vers la caméra ; il penche et bondit moins qu'un
-petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres peints par code sont affichés
-repeints plus fin (`MonsterPainter.upscale`, trois fois la définition, contours des diagonales
-arrondis) : un boss agrandi n'a plus des pixels dix fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
+par le test : 2,2), en descendant au besoin vers la caméra ; face à un boss, les héros sont un peu
+plus petits (`BOSS_HERO_K`). Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
+se tient en retrait (`BOSS_BACK`), au centre de son camp et jamais collé au bord (`BOSS_AIR`) ; ses
+sbires, plus petits (`MINION_K`), sont devant lui (`BOSS_FRONT`), de part et d'autre, sur deux rangs
+au besoin. Il penche et bondit moins qu'un petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres
+peints par code sont dessinés directement à la définition des héros (`MonsterPainter.paint_hd`, grille
+quatre à six fois plus fine que la planche logique de `paint`, grain de matière, verrues, pores, poils,
+contour épais ; mise en cache dans `user://cache_monstres/`) : un boss agrandi n'a plus des pixels dix
+fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
 taille relative aux autres monstres.
 Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
