@@ -51,6 +51,7 @@ func _ready() -> void:
 	print("== Musique ==")
 	_test_music()
 	_test_rendering()
+	_test_scenery()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2057,3 +2058,75 @@ func _test_flow() -> void:
 	check(main.world != null and main.world.input_enabled, "le joueur garde la main après la fin du chapitre")
 	main.queue_free()
 	await get_tree().process_frame
+
+
+## Décors, façades et arènes : paroi irrégulière, éléments connus, rien de magenta.
+func _test_scenery() -> void:
+	var ArenaDecor = preload("res://src/battle/arena_decor.gd")
+	var MapBuilderScript = preload("res://src/world/map_builder.gd")
+	var BattleScene = preload("res://src/battle/battle_scene.gd")
+	var horizons := ["hills", "forest", "marsh", "town", "cavern"]
+	var features := ["pool", "houses"]
+	for id: String in Database.arenas:
+		var arena: Dictionary = Database.arenas[id]
+		check(Database.ambiances.has(str(arena.get("ambiance", "crepuscule"))), "arène %s : ambiance connue" % id)
+		var back: Dictionary = arena.get("backdrop", {})
+		if not back.is_empty():
+			check(Sprites.tile_image(str(back.get("tile", "rock_face"))).get_pixel(0, 0) != Color.MAGENTA, "arène %s : texture de paroi peinte" % id)
+			var far := str(back.get("far", ""))
+			check(far == "" or horizons.has(far), "arène %s : lointain %s connu" % [id, far])
+		for p: Variant in arena.get("props", []):
+			check(MapBuilderScript.PROPS.has(str((p as Dictionary).get("prop", ""))), "arène %s : décor %s connu" % [id, str((p as Dictionary).get("prop", ""))])
+		for f: Variant in arena.get("features", []):
+			check(features.has(str((f as Dictionary).get("kind", ""))), "arène %s : élément %s connu" % [id, str((f as Dictionary).get("kind", ""))])
+		# la paroi : irrégulière, et jamais dans la zone des combattants
+		var decor = ArenaDecor.new(hash(id))
+		var holder := Node3D.new()
+		decor.build(holder, arena)
+		if not back.is_empty():
+			var lo := 99.0
+			var hi := 0.0
+			var zmin := 99.0
+			var zmax := -99.0
+			for sg: Dictionary in decor.segments:
+				if int(sg["layer"]) == 0:
+					lo = minf(lo, float(sg["h"]))
+					hi = maxf(hi, float(sg["h"]))
+					zmin = minf(zmin, float(sg["zf"]))
+					zmax = maxf(zmax, float(sg["zf"]))
+			check(hi - lo > 0.35, "arène %s : hauteurs de paroi variées (%.2f)" % [id, hi - lo])
+			check(zmax - zmin > 0.6, "arène %s : décrochements de paroi (%.2f)" % [id, zmax - zmin])
+			check(zmax < -7.5, "arène %s : la paroi reste derrière les combattants (z %.2f)" % [id, zmax])
+			check(decor.height_at(3.5, 0.0) == 0.0 and decor.height_at(-3.5, 2.0) == 0.0, "arène %s : sol plat sous les combattants" % id)
+			check(holder.get_child_count() >= 5, "arène %s : le décor est construit" % id)
+		holder.free()
+		# les décors posés à la main restent hors de la zone de jeu
+		for p: Variant in arena.get("props", []):
+			if (p as Dictionary).has("at"):
+				for sp: Variant in p["at"]:
+					check(float((sp as Array)[1]) < -3.8, "arène %s : décor %s hors de la zone de jeu" % [id, str(p.get("prop", ""))])
+	# la mise en place des combattants reste celle qui est testée plus haut
+	check(BattleScene.formation([1.0, 1.0, 1.0]).size() == 3, "formation toujours disponible")
+	for kind: String in ["boulder", "stump", "log", "mushrooms", "reeds", "haystack", "fence", "pillar", "brazier", "anvil", "forge", "deadtree"]:
+		var def: Dictionary = MapBuilderScript.PROPS.get(kind, {})
+		for v in int(def.get("variants", 1)):
+			var im := Sprites.prop(kind, v).get_image()
+			check(im.get_width() > 8 and not im.is_invisible(), "décor %s variante %d peint" % [kind, v])
+	for kind: String in ["rock_face", "rock_face_moss", "rock_face_mud", "rock_face_dark", "rock_face_ashlar", "basalt"]:
+		var t := Sprites.tile_image(kind)
+		check(t.get_width() >= 48 and t.get_pixel(0, 0) != Color.MAGENTA, "texture %s" % kind)
+	# façades : une par taille, avec une émission non vide quand elle est éclairée
+	var TilePainterScript = preload("res://src/gfx/tile_painter.gd")
+	var fa: Dictionary = TilePainterScript.house_front(5.0, 3.0, 2.5, [1.0, 4.0], Color("#3f7a52"), true)
+	check((fa["albedo"] as Image).get_width() == 120 and (fa["albedo"] as Image).get_height() == 72, "façade : dimensions")
+	var lit_px := 0
+	var emi: Image = fa["emission"]
+	for y in emi.get_height():
+		for x in emi.get_width():
+			if emi.get_pixel(x, y).get_luminance() > 0.3:
+				lit_px += 1
+	check(lit_px > 200, "façade : fenêtres éclairées (%d px)" % lit_px)
+	var fb: Dictionary = TilePainterScript.house_front(5.0, 3.0, 2.5, [1.0, 4.0], Color("#3f7a52"), true)
+	check((fa["albedo"] as Image).get_data() == (fb["albedo"] as Image).get_data(), "façade : peinture déterministe")
+	var hz := preload("res://src/gfx/horizon_painter.gd").paint("hills", Color("#222244"), Color("#aa6655"), 1)
+	check(hz.get_width() == 384 and hz.get_pixel(0, 0).a > 0.9, "lointain : image peinte")

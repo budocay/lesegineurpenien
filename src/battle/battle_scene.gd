@@ -11,6 +11,7 @@ const BattleFx = preload("res://src/battle/battle_fx.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const MapBuilder = preload("res://src/world/map_builder.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
+const ArenaDecor = preload("res://src/battle/arena_decor.gd")
 
 var engine: RefCounted
 var ui: Control
@@ -25,7 +26,7 @@ var fx: Node3D                # animations de combat (data/animations.json)
 var _rng := RandomNumberGenerator.new()
 var _cam_home := Vector3(0.0, 3.3, 12.4)
 var _cam_look := Vector3(0.0, 0.8, 0.0)
-var _steps: Array[Vector2] = []   # gradins du fond : (z du bord, hauteur)
+var _decor: RefCounted             # paroi et lointain (arena_decor.gd)
 var _shake := 0.0
 
 
@@ -62,31 +63,9 @@ func _build_arena(arena: Dictionary) -> void:
 	ground.position = Vector3(0.0, 0.0, -6.0)
 	add_child(ground)
 
-	# Fond en gradins : des parois au fond de l'arène, le décor du fond posé dessus.
-	_steps.clear()
-	var back: Variant = arena.get("backdrop", {})
-	if back is Dictionary and not (back as Dictionary).is_empty():
-		var st := MeshKit.begin()
-		var top_tile := str(back.get("top", ground_tile))
-		for s: Variant in back.get("steps", [[-9.0, 1.5], [-13.0, 3.2]]):
-			if not (s is Array) or (s as Array).size() < 2:
-				continue
-			var edge := float(s[0])
-			var hgt := float(s[1])
-			_steps.append(Vector2(edge, hgt))
-			MeshKit.box(st, Vector3(0.0, hgt * 0.5, edge - 15.0), Vector3(72.0, hgt, 30.0))
-			var top := MeshInstance3D.new()
-			var top_plane := PlaneMesh.new()
-			top_plane.size = Vector2(72.0, 30.0)
-			top.mesh = top_plane
-			var top_mat := MeshKit.ground_material(Sprites.tile_texture(top_tile))
-			top_mat.set_shader_parameter("uv_scale", top_plane.size / MeshKit.TEX_UNITS)
-			top.material_override = top_mat
-			top.position = Vector3(0.0, hgt + 0.03, edge - 15.0)
-			add_child(top)
-		var wall := MeshKit.finish(st, MeshKit.ground_material(Sprites.tile_texture(str(back.get("tile", "cliff"))), 0.12), true)
-		wall.name = "Backdrop"
-		add_child(wall)
+	# Fond : paroi de roche irrégulière, lointain peint, mares, façades (arena_decor.gd).
+	_decor = ArenaDecor.new(hash(str(encounter.get("arena", "pre"))))
+	_decor.build(self, arena)
 
 	for p: Variant in arena.get("props", []):
 		if p is Dictionary:
@@ -98,13 +77,9 @@ func _build_arena(arena: Dictionary) -> void:
 	Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
 
 
-## Hauteur du sol de l'arène à cette profondeur (gradins du fond).
-func _step_height(z: float) -> float:
-	var y := 0.0
-	for s: Vector2 in _steps:
-		if z < s.x:
-			y = maxf(y, s.y)
-	return y
+## Hauteur du sol de l'arène en ce point (paroi du fond).
+func _step_height(x: float, z: float) -> float:
+	return _decor.height_at(x, z) if _decor != null else 0.0
 
 
 ## Place des combattants d'un camp, en diagonale : le premier plan est le plus près du
@@ -145,9 +120,19 @@ func _scatter(p: Dictionary) -> void:
 	var placed: Array[Vector2] = []
 	var tries := 0
 	var count := int(p.get("count", 4))
+	if p.has("at"):
+		count = (p["at"] as Array).size()
+		min_dist = 0.0
 	while placed.size() < count and tries < count * 30:
 		tries += 1
 		var pt := _zone_point(str(p.get("zone", "mid")))
+		if p.has("area"):
+			var ar: Array = p["area"]
+			pt = Vector2(_rng.randf_range(float(ar[0]), float(ar[2])), _rng.randf_range(float(ar[1]), float(ar[3])))
+		elif p.has("at"):
+			var spots: Array = p["at"]
+			var sp: Array = spots[placed.size() % spots.size()]
+			pt = Vector2(float(sp[0]), float(sp[1]))
 		var ok := true
 		for q in placed:
 			if q.distance_to(pt) < min_dist:
@@ -156,11 +141,11 @@ func _scatter(p: Dictionary) -> void:
 		if not ok:
 			continue
 		placed.append(pt)
-		var node := Sprites.make_sprite(Sprites.prop(kind, _rng.randi() % variants), float(def.get("sway", 0.0)), 0.0)
+		var node := Sprites.make_sprite(Sprites.prop(kind, _rng.randi() % variants), float(def.get("sway", 0.0)), float(def.get("glow", 0.0)))
 		var s := float(p.get("scale", 1.0)) * (1.0 + _rng.randf_range(-0.15, 0.15))
 		var flip := bool(def.get("flip", false)) and _rng.randf() < 0.5
 		node.scale = Vector3(-s if flip else s, s, s)
-		node.position = Vector3(pt.x, _step_height(pt.y), pt.y)
+		node.position = Vector3(pt.x, _step_height(pt.x, pt.y), pt.y)
 		add_child(node)
 		(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", _rng.randf() * TAU)
 
@@ -202,11 +187,11 @@ func _build_camera() -> void:
 	var attr := CameraAttributesPractical.new()
 	attr.dof_blur_far_enabled = true
 	attr.dof_blur_far_distance = dist + 2.6
-	attr.dof_blur_far_transition = 7.0
+	attr.dof_blur_far_transition = 11.0
 	attr.dof_blur_near_enabled = true
 	attr.dof_blur_near_distance = dist - 3.0
 	attr.dof_blur_near_transition = 3.0
-	attr.dof_blur_amount = 0.11
+	attr.dof_blur_amount = 0.095
 	camera.attributes = attr
 	camera.make_current()
 

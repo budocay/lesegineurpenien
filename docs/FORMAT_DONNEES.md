@@ -46,10 +46,43 @@ Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les 
 nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
 automatiquement sur les cartes d'extérieur.
 
-Arènes (`data/arenas.json`) : champ facultatif `backdrop`, le fond en gradins.
-`{"tile": "cliff", "top": "grass", "steps": [[-9.5, 1.3], [-13.5, 2.9]]}` : `tile` est la
-texture des parois, `top` celle du dessus (par défaut le sol de l'arène), chaque gradin
-est `[profondeur du bord, hauteur]`. Les décors de la zone `back` se posent dessus.
+Arènes (`data/arenas.json`) : champ facultatif `backdrop`, le fond de l'arène, construit
+par `src/battle/arena_decor.gd`.
+`{"tile": "rock_face", "top": "grass", "far": "hills", "sky": ["#2a2250", "#c0705a"],
+"shadow": "#3a3340", "jitter": 1.0, "steps": [[-9.5, 1.3], [-13.5, 2.9]]}`
+
+- `steps` : les gradins, `[profondeur du bord, hauteur]`. Chaque gradin est découpé en
+  blocs de 2,4 à 6,2 unités dont la hauteur varie par paliers et dont le bord avance ou
+  recule (décrochements) ; `jitter` (1 par défaut, 0 = lisse) règle cette irrégularité.
+  Les décors de la zone `back` se posent à la hauteur du bloc sur lequel ils se trouvent.
+- `tile` : texture des parois (`rock_face`, `rock_face_moss`, `rock_face_mud`,
+  `rock_face_dark`, `rock_face_ashlar` ou tout autre type de sol/mur) ; `top` celle du
+  dessus (par défaut le sol de l'arène) ; les bords du dessus reçoivent une lèvre de
+  gazon et une ombre au pied. `shadow` : couleur du trait d'ombre sous la lèvre.
+- `far` : le lointain peint derrière la paroi, `hills`, `forest`, `marsh`, `town` ou
+  `cavern` (`src/gfx/horizon_painter.gd`) ; `sky` : `[haut, bas]` du dégradé de ciel.
+
+Champ facultatif `features` (liste) : éléments au sol ou en toile de fond.
+
+- `{"kind": "pool", "pos": [x, z], "size": [largeur, profondeur], "material": "water"}` :
+  une mare au contour irrégulier. `material` : `water`, `swamp` (eau trouble du marais),
+  `mud` ou `lava` (éclairage orangé ajouté ; `light`, `light_energy`, `energy`
+  facultatifs). `bank` : couleur de la berge (`"#00000000"` pour aucune).
+- `{"kind": "houses", "list": [{"x", "z", "w", "d", "height", "roof_height", "roof",
+  "door", "door_color", "windows"}]}` : façades de maisons posées sur la paroi (même sens
+  que les maisons des cartes ; `x` est le bord gauche, `z` le bord du fond).
+
+Dans `props` d'une arène : en plus de `zone`, `count`, `min_dist` et `scale`, `area`
+(`[x0, z0, x1, z1]`) limite le semis à un rectangle et `at` (`[[x, z], ...]`) pose
+chaque décor à un endroit précis (le nombre est alors celui de la liste). Les décors
+d'arène posés avec `at` restent derrière z = -3,8 (le test le vérifie). Le champ `glow`
+d'un décor (table `PROPS` de `map_builder.gd`) éclaire son sprite (brasero, forge).
+
+Décors ajoutés (utilisables aussi dans les cartes) : `boulder`, `stump`, `log`,
+`mushrooms`, `reeds`, `haystack`, `fence`, `pillar`, `brazier`, `anvil`, `forge`,
+`deadtree`. Les arbres `tree` ont quatre essences (chêne, bouleau, sapin, érable roux).
+Sols ajoutés : `basalt` ; parois `rock_face*` (96 x 96 px, soit 4 unités).
+Maisons des cartes : champ facultatif `awning` (`false` retire l'auvent de la porte).
 
 ## Cartes — `data/maps/<identifiant>.json`
 
@@ -417,7 +450,7 @@ moteur (`src/battle/battle_fx.gd`) ne connaît aucune compétence : il lit ce fi
 ### `data/arenas.json`
 
 Le décor d'un combat : `ground` (texture du sol), `ambiance` (de `ambiances.json`),
-`props` (décors semés par `zone` : `back` derrière les combattants, `mid` autour, `front`
+`backdrop` et `features` (voir plus haut), `props` (décors semés par `zone` : `back` derrière les combattants, `mid` autour, `front`
 devant, flous), `lights`.
 
 ### Dans les cartes

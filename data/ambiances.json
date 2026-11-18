@@ -24,6 +24,18 @@
 		"contrast": 1.08,
 		"particles": ["dust"]
 	},
+	"grand_four_combat": {
+		"background": "#1a0705",
+		"ambient": {"color": "#c09a90", "energy": 0.8},
+		"sun": {"color": "#ff8a5a", "energy": 0.5, "direction": [-0.35, -0.5, -0.8], "fog_energy": 0.8},
+		"fog": {"color": "#5a1c10", "density": 0.005},
+		"volumetric": {"density": 0.009, "albedo": "#ffb080", "emission": "#5a1408", "emission_energy": 0.7, "length": 60},
+		"glow": {"intensity": 0.95, "bloom": 0.08, "threshold": 1.0, "strength": 1.05},
+		"exposure": 1.05,
+		"saturation": 1.06,
+		"contrast": 1.08,
+		"particles": ["dust"]
+	},
 	"interieur_chaud": {
 		"background": "#07060b",
 		"ambient": {"color": "#6a5a78", "energy": 0.5},
