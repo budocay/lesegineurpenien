@@ -179,7 +179,7 @@
 	},
 	"croc_en_jambe": {
 		"name": "Croc-en-jambe", "cost": 4, "target": "enemy",
-		"desc": "Fripon passe entre les jambes de l'adversaire, qui a de bonnes chances de finir sonné.",
+		"desc": "Froton passe entre les jambes de l'adversaire, qui a de bonnes chances de finir sonné.",
 		"effects": [
 			{"type": "damage", "stat": "atk", "power": 110, "element": "contondant"},
 			{"type": "status", "id": "sonne", "chance": 0.5, "turns": 1}
@@ -441,6 +441,138 @@
 		"effects": [
 			{"type": "damage", "stat": "atk", "power": 130, "element": "contondant"},
 			{"type": "status", "id": "sonne", "chance": 0.6, "turns": 1}
+		]
+	},
+	"estoc_de_cousin": {
+		"name": "Estoc de cousin",
+		"cost": 3,
+		"target": "enemy",
+		"desc": "Un coup de dague net, précédé d'un coup d'œil sur la carte. Peut sonner l'adversaire.",
+		"effects": [
+			{
+				"type": "damage",
+				"stat": "atk",
+				"power": 125,
+				"element": "tranchant"
+			},
+			{
+				"type": "status",
+				"id": "sonne",
+				"chance": 0.2,
+				"turns": 1
+			}
+		]
+	},
+	"plan_ficele": {
+		"name": "Plan bien ficelé",
+		"cost": 4,
+		"target": "ally",
+		"desc": "Un allié est galvanisé et reçoit un peu de mana : le plan prévoyait tout, sauf qu'on le suive.",
+		"effects": [
+			{
+				"type": "status",
+				"id": "galvanise",
+				"chance": 1.0,
+				"turns": 3
+			},
+			{
+				"type": "mana",
+				"power": 5
+			}
+		]
+	},
+	"second_petit_dejeuner": {
+		"name": "Second petit déjeuner",
+		"cost": 6,
+		"target": "all_allies",
+		"desc": "Une pause bien placée : toute l'équipe retrouve un peu de mana.",
+		"effects": [
+			{
+				"type": "mana",
+				"power": 5
+			}
+		]
+	},
+	"diversion": {
+		"name": "Diversion de banquet",
+		"cost": 5,
+		"target": "all_enemies",
+		"desc": "Une corde tendue, une nappe qui vole : les adversaires s'emmêlent et perdent de la vitesse.",
+		"effects": [
+			{
+				"type": "status",
+				"id": "englue",
+				"chance": 0.75,
+				"turns": 3
+			},
+			{
+				"type": "status",
+				"id": "sonne",
+				"chance": 0.15,
+				"turns": 1
+			}
+		]
+	},
+	"pause_dejeuner": {
+		"name": "Pause déjeuner",
+		"cost": 6,
+		"target": "all_allies",
+		"desc": "Pain, fromage et cornichons à l'abri d'un mur : l'équipe récupère des PV.",
+		"effects": [
+			{
+				"type": "heal",
+				"percent": 0.15
+			},
+			{
+				"type": "mana",
+				"power": 3
+			}
+		]
+	},
+	"plan_b": {
+		"name": "Plan B",
+		"cost": 7,
+		"target": "all_allies",
+		"desc": "On repart du bon pied : tous les états négatifs sont dissipés et la défense monte.",
+		"effects": [
+			{
+				"type": "cure"
+			},
+			{
+				"type": "status",
+				"id": "garde",
+				"chance": 1.0,
+				"turns": 3
+			}
+		]
+	},
+	"coup_dans_le_dos": {
+		"name": "Coup dans le dos",
+		"cost": 4,
+		"target": "enemy",
+		"desc": "Un estoc porté là où l'adversaire ne regardait pas. Coups critiques fréquents.",
+		"effects": [
+			{
+				"type": "damage",
+				"stat": "atk",
+				"power": 170,
+				"element": "tranchant",
+				"crit": 0.25
+			}
+		]
+	},
+	"charge_des_cousins": {
+		"name": "Charge des cousins",
+		"cost": 8,
+		"target": "all_enemies",
+		"desc": "Une charge à petites jambes, mais à grands cris, contre tout ce qui se tient devant.",
+		"effects": [
+			{
+				"type": "damage",
+				"stat": "atk",
+				"power": 95,
+				"element": "tranchant"
+			}
 		]
 	}
 }

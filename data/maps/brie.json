@@ -629,6 +629,19 @@
 			"on": [
 				"grass"
 			]
+		},
+		{
+			"type": "npc",
+			"id": "merri",
+			"dialogue": "merri_brie",
+			"pos": [
+				33.5,
+				14.2
+			],
+			"facing": "left",
+			"reach": 1.8,
+			"if": "brie_vue",
+			"unless": "merri_equipe"
 		}
 	]
 }

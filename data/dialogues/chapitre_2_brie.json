@@ -12,12 +12,69 @@
 			"text": "Ça sent le fromage. Beaucoup. De tous les côtés à la fois."
 		},
 		{
-			"who": "pepine",
+			"who": "pepin",
 			"text": "Regardez entre les pavés. L'herbe se tient. À peine, mais elle se tient."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Trois mille bourses dans cette seule rue. Je dis ça comme ça."
+		},
+		{
+			"if": "!party:merri",
+			"then": [
+				{
+					"text": "Derrière eux, sur la route, quelqu'un court en agitant une casquette et perd, l'un après l'autre, trois paquets bien ficelés."
+				},
+				{
+					"who": "pepin",
+					"text": "Je connais cette façon de perdre ses paquets."
+				},
+				{
+					"who": "merri",
+					"text": "Pépin ! Cousin Pépin ! Vous marchez vite, pour des gens qui prétendent ne pas être pressés. J'ai suivi l'herbe : celle qui se tient mal, c'est vous qui n'êtes pas encore passés."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Et ce monsieur, avec tant de paquets ?"
+				},
+				{
+					"who": "merri",
+					"text": "Merri Brandemou, monsieur Glandoulf. Je viens avec vous. J'ai tout prévu : trois cartes, du pain pour six jours, une corde de dix mètres et un plan. Le plan n'est pas encore très au point."
+				},
+				{
+					"who": "froton",
+					"text": "Le pain est à qui ?"
+				},
+				{
+					"who": "merri",
+					"text": "À tout le monde. Mais c'est moi qui le porte, donc c'est moi qui le répartis."
+				},
+				{
+					"who": "sam",
+					"text": "Voilà un homme de bon sens."
+				},
+				{
+					"who": "pepin",
+					"text": "Il t'a fallu deux jours de plus que nous, Merri. Moi, je n'avais pas de plan, et je suis arrivé le premier."
+				},
+				{
+					"who": "merri",
+					"text": "Tu es arrivé le premier. Tu ne sais pas où tu vas."
+				},
+				{
+					"who": "glandoulf",
+					"text": "[i](Un de plus. À ce rythme, il faudra un second banc.)[/i]"
+				},
+				{
+					"join": "merri"
+				},
+				{
+					"set": "merri_equipe"
+				},
+				{
+					"text": "Merri Brandemou rejoint l'équipe."
+				}
+			]
 		},
 		{
 			"who": "glandoulf",
@@ -75,7 +132,7 @@
 			"text": "De mon temps, un fromage mou restait mou. On ne lui demandait pas davantage. Maintenant, tout est mou, et plus rien n'est ferme sur sa position."
 		},
 		{
-			"who": "pepine",
+			"who": "pepin",
 			"text": "Elle n'a pas tort."
 		}
 	],
@@ -123,7 +180,7 @@
 			"text": "La forge. À l'intérieur, on entend un marteau, puis un soupir, puis le même marteau. Quelqu'un redresse des fers à cheval qui se recourbent aussitôt."
 		},
 		{
-			"who": "fripon",
+			"who": "froton",
 			"text": "Il y en a pour la nuit."
 		}
 	],
@@ -174,7 +231,7 @@
 					"text": "Je vends de quoi se soigner, de quoi se battre et de quoi s'habiller pour les deux. Et je prends en paiement ce qui brille, ce qui roule et ce qui tient debout."
 				},
 				{
-					"who": "fripon",
+					"who": "froton",
 					"text": "Ce qui tient debout. Voilà un moyen de paiement que je n'avais pas envisagé."
 				},
 				{
@@ -219,7 +276,7 @@
 					"text": "Il me regarde encore. Il me regarde depuis hier. [i](Qu'est-ce qu'il croit voir ? Un vieux monsieur qui n'a pas dormi.)[/i]"
 				},
 				{
-					"who": "pepine",
+					"who": "pepin",
 					"text": "La convocation dit trois exemplaires. Je n'ai qu'un exemplaire de patience."
 				},
 				{
@@ -227,7 +284,7 @@
 					"text": "J'ai pris du fromage. Il tient. C'est le seul."
 				},
 				{
-					"who": "fripon",
+					"who": "froton",
 					"text": "Un Conseil. Avec des Elfes. Des gens qui décident à plusieurs de ce qui revient à un seul. Ça sent la bourse mal gardée."
 				},
 				{
@@ -254,6 +311,36 @@
 					"text": "(En attendant, vous pouvez rester à Brie pour terminer ce qui reste à faire.)"
 				}
 			]
+		}
+	],
+	"merri_brie": [
+		{
+			"text": "Assis sur un tonneau, un jeune Grobitte aux boucles brunes recompte trois paquets, deux cartes et une corde. Il lève la tête, soulagé."
+		},
+		{
+			"who": "merri",
+			"text": "Monsieur Glandoulf ! Je vous cherchais depuis Bittebourg. Merri Brandemou, cousin de Pépin. J'ai du pain, des cartes, et un plan qui n'est pas encore tout à fait au point."
+		},
+		{
+			"who": "pepin",
+			"text": "Merri ! Tu as mis le temps."
+		},
+		{
+			"who": "merri",
+			"text": "J'ai pris le chemin le plus sûr. C'est aussi le plus long, mais on y est sûr de ne rien rencontrer. Enfin. Presque."
+		},
+		{
+			"who": "glandoulf",
+			"text": "[i](Un de plus. À ce rythme, il faudra un second banc.)[/i]"
+		},
+		{
+			"join": "merri"
+		},
+		{
+			"set": "merri_equipe"
+		},
+		{
+			"text": "Merri Brandemou rejoint l'équipe."
 		}
 	]
 }

@@ -79,20 +79,20 @@
 			}
 		]
 	},
-	"fripon": {
+	"froton": {
 		"branches": [
 			{
 				"id": "pickpocket", "name": "Pickpocket",
-				"desc": "Vol, vitesse et coups critiques. Fripon appelle ça « emprunter ».",
+				"desc": "Vol, vitesse et coups critiques. Froton appelle ça « emprunter ».",
 				"talents": [
 					{"id": "doigts_de_fee", "name": "Doigts de fée", "cost": 1,
-						"desc": "Fripon frappe d'une main et fouille de l'autre.",
+						"desc": "Froton frappe d'une main et fouille de l'autre.",
 						"skills": ["fauche"]},
 					{"id": "pieds_legers", "name": "Pieds légers", "cost": 1,
-						"desc": "Fripon agit presque toujours le premier au début d'un combat.",
+						"desc": "Froton agit presque toujours le premier au début d'un combat.",
 						"mods": {"spd": 2}, "passives": {"initiative": 0.5}},
 					{"id": "ou_ca_fait_mal", "name": "Là où ça fait mal", "cost": 2,
-						"desc": "Tous les coups de Fripon ont 15 % de chances en plus d'être critiques.",
+						"desc": "Tous les coups de Froton ont 15 % de chances en plus d'être critiques.",
 						"passives": {"crit": 0.15}},
 					{"id": "part_du_lion", "name": "La part du lion", "cost": 2,
 						"desc": "L'équipe ramasse 25 % d'écus en plus après chaque victoire.",
@@ -107,32 +107,32 @@
 						"desc": "Poison, étourdissement et autres misères prennent 25 % plus souvent.",
 						"passives": {"status_chance": {"all": 0.25}}},
 					{"id": "coup_bas", "name": "Coup bas", "cost": 1,
-						"desc": "Fripon inflige 25 % de dégâts en plus à un adversaire qui subit déjà un état.",
+						"desc": "Froton inflige 25 % de dégâts en plus à un adversaire qui subit déjà un état.",
 						"passives": {"vs_afflicted": 0.25}},
 					{"id": "fiole_douteuse_t", "name": "Fiole douteuse", "cost": 2,
 						"desc": "Une fiole sans étiquette. C'est précisément l'intérêt.",
 						"skills": ["fiole_douteuse"]},
 					{"id": "embrouillamini_t", "name": "Grand embrouillamini", "cost": 2,
-						"desc": "Fripon parle très vite pendant très longtemps. L'adversaire n'en sort pas indemne.",
+						"desc": "Froton parle très vite pendant très longtemps. L'adversaire n'en sort pas indemne.",
 						"skills": ["embrouillamini"]}
 				]
 			}
 		]
 	},
-	"pepine": {
+	"pepin": {
 		"branches": [
 			{
 				"id": "herboriste", "name": "Herboriste",
-				"desc": "Soins et antidotes. Les remèdes de Pépine sont douteux, mais ils marchent.",
+				"desc": "Soins et antidotes. Les remèdes de Pépin sont douteux, mais ils marchent.",
 				"talents": [
 					{"id": "main_verte", "name": "Main verte", "cost": 1,
-						"desc": "Les soins que donne Pépine rendent 20 % de PV en plus.",
+						"desc": "Les soins que donne Pépin rendent 20 % de PV en plus.",
 						"passives": {"heal_boost": 0.2}},
 					{"id": "baume_matin_t", "name": "Baume du matin", "cost": 1,
 						"desc": "Soigne et dissipe les états d'un allié, d'un seul geste.",
 						"skills": ["baume_matin"]},
 					{"id": "racines_profondes", "name": "Racines profondes", "cost": 2,
-						"desc": "Pépine tient mieux la distance.",
+						"desc": "Pépin tient mieux la distance.",
 						"mods": {"mp": 6, "res": 2}},
 					{"id": "remede_de_cheval_t", "name": "Remède de cheval", "cost": 2,
 						"desc": "Relève un allié à terre. Le goût fait la moitié du travail.",
@@ -140,11 +140,11 @@
 				]
 			},
 			{
-				"id": "fumeuse", "name": "Fumeuse de Pipe",
+				"id": "fumeuse", "name": "Fumeur de Pipe",
 				"desc": "Des nuages qui renforcent l'équipe ou affaiblissent l'adversaire, selon le tabac.",
 				"talents": [
 					{"id": "tabac_de_caractere", "name": "Tabac de caractère", "cost": 1,
-						"desc": "Les états que Pépine inflige prennent 15 % plus souvent.",
+						"desc": "Les états que Pépin inflige prennent 15 % plus souvent.",
 						"mods": {"mag": 2}, "passives": {"status_chance": {"all": 0.15}}},
 					{"id": "nuage_tonique_t", "name": "Nuage tonique", "cost": 1,
 						"desc": "Une bouffée qui réveille les morts, ou du moins les mous.",
@@ -199,11 +199,11 @@
 			}
 		]
 	},
-	"legolasse": {
+	"digoulasse": {
 		"branches": [
 			{
 				"id": "tir_de_precision", "name": "Tir de Précision",
-				"desc": "Une flèche, un adversaire. Légolasse a eu 2 900 ans pour s'entraîner et trouve ça long.",
+				"desc": "Une flèche, un adversaire. Digoulasse a eu 2 900 ans pour s'entraîner et trouve ça long.",
 				"talents": [
 					{"id": "souffle_retenu", "name": "Souffle retenu", "cost": 1,
 						"desc": "Tous ses tirs ont 10 % de chances en plus d'être critiques.",
@@ -239,11 +239,11 @@
 			}
 		]
 	},
-	"gimlette": {
+	"grimli": {
 		"branches": [
 			{
 				"id": "hache_furieuse", "name": "Hache Furieuse",
-				"desc": "Plus Gimlette prend de coups, plus elle en rend. Elle tient les comptes.",
+				"desc": "Plus Grimli prend de coups, plus elle en rend. Elle tient les comptes.",
 				"talents": [
 					{"id": "sang_chaud", "name": "Sang chaud", "cost": 1,
 						"desc": "Moins il lui reste de PV, plus elle frappe fort (jusqu'à 30 % de dégâts en plus).",
@@ -261,7 +261,7 @@
 			},
 			{
 				"id": "tete_dure", "name": "Tête Dure",
-				"desc": "Gimlette encaisse, par principe. Céder serait donner raison à quelqu'un.",
+				"desc": "Grimli encaisse, par principe. Céder serait donner raison à quelqu'un.",
 				"talents": [
 					{"id": "crane_de_morbier", "name": "Crâne de Morbier", "cost": 1,
 						"desc": "Dur dehors, et pas beaucoup plus tendre dedans.",
@@ -275,6 +275,46 @@
 					{"id": "bornee", "name": "Bornée", "cost": 2,
 						"desc": "Regagne 6 % de ses PV à chaque tour. Ni le sommeil ni le ramollissement n'ont prise sur elle.",
 						"passives": {"regen_hp": 0.06, "immune": ["sommeil", "ramolli"]}}
+				]
+			}
+		]
+	},
+	"merri": {
+		"branches": [
+			{
+				"id": "stratege", "name": "Stratège de Table",
+				"desc": "Cartes, listes et provisions : Merri prépare tout, sauf ce qui arrive vraiment.",
+				"talents": [
+					{"id": "cartes_depliees", "name": "Cartes dépliées", "cost": 1,
+						"desc": "Merri agit plus tôt au début d'un combat : il sait déjà où l'on va.",
+						"mods": {"spd": 1}, "passives": {"initiative": 0.25}},
+					{"id": "pause_dejeuner_t", "name": "Pause déjeuner", "cost": 1,
+						"desc": "Pain, fromage, cornichons : toute l'équipe regagne des PV et un peu de mana.",
+						"skills": ["pause_dejeuner"]},
+					{"id": "reserves_de_bouche", "name": "Réserves de bouche", "cost": 2,
+						"desc": "Merri tient mieux la distance, le sac bien rempli.",
+						"mods": {"mp": 6, "res": 2}},
+					{"id": "plan_b_t", "name": "Plan B", "cost": 2,
+						"desc": "Dissipe les états négatifs de toute l'équipe et renforce sa défense.",
+						"skills": ["plan_b"]}
+				]
+			},
+			{
+				"id": "estoc", "name": "Estoc de Poche",
+				"desc": "Une dague, du culot et le bon angle : Merri frappe petit, mais là où ça compte.",
+				"talents": [
+					{"id": "pas_de_cote", "name": "Pas de côté", "cost": 1,
+						"desc": "15 % de chances de rendre aussitôt un coup physique reçu.",
+						"mods": {"def": 1}, "passives": {"counter": 0.15}},
+					{"id": "dans_le_dos_t", "name": "Coup dans le dos", "cost": 1,
+						"desc": "Un estoc porté là où l'adversaire ne regardait pas.",
+						"skills": ["coup_dans_le_dos"]},
+					{"id": "tete_froide", "name": "Tête froide", "cost": 2,
+						"desc": "Merri inflige 15 % de dégâts en plus à un adversaire qui subit déjà un état.",
+						"mods": {"atk": 3, "hp": 8}, "passives": {"vs_afflicted": 0.15}},
+					{"id": "charge_des_cousins_t", "name": "Charge des cousins", "cost": 2,
+						"desc": "Une charge à petites jambes contre tout ce qui se tient devant.",
+						"skills": ["charge_des_cousins"]}
 				]
 			}
 		]

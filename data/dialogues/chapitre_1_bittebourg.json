@@ -14,19 +14,19 @@
 		{"who": "glandoulf", "text": "Je préfère encore affronter ce qui m'attend ici. Assis, si possible."}
 	],
 
-	"pepine": [
-		{"if": "pepine_vue",
+	"pepin": [
+		{"if": "pepin_vue",
 			"then": [
-				{"who": "pepine", "text": "Mes pauvres poireaux... Il leur faudrait de la racine-qui-réveille, et de la fraîche. Il en pousse au Pré Couché, par la route de l'est."},
-				{"who": "pepine", "text": "Seulement, depuis hier, le pré grouille de bêtes toutes molles, et pas commodes pour autant. Seule, je n'y mets pas les pieds.",
+				{"who": "pepin", "text": "Mes pauvres poireaux... Il leur faudrait de la racine-qui-réveille, et de la fraîche. Il en pousse au Pré Couché, par la route de l'est."},
+				{"who": "pepin", "text": "Seulement, depuis hier, le pré grouille de bêtes toutes molles, et pas commodes pour autant. Seul, je n'y mets pas les pieds.",
 					"choice": [
 						{"text": "Je vous accompagne", "then": [
 							{"who": "glandoulf", "text": "Je vous accompagne. Lentement, mais je vous accompagne."},
-							{"who": "pepine", "text": "Parfait ! Je prends ma serpette et mes tisanes. Si vous trouvez d'où vient ce mal, je vous suis au bout du monde."},
-							{"who": "pepine", "text": "Enfin, jusqu'au bout du Comté. On verra pour la suite."},
-							{"join": "pepine"},
+							{"who": "pepin", "text": "Parfait ! Je prends ma serpette et mes tisanes. Si vous trouvez d'où vient ce mal, je vous suis au bout du monde."},
+							{"who": "pepin", "text": "Enfin, jusqu'au bout du Comté. On verra pour la suite."},
+							{"join": "pepin"},
 							{"give": "tisane", "count": 2},
-							{"set": "pepine_equipe"}
+							{"set": "pepin_equipe"}
 						]},
 						{"text": "Plus tard", "then": [
 							{"who": "glandoulf", "text": "Plus tard. Une chope m'attend, et je ne voudrais pas la vexer."}
@@ -35,17 +35,17 @@
 				}
 			],
 			"else": [
-				{"who": "pepine", "text": "Ne marchez pas sur mes... Oh, et puis marchez. Au point où ils en sont."},
-				{"who": "pepine", "text": "Hier, mes poireaux se tenaient au garde-à-vous. Regardez-les. On dirait qu'ils ont appris une mauvaise nouvelle."},
+				{"who": "pepin", "text": "Ne marchez pas sur mes... Oh, et puis marchez. Au point où ils en sont."},
+				{"who": "pepin", "text": "Hier, mes poireaux se tenaient au garde-à-vous. Regardez-les. On dirait qu'ils ont appris une mauvaise nouvelle."},
 				{"who": "glandoulf", "text": "Trop d'eau ?"},
-				{"who": "pepine", "text": "Je suis herboriste, monsieur le magicien. Je sais arroser un poireau."},
-				{"who": "pepine", "text": "J'ai tout essayé : purin d'ortie, décoction de racine-qui-réveille. Je leur ai même parlé fermement."},
-				{"who": "pepine", "text": "Rien n'y fait. Ce n'est pas une maladie. C'est comme si quelque chose leur avait retiré... l'envie."},
+				{"who": "pepin", "text": "Je suis herboriste, monsieur le magicien. Je sais arroser un poireau."},
+				{"who": "pepin", "text": "J'ai tout essayé : purin d'ortie, décoction de racine-qui-réveille. Je leur ai même parlé fermement."},
+				{"who": "pepin", "text": "Rien n'y fait. Ce n'est pas une maladie. C'est comme si quelque chose leur avait retiré... l'envie."},
 				{"who": "glandoulf", "text": "L'envie."},
-				{"who": "pepine", "text": "L'envie de se dresser. Et il n'y a pas que le potager. Le vieux Bolgère n'a pas quitté son fauteuil depuis mardi. Lui qui taillait une bitte par semaine !"},
+				{"who": "pepin", "text": "L'envie de se dresser. Et il n'y a pas que le potager. Le vieux Bolgère n'a pas quitté son fauteuil depuis mardi. Lui qui taillait une bitte par semaine !"},
 				{"who": "glandoulf", "text": "[i](Je connais des gens très bien qui ne quittent jamais leur fauteuil.)[/i]"},
-				{"who": "pepine", "text": "Si vous voulez un remontant, j'ai une tisane. Elle guérit tout, sauf ce qu'elle provoque."},
-				{"set": "pepine_vue"}
+				{"who": "pepin", "text": "Si vous voulez un remontant, j'ai une tisane. Elle guérit tout, sauf ce qu'elle provoque."},
+				{"set": "pepin_vue"}
 			]
 		}
 	],
@@ -208,7 +208,7 @@
 							"then": [
 								{"if": "battue_vue",
 									"then": [
-										{"who": "anselme", "text": "Le Vieux Solitaire est couché devant la clairière du Chêne, au fond du Bois Penché. Par le sentier du nord, derrière chez Pépine."},
+										{"who": "anselme", "text": "Le Vieux Solitaire est couché devant la clairière du Chêne, au fond du Bois Penché. Par le sentier du nord, derrière chez Pépin."},
 										{"who": "anselme", "text": "Ne venez pas seul. Il est flapi, mais il pèse son poids."}
 									],
 									"else": [
@@ -257,7 +257,7 @@
 			]
 		}
 	],
-	"porte_pepine": [
+	"porte_pepin": [
 		{"name": "Écriteau", "text": "Herboristerie Bontabac. Fermé pour cause de potager en deuil."}
 	],
 	"porte_sam": [
@@ -282,13 +282,13 @@
 	],
 
 	"berthe": [
-		{"if": "berthe_vue & party:pepine & party:sam & party:fripon & potager_soigne & !fete_commencee",
+		{"if": "berthe_vue & party:pepin & party:sam & party:froton & potager_soigne & !fete_commencee",
 			"then": [
-				{"who": "berthe", "text": "Vous voilà quatre, à présent. Et le potager de Pépine s'est redressé : on ne parle que de ça au comptoir."},
+				{"who": "berthe", "text": "Vous voilà quatre, à présent. Et le potager de Pépin s'est redressé : on ne parle que de ça au comptoir."},
 				{"who": "berthe", "text": "La Fête des Amarres, c'est demain soir. Si vous dormez comme vous en avez l'air, vous y serez tout juste.",
 					"choice": [
 						{"text": "Dormir jusqu'à la Fête (l'histoire avance)", "then": [
-							{"text": "Glandoulf ferme les yeux « cinq minutes ». La nuit passe. Le matin aussi. Sam cuisine, Pépine désherbe, Fripon compte l'argenterie de l'auberge."},
+							{"text": "Glandoulf ferme les yeux « cinq minutes ». La nuit passe. Le matin aussi. Sam cuisine, Pépin désherbe, Froton compte l'argenterie de l'auberge."},
 							{"action": "rest"},
 							{"set": "fete_commencee"},
 							{"action": "save"},
@@ -358,5 +358,29 @@
 	],
 	"fourneau": [
 		{"text": "Le fourneau est tiède. Au-dessus, un crochet vide. Quelqu'un a posé dessous une petite fleur des champs."}
+	],
+
+	"merri": [
+		{"if": "invasion",
+			"then": [
+				{"who": "merri", "text": "Chut. Je suis un tonneau. Allez taper, je fais le plan pendant ce temps-là."}
+			],
+			"else": [
+				{"if": "merri_vu",
+					"then": [
+						{"who": "merri", "text": "La cave de Gédéon ne se compte pas toute seule. Allez, je vous rattraperai : je cours en ligne droite, moi."}
+					],
+					"else": [
+						{"text": "Un jeune Grobitte aux boucles brunes, mieux habillé que le reste de la place, déplie une carte sur un tonneau. Le vent la prend. Il la rattrape, la replie, et la déplie de nouveau, plus soigneusement."},
+						{"who": "merri", "text": "Pardon ! Vous êtes Glandoulf le Gris ? Merri Brandemou, cousin de Pépin par la branche des gens organisés. J'ai l'intendance de la Fête : cidre, nappes, ordre des discours."},
+						{"who": "merri", "text": "Pépin m'a dit que vous cherchiez ce qui cloche au village. J'ai fait une liste."},
+						{"who": "glandoulf", "text": "Une liste de quoi ?"},
+						{"who": "merri", "text": "De ce qui va mal. Je l'ai classée par ordre alphabétique, ce qui n'aide pas : elle commence par « Arrosage » et finit par « Zéphyr, absence de »."},
+						{"who": "merri", "text": "Si vous partez, prévenez-moi. Je viens. Enfin, d'abord je termine de compter la cave de Gédéon, et ensuite je vous rattrape."},
+						{"set": "merri_vu"}
+					]
+				}
+			]
+		}
 	]
 }

@@ -43,11 +43,12 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 
 - Glandoulf le Gris (mage) : puissant, flemmard, rongé par un secret. Branches : Pyrotechnicien (feux d'artifice, dégâts de zone) ou Maître de la Sieste (sommeil, contrôle, régénération).
 - Sam Gamelle (tank) : cuisinier grobitte, se bat à la poêle, loyal jusqu'à l'absurde. Branches : Poêle de Fer (défense, provocation) ou Cuistot de Campagne (plats qui renforcent l'équipe).
-- Fripon Besace (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
-- Pépine Bontabac (soigneuse) : herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeuse de Pipe (nuages qui renforcent ou affaiblissent).
+- Froton Salfait (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
+- Pépin Bontabac (soigneur) : jeune Grobitte téméraire et herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeur de Pipe (nuages qui renforcent ou affaiblissent).
+- Merri Brandemou (stratège) : cousin de Pépin, Grobitte organisé qui a un plan pour tout, y compris pour les plans qui échouent. Branches : Stratège de Table (initiative, mana, protections de groupe) ou Estoc de Poche (dague, riposte, coups dans le dos).
 - Aragrogne (bretteur) : rôdeur bougon, héritier d'Isidur et du trône du Gouda, qu'il fuit à cause de la paperasse. C'est du moins ce qu'il dit : il sait ce que son aïeul a fait de l'anneau, et craint que dans la famille on ne sache pas s'arrêter une fois qu'on veut quelque chose. Branches : Rôdeur (duel, contre-attaques) ou Roi Malgré Lui (ordres qui galvanisent l'équipe).
-- Légolasse (archer) : elfe de 2 900 ans, blasée de tout. Branches : Tir de Précision ou Mépris Elfique (affaiblit le moral ennemi).
-- Gimlette (berserker) : naine de Morbier, bruyante et rancunière. Branches : Hache Furieuse ou Tête Dure.
+- Digoulasse (archer) : elfe de 2 900 ans, blasée de tout. Branches : Tir de Précision ou Mépris Elfique (affaiblit le moral ennemi).
+- Grimli (berserker) : naine de Morbier, bruyante et rancunière. Branches : Hache Furieuse ou Tête Dure.
 
 ## Les antagonistes
 
@@ -61,19 +62,19 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 
 Prologue, il y a trois cents ans. Combat-tutoriel : Glandoulf et le roi Isidur contre Sauron. Isidur refuse de jeter l'anneau et le garde pour lui ; Glandoulf remet la discussion au lendemain. Fondu au noir avant la suite.
 
-Chapitre 1, Bittebourg. Glandoulf arrive pour la Fête des Amarres. Les bittes du port se mettent à pencher : le Ramollissement est là. Il recrute Sam (retrouver sa poêle volée avant le concours de cuisine), Fripon (c'est lui le voleur, et il a aussi pris la pipe de Glandoulf) et Pépine (sauver son potager flétri). Annexes : redresser les bittes du port, la course de barques. Boss : un Naze venu fouiller le village.
+Chapitre 1, Bittebourg. Glandoulf arrive pour la Fête des Amarres. Les bittes du port se mettent à pencher : le Ramollissement est là. Il recrute Sam (retrouver sa poêle volée avant le concours de cuisine), Froton (c'est lui le voleur, et il a aussi pris la pipe de Glandoulf) et Pépin (sauver son potager flétri). Annexes : redresser les bittes du port, la course de barques. Merri, cousin de Pépin, tient l'intendance de la Fête et promet de rattraper l'équipe. Boss : un Naze venu fouiller le village.
 
-Chapitre 2, Brie. Au Poney Flagada, l'équipe rencontre Aragrogne, qui piste une créature que rien ne ramollit. Annexes : le fromager endetté, le concours de bras de fer mou. Boss : deux Nazes qui attaquent l'auberge de nuit.
+Chapitre 2, Brie. Merri rattrape l'équipe à l'entrée de la ville, chargé de cartes et de pain, et la rejoint. Au Poney Flagada, l'équipe rencontre Aragrogne, qui piste une créature que rien ne ramollit. Annexes : le fromager endetté, le concours de bras de fer mou. Boss : deux Nazes qui attaquent l'auberge de nuit.
 
-Chapitre 3, Fondue-Combe. Elrond de Cuir exige un formulaire de quête en trois exemplaires et convoque un Conseil interminable. Légolasse rejoint l'équipe pour y échapper. Annexes : la chasse aux tampons officiels, le chant elfique de neuf heures. Boss : le Gardien des Archives.
+Chapitre 3, Fondue-Combe. Elrond de Cuir exige un formulaire de quête en trois exemplaires et convoque un Conseil interminable (Merri, qui adore les procès-verbaux, en prend les notes et devient l'ami d'Elrond). Digoulasse rejoint l'équipe pour y échapper. Annexes : la chasse aux tampons officiels, le chant elfique de neuf heures. Boss : le Gardien des Archives.
 
-Chapitre 4, les Mines de Morbier. Gimlette guide l'équipe. Duel d'énigmes puis combat contre Goulûm : l'équipe récupère l'anneau, que Fripon portera. Boss : le Balourd. Glandoulf lui barre le pont (« Vous ne passerez pas. Enfin si, mais pas tout de suite, je suis crevé ») et tombe avec lui.
+Chapitre 4, les Mines de Morbier. Grimli guide l'équipe. Duel d'énigmes puis combat contre Goulûm : l'équipe récupère l'anneau, que Froton portera ; Merri, qui tient la corde, est le premier à voir ce que l'anneau fait à son regard. Boss : le Balourd. Glandoulf lui barre le pont (« Vous ne passerez pas. Enfin si, mais pas tout de suite, je suis crevé ») et tombe avec lui.
 
-Chapitre 5, le Roquefort et l'Isengarde-Manger. Sans Glandoulf. Le roi Théodort dort depuis des mois, veillé par son conseiller Grimace Langue-de-Bois. Sarumâle capture l'équipe et révèle la faute de Glandoulf : il était là, il a laissé Isidur repartir avec l'anneau, et il a menti à l'Alliance pendant trois cents ans. Fripon, trahi, enfile l'anneau : combat contre lui pour le sauver. Glandoulf revient en Glandoulf le Blanc-Cassé, avoue tout et débloque de nouveaux sorts. Annexes : réveiller le roi, la transhumance des brebis de guerre. Boss : Sarumâle.
+Chapitre 5, le Roquefort et l'Isengarde-Manger. Sans Glandoulf. Le roi Théodort dort depuis des mois, veillé par son conseiller Grimace Langue-de-Bois. Sarumâle capture l'équipe et révèle la faute de Glandoulf : il était là, il a laissé Isidur repartir avec l'anneau, et il a menti à l'Alliance pendant trois cents ans. Froton, trahi, enfile l'anneau : combat contre lui pour le sauver. Glandoulf revient en Glandoulf le Blanc-Cassé, avoue tout et débloque de nouveaux sorts. Merri prête serment au roi endormi et lui lit les cartes, jusqu'à ce qu'il rouvre l'œil. Annexes : réveiller le roi, la transhumance des brebis de guerre. Boss : Sarumâle.
 
-Chapitre 6, Minas Tartine. Les Morfales assiègent la ville. Défense des sept niveaux de la cité. Aragrogne accepte enfin la couronne, paperasse comprise. Annexes : l'Intendant qui dénigre tout, le ravitaillement des remparts. Boss : le Naze Suprême.
+Chapitre 6, Minas Tartine. Les Morfales assiègent la ville. Défense des sept niveaux de la cité. Aragrogne accepte enfin la couronne, paperasse comprise. Annexes : l'Intendant qui dénigre tout, le ravitaillement des remparts. Merri porte le coup décisif au Naze Suprême, par-derrière, avec sa dague de poche. Boss : le Naze Suprême.
 
-Chapitre 7, le Mordgras. Guidée par Goulûm, l'équipe s'infiltre par les cuisines, déguisée en serveurs du banquet perpétuel. Goulûm trahit, puis se sacrifie. Glandoulf gravit les quatre mille marches, toutes jouables, en se plaignant à chacune. Au Grand Four, Sauron lui offre l'anneau : ne plus jamais être fatigué. Glandoulf refuse. Boss final en deux phases : le Grand Œil, puis Sauron en pleine Vigueur.
+Chapitre 7, le Mordgras. Guidée par Goulûm, l'équipe s'infiltre par les cuisines, déguisée en serveurs du banquet perpétuel. Goulûm trahit, puis se sacrifie. Merri tient le plan du banquet, que personne n'a lu. Glandoulf gravit les quatre mille marches, toutes jouables, en se plaignant à chacune. Au Grand Four, Sauron lui offre l'anneau : ne plus jamais être fatigué. Glandoulf refuse. Boss final en deux phases : le Grand Œil, puis Sauron en pleine Vigueur.
 
 ## La fin
 
@@ -113,10 +114,10 @@ l'auteur peut rayer ce qui ne lui plaît pas.
   rentrer. Y siège **Bromure du Gouda**, fils de l'Intendant, vaillant et à bout : il
   propose de s'en servir pour sauver Minas Tartine. Il accompagne l'équipe en invité.
 - **Chapitre 4, Morbier.** Une fois l'anneau repris à Goulûm, Bromure tente de le prendre
-  à Fripon. Il y renonce de lui-même, honteux, et tient seul le pont derrière l'équipe.
+  à Froton. Il y renonce de lui-même, honteux, et tient seul le pont derrière l'équipe.
   On le retrouve au chapitre 6, alité à Minas Tartine, enfin reposé.
 - **Entre les chapitres 4 et 5, la Lothlorraine.** Forêt de **Dame Galadrielle**. Son
-  Miroir montre à chacun ce qu'il ferait de la Vigueur. Fripon y reste trop longtemps.
+  Miroir montre à chacun ce qu'il ferait de la Vigueur. Froton y reste trop longtemps.
   Elle refuse l'anneau qu'il lui tend : « Tous me désireraient, et plus personne ne
   dormirait. » C'est là que l'équipe, sans Glandoulf, commence à douter de lui.
 - **Chapitre 5.** Les arbres de la forêt voisine, menés par **Barbe-Molle**, mettent
@@ -125,8 +126,13 @@ l'auteur peut rayer ce qui ne lui plaît pas.
 - **Chapitre 6.** En acceptant la couronne, Aragrogne répare ce qu'Isidur a défait : il
   règne sans l'anneau, fatigue comprise.
 - **Chapitre 7.** Dans le col avant les cuisines, **l'Arachnée**, qui tisse sans jamais
-  s'arrêter et n'a pas dormi depuis des siècles. Au Grand Four, Fripon ne parvient pas à
+  s'arrêter et n'a pas dormi depuis des siècles. Au Grand Four, Froton ne parvient pas à
   lâcher l'anneau, comme Isidur ; Glandoulf fait cette fois les vingt pas.
+- **Merri, chapitres 1 à 7.** Voir sa fiche dans « Ajouts ». En bref : chapitre 1 (il se
+  présente, gère la Fête et suit de loin), chapitre 2 (il rattrape l'équipe à Brie),
+  chapitre 3 (il prend les notes du Conseil), chapitre 4 (il voit le premier l'anneau
+  changer le regard de Froton), chapitre 5 (il sert le roi endormi), chapitre 6 (coup
+  décisif contre le Naze Suprême), chapitre 7 (il connaît le plan du banquet).
 - **Épilogue.** De retour à Bittebourg, l'équipe trouve Sarumâle installé à la
   Capitainerie, qui a mis tout le village au travail. Dernière quête avant la sieste.
 
@@ -147,7 +153,7 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 - **L'auberge « Au Bon Mouillage ».** Seul intérieur visitable pour l'instant. On peut y
   sauvegarder en parlant à l'aubergiste.
 - **La Capitainerie.** Bureau du Maître des Amarres, fermée à cette heure.
-- Les maisons de Pépine (porte verte, potager aux plants flétris) et de Sam (porte jaune,
+- Les maisons de Pépin (porte verte, potager aux plants flétris) et de Sam (porte jaune,
   fenêtres éteintes : il est à l'auberge).
 
 **Personnages secondaires**
@@ -167,10 +173,10 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 - Le jeu s'ouvre sur une courte narration, puis sur l'arrivée de Glandoulf à Bittebourg par
   la route de l'est, au crépuscule. Le combat du prologue sera ajouté avec le système de
   combat. Le secret de Glandoulf n'est évoqué nulle part.
-- Sam, Fripon et Pépine sont présents au village et l'on peut leur parler, mais ils ne
+- Sam, Froton et Pépin sont présents au village et l'on peut leur parler, mais ils ne
   rejoignent pas encore l'équipe.
 - Noms retenus à ce stade, la bible hésitant entre plusieurs formes : Sam Gamelle,
-  Fripon Besace, Pépine Bontabac.
+  Froton Salfait, Pépin Bontabac.
 
 ### Étape 2 — Le prologue et le Pré Couché
 
@@ -207,7 +213,7 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 
 **Objets**
 
-- **Tisane de Pépine** (PV), **chope de cidre** (mana), **décoction amère** (états),
+- **Tisane de Pépin** (PV), **chope de cidre** (mana), **décoction amère** (états),
   **racine-qui-réveille** (relève un allié à terre ; pousse bien droite au fond de
   l'enclos, « la seule chose qui se tienne encore dans ce pré »).
 
@@ -216,14 +222,14 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 - Glandoulf : Étincelle, Bâillement contagieux, Petit somme (il se soigne en dormant un
   tour), Coup de tonnerre, Bouquet final (ses fusées).
 - Isidur : Taille royale, Ralliement. Cri de guerre : « Pour le Gouda ! »
-- Pépine : Cataplasme, Purin d'ortie, Antidote maison, Tisane générale, Fumée soporifique.
-- Sam : Coup de poêle, Couvercle, Soupe du jour. Fripon : Coup en douce, Lame trempée,
+- Pépin : Cataplasme, Purin d'ortie, Antidote maison, Tisane générale, Fumée soporifique.
+- Sam : Coup de poêle, Couvercle, Soupe du jour. Froton : Coup en douce, Lame trempée,
   Poudre à éternuer.
 - Sauron : Heures supplémentaires, Regard insistant.
 
 **Provisoire**
 
-- Pépine rejoint Glandoulf dès qu'on lui reparle devant son potager, sans scène de
+- Pépin rejoint Glandoulf dès qu'on lui reparle devant son potager, sans scène de
   recrutement. À remplacer par la vraie scène quand les quêtes existeront.
 
 ### Étape 4 — Quêtes, boutique et équipement à Bittebourg
@@ -237,17 +243,17 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 
 **Ce que les quêtes établissent**
 
-- **La poêle.** Fripon a volé la poêle de Sam et l'a vendue douze écus à Ursule, pour
-  financer son départ vers Minas Tartine. Ursule la revend quarante. Fripon rend les
+- **La poêle.** Froton a volé la poêle de Sam et l'a vendue douze écus à Ursule, pour
+  financer son départ vers Minas Tartine. Ursule la revend quarante. Froton rend les
   douze écus à Glandoulf. Sam n'a plus un écu : « tout est parti dans le beurre du
   concours ». Sam rejoint Glandoulf en récupérant sa poêle (« où vous irez, il y aura de
   la soupe »).
-- **La pipe.** Fripon nie pour la pipe jusqu'à ce que Glandoulf revienne avec Sam. Devant
+- **La pipe.** Froton nie pour la pipe jusqu'à ce que Glandoulf revienne avec Sam. Devant
   lui, il s'excuse, rend la pipe (« elle tire mal, de toute façon ») et suit Glandoulf,
   qui préfère « l'avoir devant lui que derrière ses poches ».
-- **Le potager.** La racine-qui-réveille fraîche redresse les poireaux de Pépine, mais ce
+- **Le potager.** La racine-qui-réveille fraîche redresse les poireaux de Pépin, mais ce
   n'est qu'un remède : il faudrait recommencer chaque jour, et la racine ne repousse pas
-  assez vite pour tout le Comté. Pépine en conclut que « le mal vient d'ailleurs, il faut
+  assez vite pour tout le Comté. Pépin en conclut que « le mal vient d'ailleurs, il faut
   le prendre à la source ». C'est la première fois que quelqu'un le dit à voix haute.
 - **Les bittes.** Maître Gédéon ne peut pas guérir ses bittes ; il a taillé des cales de
   chêne pour « sauver les apparences » pendant la Fête, et ne peut pas être vu en train
@@ -261,14 +267,14 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
 - **Petit remontant** (eau-de-vie de prune), **bâton ferré**, **serpette affûtée**,
   **canif de batelier**, **gilet de batelier**, **cape cirée**, **nœud de cabestan**.
 - **Poêle des Gamelle** (fonte noire, manche riveté, trente ans de culottage), **pipe en
-  bruyère** de Glandoulf, **tuteur en noisetier** de Pépine, **cales en chêne** de Gédéon.
+  bruyère** de Glandoulf, **tuteur en noisetier** de Pépin, **cales en chêne** de Gédéon.
 
 **Le Ramollissement, tel qu'il se joue**
 
 - Dans un lieu touché, tout coup physique porte moins fort, pour les créatures comme
   pour l'équipe : c'est la mécanique annoncée par la bible (« les zones touchées par le
   Ramollissement affaiblissent les attaques physiques »). La magie n'est pas atteinte.
-- Ce qui tient droit y échappe : le tuteur de Pépine glissé dans le dos, ou une gorgée
+- Ce qui tient droit y échappe : le tuteur de Pépin glissé dans le dos, ou une gorgée
   de remontant.
 
 ### Étape 5 — La Fête des Amarres, les alentours et la route de Brie
@@ -337,7 +343,7 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
   (laine de brebis du Roquefort), **châle de Mémé Louchette**, **louche d'or**, **grelot
   de proue**, **défense du Vieux Solitaire**, **perle de vase**, **la Première Amarre**.
 - Cèpes du Bois Penché, œufs de cane, pierres de soufre.
-- Glandoulf apprend le **Grand Bâillement**, Sam le **Plat de résistance**, Fripon le
+- Glandoulf apprend le **Grand Bâillement**, Sam le **Plat de résistance**, Froton le
   **Croc-en-jambe**.
 
 ### Étape 3 — Les talents (rattrapage)
@@ -351,21 +357,68 @@ dans l'ordre.
 - **Sam.** Poêle de Fer : Cuir épais, Viens-y voir (provocation), Fonte émaillée, Retour de
   poêle (riposte). Cuistot de Campagne : Bouillon de la veille, Casse-croûte, Ragoût qui
   requinque, Banquet.
-- **Fripon.** Pickpocket : Doigts de fée (la Fauche, qui vole des écus), Pieds légers, Là où
+- **Froton.** Pickpocket : Doigts de fée (la Fauche, qui vole des écus), Pieds légers, Là où
   ça fait mal, La part du lion. Embrouilleur : Mauvaise foi, Coup bas, Fiole douteuse, Grand
   embrouillamini.
-- **Pépine.** Herboriste : Main verte, Baume du matin, Racines profondes, Remède de cheval
-  (relève un allié). Fumeuse de Pipe : Tabac de caractère, Nuage tonique, Nuage âcre,
+- **Pépin.** Herboriste : Main verte, Baume du matin, Racines profondes, Remède de cheval
+  (relève un allié). Fumeur de Pipe : Tabac de caractère, Nuage tonique, Nuage âcre,
   Brouillard épais.
 - **Aragrogne.** Rôdeur : Œil du rôdeur, Riposte, Duel, Botte secrète. Roi Malgré Lui : Voix
   qui porte, Ordre bref, Port de tête, Par décret. Il connaît dès le départ la **Taille
   royale** de son ancêtre Isidur.
-- **Légolasse.** Tir de Précision : Souffle retenu, Flèche perçante, Trois mille ans de
+- **Digoulasse.** Tir de Précision : Souffle retenu, Flèche perçante, Trois mille ans de
   pratique, Pluie de flèches. Mépris Elfique : Soupir, Regard de haut, Remarque blessante,
   Mépris souverain.
-- **Gimlette.** Hache Furieuse : Sang chaud, Moulinet, Rancune tenace, Coup du bûcheron.
+- **Grimli.** Hache Furieuse : Sang chaud, Moulinet, Rancune tenace, Coup du bûcheron.
   Tête Dure : Crâne de Morbier, Même pas mal, Coup de boule, Bornée.
 - Trois nouveaux états : **Provocateur** (attire les coups), **Démoralisé** (défense et
   résistance réduites), **Enfumé** (les coups physiques ratent une fois sur trois).
-- Aragrogne, Légolasse et Gimlette n'apparaissent pas encore dans l'histoire : seules leur
+- Aragrogne, Digoulasse et Grimli n'apparaissent pas encore dans l'histoire : seules leur
   fiche de combat, leur apparence provisoire et leurs talents sont prêts.
+
+
+### Noms définitifs et Merri Brandemou (18 novembre 2026, soir)
+
+L'auteur a fixé la liste définitive des noms : Froton Salfait (voleur), Pépin Bontabac
+(soigneur, un homme), Digoulasse (archer), Grimli (berserker), plus Merri Brandemou, qui
+manquait. Aragrogne, Sam Gamelle, Isidur et Bromure du Gouda ne changent pas. Tout ce qui
+suit sur Merri est inventé pour lui donner corps ; l'auteur a validé le nom, pas le reste.
+
+- **Merri Brandemou**, cousin de Pépin (le Merry de l'histoire). Grobitte organisé, soigné,
+  bavard, qui a lu tous les chemins et n'en a marché aucun ; il a un plan pour tout et le
+  plan n'est jamais tout à fait au point. « Brandemou » : le brandy de Brandebouc, ramolli.
+  Sa liste de « ce qui va mal » est classée par ordre alphabétique, ce qui n'aide pas. Au
+  fond, c'est le seul de l'équipe qui prévoit l'échec, et qui reste quand même.
+- **Avec Pépin** : cousins rivaux et inséparables, ils se coupent la parole et finissent
+  les insultes l'un de l'autre. Pépin fonce, Merri prépare ; Merri le rattrape toujours.
+  **Avec Froton** : Froton lui prend ce qui traîne, Merri le note dans une colonne
+  (« emprunts ») et ne dit rien. **Avec Sam** : ils se disputent la répartition du pain,
+  puis finissent par cuisiner ensemble ; Sam voit en lui un homme de bon sens.
+- **Rôle de combat** : stratège. Il distribue le mana, l'initiative et les protections de
+  groupe, et frappe au besoin d'un estoc de dague. Compétences : Estoc de cousin, Plan bien
+  ficelé, Second petit déjeuner, Diversion de banquet. Talents : Stratège de Table
+  (Cartes dépliées, Pause déjeuner, Réserves de bouche, Plan B) ou Estoc de Poche (Pas de
+  côté, Coup dans le dos, Tête froide, Charge des cousins).
+- **Chapitre 1 (Bittebourg).** Il apparaît sur la place avant la Fête, avec une carte que le
+  vent emporte, et se présente comme cousin de Pépin et intendant de la Fête. Il commente
+  le nœud de la Première Amarre pendant la cérémonie (« ligne quarante-deux de la liste »).
+  À la fin du chapitre, on l'entend courir derrière l'équipe. Il n'est pas dans l'équipe :
+  tout le chapitre est réglé pour quatre.
+- **Chapitre 2 (Brie).** Il rattrape l'équipe à l'entrée de la ville et la rejoint, avec
+  trois cartes, du pain pour six jours, une corde et un plan. Il a des répliques à l'entrée
+  du Poney Flagada, à la convocation du Conseil (il propose de recopier les trois
+  exemplaires), à la rencontre d'Aragrogne (il a la carte de la région, périmée mais jolie),
+  dans la cave du fromager (il tient la corde), face à Chantecler et pendant la nuit des
+  Nazes (« pas de plan pour l'escalier »).
+- **Retouches aux chapitres suivants.** Chapitre 3 : il prend les notes du Conseil et
+  s'entend avec Elrond. Chapitre 4 : il tient la corde dans les Mines et remarque avant les
+  autres le regard de Froton sur l'anneau. Chapitre 5 : il prête serment au roi endormi et
+  lui lit les cartes. Chapitre 6 : il porte le coup décisif au Naze Suprême, par-derrière
+  (clin d'œil au Merry de l'histoire). Chapitre 7 : il détient le plan du banquet.
+- **Son arc.** Il croit d'abord que tout peut se planifier. Chaque chapitre lui montre le
+  contraire, et sa loyauté tient quand le plan casse : au chapitre 6, c'est sans plan qu'il
+  frappe. Il finit en sachant que préparer n'est pas décider, ce qui est l'écho en petit du
+  thème du jeu (savoir se lever, savoir s'arrêter).
+- **Changements de nom et d'accords.** Le jeu de mots sur le nom de Froton joue maintenant sur « Sale fait »
+  (Salfait). Pépin est maintenant un homme : Pépin est « le jeune herboriste », sa
+  voie « Fumeur de Pipe ».

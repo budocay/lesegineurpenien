@@ -21,9 +21,13 @@ L'auteur n'est pas développeur : il appuie sur F5, joue, et dit ce qu'il en pen
   charge un PNG de `assets/sprites/` s'il existe, sinon la version peinte par code.
 - **Textes du jeu en français.** Ton : personnages sérieux dans une situation ridicule,
   double sens, jamais de vulgarité explicite (voir la règle de ton de la bible).
-- **Noms définitifs** : Sam Gamelle, Fripon Besace, Pépine Bontabac, Aragrogne, Légolasse,
-  Gimlette. Identifiants : `sam`, `fripon`, `pepine`, `aragrogne`, `legolasse`, `gimlette`.
-  Ne jamais réintroduire les anciennes variantes.
+- **Noms définitifs** (liste de l'auteur du 18 novembre 2026, décision 105) : Glandoulf,
+  Sam Gamelle, Froton Salfait, Pépin Bontabac (un homme), Merri Brandemou (son cousin),
+  Aragrogne, Digoulasse, Grimli, Isidur, Bromure du Gouda. Identifiants : `glandoulf`, `sam`,
+  `froton`, `pepin`, `merri`, `aragrogne`, `digoulasse`, `grimli`. Ne jamais réintroduire
+  les anciennes variantes : Fripon, Besace, Pépine, Légolasse, Gimlette (elles ne survivent
+  que dans l'historique de `docs/SUIVI.md` et dans `GameState.migrate_old_ids`, qui convertit
+  les anciennes sauvegardes).
 - **Décider seul et noter.** Chaque décision va dans `docs/SUIVI.md` avec sa raison. Ne
   poser une question que si un mauvais choix serait long à défaire.
 - **Commits en français avec emoji.** Une étape à la fois, un commit par étape.
@@ -73,6 +77,9 @@ terminé. Les trois priorités fixées par l'auteur sont faites :
 3. ~~Pixel art~~ (fait : planches de 11 poses par direction, `species` pour Morfales et
    Naze, monstres à quatre poses, portraits peints, décors enrichis ; captures d'avant
    dans `docs/captures/avant_pixel_art/`).
+
+Chapitre 2 (Brie) jouable. Noms définitifs appliqués et Merri Brandemou intégré (il rejoint
+l'équipe à l'arrivée à Brie ; fiche dans la bible, décisions 105 à 110 du suivi).
 
 Histoire reprise à la demande de l'auteur : Isidur garde l'anneau (prologue réécrit),
 Glandoulf a laissé faire puis menti ; la section « Reprise de l'histoire » de la bible

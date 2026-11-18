@@ -12,8 +12,8 @@ personnages et les décors.
 
 ## Personnages — `characters/<identifiant>.png`
 
-L'identifiant est celui du fichier `data/characters.json` (`glandoulf`, `sam`, `fripon`,
-`pepine`, `gedeon`, `titou`, `meme_louchette`, `anselme`, `berthe`, `odilon`).
+L'identifiant est celui du fichier `data/characters.json` (`glandoulf`, `sam`, `froton`,
+`pepin`, `merri`, `gedeon`, `titou`, `meme_louchette`, `anselme`, `berthe`, `odilon`).
 
 Les planches peintes par le jeu font 352 × 192 pixels : 11 colonnes (repos, respiration,
 clignement ; quatre poses de marche ; attaque, sort, coup reçu, KO). Une planche déposée

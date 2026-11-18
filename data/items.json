@@ -16,7 +16,7 @@
 	"bottines_brie": {"name": "Bottines de la foire", "kind": "equipment", "slot": "trinket", "price": 90, "desc": "Souples, semelles cloutées, faites pour fuir la foule. Elles donnent des idées de départ rapide.", "mods": {"spd": 3, "def": 1}},
 	"convocation_elrond": {"name": "Convocation du Conseil", "kind": "key", "desc": "« Le Conseil de Fondue-Combe convoque Glandoulf, dit le Gris. Prière de remplir le formulaire A-38 en trois exemplaires avant l'entrée en salle. » Quatre tampons, dont un à l'envers."},
 	"tisane": {
-		"name": "Tisane de Pépine", "target": "ally", "price": 8,
+		"name": "Tisane de Pépin", "target": "ally", "price": 8,
 		"desc": "Rend des PV. Guérit tout, sauf ce qu'elle provoque.",
 		"effects": [{"type": "heal", "power": 30, "percent": 0.25}]
 	},
@@ -47,12 +47,12 @@
 		"mods": {"atk": 2, "mag": 3}
 	},
 	"serpette_affutee": {
-		"name": "Serpette affûtée", "kind": "equipment", "slot": "weapon", "for": ["pepine"], "price": 35,
+		"name": "Serpette affûtée", "kind": "equipment", "slot": "weapon", "for": ["pepin"], "price": 35,
 		"desc": "Elle taille l'ortie, le chardon et tout ce qui s'approche trop du potager.",
 		"mods": {"atk": 3, "mag": 1}
 	},
 	"canif_batelier": {
-		"name": "Canif de batelier", "kind": "equipment", "slot": "weapon", "for": ["fripon"], "price": 35,
+		"name": "Canif de batelier", "kind": "equipment", "slot": "weapon", "for": ["froton"], "price": 35,
 		"desc": "Fait pour trancher les cordages. Tranche aussi le reste, sans faire de manières.",
 		"mods": {"atk": 3, "spd": 1}
 	},
@@ -83,7 +83,7 @@
 	},
 	"tuteur": {
 		"name": "Tuteur en noisetier", "kind": "equipment", "slot": "trinket", "firm": true,
-		"desc": "Il a tenu droit les plus beaux poireaux de Pépine. Glissé dans le dos, il tient l'échine : le Ramollissement n'a plus prise sur les coups de son porteur.",
+		"desc": "Il a tenu droit les plus beaux poireaux de Pépin. Glissé dans le dos, il tient l'échine : le Ramollissement n'a plus prise sur les coups de son porteur.",
 		"mods": {"def": 1}
 	},
 
@@ -93,7 +93,7 @@
 	},
 	"tisane_corsee": {
 		"name": "Tisane corsée", "target": "ally", "price": 22,
-		"desc": "La recette de Pépine, infusée deux fois. Rend beaucoup de PV et laisse un souvenir durable.",
+		"desc": "La recette de Pépin, infusée deux fois. Rend beaucoup de PV et laisse un souvenir durable.",
 		"effects": [{"type": "heal", "power": 60, "percent": 0.4}]
 	},
 	"fusee_poche": {
@@ -108,13 +108,13 @@
 		"mods": {"atk": 3, "mag": 6}
 	},
 	"serpe_argent": {
-		"name": "Serpe à lame claire", "kind": "equipment", "slot": "weapon", "for": ["pepine"], "price": 95,
+		"name": "Serpe à lame claire", "kind": "equipment", "slot": "weapon", "for": ["pepin"], "price": 95,
 		"desc": "Elle cueille plus net, ce qui garde aux herbes toute leur force. Aux adversaires, moins.",
 		"mods": {"atk": 4, "mag": 4}
 	},
 	"lame_contrebande": {
-		"name": "Lame de contrebande", "kind": "equipment", "slot": "weapon", "for": ["fripon"], "price": 95,
-		"desc": "Ursule ne dit pas d'où elle vient. Fripon ne demande pas. Tout le monde est content.",
+		"name": "Lame de contrebande", "kind": "equipment", "slot": "weapon", "for": ["froton"], "price": 95,
+		"desc": "Ursule ne dit pas d'où elle vient. Froton ne demande pas. Tout le monde est content.",
 		"mods": {"atk": 6, "spd": 2}
 	},
 	"veste_matelassee": {
@@ -164,5 +164,15 @@
 	"soufre": {
 		"name": "Soufre des marais", "kind": "key",
 		"desc": "Une poudre jaune qui pique le nez. Bien sèche, elle rendrait leur mordant à des fusées ramollies."
+	},
+	"dague_de_poche": {
+		"name": "Dague de poche", "kind": "equipment", "slot": "weapon", "for": ["merri"],
+		"desc": "Trop courte pour un chevalier, juste assez pour un cousin qui sait où se placer.",
+		"mods": {"atk": 3, "spd": 1}
+	},
+	"estoc_de_marche": {
+		"name": "Estoc de la Marche", "kind": "equipment", "slot": "weapon", "for": ["merri"], "price": 100,
+		"desc": "Une lame fine, vendue avec un fourreau et un plan pour la dégainer au bon moment.",
+		"mods": {"atk": 6, "spd": 2}
 	}
 }

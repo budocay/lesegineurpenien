@@ -59,9 +59,9 @@
 			"hat": "toque", "hat_color": "#f2ecdc"
 		}
 	},
-	"fripon": {
-		"name": "Fripon",
-		"full_name": "Fripon Besace",
+	"froton": {
+		"name": "Froton",
+		"full_name": "Froton Salfait",
 		"role": "voleur",
 		"branches": ["Pickpocket", "Embrouilleur"],
 		"battle": {
@@ -78,10 +78,10 @@
 			"item": "pipe"
 		}
 	},
-	"pepine": {
-		"name": "Pépine Bontabac",
-		"role": "soigneuse",
-		"branches": ["Herboriste", "Fumeuse de Pipe"],
+	"pepin": {
+		"name": "Pépin Bontabac",
+		"role": "soigneur",
+		"branches": ["Herboriste", "Fumeur de Pipe"],
 		"battle": {
 			"element": "tranchant", "attack_name": "Coup de serpette", "attack_anim": "coup_de_serpette",
 			"base": {"hp": 34, "mp": 18, "atk": 6, "def": 4, "mag": 9, "res": 8, "spd": 10},
@@ -89,10 +89,29 @@
 			"learn": {"1": ["cataplasme", "purin_ortie"], "2": ["antidote_maison"], "4": ["tisane_generale"], "6": ["fumee_soporifique"]}
 		},
 		"look": {"eye": "#3a7a50", 
-			"build": "petit", "outfit": "jupe", "skin": "#edc09a",
+			"build": "petit", "outfit": "tunique", "skin": "#edc09a",
 			"top": "#e8dcc0", "bottom": "#5f8a52", "belt": "#8a5a34",
-			"hair": "#a8482e", "hair_style": "chignon",
+			"hair": "#a8482e", "hair_style": "court",
 			"hat": "chapeau_paille", "hat_color": "#d9c078", "band": "#c8556a"
+		}
+	},
+	"merri": {		"name": "Merri Brandemou",
+		"full_name": "Merri Brandemou, cousin de Pépin",
+		"role": "stratège",
+		"branches": ["Stratège de Table", "Estoc de Poche"],
+		"battle": {
+			"element": "tranchant", "attack_name": "Coup de dague", "attack_anim": "coup_de_dague_merri",
+			"base": {"hp": 42, "mp": 14, "atk": 8, "def": 5, "mag": 6, "res": 6, "spd": 11},
+			"growth": {"hp": 6.5, "mp": 2, "atk": 1.3, "def": 1.0, "mag": 0.8, "res": 0.9, "spd": 0.7},
+			"equip": {"weapon": "dague_de_poche"},
+			"learn": {"1": ["estoc_de_cousin"], "2": ["plan_ficele"], "4": ["second_petit_dejeuner"], "6": ["diversion"]}
+		},
+		"look": {"eye": "#4a6a8a",
+			"build": "petit", "outfit": "tunique", "skin": "#e8b890",
+			"top": "#3f5a7a", "bottom": "#6a5236", "belt": "#c9a24a",
+			"hair": "#7a4a26", "hair_style": "boucles",
+			"hat": "casquette", "hat_color": "#6a4a2a",
+			"feet": "bottes", "boots": "#3a2a20"
 		}
 	},
 	"isidur": {
@@ -134,9 +153,9 @@
 			"feet": "bottes", "boots": "#2a221c"
 		}
 	},
-	"legolasse": {
-		"name": "Légolasse",
-		"full_name": "Légolasse, elfe de 2 900 ans",
+	"digoulasse": {
+		"name": "Digoulasse",
+		"full_name": "Digoulasse, elfe de 2 900 ans",
 		"role": "archère",
 		"branches": ["Tir de Précision", "Mépris Elfique"],
 		"battle": {
@@ -152,9 +171,9 @@
 			"feet": "bottes", "boots": "#4a3a2a"
 		}
 	},
-	"gimlette": {
-		"name": "Gimlette",
-		"full_name": "Gimlette, naine de Morbier",
+	"grimli": {
+		"name": "Grimli",
+		"full_name": "Grimli, naine de Morbier",
 		"role": "berserker",
 		"branches": ["Hache Furieuse", "Tête Dure"],
 		"battle": {

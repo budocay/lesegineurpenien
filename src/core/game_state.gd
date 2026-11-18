@@ -613,7 +613,8 @@ func to_dict() -> Dictionary:
 	}
 
 
-func from_dict(d: Dictionary) -> bool:
+func from_dict(d_in: Dictionary) -> bool:
+	var d: Dictionary = migrate_old_ids(d_in)   # anciens noms de personnages -> nouveaux
 	if not d.has("map_id") or str(d.get("map_id", "")) == "":
 		return false
 	chapter = str(d.get("chapter", "chapitre_1"))
@@ -643,6 +644,31 @@ func from_dict(d: Dictionary) -> bool:
 	playtime = float(d.get("playtime", 0.0))
 	refresh_quests(true)   # une sauvegarde d'avant les quêtes retrouve son journal, sans fanfare
 	return true
+
+
+# Anciens identifiants de personnages (avant la décision 62) et leurs remplaçants.
+const OLD_IDS := {"fripon": "froton", "pepine": "pepin", "legolasse": "digoulasse", "gimlette": "grimli"}
+
+
+# Reprise des sauvegardes : remplace les anciens identifiants partout où ils apparaissent
+# (équipe, fiches, drapeaux, quêtes, bestiaire...), dans les clés comme dans les valeurs.
+static func migrate_old_ids(v: Variant) -> Variant:
+	if v is Dictionary:
+		var out := {}
+		for k: Variant in (v as Dictionary).keys():
+			out[migrate_old_ids(k)] = migrate_old_ids((v as Dictionary)[k])
+		return out
+	if v is Array:
+		var arr := []
+		for e: Variant in (v as Array):
+			arr.append(migrate_old_ids(e))
+		return arr
+	if v is String:
+		var s: String = v
+		for old: String in OLD_IDS.keys():
+			s = s.replace(old, str(OLD_IDS[old]))
+		return s
+	return v
 
 
 func playtime_text() -> String:
