@@ -32,7 +32,7 @@
 		},
 		{
 			"who": "pepin",
-			"text": "Et les gobelins du camp ? Ils t'ont tiré dessus, avant le lac. Je les ai entendus."
+			"text": "Et les Gobelardons du camp ? Ils tiraient sur tout ce qui bougeait, avant le lac. Je les ai entendus viser derrière toi."
 		},
 		{
 			"who": "bromure",
@@ -70,7 +70,7 @@
 		},
 		{
 			"who": "bromure",
-			"text": "L'anneau. Je l'ai voulu. Je l'ai voulu à en avoir mal aux mains, devant le Conseil entier, et devant toi, Froton. J'ai tendu le bras. Je ne suis pas fier de ce que j'ai tendu. Je suis fier de ce que j'ai lâché : c'est la seule chose de ma vie que j'aie rendue à temps."
+			"text": "L'anneau. Je l'ai voulu. Je l'ai voulu à en avoir mal aux mains, au bord du lac, devant tout le monde, et devant toi, Froton. J'ai tendu le bras. Je ne suis pas fier de ce que j'ai tendu. Je suis fier de ce que j'ai lâché : c'est la seule chose de ma vie que j'aie rendue à temps."
 		},
 		{
 			"who": "froton",
@@ -94,7 +94,7 @@
 		},
 		{
 			"who": "bromure",
-			"text": "Une dernière chose. Je voudrais qu'on se souvienne que je n'ai jamais, au grand jamais, cédé. Ni aux Ouroukouilles, ni aux gobelins, ni au Balourd, ni aux Ordres, ni aux Anneaux, ni les…"
+			"text": "Une dernière chose. Je voudrais qu'on se souvienne que je n'ai jamais, au grand jamais, cédé. Ni au Guetteur du lac, ni aux Gobelardons, ni au Balourd, ni aux Ordres, ni aux Anneaux, ni les…"
 		},
 		{
 			"text": "Un glaçon se détache du surplomb. Un petit bruit, sec, très court, presque poli. Bromure ne finit pas sa phrase. Il ne la finira plus."
@@ -171,6 +171,10 @@
 			"then": [
 				{
 					"text": "Le sentier de l'est descend vers la plaine. Il n'a pas l'air dangereux, ce qui, après les Mines, est en soi inquiétant."
+				},
+				{
+					"who": "sam",
+					"text": "La Dame de la forêt dort, et nous ne ferons pas de bruit pour la réveiller : elle a sans doute ses raisons, et nous avons les nôtres. Par la plaine."
 				}
 			],
 			"else": [
