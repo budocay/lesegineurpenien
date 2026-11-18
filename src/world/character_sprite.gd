@@ -36,7 +36,7 @@ func setup(p_sheet: Dictionary) -> void:
 	# petite ombre de contact sous les pieds
 	var blob := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
-	plane.size = Vector2(0.95, 0.42)
+	plane.size = Vector2(1.1, 0.5)
 	blob.mesh = plane
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = Sprites.prop("blob_shadow")

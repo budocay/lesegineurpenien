@@ -99,13 +99,37 @@ func character(id: String) -> Dictionary:
 		sheet["fps"] = float(meta.get("fps", 7.0))
 	else:
 		var look: Variant = Database.get_character(id).get("look", {})
-		img = CharacterPainter.paint_sheet(look if look is Dictionary else {})
+		img = _painted_sheet(look if look is Dictionary else {})
 	sheet["image"] = img
 	sheet["texture"] = PA.texture(img)
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])
 	sheet["frame_h"] = img.get_height() / int(sheet["row_count"])
 	_cache[key] = sheet
 	return sheet
+
+
+static var _painter_stamp := ""
+
+
+## Planche peinte par code, avec cache disque (user://cache_persos/) : la peinture d'une planche
+## prend environ une demi-seconde, le PNG en cache se relit en quelques millisecondes. La clé
+## contient le texte des peintres et la description du personnage : toute retouche repeint.
+func _painted_sheet(look: Dictionary) -> Image:
+	if _painter_stamp == "":
+		var src := ""
+		for f in ["char_kit", "character_head", "character_painter", "character_species", "pixel_art"]:
+			src += FileAccess.get_file_as_string("res://src/gfx/%s.gd" % f)
+		_painter_stamp = src.md5_text()
+	var path := "user://cache_persos/%s.png" % (_painter_stamp + JSON.stringify(look, "", true)).md5_text()
+	if FileAccess.file_exists(path):
+		var cached := Image.new()
+		if cached.load(path) == OK and cached.get_width() == CharacterPainter.FRAME_W * CharacterPainter.COLUMNS:
+			cached.convert(Image.FORMAT_RGBA8)
+			return cached
+	var img := CharacterPainter.paint_sheet(look)
+	DirAccess.make_dir_recursive_absolute("user://cache_persos")
+	img.save_png(path)
+	return img
 
 
 ## Portrait pour la boîte de dialogue : le haut de la pose « face », agrandi.

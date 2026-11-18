@@ -47,7 +47,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		_char.setup(Sprites.character(str(sp["character"])))
 		_char.facing = "left" if combatant.side == "party" else "right"
 		_quad = _char._quad
-		height = float(_char.height) * scale_k
+		height = float(_char.height) * 0.78 * scale_k   # hauteur utile : la case garde une marge au-dessus de la tête
 		_contact_shadow(1.0 * scale_k)
 		var glow := float(sp.get("glow", 0.0))
 		if glow > 0.0:
@@ -154,7 +154,8 @@ func _tween() -> Tween:
 ## Demi-largeur (unités monde) de son sprite, d'après le dessin lui-même.
 func half_width() -> float:
 	if _quad != null and _quad.mesh is QuadMesh:
-		return (_quad.mesh as QuadMesh).size.x * absf(_body.scale.x) * 0.5 * 0.7   # le dessin visible tient dans la case, avec une marge transparente
+		var visible := 0.72 if _char != null else 1.0   # un personnage ne remplit que le milieu de sa case
+		return (_quad.mesh as QuadMesh).size.x * absf(_body.scale.x) * 0.5 * 0.7 * visible   # le dessin visible tient dans la case, avec une marge transparente
 	return 0.4
 
 
