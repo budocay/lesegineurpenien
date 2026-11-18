@@ -7,6 +7,7 @@
 	"wall_height": 3.6,
 	"ambiance": "fondue_combe_interieur",
 	"music": "village",
+	"arena": "salle_conseil",
 	"camera": {"distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [15, 7.0, 12, 6.0]},
 	"ground": {"default": "void", "fills": [{"type": "elf_flag", "rect": [1, 2, 28, 12]}, {"type": "elf_flag", "rect": [14, 14, 2, 1]}]},
 	"spawns": {"entree": {"pos": [15.0, 12.6], "facing": "up"}},

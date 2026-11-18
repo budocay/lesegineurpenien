@@ -10,6 +10,7 @@ const DialogueBox = preload("res://src/ui/dialogue_box.gd")
 const MAIN = preload("res://scenes/main.tscn")
 const BattleEngine = preload("res://src/battle/battle_engine.gd")
 const BattleScene = preload("res://src/battle/battle_scene.gd")
+const ArenaPainterScript = preload("res://src/gfx/arena_painter.gd")
 const BattleUI = preload("res://src/battle/battle_ui.gd")
 const Rules = preload("res://src/battle/rules.gd")
 const MonsterPainter = preload("res://src/gfx/monster_painter.gd")
@@ -67,6 +68,7 @@ func _ready() -> void:
 	_test_retouches()
 	await _test_active_party()
 	await _test_arenas()
+	await _test_arena_by_place()
 	_test_retouches_2()
 	_test_equipment()
 	await _test_settings()
@@ -357,14 +359,14 @@ func _test_battle_data() -> void:
 	for id: String in Database.encounters:
 		var enc := Database.get_encounter(id)
 		_check_enemy_list("rencontre " + id, enc.get("enemies"))
-		check(Database.arenas.has(str(enc.get("arena", ""))), "rencontre %s : arène connue" % id)
+		check(Database.arenas.has(str(BattleScene.resolve(enc).get("arena", ""))), "rencontre %s : arène connue (après choix)" % id)
 		for m: Variant in enc.get("party", []):
 			check(not Rules.battle_def(str((m as Dictionary).get("id", ""))).is_empty(), "rencontre %s : équipe imposée valide" % id)
 		for item: String in enc.get("inventory", {}):
 			check(Database.items.has(item), "rencontre %s : objet connu (%s)" % [id, item])
 	for id: String in Database.encounter_tables:
 		var table: Dictionary = Database.encounter_tables[id]
-		check(Database.arenas.has(str(table.get("arena", ""))), "table %s : arène connue" % id)
+		check(str(table.get("arena", "")) == "" or Database.arenas.has(str(table.get("arena", ""))), "table %s : arène connue (ou laissée à la carte)" % id)
 		for size in [1, 2, 4]:
 			check(not Database.roll_encounter(id, size).is_empty(), "table %s : une rencontre possible pour %d personnage(s)" % [id, size])
 		for g: Variant in table.get("groups", []):
@@ -2308,7 +2310,7 @@ func _test_scenery() -> void:
 	var ArenaDecor = preload("res://src/battle/arena_decor.gd")
 	var MapBuilderScript = preload("res://src/world/map_builder.gd")
 	var BattleScene = preload("res://src/battle/battle_scene.gd")
-	var horizons := ["hills", "forest", "marsh", "town", "cavern"]
+	var horizons := ["hills", "forest", "marsh", "town", "cavern", "peaks", "valley", "hills_church"]
 	var features := ["pool", "houses"]
 	for id: String in Database.arenas:
 		var arena: Dictionary = Database.arenas[id]
@@ -2319,14 +2321,17 @@ func _test_scenery() -> void:
 			var far := str(back.get("far", ""))
 			check(far == "" or horizons.has(far), "arène %s : lointain %s connu" % [id, far])
 		for p: Variant in arena.get("props", []):
-			check(MapBuilderScript.PROPS.has(str((p as Dictionary).get("prop", ""))), "arène %s : décor %s connu" % [id, str((p as Dictionary).get("prop", ""))])
+			check(MapBuilderScript.PROPS.has(str((p as Dictionary).get("prop", ""))) or ArenaPainterScript.has_prop(str((p as Dictionary).get("prop", ""))), "arène %s : décor %s connu" % [id, str((p as Dictionary).get("prop", ""))])
 		for f: Variant in arena.get("features", []):
 			check(features.has(str((f as Dictionary).get("kind", ""))), "arène %s : élément %s connu" % [id, str((f as Dictionary).get("kind", ""))])
 		# la paroi : irrégulière, et jamais dans la zone des combattants
 		var decor = ArenaDecor.new(hash(id))
 		var holder := Node3D.new()
 		decor.build(holder, arena)
-		if not back.is_empty():
+		var no_steps: bool = back.get("steps", null) is Array and (back.get("steps") as Array).is_empty()
+		if no_steps:   # intérieur : panneaux peints à la place de la paroi en gradins
+			check(holder.get_child_count() >= 1 and not (back.get("panels", []) as Array).is_empty(), "arène %s : décor d'intérieur construit (panneaux)" % id)
+		elif not back.is_empty():
 			var lo := 99.0
 			var hi := 0.0
 			var zmin := 99.0
@@ -3422,7 +3427,7 @@ func _test_arenas() -> void:
 	GameState.new_game()
 	for who: String in ["sam", "froton", "pepin"]:
 		GameState.add_to_party(who)
-	var particle_kinds := ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke"]
+	var particle_kinds := ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs", "snow", "mist", "spores", "paper"]
 	var foes := ["limace_molle", "guepe_cidre", "champignon_dormeur", "limace_molle", "guepe_cidre"]
 	for id: String in Database.arenas:
 		var arena: Dictionary = Database.arenas[id]
@@ -4119,3 +4124,53 @@ func _test_settings() -> void:
 	main.queue_free()
 	await get_tree().process_frame
 	S.reset_defaults()
+
+
+## Arène choisie selon le lieu : champ « arena » de la carte, surcharge par la rencontre,
+## repli sur le Pré ; et chaque nouvelle arène se construit avec 1, 3 et 5 ennemis.
+func _test_arena_by_place() -> void:
+	print("== Arènes par lieu ==")
+	var expected := {
+		"archives": "archives", "auberge": "taverne", "auberge_elfique": "taverne",
+		"bittebourg": "quai", "bois_penche": "bois", "brie": "ruelle_nuit",
+		"caves_brie": "cave_fromage", "chancellerie": "salle_conseil", "col_biscottes": "col",
+		"ferme_pinard": "ferme", "fondue_combe": "cite_elfique", "fromagerie": "cave_fromage",
+		"poney_etage": "etage_auberge", "poney_flagada": "taverne", "pre_couche": "pre",
+		"roseliere": "marais", "route_brie": "route", "salle_conseil": "salle_conseil",
+	}
+	for map_id: String in Database.list_maps():
+		var map := Database.get_map(map_id)
+		check(expected.has(map_id), "carte %s : arène attendue déclarée dans le test" % map_id)
+		var res := BattleScene.resolve({"enemies": ["limace_molle"]}, map)
+		check(str(res["arena"]) == str(expected.get(map_id, "?")), "carte %s : combat dans l'arène %s (obtenu %s)" % [map_id, expected.get(map_id, "?"), res["arena"]])
+		check(not res.has("music") or Database.music.has(str(res["music"])), "carte %s : musique de combat connue" % map_id)
+		for o: Variant in map.get("objects", []):
+			if o is Dictionary and str((o as Dictionary).get("type", "")) == "encounter_zone":
+				var table: Dictionary = Database.encounter_tables.get(str((o as Dictionary).get("table", "")), {})
+				var rolled := Database.roll_encounter(str((o as Dictionary).get("table", "")), 2)
+				var r2 := BattleScene.resolve(rolled, map)
+				check(not table.is_empty() and Database.arenas.has(str(r2["arena"])), "carte %s : rencontre aléatoire dans une arène connue" % map_id)
+				check(str(r2["arena"]) == str(expected.get(map_id, "?")), "carte %s : rencontre aléatoire dans l'arène du lieu" % map_id)
+	var forced := BattleScene.resolve({"enemies": ["limace_molle"], "arena": "ferme"}, {"arena": "col"})
+	check(str(forced["arena"]) == "ferme", "la rencontre l'emporte sur la carte")
+	check(str(BattleScene.resolve({}, {"arena": "nimporte_quoi"})["arena"]) == "pre", "arène inconnue : repli sur le Pré")
+	check(str(BattleScene.resolve({}, {})["arena"]) == "pre", "ni rencontre ni carte : le Pré")
+	var news := ["taverne", "etage_auberge", "ruelle_nuit", "cave_fromage", "ferme", "route", "col", "cite_elfique", "salle_conseil", "archives", "quai"]
+	for id: String in news:
+		check(Database.arenas.has(id), "arène %s : déclarée" % id)
+		var arena := Database.get_arena(id)
+		var ground := str(arena.get("ground", ""))
+		check(ground != "soil" and ground != "", "arène %s : sol peint, pas de terre nue (%s)" % [id, ground])
+		var img: Image = Sprites.tile_image(ground)
+		var magenta := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.r > 0.9 and c.b > 0.9 and c.g < 0.2:
+					magenta += 1
+		check(magenta == 0, "arène %s : sol %s sans magenta" % [id, ground])
+		check(Database.music.has(str(arena.get("music", ""))), "arène %s : musique connue" % id)
+		var back: Dictionary = arena.get("backdrop", {})
+		for pan: Variant in back.get("panels", []):
+			var img2: Image = preload("res://src/gfx/arena_panels.gd").panel(str((pan as Dictionary).get("kind", "")), float((pan as Dictionary).get("w", 36.0)), float((pan as Dictionary).get("h", 6.0)))
+			check(img2 != null and img2.get_width() > 0, "arène %s : panneau %s peint" % [id, str((pan as Dictionary).get("kind", ""))])

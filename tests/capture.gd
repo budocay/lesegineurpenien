@@ -132,6 +132,7 @@ func _ready() -> void:
 	await _frames(150)
 	await _idle()
 	await _shot("44_roseliere")
+	await _arena_shots()
 	await _elven_shots()
 	main.change_map("roseliere", "ouest")
 	await _frames(150)
@@ -295,6 +296,23 @@ func _elven_shots() -> void:
 	await _idle()
 	await _goto(Vector3(15.0, 0.0, 11.0), "up")
 	await _shot("56_salle_conseil")
+
+
+## Combats dans les arenes choisies selon le lieu (taverne, ruelle, cave, col, cite elfique, archives).
+func _arena_shots() -> void:
+	var list := [["57_arene_taverne", "taverne"], ["58_arene_ruelle_nuit", "ruelle_nuit"], ["59_arene_cave_fromage", "cave_fromage"],
+		["60_arene_col", "col"], ["61_arene_cite_elfique", "cite_elfique"], ["62_arene_archives", "archives"]]
+	for entry: Array in list:
+		GameState.heal_party()
+		main.start_battle({"enemies": ["epouvantail_avachi", "limace_molle", "guepe_cidre"], "arena": entry[1]})
+		await _until_menu()
+		await _frames(50)
+		await _shot(str(entry[0]))
+		main.battle.auto = true
+		await _until_end()
+		await _frames(20)
+		main.battle_ui._on_end("ok")
+		await _frames(120)
 
 
 func _frames(n: int) -> void:

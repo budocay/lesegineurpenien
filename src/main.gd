@@ -305,6 +305,7 @@ func start_battle(encounter: Dictionary) -> String:
 	hud.hide_prompt()
 	var points_before := GameState.party_talent_points()
 	var field := world
+	encounter = BattleScene.resolve(encounter, field.map if field != null else {})   # arène : rencontre, sinon carte
 	if field != null:
 		field.set_input(false)
 		# Le Ramollissement du lieu pèse sur le combat (sauf combat scénarisé qui fixe le sien).

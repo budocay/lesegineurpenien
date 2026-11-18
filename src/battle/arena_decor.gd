@@ -8,6 +8,7 @@ const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const PA = preload("res://src/gfx/pixel_art.gd")
 const TilePainter = preload("res://src/gfx/tile_painter.gd")
 const HorizonPainter = preload("res://src/gfx/horizon_painter.gd")
+const ArenaPanels = preload("res://src/gfx/arena_panels.gd")
 const ROCK_SHADER = preload("res://src/gfx/shaders/rock.gdshader")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 const LAVA_SHADER = preload("res://src/gfx/shaders/lava.gdshader")
@@ -49,7 +50,10 @@ func build(parent: Node3D, arena: Dictionary) -> void:
 	var sky: Array = bd.get("sky", ["#1c1a36", "#4a3f6e"])
 	_haze_color = Color.from_string(str(sky[sky.size() - 1]), Color("#4a3f6e")).darkened(0.45)
 	_horizon(parent, bd)
-	_wall(parent, bd, str(arena.get("ground", "grass")))
+	var steps: Variant = bd.get("steps", null)
+	if not (steps is Array) or not (steps as Array).is_empty():   # « steps »: [] : pas de gradins (intérieur)
+		_wall(parent, bd, str(arena.get("ground", "grass")))
+	_panels(parent, bd)
 	for f: Variant in arena.get("features", []):
 		if f is Dictionary:
 			_feature(parent, f)
@@ -73,14 +77,49 @@ func _horizon(parent: Node3D, bd: Dictionary) -> void:
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
 	var q := MeshInstance3D.new()
 	var mesh := QuadMesh.new()
-	var width := 110.0
+	var width := float(bd.get("far_w", 110.0))   # largeur du panneau lointain (plus étroit : plus de relief visible)
 	mesh.size = Vector2(width, width * float(HorizonPainter.H) / float(HorizonPainter.W))
 	q.mesh = mesh
 	q.material_override = m
-	q.position = Vector3(0.0, mesh.size.y * 0.5 - 4.0, -38.0)
+	q.position = Vector3(0.0, mesh.size.y * 0.5 + float(bd.get("far_y", -4.0)), -38.0)
 	q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	q.name = "Horizon"
 	parent.add_child(q)
+
+
+# ------------------------------------------------------------ panneaux peints
+
+## Fonds peints par lieu (arena_panels.gd) : un mur de taverne, une colonnade, des rayonnages.
+## Les pixels transparents laissent voir le lointain. Champ `panels` de `backdrop` :
+## [{"kind": "taverne", "z": -11.4, "w": 36, "h": 6, "x": 0, "y": 0, "dim": 0.9}].
+func _panels(parent: Node3D, bd: Dictionary) -> void:
+	for p: Variant in bd.get("panels", []):
+		if not (p is Dictionary):
+			continue
+		var kind := str((p as Dictionary).get("kind", ""))
+		if not ArenaPanels.has_kind(kind):
+			push_warning("Panneau d'arène inconnu : " + kind)
+			continue
+		var w := float(p.get("w", 36.0))
+		var h := float(p.get("h", 6.0))
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = PA.texture(ArenaPanels.panel(kind, w, h))
+		var k := float(p.get("dim", 1.0))
+		m.albedo_color = Color(k, k, k)
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		m.alpha_scissor_threshold = 0.5
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		var q := MeshInstance3D.new()
+		var mesh := QuadMesh.new()
+		mesh.size = Vector2(w, h)
+		q.mesh = mesh
+		q.material_override = m
+		q.position = Vector3(float(p.get("x", 0.0)), float(p.get("y", 0.0)) + h * 0.5, float(p.get("z", -11.4)))
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		q.name = "Panel_" + kind
+		parent.add_child(q)
 
 
 # --------------------------------------------------------------------- paroi

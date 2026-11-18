@@ -5,7 +5,7 @@ extends RefCounted
 const Flicker = preload("res://src/world/light_flicker.gd")
 const RAYS_SHADER = preload("res://src/gfx/shaders/rays.gdshader")
 ## Particules qu'une ambiance peut demander (le test automatique vérifie les données).
-const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs"]
+const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs", "snow", "mist", "spores", "paper"]
 
 
 static func _c(d: Dictionary, key: String, fallback: String) -> Color:
@@ -322,6 +322,68 @@ static func make_particles(kind: String) -> CPUParticles3D:
 			p.initial_velocity_max = 0.25
 			p.scale_amount_min = 0.5
 			p.scale_amount_max = 1.2
+			p.color_ramp = fade_in_out
+		"snow":
+			quad.size = Vector2(0.075, 0.075)
+			quad.material = _particle_material(Color(1.5, 1.6, 1.8), false)
+			p.amount = 120
+			p.lifetime = 7.0
+			p.preprocess = 7.0
+			p.emission_box_extents = Vector3(14.0, 3.0, 10.0)
+			p.direction = Vector3(0.35, -1.0, 0.0)
+			p.spread = 18.0
+			p.gravity = Vector3(0.12, -0.5, 0)
+			p.initial_velocity_min = 0.25
+			p.initial_velocity_max = 0.55
+			p.scale_amount_min = 0.6
+			p.scale_amount_max = 1.5
+			p.color_ramp = fade_in_out
+		"mist":
+			quad.size = Vector2(2.6, 1.1)
+			quad.material = _particle_material(Color(0.72, 0.78, 0.92), false)
+			p.amount = 9
+			p.lifetime = 12.0
+			p.preprocess = 12.0
+			p.emission_box_extents = Vector3(14.0, 0.2, 7.0)
+			p.position = Vector3.ZERO
+			p.direction = Vector3(1, 0, 0)
+			p.spread = 12.0
+			p.gravity = Vector3.ZERO
+			p.initial_velocity_min = 0.1
+			p.initial_velocity_max = 0.25
+			p.scale_amount_min = 0.8
+			p.scale_amount_max = 1.6
+			p.color_ramp = _gradient([Color(1, 1, 1, 0), Color(1, 1, 1, 0.16), Color(1, 1, 1, 0)], [0.0, 0.4, 1.0])
+		"spores":
+			quad.size = Vector2(0.07, 0.07)
+			quad.material = _particle_material(Color(0.5, 1.5, 1.3), true)
+			p.amount = 42
+			p.lifetime = 8.0
+			p.preprocess = 8.0
+			p.emission_box_extents = Vector3(13.0, 1.3, 8.0)
+			p.direction = Vector3(0, 1, 0)
+			p.spread = 180.0
+			p.gravity = Vector3(0, 0.015, 0)
+			p.initial_velocity_min = 0.03
+			p.initial_velocity_max = 0.16
+			p.scale_amount_min = 0.5
+			p.scale_amount_max = 1.3
+			p.color_ramp = fade_in_out
+		"paper":
+			quad.size = Vector2(0.17, 0.21)
+			quad.material = _particle_material(Color(0.95, 0.92, 0.82), false)
+			p.amount = 16
+			p.lifetime = 9.0
+			p.preprocess = 9.0
+			p.emission_box_extents = Vector3(13.0, 2.2, 8.0)
+			p.direction = Vector3(0.4, -0.6, 0.0)
+			p.spread = 30.0
+			p.gravity = Vector3(0.0, -0.1, 0)
+			p.initial_velocity_min = 0.1
+			p.initial_velocity_max = 0.3
+			p.angle_max = 360.0
+			p.angular_velocity_min = -120.0
+			p.angular_velocity_max = 120.0
 			p.color_ramp = fade_in_out
 		_:
 			return null

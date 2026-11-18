@@ -44,6 +44,10 @@ static func paint(kind: String) -> Image:
 	var elven: GDScript = load("res://src/gfx/elven_painter.gd")
 	if elven.has_tile(kind):
 		return elven.paint_tile(kind)
+	# sols des arènes de combat par lieu (parquet, pavés mouillés, neige...)
+	var arena: GDScript = load("res://src/gfx/arena_painter.gd")
+	if arena.has_tile(kind):
+		return arena.paint_tile(kind)
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img

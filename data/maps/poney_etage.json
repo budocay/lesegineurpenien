@@ -10,6 +10,7 @@
 	"wall_height": 3.0,
 	"ambiance": "auberge_nuit",
 	"music": "menace",
+	"arena": "etage_auberge",
 	"camera": {
 		"distance": 19,
 		"pitch": 34,

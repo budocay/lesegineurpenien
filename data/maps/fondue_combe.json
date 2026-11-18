@@ -5,6 +5,7 @@
 	"size": [64, 32],
 	"ambiance": "fondue_combe",
 	"music": "village",
+	"arena": "cite_elfique",
 	"title_focus": [31, 14],
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {"default": "elf_lawn", "fills": [{"type": "elf_path", "rect": [0, 20, 64, 3]}, {"type": "elf_flag", "rect": [22, 10, 20, 13]}, {"type": "elf_path", "rect": [18, 7, 2, 13]}, {"type": "elf_path", "rect": [12, 18, 2, 2]}, {"type": "elf_path", "rect": [50, 18, 2, 2]}, {"type": "elf_path", "rect": [30, 9, 2, 1]}, {"type": "elf_path", "rect": [50, 9, 2, 11]}, {"type": "water", "rect": [43, 0, 2, 28]}, {"type": "water", "rect": [41, 24, 6, 4]}, {"type": "elf_bridge", "rect": [43, 20, 2, 3]}]},

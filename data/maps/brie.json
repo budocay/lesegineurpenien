@@ -8,6 +8,7 @@
 	],
 	"ambiance": "crepuscule",
 	"music": "brie",
+	"arena": "ruelle_nuit",
 	"ramollissement": 0.15,
 	"title_focus": [
 		30,

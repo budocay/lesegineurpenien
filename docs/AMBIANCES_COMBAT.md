@@ -44,7 +44,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 
 # Chapitre 1 et 2 : Bittebourg et Brie
 
-### `taverne` ★
+### `taverne` ★ (fait)
 - **Lieux et rencontres :** Au Bon Mouillage (`morfales_auberge`), le Poney Flagada (`duel_gaston`, `duel_veuve`), et plus tard toute salle commune d'auberge.
 - **Sol :** parquet de **planches larges, usées, collantes de bière**, avec des traces de pas et de chopes (*nouveau* : `plank_worn`).
 - **Fond :** paroi de **poutres et de torchis**, grande cheminée à droite, bar au fond avec ses tonneaux ; fenêtres à petits carreaux, nuit dehors ; `tile` poutres (*nouveau*), `far` : aucun (intérieur).
@@ -54,7 +54,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `auberge` (morceau existant) pour les duels ; `combat` pour les Morfales.
 - **Détail drôle :** une table couchée sur le flanc, la nappe encore posée dessus, **le dessus de plat gardé au chaud** par le bois d'un barman qui n'a pas bougé.
 
-### `etage_auberge` ★
+### `etage_auberge` ★ (fait)
 - **Lieux et rencontres :** étage du Poney Flagada (`nazes_nuit`, le boss de deux Nazes de nuit).
 - **Sol :** **plancher de bois sombre** grinçant, couloir étroit, tapis élimé au milieu (*nouveau* : `plank_dark`, `rug_worn`).
 - **Fond :** couloir de chambres, **portes numérotées** ouvertes sur le noir, une fenêtre au bout par laquelle on voit la lune et un morceau de **rampe d'escalier qui a quitté le bâtiment** (clin d'œil du dialogue de Barnabé).
@@ -64,7 +64,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `menace` pour l'approche, `boss` au combat.
 - **Détail drôle :** sur chaque porte, une affichette « Prière de ne pas déranger le sommeil des voyageurs, ni celui des Nazes ».
 
-### `ruelle_nuit` ★
+### `ruelle_nuit` ★ (fait)
 - **Lieux et rencontres :** les rues de Brie la nuit (rencontres de rue après la nuit du Poney, et `naze` si le combat sort dans la rue).
 - **Sol :** **pavés mouillés** reflétant les lanternes (`cobble` avec reflets, *nouveau* : `cobble_wet`).
 - **Fond :** façades à colombages penchées, volets clos, enseignes de fromagers qui pendent ; ruelle étroite fermée par un mur de brique ; `far` : toits de Brie (`town` nocturne).
@@ -74,7 +74,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `brie` ralenti ou `menace`.
 - **Détail drôle :** une enseigne de fromager porte la mention « Fromages de caractère » sur un camembert qui s'est écoulé.
 
-### `cave_fromage` ★
+### `cave_fromage` ★ (fait)
 - **Lieux et rencontres :** les caves de Persillé (`caves_brie`, `vacherin`), la fromagerie.
 - **Sol :** **dalle de calcaire humide** et clayettes de bois au bord (*nouveau* : `cellar_stone`).
 - **Fond :** voûte de pierre, **rayonnages de meules** à perte de vue, tonneaux de saumure ; `tile` pierre moussue ; `far` : galeries (`cavern`).
@@ -84,7 +84,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `marais` ou un morceau de cave (*nouveau* : `cave`, pizzicati de cordes pincées sur un bourdon, un peu humide).
 - **Détail drôle :** chaque meule porte une étiquette « Affinage : à l'ancienne, très lent ». Le Vacherin est dessiné en train de **couler vers les étiquettes** comme s'il les relisait.
 
-### `ferme` ★
+### `ferme` ★ (fait)
 - **Lieux et rencontres :** la ferme Pinard / ferme de Brie (`ferme_brie`, `chantecler`).
 - **Sol :** **paille et terre battue mêlées** : un sol de **cour de ferme** avec de la paille, des flaques et des plumes (*nouveau* : `farmyard`).
 - **Fond :** grange en bois, abreuvoir, **meule de foin**, poulailler ; `far` : champs de colza (`hills` avec toiture de ferme).
@@ -94,7 +94,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `campagne`, puis `boss`.
 - **Détail drôle :** au fond, une girouette en forme de coq, tournée vers le mauvais côté : Chantecler la regarde avec insistance.
 
-### `route` ★
+### `route` ★ (fait)
 - **Lieux et rencontres :** la route de Brie (`route_brie`, `morfales_route`), toute route de campagne.
 - **Sol :** **chemin de gravier et d'ornières** avec une bande d'herbe au milieu, **jamais** de terre nue (*nouveau* : `gravel_road`).
 - **Fond :** talus bordés de haies, **borne kilométrique**, barrière brisée ; `far` : collines et un clocher (`hills`).
@@ -120,7 +120,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 
 # Chapitre 3 : Fondue-Combe
 
-### `col` ★
+### `col` ★ (fait)
 - **Lieux et rencontres :** le col des Biscottes (`col_biscottes` : chamois, marmottes, taons), puis le départ de Fondue-Combe.
 - **Sol :** **neige tassée et roche** (*nouveau* : `snow_rock`, un sol blanc-bleu par plaques, glace dessous).
 - **Fond :** parois de granit, sapins noirs, pic enneigé ; `far` : sommets (*nouveau* : `peaks`) ; ciel d'altitude bleu froid.
@@ -130,7 +130,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** un morceau de col (*nouveau* : `col`, cor lointain et pas lent de timbales).
 - **Détail drôle :** une pancarte « Altitude 1 800 m. Départ des biscottes. À consommer sur place » devant un chamois qui la regarde de haut.
 
-### `cite_elfique` ★
+### `cite_elfique` ★ (fait)
 - **Lieux et rencontres :** Fondue-Combe, la ville des Elfes (`fondue_combe`).
 - **Sol :** `elf_flag` (dallage ivoire), bordure de pelouse `elf_lawn`.
 - **Fond :** terrasses de pierre claire, arcs brisés, cascades, toits bleu-gris ; `tile` : `elf_terrace` ; `far` : vallée et cascade (*nouveau* : `valley`).
@@ -140,7 +140,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** un morceau elfique (*nouveau* : `elfes`, harpe et flûte, très lent, un peu en retard sur lui-même).
 - **Détail drôle :** une fontaine porte la plaque « Prière de ne pas se presser. Les eaux n'ont pas hâte ».
 
-### `salle_conseil` ★
+### `salle_conseil` ★ (fait)
 - **Lieux et rencontres :** Salle du Conseil, Chancellerie (les rencontres de couloir ; aucune pour l'instant).
 - **Sol :** `elf_parquet` (parquet pâle), un long tapis gris.
 - **Fond :** **longue table** d'orme vide, fauteuils, vitraux à fond de lierre ; `tile` : `elf_wall_vista`.
@@ -150,7 +150,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Musique :** `elfes` ou `menace`.
 - **Détail drôle :** l'ordre du jour est cloué au mur : « 8. (voir 6.) ». Un huissier pétrifié continue à noter.
 
-### `archives` ★
+### `archives` ★ (fait)
 - **Lieux et rencontres :** Archives du Conseil (`archives`, `gardien_archives`).
 - **Sol :** **parquet ciré** couvert de feuillets tombés (*nouveau* : `parquet_paper`).
 - **Fond :** rayonnages jusqu'au plafond, échelles à roulettes, **registres** reliés de cuir ; `tile` : `elf_wall_books`.
@@ -486,7 +486,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 
 | Priorité | Arènes |
 |---|---|
-| **★ À faire tout de suite** (chapitres 1 à 3, lieux déjà jouables) | `taverne`, `etage_auberge`, `ruelle_nuit`, `cave_fromage`, `ferme`, `route`, `col`, `cite_elfique`, `salle_conseil`, `archives` ; puis `quai` |
+| **★ Faites** (chapitres 1 à 3, choisies par la carte : champ `arena`) ; `quai` aussi | `taverne`, `etage_auberge`, `ruelle_nuit`, `cave_fromage`, `ferme`, `route`, `col`, `cite_elfique`, `salle_conseil`, `archives` ; puis `quai` |
 | Pour le chapitre 4 | `route_monts`, `porte_morbier`, `galeries`, `salle_piliers`, `chambre_comptes`, `pont_morbier`, `lac_souterrain`, `lothlorraine`, `miroir` |
 | Pour le chapitre 5 | `chutes_gratin`, `plaine_roquefort`, `fongorn`, `bergerie_or`, `petrins`, `garde_manger`, `terrasse_office` |
 | Pour le chapitre 6 | `minas_remparts`, `minas_rues`, `citadelle`, `pelle_a_tarte`, `sentier_insomniaques`, `port_sale` |
