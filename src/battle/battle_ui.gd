@@ -21,6 +21,12 @@ const TILE_BIG := 86.0     # vignette du combattant actif (frise des tours)
 const TILE_SMALL := 42.0
 const FRIEZE_LEN := 5      # vignettes par frise
 const IconPainter = preload("res://src/gfx/icon_painter.gd")
+# Zones d'interface, que la mise en page de la scène (BattleScene.layout) connaît d'avance.
+const CARD_W := 300.0      # fiche d'un héros
+const CARD_PITCH := 71.0   # hauteur d'une fiche et de l'espace qui la sépare de la suivante
+const CARDS_TOP := 14.0
+const CARDS_RIGHT := 12.0
+const TOP_BAND_H := 134.0  # frise des tours, étiquette du tour, cartouche d'action et conseil
 const ELAN_COLOR := Color("#ffd24a")
 const ELAN_HOT := Color("#ff8a3a")
 const HP_MID := Color("#e8b04a")      # PV entre 30 % et 50 %
@@ -52,6 +58,7 @@ var _last_list := {}        # "skill"/"item" -> dernier identifiant choisi
 var _last_enemy := ""
 var _target_frame := -1
 var _time := 0.0
+var _plate_sig := 0           # signature des places de plaques au dernier réglage du premier plan
 var _menu_sig := 0           # signature de la scène au dernier placement des menus
 var _root_pos := Vector2.ZERO
 var _list_pos := Vector2.ZERO
@@ -244,10 +251,21 @@ func _ready() -> void:
 
 # ------------------------------------------------------------ ouverture / fermeture
 
+## Place que prennent les fiches de n héros (coin haut droit de l'écran), avec une petite marge.
+static func cards_zone(n: int, view: Vector2) -> Rect2:
+	return Rect2(view.x - CARDS_RIGHT - CARD_W, CARDS_TOP, CARD_W, float(n) * CARD_PITCH - 3.0).grow(6.0)
+
+
+## Bande du haut de l'écran réservée à la frise des tours et aux cartouches : aucun combattant n'y entre.
+static func top_band(view: Vector2) -> Rect2:
+	return Rect2(0.0, 0.0, view.x, TOP_BAND_H)
+
+
 func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 	close()
 	scene = p_scene
 	engine = p_engine
+	_plate_sig = 0
 	visible = true
 	for c: RefCounted in engine.party:
 		_rows[c.key] = _make_row(c)
@@ -326,7 +344,7 @@ func _make_row(c: RefCounted) -> Dictionary:
 	card.add_child(line)
 	var face := TextureRect.new()   # petit portrait, dans un cadre sombre
 	face.texture = Sprites.battler_icon(c.sprite)
-	face.custom_minimum_size = Vector2(46, 46)
+	face.custom_minimum_size = Vector2(42, 42)
 	face.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -342,21 +360,21 @@ func _make_row(c: RefCounted) -> Dictionary:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 8)
 	col.add_child(head)
-	var name_label := UI.label(str(c.name), 18, UI.INK)
+	var name_label := UI.label(str(c.name), 17, UI.INK)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.clip_text = true
 	head.add_child(name_label)
 	var status := HBoxContainer.new()
 	status.add_theme_constant_override("separation", 3)
 	head.add_child(status)
-	var level := UI.label("Nv %d" % int(c.level), 14, UI.INK_DIM)
+	var level := UI.label("Nv %d" % int(c.level), 13, UI.INK_DIM)
 	head.add_child(level)
 	var hp_row := HBoxContainer.new()
 	col.add_child(hp_row)
 	var hp_tag := UI.caps("PV", 11, UI.GOLD_DIM)
 	hp_tag.size_flags_vertical = Control.SIZE_SHRINK_END
 	hp_row.add_child(hp_tag)
-	var hp_text := UI.label("", 19, UI.INK)
+	var hp_text := UI.label("", 17, UI.INK)
 	hp_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hp_row.add_child(hp_text)
@@ -368,11 +386,11 @@ func _make_row(c: RefCounted) -> Dictionary:
 	mp_tag.size_flags_vertical = Control.SIZE_SHRINK_END
 	mp_row.add_child(mp_tag)
 	var pips := Control.new()   # l'élan : cinq losanges (voir _draw_pips)
-	pips.custom_minimum_size = Vector2(86, 18)
+	pips.custom_minimum_size = Vector2(86, 16)
 	pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pips.draw.connect(_draw_pips.bind(pips, 7.0))
 	mp_row.add_child(pips)
-	var mp_text := UI.label("", 15, UI.INK)
+	var mp_text := UI.label("", 14, UI.INK)
 	mp_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	mp_row.add_child(mp_text)
@@ -382,9 +400,10 @@ func _make_row(c: RefCounted) -> Dictionary:
 
 
 func _card_style(active: bool) -> StyleBoxTexture:
-	if active:
-		return UI.fade_style(Color(0.2, 0.15, 0.05), 0.78)
-	return UI.fade_style(Color(0.02, 0.025, 0.06), 0.6)
+	var st := UI.fade_style(Color(0.2, 0.15, 0.05), 0.78) if active else UI.fade_style(Color(0.02, 0.025, 0.06), 0.6)
+	st.content_margin_top = 3   # fiche compacte : la place du haut de l'écran est comptée (voir CARD_PITCH)
+	st.content_margin_bottom = 4
+	return st
 
 
 func _chip(text: String, color: Color, size: int = 14) -> PanelContainer:
@@ -978,11 +997,13 @@ func _obstacles(view: Vector2) -> Array[Rect2]:
 		if root.visible:
 			out.append(Rect2(root.position, root.size).grow(4.0))
 	out.append(_party_panel.get_global_rect().grow(6.0))
+	for r: Rect2 in scene.foreground_rects():   # le premier plan flou est dans les coins : le menu l'évite aussi
+		out.append(r.grow(6.0))
 	out.append(Rect2(0.0, 0.0, view.x, 172.0))
 	if _hint.visible:
 		out.append(_hint.get_global_rect().grow(6.0))
 	out.append(Rect2(0.0, view.y - 56.0, 460.0, 56.0))
-	out.append(Rect2(view.x * 0.5 - 260.0, view.y - 50.0, 520.0, 50.0))   # rien en bas au centre
+	out.append(Rect2(view.x * 0.5 - 260.0, view.y - 6.0, 520.0, 6.0))   # rien tout en bas au centre (le menu peut descendre jusque-là)
 	return out
 
 
@@ -994,7 +1015,7 @@ static func free_spot(size: Vector2, prefer: Vector2, obstacles: Array[Rect2], v
 	var best := Vector2(clampf(prefer.x, 10.0, x_max), clampf(prefer.y, 10.0, y_max))
 	var best_score := INF
 	var coarse := 28.0
-	var passes := 2
+	var passes := 3
 	var span_x := Vector2(10.0, x_max)
 	var span_y := Vector2(10.0, y_max)
 	var step := coarse
@@ -1012,12 +1033,12 @@ static func free_spot(size: Vector2, prefer: Vector2, obstacles: Array[Rect2], v
 				if score < best_score:
 					best_score = score
 					best = Vector2(x, y)
-				x += step
-			y += step
+				x = span_x.y if (x < span_x.y and x + step > span_x.y + 0.01) else x + step   # la dernière colonne et la dernière ligne comptent aussi
+			y = span_y.y if (y < span_y.y and y + step > span_y.y + 0.01) else y + step
 		# seconde passe : affinage autour du meilleur point
-		span_x = Vector2(maxf(10.0, best.x - coarse), minf(x_max, best.x + coarse))
-		span_y = Vector2(maxf(10.0, best.y - coarse), minf(y_max, best.y + coarse))
-		step = 7.0
+		span_x = Vector2(maxf(10.0, best.x - maxf(step, 7.0)), minf(x_max, best.x + maxf(step, 7.0)))
+		span_y = Vector2(maxf(10.0, best.y - maxf(step, 7.0)), minf(y_max, best.y + maxf(step, 7.0)))
+		step = 7.0 if step > 7.0 else 2.0
 	return best
 
 
@@ -1033,7 +1054,7 @@ func _place_menu() -> void:
 	var obstacles := _obstacles(view)
 	var sig := hash([_state, _list_panel.visible, Vector2i(_root_panel.size), Vector2i(_list_panel.size), Vector2i(view)])
 	for o: Rect2 in obstacles:
-		sig = hash([sig, int(o.position.x / 5.0), int(o.position.y / 5.0), int(o.size.x / 5.0), int(o.size.y / 5.0)])
+		sig = hash([sig, int(o.position.x), int(o.position.y), int(o.size.x), int(o.size.y)])
 	if sig != _menu_sig:
 		_menu_sig = sig
 		var c: Vector2 = scene.screen_point(_actor, "center")
@@ -1065,7 +1086,7 @@ static func _bar_beside(size: Vector2, panel: Rect2, obstacles: Array[Rect2], vi
 	var above := Vector2(panel.position.x, panel.position.y - size.y - 4.0)
 	for spot: Vector2 in [below, above]:
 		var r := Rect2(spot, size)
-		if r.position.x < 6.0 or r.position.y < 6.0 or r.end.x > view.x - 6.0 or r.end.y > view.y - 6.0:
+		if r.position.x < 6.0 or r.position.y < 6.0 or r.end.x > view.x - 6.0 or r.end.y > view.y - 1.0:
 			continue
 		var clear := true
 		for o: Rect2 in obstacles:
@@ -1355,8 +1376,15 @@ func _layout_plates() -> void:
 			rects[ka] = ra
 		if not moved:
 			break
+	var placed: Array[Rect2] = []
 	for k: String in keys:
 		((_plates[k] as Dictionary)["root"] as Control).position = (rects[k] as Rect2).position.round()
+		placed.append(Rect2((rects[k] as Rect2).position.round(), (rects[k] as Rect2).size))
+	# le premier plan flou se range autour des plaques, jamais dessus (refait quand elles bougent)
+	var sig := hash(placed.map(func(r: Rect2) -> Vector2i: return Vector2i(r.position)))
+	if sig != _plate_sig:
+		_plate_sig = sig
+		scene.refit_foreground(placed)
 
 
 func _input(event: InputEvent) -> void:

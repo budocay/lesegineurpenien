@@ -113,18 +113,39 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
 Champ facultatif `foreground` (liste, vide par défaut) : accessoires posés au tout premier
 plan, entre la caméra et les combattants, que le flou de profondeur rend flous (cadrage à la
 Octopath). Chaque entrée : `{"prop": "rock", "count": 4, "scale": 1.15, "x": [-8, 8]}`.
-`prop` est un accessoire connu de `Sprites`, `count` leur nombre, `scale` leur taille, `x` la
-bande horizontale où ils tombent (facultatif). Placement déterministe (graine = arène). Ces
-accessoires ne comptent pas dans les accessoires de scène vérifiés par le test.
+`prop` est un accessoire connu de `Sprites`, `count` leur nombre, `scale` leur taille, `x` ne
+sert plus qu'à choisir le coin (milieu de la bande négatif : coin gauche, positif : coin droit,
+sinon un sur deux). Placement déterministe (graine = arène). Ces accessoires ne comptent pas
+dans les accessoires de scène vérifiés par le test.
+Le premier plan n'est qu'une amorce de photo, et le code l'y tient (`BattleScene.refit_foreground`,
+aucune valeur par arène) : chaque accessoire est assombri (`FG_DIM`), flou, et cadré dans l'un
+des deux coins bas de l'écran (20 % de la largeur, 26 % de la hauteur) ; il ne passe jamais devant
+un combattant (poses comprises), une plaque d'ennemi, une fiche, la frise ni le menu ; chaque coin
+en couvre au plus 6 % de l'écran. Un accessoire qui ne peut pas tenir ces règles est d'abord
+rapetissé, puis enfoncé dans le sol, puis rapproché du bord, puis retiré (pour cette rencontre
+seulement : un combat à moins d'ennemis lui rend sa place). Inutile donc d'en mettre beaucoup :
+deux ou trois accessoires bas par arène suffisent.
 
 Vue de combat : caméra basse (hauteur 4,7, recul 13,6, champ 28) qui plonge légèrement ; les
 ennemis à gauche, les héros à droite en colonne décalée (chacun un peu plus bas et plus à
 droite), les deux files de la frise des tours viennent de `engine.preview(10, acteur)`.
-Placement de l'interface de combat (calculé, aucune valeur par arène) : le pas en avant de
+Mise en page de la zone de jeu et de l'interface (`BattleScene.layout`, calculée, aucune
+valeur par arène) : l'interface réserve les fiches de l'équipe (coin haut droit, 300 px de large,
+71 px par héros : `BattleUI.cards_zone`) et la bande du haut (frise des tours, cartouches :
+`BattleUI.top_band`, 134 px). Les héros prennent la plus grande taille d'affichage
+(`Actor.set_view_scale`, au plus `HERO_K_MAX` fois la planche, dont les cases de 88 x 132 px sont
+trop grandes pour un combat) pour laquelle, dans toutes leurs poses (pas en avant, penché, sort
+lancé : `Actor.pose_reach`), ils ne touchent ni les fiches, ni la frise, ni le bord de l'écran ;
+au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la plus grande taille
+(au plus `FOE_K_MAX`) qui tient entre la frise, le bas de l'écran (leur plaque comprise) et les
+héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
+large se réduit donc tout seul s'il le faut. `scale` d'un ennemi (`data/enemies.json`) reste sa
+taille relative aux autres monstres.
+Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
 ennemis se placent sous leur sprite visible puis s'écartent entre elles et des sprites
 voisins ; le menu et la liste du héros qui joue cherchent la place libre la plus proche de
-leur position préférée, hors combattants, plaques, fiches, frise, bandeau et aide.
+leur position préférée, hors combattants, plaques, fiches, frise, bandeau, aide et premier plan.
 
 Champ facultatif `particles` (liste, vide par défaut) : particules d'ambiance du combat
 (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`, `smoke`). Elle remplace celle

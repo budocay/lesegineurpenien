@@ -28,6 +28,11 @@ var _move: Tween
 var _pose_tw: Tween
 var _hit_tw: Tween
 var _base_scale := Vector3.ONE
+var view_k := 1.0            # taille d'affichage en combat (la scène la règle : voir BattleScene.layout)
+var _scale0 := Vector3.ONE   # échelle, hover et hauteur à la taille de base (view_k = 1)
+var _height0 := 1.6
+var _hover0 := 0.0
+var _shadow: MeshInstance3D = null
 
 
 func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
@@ -74,8 +79,38 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 	_quad.set_instance_shader_parameter("rim", 0.7)   # liseré de contre-jour (voir sprite.gdshader)
 	_body.scale *= scale_k
 	_base_scale = _body.scale
+	_scale0 = _body.scale
+	_height0 = height
+	_hover0 = _hover
 	_body.position.y = _hover
 	_animate(0.0)
+
+
+## Taille d'affichage en combat : multiplie le sprite, son ombre, sa hauteur et son vol. La scène
+## choisit cette taille pour que le combattant tienne dans la place que l'interface lui laisse.
+func set_view_scale(k: float) -> void:
+	view_k = k
+	_body.scale = _scale0 * k
+	_base_scale = _body.scale
+	height = _height0 * k
+	_hover = _hover0 * k
+	if _shadow != null:
+		_shadow.scale = Vector3(k, 1.0, k)
+	if not posing():
+		_body.position.y = _hover
+
+
+## Place d'un combattant (et de son pas en avant).
+func set_home(p: Vector3) -> void:
+	home = p
+	if not posing() and not down:
+		position = p
+
+
+## Débattement (monde) du sprite pendant ses poses : de côté (penché, bond) et vers le haut
+## (sort lancé, coup reçu). Sert à vérifier qu'aucune pose ne touche l'interface.
+func pose_reach() -> Vector2:
+	return Vector2(0.28 * height, 0.3 + 0.12 * height)
 
 
 static var _shadow_tex: Texture2D = null
@@ -108,6 +143,7 @@ func _contact_shadow(width: float) -> void:
 	blob.position = Vector3(0, 0.02, 0.06)
 	blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(blob)
+	_shadow = blob
 
 
 var _mpose := ""   # pose imposée à un monstre ("attack", "hit")
