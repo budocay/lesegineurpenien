@@ -173,8 +173,8 @@ static func _pose(col: int) -> Dictionary:
 			p["bob"] = -1.0
 			p["fn"] = 3.0
 			p["ff"] = -3.0
-			p["mouth"] = "open"
-			p["eyes"] = "closed"
+			p["mouth"] = "o"
+			p["eyes"] = "focus"
 			p["sway"] = 3.0
 		9:
 			p["arms"] = "flail"
@@ -188,7 +188,7 @@ static func _pose(col: int) -> Dictionary:
 		10:
 			# KO : affaissé, jambes repliées, tête rentrée dans les épaules
 			p["lean"] = -4.0
-			p["mouth"] = "open"
+			p["mouth"] = "slack"
 			p["eyes"] = "ko"
 			p["bob"] = 9.0
 			p["crouch"] = 6.0
@@ -680,10 +680,14 @@ static func _side(look: Dictionary) -> void:
 				var ap: Array = _c["apron"]
 				var by2 := minf(_hip + _lh * 0.28, _foot - 9.0)
 				var fxa := tx - hs - belly
-				_poly([Vector2(fxa + 0.5, ny + 6.0), Vector2(fxa - 1.2, belt_y), Vector2(fxa - 4.5, by2 - 2.0), Vector2(fxa - 3.8, by2),
-					Vector2(fxa + 4.5, by2), Vector2(fxa + 5.0, belt_y), Vector2(fxa + 3.0, ny + 7.0)], ap, 0.0, true)
-				_line(fxa - 3.0, belt_y + 5.0, fxa + 4.0, belt_y + 5.0, ap[1])
-				_line(fxa - 1.0, belt_y + 5.0, fxa - 1.0, belt_y + 11.0, ap[1])
+				# bavette collée au buste, jupon qui s'évase et ondule avec le pas ; nœud dans le dos
+				_trap(ny + 6.0, belt_y, fxa + 0.4, fxa + 3.6, fxa - 0.6, fxa + 4.4, ap, 0.0, [], true)
+				_trap(belt_y - 0.5, by2, fxa - 0.6, fxa + 4.4, fxa - 3.6 - sway * 0.4, fxa + 4.8 + sway * 0.2, ap, -0.05,
+					[Vector2(0.45, 0.25)], true, sway * 0.5)
+				_line(fxa - 2.0, belt_y + 4.5, fxa + 2.5, belt_y + 4.5, ap[1])
+				_line(fxa - 1.0, belt_y + 4.5, fxa - 1.0, belt_y + 9.0, ap[1])
+				_rect(tx + hs - 3.0, belt_y - 1.0, 3.0, 2.0, ap[2])
+				_cap(tx + hs - 1.5, belt_y + 1.0, tx + hs + 0.5 + sway * 0.3, belt_y + 6.0, 1.0, 0.7, ap)
 				_cap(tx - 0.5, ny + 2.5, fxa + 1.5, ny + 7.5, 1.4, 1.2, ap)
 	_ell(tx - 0.5, ny + 4.6, 5.4, 4.6, top if not has_cape else _c["cape"])
 	_cast(tx - 1.0, _hcy + _ry + 0.5, _rx - 2.0, 4.6, -0.24)
@@ -787,6 +791,28 @@ static func _foot_side(fx: float, ay: float, col: Array, boot: bool) -> void:
 		_put(int(fx) + 1, int(ay) - 2, col[4])
 
 
+## Bouche de profil sous une barbe : une fente sombre percée dans la barbe, ouverte quand le
+## personnage crie, serre les dents ou murmure ; au repos, une lèvre sombre.
+static func _mouth_under_beard(mx: int, my: int, mode: String) -> void:
+	match mode:
+		"open":
+			_rect(mx - 3.0, my, 5.0, 4.0, MOUTH)
+			_rect(mx - 3.0, my, 4.0, 1.0, SCLERA)
+			_rect(mx - 2.0, my + 3.0, 3.0, 1.0, RED)
+		"grit":
+			_rect(mx - 3.0, my, 5.0, 3.0, MOUTH)
+			for i in 5:
+				_put(mx - 3 + i, my + 1, SCLERA if i % 2 == 0 else MOUTH)
+		"o":
+			_rect(mx - 2.0, my, 3.0, 3.0, MOUTH)
+			_put(mx - 1, my + 1, RED)
+		"slack":
+			_rect(mx - 3.0, my, 4.0, 3.0, MOUTH)
+			_put(mx - 2, my + 2, RED)
+		_:
+			_rect(mx - 3.0, my + 1.0, 3.0, 1.0, MOUTH)
+
+
 static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 	var hcy := _hcy
 	var rx := _rx * 0.94
@@ -833,10 +859,18 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 			_put(ex, ey + 2, iris[0])
 			_put(ex + 2, ey + 3, iris[0])
 			_put(ex + 3, ey + 4, iris[0])
-		"ko":
+		"focus":
 			for i in 4:
-				_put(ex + i, ey + 1 + i, iris[0])
-				_put(ex + 3 - i, ey + 1 + i, iris[0])
+				_put(ex + i, ey + 2, iris[0])
+			_put(ex + 1, ey + 3, skin[1])
+			_put(ex + 2, ey + 3, skin[1])
+		"ko":
+			_put(ex, ey + 3, iris[0])
+			_put(ex + 1, ey + 2, iris[0])
+			_put(ex + 2, ey + 2, iris[0])
+			_put(ex + 3, ey + 3, iris[0])
+			_put(ex + 1, ey + 4, skin[1])
+			_put(ex + 2, ey + 4, skin[1])
 		_:
 			for i in 4:
 				_put(ex + i, ey + (1 if (mood == "angry" and i == 3) else 0), iris[0])
@@ -859,7 +893,11 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 				_put(ex + 4, ey - 1, iris[0])
 	var brow_col: Color = (_c["beard"] if old and str(look.get("beard", "none")) != "none" else hr)[1]
 	for i in 5:
-		var yy := ey - 3 + (1 if mood == "angry" and i < 2 else 0) + (1 if i == 0 else 0)
+		var yy := ey - 3 + (1 if (mood == "angry" or mood == "focus") and i < 3 else 0) + (1 if i == 0 else 0)
+		if mood == "pain":
+			yy = ey - 3 - (1 if i < 3 else 0)
+		elif mood == "ko":
+			yy = ey - 3 + (0 if i < 2 else 1) - 1
 		if mood == "open" and _fk != "":
 			yy = ey - 3 + _brow_dy(4 - i, 0)
 		_put(ex - 1 + i, yy, brow_col)
@@ -885,6 +923,12 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 			_rect(mx - 2.0, my + 2.0, 5.0, 1.0, MOUTH)
 			_put(mx, my - 1, MOUTH)
 			_put(mx + 2, my - 1, MOUTH)
+		"o":
+			_rect(mx - 1.0, my, 3.0, 3.0, MOUTH)
+			_put(mx, my + 1, RED)
+		"slack":
+			_rect(mx - 2.0, my, 4.0, 2.0, MOUTH)
+			_put(mx - 1, my + 1, RED)
 		_:
 			if not hidden and _fk in ["renfrogne", "bourru", "las"]:
 				_put(mx - 2, my + 1, MOUTH)
@@ -915,6 +959,7 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 				_put(mx - 1, my + 2, skin[3])
 	if str(look.get("beard", "none")) != "none":
 		_beard_side(look, hx, hcy, rx, ry)
+		_mouth_under_beard(mx, my, str(_p["mouth"]))
 	_hair(hx, hcy, rx, ry, hair_style, 1)
 	if str(look.get("ears", "")) == "elfe":
 		_cap(hx + rx * 0.3, hcy + 2.0, hx + rx * 0.3 + 10.0, hcy - 7.0, 2.4, 0.6, skin)

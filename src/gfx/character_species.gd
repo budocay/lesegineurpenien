@@ -89,7 +89,7 @@ static func _morfale(look: Dictionary, view: int) -> void:
 	var hcy := sh - 6.0
 	var hrx := 16.0 if not side else 14.5
 	var hry := 14.0
-	var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "pain" or str(_p["eyes"]) == "ko"
+	var shut := str(_p["eyes"]) in ["closed", "pain", "ko", "focus"]
 	var hat := str(look.get("hat", "none"))
 	if hat == "capuche":
 		_hood_back(hx, hcy, hrx, hry, 1 if side else 0)
@@ -243,7 +243,7 @@ static func _naze(view: int) -> void:
 		[Vector2(0.3, 0.0), Vector2(0.7, 0.0)])
 	if view == 0:
 		_ell(hx, hcy + 2.0, 11.0, 13.0, [void_c, void_c, void_c, void_c, void_c])
-		var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "ko"
+		var shut := str(_p["eyes"]) in ["closed", "ko", "focus"]
 		for s: int in [-1, 1]:
 			var ex := int(hx) + (-8 if s < 0 else 3)
 			if shut:
@@ -256,7 +256,7 @@ static func _naze(view: int) -> void:
 			_rect(hx - 4.0, hcy + 8.0, 8.0, 1.5, glow)
 	elif view == 1:
 		_ell(hx - 5.0, hcy + 2.0, 8.5, 12.0, [void_c, void_c, void_c, void_c, void_c])
-		var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "ko"
+		var shut := str(_p["eyes"]) in ["closed", "ko", "focus"]
 		_rect(hx - 11.0, hcy - 1.0, 5.0, 1.5 if shut else 5.0, glow)
 		_put(int(hx) - 11, int(hcy) - 1, WHITE)
 		if str(_p["mouth"]) != "smile":
