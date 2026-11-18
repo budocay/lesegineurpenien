@@ -54,6 +54,12 @@
 					"give": "pain_elfique"
 				},
 				{
+					"text": "Appuyé contre le fond du tiroir, un bâton lourd comme un après-midi. L'étiquette porte : « Objets perdus, à réclamer avec quittance ». Personne n'a jamais réclamé."
+				},
+				{
+					"give": "baton_sieste"
+				},
+				{
 					"money": 35
 				},
 				{
@@ -80,6 +86,12 @@
 				},
 				{
 					"give": "tisane_corsee"
+				},
+				{
+					"text": "Au fond de la boîte, un monocle à chaînette, aimablement étiqueté « Perdu, Archiviste ». Il sait déjà où vous allez le perdre."
+				},
+				{
+					"give": "monocle_archiviste"
 				},
 				{
 					"set": "coffre_archives_2_pris"

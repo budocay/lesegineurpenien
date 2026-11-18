@@ -3,6 +3,8 @@ extends Control
 ## Tous partagent la même présentation : une liste à gauche, le détail de la ligne
 ## choisie à droite, les écus en haut. Une « page » est une liste d'entrées
 ##   {"text": "...", "detail": "...", "dim": bool, "action": Callable}
+## (« markup » ou « markup_fn » à la place de « detail » : un détail déjà en BBCode, ou une fonction
+## qui le construit au moment où la ligne est choisie.)
 ## et un retour (Callable) appelé par la touche Annuler ; sans retour, l'écran se ferme.
 
 signal closed
@@ -22,6 +24,9 @@ var _entries: Array = []
 var _back: Callable = Callable()
 var _opened_at := 0
 var _shop: Dictionary = {}
+var _focus_index := 0
+var _cycle := false            # la page laisse changer de personnage avec gauche / droite (boutique)
+var _shop_who := ""            # personnage pour lequel la boutique compare l'équipement
 
 
 func _ready() -> void:
@@ -103,6 +108,9 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		go_back()
+	elif _cycle and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
+		get_viewport().set_input_as_handled()
+		_cycle_shop_who(1 if event.is_action_pressed("ui_right") else -1)
 	elif event.is_action_pressed("ui_page_down") or event.is_action_pressed("ui_page_up"):
 		# détail trop long pour la page : on le fait défiler au clavier
 		get_viewport().set_input_as_handled()
@@ -124,6 +132,8 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 	_title.text = title
 	_entries = entries
 	_back = back
+	_cycle = false
+	_focus_index = clampi(focus, 0, maxi(0, entries.size() - 1))
 	_message.text = ""
 	_money.text = "%d %s" % [GameState.money, GameState.MONEY_NAME]
 	for c in _list.get_children():
@@ -150,7 +160,7 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 	_detail.text = ""
 	if not entries.is_empty():
 		var index := clampi(focus, 0, entries.size() - 1)
-		_detail.text = UI.detail_markup(str((entries[index] as Dictionary).get("detail", "")))
+		_detail.text = _entry_markup(entries[index] as Dictionary)
 		_focus_row.call_deferred(index)
 
 
@@ -165,7 +175,19 @@ func _focus_row(index: int) -> void:
 
 func _on_focus(index: int) -> void:
 	if index < _entries.size():
-		_detail.text = UI.detail_markup(str((_entries[index] as Dictionary).get("detail", "")))
+		_focus_index = index
+		_detail.text = _entry_markup(_entries[index] as Dictionary)
+		_detail_scroll.scroll_vertical = 0
+
+
+## Détail d'une ligne, en BBCode.
+func _entry_markup(e: Dictionary) -> String:
+	var fn: Variant = e.get("markup_fn")
+	if fn is Callable and (fn as Callable).is_valid():
+		return str((fn as Callable).call())
+	if e.has("markup"):
+		return str(e["markup"])
+	return UI.detail_markup(str(e.get("detail", "")))
 
 
 func _on_pressed(index: int) -> void:
@@ -197,19 +219,114 @@ func _say(text: String, good: bool = true) -> void:
 
 # -------------------------------------------------------------------- textes
 
+const STAT_ROWS := ["hp", "mp", "atk", "def", "mag", "res", "spd", "acc", "eva", "crit", "critdmg"]
+const SHEET_ROWS := ["atk", "def", "mag", "res", "spd", "acc", "eva", "crit", "critdmg"]
+const PERCENT_STATS := ["acc", "eva", "crit", "critdmg"]
+
+
 static func _item_name(id: String) -> String:
 	return str(Database.get_item(id).get("name", id))
+
+
+## Valeur d'une caractéristique, avec son « % » pour les pourcentages.
+static func _fmt(key: String, v: int, signed: bool = false) -> String:
+	var sign_text := ""
+	if signed:
+		sign_text = "+" if v >= 0 else "−"
+	var shown := absi(v) if signed else v
+	return "%s%d%s" % [sign_text, shown, " %" if PERCENT_STATS.has(key) else ""]
 
 
 static func _mods_text(item: String) -> String:
 	var parts: Array = []
 	var mods: Variant = Database.get_item(item).get("mods", {})
 	if mods is Dictionary:
-		for key: String in Rules.STATS:
-			if (mods as Dictionary).has(key):
-				var v := int(mods[key])
-				parts.append("%s %s%d" % [str(GameState.STAT_NAMES.get(key, key)), "+" if v >= 0 else "−", absi(v)])
+		for key: String in Rules.MOD_KEYS:
+			if (mods as Dictionary).has(key) and int(mods[key]) != 0:
+				parts.append("%s %s" % [str(GameState.STAT_NAMES.get(key, key)), _fmt(key, int(mods[key]), true)])
 	return ", ".join(parts)
+
+
+## Nom d'un genre d'arme ou de tenue (« baton » → « Bâton »).
+static func type_name(type: String) -> String:
+	var names: Variant = Database.game.get("item_types", {})
+	if names is Dictionary:
+		return str((names as Dictionary).get(type, type.capitalize()))
+	return type.capitalize()
+
+
+static func _pct(v: float) -> String:
+	return "%d %%" % int(round(v * 100.0))
+
+
+## Les effets permanents d'un objet (champ « passives »), une ligne chacun.
+static func passive_lines(item: String) -> Array:
+	var out: Array = []
+	var p: Variant = Database.get_item(item).get("passives", {})
+	if not (p is Dictionary):
+		return out
+	var d: Dictionary = p
+	if d.has("resist"):
+		for el: String in d["resist"]:
+			out.append("Subit %s de dégâts %s en moins." % [_pct(float(d["resist"][el])), str(Database.elements.get(el, {}).get("name", el)).to_lower()])
+	if d.has("status_resist"):
+		for st: String in d["status_resist"]:
+			var label := "tous les états négatifs" if st == "all" else "« %s »" % str(Database.get_status(st).get("name", st))
+			out.append("Résiste à %s : %s de chances en moins." % [label, _pct(float(d["status_resist"][st]))])
+	if d.has("immune"):
+		var names: Array = []
+		for st: Variant in d["immune"]:
+			names.append(str(Database.get_status(str(st)).get("name", st)))
+		out.append("Insensible à : %s." % ", ".join(names))
+	if d.has("regen_hp"):
+		out.append("Rend %s des PV maximum au début de chaque tour." % _pct(float(d["regen_hp"])))
+	if d.has("regen_mp"):
+		out.append("Rend %d PM au début de chaque tour." % int(d["regen_mp"]))
+	if d.has("money_bonus"):
+		out.append("Écus gagnés au combat : +%s." % _pct(float(d["money_bonus"])))
+	if d.has("xp_bonus"):
+		out.append("Expérience gagnée : +%s." % _pct(float(d["xp_bonus"])))
+	if d.has("initiative"):
+		out.append("Joue plus tôt en début de combat (+%s)." % _pct(float(d["initiative"])))
+	return out
+
+
+## Les membres de l'équipe qui peuvent porter cet objet.
+static func wearers(item: String) -> Array:
+	var out: Array = []
+	for id: Variant in GameState.party:
+		if GameState.can_equip(str(id), item):
+			out.append(str(id))
+	return out
+
+
+## Lignes de description d'un objet d'équipement (sans titre) : genre, bonus, effets, porteurs.
+static func equipment_lines(id: String) -> Array:
+	var def := Database.get_item(id)
+	var lines: Array = []
+	var head := str(GameState.SLOT_NAMES.get(str(def.get("slot", "")), "Équipement"))
+	if str(def.get("slot", "")) == "trinket":
+		head = "Babiole"
+	if str(def.get("type", "")) != "":
+		head += "   ·   " + type_name(str(def["type"]))
+	lines.append(head)
+	if _mods_text(id) != "":
+		lines.append(_mods_text(id))
+	lines.append_array(passive_lines(id))
+	if bool(def.get("firm", false)):
+		lines.append("Insensible au Ramollissement.")
+	var names: Array = []
+	for who: String in wearers(id):
+		names.append(Database.get_character_name(who))
+	var only: Variant = def.get("for")
+	var reserved := only is Array and not (only as Array).is_empty()
+	if names.is_empty():
+		lines.append("Personne dans l'équipe ne peut le porter." if reserved or str(def.get("type", "")) != "" else "")
+	else:
+		lines.append(("Réservé à : " if reserved else "Peuvent le porter : ") + ", ".join(names))
+	for w: Dictionary in GameState.worn_by(id):
+		lines.append("Porté par %s." % Database.get_character_name(str(w["who"])))
+	return lines
 
 
 ## Description complète d'un objet : texte, genre, bonus, porteurs possibles.
@@ -219,17 +336,7 @@ static func item_detail(id: String) -> String:
 	match Database.item_kind(id):
 		"equipment":
 			lines.append("")
-			lines.append("%s   ·   %s" % [str(GameState.SLOT_NAMES.get(str(def.get("slot", "")), "Équipement")), _mods_text(id)])
-			if bool(def.get("firm", false)):
-				lines.append("Insensible au Ramollissement.")
-			var only: Variant = def.get("for")
-			if only is Array and not (only as Array).is_empty():
-				var names: Array = []
-				for who: Variant in only:
-					names.append(Database.get_character_name(str(who)))
-				lines.append("Réservé à : " + ", ".join(names))
-			else:
-				lines.append("Convient à tout le monde.")
+			lines.append_array(equipment_lines(id))
 		"key":
 			lines.append("")
 			lines.append("Objet de quête.")
@@ -240,18 +347,64 @@ static func item_detail(id: String) -> String:
 	return "\n".join(lines)
 
 
+## Tableau de caractéristiques, deux par rangée. Avec `after`, chaque case montre « avant → après »,
+## en vert si ça monte, en rouge si ça baisse. Avec `bare`, la valeur est suivie de ce que l'équipement ajoute.
+static func stats_table(keys: Array, before: Dictionary, after: Dictionary = {}, bare: Dictionary = {}) -> String:
+	var out := "[font_size=17][table=4]"
+	for r in int(ceil(keys.size() / 2.0)):
+		for c in 2:
+			var i := r * 2 + c
+			if i >= keys.size():
+				out += "[cell][/cell][cell][/cell]"
+				continue
+			var key: String = keys[i]
+			var a := int(before.get(key, 0))
+			var cell := ""
+			if not after.is_empty():
+				var b := int(after.get(key, 0))
+				if b == a:
+					cell = UI.tint(_fmt(key, a), UI.INK_FAINT)
+				else:
+					var color: Color = UI.GOOD if b > a else UI.WARN
+					cell = "%s → %s" % [_fmt(key, a), UI.tint("%s %s" % [_fmt(key, b), "▲" if b > a else "▼"], color)]
+			else:
+				cell = _fmt(key, a)
+				if not bare.is_empty() and int(bare.get(key, a)) != a:
+					var bonus := a - int(bare.get(key, a))
+					cell += " " + UI.tint("(%s)" % _fmt(key, bonus, true), UI.GOOD if bonus > 0 else UI.WARN)
+			out += "[cell padding=0,0,10,0]%s[/cell][cell padding=0,0,26,0]%s[/cell]" % [UI.tint(str(GameState.STAT_NAMES.get(key, key)), UI.INK_DIM), cell]
+	return out + "[/table][/font_size]"
+
+
+## Détail d'un objet en BBCode, suivi au besoin d'un bloc déjà mis en forme.
+static func item_markup(id: String, extra: String = "") -> String:
+	var lines: Array = item_detail(id).split("\n")
+	var name_line: String = lines.pop_front()
+	return UI.title_markup(name_line, UI.escape_bb("\n".join(lines)) + ("\n" + extra if extra != "" else ""))
+
+
+## Ce que changerait cet objet pour ce personnage : l'objet remplacé et le tableau avant / après.
+static func compare_block(who: String, item: String, slot: String = "") -> String:
+	var target := GameState.slot_for(who, item, slot)
+	var worn := GameState.equipped(who, target)
+	var head := "Pour %s : %s" % [Database.get_character_name(who), str(GameState.SLOT_NAMES.get(target, target)).to_lower()]
+	head += "  (remplace : %s)" % _item_name(worn) if worn != "" else "  (emplacement libre)"
+	return "[color=#%s]%s[/color]\n%s" % [UI.GOLD_DIM.to_html(false), UI.escape_bb(head), stats_table(STAT_ROWS, GameState.member_stats(who), GameState.stats_with(who, item, slot))]
+
+
 static func _member_line(id: String) -> String:
 	var m := GameState.member(id)
 	var stats := GameState.member_stats(id)
 	return "%s%s   PV %d/%d   PM %d/%d" % [Database.get_character_name(id), " (réserve)" if GameState.is_reserve(id) else "", int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])]
 
 
+## Fiche d'un personnage en BBCode : niveau, PV, caractéristiques (équipement compris), emplacements, compétences.
 static func _member_detail(id: String) -> String:
 	var ch := Database.get_character(id)
 	var m := GameState.member(id)
 	var stats := GameState.member_stats(id)
 	var bare := Rules.stats_at(id, int(m["level"]))
-	var lines: Array = [str(ch.get("full_name", ch.get("name", id)))]
+	var lines: Array = []
 	lines.append("%s   ·   Niveau %d   ·   XP %d / %d" % [str(ch.get("role", "")).capitalize(), int(m["level"]), int(m["xp"]), Rules.xp_to_next(int(m["level"]))])
 	if GameState.is_reserve(id):
 		lines.append("En réserve : ne se bat pas et ne gagne pas l'expérience des combats.")
@@ -265,24 +418,18 @@ static func _member_detail(id: String) -> String:
 		if points > 0:
 			bits.append("%s de talent à dépenser" % _points(points))
 		lines.append("   ·   ".join(bits))
-	lines.append("")
-	for key: String in ["atk", "def", "mag", "res", "spd"]:
-		var bonus := int(stats[key]) - int(bare[key])
-		var line := "%s  %d" % [str(GameState.STAT_NAMES[key]), int(stats[key])]
-		if bonus != 0:
-			line += "   (%s%d)" % ["+" if bonus > 0 else "−", absi(bonus)]
-		lines.append(line)
-	lines.append("")
+	var body := UI.escape_bb("\n".join(lines)) + "\n" + stats_table(SHEET_ROWS, stats, {}, bare) + "\n"
+	var slots: Array = []
 	for slot: String in GameState.SLOTS:
 		var worn := GameState.equipped(id, slot)
-		lines.append("%s : %s" % [str(GameState.SLOT_NAMES[slot]), _item_name(worn) if worn != "" else "—"])
+		slots.append("%s : %s" % [str(GameState.SLOT_NAMES[slot]), _item_name(worn) if worn != "" else "—"])
 	var skills: Array = []
 	for s: Variant in GameState.member_skills(id):
 		skills.append(str(Database.get_skill(str(s)).get("name", s)))
+	var tail := "\n".join(slots)
 	if not skills.is_empty():
-		lines.append("")
-		lines.append("Compétences : " + ", ".join(skills))
-	return "\n".join(lines)
+		tail += "\n\nCompétences : " + ", ".join(skills)
+	return UI.title_markup(str(ch.get("full_name", ch.get("name", id))), body + UI.escape_bb(tail))
 
 
 static func _quest_detail(id: String) -> String:
@@ -403,16 +550,21 @@ func _equip_targets(item: String, from: int) -> void:
 		var who := str(id)
 		if not GameState.can_equip(who, item):
 			continue
-		var worn := GameState.equipped(who, slot)
+		var worn := GameState.equipped(who, GameState.slot_for(who, item))
 		entries.append({
 			"text": "%s   (%s)" % [Database.get_character_name(who), _item_name(worn) if worn != "" else "rien"],
-			"detail": item_detail(item) + "\n\n" + _member_detail(who),
+			"markup_fn": _equip_markup.bind(who, item, ""),
 			"action": _equip_from_bag.bind(who, item, from),
 		})
 	if entries.is_empty():
 		_say("Personne dans l'équipe ne peut s'en servir.", false)
 		return
 	_page("Équiper qui ?", entries, _inventory.bind(from))
+
+
+## Détail d'un objet d'équipement pour un personnage : description, puis comparaison avant / après.
+func _equip_markup(who: String, item: String, slot: String) -> String:
+	return item_markup(item, "\n" + compare_block(who, item, slot))
 
 
 func _equip_from_bag(who: String, item: String, from: int) -> void:
@@ -436,7 +588,7 @@ func _team(focus: int = 0) -> void:
 			"text": text,
 			"icon": Sprites.portrait(who),
 			"dim": reserve,
-			"detail": _member_detail(who),
+			"markup_fn": _member_detail.bind(who),
 			"action": _member.bind(who, entries.size(), 0),
 		})
 	var title := "Équipe"
@@ -449,7 +601,7 @@ func _team(focus: int = 0) -> void:
 func _member(who: String, from: int, focus: int = 0) -> void:
 	var points := GameState.talent_points(who)
 	var entries: Array = [
-		{"text": "Équipement", "detail": _member_detail(who), "action": _gear.bind(who, from, 0)},
+		{"text": "Équipement", "markup_fn": _member_detail.bind(who), "action": _gear.bind(who, from, 0)},
 		{
 			"text": "Talents" + ("   ·   %s à dépenser" % _points(points) if points > 0 else ""),
 			"detail": _talents_summary(who),
@@ -475,7 +627,7 @@ func _swap_targets(who: String, from: int) -> void:
 		entries.append({
 			"text": "%s   Nv %d" % [Database.get_character_name(other), int(GameState.member(other)["level"])],
 			"icon": Sprites.portrait(other),
-			"detail": _member_detail(other),
+			"markup_fn": _member_detail.bind(other),
 			"action": _do_swap.bind(who, other),
 		})
 	_page("Échanger %s avec…" % Database.get_character_name(who), entries, _member.bind(who, from, 2))
@@ -521,27 +673,55 @@ func _gear(who: String, from: int, focus: int = 0) -> void:
 		var worn := GameState.equipped(who, slot)
 		entries.append({
 			"text": "%s : %s" % [str(GameState.SLOT_NAMES[slot]), _item_name(worn) if worn != "" else "—"],
-			"detail": (item_detail(worn) if worn != "" else "Rien d'équipé.") + "\n\n" + _member_detail(who),
+			"markup_fn": _slot_markup.bind(who, slot),
 			"action": _slot_choices.bind(who, slot, from, entries.size()),
 		})
 	_page("Équipement de %s" % Database.get_character_name(who), entries, _member.bind(who, from, 0), focus)
 
 
+## Détail d'un emplacement : l'objet porté, puis les caractéristiques du personnage.
+func _slot_markup(who: String, slot: String) -> String:
+	var worn := GameState.equipped(who, slot)
+	var sheet := _member_detail(who)
+	var cut := sheet.find("\n")
+	var sheet_body := sheet.substr(cut + 1)
+	if worn == "":
+		return UI.title_markup(str(GameState.SLOT_NAMES[slot]), "Rien d'équipé.\n \n" + sheet_body)
+	return item_markup(worn, "\n" + sheet_body)
+
+
+## Objets qui peuvent aller dans cet emplacement pour ce personnage : ceux du sac, puis ceux que
+## d'autres membres de l'équipe portent (les lui prendre les laisse les mains vides), puis « Retirer ».
 func _slot_choices(who: String, slot: String, from: int, slot_index: int) -> void:
 	var entries: Array = []
 	for id: Variant in _sorted_items():
 		var item := str(id)
-		if str(Database.get_item(item).get("slot", "")) != slot or not GameState.can_equip(who, item):
+		if not GameState.slots_for(item).has(slot) or not GameState.can_equip(who, item):
 			continue
 		entries.append({
 			"text": "%s   ×%d" % [_item_name(item), GameState.item_count(item)],
-			"detail": item_detail(item),
-			"action": _equip_slot.bind(who, item, from, slot_index),
+			"markup_fn": _equip_markup.bind(who, item, slot),
+			"action": _equip_slot.bind(who, item, slot, from, slot_index),
 		})
+	var seen := {}
+	for other: Variant in GameState.party:
+		if str(other) == who:
+			continue
+		for slot2: String in GameState.SLOTS:
+			var item2 := GameState.equipped(str(other), slot2)
+			if item2 == "" or seen.has(item2 + str(other)) or not GameState.slots_for(item2).has(slot) or not GameState.can_equip(who, item2):
+				continue
+			seen[item2 + str(other)] = true
+			entries.append({
+				"text": "%s   (porté par %s)" % [_item_name(item2), Database.get_character_name(str(other))],
+				"dim": true,
+				"markup_fn": _equip_markup.bind(who, item2, slot),
+				"action": _take_from.bind(who, str(other), slot2, slot, from, slot_index),
+			})
 	if GameState.equipped(who, slot) != "":
 		entries.append({
 			"text": "Retirer : %s" % _item_name(GameState.equipped(who, slot)),
-			"detail": "Remet l'objet dans le sac.",
+			"markup_fn": _remove_markup.bind(who, slot),
 			"action": _unequip_slot.bind(who, slot, from, slot_index),
 		})
 	if entries.is_empty():
@@ -550,10 +730,28 @@ func _slot_choices(who: String, slot: String, from: int, slot_index: int) -> voi
 	_page("%s de %s" % [str(GameState.SLOT_NAMES[slot]), Database.get_character_name(who)], entries, _gear.bind(who, from, slot_index))
 
 
-func _equip_slot(who: String, item: String, from: int, slot_index: int) -> void:
-	if GameState.equip(who, item):
+func _remove_markup(who: String, slot: String) -> String:
+	var worn := GameState.equipped(who, slot)
+	var block := "[color=#%s]Pour %s : retirer cet objet[/color]\n%s" % [UI.GOLD_DIM.to_html(false), UI.escape_bb(Database.get_character_name(who)), stats_table(STAT_ROWS, GameState.member_stats(who), GameState.stats_with(who, "", slot))]
+	return item_markup(worn, "\nRemet l'objet dans le sac.\n" + block)
+
+
+func _equip_slot(who: String, item: String, slot: String, from: int, slot_index: int) -> void:
+	if GameState.equip(who, item, slot):
 		_gear(who, from, slot_index)
 		_say("%s s'équipe : %s." % [Database.get_character_name(who), _item_name(item)])
+
+
+## Prend un objet porté par un autre membre de l'équipe : il retourne au sac, puis est équipé.
+func _take_from(who: String, holder: String, holder_slot: String, slot: String, from: int, slot_index: int) -> void:
+	var item := GameState.equipped(holder, holder_slot)
+	if item == "" or not GameState.unequip(holder, holder_slot):
+		return
+	if GameState.equip(who, item, slot):
+		_gear(who, from, slot_index)
+		_say("%s prend %s à %s." % [Database.get_character_name(who), _item_name(item), Database.get_character_name(holder)])
+	else:
+		GameState.equip(holder, item, holder_slot)
 
 
 func _unequip_slot(who: String, slot: String, from: int, slot_index: int) -> void:
@@ -604,12 +802,45 @@ func _shop_buy(focus: int = 0) -> void:
 		entries.append({
 			"text": "%s   ·   %d %s" % [_item_name(item), price, GameState.MONEY_NAME],
 			"dim": GameState.money < price,
-			"detail": item_detail(item) + "\n\nDans le sac : %d" % GameState.item_count(item),
+			"markup_fn": _shop_markup.bind(item),
 			"action": _buy.bind(offer, entries.size()),
 		})
 	if entries.is_empty():
 		entries.append({"text": "Plus rien à vendre", "dim": true, "detail": ""})
 	_page(_shop_name() + " : acheter", entries, _shop_root.bind(0), focus)
+	_cycle = true
+
+
+## Détail d'un article : description, comparaison pour le personnage choisi (gauche / droite en change).
+func _shop_markup(item: String) -> String:
+	var owned := GameState.item_count(item)
+	var tail := "\n \nDans le sac : %d" % owned
+	if Database.item_kind(item) != "equipment":
+		return item_markup(item, tail)
+	var able := wearers(item)
+	if able.is_empty():
+		return item_markup(item, tail)
+	if not able.has(_shop_who):
+		_shop_who = str(able[0])
+	var extra := "\n" + compare_block(_shop_who, item) + tail
+	if able.size() > 1:
+		extra += "\n" + UI.tint("◄ ►  pour comparer avec un autre personnage", UI.INK_FAINT)
+	return item_markup(item, extra)
+
+
+## Gauche / droite en boutique : passe au personnage suivant qui peut porter l'article choisi.
+func _cycle_shop_who(step: int) -> void:
+	var offers := shop_offers()
+	if _focus_index >= offers.size():
+		return
+	var item := str((offers[_focus_index] as Dictionary)["item"])
+	var able := wearers(item)
+	if able.size() < 2:
+		return
+	var at := able.find(_shop_who)
+	_shop_who = str(able[posmod(at + step, able.size())])
+	Sfx.play("move")
+	_detail.text = _shop_markup(item)
 
 
 func _buy(offer: Dictionary, index: int) -> void:

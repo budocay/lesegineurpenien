@@ -1,6 +1,8 @@
 extends RefCounted
 ## Un participant à un combat, allié ou ennemi. Pur état : aucune image, aucun nœud.
 
+const Rules = preload("res://src/battle/rules.gd")
+
 var key: String = ""          # identifiant unique dans le combat (« limace_molle#2 »)
 var source: String = ""       # identifiant dans characters.json ou enemies.json
 var name: String = ""
@@ -49,7 +51,7 @@ func has_status(id: String) -> bool:
 
 ## Caractéristique effective, états compris.
 func stat(stat_key: String) -> float:
-	var v := float(base.get(stat_key, 0))
+	var v := float(base.get(stat_key, Rules.EXTRA_DEFAULTS.get(stat_key, 0)))
 	for id: String in statuses:
 		var mods: Variant = Database.get_status(id).get("mods")
 		if mods is Dictionary:

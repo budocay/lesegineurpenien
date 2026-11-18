@@ -446,7 +446,13 @@ Toutes les règles sont dans `src/battle/battle_engine.gd` ; les chiffres sont i
 
 Statistique au niveau N = `base` + `growth` × (N − 1). `learn` donne les compétences
 apprises à chaque niveau. Un bloc facultatif `"equip": {"weapon": "poele_gamelle"}`
-donne l'équipement avec lequel le personnage rejoint l'équipe. L'expérience nécessaire pour passer du niveau N au suivant est
+donne l'équipement avec lequel le personnage rejoint l'équipe. Un bloc facultatif
+`"gear": {"weapon": ["baton"], "head": ["chapeau"], "armor": ["robe"]}` liste les **genres**
+d'arme, de couvre-chef et de tenue que le personnage sait porter (voir « Équipement »).
+
+**Statistiques secondaires** (facultatives, dans `base`, `growth` d'un personnage et `stats`
+d'un ennemi ; valeurs par défaut neutres) : `acc` précision (100), `eva` esquive (0), `crit`
+chances de coup critique en % (6), `critdmg` dégâts critiques en % (150). L'expérience nécessaire pour passer du niveau N au suivant est
 `xp_base × N ^ xp_power` (réglés dans `game.json`, bloc `progression`).
 
 ### `data/elements.json` et `data/statuses.json`
@@ -476,15 +482,41 @@ couleur. Un état a un `name`, une couleur, une durée `turns`, et selon le cas 
   qui s'ajoute), `mana`, `status` (`id`, `chance`, `turns`), `cure` (dissipe les états
   négatifs), `revive` (`percent` des PV rendus).
 - Dégâts = statistique × 2 × `power` / 100 − défense, à ±10 %, ×1,5 sur une faiblesse,
-  ×1,5 en coup critique, ×1,5 sur un ennemi ébranlé, ×0,5 si la cible se défend.
+  ×`critdmg`/100 en coup critique (150 par défaut), ×1,5 sur un ennemi ébranlé, ×0,5 si la
+  cible se défend.
+- **Précision et esquive** : un coup physique (`stat` = `atk`) porté à l'autre camp touche avec
+  la probabilité `clamp((acc de l'attaquant − eva de la cible) / 100, 0,1 ; 1)`. Les sorts
+  (`stat` = `mag`), soins et soutiens ne ratent jamais. Un tirage n'est fait que si la
+  probabilité est sous 1, ce qui garde les combats d'avant identiques. Un coup raté produit
+  l'événement `{"type": "miss", "target": c, "dodge": true|false}` (`dodge` vrai quand la
+  cible a de l'esquive, faux pour le raté de l'état « enfumé »).
+- **Critique** : probabilité `min(0,8 ; fx.crit (0,06 par défaut) + (crit − 6) / 100 +
+  passif crit)`. L'événement de dégâts porte `crit: true`.
+- **Résistances** : le passif `resist` (`{"feu": 0.25}`) multiplie les dégâts de cet élément
+  reçus par `max(0,2 ; 1 − valeur)`. `status_resist` (`{"sommeil": 0.5, "all": 0.2}`) multiplie
+  la chance de subir un état négatif par `1 − valeur`.
 - Un effet `damage` peut porter `"flat": 48` : des dégâts fixes ajoutés avant la défense
   (les fusées de poche, qui frappent aussi fort quel que soit le lanceur).
 - Un objet consommable s'écrit comme une compétence, sans `cost`, avec un `price`.
   Hors combat, seuls ceux qui rendent des PV ou du mana à un allié s'utilisent du sac.
-- Un **équipement** : `"kind": "equipment"`, `slot` (`weapon` arme, `armor` tenue,
-  `trinket` babiole), `mods` (bonus ajoutés aux statistiques, par exemple
-  `{"atk": 3, "hp": 8}`), `for` (liste des personnages qui peuvent le porter ; absent :
-  tout le monde), `firm: true` (son porteur ignore le Ramollissement), `price`.
+- Un **équipement** : `"kind": "equipment"`, `slot` (`weapon` arme, `head` couvre-chef,
+  `armor` tenue, `trinket` babiole), `type` (genre : `baton`, `ustensile`, `dague`, `serpe`,
+  `rapiere`, `epee`, `arc`, `hache` pour les armes ; `robe`, `cuir`, `mailles`, `plates` pour
+  les tenues ; `chapeau`, `casque` pour les couvre-chefs ; libellés dans `game.json`,
+  `item_types`), `mods` (bonus ajoutés aux statistiques parmi `hp mp atk def mag res spd acc
+  eva crit critdmg`, négatifs permis : c'est ainsi qu'on fait un objet à contrepartie),
+  `for` (liste de personnages : réserve l'objet à ceux-là), `passives` (effets permanents :
+  `resist`, `status_resist`, `immune`, `regen_hp` en part des PV max par tour, `regen_mp`,
+  `money_bonus`, `xp_bonus`, `initiative`, `crit`), `firm: true` (son porteur ignore le
+  Ramollissement), `price`, `desc`.
+  Qui peut le porter : `for` si présent ; sinon, si l'objet a un `type` et que le personnage a
+  une liste `gear` pour cet emplacement, le genre doit y figurer ; sinon tout le monde (les
+  babioles n'ont pas de genre).
+- **Emplacements** (`GameState.SLOTS`) : `weapon`, `head`, `armor`, `trinket`, `trinket2`. Les
+  babioles vont dans les deux derniers ; les identifiants `weapon`, `armor`, `trinket` n'ont pas
+  changé. À la lecture d'une sauvegarde, `GameState._clean_equipment` efface les objets
+  disparus et les emplacements inconnus et rend au sac ce que le porteur ne peut plus tenir.
+  `SAVE_VERSION` vaut 4.
 - Un **objet de quête** : `"kind": "key"`, un nom et une description, rien d'autre.
 - Dans `statuses.json`, `"firm": true` rend un état protecteur contre le Ramollissement
   (c'est le cas de « Galvanisé »).
@@ -550,6 +582,11 @@ Un objet par personnage jouable, avec ses deux branches dans l'ordre de `charact
 	"xp": 6, "money": [1, 3], "drops": [{"item": "tisane", "chance": 0.15}]
 }
 ```
+
+Un ennemi peut porter les statistiques facultatives `acc`, `eva`, `crit`, `critdmg` dans
+`stats` (par exemple `"eva": 10` pour une mouche). Les butins (`drops`) servent aussi à
+trouver de l'équipement : `{"item": "dent_rat_cave", "chance": 0.08}`, ou `1.0` pour la
+pièce rare d'un boss.
 
 `sprite` désigne soit un monstre dessiné (`monster`), soit un personnage de
 `characters.json` (`character`) ; `scale`, `hover` (hauteur de vol) et `glow` sont
@@ -739,7 +776,7 @@ emplacement, nommés d'après `SaveManager.save_path` (`user://sauvegarde.json` 
 Le contenu d'un fichier est
 l'état de la partie tel que le décrit `src/core/game_state.gd` : chapitre, drapeaux,
 quêtes (en cours ou terminées), équipe (niveau, expérience, PV, mana, équipement et
-talents appris de chacun), inventaire, argent, faiblesses
+talents appris de chacun ; équipement par emplacement), inventaire, argent, faiblesses
 découvertes, carte, position, orientation, temps de jeu. Une sauvegarde de l'étape 1 reste
 lisible, de même qu'une sauvegarde de l'étape 2 : ce qui lui manque est complété, et le
 journal de quêtes est reconstitué d'après les drapeaux.
