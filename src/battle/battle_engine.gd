@@ -20,6 +20,16 @@ const FLEE_CHANCE := 0.75
 const MIN_HIT := 0.1            # même face à une esquive énorme, un coup sur dix touche
 const MAX_CRIT := 0.8
 
+# Élan (voir FORMAT_DONNEES.md, « Points d'élan »)
+const ELAN_START := 1           # points d'élan de chaque héros au début du combat
+const ELAN_GAIN := 1            # points gagnés au début de chacun de ses tours...
+const ELAN_MAX := 5             # ...jusqu'à cette réserve
+const ELAN_COMMIT_MAX := 3      # points qu'on peut engager en un tour
+const ELAN_POWER := [1.0, 1.5, 2.0, 2.5]   # multiplicateur des dégâts d'une compétence selon les points engagés
+const ELAN_HEAL := [1.0, 1.3, 1.6, 1.9]    # multiplicateur d'un soin
+const ELAN_STATUS := 0.2        # chance de plus, par point, d'infliger un état à l'ennemi (soutien : +1 tour par point)
+const ELAN_AUTO_BIG := 600      # le jeu automatique garde son élan, sauf contre un ennemi brisé ou de plus de PV que cela
+
 var encounter: Dictionary = {}
 var party: Array = []
 var enemies: Array = []
@@ -35,6 +45,8 @@ var party_turns := 0
 var softness := 0.0             # Ramollissement du lieu : part des dégâts physiques perdue
 var stolen := 0                 # écus fauchés pendant le combat (effet « steal »)
 var _countering := false        # une riposte n'appelle pas de riposte
+var _boost := 0                 # points d'élan engagés dans l'action en cours
+var _boost_def: Dictionary = {}  # la compétence qui les reçoit (vide : attaque de base)
 
 
 func setup(p_encounter: Dictionary, p_seed: int = -1) -> void:
@@ -75,6 +87,8 @@ func setup(p_encounter: Dictionary, p_seed: int = -1) -> void:
 		if int(counts[sid]) > 1:
 			c.name = "%s %s" % [c.name, "ABCDEFGH"[int(seen[sid]) - 1]]
 		enemies.append(c)
+	for c: Combatant in party:
+		c.elan = ELAN_START
 	for c: Combatant in all():
 		c.wait = 1000.0 / c.speed()
 		if c.side == "enemy":
@@ -292,6 +306,13 @@ func start_turn(actor: Combatant) -> Array:
 		can_act = false
 		_check_end()
 		return events
+	# Élan : un point par tour, sauf après un tour où l'on en a engagé.
+	if actor.side == "party":
+		if actor.elan_rest:
+			actor.elan_rest = false
+		elif actor.elan < ELAN_MAX:
+			actor.elan = mini(ELAN_MAX, actor.elan + ELAN_GAIN)
+			events.append({"type": "elan", "target": actor, "amount": ELAN_GAIN})
 	# Talents de récupération : ils jouent même si le personnage dort.
 	var regen_hp := actor.passive("regen_hp")
 	if regen_hp > 0.0 and actor.hp < actor.max_hp():
@@ -375,6 +396,14 @@ func perform(actor: Combatant, action: Dictionary) -> Array:
 		if int(inventory[item_id]) <= 0:
 			inventory.erase(item_id)
 
+	# Élan engagé : seulement pour une attaque ou une compétence qui en tire parti.
+	var elan_n := 0
+	if actor.side == "party" and (type == "attack" or type == "skill"):
+		var want := clampi(int(action.get("elan", 0)), 0, mini(ELAN_COMMIT_MAX, actor.elan))
+		if want > 0 and elan_kind(actor, {"type": type, "id": str(action.get("id", ""))}) != "":
+			elan_n = want
+			actor.elan -= want
+			actor.elan_rest = true
 	var kind := str(def.get("target", "enemy"))
 	var targets: Array = []
 	var pool := candidates(actor, kind)
@@ -395,18 +424,66 @@ func perform(actor: Combatant, action: Dictionary) -> Array:
 	var anim := str(def.get("anim", ""))
 	if anim == "" and type != "attack":
 		anim = str(action.get("id", ""))
-	events.append({"type": "cast", "actor": actor, "name": str(def.get("name", "")), "kind": type, "element": element, "targets": targets, "anim": anim})
+	events.append({"type": "cast", "actor": actor, "name": str(def.get("name", "")), "kind": type, "element": element, "targets": targets, "anim": anim, "elan": elan_n})
 	if targets.is_empty():
 		events.append({"type": "fizzle", "actor": actor})
 		return events
+	_boost = elan_n
+	_boost_def = def if type == "skill" else {}
+	var hits := 1 + elan_n if type == "attack" else 1   # l'attaque de base frappe une fois de plus par point d'élan
 	for target: Combatant in targets:
-		if not actor.alive():
-			break   # mis à terre par une riposte au milieu de son action
-		for fx: Variant in effects:
-			if fx is Dictionary:
-				_apply(actor, target, fx, events)
+		for h in hits:
+			if not actor.alive() or (h > 0 and not target.alive()):
+				break   # mis à terre par une riposte, ou cible déjà tombée avant un coup de plus
+			if h > 0:   # coup suivant : l'animation se rejoue, sans annoncer le nom
+				events.append({"type": "cast", "actor": actor, "name": "", "kind": type, "element": element, "targets": [target], "anim": anim, "elan": elan_n, "again": true})
+			for fx: Variant in effects:
+				if fx is Dictionary:
+					_apply(actor, target, fx, events)
+	_boost = 0
+	_boost_def = {}
 	_check_end()
 	return events
+
+
+## Ce que l'élan apporte à une action de héros : "hits" (attaque de base : un coup de plus par point),
+## "power" (compétence offensive), "heal" (soin), "support" (état : plus sûr ou plus long), ou "" (rien :
+## objet, défense, fuite, compétence sans effet à amplifier ou marquée « elan »: false).
+func elan_kind(actor: Combatant, action: Dictionary) -> String:
+	if actor.side != "party":
+		return ""
+	var type := str(action.get("type", "attack"))
+	if type == "attack":
+		return "hits"
+	if type != "skill":
+		return ""
+	var def := Database.get_skill(str(action.get("id", "")))
+	if def.is_empty() or def.get("elan", true) == false:
+		return ""
+	if _has_effect(def, "damage"):
+		return "power"
+	if _has_effect(def, "heal"):
+		return "heal"
+	if _has_effect(def, "status"):
+		return "support"
+	return ""
+
+
+## Multiplicateur d'une compétence pour n points engagés (champ facultatif « elan_scale » : liste de
+## quatre valeurs, pour les dégâts comme pour les soins).
+func elan_mult(def: Dictionary, n: int, heal: bool = false) -> float:
+	var table: Array = ELAN_HEAL if heal else ELAN_POWER
+	var own: Variant = def.get("elan_scale")
+	if own is Array and (own as Array).size() > ELAN_COMMIT_MAX:
+		table = own
+	return float(table[clampi(n, 0, ELAN_COMMIT_MAX)])
+
+
+## Multiplicateur de dégâts dû à l'élan engagé (1 pour l'attaque de base, qui frappe plusieurs fois).
+func _damage_boost(actor: Combatant, _fx: Dictionary) -> float:
+	if _boost <= 0 or actor.side != "party" or _boost_def.is_empty():
+		return 1.0
+	return elan_mult(_boost_def, _boost)
 
 
 func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) -> void:
@@ -437,7 +514,7 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 					return
 			var att := actor.stat(stat_key)
 			var dfn := target.stat("def" if stat_key == "atk" else "res")
-			var amount := att * 2.0 * float(fx.get("power", 100)) / 100.0 + float(fx.get("flat", 0)) - dfn
+			var amount := (att * 2.0 * float(fx.get("power", 100)) / 100.0 + float(fx.get("flat", 0))) * _damage_boost(actor, fx) - dfn
 			amount *= rng.randf_range(0.9, 1.1)
 			# Le Ramollissement du lieu émousse tout coup physique, d'où qu'il vienne.
 			var soft := stat_key == "atk" and softness > 0.0 and not actor.is_firm()
@@ -487,14 +564,19 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			var counter := target.passive("counter")
 			if counter > 0.0 and not _countering and stat_key == "atk" and target.side != actor.side and actor.alive() and target.skipping_status() == "" and rng.randf() < counter:
 				_countering = true
+				var kept := _boost
+				_boost = 0   # la riposte n'emprunte rien à l'élan de celui qui a frappé
 				events.append({"type": "counter", "actor": target})
 				_apply(target, actor, {"type": "damage", "stat": "atk", "power": 100, "element": target.element}, events)
+				_boost = kept
 				_countering = false
 		"heal":
 			var amount := float(fx.get("power", 0)) + target.max_hp() * float(fx.get("percent", 0.0))
 			if fx.has("stat"):
 				amount += actor.stat(str(fx["stat"])) * 1.5
 			amount *= 1.0 + actor.passive("heal_boost")
+			if _boost > 0 and actor.side == "party":
+				amount *= elan_mult(_boost_def, _boost, true)
 			var gain := mini(target.max_hp() - target.hp, maxi(1, int(round(amount))))
 			target.hp += gain
 			events.append({"type": "heal", "target": target, "amount": gain})
@@ -513,13 +595,19 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 				events.append({"type": "status", "target": target, "id": id, "applied": false, "immune": true})
 				return
 			var chance := float(fx.get("chance", 1.0))
+			var turns := int(fx.get("turns", st.get("turns", 3)))
+			if _boost > 0 and actor.side == "party" and not _boost_def.is_empty():
+				if target.side == actor.side:
+					turns += _boost   # un renfort dure plus longtemps
+				else:
+					chance = minf(1.0, chance * (1.0 + ELAN_STATUS * _boost))
 			if target.side != actor.side:   # talents qui rendent les altérations plus sûres
 				chance *= 1.0 + actor.passive("status_chance", id) + actor.passive("status_chance", "all")
 				chance *= maxf(0.0, 1.0 - target.passive("status_resist", id) - target.passive("status_resist", "all"))   # équipement
 			if rng.randf() >= chance:
 				events.append({"type": "status", "target": target, "id": id, "applied": false, "immune": false})
 				return
-			target.statuses[id] = {"turns": int(fx.get("turns", st.get("turns", 3))), "fresh": target == actor}
+			target.statuses[id] = {"turns": turns, "fresh": target == actor}
 			events.append({"type": "status", "target": target, "id": id, "applied": true, "immune": false})
 		"cure":
 			var cured: Array = []
@@ -597,8 +685,22 @@ func ai_action(actor: Combatant) -> Dictionary:
 	return {"type": "skill", "id": pick, "target": target}
 
 
-## Choix raisonnable pour un allié : sert aux tests et au mode « combat automatique ».
+## Choix raisonnable pour un allié : sert aux tests et au mode « combat automatique ». Il garde son
+## élan, sauf contre un ennemi brisé ou massif (plus de ELAN_AUTO_BIG PV), ou quand la réserve est pleine.
 func auto_action(actor: Combatant) -> Dictionary:
+	var action := _auto_choice(actor)
+	var kind := elan_kind(actor, action)
+	var target: Variant = action.get("target")
+	if (kind == "hits" or kind == "power") and actor.elan > 0 and target is Combatant:
+		var foe: Combatant = target
+		if foe.has_status("ebranle") or foe.max_hp() >= ELAN_AUTO_BIG:
+			action["elan"] = mini(ELAN_COMMIT_MAX, actor.elan)
+		elif actor.elan >= ELAN_MAX:
+			action["elan"] = 2
+	return action
+
+
+func _auto_choice(actor: Combatant) -> Dictionary:
 	var allies := living(actor.side)
 	var weakest: Combatant = actor
 	for a: Combatant in allies:
@@ -654,7 +756,7 @@ static func _has_effect(def: Dictionary, type: String) -> bool:
 ## Applique l'issue du combat à l'état de la partie et renvoie le butin à afficher :
 ## {"xp", "money", "drops": {id: n}, "levelups": [{"name", "from", "to", "skills": [noms]}]}.
 func commit() -> Dictionary:
-	var out := {"xp": 0, "money": 0, "drops": {}, "levelups": []}
+	var out := {"xp": 0, "money": 0, "drops": {}, "levelups": [], "gains": {}}
 	if guest or result == "defeat" or result == "":
 		return out
 	GameState.bestiary = revealed.duplicate(true)
@@ -682,6 +784,7 @@ func commit() -> Dictionary:
 	for item: String in out["drops"]:
 		GameState.add_item(item, int(out["drops"][item]))
 	for c: Combatant in party:
+		(out["gains"] as Dictionary)[c.source] = int(round(float(out["xp"]) * (1.0 + c.passive("xp_bonus"))))
 		var up := GameState.grant_xp(c.source, int(round(float(out["xp"]) * (1.0 + c.passive("xp_bonus")))))
 		if not up.is_empty():
 			(out["levelups"] as Array).append(up)

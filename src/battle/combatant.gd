@@ -31,6 +31,8 @@ var drops: Array = []
 var firm: bool = false      # un objet porté le rend insensible au Ramollissement
 var passives: Dictionary = {} # effets permanents des talents (voir FORMAT_DONNEES.md)
 var robbed: bool = false    # ses poches ont déjà été faites pendant ce combat
+var elan: int = 0           # points d'élan en réserve (héros seulement ; voir battle_engine.gd)
+var elan_rest: bool = false # il a engagé de l'élan à son dernier tour : pas de point à celui-ci
 
 
 func max_hp() -> int:

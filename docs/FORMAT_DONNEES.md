@@ -481,6 +481,43 @@ couleur. Un état a un `name`, une couleur, une durée `turns`, et selon le cas 
 `wake_on_hit` (un coup le dissipe), `mods` (multiplicateurs de statistiques, par exemple
 `{"atk": 0.7}`), `negative` (dissipé par les soins d'état).
 
+### Élan (règles dans `battle_engine.gd`, constantes `ELAN_*`)
+
+Chaque héros commence le combat avec 1 point d'élan (`ELAN_START`) et en gagne 1 au début de
+chacun de ses tours (`ELAN_GAIN`), jusqu'à 5 en réserve (`ELAN_MAX`). Avant d'agir, le joueur
+peut en engager de 0 à 3 (`ELAN_COMMIT_MAX`, au plus sa réserve) : touches Gauche/Droite
+(ou A/D, ou la croix du pad) dans le menu racine et dans la liste des compétences. L'action
+reçoit un champ `elan` (entier). Un tour joué avec de l'élan engagé ne rapporte pas de point
+au tour suivant. Les ennemis n'ont pas d'élan. Ni la défense, ni les objets, ni la fuite
+n'en consomment ; il n'est pas sauvegardé (il repart à 1 à chaque combat).
+
+Effet selon l'action (`elan_kind`, aucun cas particulier par compétence) :
+
+- attaque de base : `1 + N` coups (chacun écorne le bouclier s'il touche une faiblesse) ;
+- compétence offensive (dégâts) : puissance multipliée par `ELAN_POWER` (1, 1,5, 2, 2,5) ;
+- soin : montant multiplié par `ELAN_HEAL` (1, 1,3, 1,6, 1,9) ;
+- état : sur un allié, `N` tours de plus ; sur un ennemi, la chance de réussite est multipliée par
+  `1 + ELAN_STATUS` (0,2) par point ;
+- compétence sans effet à amplifier : l'élan n'est pas dépensé.
+
+Champs facultatifs d'une compétence (`data/skills.json`) : `"elan": false` la rend
+inamplifiable ; `"elan_scale": [1, 1.4, 1.8, 2.2]` remplace la table de multiplicateurs
+(quatre valeurs, pour 0 à 3 points). Le combat automatique des tests engage de l'élan contre
+un ennemi ébranlé ou de plus de 600 PV (`ELAN_AUTO_BIG`), et 2 points quand la réserve est pleine.
+`commit()` renvoie aussi `gains` (expérience gagnée par héros) pour l'écran de victoire.
+
+### Icônes de combat — `src/gfx/icon_painter.gd`
+
+Icônes de 12 x 12 pixels (la main fait 16 x 16), peintes par code, affichées deux fois plus
+grandes. Accès unique : `Sprites.icon(nom)` ; un PNG `assets/sprites/icons/<nom>.png` le
+remplace s'il existe. Noms : commandes (`attack`, `skills`, `items`, `defend`, `flee`, `elan`),
+éléments (identifiants de `elements.json`), genres d'arme (`baton`, `ustensile`, `dague`,
+`serpe`, `rapiere`, `epee`, `arc`, `hache`), états (identifiants de `statuses.json`) et signes
+(`hand`, `coin`, `heart`, `mana`, `unknown`, `up`). Un nouvel élément, état ou genre d'arme
+doit avoir son icône dans ce fichier (le test automatique le vérifie). Les cases de faiblesse
+des ennemis montrent l'icône de l'élément (`contondant` et `tranchant` sont les types de
+coup physiques), ou un « ? » tant que la faiblesse n'est pas découverte.
+
 ### `data/skills.json` et `data/items.json`
 
 ```json

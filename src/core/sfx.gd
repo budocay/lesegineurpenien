@@ -59,6 +59,9 @@ func _ready() -> void:
 	_streams["wind"] = _tone(300.0, 700.0, 0.6, 0.16, false, 1.0)
 	_streams["rustle"] = _tone(2500.0, 1200.0, 0.2, 0.16, false, 1.0, 30.0)
 	_streams["bell"] = _tone(880.0, 870.0, 0.6, 0.1, false)
+	_streams["elan"] = _tone(420.0, 760.0, 0.16, 0.13, true, 0.0, 14.0)   # l'élan qui monte : joué plus aigu à chaque point engagé
+	_streams["elan_off"] = _tone(640.0, 380.0, 0.08, 0.1, true)
+	_streams["shatter"] = _tone(2400.0, 200.0, 0.3, 0.2, false, 1.0, 45.0)   # bouclier en éclats
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
 		p.bus = Settings.BUS_EFFECTS

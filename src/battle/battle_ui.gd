@@ -20,6 +20,13 @@ const MP_BLUE := Color("#6aa0e8")
 const TILE_BIG := 86.0     # vignette du combattant actif (frise des tours)
 const TILE_SMALL := 42.0
 const FRIEZE_LEN := 5      # vignettes par frise
+const IconPainter = preload("res://src/gfx/icon_painter.gd")
+const ELAN_COLOR := Color("#ffd24a")
+const ELAN_HOT := Color("#ff8a3a")
+const HP_MID := Color("#e8b04a")      # PV entre 30 % et 50 %
+const HP_RED := Color("#e05a4a")      # PV sous 30 %
+const BROKEN_COLOR := Color("#ff8a6a")
+const WEAK_UNKNOWN := Color(0.6, 0.6, 0.66)   # case d'une faiblesse pas encore découverte
 const ROOT_HELP := {
 	"Attaquer": "Frapper un ennemi avec l'arme.",
 	"Compétences": "Techniques de combat, payées en PM.",
@@ -72,7 +79,11 @@ var _list_items: VBoxContainer
 var _list_desc: Label
 var _overlay: Control
 var _plates: Dictionary = {}  # clé -> {root, chips, name, bar}
-var _cursors: Array[Polygon2D] = []
+var _cursors: Array[Node2D] = []   # mains qui désignent les cibles
+var _elan_commit := 0               # points d'élan engagés pour l'action en cours de choix
+var _elan_bars: Array = []          # {pips, label} : une barre d'élan par panneau de menu
+var _bar_pos: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # place libre trouvée pour chaque barre d'élan
+var _elan_focus := ""               # compétence survolée dans la liste (pour l'effet affiché)
 var _keys: Control            # rappels de touches, en bas à gauche
 var _end_layer: Control
 var before_battle_slot := ""        # posé par main.gd : sauvegarde automatique juste avant ce combat
@@ -199,6 +210,9 @@ func _ready() -> void:
 	_list_desc = UI.label("", 17, UI.INK_DIM, false, true)   # l'aide s'affiche sous l'entrée choisie
 	_list_desc.visible = false
 	list_box.add_child(_list_desc)
+	_menu_box.add_child(_make_elan_bar())   # les deux barres d'élan (menu, liste) se posent à part : voir _place_menu
+	_menu_box.add_child(_make_elan_bar())
+	(_elan_bars[1]["panel"] as Control).visible = false
 
 	# rappels de touches, discrets, en bas à gauche
 	_keys = VBoxContainer.new()
@@ -230,18 +244,17 @@ func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 	for c: RefCounted in engine.enemies:
 		_plates[c.key] = _make_plate(c)
 	for _i in 8:
-		# curseur net : chevron doré cerné de sombre, pointé sur la cible
-		var arrow := Polygon2D.new()
-		arrow.polygon = PackedVector2Array([Vector2(-12, -16), Vector2(12, -16), Vector2(0, 2)])
-		arrow.color = UI.GOLD
-		var edge := Polygon2D.new()
-		edge.polygon = PackedVector2Array([Vector2(-16, -21), Vector2(16, -21), Vector2(0, 8)])
-		edge.color = Color(0.03, 0.025, 0.06, 0.95)
-		edge.show_behind_parent = true
-		arrow.add_child(edge)
-		arrow.visible = false
-		_overlay.add_child(arrow)
-		_cursors.append(arrow)
+		# curseur : une main gantée qui désigne la cible d'en haut (voir _process pour le va-et-vient)
+		var hand := Sprite2D.new()
+		hand.texture = Sprites.icon("hand")
+		hand.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		hand.offset = Vector2(-8.0, 0.0)   # le bout du doigt est à l'origine
+		hand.rotation = PI * 0.5
+		hand.scale = Vector2(3.0, 3.0)
+		hand.visible = false
+		_overlay.add_child(hand)
+		_cursors.append(hand)
+	_intro_slide()
 	refresh()
 
 
@@ -269,6 +282,7 @@ func close() -> void:
 	_rows = {}
 	_plates = {}
 	_cursors = []
+	_elan_commit = 0
 
 
 # ------------------------------------------------------------------ éléments
@@ -297,9 +311,24 @@ func _make_row(c: RefCounted) -> Dictionary:
 		if bool(info["on"]):
 			card.draw_colored_polygon(UI.diamond_points(Vector2(11.0, 20.0), 4.5), UI.GOLD)
 			card.draw_line(Vector2(card.size.x - 1.5, 3.0), Vector2(card.size.x - 1.5, card.size.y - 3.0), Color(UI.GOLD, 0.8), 2.0))
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 6)
+	card.add_child(line)
+	var face := TextureRect.new()   # petit portrait, dans un cadre sombre
+	face.texture = Sprites.battler_icon(c.sprite)
+	face.custom_minimum_size = Vector2(46, 46)
+	face.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	face.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	face.draw.connect(func() -> void:
+		face.draw_rect(Rect2(Vector2.ZERO, face.size), Color(UI.GOLD, 0.35), false, 1.0))
+	line.add_child(face)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 0)
-	card.add_child(col)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.add_child(col)
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 8)
 	col.add_child(head)
@@ -328,13 +357,18 @@ func _make_row(c: RefCounted) -> Dictionary:
 	var mp_tag := UI.caps("PM", 11, UI.GOLD_DIM)
 	mp_tag.size_flags_vertical = Control.SIZE_SHRINK_END
 	mp_row.add_child(mp_tag)
+	var pips := Control.new()   # l'élan : cinq losanges (voir _draw_pips)
+	pips.custom_minimum_size = Vector2(86, 18)
+	pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pips.draw.connect(_draw_pips.bind(pips, 7.0))
+	mp_row.add_child(pips)
 	var mp_text := UI.label("", 15, UI.INK)
 	mp_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	mp_row.add_child(mp_text)
 	var mp := _bar(MP_BLUE, 3.0)
 	col.add_child(mp)
-	return {"card": card, "info": info, "name": name_label, "hp": hp, "hp_text": hp_text, "mp": mp, "mp_text": mp_text, "status": status}
+	return {"card": card, "info": info, "name": name_label, "hp": hp, "hp_text": hp_text, "mp": mp, "mp_text": mp_text, "status": status, "pips": pips}
 
 
 func _card_style(active: bool) -> StyleBoxTexture:
@@ -365,6 +399,7 @@ func _make_plate(c: RefCounted) -> Dictionary:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 2)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_overlay.add_child(root)
 	var chips := HBoxContainer.new()
 	chips.add_theme_constant_override("separation", 3)
@@ -380,34 +415,221 @@ func _make_plate(c: RefCounted) -> Dictionary:
 	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	bar.visible = false
 	root.add_child(bar)
-	return {"root": root, "chips": chips, "name": name_label, "bar": bar, "sig": ""}
+	return {"root": root, "chips": chips, "name": name_label, "bar": bar, "sig": "", "known": [], "seen": false}
 
 
-## Petites icônes d'états : carré sombre au liseré de la couleur de l'état, deux lettres.
+## Petites icônes d'états : l'icône peinte de l'état dans un carré sombre au liseré de sa couleur
+## (deux lettres si l'état n'a pas d'icône).
 func _status_chips(box: HBoxContainer, c: RefCounted) -> void:
 	for id: String in c.statuses:
 		var st: Dictionary = Database.get_status(id)
 		var color := Database.color(st.get("color", "#ffffff"), UI.INK)
-		var icon := PanelContainer.new()
-		var s := StyleBoxFlat.new()
-		s.bg_color = Color(0.04, 0.04, 0.09, 0.92)
-		s.border_color = color
-		s.set_border_width_all(1)
-		s.set_corner_radius_all(2)
-		s.content_margin_left = 3
-		s.content_margin_right = 3
-		s.content_margin_top = 0
-		s.content_margin_bottom = 0
-		icon.add_theme_stylebox_override("panel", s)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		icon.add_child(UI.label(str(st.get("name", id)).left(2), 12, color, true))
-		box.add_child(icon)
+		box.add_child(_icon_slot(id, color, str(st.get("name", id)).left(2)))
+
+
+## Carré sombre au liseré « color » portant l'icône « kind » (agrandie deux fois), ou « fallback ».
+func _icon_slot(kind: String, color: Color, fallback: String = "") -> PanelContainer:
+	var slot := PanelContainer.new()
+	var s := StyleBoxFlat.new()
+	s.bg_color = Color(0.04, 0.04, 0.09, 0.92)
+	s.border_color = color
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(2)
+	s.set_content_margin_all(1)
+	slot.add_theme_stylebox_override("panel", s)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if IconPainter.kinds().has(kind):
+		var tex := TextureRect.new()
+		tex.texture = Sprites.icon(kind)
+		tex.custom_minimum_size = Vector2(20, 20)
+		tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(tex)
+	else:
+		slot.add_child(UI.label(fallback, 12, color, true))
+	return slot
+
+
+## Petit bouclier de l'ennemi : ses points restants au milieu ; brisé, l'icône de l'état Ébranlé.
+func _shield_widget(c: RefCounted) -> Control:
+	var w := Control.new()
+	w.custom_minimum_size = Vector2(26, 26)
+	w.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	w.draw.connect(func() -> void:
+		var broken: bool = c.has_status("ebranle")
+		var col := BROKEN_COLOR if broken else Color("#e8ecf4")
+		var pts := PackedVector2Array([Vector2(2, 1), Vector2(24, 1), Vector2(24, 14), Vector2(13, 25), Vector2(2, 14)])
+		w.draw_colored_polygon(pts, Color(0.06, 0.07, 0.14, 0.95))
+		var ring := PackedVector2Array(pts)
+		ring.append(pts[0])
+		w.draw_polyline(ring, col, 2.0, true)
+		if broken:
+			w.draw_texture_rect(Sprites.icon("ebranle"), Rect2(2, 2, 22, 22), false)
+		else:
+			var txt := str(int(c.shield))
+			var fs := 15
+			var tw := UI.font(true).get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			w.draw_string(UI.font(true), Vector2(13.0 - tw * 0.5, 17.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col))
+	return w
+
+
+## Les cinq pastilles d'élan d'une fiche d'allié (méta « reserve » et « commit » posées par refresh).
+func _draw_pips(c: Control, r: float) -> void:
+	var reserve := int(c.get_meta("reserve", 0))
+	var commit := int(c.get_meta("commit", 0))
+	var step := 2.0 * r + 3.0
+	for i in 5:
+		var at := Vector2(r + 1.0 + float(i) * step, c.size.y * 0.5)
+		_draw_pip(c, at, r, i < reserve, i < reserve and i >= reserve - commit)
+
+
+func _draw_pip(c: Control, at: Vector2, r: float, full: bool, engaged: bool) -> void:
+	var pts := UI.diamond_points(at, r)
+	var ring := PackedVector2Array(pts)
+	ring.append(pts[0])
+	if full:
+		c.draw_colored_polygon(pts, ELAN_HOT if engaged else ELAN_COLOR)
+		c.draw_polyline(ring, Color.WHITE if engaged else Color(0.25, 0.17, 0.04), 1.5 if engaged else 1.0, true)
+	else:
+		c.draw_polyline(ring, Color(ELAN_COLOR, 0.35), 1.0, true)
+
+
+## Pastilles du menu : plus grandes, entre deux flèches qui disent qu'on peut en engager.
+func _draw_bar_pips(c: Control) -> void:
+	var reserve := int(c.get_meta("reserve", 0))
+	var commit := int(c.get_meta("commit", 0))
+	var can := int(c.get_meta("top", 0)) > 0
+	var y := c.size.y * 0.5
+	var tri := Color(ELAN_COLOR, 0.9 if can else 0.25)
+	c.draw_colored_polygon(PackedVector2Array([Vector2(6, y - 5), Vector2(6, y + 5), Vector2(0, y)]), tri)
+	for i in 5:
+		_draw_pip(c, Vector2(14.0 + float(i) * 14.0, y), 6.0, i < reserve, i < reserve and i >= reserve - commit)
+	var x := 14.0 + 4.0 * 14.0 + 10.0
+	c.draw_colored_polygon(PackedVector2Array([Vector2(x, y - 5), Vector2(x, y + 5), Vector2(x + 6, y)]), tri)
+
+
+func _make_elan_bar() -> Control:
+	var panel := PanelContainer.new()
+	var st := StyleBoxFlat.new()
+	st.bg_color = Color(0.03, 0.035, 0.07, 0.86)
+	st.border_color = Color(ELAN_COLOR, 0.6)
+	st.border_width_left = 3
+	st.content_margin_left = 10
+	st.content_margin_right = 12
+	st.content_margin_top = 1
+	st.content_margin_bottom = 2
+	panel.add_theme_stylebox_override("panel", st)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 0)
+	panel.add_child(col)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	col.add_child(row)
+	var ic := TextureRect.new()
+	ic.texture = Sprites.icon("elan")
+	ic.custom_minimum_size = Vector2(20, 20)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(ic)
+	var pips := Control.new()
+	pips.custom_minimum_size = Vector2(94, 20)
+	pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pips.draw.connect(_draw_bar_pips.bind(pips))
+	row.add_child(pips)
+	var label := UI.label("", 14, ELAN_COLOR)
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(label)
+	_elan_bars.append({"pips": pips, "label": label, "panel": panel})
+	return panel
+
+
+## Effet de l'élan engagé sur l'action en cours de choix (attaque de base, ou compétence survolée).
+func _elan_text() -> String:
+	if _actor == null or engine == null:
+		return ""
+	var n := _elan_commit
+	var action: Dictionary = {"type": "attack"}
+	if _state == S.LIST:
+		if _list_kind != "skill":
+			return "Aucun effet"
+		action = {"type": "skill", "id": _elan_focus}
+	var kind: String = engine.elan_kind(_actor, action)
+	if kind == "":
+		return "Aucun effet" if _state == S.LIST else ""
+	if n == 0:
+		if int(_actor.elan) == 0:
+			return "Réserve vide"
+		return "Engager"
+	var def: Dictionary = Database.get_skill(_elan_focus) if _state == S.LIST else {}
+	match kind:
+		"hits":
+			return "%d coups" % (n + 1)
+		"power":
+			return "Puissance ×%s" % _fmt(engine.elan_mult(def, n))
+		"heal":
+			return "Soin ×%s" % _fmt(engine.elan_mult(def, n, true))
+	return "+%d tour%s" % [n, "s" if n > 1 else ""]
+
+
+func _fmt(v: float) -> String:
+	var t := ("%.1f" % v).replace(".", ",")
+	return t.trim_suffix(",0")
+
+
+func _update_elan_bars() -> void:
+	if _actor == null or engine == null:
+		return
+	var top := mini(int(_actor.elan), int(engine.ELAN_COMMIT_MAX))
+	for b: Dictionary in _elan_bars:
+		var pips: Control = b["pips"]
+		pips.set_meta("reserve", int(_actor.elan))
+		pips.set_meta("commit", _elan_commit)
+		pips.set_meta("top", top)
+		pips.queue_redraw()
+		(b["label"] as Label).text = _elan_text()
+	refresh()
+
+
+func _set_commit(v: int) -> void:
+	var top := mini(int(_actor.elan), int(engine.ELAN_COMMIT_MAX))
+	v = clampi(v, 0, top)
+	if v == _elan_commit:
+		return
+	Sfx.play("elan" if v > _elan_commit else "elan_off", 1.0 + 0.14 * float(v))
+	_elan_commit = v
+	if scene != null:
+		scene.elan_preview(_actor, v)
+	_update_elan_bars()
+
+
+func _on_list_focus(id: String) -> void:
+	_elan_focus = id
+	_update_elan_bars()
+
+
+## Icône du genre d'arme porté par un allié (null s'il n'en porte pas, ou pour un ennemi).
+func _weapon_icon(c: RefCounted) -> Texture2D:
+	if c.side != "party":
+		return null
+	var m: Dictionary = GameState.member(str(c.source))
+	var eq: Variant = m.get("equip", {})
+	if not (eq is Dictionary):
+		return null
+	var w := str((eq as Dictionary).get("weapon", ""))
+	var t := str(Database.get_item(w).get("type", "")) if w != "" else ""
+	return Sprites.icon(t) if IconPainter.kinds().has(t) else null
 
 
 ## Remet à jour jauges, états, boucliers et faiblesses.
 func refresh() -> void:
 	if engine == null:
 		return
+	for t in _timeline.get_children():   # la marque « brisé » des vignettes suit l'état
+		t.queue_redraw()
 	for c: RefCounted in engine.party:
 		var row: Dictionary = _rows.get(c.key, {})
 		if row.is_empty():
@@ -415,7 +637,8 @@ func refresh() -> void:
 		var hp: ProgressBar = row["hp"]
 		hp.max_value = c.max_hp()
 		hp.value = c.hp
-		_set_bar_color(hp, HP_LOW if float(c.hp) / c.max_hp() < 0.3 else HP_GREEN)
+		var pct: float = float(c.hp) / float(c.max_hp())
+		_set_bar_color(hp, HP_GREEN if pct > 0.5 else (HP_MID if pct >= 0.3 else HP_RED))
 		(row["hp_text"] as Label).text = "%d/%d" % [int(c.hp), c.max_hp()]
 		var mp: ProgressBar = row["mp"]
 		mp.max_value = maxi(1, c.max_mp())
@@ -443,6 +666,10 @@ func refresh() -> void:
 		else:
 			_status_chips(status, c)
 		(row["card"] as PanelContainer).modulate.a = 1.0 if c.alive() else 0.7
+		var pips: Control = row["pips"]
+		pips.set_meta("reserve", int(c.elan) if c.alive() else 0)
+		pips.set_meta("commit", _elan_commit if (c == _active and _state in [S.ROOT, S.LIST, S.TARGET]) else 0)
+		pips.queue_redraw()
 	for c: RefCounted in engine.enemies:
 		var plate: Dictionary = _plates.get(c.key, {})
 		if plate.is_empty():
@@ -459,21 +686,35 @@ func refresh() -> void:
 			for n in chips.get_children():
 				chips.remove_child(n)
 				n.queue_free()
-			if c.has_status("ebranle"):
-				chips.add_child(_chip("Ébranlé", Color("#ff8a6a")))
-			elif int(c.shield_max) > 0:
-				chips.add_child(_chip(str(int(c.shield)), Color("#e8ecf4"), 15))
+			if int(c.shield_max) > 0:
+				chips.add_child(_shield_widget(c))
+			var fresh: Array = []
 			for w: String in c.weak:
 				if known.has(w):
 					var el: Dictionary = Database.get_element(w)
-					chips.add_child(_chip(str(el.get("short", w)), Database.color(el.get("color", "#ffffff"), UI.INK)))
+					var slot := _icon_slot(w, Database.color(el.get("color", "#ffffff"), UI.INK), str(el.get("short", w)))
+					chips.add_child(slot)
+					if bool(plate["seen"]) and not (plate["known"] as Array).has(w):
+						fresh.append(slot)
 				else:
-					chips.add_child(_chip("?", Color(0.6, 0.6, 0.66)))
+					chips.add_child(_icon_slot("unknown", WEAK_UNKNOWN, "?"))
+			plate["known"] = known.duplicate()
+			plate["seen"] = true
 			for id: String in c.statuses:
 				if id != "ebranle":
 					var st: Dictionary = Database.get_status(id)
-					chips.add_child(_chip(str(st.get("name", id)), Database.color(st.get("color", "#ffffff"), UI.INK)))
+					chips.add_child(_icon_slot(id, Database.color(st.get("color", "#ffffff"), UI.INK), str(st.get("name", id)).left(2)))
+			if c.has_status("ebranle"):
+				chips.add_child(_chip("Brisé", BROKEN_COLOR))
 			root.reset_size()
+			for slot: Control in fresh:   # une faiblesse qui vient d'être découverte : éclat, puis la case se pose
+				slot.pivot_offset = Vector2(11, 11)
+				slot.scale = Vector2(1.9, 1.9)
+				slot.modulate = Color(3.0, 3.0, 3.0)
+				var tw := slot.create_tween()
+				tw.set_parallel(true)
+				tw.tween_property(slot, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+				tw.tween_property(slot, "modulate", Color.WHITE, 0.5)
 		var bar: ProgressBar = plate["bar"]
 		bar.max_value = c.max_hp()
 		bar.value = c.hp
@@ -481,6 +722,7 @@ func refresh() -> void:
 
 func set_active(c: RefCounted) -> void:
 	_active = c
+	_elan_commit = 0
 	refresh()
 
 
@@ -524,16 +766,18 @@ func _tile(c: RefCounted, side: float, active: bool) -> Control:
 	var letter := ""
 	if c.side == "enemy" and str(c.name) != str((c.data as Dictionary).get("name", "")):
 		letter = str(c.name).right(1)
+	t.set_meta("c", c)
 	t.draw.connect(_draw_tile.bind(t, Sprites.battler_icon(c.sprite), ALLY_BLUE if c.side == "party" else ENEMY_RED, active, letter))
 	return t
 
 
 func _draw_tile(t: Control, tex: Texture2D, tint: Color, active: bool, letter: String) -> void:
+	t.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var s := t.size.x
 	var h := s * 0.5
 	var edge := UI.diamond_points(Vector2(h, h), h - 1.0)
 	var inner := UI.diamond_points(Vector2(h, h), h - (6.0 if active else 2.5))
-	t.draw_colored_polygon(inner, Color(0.04, 0.04, 0.09, 0.92))
+	t.draw_colored_polygon(inner, Color(0.05, 0.09, 0.2, 0.94) if tint == ALLY_BLUE else Color(0.22, 0.05, 0.07, 0.94))
 	if tex != null:
 		var uv := PackedVector2Array()
 		var white := PackedColorArray()
@@ -548,6 +792,9 @@ func _draw_tile(t: Control, tex: Texture2D, tint: Color, active: bool, letter: S
 		var ring := PackedVector2Array(edge)
 		ring.append(edge[0])
 		t.draw_polyline(ring, Color(tint, 0.65), 1.5, true)
+	var who: Variant = t.get_meta("c", null)
+	if who != null and (who as RefCounted).has_status("ebranle"):   # brisé : il ne jouera pas ce tour
+		t.draw_texture_rect(Sprites.icon("ebranle"), Rect2(s * 0.5 - 12.0, s - 26.0, 24.0, 24.0), false)
 	if letter != "":
 		t.draw_string_outline(UI.font(true), Vector2(s * 0.56, s * 0.8), letter, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.9))
 		t.draw_string(UI.font(true), Vector2(s * 0.56, s * 0.8), letter, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
@@ -570,6 +817,45 @@ func _draw_frieze() -> void:
 	else:
 		_timeline.draw_line(Vector2(x0, y), Vector2(x1, y), col, 1.0)
 	_timeline.draw_colored_polygon(UI.diamond_points(Vector2(x1 + 3.0, y), 3.0), col)
+
+
+## Arrivée des deux camps : les fiches glissent depuis la droite, les plaques des ennemis se fondent.
+func _intro_slide() -> void:
+	if scene == null or bool(scene.fast):
+		return
+	_party_panel.offset_left = 330.0
+	_party_panel.offset_right = 330.0
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(_party_panel, "offset_left", -12.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_party_panel, "offset_right", -12.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	var i := 0
+	for key: String in _plates:
+		var root: Control = (_plates[key] as Dictionary)["root"]
+		root.modulate.a = 0.0
+		tw.tween_property(root, "modulate:a", 1.0, 0.5).set_delay(0.25 + 0.12 * float(i))
+		i += 1
+
+
+## Bouclier en éclats : des éclats clairs partent du point « at » (écran) et retombent.
+func shatter(at: Vector2) -> void:
+	if scene == null or bool(scene.fast):
+		return
+	for i in 16:
+		var shard := Polygon2D.new()
+		var r := randf_range(4.0, 9.0)
+		shard.polygon = PackedVector2Array([Vector2(-r, -r * 0.5), Vector2(r, 0.0), Vector2(-r * 0.3, r)])
+		shard.color = Color("#dfeaff") if i % 3 else Color("#ffb59a")
+		shard.position = at
+		shard.rotation = randf() * TAU
+		_overlay.add_child(shard)
+		var dest := at + Vector2.from_angle(randf() * TAU) * randf_range(50.0, 170.0) + Vector2(0.0, 50.0)
+		var tw := shard.create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(shard, "position", dest, 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.tween_property(shard, "rotation", shard.rotation + randf_range(-6.0, 6.0), 0.7)
+		tw.tween_property(shard, "modulate:a", 0.0, 0.7).set_delay(0.2)
+		tw.chain().tween_callback(shard.queue_free)
 
 
 func announce(text: String, duration: float = 1.4) -> void:
@@ -627,7 +913,7 @@ func _update_keys() -> void:
 		_keys.remove_child(n)
 		n.queue_free()
 	if _state == S.ROOT:
-		_keys.add_child(UI.hints([["Flèches", "choisir"], ["Entrée", "valider"]], 14))
+		_keys.add_child(UI.hints([["Haut/Bas", "choisir"], ["Gauche/Droite", "élan"], ["Entrée", "valider"]], 14))
 	elif _state == S.LIST or _state == S.TARGET:
 		_keys.add_child(UI.hints(UI.KEYS_MENU, 14))
 	_keys.visible = _state in [S.ROOT, S.LIST, S.TARGET]
@@ -639,6 +925,8 @@ func _update_keys() -> void:
 func ask_action(actor: RefCounted) -> Dictionary:
 	_actor = actor
 	_last_root = 0
+	_elan_commit = 0
+	_elan_focus = ""
 	_show_root()
 	var action: Dictionary = await action_chosen
 	_state = S.IDLE
@@ -679,6 +967,7 @@ func _obstacles(view: Vector2) -> Array[Rect2]:
 	if _hint.visible:
 		out.append(_hint.get_global_rect().grow(6.0))
 	out.append(Rect2(0.0, view.y - 56.0, 460.0, 56.0))
+	out.append(Rect2(view.x * 0.5 - 260.0, view.y - 50.0, 520.0, 50.0))   # rien en bas au centre
 	return out
 
 
@@ -741,9 +1030,21 @@ func _place_menu() -> void:
 			var lw := _list_panel.size.x
 			var lh := _list_panel.size.y
 			_list_pos = free_spot(Vector2(lw, lh), Vector2(_root_pos.x - 40.0, _root_pos.y + 44.0), obstacles, view)
+		# barre d'élan : la place libre la plus proche, sous le menu (ou sous la liste), sans le couvrir
+		var own_i := 1 if _list_panel.visible else 0
+		var anchor_rect := Rect2(_list_pos, _list_panel.size) if _list_panel.visible else Rect2(_root_pos, _root_panel.size)
+		var obs2: Array[Rect2] = []
+		obs2.append_array(obstacles)
+		obs2.append(Rect2(_root_pos, _root_panel.size).grow(2.0))
+		if _list_panel.visible:
+			obs2.append(anchor_rect.grow(2.0))
+		var bar: Control = _elan_bars[own_i]["panel"]
+		bar.reset_size()
+		_bar_pos[own_i] = free_spot(bar.size, Vector2(anchor_rect.position.x, anchor_rect.end.y + 4.0), obs2, view)
 	_root_panel.position = _root_pos
 	if _list_panel.visible:
 		_list_panel.position = _list_pos
+	(_elan_bars[1 if _list_panel.visible else 0]["panel"] as Control).position = _bar_pos[1 if _list_panel.visible else 0]
 
 
 func _set_root_live(live: bool) -> void:
@@ -760,6 +1061,8 @@ func _show_root() -> void:
 	_menu_box.modulate.a = 1.0
 	_root_panel.visible = true
 	_list_panel.visible = false
+	(_elan_bars[0]["panel"] as Control).visible = true
+	(_elan_bars[1]["panel"] as Control).visible = false
 	_root_title.text = str(_actor.name)
 	_clear(_root_list)
 	var entries := [
@@ -769,15 +1072,17 @@ func _show_root() -> void:
 		["Défendre", true],
 		["Fuir", bool(engine.can_flee)],
 	]
+	var kinds := ["attack", "skills", "items", "defend", "flee"]
 	for i in entries.size():
 		var e: Array = entries[i]
-		var b := UI.band_button(str(e[0]), 22, str(ROOT_HELP.get(str(e[0]), "")), "", 224)
+		var b := UI.icon_band_button(str(e[0]), 21, str(ROOT_HELP.get(str(e[0]), "")), "", 244, Sprites.icon(str(kinds[i])), _weapon_icon(_actor) if i == 0 else null)
 		b.disabled = not bool(e[1])
 		b.pressed.connect(_on_root.bind(i))
 		_root_list.add_child(b)
 	_set_root_live(true)
 	_focus(_root_list, _last_root)
 	_update_keys()
+	_update_elan_bars()
 	_place_menu()
 
 
@@ -809,6 +1114,8 @@ func _show_list(kind: String) -> void:
 	_hide_cursors()
 	_menu_box.modulate.a = 1.0
 	_root_panel.visible = true    # le menu reste visible, estompé, sous la liste en cascade
+	(_elan_bars[0]["panel"] as Control).visible = false   # la liste a sa propre barre d'élan
+	(_elan_bars[1]["panel"] as Control).visible = true
 	_set_root_live(false)
 	_list_panel.visible = true
 	_list_title.text = "COMPÉTENCES" if kind == "skill" else "OBJETS"
@@ -828,21 +1135,29 @@ func _show_list(kind: String) -> void:
 		var text := str(def.get("name", id))
 		var right := ""
 		var usable := true
+		var warn := false
+		var icon_kind := "items"
 		if kind == "skill":
 			right = "%d PM" % int(def.get("cost", 0))
 			usable = engine.can_use_skill(_actor, id)
+			warn = int(def.get("cost", 0)) > int(_actor.mp)   # trop cher : le coût vire à l'orange, la ligne est grisée
+			var el := str(def.get("element", ""))
+			icon_kind = el if IconPainter.kinds().has(el) else "skills"
 		else:
 			right = "×%d" % int(engine.inventory.get(id, 0))
 		if (engine.candidates(_actor, str(def.get("target", "enemy"))) as Array).is_empty():
 			usable = false
-		var b := UI.band_button(text, 21, str(def.get("desc", "")), right, 380)
+		var b := UI.icon_band_button(text, 21, str(def.get("desc", "")), right, 400, Sprites.icon(icon_kind), null, warn)
 		b.disabled = not usable
+		b.focus_entered.connect(_on_list_focus.bind(id))
 		b.pressed.connect(_on_list.bind(kind, id, str(def.get("target", "enemy"))))
 		_list_items.add_child(b)
 		if str(_last_list.get(kind, "")) == id:
 			focus_index = i
+	_elan_focus = str(ids[focus_index]) if not ids.is_empty() else ""
 	_focus(_list_items, focus_index)
 	_update_keys()
+	_update_elan_bars()
 	_place_menu()
 
 
@@ -858,6 +1173,9 @@ func _choose(action: Dictionary) -> void:
 	if _state == S.IDLE or _state == S.END:
 		return
 	_state = S.IDLE
+	if _elan_commit > 0 and str(action.get("type", "")) in ["attack", "skill"]:
+		action["elan"] = _elan_commit
+	_elan_commit = 0
 	action_chosen.emit(action)
 
 
@@ -936,6 +1254,11 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	_layout_plates()
+	if _state == S.ROOT or _state == S.LIST:   # la main du menu va et vient : on redessine l'entrée choisie
+		for box: Control in [_root_list, _list_items]:
+			for b in box.get_children():
+				if (b as Button).has_focus():
+					(b as Button).queue_redraw()
 	if _state == S.TARGET:
 		var panel := _party_panel.get_global_rect()
 		for i in _cands.size():
@@ -945,7 +1268,7 @@ func _process(delta: float) -> void:
 			# le curseur ne se cache jamais derrière les fiches : il descend sous elles
 			if p.x > panel.position.x - 20.0 and p.y - 22.0 < panel.end.y + 4.0:
 				p.y = panel.end.y + 28.0
-			_cursors[i].position = p + Vector2(0.0, sin(_time * 7.0) * 4.0)
+			_cursors[i].position = p + Vector2(0.0, sin(_time * 7.0) * 4.0 + 6.0)
 	_place_menu()
 
 
@@ -1006,6 +1329,16 @@ func _layout_plates() -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or scene == null:
 		return
+	if (_state == S.ROOT or _state == S.LIST) and _actor != null and engine != null:
+		var d := 0
+		if event.is_action_pressed("move_left") or event.is_action_pressed("ui_left"):
+			d = -1
+		elif event.is_action_pressed("move_right") or event.is_action_pressed("ui_right"):
+			d = 1
+		if d != 0:
+			get_viewport().set_input_as_handled()
+			_set_commit(_elan_commit + d)
+			return
 	if _state == S.LIST and event.is_action_pressed("cancel"):
 		get_viewport().set_input_as_handled()
 		Sfx.play("cancel")
@@ -1127,27 +1460,78 @@ func _line(box: Control, text: String, color: Color = UI.INK, size: int = 22) ->
 	box.add_child(l)
 
 
+## Une ligne de récompense : icône peinte, puis texte.
+func _reward_line(box: Control, kind: String, text: String, color: Color = UI.INK, size: int = 24) -> void:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	row.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var ic := TextureRect.new()
+	ic.texture = Sprites.icon(kind)
+	ic.custom_minimum_size = Vector2(24, 24)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(ic)
+	row.add_child(UI.label(text, size, color))
+	box.add_child(row)
+
+
 func show_victory(rewards: Dictionary, guest: bool) -> void:
 	var box := _end_panel("Victoire", UI.GOLD)
 	if guest:
 		_line(box, "L'ennemi est à terre.")
 	else:
-		_line(box, "Expérience : +%d" % int(rewards.get("xp", 0)))
+		var totals := HBoxContainer.new()   # le butin d'un coup d'oeil : expérience et écus côte à côte
+		totals.alignment = BoxContainer.ALIGNMENT_CENTER
+		totals.add_theme_constant_override("separation", 40)
+		box.add_child(totals)
+		_reward_line(totals, "up", "Expérience +%d" % int(rewards.get("xp", 0)), UI.GOLD, 26)
 		if int(rewards.get("money", 0)) > 0:
-			_line(box, "Écus : +%d" % int(rewards["money"]))
+			_reward_line(totals, "coin", "Écus +%d" % int(rewards["money"]), Color("#ffd27a"), 26)
 		var drops: Dictionary = rewards.get("drops", {})
 		for id: String in drops:
-			_line(box, "Trouvé : %s ×%d" % [str(Database.get_item(id).get("name", id)), int(drops[id])], Color("#bfe8ff"))
+			_reward_line(box, "items", "Trouvé : %s ×%d" % [str(Database.get_item(id).get("name", id)), int(drops[id])], Color("#bfe8ff"), 21)
 		var ups: Array = rewards.get("levelups", [])
+		var by_id: Dictionary = {}
+		for up: Dictionary in ups:
+			by_id[str(up.get("id", ""))] = up
+		var gains: Dictionary = rewards.get("gains", {})
+		if engine != null and not gains.is_empty():   # une ligne par héros : portrait, expérience, niveau gagné
+			for c: RefCounted in engine.party:
+				var gain := int(gains.get(str(c.source), 0))
+				var row := HBoxContainer.new()
+				row.alignment = BoxContainer.ALIGNMENT_CENTER
+				row.add_theme_constant_override("separation", 12)
+				row.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+				var face := TextureRect.new()
+				face.texture = Sprites.battler_icon(c.sprite)
+				face.custom_minimum_size = Vector2(40, 40)
+				face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				row.add_child(face)
+				var who := UI.label(str(c.name), 20, UI.INK)
+				who.custom_minimum_size = Vector2(170, 0)
+				row.add_child(who)
+				var xp_label := UI.label("+%d XP" % gain, 20, Color("#ffd27a"))
+				xp_label.custom_minimum_size = Vector2(110, 0)
+				row.add_child(xp_label)
+				if by_id.has(str(c.source)):
+					var up: Dictionary = by_id[str(c.source)]
+					row.add_child(UI.label("Niveau %d" % int(up.get("to", 1)), 20, UI.GOLD))
+				box.add_child(row)
 		if not ups.is_empty():
 			Sfx.play("level")
 		for up: Dictionary in ups:
-			_line(box, "%s passe au niveau %d !" % [str(up.get("name", "")), int(up.get("to", 1))], UI.GOLD, 24)
-			for s: Variant in up.get("skills", []):
-				_line(box, "Nouvelle compétence : %s" % str(s), Color("#ffd27a"), 20)
+			if engine == null or gains.is_empty():
+				_reward_line(box, "up", "%s passe au niveau %d !" % [str(up.get("name", "")), int(up.get("to", 1))], UI.GOLD, 24)
+			var bits: Array = []
+			for sk: Variant in up.get("skills", []):
+				bits.append("apprend %s" % str(sk))
 			var points := int(up.get("points", 0))
 			if points > 0:
-				_line(box, "+%d point%s de talent (menu de pause, Talents)" % [points, "s" if points > 1 else ""], Color("#bfe8ff"), 20)
+				bits.append("+%d point%s de talent" % [points, "s" if points > 1 else ""])
+			if not bits.is_empty():
+				_line(box, "%s %s" % [str(up.get("name", "")), " · ".join(bits)], Color("#ffd27a"), 19)
 	var b := _end_button(box, "Continuer", "ok")
 	b.grab_focus.call_deferred()
 	await _closed

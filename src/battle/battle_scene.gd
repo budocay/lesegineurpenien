@@ -524,6 +524,7 @@ func run() -> void:
 				action = await ui.ask_action(actor)
 				ui.show_hint("")
 			await _play(engine.perform(actor, action))
+			a.charge = 0
 			a.set_active(false)
 		if engine.result == "":
 			await _play(engine.end_turn(actor))
@@ -560,6 +561,17 @@ func _finish() -> void:
 
 # ---------------------------------------------------- mise en scène des événements
 
+## Élan engagé (aperçu pendant le choix) : le héros se charge, un anneau doré marque chaque point.
+func elan_preview(actor: RefCounted, n: int) -> void:
+	var a: Node3D = actors.get(actor.key)
+	if a == null:
+		return
+	a.charge = n
+	if n > 0 and not fast:
+		fx.puff("ring", a, "ring", 1, Color("#ffd24a"), 0.35 + 0.1 * float(n))
+		_burst(a.anchor("center"), Color("#ffd24a"), 0.5 + 0.3 * float(n))
+
+
 func _element_color(element: String) -> Color:
 	return Database.color(Database.get_element(element).get("color", "#ffffff"), Color.WHITE)
 
@@ -575,7 +587,11 @@ func _play(events: Array) -> void:
 			"cast":
 				var caster: RefCounted = e["actor"]
 				var ca: Node3D = actors[caster.key]
-				ui.announce(str(e.get("name", "")), 1.4)
+				if not bool(e.get("again", false)):
+					var shown := str(e.get("name", ""))
+					if int(e.get("elan", 0)) > 0:
+						shown += "   —   élan ×%d" % int(e["elan"])
+					ui.announce(shown, 1.4)
 				var aimed: Array = []
 				for t: RefCounted in e.get("targets", []):
 					aimed.append(actors[t.key])
@@ -613,17 +629,26 @@ func _play(events: Array) -> void:
 					ui.popup(screen_point(target, "top"), "Critique !", Color("#ffb060"), 22, 52.0)
 				ui.refresh()
 				await _wait(0.42)
+			"elan":
+				Sfx.play("elan", 1.3)
+				ui.popup(screen_point(target, "top"), "+1 élan", Color("#ffd24a"), 22, 20.0)
+				ui.refresh()
 			"break":
 				Sfx.play("break")
+				Sfx.play("shatter")
+				ta.set_stunned(true)
+				ui.shatter(screen_point(target, "center"))
+				ui.announce("Bouclier brisé !", 1.3)
 				shake(1.0)
 				_burst(ta.anchor("center"), Color("#ff7a6a"), 2.2)
 				fx.puff("bang", ta, "burst", 5)
 				fx.puff("ring", ta, "ring", 1, Color("#ff7a6a"), 1.0)
 				fx.screen_flash(Color("#ff7a6a"), 0.3, 0.3)
-				ui.popup(screen_point(target, "center"), "ÉBRANLÉ !", Color("#ff8a6a"), 38)
+				ui.popup(screen_point(target, "center"), "BRISÉ !", Color("#ff8a6a"), 38)
 				ui.refresh()
 				await _wait(0.7)
 			"recover":
+				ta.set_stunned(false)
 				ui.popup(screen_point(target, "top"), "Se ressaisit", Color("#cfd8ea"), 22)
 				ui.refresh()
 				await _wait(0.4)

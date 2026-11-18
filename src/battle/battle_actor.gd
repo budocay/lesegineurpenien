@@ -20,6 +20,9 @@ var _hover := 0.0
 var _time := 0.0
 var _frame := -1
 var _flash := 0.0
+var charge := 0              # points d'élan engagés : le héros se charge (halo qui pulse)
+var stunned := false         # bouclier brisé : l'ennemi vacille
+var _aura_on := false
 var _active := false
 var _move: Tween
 var _pose_tw: Tween
@@ -116,12 +119,18 @@ func _process(delta: float) -> void:
 
 func _animate(delta: float) -> void:
 	_time += delta
-	if _flash > 0.0:
+	var aura := 0.0
+	if charge > 0 and not down:
+		aura = (0.1 + 0.06 * float(charge)) * (0.65 + 0.35 * sin(_time * 9.0))
+	if _flash > 0.0 or aura > 0.0 or _aura_on:
 		_flash = maxf(0.0, _flash - delta * 4.0)
-		_quad.set_instance_shader_parameter("flash", _flash)
+		_quad.set_instance_shader_parameter("flash", maxf(_flash, aura))
+		_aura_on = aura > 0.0
 	if down:
 		return
 	_monster_frame()
+	if stunned and not fast and not posing() and (_hit_tw == null or not _hit_tw.is_running()):
+		_body.rotation.z = sin(_time * 2.6) * 0.07   # vacille, hébété
 	if _hover > 0.0:
 		_body.position.y = _hover + sin(_time * 3.2) * 0.09
 
@@ -358,6 +367,13 @@ func play_pose(pose: String, toward: Vector3, impact: float) -> void:
 			tw.parallel().tween_property(_body, "scale", s, 0.16)
 		_:
 			tw.tween_interval(0.01)
+
+
+## Bouclier brisé : il vacille jusqu'à ce qu'il se ressaisisse.
+func set_stunned(on: bool) -> void:
+	stunned = on
+	if not on and _body != null:
+		_body.rotation.z = 0.0
 
 
 ## Coup reçu : éclair blanc, recul et bascule en arrière (plus marqués si le coup est fort).
