@@ -1,0 +1,440 @@
+{
+	"id": "isengarde",
+	"name": "L'Isengarde-Manger",
+	"region": "Terres de l'Est",
+	"size": [
+		64,
+		36
+	],
+	"ambiance": "isengarde",
+	"music": "isengarde",
+	"arena": "petrins",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "isen_dalle",
+		"fills": [
+			{
+				"type": "isen_fosse",
+				"rect": [
+					4,
+					9,
+					23,
+					17
+				]
+			},
+			{
+				"type": "isen_fosse",
+				"rect": [
+					37,
+					9,
+					23,
+					17
+				]
+			},
+			{
+				"type": "isen_fonte",
+				"rect": [
+					28,
+					3,
+					8,
+					33
+				]
+			},
+			{
+				"type": "isen_farine",
+				"rect": [
+					26,
+					26,
+					12,
+					8
+				]
+			}
+		]
+	},
+	"spawns": {
+		"sud": {
+			"pos": [
+				32.0,
+				33.0
+			],
+			"facing": "up"
+		},
+		"tour": {
+			"pos": [
+				32.0,
+				7.0
+			],
+			"facing": "down"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				26,
+				5,
+				12,
+				3
+			],
+			"h": 0.9
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				30,
+				8,
+				4,
+				1
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 0.9
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "isengarde_arrivee",
+			"unless": "isengarde_vu"
+		}
+	],
+	"style": "isengarde",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				28.0,
+				35.2,
+				8.0,
+				0.8
+			],
+			"to": {
+				"map": "cabecou",
+				"spawn": "nord"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				30.0,
+				5.0,
+				4.0,
+				1.2
+			],
+			"to": {
+				"map": "terrasse_office",
+				"spawn": "entree"
+			},
+			"if": "fours_eteints"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				29.0,
+				22.0,
+				6.0,
+				1.2
+			],
+			"dialogue": "isengarde_breche",
+			"unless": "fours_eteints"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				28,
+				24,
+				8,
+				10
+			],
+			"table": "isengarde"
+		},
+		{
+			"type": "isen_tour",
+			"pos": [
+				32.0,
+				4.0
+			]
+		},
+		{
+			"type": "isen_cheminee",
+			"pos": [
+				28.0,
+				6.0
+			]
+		},
+		{
+			"type": "isen_cheminee",
+			"pos": [
+				36.0,
+				6.0
+			]
+		},
+		{
+			"type": "isen_pancarte",
+			"pos": [
+				30.0,
+				30.0
+			],
+			"dialogue": "isengarde_pancarte",
+			"label": "Lire"
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				27.0,
+				28.6
+			],
+			"dialogue": "isengarde_sac",
+			"label": "Fouiller",
+			"variant": 0
+		},
+		{
+			"type": "isen_marmite",
+			"pos": [
+				37.0,
+				31.0
+			],
+			"dialogue": "isengarde_repos",
+			"label": "Se reposer",
+			"reach": 2.2
+		},
+		{
+			"type": "scatter",
+			"prop": "isen_cheminee",
+			"rect": [
+				0,
+				0,
+				64,
+				8
+			],
+			"count": 8,
+			"min_dist": 4.0,
+			"seed": 91,
+			"on": [
+				"isen_dalle"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "isen_sac",
+			"rect": [
+				26,
+				24,
+				12,
+				10
+			],
+			"count": 6,
+			"min_dist": 2.0,
+			"seed": 92,
+			"on": [
+				"isen_fonte"
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				32,
+				10
+			],
+			"height": 2.6,
+			"color": "#ff8a40",
+			"energy": 2.0,
+			"range": 14.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				32,
+				28
+			],
+			"height": 2.6,
+			"color": "#ffb070",
+			"energy": 1.6,
+			"range": 12.0
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				10.0,
+				12.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				10.0,
+				12.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				16.0,
+				16.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				16.0,
+				16.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				22.0,
+				20.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				22.0,
+				20.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				10.0,
+				22.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				10.0,
+				22.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				22.0,
+				12.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				22.0,
+				12.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				48.0,
+				12.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				48.0,
+				12.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				42.0,
+				16.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				42.0,
+				16.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				36.0,
+				20.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				36.0,
+				20.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				48.0,
+				22.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				48.0,
+				22.0
+			],
+			"if": "fosses_inondees"
+		},
+		{
+			"type": "isen_flamme",
+			"pos": [
+				38.0,
+				12.0
+			],
+			"energy": 2.4,
+			"range": 8.0,
+			"unless": "fosses_inondees"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				38.0,
+				12.0
+			],
+			"if": "fosses_inondees"
+		}
+	]
+}

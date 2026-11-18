@@ -1,0 +1,217 @@
+{
+	"id": "bergerie_or",
+	"name": "La Bergerie d'Or",
+	"region": "Plaine à Brebis",
+	"size": [
+		40,
+		22
+	],
+	"interior": true,
+	"wall_height": 5.0,
+	"ambiance": "bergerie",
+	"music": "bergerie_or",
+	"arena": "bergerie_or",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "cav_planches",
+				"rect": [
+					2,
+					3,
+					36,
+					16
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					17,
+					3,
+					6,
+					16
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				20.0,
+				8.5
+			],
+			"facing": "up"
+		},
+		"porte": {
+			"pos": [
+				20.0,
+				16.0
+			],
+			"facing": "up"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				14,
+				3,
+				12,
+				3
+			],
+			"h": 0.8
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				17,
+				6,
+				6,
+				1
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 0.8
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "bergerie_arrivee",
+			"unless": "bergerie_vue"
+		}
+	],
+	"style": "cavalier",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				18.0,
+				17.6,
+				4.0,
+				0.8
+			],
+			"to": {
+				"map": "cabecou",
+				"spawn": "porte"
+			}
+		},
+		{
+			"type": "cav_trone",
+			"pos": [
+				20.0,
+				4.6
+			],
+			"dialogue": "trone_roi",
+			"label": "Approcher",
+			"reach": 2.4
+		},
+		{
+			"type": "cav_lit",
+			"pos": [
+				9.0,
+				6.0
+			]
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				12.0,
+				4.0
+			],
+			"dialogue": "bergerie_etendard",
+			"label": "Lire",
+			"variant": 0
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				28.0,
+				4.0
+			],
+			"variant": 1
+		},
+		{
+			"type": "npc",
+			"id": "cavalier",
+			"pos": [
+				14.0,
+				12.0
+			],
+			"facing": "right",
+			"reach": 1.9
+		},
+		{
+			"type": "npc",
+			"id": "cavalier",
+			"pos": [
+				27.0,
+				12.0
+			],
+			"facing": "left",
+			"reach": 1.9
+		},
+		{
+			"type": "crate",
+			"pos": [
+				35.0,
+				16.0
+			],
+			"dialogue": "bergerie_coffre",
+			"label": "Ouvrir",
+			"turn": 8
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				5.0,
+				16.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				36.0,
+				7.0
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				20,
+				6
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 2.2,
+			"range": 12.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				8,
+				12
+			],
+			"height": 2.6,
+			"color": "#ffc870",
+			"energy": 1.4,
+			"range": 9.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				32,
+				12
+			],
+			"height": 2.6,
+			"color": "#ffc870",
+			"energy": 1.4,
+			"range": 9.0
+		}
+	]
+}

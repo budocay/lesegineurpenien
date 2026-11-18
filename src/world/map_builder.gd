@@ -9,6 +9,7 @@ const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Npc = preload("res://src/world/npc.gd")
 const ElvenBuilder = preload("res://src/world/elven_builder.gd")
 const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
+const RiderBuilder = preload("res://src/world/rider_builder.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -27,6 +28,12 @@ const GROUND := {
 	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
 	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true},
 	"nain_abime": {"hard": true, "solid": true}, "nain_neige": {}, "nain_sentier": {},
+	# styles du chapitre 5 : cavalier, fongorn, isengarde, chutes (voir docs/FORMAT_DONNEES.md)
+	"cav_herbe": {}, "cav_chemin": {}, "cav_planches": {"hard": true}, "cav_botte_sol": {},
+	"ent_mousse": {}, "ent_sentier": {}, "ent_racines": {},
+	"isen_dalle": {"hard": true}, "isen_fonte": {"hard": true}, "isen_farine": {},
+	"isen_fosse": {"hard": true, "solid": true},
+	"chu_roche": {"hard": true}, "chu_gravier": {},
 }
 
 ## Accessoires affichés comme des sprites debout.
@@ -96,6 +103,27 @@ const PROPS := {
 	"nain_etabli": {"variants": 2, "solid": 0.7},
 	"nain_gravats": {"variants": 3},
 	"nain_neige_tas": {"variants": 2, "solid": 0.4},
+	# styles du chapitre 5
+	"cav_arbre": {"variants": 2, "solid": 0.4, "sway": 0.04, "flip": true, "jitter": 0.15},
+	"cav_botte": {"solid": 0.6},
+	"cav_etendard": {"variants": 2, "solid": 0.3, "sway": 0.015},
+	"cav_brebis": {"variants": 2, "solid": 0.35},
+	"cav_enclos": {},
+	"cav_trone": {"solid": 0.6},
+	"cav_lit": {"solid": 0.9},
+	"cav_grange": {"solid": 1.6},
+	"ent_arbre": {"variants": 3, "solid": 0.6, "sway": 0.015, "flip": true},
+	"ent_panonceau": {"solid": 0.3},
+	"ent_souche": {"solid": 0.35},
+	"isen_four": {"variants": 2, "solid": 0.8, "glow": 0.5},
+	"isen_marmite": {"solid": 0.5, "glow": 0.2},
+	"isen_cage": {"solid": 0.45},
+	"isen_sac": {"variants": 2, "solid": 0.4},
+	"isen_cheminee": {"solid": 0.5, "glow": 0.3},
+	"isen_pancarte": {"solid": 0.4},
+	"isen_tour": {},
+	"chu_pierre": {"variants": 2, "solid": 0.6},
+	"chu_ecume": {},
 }
 
 var world: Node3D
@@ -143,6 +171,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		ElvenBuilder.restyle(self)
 	elif DwarvenBuilder.is_dwarven(self):
 		DwarvenBuilder.restyle(self)
+	elif RiderBuilder.is_rider(self):
+		RiderBuilder.restyle(self)
 
 	var spawns: Dictionary = map.get("spawns", {})
 	for key: String in spawns:
@@ -177,7 +207,7 @@ func _build_relief() -> void:
 	var hs: Array = map.get("heights", [])
 	var ss: Array = map.get("stairs", [])
 	world.has_relief = false
-	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self)) or (hs.is_empty() and ss.is_empty()):
+	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self)) or (hs.is_empty() and ss.is_empty()):
 		return
 	world.cell_h = PackedFloat32Array()
 	world.cell_h.resize(w * h)
@@ -504,7 +534,7 @@ func _build_outskirts() -> void:
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
-	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self)   # les styles elfe et nain plantent les leurs
+	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self)   # les styles elfe et nain plantent les leurs
 	for i in (120 if rustic else 0):
 		var p := Vector3.ZERO
 		if i < 76:
@@ -672,7 +702,7 @@ func _object(o: Dictionary) -> void:
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
-			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o):
+			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o) or RiderBuilder.object(self, type, o):
 				pass
 			else:
 				push_warning("Type d'objet inconnu dans la carte %s : %s" % [str(map.get("id", "")), type])

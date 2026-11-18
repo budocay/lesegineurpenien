@@ -26,6 +26,7 @@ var failures := 0
 var checks := 0
 var pick_queue: Array = []   # réponses successives aux choix d'un dialogue (sinon : la première)
 var verbose := false
+var _last_say := ""   # dernier dialogue dit par _c4_say (pour situer un blocage)
 
 
 func check(cond: bool, what: String) -> void:
@@ -40,6 +41,14 @@ func _ready() -> void:
 	# un fichier par lancement : deux tests lancés en même temps ne se marchent pas dessus
 	SaveManager.save_path = "user://test_sauvegarde_%d.json" % OS.get_process_id()
 	SaveManager.delete_save()
+	if OS.has_environment("GLAN_ONLY_C5"):   # essai ciblé du chapitre 5 (quelques minutes)
+		_test_chapter_5_data()
+		await _test_chapter_5()
+		await _test_rider_scenery()
+		print("%d vérifications, %d échec(s) (chapitre 5 seul)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	print("== Données ==")
 	_test_data()
 	print("== Sprites ==")
@@ -66,6 +75,7 @@ func _ready() -> void:
 	_test_chapter_2_data()
 	_test_chapter_3_data()
 	_test_chapter_4_data()
+	_test_chapter_5_data()
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_interface()
@@ -112,10 +122,13 @@ func _ready() -> void:
 	await _test_chapter_2()
 	await _test_chapter_3()
 	await _test_chapter_4()
+	await _test_chapter_5()
 	print("== Décors elfiques (style de Fondue-Combe) ==")
 	await _test_elven_scenery()
 	print("== Décors nains (Mines de Morbier) ==")
 	await _test_dwarven_scenery()
+	print("== Décors des cavaliers, de Fongorn, de l'Isengarde et des chutes ==")
+	await _test_rider_scenery()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -1813,8 +1826,9 @@ func _wait_idle(main: Node, seconds: float = 40.0) -> void:
 				main.dialogue._advance()
 		elif main.world == null or main.world.input_enabled or main.mode == main.Mode.TITLE:
 			return
-	check(false, "le jeu ne revient pas au repos (combat : %s, occupé : %s, dialogue actif : %s, en attente : %s, carte : %s)" % [
-		str(main.battle != null), str(main.busy), str(main.dialogue.active), str(main.dialogue.waiting), str(main.world != null)])
+	check(false, "le jeu ne revient pas au repos (combat : %s, occupé : %s, dialogue actif : %s, en attente : %s, carte : %s, dernier dialogue : %s, lieu : %s)" % [
+		str(main.battle != null), str(main.busy), str(main.dialogue.active), str(main.dialogue.waiting), str(main.world != null), _last_say, GameState.map_id])
+	print("    entrée %s, mode %d, menus %s, pause %s, banc %s" % [str(main.world.input_enabled) if main.world else "-", int(main.mode), str(main.menus.visible), str(main.pause.visible), str(main._abort_flow)])
 	if main.battle != null:
 		print("    combat : issue « %s », résultat moteur « %s », état interface %d" % [str(main.battle.outcome), str(main.battle.engine.result), int(main.battle_ui._state)])
 
@@ -3433,6 +3447,7 @@ func _test_chapter_3() -> void:
 
 ## Dit un dialogue de bout en bout, en répondant aux choix dans l'ordre de `picks`.
 func _c4_say(main: Node, id: String, picks: Array = [], seconds: float = 60.0) -> void:
+	_last_say = id
 	pick_queue = picks.duplicate()
 	main.run_dialogue(id)
 	await _wait_idle(main, seconds)
@@ -3597,6 +3612,224 @@ func _test_chapter_4() -> void:
 	await get_tree().process_frame
 
 
+## Chapitre 5 joué dans le vrai jeu : Bromure, l'embuscade, le groupe qui se scinde, le retour de
+## Glandoulf, la bergerie, l'Isengarde-Manger, Sarumâle. Tous niveaux au-dessus de l'attendu.
+func _test_chapter_5() -> void:
+	print("== Chapitre 5 : déroulé complet ==")
+	var base := ["chapitre_4_fini", "portes_vues", "glandoulf_tombe", "combat_balourd"]
+	await _test_map("portes_est", base, "portes de l'Est avant Bromure")
+	await _test_map("portes_est", base + ["bromure_mort"], "portes de l'Est après Bromure")
+	await _test_map("chutes_gratin", base + ["bromure_mort"], "chutes avant l'embuscade")
+	await _test_map("chutes_gratin", base + ["bromure_mort", "embuscade_faite"], "chutes, embuscade passée")
+	await _test_map("plaine_roquefort", ["plaine_vue"], "plaine des Cavaliers")
+	await _test_map("plaine_roquefort", ["plaine_vue", "coffre_plaine_pris"], "plaine, coffre ouvert")
+	await _test_map("cabecou", ["cabecou_vu"], "Cabécou, halle fermée")
+	await _test_map("cabecou", ["cabecou_vu", "combat_grimace", "grimace_vaincue"], "Cabécou, halle ouverte")
+	await _test_map("cabecou", ["cabecou_vu", "combat_grimace", "grimace_vaincue", "reunion_faite"], "Cabécou, route de l'Isengarde")
+	await _test_map("fongorn", ["fongorn_vu"], "Fongorn avant Glandoulf")
+	await _test_map("fongorn", ["fongorn_vu", "glandoulf_revenu"], "Fongorn après Glandoulf")
+	await _test_map("garde_manger", ["garde_vu"], "Garde-Manger")
+	await _test_map("garde_manger", ["garde_vu", "bilan_fait", "froton_libere", "combat_uglouk_garde"], "Garde-Manger, Froton libéré")
+	await _test_map("bergerie_or", ["bergerie_vue"], "Bergerie d'Or")
+	await _test_map("isengarde", ["isengarde_vu"], "Isengarde-Manger")
+	await _test_map("isengarde", ["isengarde_vu", "fosses_inondees", "fours_eteints"], "Isengarde inondée")
+	await _test_map("terrasse_office", ["terrasse_vue"], "terrasse de l'Office")
+	await _test_map("terrasse_office", ["terrasse_vue", "sarumale_vaincu"], "terrasse après Sarumâle")
+
+	# départ : la fin du chapitre 4 (Glandoulf tombé, sept compagnons, Sam mène)
+	GameState.new_game()
+	GameState.party = ["sam", "froton", "pepin", "merri", "aragrogne", "digoulasse", "grimli"]
+	GameState.bench = []
+	for who: String in GameState.party:
+		GameState.member(who)
+	GameState.member("glandoulf")["level"] = 16
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 16
+	for f: String in base:
+		GameState.set_flag(f)
+	GameState.chapter = "chapitre_5"
+	GameState.money = 400
+	GameState.map_id = "portes_est"
+	GameState.spawn_id = "pont"
+	GameState.heal_party()
+	check(SaveManager.save_game(), "sauvegarde au départ du chapitre 5")
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	check(GameState.leader() == "sam" and not GameState.party.has("glandoulf") and GameState.bench.is_empty(), "départ : Sam mène, Glandoulf est absent")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 34   # déroulé, pas équilibre : au-dessus du niveau attendu
+	GameState.heal_party()
+
+	# Bromure : il survit à tout, il parle, un glaçon l'interrompt
+	check(main.world.map_id == "portes_est" and not _c4_has_warp(main, "chutes_gratin"), "les Portes de l'Est : la sortie est reste fermée avant les adieux")
+	await _c4_say(main, "bromure_adieu")
+	check(GameState.has_flag("bromure_mort") and GameState.item_count("cape_de_bromure") == 1, "Bromure est mort d'un glaçon : sa cape reste")
+	await _c4_say(main, "bromure_tombe")
+	main.change_map("portes_est", "pont")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "chutes_gratin"), "après les adieux, la route mène aux chutes")
+
+	# les chutes : l'embuscade d'Uglouk, puis le groupe se scinde
+	main.change_map("chutes_gratin", "ouest")
+	await _wait_idle(main, 240.0)
+	check(GameState.has_flag("embuscade_faite") and GameState.has_flag("combat_ambuscade_chutes"), "l'embuscade d'Uglouk est jouée")
+	check(GameState.party == ["aragrogne", "digoulasse", "grimli"] and GameState.leader() == "aragrogne", "le groupe se scinde : Aragrogne mène les trois captifs (%s)" % str(GameState.party))
+	check(GameState.bench.size() == 4 and GameState.bench.has("sam") and GameState.bench.has("merri") and GameState.bench.has("pepin") and GameState.bench.has("froton"), "les chasseurs attendent sur le banc (%s)" % str(GameState.bench))
+	check(main.world.map_id == "plaine_roquefort", "le dialogue emmène le groupe dans la plaine (%s)" % main.world.map_id)
+	check(GameState.has_flag("plaine_vue") and GameState.quest_state("isengarde") != "", "la quête principale est lancée")
+	check(int(GameState.member("sam")["level"]) == 34 and int(GameState.member("aragrogne")["level"]) == 34, "les niveaux et fiches sont conservés")
+	check(SaveManager.has_save(), "sauvegarde à l'arrivée dans la plaine")
+	await _c4_say(main, "plaine_coffre")
+	check(GameState.item_count("fer_a_cheval_dore") == 1 and GameState.has_flag("coffre_plaine_pris"), "le coffre de la plaine")
+	await _c4_say(main, "plaine_cisailles")
+	check(GameState.item_count("cisailles_de_tonte") == 1, "les cisailles de tonte")
+	GameState.heal_party()
+
+	# le Cabécou : Grimace garde la halle
+	main.change_map("cabecou", "ouest")
+	await _wait_idle(main)
+	check(GameState.has_flag("cabecou_vu") and not _c4_has_warp(main, "fongorn") and not _c4_has_warp(main, "bergerie_or"), "le Cabécou : fongorn et la bergerie sont fermés tant que Grimace garde la halle")
+	await _c4_say(main, "eomeche")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 36
+	GameState.heal_party()
+	await _c4_say(main, "grimace_gate", [], 300.0)
+	check(GameState.has_flag("combat_grimace") and GameState.has_flag("grimace_vaincue"), "Grimace est vaincue, elle laisse son feuillet à souche")
+	await _c4_say(main, "eolaine")
+	check(GameState.quest_state("roi_dort_mal") != "", "la quête du roi qui dort mal")
+	main.change_map("cabecou", "ouest")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "fongorn") and _c4_has_warp(main, "bergerie_or") and not _c4_has_warp(main, "isengarde"), "la halle et Fongorn s'ouvrent, l'Isengarde reste fermée")
+	# quête annexe : les cisailles jouées au chevet du roi endormi (avant que Merri le réveille pour de bon)
+	main.change_map("bergerie_or", "porte")
+	await _wait_idle(main)
+	check(not GameState.has_flag("bergerie_vue"), "la bergerie : rien ne se joue tant que Froton n'est pas libéré")
+	await _c4_say(main, "trone_roi")
+	check(GameState.has_flag("roi_ecoute") and GameState.quest_state("roi_dort_mal") == "done", "les cisailles bercent le roi : la quête du roi qui dort mal est accomplie")
+
+	# Fongorn : Glandoulf avoue et reprend la tête (symétrique de « quitte: »)
+	main.change_map("fongorn", "ouest")
+	await _wait_idle(main)
+	check(GameState.has_flag("fongorn_vu"), "la forêt de Fongorn")
+	await _c4_say(main, "retour_glandoulf")
+	check(GameState.has_flag("glandoulf_revenu") and GameState.leader() == "glandoulf", "Glandoulf revient et reprend la tête (%s)" % str(GameState.party))
+	check(GameState.party == ["glandoulf", "aragrogne", "digoulasse", "grimli"], "le groupe : Glandoulf et les captifs (%s)" % str(GameState.party))
+	check(GameState.bench.size() == 4 and not GameState.bench.has("glandoulf"), "les quatre chasseurs restent sur le banc (%s)" % str(GameState.bench))
+	check(int(GameState.member("glandoulf")["level"]) >= 22, "Glandoulf rattrape le niveau du groupe (%d)" % int(GameState.member("glandoulf")["level"]))
+	check(str((GameState.member("glandoulf")["equip"] as Dictionary).get("weapon", "")) == "louche_blanche", "il porte la Louche Blanche")
+	check(GameState.member_skills("glandoulf").has("veille_de_pierre"), "la Louche Blanche lui donne ses compétences")
+	check(GameState.item_count("plume_de_l_aigle") == 1, "la plume de l'aigle")
+	# sauvegarde en cours de route : le banc et le groupe se retrouvent
+	var party_then: Array = GameState.party.duplicate()
+	var bench_then: Array = GameState.bench.duplicate()
+	GameState.map_id = "fongorn"
+	check(SaveManager.save_game(), "sauvegarde en plein groupe scindé")
+	GameState.new_game()
+	check(GameState.bench.is_empty(), "nouvelle partie : banc vidé")
+	check(SaveManager.load_game(), "rechargement")
+	check(GameState.party == party_then and GameState.bench == bench_then, "rechargement : groupe %s et banc %s retrouvés" % [str(GameState.party), str(GameState.bench)])
+	check(GameState.leader() == "glandoulf" and GameState.member("sam").has("level"), "rechargement : Glandoulf mène, la fiche de Sam est intacte")
+	main.continue_game()
+	await _wait_idle(main)
+	check(main.world.map_id == "fongorn" and main.world.player != null, "la partie rechargée se rejoue (%s)" % main.world.map_id)
+	await _c4_say(main, "fongorn_coffre")
+	check(GameState.has_flag("coffre_fongorn_pris"), "le coffre de Fongorn")
+	await _c4_say(main, "barbe_molle")
+	check(GameState.has_flag("nouvelles_demandees") and GameState.quest_state("trois_nouvelles") != "", "Barbe-Molle demande trois nouvelles")
+	for d: String in ["entremet_mousse", "entremet_ecorce", "entremet_rejet"]:
+		await _c4_say(main, d)
+	await _c4_say(main, "barbe_molle", [], 120.0)
+	check(GameState.has_flag("nouvelles_rendues") and GameState.quest_state("trois_nouvelles") == "done", "les trois nouvelles sont rendues")
+	check(main.world.map_id == "garde_manger" and GameState.party == ["sam", "froton", "merri", "pepin"], "le groupe des chasseurs repart au Garde-Manger (%s, %s)" % [main.world.map_id, str(GameState.party)])
+	check(GameState.bench.has("glandoulf") and GameState.bench.size() == 4, "Glandoulf et les captifs attendent à Fongorn (%s)" % str(GameState.bench))
+
+	# le Garde-Manger : Froton passe l'anneau, la ronde, la goulotte
+	check(GameState.has_flag("garde_vu"), "le Garde-Manger")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 36
+	GameState.heal_party()
+	await _c4_say(main, "garde_bilan", [], 300.0)
+	check(GameState.has_flag("bilan_fait") and GameState.has_flag("combat_froton_anneaute") and GameState.has_flag("froton_libere"), "Froton Anneauté est vaincu et libéré")
+	check(GameState.party == ["sam", "froton", "merri", "pepin"], "le groupe des chasseurs est reconstitué (%s)" % str(GameState.party))
+	check(GameState.item_count("brioche_non_conforme") >= 1, "une brioche non conforme")
+	await _c4_say(main, "garde_ronde", [], 300.0)
+	check(GameState.has_flag("combat_uglouk_garde"), "la ronde du Garde-Manger est battue")
+	await _c4_say(main, "garde_coffre")
+	check(GameState.has_flag("coffre_garde_pris") and GameState.item_count("tablier_de_petrisseur") == 1, "le coffre du Garde-Manger")
+	await _c4_say(main, "garde_etiquette")
+	check(_c4_has_warp(main, "bergerie_or"), "la goulotte mène à la Bergerie d'Or")
+	GameState.heal_party()
+	await _c4_say(main, "garde_goulotte", [], 120.0)
+	check(main.world.map_id == "bergerie_or", "la goulotte : on tombe dans la bergerie (%s)" % main.world.map_id)
+	check(GameState.has_flag("merri_ecuyer") and GameState.has_flag("roi_reveille") and GameState.has_flag("reunion_faite"), "Merri devient Écuyer Tranchant, le roi s'éveille, le groupe est réuni")
+	check(str((GameState.member("merri")["equip"] as Dictionary).get("weapon", "")) == "dague_de_l_ecuyer", "Merri porte la dague de l'Écuyer")
+	check(GameState.party == ["glandoulf", "sam", "froton", "aragrogne"], "les quatre de l'assaut (%s)" % str(GameState.party))
+	check(GameState.bench.size() == 4 and GameState.bench.has("merri") and GameState.bench.has("pepin"), "les autres attendent sur le banc (%s)" % str(GameState.bench))
+	check(SaveManager.has_save(), "sauvegarde à la Bergerie d'Or")
+	await _c4_say(main, "bergerie_coffre")
+	check(GameState.has_flag("coffre_bergerie_pris") and GameState.item_count("heaume_a_criniere") == 1, "le coffre de la bergerie")
+	await _c4_say(main, "trone_roi")
+	check(GameState.has_flag("roi_reveille"), "le roi, réveillé par Merri, est reposé")
+
+	# l'Isengarde : la brèche, la tour, Sarumâle
+	main.change_map("cabecou", "porte")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "isengarde"), "le Cabécou ouvre la route de l'Isengarde-Manger")
+	main.change_map("isengarde", "sud")
+	await _wait_idle(main)
+	check(GameState.has_flag("isengarde_vu") and not _c4_has_warp(main, "terrasse_office"), "l'Isengarde-Manger : la tour est fermée")
+	await _c4_say(main, "isengarde_sac")
+	check(GameState.has_flag("coffre_isengarde_pris"), "le sac de l'Isengarde")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 38
+	GameState.heal_party()
+	await _c4_say(main, "isengarde_breche", [], 300.0)
+	check(GameState.has_flag("combat_breche") and GameState.has_flag("fosses_inondees") and GameState.has_flag("fours_eteints"), "la brèche est forcée, les fosses sont inondées")
+	main.change_map("isengarde", "tour")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "terrasse_office"), "la tour s'ouvre sur la terrasse de l'Office")
+	main.change_map("terrasse_office", "entree")
+	await _wait_idle(main, 600.0)
+	check(GameState.has_flag("sarumale_vaincu") and GameState.has_flag("combat_sarumale"), "Sarumâle est vaincu")
+	check(GameState.has_flag("chapitre_5_fini") and GameState.chapter == "chapitre_6", "le chapitre 5 se termine (%s)" % GameState.chapter)
+	check(GameState.quest_state("isengarde") == "done", "la quête principale est accomplie")
+	check(GameState.item_count("robe_bariolee") + GameState.worn_by("robe_bariolee").size() >= 1, "la robe bariolée est à l'équipe")
+	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 5")
+	main.queue_free()
+	await get_tree().process_frame
+	SaveManager.delete_save()
+
+
+## Mécanique de groupe en dehors du déroulé : scission, réunion, niveaux, réserve sans expérience.
+func _test_group_mechanism() -> void:
+	GameState.new_game()
+	for who: String in ["sam", "froton", "pepin", "merri", "aragrogne"]:
+		GameState.add_to_party(who)
+	GameState.member("sam")["level"] = 12
+	GameState.member("aragrogne")["level"] = 5
+	GameState.member("sam")["equip"] = {"weapon": "serpette_affutee"}
+	check(GameState.set_group(["sam", "aragrogne"]), "set_group : groupe valable")
+	check(GameState.party == ["sam", "aragrogne"] and GameState.bench.size() == 4, "set_group : deux au groupe, quatre sur le banc (%s / %s)" % [str(GameState.party), str(GameState.bench)])
+	check(str((GameState.member("sam")["equip"] as Dictionary).get("weapon", "")) == "serpette_affutee", "set_group : l'équipement est conservé")
+	check(not GameState.set_group(["personne"]) and GameState.party == ["sam", "aragrogne"], "set_group : un nom inconnu ne change rien")
+	check(GameState.set_group(["glandoulf", "sam", "froton", "pepin", "merri"]) and GameState.active_party().size() == 4 and GameState.reserve_party().size() == 1, "set_group : au plus quatre se battent")
+	check(int(GameState.member("glandoulf")["level"]) >= 1, "set_group : Glandoulf rejoint avec une fiche valable")
+	GameState.set_group(["sam", "froton", "pepin", "merri", "aragrogne"])
+	check(int(GameState.member("aragrogne")["level"]) >= 5, "set_group : un revenant n'est jamais rétrogradé")
+	var d := GameState.to_dict()
+	check(d.has("bench"), "sauvegarde : le champ « bench » existe")
+	var old := d.duplicate(true)
+	old.erase("bench")
+	GameState.new_game()
+	check(GameState.from_dict(old) and GameState.bench.is_empty(), "une sauvegarde d'avant le chapitre 5 se charge sans banc")
+	check(GameState.from_dict(d) and GameState.bench == d["bench"], "une sauvegarde avec banc se recharge")
+	GameState.new_game()
+
+
 ## Style nain : tuiles, décors et objets peints, cartes du chapitre 4, construction des cartes.
 func _test_dwarven_scenery() -> void:
 	var Dwarven: GDScript = load("res://src/gfx/dwarven_painter.gd")
@@ -3670,6 +3903,72 @@ func _test_dwarven_scenery() -> void:
 		if n.name.begins_with("Nain") or n.name.begins_with("Massif"):
 			any_nain = true
 	check(not any_nain, "Brie : aucun décor nain (le style se choisit par les données)")
+	village.queue_free()
+	await get_tree().process_frame
+
+
+## Styles des cavaliers, de Fongorn, de l'Isengarde et des chutes : tuiles, décors, objets, cartes.
+func _test_rider_scenery() -> void:
+	var Rider: GDScript = load("res://src/gfx/rider_painter.gd")
+	var RiderBuilder: GDScript = load("res://src/world/rider_builder.gd")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for kind: String in Rider.TILES:
+		var img: Image = Sprites.tile_image(kind)
+		check(img != null and img.get_width() >= 48, "style cavalier : la tuile %s est peinte" % kind)
+		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style cavalier : la tuile %s n'est pas le magenta de secours" % kind)
+		check(docs.contains(kind), "style cavalier : la tuile %s est documentée" % kind)
+	for kind: String in Rider.PROP_VARIANTS:
+		check(MapBuilder.PROPS.has(kind), "style cavalier : %s est un accessoire déclaré" % kind)
+		check(docs.contains(kind), "style cavalier : %s est documenté" % kind)
+		for v in int(Rider.PROP_VARIANTS[kind]):
+			var tex: Texture2D = Sprites.prop(kind, v)
+			check(tex != null and tex.get_width() > 4 and tex.get_height() > 4, "style cavalier : %s variante %d peint" % [kind, v])
+	for kind: String in RiderBuilder.OBJECTS:
+		check(docs.contains(kind), "style cavalier : l'objet %s est documenté" % kind)
+	for st: String in RiderBuilder.STYLES:
+		check(docs.contains("\"%s\"" % st) or docs.contains("`%s`" % st), "style %s : documenté" % st)
+	for a: String in ["groupe:", "va:", "equipe:", "bench"]:
+		check(docs.contains(a), "la mécanique « %s » est documentée" % a)
+	for id: String in C5_MAPS:
+		var map := Database.get_map(id)
+		for f: Dictionary in (map.get("ground", {}) as Dictionary).get("fills", []):
+			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
+		for o: Dictionary in map.get("objects", []):
+			var t := str(o.get("type", ""))
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "tree"] \
+					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
+			check(known, "carte %s : objet « %s » connu" % [id, t])
+			if t == "scatter":
+				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
+		if bool(map.get("interior", false)):
+			var wt := str(map.get("wall_tile", ""))
+			check(wt == "" or Rider.TILES.has(wt) or Sprites.tile_image(wt) != null, "carte %s : tuile de mur « %s » connue" % [id, wt])
+	for id: String in C5_MAPS:
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await get_tree().process_frame
+		check(world.player != null, "carte %s : construite dans son style" % id)
+		if bool(Database.get_map(id).get("interior", false)):
+			check(world.get_node_or_null("Walls") != null, "carte %s : murs construits" % id)
+		else:
+			check(world.get_node_or_null("Outskirts") != null, "carte %s : abords construits" % id)
+		world.queue_free()
+		await get_tree().process_frame
+	_test_group_mechanism()
+	# les cartes des chapitres précédents ne changent pas
+	GameState.new_game()
+	var village: Node3D = World.new()
+	add_child(village)
+	village.setup("brie", str(Database.get_map("brie")["spawns"].keys()[0]))
+	await get_tree().process_frame
+	var any_rider := false
+	for n: Node in village.get_children():
+		if n.name.begins_with("Cav") or n.name.begins_with("Isen") or n.name.begins_with("Chu"):
+			any_rider = true
+	check(not any_rider, "Brie : aucun décor de cavaliers (le style se choisit par les données)")
 	village.queue_free()
 	await get_tree().process_frame
 
@@ -4396,6 +4695,9 @@ func _test_arena_by_place() -> void:
 		"porte_morbier": "bord_du_lac", "morbier_galeries": "galerie_mine", "morbier_halle": "halle_piliers",
 		"morbier_tombe": "halle_piliers", "morbier_profondeurs": "galerie_mine", "morbier_antre": "bord_du_lac",
 		"morbier_pont": "pont_abime", "portes_est": "col",
+		"chutes_gratin": "chutes_gratin", "plaine_roquefort": "plaine_roquefort", "cabecou": "plaine_roquefort",
+		"fongorn": "fongorn", "garde_manger": "garde_manger", "bergerie_or": "bergerie_or",
+		"isengarde": "petrins", "terrasse_office": "terrasse_office",
 	}
 	for map_id: String in Database.list_maps():
 		var map := Database.get_map(map_id)
@@ -4495,6 +4797,90 @@ func _test_chapter_4_data() -> void:
 		check(b >= float(case[3]), "%s, quatre niv. %d, sans talents : %d %%" % [str(case[0]), int(case[1]), int(b * 100.0)])
 		check(alt >= 0.35, "%s, autre équipe de quatre : %d %%" % [str(case[0]), int(alt * 100.0)])
 		print("  %-18s niv. %2d : %3d %% avec talents, %3d %% sans, %3d %% autre équipe" % [str(case[0]), int(case[1]), int(a * 100.0), int(b * 100.0), int(alt * 100.0)])
+	GameState.new_game()
+
+
+# -------------------------------------------------------------------- chapitre 5
+
+const C5_MIN_TABLE := 0.8
+const C5_MIN_BOSS := 0.55
+const C5_MAPS := ["chutes_gratin", "plaine_roquefort", "cabecou", "fongorn", "garde_manger", "bergerie_or", "isengarde", "terrasse_office"]
+const C5_STYLES := {"chutes_gratin": "chutes", "plaine_roquefort": "cavalier", "cabecou": "cavalier", "fongorn": "fongorn", "garde_manger": "isengarde", "bergerie_or": "cavalier", "isengarde": "isengarde", "terrasse_office": "isengarde"}
+const C5_MONSTERS := ["ouroukouille", "ouroukouille_brocheur", "ouroukouille_petrisseur", "ouroukouille_chef", "paton", "ouargue", "corbeau", "hirsute", "hors_oeuvre"]
+const C5_HUNTERS := ["sam", "froton", "merri", "pepin"]
+const C5_RIDERS := ["glandoulf", "aragrogne", "digoulasse", "grimli"]
+const C5_CAPTIVES := ["aragrogne", "digoulasse", "grimli"]
+const C5_REUNITED := ["glandoulf", "sam", "froton", "aragrogne"]
+
+
+## Pire groupe d'une table pour une équipe donnée.
+func _c5_table_rate(team: Array, table: String, level: int) -> Array:
+	var worst := 1.0
+	var which := ""
+	for g: Variant in (Database.encounter_tables[table] as Dictionary)["groups"]:
+		var enc := {"enemies": (g as Dictionary)["enemies"]}
+		var r := _c2_rate(team, level, enc, 0)
+		if r < worst:
+			worst = r
+			which = ", ".join(PackedStringArray((g as Dictionary)["enemies"]))
+	return [worst, which]
+
+
+func _test_chapter_5_data() -> void:
+	print("== Chapitre 5 : données et équilibre ==")
+	for id: String in C5_MAPS:
+		check(Database.has_map(id), "carte %s existe" % id)
+		var map := Database.get_map(id)
+		check(map.has("music") and Database.music.has(str(map["music"])), "carte %s : musique connue" % id)
+		check(str(map.get("style", "")) == str(C5_STYLES[id]), "carte %s : style %s" % [id, C5_STYLES[id]])
+		check(Database.arenas.has(str(map.get("arena", ""))), "carte %s : arène déclarée" % id)
+	for kind: String in C5_MONSTERS:
+		check(MonsterPainter.has(kind), "monstre %s : espèce connue" % kind)
+		var img: Image = MonsterPainter.paint(kind)
+		var magenta := 0
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					filled += 1
+					if c.r > 0.95 and c.g < 0.05 and c.b > 0.95:
+						magenta += 1
+		check(magenta == 0 and filled > 200, "monstre %s : dessiné, sans magenta (%d px)" % [kind, filled])
+	for q: String in ["isengarde", "roi_dort_mal", "trois_nouvelles", "levain"]:
+		check(not Database.get_quest(q).is_empty(), "quête %s décrite" % q)
+	check(Database.get_quest("isengarde").get("kind") == "principale", "l'Isengarde-Manger est la quête principale")
+	for ch: String in ["eolaine", "eomeche", "theodort", "grimace", "barbe_molle", "sarumale", "boulangere", "chambellan"]:
+		check(Database.characters.has(ch), "personnage %s décrit" % ch)
+	for it: String in ["louche_blanche", "cape_de_bromure", "plume_de_l_aigle", "feuillet_a_souche", "cisailles_de_tonte", "brioche_non_conforme"]:
+		check(Database.items.has(it), "objet %s décrit" % it)
+	check(not Database.get_shop("cabecou_marche").is_empty(), "boutique du Cabécou")
+	for e: String in ["ambuscade_chutes", "grimace", "uglouk_garde", "froton_anneaute", "breche", "sarumale"]:
+		check(not Database.get_encounter(e).is_empty(), "rencontre %s" % e)
+	for en: String in ["ouroukouille_ligne", "ouroukouille_brocheur", "ouroukouille_petrisseur", "paton", "ouargue", "corbeau_controleur", "hirsute", "hors_oeuvre", "uglouk", "grimace", "froton_anneaute", "sarumale"]:
+		check(Database.enemies.has(en), "ennemi %s décrit" % en)
+	# équipement : une pièce neuve du chapitre pour chaque type d'emplacement (arme, tête, corps, bijou)
+	var slots := {}
+	for it: String in ["louche_blanche", "heaume_a_criniere", "toque_ouroukouille", "cotte_de_bois_dore", "tablier_de_petrisseur", "robe_bariolee", "fer_a_cheval_dore", "cape_de_bromure", "pince_de_service", "mousse_de_barbe_molle", "plume_de_l_aigle"]:
+		check(Database.items.has(it), "équipement %s décrit" % it)
+		slots[str(Database.items.get(it, {}).get("slot", ""))] = true
+	check(slots.has("weapon") and slots.has("head") and slots.has("armor") and slots.has("trinket"), "équipement : armes, casques, armures et bijoux neufs (%s)" % str(slots.keys()))
+	var lv := {"plaine": 17, "fongorn": 17, "garde_manger": 17, "isengarde": 18}
+	var teams := {"plaine": C5_HUNTERS, "fongorn": C5_RIDERS, "garde_manger": C5_HUNTERS, "isengarde": C5_REUNITED}
+	for table: String in lv:
+		check(Database.encounter_tables.has(table), "table %s" % table)
+		var r := _c5_table_rate(teams[table], table, int(lv[table]))
+		check(float(r[0]) >= C5_MIN_TABLE, "table %s, niv. %d : pire groupe %d %% (%s)" % [table, int(lv[table]), int(float(r[0]) * 100.0), str(r[1])])
+		print("  table %-14s pire groupe %3d %%  (%s)" % [table, int(float(r[0]) * 100.0), str(r[1])])
+	# combats forcés : (rencontre, équipe, niveau, minimum, maximum)
+	for case: Array in [
+			["ambuscade_chutes", C5_HUNTERS, 17, C5_MIN_BOSS, 0.95], ["grimace", C5_CAPTIVES, 17, C5_MIN_BOSS, 0.95],
+			["uglouk_garde", C5_HUNTERS, 17, C5_MIN_TABLE, 1.0], ["froton_anneaute", ["sam", "merri", "pepin"], 17, C5_MIN_BOSS, 0.95],
+			["breche", C5_REUNITED, 18, C5_MIN_BOSS, 0.95], ["sarumale", C5_REUNITED, 18, C5_MIN_BOSS, 0.95]]:
+		var enc := Database.get_encounter(str(case[0]))
+		var a := _c2_rate(case[1], int(case[2]), enc, 0)
+		check(a >= float(case[3]) and a <= float(case[4]), "%s, équipe niv. %d : %d %% (visé %d à %d %%)" % [str(case[0]), int(case[2]), int(a * 100.0), int(float(case[3]) * 100.0), int(float(case[4]) * 100.0)])
+		print("  %-18s niv. %2d : %3d %%" % [str(case[0]), int(case[2]), int(a * 100.0)])
 	GameState.new_game()
 
 

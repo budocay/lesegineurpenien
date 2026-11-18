@@ -3100,5 +3100,723 @@
 		"particles": [
 			"embers"
 		]
+	},
+	"chutes_gratin": {
+		"ground": "chu_gravier",
+		"ambiance": "chutes",
+		"music": "chutes_gratin",
+		"backdrop": {
+			"tile": "chu_mur",
+			"top": "chu_gravier",
+			"far": "peaks",
+			"sky": [
+				"#4a6a98",
+				"#d8e4f0"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.15,
+			"haze": 0.12
+		},
+		"props": [
+			{
+				"prop": "chu_pierre",
+				"at": [
+					[
+						-10.0,
+						-9.8
+					],
+					[
+						-4.5,
+						-10.4
+					],
+					[
+						9.5,
+						-9.6
+					]
+				],
+				"scale": 1.1
+			},
+			{
+				"prop": "chu_ecume",
+				"at": [
+					[
+						0.0,
+						-10.6
+					],
+					[
+						6.0,
+						-10.8
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#e8f0ff",
+				"energy": 1.5,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "chu_pierre",
+				"count": 3,
+				"scale": 1.7
+			}
+		],
+		"stage": {
+			"light": "#e0ecff",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#f0f6ff"
+		},
+		"particles": [
+			"embruns",
+			"mist"
+		]
+	},
+	"plaine_roquefort": {
+		"ground": "cav_herbe",
+		"ambiance": "plaine_or",
+		"music": "plaine_or",
+		"backdrop": {
+			"tile": "cav_mur",
+			"top": "cav_herbe",
+			"far": "hills",
+			"sky": [
+				"#4a6aa8",
+				"#f4d8a0"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.15,
+			"haze": 0.12
+		},
+		"props": [
+			{
+				"prop": "cav_arbre",
+				"at": [
+					[
+						-11.0,
+						-10.0
+					],
+					[
+						10.5,
+						-9.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "cav_botte",
+				"at": [
+					[
+						-6.0,
+						-10.2
+					],
+					[
+						5.0,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "cav_enclos",
+				"at": [
+					[
+						-1.5,
+						-10.6
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffe8b0",
+				"energy": 1.5,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "cav_botte",
+				"count": 2,
+				"scale": 1.6,
+				"x": [
+					-10,
+					10
+				]
+			}
+		],
+		"stage": {
+			"light": "#ffe8b0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#fff4d8"
+		},
+		"particles": [
+			"pollen",
+			"feuilles_dorees"
+		]
+	},
+	"fongorn": {
+		"ground": "ent_mousse",
+		"ambiance": "fongorn",
+		"music": "fongorn",
+		"backdrop": {
+			"tile": "ent_racines",
+			"top": "ent_mousse",
+			"far": "forest",
+			"sky": [
+				"#1a3a2a",
+				"#a8c890"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.15,
+			"haze": 0.12
+		},
+		"props": [
+			{
+				"prop": "ent_arbre",
+				"at": [
+					[
+						-11.0,
+						-10.0
+					],
+					[
+						-5.0,
+						-10.8
+					],
+					[
+						6.0,
+						-10.4
+					],
+					[
+						11.5,
+						-9.8
+					]
+				],
+				"scale": 1.3
+			},
+			{
+				"prop": "ent_souche",
+				"at": [
+					[
+						0.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#d8f0b0",
+				"energy": 1.4,
+				"range": 13
+			},
+			{
+				"pos": [
+					0.0,
+					2.0,
+					-8.0
+				],
+				"color": "#a8e090",
+				"energy": 1.6,
+				"range": 12
+			}
+		],
+		"foreground": [
+			{
+				"prop": "ent_souche",
+				"count": 2,
+				"scale": 1.6,
+				"x": [
+					-10,
+					10
+				]
+			}
+		],
+		"stage": {
+			"light": "#d8f0b0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#f0ffe0"
+		},
+		"particles": [
+			"lueurs",
+			"spores"
+		]
+	},
+	"bergerie_or": {
+		"ground": "cav_planches",
+		"ambiance": "bergerie",
+		"music": "bergerie_or",
+		"backdrop": {
+			"steps": [],
+			"dim": 1.0,
+			"desat": 0.1,
+			"haze": 0.0,
+			"sky": [
+				"#3a2a1a",
+				"#6a4a2a"
+			],
+			"panels": [
+				{
+					"kind": "bergerie",
+					"z": -11.4,
+					"w": 36,
+					"h": 6.5,
+					"dim": 1.0
+				}
+			],
+			"tile": "cav_mur",
+			"top": "cav_planches"
+		},
+		"props": [
+			{
+				"prop": "cav_etendard",
+				"at": [
+					[
+						-9.0,
+						-10.0
+					],
+					[
+						9.5,
+						-10.0
+					]
+				],
+				"scale": 0.9
+			},
+			{
+				"prop": "cav_trone",
+				"at": [
+					[
+						0.0,
+						-10.4
+					]
+				],
+				"scale": 0.9
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.2,
+					-8.0
+				],
+				"color": "#ffd890",
+				"energy": 2.2,
+				"range": 14
+			},
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#fff0d0",
+				"energy": 1.0,
+				"range": 12
+			}
+		],
+		"foreground": [
+			{
+				"prop": "cav_botte",
+				"count": 2,
+				"scale": 1.6,
+				"x": [
+					-10,
+					10
+				]
+			}
+		],
+		"stage": {
+			"light": "#ffe0a8",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#fff4e0"
+		},
+		"particles": [
+			"dust"
+		]
+	},
+	"garde_manger": {
+		"ground": "isen_dalle",
+		"ambiance": "garde_manger",
+		"music": "garde_manger",
+		"backdrop": {
+			"steps": [],
+			"dim": 1.0,
+			"desat": 0.1,
+			"haze": 0.0,
+			"sky": [
+				"#14161c",
+				"#2c3038"
+			],
+			"panels": [
+				{
+					"kind": "garde_manger",
+					"z": -11.4,
+					"w": 36,
+					"h": 6.5,
+					"dim": 1.0
+				}
+			],
+			"tile": "isen_mur",
+			"top": "isen_dalle"
+		},
+		"props": [
+			{
+				"prop": "isen_cage",
+				"at": [
+					[
+						-9.0,
+						-10.0
+					],
+					[
+						9.5,
+						-10.0
+					]
+				],
+				"scale": 0.9
+			},
+			{
+				"prop": "isen_sac",
+				"at": [
+					[
+						-4.0,
+						-10.4
+					],
+					[
+						4.5,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					-8.0
+				],
+				"color": "#a8c0e0",
+				"energy": 1.8,
+				"range": 14
+			},
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#d8e4f0",
+				"energy": 1.0,
+				"range": 12
+			}
+		],
+		"foreground": [
+			{
+				"prop": "isen_sac",
+				"count": 2,
+				"scale": 1.6,
+				"x": [
+					-10,
+					10
+				]
+			}
+		],
+		"stage": {
+			"light": "#c8d8f0",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#f0f6ff"
+		},
+		"particles": [
+			"dust",
+			"mist"
+		]
+	},
+	"petrins": {
+		"ground": "isen_dalle",
+		"ambiance": "isengarde",
+		"music": "isengarde",
+		"backdrop": {
+			"tile": "isen_mur",
+			"top": "isen_dalle",
+			"far": "valley",
+			"sky": [
+				"#2a1410",
+				"#d86a30"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.15,
+			"haze": 0.12
+		},
+		"props": [
+			{
+				"prop": "isen_four",
+				"at": [
+					[
+						-10.0,
+						-9.8
+					],
+					[
+						10.5,
+						-9.8
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "isen_marmite",
+				"at": [
+					[
+						-4.5,
+						-10.4
+					],
+					[
+						5.0,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "isen_cheminee",
+				"at": [
+					[
+						0.0,
+						-11.0
+					]
+				],
+				"scale": 1.2
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					2.0,
+					-8.0
+				],
+				"color": "#ff7a30",
+				"energy": 3.0,
+				"range": 14,
+				"flicker": 0.3
+			},
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffd8b0",
+				"energy": 1.2,
+				"range": 12
+			}
+		],
+		"foreground": [
+			{
+				"prop": "isen_sac",
+				"count": 3,
+				"scale": 1.6
+			}
+		],
+		"stage": {
+			"light": "#ffb878",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#fff0e0"
+		},
+		"particles": [
+			"embers",
+			"smoke"
+		]
+	},
+	"terrasse_office": {
+		"ground": "isen_fonte",
+		"ambiance": "terrasse",
+		"music": "isengarde",
+		"backdrop": {
+			"tile": "isen_mur",
+			"top": "isen_fonte",
+			"far": "valley",
+			"sky": [
+				"#3a1a2a",
+				"#f09060"
+			],
+			"steps": [
+				[
+					-10.5,
+					1.0
+				]
+			],
+			"dim": 0.9,
+			"desat": 0.15,
+			"haze": 0.12
+		},
+		"props": [
+			{
+				"prop": "isen_tour",
+				"at": [
+					[
+						-11.0,
+						-10.4
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "isen_pancarte",
+				"at": [
+					[
+						7.0,
+						-10.2
+					]
+				],
+				"scale": 1.0
+			},
+			{
+				"prop": "isen_cheminee",
+				"at": [
+					[
+						11.5,
+						-10.8
+					]
+				],
+				"scale": 1.1
+			}
+		],
+		"lights": [
+			{
+				"pos": [
+					0.0,
+					3.0,
+					4.5
+				],
+				"color": "#ffd0a8",
+				"energy": 1.6,
+				"range": 13
+			}
+		],
+		"foreground": [
+			{
+				"prop": "isen_sac",
+				"count": 2,
+				"scale": 1.6
+			}
+		],
+		"stage": {
+			"light": "#ffc890",
+			"boost": 0.4,
+			"key": 2.4,
+			"edge": 0.5,
+			"flatten": 0.0,
+			"variation": 0.08,
+			"vignette": 0.5,
+			"radius": [
+				12.0,
+				7.5
+			],
+			"tint": "#fff0e0"
+		},
+		"particles": [
+			"embers",
+			"feuilles_dorees"
+		]
 	}
 }

@@ -733,3 +733,50 @@ Tout ce qui suit est inventé pour le chapitre ; rien n'est tiré d'ailleurs que
 - **Dans le décor.** « Ça fait des trous mais ça ne creuse pas » (le gruyère), le Chambertin
   comme mot de passe, un registre dont chaque total est faux d'un écu, le chapeau gris
   retrouvé au bord de l'abîme.
+
+### Chapitre 5 (construit) — le Roquefort et l'Isengarde-Manger (18 novembre 2026)
+
+Construit d'après « Scénario détaillé des chapitres 5 à 7 », resserré. Sam mène, Glandoulf est
+tombé ; tout le chapitre repose sur un groupe qui se scinde (`groupe:`, voir `FORMAT_DONNEES.md`).
+
+- **Bromure claque (Portes de l'Est).** Il revient, indemne de tout : douze flèches dans son
+  pain, un Balourd tombé sur un tas de laine, un pont écroulé. Il fait ses adieux, que tout le
+  monde prend au sérieux (un père Intendant, l'anneau « rendu à temps », « On ne prête qu'aux
+  doigts qui portent »), puis une dernière phrase : « ... ni aux Ordres, ni aux Anneaux, ni les… ».
+  Un glaçon se détache du surplomb. Il ne la finit pas. Grimli grave l'établi : « Ci-gît Bromure
+  du Gouda, mort à la suite d'une phrase. Il ne l'a pas finie. » Personne ne rit.
+- **Les chutes du Gratin.** L'embuscade d'Uglouk et de ses Ouroukouilles (tablier noir, toque
+  blanche, louches). Il sort un papier : « Livraison. Veuillez signer ici. » Sam, Froton, Merri
+  et Pépin, battus par le nombre, signent (Merri par réflexe) et sont ligotés de ficelle de
+  boucher ; Aragrogne, Digoulasse et Grimli, partis en amont, rejoignent la plaine.
+- **La plaine du Roquefort (Cabécou).** Les Cavaliers du Roquefort, rois des plaines d'or.
+  Éolaine, nièce du roi, escorte les trois ; Éomèche tient le marché. Grimace Langue-de-Bois,
+  conseiller du roi et rapporteur de l'Ordre des Mages (« dans le cadre de »), garde la halle :
+  on lui coupe la parole trois fois.
+- **Fongorn.** Glandoulf, tombé du pont, a été ramassé par l'aigle Grosse-Plume (Service des
+  colis non réclamés) et déposé parmi les Entremets, arbres lents qui délibèrent depuis trois
+  jours. Il avoue devant Aragrogne, Digoulasse et Grimli : il n'a pas laissé tomber l'anneau, il a
+  laissé faire, puis il a menti. Il reprend la tête de l'équipe (action `groupe:`), avec la Louche
+  Blanche. Barbe-Molle réclame trois nouvelles avant de se lever ; une fois rendues, les arbres
+  marchent sur l'Isengarde.
+- **Le Garde-Manger.** Dans leur cage, les chasseurs reçoivent la visite de Sarumâle, qui leur
+  tend le Dossier Glandoulf (la sieste, les lettres, l'anneau confié). Froton, blessé, enfile
+  l'anneau et doit être ramené par ses amis (Froton Anneauté) ; Sam : « Rien ne sert de serrer,
+  Froton. Il faut mollir à point. » Un Pâton non conforme fait sauter la serrure et indique la
+  goulotte à fromages vers le Cabécou.
+- **La Bergerie d'Or.** Merri, qui lit à voix haute, devient Écuyer Tranchant du roi endormi ;
+  le roi s'éveille (« Qu'est-ce que j'ai manqué ? »). Glandoulf et son groupe entrent à leur
+  tour : Froton a lu le Dossier, Glandoulf promet de tout raconter. Le groupe se réunit
+  (`groupe:tous`), puis se rescinde pour l'assaut : Glandoulf, Sam, Froton et Aragrogne
+  montent à l'Isengarde, les autres attendent sur le banc.
+- **L'Isengarde-Manger et la terrasse de l'Office.** La brèche, les fosses inondées par
+  Barbe-Molle, les fours éteints, puis Sarumâle le Blanc-Cassé, dont la louche blanche est
+  la sienne : « Bien. Reprenons le point un : vous. » Fin du chapitre : robe bariolée, suite
+  au chapitre 6 (`chapitre_6`).
+- **Écarts avec la bible.** L'interlude de la Lothlorraine n'est pas joué (une phrase y
+  renvoie). Grichnak et le combat des captifs dans le Garde-Manger sont coupés. Les
+  Ouroukouilles (gros orques) portent le nom de l'auteur.
+- **Quêtes.** Principale « Le Roquefort et l'Isengarde-Manger » ; annexes « Le roi dort mal »
+  (les cisailles de tonte jouées au chevet du roi endormi, avant que Merri ne le réveille pour
+  de bon), « Les trois nouvelles des Entremets » et « Pas de levain, pas de guerre » (brioches
+  non conformes à rendre à la boulangère).

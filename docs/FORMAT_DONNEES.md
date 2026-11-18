@@ -344,7 +344,10 @@ liste d'instructions lues dans l'ordre :
 - `set` pose un drapeau dans l'état de la partie ; `if` le teste. C'est ainsi qu'un
   personnage dit autre chose la seconde fois.
 - `action` demande quelque chose au jeu : `save` (sauvegarder), `quitte:<identifiant>` ou `quitte:<identifiant>:<meneur>` (le personnage quitte l'équipe pour de bon, Glandoulf à la fin du chapitre 4 ; le second nom, s'il est donné, prend la tête de l'équipe, sinon c'est le suivant de la liste) ou `rest` (repos : toute
-  l'équipe retrouve PV et mana).
+  l'équipe retrouve PV et mana). Trois actions du chapitre 5 : `groupe:a,b,c,d` (l'équipe se
+  scinde : voir « Groupe scindé » plus bas), `va:<carte>:<arrivée>` (le dialogue emmène
+  l'équipe dans une autre carte, une fois fini) et `equipe:<personnage>:<objet>` (le
+  personnage équipe l'objet pris dans le sac).
 - `{"battle": "identifiant"}` lance une rencontre de `encounters.json`. Le dialogue
   reprend après le combat ; en cas de victoire le drapeau `combat_<identifiant>` est posé,
   ce qui permet d'enchaîner avec `{"if": "combat_<identifiant>", "then": [...]}`.
@@ -436,6 +439,84 @@ chacun. Un objet peut porter les deux à la fois : il n'est alors présent que s
 `if` est posé et que le drapeau `unless` ne l'est pas (les Morfales pendant l'invasion).
 Une caisse (`crate`) qui porte un `dialogue` devient un objet à examiner (l'estrade de la
 Fête) ; `size` règle sa taille.
+
+## Styles du chapitre 5 : cavaliers, Fongorn, Isengarde-Manger, chutes
+
+Quatre valeurs de `"style"` à la racine d'une carte (code : `src/world/rider_builder.gd`,
+peinture : `src/gfx/rider_painter.gd`). Le style change le sol des abords, les falaises, les
+marches et parois du relief, le mur des intérieurs, les arbres plantés autour de la carte et le
+sous-bois. Les champs `heights`, `stairs`, `ground`, `water`, `wall_tile`, `wall_cap` et `wall_glow`
+valent comme pour les autres styles (voir « Relief »). Une carte sans `style` reste rustique.
+
+| `style` | lieu | abords | arbres | intérieur |
+| --- | --- | --- | --- | --- |
+| `"cavalier"` | plaine du Roquefort, Cabécou, Bergerie d'Or | `cav_herbe` | `cav_arbre` | `cav_mur` |
+| `"fongorn"` | forêt de Fongorn | `ent_mousse` | `ent_arbre` | `ent_racines` |
+| `"isengarde"` | Isengarde-Manger, Garde-Manger, terrasse de l'Office | `isen_dalle` | `isen_cheminee` | `isen_mur` |
+| `"chutes"` | chutes du Gratin | `chu_gravier` | pins `elf_pine` | `chu_mur` |
+
+### Sols et tuiles
+
+Cavaliers : `cav_herbe` (herbe dorée), `cav_chemin` (terre battue), `cav_planches` (planches
+dorées), `cav_mur` (rondins dorés), `cav_botte_sol` (paille). Forêt : `ent_mousse`, `ent_sentier`,
+`ent_racines`. Isengarde : `isen_dalle` (dalles noires), `isen_fonte` (plaques de fonte),
+`isen_farine` (sol enfariné), `isen_fosse` (fosse, bleue quand elle est inondée), `isen_mur`.
+Chutes : `chu_roche`, `chu_gravier`, `chu_mur`. Se mettent dans `ground.fills` comme tout sol.
+
+### Accessoires (sprites debout)
+
+`cav_arbre` (2), `cav_botte` (1), `cav_etendard` (2), `cav_brebis` (2), `cav_enclos` (1),
+`cav_trone` (1), `cav_lit` (1), `cav_grange` (1) ; `ent_arbre` (3), `ent_panonceau` (1),
+`ent_souche` (1) ; `isen_four` (2), `isen_marmite` (1), `isen_cage` (1), `isen_sac` (2),
+`isen_cheminee` (1), `isen_pancarte` (1), `isen_tour` (1) ; `chu_pierre` (2), `chu_ecume` (1).
+Un accessoire qui porte un `dialogue` devient une interaction, comme les autres.
+
+### Objets construits
+
+- `cav_halle` : grande halle de bois doré (Cabécou, Bergerie). `rect`, `height`, `door` (côté).
+- `cav_palissade` : palissade de pieux dorés. `points` (comme `elf_rail`), `height`.
+- `isen_flamme` : flamme de four, avec sa lumière. `pos`, `color`, `energy`, `range`.
+- `chu_cascade` : chute d'eau en volume qui moutonne en bas. `rect`, `height`.
+
+### Arènes et panneaux d'arène
+
+Sept arènes en fin de `arenas.json` : `chutes_gratin`, `plaine_roquefort`, `fongorn`,
+`bergerie_or`, `garde_manger`, `petrins` (les pétrins de l'Isengarde) et `terrasse_office`. Les
+deux arènes d'intérieur (`bergerie_or`, `garde_manger`) utilisent les panneaux peints
+`bergerie` et `garde_manger` (champ `panels` de `backdrop`, `src/gfx/arena_panels.gd`).
+
+### Monstres peints du chapitre 5 (champ `sprite.monster` d'un ennemi)
+
+`ouroukouille` (grosse louche et bouclier-couvercle), `ouroukouille_brocheur`,
+`ouroukouille_petrisseur` (toque de boulanger), `ouroukouille_chef` (Uglouk), `paton` (boule de
+pâte), `ouargue` (loup de colline), `corbeau` (contrôleur), `hirsute` (bûcheron de Dunlande),
+`hors_oeuvre` (petit entremets à pattes). Grimace, Froton Anneauté et Sarumâle sont des
+ennemis à `sprite.character`.
+
+## Groupe scindé (chapitre 5)
+
+L'équipe se sépare, puis se réunit : tout passe par des actions de dialogue, sans code propre
+à un chapitre.
+
+- `{"action": "groupe:sam,froton,merri,pepin"}` : ces personnages forment l'équipe, dans cet
+  ordre (le premier mène) ; tous les autres recrutés passent sur le **banc** (`GameState.bench`).
+  `groupe:tous` rappelle le banc derrière l'équipe actuelle ; l'équipe de combat reste limitée
+  à quatre (`MAX_ACTIVE`), le surplus est en réserve. Un nom inconnu est ignoré (rien ne change
+  si aucun nom n'est valable).
+- Les fiches (niveau, expérience, équipement, talents) sont conservées. Celui qui revient du
+  banc et qui est en retard sur le niveau le plus haut de l'équipe qu'il rejoint est remonté à
+  ce niveau (expérience à zéro) ; celui qui est sur le banc ne gagne rien. Personne n'est jamais
+  rétrogradé.
+- `{"action": "va:fongorn:ouest"}` : à la fin du dialogue, l'équipe est emmenée à cette carte, à
+  ce point d'arrivée. À la fin de la scène, la carte est reconstruite avec le nouveau meneur.
+- `{"action": "equipe:glandoulf:louche_blanche"}` : équipe l'objet du sac (il faut le `give`
+  avant). C'est la symétrique du `quitte:` du chapitre 4 : Glandoulf revient à Fongorn par
+  `groupe:glandoulf,...`, et reprend la tête.
+- Sauvegarde : le champ `bench` (liste d'identifiants) s'ajoute à `party`. Une sauvegarde sans
+  ce champ (d'avant le chapitre 5) se charge avec un banc vide.
+- Un objet d'équipement peut porter un champ `skills` (liste d'identifiants de `skills.json`) :
+  son porteur apprend ces compétences tant qu'il l'équipe (la Louche Blanche donne
+  `veille_de_pierre` et `vrai_repos`).
 
 ## Équipe active et réserve
 
@@ -907,7 +988,7 @@ emplacement, nommés d'après `SaveManager.save_path` (`user://sauvegarde.json` 
 
 Le contenu d'un fichier est
 l'état de la partie tel que le décrit `src/core/game_state.gd` : chapitre, drapeaux,
-quêtes (en cours ou terminées), équipe (niveau, expérience, PV, mana, équipement et
+quêtes (en cours ou terminées), équipe et banc (`bench`, les compagnons séparés du groupe au chapitre 5 ; niveau, expérience, PV, mana, équipement et
 talents appris de chacun ; équipement par emplacement), inventaire, argent, faiblesses
 découvertes, carte, position, orientation, temps de jeu. Une sauvegarde de l'étape 1 reste
 lisible, de même qu'une sauvegarde de l'étape 2 : ce qui lui manque est complété, et le
