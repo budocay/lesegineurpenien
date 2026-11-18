@@ -47,7 +47,7 @@ func _process(delta: float) -> void:
 		_walk -= delta
 		var p := Vector2(position.x, position.z) + _dir * WALK_SPEED * delta
 		if p.distance_to(home) <= wander and world.is_free(p, RADIUS, self):
-			position = Vector3(p.x, 0.0, p.y)
+			position = Vector3(p.x, world.ground_y(p.x, p.y), p.y)
 			sprite.moving = true
 		else:
 			_walk = 0.0

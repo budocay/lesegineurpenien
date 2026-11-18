@@ -72,6 +72,7 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		world.blocked[i] = 1 if _flag(cells[i], "solid") else 0
 		if cells[i] == "water":
 			has_water = true
+	_build_relief()
 	_build_ground()
 	if has_water:
 		_build_water()
@@ -97,6 +98,201 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 
 	var amb := Database.get_ambiance(str(map.get("ambiance", "crepuscule")))
 	world.followers = Atmosphere.build(world, amb, Rect2(0.0, 0.0, w, h))
+
+
+# -------------------------------------------------------------------- relief
+
+const DIRS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]   # N E S W
+const LIP_H := 1.0 / 3.0   # hauteur du liseré d'herbe : 8 px de la texture « cliff_lip »
+const SHADE_DEPTH := 0.55
+
+
+## Hauteurs et rampes de la carte (champs `heights` et `stairs`) : remplit les tables du
+## monde, pose les murs infranchissables entre deux niveaux et bâtit falaises, liserés
+## d'herbe, ombres au pied et rampes. Une carte sans ces champs n'est pas touchée.
+func _build_relief() -> void:
+	var hs: Array = map.get("heights", [])
+	var ss: Array = map.get("stairs", [])
+	world.has_relief = false
+	if bool(map.get("interior", false)) or (hs.is_empty() and ss.is_empty()):
+		return
+	world.cell_h = PackedFloat32Array()
+	world.cell_h.resize(w * h)
+	world.stair_idx = PackedInt32Array()
+	world.stair_idx.resize(w * h)
+	world.stair_idx.fill(-1)
+	world.edge_block = PackedByteArray()
+	world.edge_block.resize(w * h)
+	world.stairs = []
+	for e: Dictionary in hs:
+		var r := _rect2(e)
+		for ty in range(int(r.position.y), int(r.end.y)):
+			for tx in range(int(r.position.x), int(r.end.x)):
+				if tx >= 0 and ty >= 0 and tx < w and ty < h and not _flag(cells[ty * w + tx], "hole"):
+					world.cell_h[ty * w + tx] = float(e.get("h", 0.0))
+	for e: Dictionary in ss:
+		var dir := str(e.get("dir", "up"))
+		if not dir in ["up", "down", "left", "right"]:
+			push_warning("Escalier : direction inconnue : " + dir)
+			continue
+		var r := _rect2(e)
+		var idx: int = world.stairs.size()
+		world.stairs.append({"rect": r, "dir": dir, "from": float(e.get("from", 0.0)), "to": float(e.get("to", 1.0))})
+		for ty in range(int(r.position.y), int(r.end.y)):
+			for tx in range(int(r.position.x), int(r.end.x)):
+				if tx >= 0 and ty >= 0 and tx < w and ty < h and not _flag(cells[ty * w + tx], "hole"):
+					world.stair_idx[ty * w + tx] = idx
+	world.has_relief = true
+
+	var walls := MeshKit.begin()
+	var lips := MeshKit.begin()
+	var shades := MeshKit.begin()
+	var any := false
+	for ty in h:
+		for tx in w:
+			var i := ty * w + tx
+			if _flag(cells[i], "hole"):
+				continue
+			for k in 4:
+				var nx := tx + DIRS[k].x
+				var ny := ty + DIRS[k].y
+				var inside := nx >= 0 and ny >= 0 and nx < w and ny < h
+				if inside and _flag(cells[ny * w + nx], "hole"):
+					continue
+				var pts := _edge_pts(tx, ty, k)
+				var a0: float = world.cell_height_at(tx, ty, pts[0].x, pts[0].y)
+				var a1: float = world.cell_height_at(tx, ty, pts[1].x, pts[1].y)
+				var b0 := 0.0
+				var b1 := 0.0
+				if inside:
+					b0 = world.cell_height_at(nx, ny, pts[0].x, pts[0].y)
+					b1 = world.cell_height_at(nx, ny, pts[1].x, pts[1].y)
+				if absf(a0 - b0) < 0.02 and absf(a1 - b1) < 0.02:
+					continue
+				world.edge_block[i] |= 1 << k
+				if inside:
+					world.edge_block[ny * w + nx] |= 1 << ((k + 2) % 4)
+					if k == 0 or k == 3:
+						continue   # le mur est bâti depuis l'autre case
+				any = true
+				var own_higher := a0 + a1 > b0 + b1
+				var f := k if own_higher else (k + 2) % 4   # le mur regarde vers le côté bas
+				var higher_flat := true
+				if own_higher:
+					higher_flat = world.stair_idx[i] < 0
+				elif inside:
+					higher_flat = world.stair_idx[ny * w + nx] < 0
+				var t0 := maxf(a0, b0)
+				var t1 := maxf(a1, b1)
+				var l0 := minf(a0, b0)
+				var l1 := minf(a1, b1)
+				# gauche et droite vus depuis le côté bas
+				var left_is_0 := f == 2 or f == 3
+				var pl: Vector2 = pts[0] if left_is_0 else pts[1]
+				var pr: Vector2 = pts[1] if left_is_0 else pts[0]
+				var tl := t0 if left_is_0 else t1
+				var tr := t1 if left_is_0 else t0
+				var ll := l0 if left_is_0 else l1
+				var lr := l1 if left_is_0 else l0
+				var n := Vector3(DIRS[f].x, 0, DIRS[f].y)
+				var along_l := pl.x if (f == 0 or f == 2) else pl.y
+				var along_r := pr.x if (f == 0 or f == 2) else pr.y
+				_quad_uv(walls, Vector3(pl.x, tl, pl.y), Vector3(pr.x, tr, pr.y), Vector3(pr.x, lr, pr.y), Vector3(pl.x, ll, pl.y),
+						[Vector2(along_l * 0.5, (4.0 - tl) * 0.5), Vector2(along_r * 0.5, (4.0 - tr) * 0.5),
+						Vector2(along_r * 0.5, (4.0 - lr) * 0.5), Vector2(along_l * 0.5, (4.0 - ll) * 0.5)], n)
+				if higher_flat:
+					var o := n * 0.025
+					var bl := maxf(tl - LIP_H, ll)
+					var br := maxf(tr - LIP_H, lr)
+					_quad_uv(lips, Vector3(pl.x, tl, pl.y) + o, Vector3(pr.x, tr, pr.y) + o, Vector3(pr.x, br, pr.y) + o, Vector3(pl.x, bl, pl.y) + o,
+							[Vector2(along_l * 0.5, 0.0), Vector2(along_r * 0.5, 0.0),
+							Vector2(along_r * 0.5, (tr - br) / LIP_H), Vector2(along_l * 0.5, (tl - bl) / LIP_H)], n)
+				# ombre portée au pied de la paroi, sur le côté bas
+				var far := n * SHADE_DEPTH
+				var yl := ll + 0.02
+				var yr := lr + 0.02
+				var cn := Color(0.04, 0.03, 0.06, 0.46)
+				var cf := Color(0.04, 0.03, 0.06, 0.0)
+				var vs: Array[Vector3] = [Vector3(pl.x, yl, pl.y), Vector3(pr.x, yr, pr.y), Vector3(pr.x, yr, pr.y) + far, Vector3(pl.x, yl, pl.y) + far]
+				var cs: Array[Color] = [cn, cn, cf, cf]
+				for q: int in [0, 1, 2, 0, 2, 3]:
+					shades.set_normal(Vector3.UP)
+					shades.set_color(cs[q])
+					shades.add_vertex(vs[q])
+	if any:
+		var wall_node := MeshKit.finish(walls, MeshKit.pixel_material(Sprites.tile_texture("cliff")), true)
+		wall_node.name = "ReliefWalls"
+		world.add_child(wall_node)
+		var lip_node := MeshKit.finish(lips, MeshKit.ground_material(Sprites.tile_texture("cliff_lip"), 0.05), false)
+		lip_node.name = "ReliefLips"
+		world.add_child(lip_node)
+		var sm := StandardMaterial3D.new()
+		sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		sm.vertex_color_use_as_albedo = true
+		sm.cull_mode = BaseMaterial3D.CULL_DISABLED
+		var shade_node := MeshKit.finish(shades, sm, false)
+		shade_node.name = "ReliefShade"
+		shade_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		world.add_child(shade_node)
+	if not world.stairs.is_empty():
+		var st := MeshKit.begin()
+		for s: Dictionary in world.stairs:
+			var r: Rect2 = s["rect"]
+			var corners: Array[Vector2] = [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]
+			var vs: Array[Vector3] = []
+			var uvs: Array[Vector2] = []
+			var dir := str(s["dir"])
+			var flip := -0.5 if (dir == "down" or dir == "right") else 0.5
+			for c in corners:
+				vs.append(Vector3(c.x, world.stair_height(s, c.x, c.y), c.y))
+				if dir == "up" or dir == "down":
+					uvs.append(Vector2(c.x * 0.5, c.y * flip))
+				else:
+					uvs.append(Vector2(c.y * 0.5, c.x * flip))
+			_quad_uv(st, vs[0], vs[1], vs[2], vs[3], uvs, Vector3.ZERO)
+		var stairs_node := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("steps")), true)
+		stairs_node.name = "ReliefStairs"
+		world.add_child(stairs_node)
+
+
+## Les deux extrémités du bord k (0 nord, 1 est, 2 sud, 3 ouest) de la case (tx, ty).
+func _edge_pts(tx: int, ty: int, k: int) -> Array[Vector2]:
+	var x := float(tx)
+	var z := float(ty)
+	match k:
+		0: return [Vector2(x, z), Vector2(x + 1.0, z)]
+		1: return [Vector2(x + 1.0, z), Vector2(x + 1.0, z + 1.0)]
+		2: return [Vector2(x, z + 1.0), Vector2(x + 1.0, z + 1.0)]
+	return [Vector2(x, z), Vector2(x, z + 1.0)]
+
+
+## Quadrilatère à UV explicites (a haut-gauche, b haut-droite, c bas-droite, d bas-gauche).
+## Normale nulle : calculée depuis les sommets (surfaces inclinées).
+func _quad_uv(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, uv: Array, n: Vector3) -> void:
+	var nn := n
+	if nn == Vector3.ZERO:
+		nn = (d - a).cross(b - a).normalized()
+	var v: Array[Vector3] = [a, b, c, d]
+	for q: int in [0, 1, 2, 0, 2, 3]:
+		st.set_normal(nn)
+		st.set_uv(uv[q])
+		st.add_vertex(v[q])
+
+
+## Vrai si le sol est plat et de même niveau autour de p (rayon r) : sinon un décor poserait
+## à cheval sur une falaise ou une rampe.
+func _flat_around(p: Vector2, r: float) -> bool:
+	if not world.has_relief:
+		return true
+	var hh: float = world.ground_y(p.x, p.y)
+	for d: Vector2 in [Vector2.ZERO, Vector2(r, 0), Vector2(-r, 0), Vector2(0, r), Vector2(0, -r), Vector2(r, r), Vector2(-r, r), Vector2(r, -r), Vector2(-r, -r)]:
+		var q := p + d
+		var tx := clampi(int(floor(q.x)), 0, w - 1)
+		var ty := clampi(int(floor(q.y)), 0, h - 1)
+		if world.stair_idx[ty * w + tx] >= 0 or absf(world.cell_h[ty * w + tx] - hh) > 0.01:
+			return false
+	return true
 
 
 # ----------------------------------------------------------------------- sol
@@ -175,7 +371,17 @@ func _build_ground() -> void:
 	var tex: Texture2D = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
 	var mat := MeshKit.ground_material(tex)
 	var st := MeshKit.begin()
-	MeshKit.quad(st, Vector3(0, 0, 0), Vector3(w, 0, 0), Vector3(w, 0, h), Vector3(0, 0, h))
+	if world.has_relief:
+		# sol en dalles : chacune à la hauteur de sa case (les rampes ont leur propre maillage)
+		for ty in h:
+			for tx in w:
+				if world.stair_idx[ty * w + tx] >= 0:
+					continue
+				var y: float = world.cell_h[ty * w + tx]
+				MeshKit.quad(st, Vector3(tx, y, ty), Vector3(tx + 1, y, ty), Vector3(tx + 1, y, ty + 1), Vector3(tx, y, ty + 1),
+						Vector2(float(tx) / w, float(ty) / h), Vector2(float(tx + 1) / w, float(ty + 1) / h))
+	else:
+		MeshKit.quad(st, Vector3(0, 0, 0), Vector3(w, 0, 0), Vector3(w, 0, h), Vector3(0, 0, h))
 	var node := MeshKit.finish(st, mat, false)
 	node.name = "Ground"
 	world.add_child(node)
@@ -282,7 +488,9 @@ func _undergrowth() -> void:
 			var cell := _cell(int(p.x), int(p.y))
 			if cell != "grass" and cell != "soil":
 				continue
-			_prop(str(kinds[rng.randi() % kinds.size()]), {"shadow": false}, Vector3(p.x, 0.0, p.y))
+			if not _flat_around(p, 0.4):
+				continue
+			_prop(str(kinds[rng.randi() % kinds.size()]), {"shadow": false}, Vector3(p.x, world.ground_y(p.x, p.y), p.y))
 
 
 func _build_water() -> void:
@@ -351,7 +559,9 @@ func _juts_out(tx: int, ty: int) -> bool:
 
 func _p(o: Dictionary) -> Vector3:
 	var p: Array = o.get("pos", [0, 0])
-	return Vector3(float(p[0]) + 0.5, 0.0, float(p[1]) + 0.5)
+	var x := float(p[0]) + 0.5
+	var z := float(p[1]) + 0.5
+	return Vector3(x, world.ground_y(x, z), z)
 
 
 func _object(o: Dictionary) -> void:
@@ -458,6 +668,8 @@ func _scatter(o: Dictionary) -> void:
 			continue
 		if not on.has(_cell(int(p.x), int(p.y))):
 			continue
+		if not _flat_around(p, maxf(solid, 0.2) + 0.3):
+			continue   # jamais à cheval sur une falaise ou une rampe
 		var ok := true
 		for q in placed:
 			if q.distance_to(p) < min_dist:
@@ -490,7 +702,7 @@ func _scatter(o: Dictionary) -> void:
 					ok = false
 		if ok:
 			placed.append(p)
-			_prop(kind, {}, Vector3(p.x, 0.0, p.y))
+			_prop(kind, {}, Vector3(p.x, world.ground_y(p.x, p.y), p.y))
 			if kind == "tree":
 				_tree_spots.append(p)
 
@@ -645,12 +857,12 @@ func _fence(o: Dictionary) -> void:
 		var n := maxi(1, int(round(length)))
 		for k in range(n + 1):
 			var q := a.lerp(b, float(k) / float(n))
-			var post := _mesh_box(Vector3(q.x, 0.4, q.y), Vector3(0.13, 0.8, 0.13), wood)
+			var post := _mesh_box(Vector3(q.x, world.ground_y(q.x, q.y) + 0.4, q.y), Vector3(0.13, 0.8, 0.13), wood)
 			post.rotation.z = deg_to_rad(rng.randf_range(-lean, lean))
 		var mid := (a + b) * 0.5
 		var angle := -atan2(b.y - a.y, b.x - a.x)
 		for y: float in [0.3, 0.6]:
-			var rail := _mesh_box(Vector3(mid.x, y, mid.y), Vector3(length, 0.07, 0.05), wood_l)
+			var rail := _mesh_box(Vector3(mid.x, world.ground_y(mid.x, mid.y) + y, mid.y), Vector3(length, 0.07, 0.05), wood_l)
 			rail.rotation.y = angle
 			rail.rotation.z = deg_to_rad(rng.randf_range(-lean, lean) * 0.3)
 		var steps := int(ceil(length / 0.35))
@@ -712,7 +924,7 @@ func _monster(o: Dictionary) -> void:
 
 func _light(o: Dictionary) -> void:
 	var p := _p(o)
-	p.y = float(o.get("height", 2.4))
+	p.y += float(o.get("height", 2.4))
 	_add_light(p, Database.color(o.get("color", "#ffb45e"), WARM), float(o.get("energy", 1.5)), float(o.get("range", 6.0)),
 			bool(o.get("shadow", false)), float(o.get("flicker", 0.0)))
 

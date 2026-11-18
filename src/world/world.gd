@@ -28,6 +28,13 @@ var occluders: Array = []   # bâtiments qui s'estompent quand ils passent au pr
 var encounter_zones: Array = []   # {rect, table} : zones de rencontres aléatoires
 var flag_deps: Dictionary = {}    # drapeaux dont dépend le décor -> valeur lors de la construction
 
+# Relief jouable (rempli par MapBuilder._build_relief ; vide sur une carte sans relief).
+var has_relief := false
+var cell_h := PackedFloat32Array()      # hauteur du sol de chaque case plate
+var stair_idx := PackedInt32Array()     # case de rampe : indice dans `stairs`, sinon -1
+var stairs: Array = []                  # {rect: Rect2, dir, from, to}
+var edge_block := PackedByteArray()     # bits 1 nord, 2 est, 4 sud, 8 ouest : bord à dénivelé, infranchissable
+
 var player: Node3D = null
 var camera: Camera3D = null
 var focus: Dictionary = {}
@@ -80,6 +87,7 @@ func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: Str
 			face = facing
 		if not is_free(Vector2(start.x, start.z), Player.RADIUS, player):
 			start = nearest_free(start)
+		start.y = ground_y(start.x, start.z)
 		player.position = start
 		player.set_facing(face)
 	_cam_target = _desired_target()
@@ -113,6 +121,52 @@ func player_xz() -> Array:
 	return [player.position.x, player.position.z]
 
 
+# ---------------------------------------------------------------- relief
+
+## Hauteur d'une rampe au point (x, z) : de `from` au bout bas à `to` au bout haut.
+func stair_height(s: Dictionary, x: float, z: float) -> float:
+	var r: Rect2 = s["rect"]
+	var t := 0.0
+	match str(s["dir"]):
+		"up": t = (r.end.y - z) / r.size.y
+		"down": t = (z - r.position.y) / r.size.y
+		"left": t = (r.end.x - x) / r.size.x
+		"right": t = (x - r.position.x) / r.size.x
+	return lerpf(float(s["from"]), float(s["to"]), clampf(t, 0.0, 1.0))
+
+
+## Hauteur du sol de la case (tx, ty) au point (x, z).
+func cell_height_at(tx: int, ty: int, x: float, z: float) -> float:
+	var i := ty * grid_w + tx
+	var si := stair_idx[i]
+	if si < 0:
+		return cell_h[i]
+	return stair_height(stairs[si], x, z)
+
+
+## Hauteur du sol sous le point (x, z) ; 0 sur une carte sans relief.
+func ground_y(x: float, z: float) -> float:
+	if not has_relief:
+		return 0.0
+	return cell_height_at(clampi(int(floor(x)), 0, grid_w - 1), clampi(int(floor(z)), 0, grid_h - 1), x, z)
+
+
+## Vrai si le disque (p, r) touche un bord de la case (tx, ty) qui sépare deux niveaux.
+func _edge_hit(p: Vector2, r: float, tx: int, ty: int, bits: int) -> bool:
+	var r2 := r * r
+	var x0 := float(tx)
+	var y0 := float(ty)
+	if bits & 1 != 0 and Vector2(clampf(p.x, x0, x0 + 1.0), y0).distance_squared_to(p) < r2:
+		return true
+	if bits & 2 != 0 and Vector2(x0 + 1.0, clampf(p.y, y0, y0 + 1.0)).distance_squared_to(p) < r2:
+		return true
+	if bits & 4 != 0 and Vector2(clampf(p.x, x0, x0 + 1.0), y0 + 1.0).distance_squared_to(p) < r2:
+		return true
+	if bits & 8 != 0 and Vector2(x0, clampf(p.y, y0, y0 + 1.0)).distance_squared_to(p) < r2:
+		return true
+	return false
+
+
 # ---------------------------------------------------------------- collisions
 
 func is_free(p: Vector2, r: float, ignore: Node = null) -> bool:
@@ -125,6 +179,10 @@ func is_free(p: Vector2, r: float, ignore: Node = null) -> bool:
 			var solid := true
 			if tx >= 0 and ty >= 0 and tx < grid_w and ty < grid_h:
 				solid = blocked[ty * grid_w + tx] != 0
+				if not solid and has_relief:
+					var eb := edge_block[ty * grid_w + tx]
+					if eb != 0 and _edge_hit(p, r, tx, ty, eb):
+						return false
 			if solid:
 				var nx := clampf(p.x, tx, tx + 1.0)
 				var ny := clampf(p.y, ty, ty + 1.0)
@@ -159,7 +217,7 @@ func nearest_free(start: Vector3) -> Vector3:
 			var a := TAU * k / 16.0
 			var p := Vector2(start.x + cos(a) * d, start.z + sin(a) * d)
 			if is_free(p, 0.3, player):
-				return Vector3(p.x, 0.0, p.y)
+				return Vector3(p.x, ground_y(p.x, p.y), p.y)
 	return start
 
 
@@ -211,7 +269,7 @@ func _desired_target() -> Vector3:
 		if focus_a is Array and (focus_a as Array).size() == 2:
 			fz = float(focus_a[1]) + 0.5
 		return Vector3(lerpf(b.position.x, b.end.x, k), 0.0, fz)
-	return Vector3(clampf(player.position.x, b.position.x, b.end.x), 0.0, clampf(player.position.z, b.position.y, b.end.y))
+	return Vector3(clampf(player.position.x, b.position.x, b.end.x), player.position.y, clampf(player.position.z, b.position.y, b.end.y))
 
 
 func _apply_camera() -> void:

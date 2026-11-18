@@ -27,7 +27,9 @@ static func paint(kind: String) -> Image:
 		"brick": return _stones(["#a85a44", "#9a4e3c", "#b56a50", "#a0604a"], Color("#6d5a50"), 12, 6)
 		"stone": return _stones(["#85828e", "#928f9a", "#777482", "#8d8880"], Color("#45414c"), 16, 12)
 		"iron": return _iron()
-		"cliff": return _stones(["#a39d94", "#b3ada2", "#928c85", "#c0b9ac"], Color("#55524d"), 16, 12)
+		"cliff": return _cliff()
+		"cliff_lip": return _cliff_lip()
+		"steps": return _steps()
 		"interior_wall": return _interior_wall()
 	if kind.begins_with("roof_"):
 		return _roof(kind.trim_prefix("roof_"))
@@ -136,6 +138,111 @@ static func _dirt() -> Image:
 		img.set_pixel(x, y, Color("#6fa052"))
 		img.set_pixel((x + 1) % T, (y + 1) % T, Color("#4f8a48"))
 		img.set_pixel(x, (y + 1) % T, Color("#4f8a48"))
+	return img
+
+
+## Roche stratifiée : lits horizontaux ondulés d'épaisseur inégale, lèvre claire en haut de
+## chaque lit, ombre en bas, fissures verticales, éclats et un peu de mousse sur les replats.
+## Se raccorde à elle-même (les ondulations font un nombre entier de périodes).
+static func _cliff() -> Image:
+	var img := PA.new_image(T, T)
+	var tones: Array[Color] = [Color("#9c948a"), Color("#aaa296"), Color("#8c847b"), Color("#b4aa9a"), Color("#a09484")]
+	var bounds: Array[int] = [0, 9, 18, 30, 39]
+	var n := bounds.size()
+	for x in T:
+		for y in T:
+			var layer := n - 1
+			for i in range(n - 1, -1, -1):
+				if y >= _cliff_edge(bounds, i, x):
+					layer = i
+					break
+			var top := _cliff_edge(bounds, layer, x)
+			var nxt := (layer + 1) % n
+			var bottom := _cliff_edge(bounds, nxt, x) + (T if nxt == 0 else 0) - 1
+			var yy := y if y >= top else y + T
+			var c := tones[layer % tones.size()]
+			c = PA.shade(c, (PA.rnd(x, y, 61) - 0.5) * 0.12)
+			if yy == top:
+				c = PA.shade(c, 0.24)
+			elif yy == top + 1:
+				c = PA.shade(c, 0.1)
+			elif yy == bottom:
+				c = PA.shade(c, -0.34)
+			elif yy == bottom - 1:
+				c = PA.shade(c, -0.14)
+			img.set_pixel(x, y, c)
+	# fissures verticales, un peu décalées en descendant, qui s'arrêtent avant le bas du lit
+	for layer in n:
+		for j in 2:
+			var cx := int(PA.rnd(layer, j, 62) * T)
+			var top := bounds[layer]
+			var height := bounds[(layer + 1) % n] + (T if layer == n - 1 else 0) - top
+			var length := 3 + int(PA.rnd(layer, j, 63) * float(height - 3))
+			for k in range(1, length):
+				var px := posmod(cx + ((k + int(PA.rnd(layer, j, 64) * 3.0)) / 3) % 2, T)
+				var py := posmod(top + k + 1, T)
+				img.set_pixel(px, py, PA.shade(img.get_pixel(px, py), -0.38))
+				var rx := posmod(px + 1, T)
+				img.set_pixel(rx, py, PA.shade(img.get_pixel(rx, py), 0.1))
+	# éclats, grains clairs et mousse
+	for i in 26:
+		var x := int(PA.rnd(i, 1, 65) * T)
+		var y := int(PA.rnd(i, 2, 65) * T)
+		img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.22 if i % 2 == 0 else 0.2))
+	for i in 7:
+		var layer := int(PA.rnd(i, 3, 65) * n) % n
+		var mx := int(PA.rnd(i, 4, 65) * T)
+		var my := posmod(_cliff_edge(bounds, layer, mx) + 1, T)
+		for k in 2 + int(PA.rnd(i, 5, 65) * 3.0):
+			img.set_pixel(posmod(mx + k, T), my, Color("#667f4e"))
+	return img
+
+
+static func _cliff_edge(bounds: Array[int], i: int, x: int) -> int:
+	var a := sin(TAU * float(1 + i % 2) * float(x) / float(T) + float(i) * 1.7) * 1.7
+	var b := sin(TAU * 3.0 * float(x) / float(T) + float(i) * 2.3) * 0.9
+	return bounds[i] + roundi(a + b)
+
+
+## Liseré d'herbe qui retombe sur le haut d'une falaise : 48 x 8 px, le bas est découpé.
+static func _cliff_lip() -> Image:
+	var img := PA.new_image(T, 8)
+	for x in T:
+		var ln := 3 + int(clampf(1.4 + 1.6 * sin(float(x) * 0.8) + PA.rnd(x, 0, 71) * 2.2, 0.0, 5.0))
+		for y in mini(ln, 8):
+			var c := Color("#4f9148")
+			if y == 0:
+				c = Color("#70ad52")
+			elif y == ln - 1:
+				c = Color("#2f6238")
+			elif y >= ln - 3:
+				c = Color("#33683d")
+			elif PA.rnd(x, y, 72) < 0.18:
+				c = Color("#5f9f4e")
+			img.set_pixel(x, y, c)
+	return img
+
+
+## Marches d'une rampe : quatre marches de 12 px par motif (0,5 unité chacune).
+## Nez clair, dessus, contremarche, ombre ; le sens de lecture est celui de la montée.
+static func _steps() -> Image:
+	var img := PA.new_image(T, T)
+	for y in T:
+		var r := y % 12
+		var step := y / 12
+		for x in T:
+			var c := Color("#b8afa0")
+			if r < 2:
+				c = Color("#d6cdbb")
+			elif r < 8:
+				c = PA.shade(c, (PA.rnd(x, y, 81) - 0.5) * 0.1)
+				if x == (step * 17 + 5) % T or x == (step * 29 + 31) % T:
+					c = Color("#8f877c")
+			elif r < 10:
+				c = Color("#8f877c")
+			else:
+				c = Color("#615b57")
+			img.set_pixel(x, y, c)
 	return img
 
 
