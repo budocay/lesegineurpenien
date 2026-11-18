@@ -209,6 +209,7 @@ func _ready() -> void:
 	await _anim_shot("40_anim_purin_ortie", "purin_ortie", "pepine", false, false)
 	await _anim_shot("41_anim_charge_ennemie", "charge_molle", "", true, true)
 	await _anim_shot("42_anim_cri_strident", "cri_strident", "", true, true)
+	await _save_shots()
 	SaveManager.delete_save()
 	print("CAPTURES OK : ", out_dir)
 	get_tree().quit()
@@ -241,6 +242,37 @@ func _anim_shot(shot_name: String, anim: String, who: String, from_enemy: bool, 
 	await get_tree().create_timer(impact + 0.09).timeout
 	await _shot(shot_name)
 	await get_tree().create_timer(1.8).timeout
+
+
+## Écrans de sauvegarde : liste, confirmation d'écrasement, écran de défaite et sa liste.
+func _save_shots() -> void:
+	SaveManager.delete_save()
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	GameState.member("sam")["level"] = 5
+	for i in 3:
+		GameState.map_id = ["auberge", "bittebourg", "route_brie"][i]
+		GameState.playtime = 3725.0 * (i + 1)
+		SaveManager.save_game(["m1", "m2", "m5"][i])
+	SaveManager.autosave("lieu")
+	SaveManager.autosave("combat", "capture")
+	main.saves.open("load", "test")
+	await _frames(40)
+	await _shot("50_sauvegardes_charger")
+	main.saves.close()
+	main.saves.open("save", "test")
+	main.saves._on_row("m2")
+	await _frames(40)
+	await _shot("51_sauvegardes_ecraser")
+	main.saves.close()
+	main.battle_ui.before_battle_slot = "a1"
+	main.battle_ui.show_defeat()
+	await _frames(60)
+	await _shot("52_defaite_choix")
+	main.battle_ui._on_end("load")
+	await _frames(40)
+	await _shot("53_defaite_sauvegardes")
+	main.saves.close()
 
 
 func _frames(n: int) -> void:

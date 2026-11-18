@@ -56,6 +56,8 @@ var _overlay: Control
 var _plates: Dictionary = {}  # clé -> {root, chips, name, bar}
 var _cursors: Array[Polygon2D] = []
 var _end_layer: Control
+var before_battle_slot := ""        # posé par main.gd : sauvegarde automatique juste avant ce combat
+var save_screen: Control = null   # posé par main.gd : liste des sauvegardes (défaite)
 
 
 func _ready() -> void:
@@ -839,14 +841,36 @@ func show_victory(rewards: Dictionary, guest: bool) -> void:
 	_end_layer.visible = false
 
 
-## Renvoie "retry" ou "title".
-func show_defeat() -> String:
+## Renvoie "retry", "title" ou "load:<emplacement>" (« Charger une sauvegarde », ou
+## « Revenir avant le combat » si before_slot / before_battle_slot désigne la sauvegarde
+## automatique faite juste avant ce combat ; "" s'il n'y en a pas).
+func show_defeat(before_slot: String = "") -> String:
+	if before_slot == "":
+		before_slot = before_battle_slot
 	var box := _end_panel("Défaite", Color("#e8847a"))
 	_line(box, "Toute l'équipe est à terre.")
 	_line(box, "Glandoulf jurera plus tard qu'il se reposait les yeux.", UI.INK_DIM, 19)
 	var retry := _end_button(box, "Recommencer le combat", "retry")
+	if before_slot != "":
+		_end_button(box, "Revenir avant le combat", "before")
+	var load_btn := _end_button(box, "Charger une sauvegarde", "load")
+	load_btn.disabled = not SaveManager.has_save() or save_screen == null
 	_end_button(box, "Retour à l'écran-titre", "title")
 	retry.grab_focus.call_deferred()
-	var value: String = await _closed
+	var value := ""
+	while true:
+		value = await _closed
+		if value == "before":
+			value = "load:" + before_slot
+			break
+		if value != "load":
+			break
+		# la liste des sauvegardes passe par-dessus ; Échap ramène ici
+		save_screen.open("load", "defeat")
+		var chosen: String = await save_screen.finished
+		if chosen != "":
+			value = "load:" + chosen
+			break
+		load_btn.grab_focus.call_deferred()
 	_end_layer.visible = false
 	return value

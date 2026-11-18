@@ -56,6 +56,7 @@ func _ready() -> void:
 	_test_character_art()
 	_test_scenery()
 	_test_chapter_2_data()
+	await _test_saves()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2508,3 +2509,198 @@ func _test_chapter_2() -> void:
 	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 2")
 	main.queue_free()
 	await get_tree().process_frame
+## Sauvegardes multiples : emplacements, rotation des automatiques, migration, fichiers
+## abîmés, écran de sauvegarde, écran de défaite, retour avant le combat.
+func _test_saves() -> void:
+	print("== Sauvegardes multiples ==")
+	var SaveScreen = preload("res://src/ui/save_screen.gd")
+	SaveManager.delete_save()
+	check(not SaveManager.has_save(), "saves : aucune sauvegarde au départ")
+	check(SaveManager.list_slots(false).size() == SaveManager.MANUAL_SLOTS, "saves : %d emplacements manuels listés" % SaveManager.MANUAL_SLOTS)
+	check(SaveManager.MANUAL_SLOTS >= 6 and SaveManager.AUTO_SLOTS >= 3, "saves : au moins 6 manuels et 3 automatiques")
+	check(not SaveManager.load_game() and SaveManager.read_save().is_empty() and SaveManager.summary() == "", "saves : dossier vide sans erreur")
+
+	# deux emplacements distincts
+	GameState.new_game()
+	GameState.map_id = "auberge"
+	GameState.money = 111
+	check(SaveManager.save_game("m3"), "saves : écriture dans l'emplacement 3")
+	GameState.money = 222
+	check(SaveManager.save_game("m1"), "saves : écriture dans l'emplacement 1")
+	check(not SaveManager.save_game("a1") and not SaveManager.save_game("zz"), "saves : pas d'écriture manuelle dans un automatique ni un emplacement inconnu")
+	GameState.money = 0
+	check(SaveManager.load_game("m3") and GameState.money == 111, "saves : chargement de l'emplacement 3")
+	check(SaveManager.load_game("m1") and GameState.money == 222, "saves : chargement de l'emplacement 1")
+	GameState.money = 0
+	check(SaveManager.latest_id() == "m1" and SaveManager.load_game() and GameState.money == 222, "saves : « Continuer » reprend la plus récente")
+	var e1: Dictionary = SaveManager.list_slots(false)[0]
+	check(not e1["empty"] and e1["map_name"] == "Au Bon Mouillage" and int(e1["level"]) >= 1 and str(e1["saved_at"]) != "", "saves : résumé d'un emplacement (lieu, niveau, date)")
+	GameState.money = 5
+	check(SaveManager.save_game() and SaveManager.current_slot == "m1" and int(SaveManager.read_slot("m1")["money"]) == 5, "saves : sauvegarde rapide dans l'emplacement courant")
+	SaveManager.delete_slot("m1")
+	check(SaveManager.read_slot("m1").is_empty() and SaveManager.latest_id() == "m3", "saves : suppression d'un emplacement")
+
+	# sauvegardes automatiques tournantes
+	for i in 4:
+		GameState.money = 10 + i
+		check(SaveManager.autosave("lieu") == "a1", "saves : sauvegarde automatique %d" % (i + 1))
+	check(int(SaveManager.read_slot("a1")["money"]) == 13 and int(SaveManager.read_slot("a2")["money"]) == 12 and int(SaveManager.read_slot("a3")["money"]) == 11, "saves : rotation a1 -> a2 -> a3, la plus vieille disparaît")
+	check(SaveManager.latest_id() == "a1", "saves : la plus récente est l'automatique")
+	check(SaveManager.autosave("combat", "jeton") == "a1" and SaveManager.find_battle_slot("jeton") == "a1", "saves : la sauvegarde d'avant combat est retrouvée")
+	SaveManager.autosave("lieu")
+	check(SaveManager.find_battle_slot("jeton") == "a2" and SaveManager.find_battle_slot("") == "", "saves : le jeton suit la rotation")
+	check(SaveManager.list_slots(true).size() == SaveManager.MANUAL_SLOTS + 3, "saves : manuels et automatiques listés ensemble")
+
+	# fichiers abîmés ou d'une carte inconnue : ignorés
+	for id: String in ["m2", "m4", "m5"]:
+		SaveManager.delete_slot(id)
+	var f := FileAccess.open(SaveManager.slot_path("m2"), FileAccess.WRITE)
+	f.store_string("{ pas du json")
+	f.close()
+	var bad := GameState.to_dict()
+	bad["map_id"] = "carte_inexistante"
+	f = FileAccess.open(SaveManager.slot_path("m4"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(bad))
+	f.close()
+	f = FileAccess.open(SaveManager.slot_path("m5"), FileAccess.WRITE)
+	f.store_string("[1, 2]")
+	f.close()
+	check(SaveManager.read_slot("m2").is_empty() and SaveManager.read_slot("m4").is_empty() and SaveManager.read_slot("m5").is_empty(), "saves : fichier corrompu, carte inconnue ou mauvais type ignorés")
+	check(SaveManager.list_slots(false)[1]["empty"] and SaveManager.has_save(), "saves : un fichier abîmé n'empêche pas les autres")
+	check(not SaveManager.load_game("m2"), "saves : charger un fichier abîmé échoue proprement")
+
+	# migration de l'ancienne sauvegarde unique
+	SaveManager.delete_save()
+	GameState.new_game()
+	GameState.map_id = "auberge"
+	GameState.money = 777
+	var legacy := GameState.to_dict()
+	legacy["saved_at"] = "2026-01-02 03:04:05"
+	f = FileAccess.open(SaveManager.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(legacy))
+	f.close()
+	check(SaveManager.has_save(), "saves : l'ancien fichier unique est reconnu")
+	check(not FileAccess.file_exists(SaveManager.save_path) and not SaveManager.read_slot("m1").is_empty(), "saves : ancien fichier migré vers l'emplacement 1")
+	GameState.money = 0
+	check(SaveManager.load_game("m1") and GameState.money == 777, "saves : rien perdu dans la migration")
+	check(str(SaveManager.read_slot("m1")["saved_at"]) == "2026-01-02 03:04:05", "saves : la date d'origine est conservée")
+
+	# écran de sauvegarde
+	for id: String in SaveManager.manual_ids() + SaveManager.auto_ids():
+		SaveManager.delete_slot(id)
+	GameState.new_game()
+	GameState.map_id = "auberge"
+	GameState.money = 1
+	SaveManager.save_game("m2")
+	SaveManager.autosave("lieu")
+	var screen: Control = SaveScreen.new()
+	add_child(screen)
+	var saved_ids: Array = []
+	var chosen: Array = []
+	screen.saved.connect(func(id: String) -> void: saved_ids.append(id))
+	screen.finished.connect(func(c: String) -> void: chosen.append(c))
+	screen.open("save", "test")
+	await get_tree().process_frame
+	check(screen.visible and screen._rows.size() == SaveManager.MANUAL_SLOTS, "saves : écran de sauvegarde, emplacements manuels seulement")
+	GameState.money = 2
+	screen._on_row("m2")
+	check(screen.is_modal_open() and int(SaveManager.read_slot("m2")["money"]) == 1, "saves : confirmation avant d'écraser un emplacement occupé")
+	screen._modal_no.pressed.emit()
+	check(not screen.is_modal_open() and int(SaveManager.read_slot("m2")["money"]) == 1, "saves : annuler laisse l'emplacement intact")
+	screen._on_row("m2")
+	screen._on_modal_yes()
+	check(int(SaveManager.read_slot("m2")["money"]) == 2 and saved_ids == ["m2"] and not screen.visible, "saves : écrasement confirmé")
+	screen.open("save", "test")
+	screen._on_row("m6")
+	check(not screen.is_modal_open() and not SaveManager.read_slot("m6").is_empty(), "saves : un emplacement libre se remplit sans confirmation")
+	screen.open("load", "test")
+	await get_tree().process_frame
+	check(screen._rows.size() == SaveManager.MANUAL_SLOTS + 1 and screen._rows["m1"].disabled, "saves : écran de chargement, vides grisés, automatiques ajoutées")
+	chosen.clear()
+	screen._on_row("m2")
+	check(chosen == ["m2"], "saves : choisir un emplacement le charge")
+	screen.open("load", "test")
+	screen._ask("Effacer ?", "Effacer", func() -> void: screen._delete("m6"))
+	screen._on_modal_yes()
+	check(SaveManager.read_slot("m6").is_empty() and screen.visible and not screen.is_modal_open(), "saves : effacement depuis la liste")
+	screen.close()
+
+	# écran de défaite
+	var ui: Control = BattleUI.new()
+	add_child(ui)
+	ui.save_screen = screen
+	ui.before_battle_slot = "a1"
+	var res: Array = []
+	var run := func() -> void: res.append(await ui.show_defeat())
+	run.call()
+	await get_tree().process_frame
+	var labels: Array = []
+	for b in ui._end_layer.find_children("*", "Button", true, false):
+		labels.append((b as Button).text)
+	check(labels == ["Recommencer le combat", "Revenir avant le combat", "Charger une sauvegarde", "Retour à l'écran-titre"], "saves : défaite, quatre choix (%s)" % str(labels))
+	ui._on_end("before")
+	await get_tree().process_frame
+	check(res == ["load:a1"], "saves : « Revenir avant le combat » charge la sauvegarde d'avant (%s)" % str(res))
+	res.clear()
+	ui.before_battle_slot = ""
+	run.call()
+	await get_tree().process_frame
+	labels.clear()
+	for b in ui._end_layer.find_children("*", "Button", true, false):
+		labels.append((b as Button).text)
+	check(not labels.has("Revenir avant le combat"), "saves : pas de retour avant le combat sans sauvegarde d'avant")
+	ui._on_end("load")
+	await get_tree().process_frame
+	check(screen.visible and screen.context == "defeat", "saves : « Charger une sauvegarde » ouvre la liste")
+	screen.close()
+	await get_tree().process_frame
+	check(res.is_empty() and ui._end_layer.visible, "saves : annuler ramène à l'écran de défaite")
+	ui._on_end("load")
+	await get_tree().process_frame
+	screen._on_row("m2")
+	await get_tree().process_frame
+	check(res == ["load:m2"], "saves : charger depuis la défaite (%s)" % str(res))
+	ui.close()
+	ui.queue_free()
+	screen.queue_free()
+
+	# intégration : sauvegarde automatique avant un combat sans fuite, puis chargement après défaite
+	if not OS.has_environment("GLAN_QUICK"):
+		SaveManager.delete_save()
+		var main: Node = MAIN.instantiate()
+		main.auto_battles = true
+		add_child(main)
+		await _wait_idle(main)
+		main.start_new_game()
+		await _wait_idle(main)
+		check(main.mode == main.Mode.PLAY, "saves : partie lancée pour le test d'intégration")
+		GameState.money = 4242
+		check(SaveManager.save_game("m1"), "saves : sauvegarde manuelle en jeu")
+		GameState.heal_party()
+		var before_count := 0
+		await main.start_battle({"enemies": ["limace_molle"], "arena": "pre", "flee": false})
+		var found := ""
+		for e: Dictionary in SaveManager.list_slots(true):
+			if not e["empty"] and e["kind"] == "auto" and e["auto_reason"] == "combat":
+				found = str(e["id"])
+		check(found != "", "saves : sauvegarde automatique avant un combat sans fuite")
+		check(main.battle_ui.before_battle_slot == "", "saves : le repère d'avant-combat est nettoyé après le combat")
+		var n_auto := 0
+		for e: Dictionary in SaveManager.list_slots(true):
+			if not e["empty"] and e["kind"] == "auto":
+				n_auto += 1
+		await main.start_battle({"enemies": ["limace_molle"], "arena": "pre"})
+		var n_after := 0
+		for e: Dictionary in SaveManager.list_slots(true):
+			if not e["empty"] and e["kind"] == "auto":
+				n_after += 1
+		check(n_after == n_auto, "saves : pas de sauvegarde automatique avant un combat où l'on peut fuir")
+		GameState.money = 1
+		main._pending_load = "m1"
+		main._leave_after_defeat("load")
+		await _wait_idle(main)
+		check(main.mode == main.Mode.PLAY and GameState.money == 4242 and main.world != null, "saves : chargement après une défaite, partie restaurée")
+		main.queue_free()
+		await get_tree().process_frame
+	SaveManager.delete_save()
+	check(not FileAccess.file_exists(SaveManager.slot_path("m1")) and not SaveManager.has_save(), "saves : nettoyage complet")

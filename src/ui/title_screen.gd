@@ -3,14 +3,15 @@ extends Control
 
 signal new_game_requested
 signal continue_requested
+signal load_requested
 signal quit_requested
 
 const UI = preload("res://src/ui/ui_kit.gd")
 
 var _new: Button
 var _continue: Button
+var _load: Button
 var _save_info: Label
-var _confirm_overwrite := false
 
 
 func _ready() -> void:
@@ -80,6 +81,12 @@ func _ready() -> void:
 	info_row.add_theme_constant_override("margin_left", 22)
 	info_row.add_child(_save_info)
 	box.add_child(info_row)
+	_load = UI.menu_button("Charger", 30)
+	_load.pressed.connect(func() -> void:
+		Sfx.play("confirm")
+		load_requested.emit())
+	_load.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	box.add_child(_load)
 	var quit := UI.menu_button("Quitter", 30)
 	quit.pressed.connect(func() -> void: quit_requested.emit())
 	quit.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -93,11 +100,11 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
-	_confirm_overwrite = false
-	_new.text = "Nouvelle partie"
 	var has_save := SaveManager.has_save()
 	_continue.disabled = not has_save
 	_continue.focus_mode = Control.FOCUS_ALL if has_save else Control.FOCUS_NONE
+	_load.disabled = not has_save
+	_load.focus_mode = Control.FOCUS_ALL if has_save else Control.FOCUS_NONE
 	_save_info.text = SaveManager.summary() if has_save else "Aucune sauvegarde"
 	if has_save:
 		_continue.grab_focus()
@@ -110,10 +117,5 @@ func close() -> void:
 
 
 func _on_new() -> void:
-	if SaveManager.has_save() and not _confirm_overwrite:
-		_confirm_overwrite = true
-		_new.text = "Écraser la sauvegarde ? Valider à nouveau"
-		Sfx.play("cancel")
-		return
 	Sfx.play("confirm")
 	new_game_requested.emit()
