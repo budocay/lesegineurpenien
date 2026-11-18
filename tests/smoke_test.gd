@@ -5425,6 +5425,18 @@ func _test_tutorials() -> void:
 		jkey = jkey or ev is InputEventKey
 		jpad = jpad or ev is InputEventJoypadButton
 	check(InputMap.has_action("journal") and jkey and jpad, "journal : une touche directe au clavier et à la manette")
+	# La manette répond quel que soit son numéro (sous Windows elle n'est pas toujours la 0).
+	for pad_case: Array in [["interact", JOY_BUTTON_A], ["cancel", JOY_BUTTON_B], ["menu", JOY_BUTTON_START], ["move_left", JOY_BUTTON_DPAD_LEFT], ["ui_accept", JOY_BUTTON_A], ["ui_cancel", JOY_BUTTON_B], ["ui_down", JOY_BUTTON_DPAD_DOWN]]:
+		var pad_ev := InputEventJoypadButton.new()
+		pad_ev.device = 3
+		pad_ev.button_index = pad_case[1] as JoyButton
+		pad_ev.pressed = true
+		check(pad_ev.is_action(pad_case[0]), "manette numéro 3 : le bouton déclenche « %s »" % pad_case[0])
+	var stick_ev := InputEventJoypadMotion.new()
+	stick_ev.device = 2
+	stick_ev.axis = JOY_AXIS_LEFT_X
+	stick_ev.axis_value = 1.0
+	check(stick_ev.is_action("move_right"), "manette numéro 2 : le stick gauche déplace le héros")
 	var QT: GDScript = load("res://src/core/quest_target.gd")
 	var n_targets := 0
 	var bad_targets: Array = []

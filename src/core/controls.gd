@@ -22,6 +22,16 @@ func _ready() -> void:
 	_extend_physical("ui_left", KEY_A)
 	_extend_physical("ui_right", KEY_D)
 	_extend_physical("ui_accept", KEY_E)
+	# Manette dans les menus : A valide, B annule, croix et stick gauche déplacent le curseur,
+	# quel que soit le numéro de la manette.
+	_extend_pad("ui_accept", JOY_BUTTON_A)
+	_extend_pad("ui_cancel", JOY_BUTTON_B)
+	_extend_pad("ui_up", JOY_BUTTON_DPAD_UP, JOY_AXIS_LEFT_Y, -1.0)
+	_extend_pad("ui_down", JOY_BUTTON_DPAD_DOWN, JOY_AXIS_LEFT_Y, 1.0)
+	_extend_pad("ui_left", JOY_BUTTON_DPAD_LEFT, JOY_AXIS_LEFT_X, -1.0)
+	_extend_pad("ui_right", JOY_BUTTON_DPAD_RIGHT, JOY_AXIS_LEFT_X, 1.0)
+	_extend_pad("ui_page_up", JOY_BUTTON_LEFT_SHOULDER)
+	_extend_pad("ui_page_down", JOY_BUTTON_RIGHT_SHOULDER)
 
 
 func _action(action: String, keys: Array, physical_keys: Array, buttons: Array, axis: int = -1, axis_value: float = 0.0) -> void:
@@ -38,13 +48,36 @@ func _action(action: String, keys: Array, physical_keys: Array, buttons: Array, 
 		InputMap.action_add_event(action, ev)
 	for b: int in buttons:
 		var ev := InputEventJoypadButton.new()
+		# -1 : n'importe quelle manette. Sous Windows, un clavier ou une souris « de jeu »
+		# prend souvent le numéro 0 et la vraie manette le numéro 1 : elle restait muette.
+		ev.device = -1
 		ev.button_index = b as JoyButton
 		InputMap.action_add_event(action, ev)
 	if axis >= 0:
 		var ev := InputEventJoypadMotion.new()
+		ev.device = -1
 		ev.axis = axis as JoyAxis
 		ev.axis_value = axis_value
 		InputMap.action_add_event(action, ev)
+
+
+func _extend_pad(action: String, button: int, axis: int = -1, axis_value: float = 0.0) -> void:
+	if not InputMap.has_action(action):
+		return
+	# on retire d'abord les entrées de manette déjà présentes, pour ne rien doubler
+	for old: InputEvent in InputMap.action_get_events(action):
+		if old is InputEventJoypadButton or old is InputEventJoypadMotion:
+			InputMap.action_erase_event(action, old)
+	var ev := InputEventJoypadButton.new()
+	ev.device = -1
+	ev.button_index = button as JoyButton
+	InputMap.action_add_event(action, ev)
+	if axis >= 0:
+		var motion := InputEventJoypadMotion.new()
+		motion.device = -1
+		motion.axis = axis as JoyAxis
+		motion.axis_value = axis_value
+		InputMap.action_add_event(action, motion)
 
 
 func _extend_physical(action: String, key: int) -> void:
