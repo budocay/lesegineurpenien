@@ -1,0 +1,778 @@
+{
+	"garde_arrivee": [
+		{
+			"banner": "L'Isengarde-Manger",
+			"sub": "À conserver au frais, de préférence loin de la lumière"
+		},
+		{
+			"set": "garde_vu"
+		},
+		{
+			"action": "groupe:sam,froton,merri,pepin"
+		},
+		{
+			"text": "Une cage à jambon, accrochée à une chaîne, sous une voûte de tôle noire. Dans la cage, quatre Grobittes assis dans la paille. À leurs pieds, une étiquette ficelée : « À conserver. Ne pas agiter. À consommer de préférence avant la fin du monde. »"
+		},
+		{
+			"who": "sam",
+			"text": "Trois jours. Trois jours que je compte. J'ai mangé trois fois, un pain si dur que j'ai pu le sculpter. Une cuillère, pour demain."
+		},
+		{
+			"who": "merri",
+			"text": "J'ai noté la routine. La ronde passe à l'heure de la soupe, le relevé à l'heure du bruit, et le gardien dort à l'heure de l'appel. Il faut croire qu'ils ont une organisation excellente. Je la déteste, mais je la respecte."
+		},
+		{
+			"who": "pepin",
+			"text": "Je me demande ce qu'on a fait à Glandoulf, ou ce qu'il nous a fait, pour qu'on soit si seuls."
+		},
+		{
+			"text": "Froton, assis au fond, ne dit rien. Il tient l'anneau dans sa paume, très serré. Chaque fois qu'il le regarde, ses yeux se plissent, comme à la lumière d'un four."
+		},
+		{
+			"who": "sam",
+			"text": "Froton. Tu le regardes trop souvent."
+		},
+		{
+			"who": "froton",
+			"text": "Je le surveille. Quelqu'un doit le surveiller."
+		}
+	],
+	"garde_bilan": [
+		{
+			"set": "bilan_fait"
+		},
+		{
+			"text": "Une porte s'ouvre, sans un bruit, au bout du couloir. Un grand vieillard entre, vêtu de blanc, ou presque : son manteau est blanc-cassé, avec un col de fourrure et une plume d'oie passée à la ceinture. Il tient un dossier épais sous le bras, et il ne dit rien de menaçant."
+		},
+		{
+			"who": "sarumale",
+			"text": "Bonsoir. Je ne suis pas venu vous menacer. Je suis venu faire le point."
+		},
+		{
+			"who": "sam",
+			"text": "Sarumâle. On nous a parlé de vous."
+		},
+		{
+			"who": "sarumale",
+			"text": "En mal, j'imagine. Je préfère « en détail ». Point un : vous. Quatre Grobittes. Un anneau, sous la chemise du plus grand. Un magicien en moins, que vous croyez tombé."
+		},
+		{
+			"who": "froton",
+			"text": "Glandoulf est tombé avec le pont. Je l'ai vu."
+		},
+		{
+			"who": "sarumale",
+			"text": "Glandoulf le Gris. Promotion 2891, classe des Cadets-Magiciens, Ordre des Mages, bureau 12, rez-de-chaussée. Il dormait déjà. Nous avons un dossier."
+		},
+		{
+			"text": "Il pose le dossier sur la paille. Quatre cent douze feuillets, sous une chemise bleue, à en-tête de l'Ordre. Sur la couverture, d'une belle écriture ronde : « Dossier Glandoulf. Lecture recommandée. »"
+		},
+		{
+			"who": "sarumale",
+			"text": "Page 12 : la sieste du Gué des Poireaux, quatre-vingt-trois ans, vérifiée. Page 40 : les trois lettres du Conseil, où il répond « tout est en règle », trois fois, le même jour, avec une plume empruntée. Page 207 : l'anneau confié à Isidur, par pur sommeil. Page 311 : la version officielle du mensonge. Page 400 : la mienne."
+		},
+		{
+			"who": "merri",
+			"text": "Vous avez préparé ça longtemps."
+		},
+		{
+			"who": "sarumale",
+			"text": "Quarante ans. Je suis méthodique. Je n'aime pas qu'on me dise que je suis cruel : je suis simplement à jour."
+		},
+		{
+			"text": "Froton prend le dossier. Il le feuillette sans respirer. Il lit la page 40, puis la 207. Ses doigts tremblent un peu sur le papier. L'anneau, dans son autre main, a l'air plus lourd."
+		},
+		{
+			"who": "froton",
+			"text": "Il savait. Depuis le début. Il m'a regardé tomber, et il savait."
+		},
+		{
+			"who": "sam",
+			"text": "Froton. Ça ne change rien."
+		},
+		{
+			"who": "froton",
+			"text": "Ça change tout. J'ai fait confiance à quelqu'un qui n'avait aucune raison de l'être."
+		},
+		{
+			"who": "sarumale",
+			"text": "Je n'ai rien dit d'autre que ce qui est écrit. Voulez-vous me confier l'anneau ? Ce sera plus simple. On classera."
+		},
+		{
+			"text": "Froton regarde l'anneau. Puis la cage. Puis ses trois amis. Rien de ce qu'il pense ne se lit sur son visage, sauf peut-être cette fatigue, très neuve, d'un homme qui a trop longtemps porté la moitié d'un secret."
+		},
+		{
+			"who": "froton",
+			"text": "Non. Je vais sortir d'ici, et c'est moi qui garderai ça."
+		},
+		{
+			"text": "Il enfile l'anneau. L'air se resserre. Les barreaux de la cage grincent tous ensemble, comme un cercle qui se referme. Ses yeux ne sont plus les siens : ils appartiennent à quelqu'un d'autre, qui a pris son temps pour s'installer."
+		},
+		{
+			"who": "sam",
+			"text": "Froton, enlève-le ! Froton !"
+		},
+		{
+			"who": "merri",
+			"text": "Il ne nous entend plus. Il entend autre chose. Il faut le faire descendre, doucement, par n'importe quel moyen."
+		},
+		{
+			"action": "groupe:sam,merri,pepin"
+		},
+		{
+			"battle": "froton_anneaute"
+		},
+		{
+			"if": "combat_froton_anneaute",
+			"then": [
+				{
+					"text": "Froton vacille. Sa main s'ouvre toute seule. L'anneau glisse, roule sur la paille, s'arrête contre une botte. Il tombe à genoux, sans un cri."
+				},
+				{
+					"who": "froton",
+					"text": "Pardon. Pardon, Sam. Je ne sais pas ce qui m'a pris. Si, je sais. C'est ce qui m'a pris, justement."
+				},
+				{
+					"who": "sam",
+					"text": "Rien ne sert de serrer, Froton. Il faut mollir à point. C'est tout ce que je sais, et j'ai passé trois jours à y réfléchir."
+				},
+				{
+					"action": "groupe:sam,froton,merri,pepin"
+				},
+				{
+					"who": "sarumale",
+					"text": "Tout s'est passé conformément au rapport."
+				},
+				{
+					"who": "merri",
+					"text": "Vous l'aviez prévu ?"
+				},
+				{
+					"who": "sarumale",
+					"text": "J'ai prévu qu'il l'enfilerait, qu'il serait battu par ses amis et qu'il pleurerait, en bas de la page. J'ai juste oublié l'heure. Je vous remets en cage : ce n'est pas encore le moment de se séparer."
+				},
+				{
+					"text": "Il sort sans un bruit. La grille se referme. Dans la paille, quelque chose bouge : une boule de pâte, grosse comme un chat, qui lève, très lentement, entre les barreaux voisins."
+				},
+				{
+					"who": "pepin",
+					"text": "Elle lève."
+				},
+				{
+					"who": "sam",
+					"text": "Elle lève tellement qu'elle fait sauter la serrure. Un Pâton non conforme. Il s'est trompé de cuisson, et de cage."
+				},
+				{
+					"text": "La grille claque, d'un bout à l'autre du couloir. Le Pâton, un peu gêné, redescend, retombe en brioche et se rend, au pied de Merri, avec la docilité de ceux qui ont toujours rêvé d'être mangés."
+				},
+				{
+					"give": "brioche_non_conforme"
+				},
+				{
+					"who": "merri",
+					"text": "Bordereau d'évacuation 12 : « En cas de non-conformité, suivre la goulotte de fromage, direction Cabécou. » Le conduit est là, au bout du couloir. J'avais cru à une farce. C'est écrit sur les murs."
+				},
+				{
+					"set": "froton_libere"
+				},
+				{
+					"action": "save"
+				},
+				{
+					"text": "(Quête : Délivrer les captifs. Le couloir de l'Isengarde mène à la goulotte à fromages, à l'est.)"
+				}
+			]
+		}
+	],
+	"garde_ronde": [
+		{
+			"who": "uglouk_pnj",
+			"text": "Ah. Les colis. Vous êtes sortis. Ce n'est pas prévu à l'inventaire, et les inventaires, ça me mord."
+		},
+		{
+			"battle": "uglouk_garde"
+		},
+		{
+			"if": "combat_uglouk_garde",
+			"then": [
+				{
+					"text": "Uglouk s'assied sur un sac de farine, très digne, et sort son papier. « Colis hors de l'inventaire. Je note. »"
+				}
+			]
+		}
+	],
+	"garde_goulotte": [
+		{
+			"text": "Une goulotte de tôle, large comme un tonneau, qui descend (ou monte, on ne sait plus) dans l'obscurité. Une étiquette, clouée au bord : « FROMAGES NON CONFORMES. DESTINATION : CABÉCOU. NE PAS S'ASSEOIR. »"
+		},
+		{
+			"who": "sam",
+			"text": "On s'assoit ?"
+		},
+		{
+			"who": "merri",
+			"text": "C'est écrit « ne pas ». Mais c'est écrit par des gens qui nous ont mis en cage."
+		},
+		{
+			"if": "froton_libere",
+			"then": [
+				{
+					"text": "Les quatre Grobittes se jettent dans la goulotte, l'un derrière l'autre, avec la dignité de colis qui se livrent eux-mêmes."
+				},
+				{
+					"action": "va:bergerie_or:entree"
+				}
+			],
+			"else": [
+				{
+					"text": "Pas question de partir sans Froton. Il faut d'abord sortir du Garde-Manger."
+				}
+			]
+		}
+	],
+	"garde_etiquette": [
+		{
+			"text": "Sur une planche, une rangée d'étiquettes de cage, collées de travers : « À conserver ». « À consommer avant la fin du monde ». « Fragile ». « Cet anneau est celui de la Maison. » La dernière est barrée, au crayon gras : « Ne figure plus à l'inventaire. »"
+		}
+	],
+	"garde_cage": [
+		{
+			"text": "Une cage à jambon vide, retournée. Sur le fond, un message gratté à l'ongle par un prédécesseur : « Pâtons non conformes, bonne chance. Il y en a trois dans les fours. Ils lèvent quand on leur parle gentiment. »"
+		}
+	],
+	"garde_coffre": [
+		{
+			"if": "coffre_garde_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, étiqueté « Contrôlé »."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre à scellés, marqué « Effets personnels des colis ». À l'intérieur : tout ce qu'on a pris aux captifs, rangé avec soin, et un dossier : « Effets restitués à l'issue du séjour. »"
+				},
+				{
+					"give": "tablier_de_petrisseur"
+				},
+				{
+					"give": "remontant",
+					"count": 2
+				},
+				{
+					"money": 180
+				},
+				{
+					"set": "coffre_garde_pris"
+				},
+				{
+					"text": "Un Tablier de pétrisseur, des fortifiants, de la monnaie. La Maison rend les choses, quand elle les a numérotées."
+				}
+			]
+		}
+	],
+	"bergerie_arrivee": [
+		{
+			"if": "froton_libere",
+			"then": [
+				{
+					"banner": "La Bergerie d'Or",
+					"sub": "Où le roi dort, tenant l'œil à demi ouvert"
+				},
+				{
+					"set": "bergerie_vue"
+				},
+				{
+					"text": "La goulotte déverse les quatre Grobittes sur un tas de fromages non conformes, au pied d'un trône. Un roi dort sur le trône, la barbe étalée sur ses genoux comme un champ avant la moisson. Autour de lui, une assemblée de cavaliers, mains sur les lances, qui regarde les Grobittes sans bouger."
+				},
+				{
+					"who": "eolaine",
+					"text": "Des colis ? Ou des visiteurs ?"
+				},
+				{
+					"who": "sam",
+					"text": "Des invités. Presque."
+				},
+				{
+					"who": "eolaine",
+					"text": "Alors vous êtes les amis des trois que j'ai escortés. Ils sont à Fongorn, avec les arbres. Mais vous, vous arrivez par la cuisine. C'est la première fois qu'un hôte me dit « bonjour » en tombant d'un conduit."
+				},
+				{
+					"who": "merri",
+					"text": "Bonjour. Je suis Merri Brandemou. Je suis chargé de tenir les registres, en général, et de quelques autres choses, en particulier."
+				},
+				{
+					"who": "eolaine",
+					"text": "Le roi Théodort n'a plus d'Écuyer Tranchant : on n'a plus rien tranché depuis qu'il dort. C'est le plus ancien office de la cour, celui qui sert le roi à table, qui lit ses lettres et qui coupe, au besoin, ce qu'il ne faut pas laisser traîner."
+				},
+				{
+					"who": "merri",
+					"text": "Coupe-t-on aussi les dossiers ?"
+				},
+				{
+					"who": "eolaine",
+					"text": "Ce sont les seuls qu'on tranche vraiment."
+				},
+				{
+					"text": "Merri avance, seul, jusqu'au trône. Il met un genou à terre, ce qui est difficile pour un Grobitte devant un trône aussi haut. Éolaine lui tend une dague, le pommeau en avant."
+				},
+				{
+					"who": "eolaine",
+					"text": "Jure."
+				},
+				{
+					"who": "merri",
+					"text": "Je jure de trancher ce qu'il faut, quand il le faut, et de ne rien trancher d'autre. Je jure de lire ce qui doit être lu, de signer ce qui doit être signé, et de ne rien signer qui ne soit pas lu. Et je jure, en trois exemplaires, de ne pas oublier."
+				},
+				{
+					"who": "eolaine",
+					"text": "Alors lève-toi, Écuyer Tranchant. Tu auras mal au genou. On l'a tous."
+				},
+				{
+					"give": "dague_de_l_ecuyer"
+				},
+				{
+					"action": "equipe:merri:dague_de_l_ecuyer"
+				},
+				{
+					"set": "merri_ecuyer"
+				},
+				{
+					"text": "Merri sort de sa veste les cartes de la région, pliées, usées, annotées de sa petite écriture. Il s'assoit au chevet du roi, sur une marche, et se met à lire à voix basse : les gués, les collines, les pistes d'Ouroukouilles, les brebis recensées, la date d'un orage."
+				},
+				{
+					"text": "Il lit toute la nuit. Il ne s'arrête que pour tourner une page. Dans la salle du trône, personne ne dort, sauf le roi, qui est le seul à qui cela soit permis."
+				},
+				{
+					"text": "Au matin, très lentement, comme on ouvre une fenêtre qu'on n'a pas touchée depuis des saisons, le roi Théodort ouvre l'œil droit."
+				},
+				{
+					"who": "theodort",
+					"text": "Qu'est-ce que j'ai manqué ?"
+				},
+				{
+					"who": "merri",
+					"text": "Le résumé, Majesté. En trois exemplaires. Un pour vous. Un pour la Maison de l'Isengarde, qui l'aura bientôt. Un pour la mémoire."
+				},
+				{
+					"who": "theodort",
+					"text": "Éolaine. Éolaine, c'est toi ? Tu as vieilli. Qui est cet homme qui parle comme un greffier ?"
+				},
+				{
+					"who": "eolaine",
+					"text": "C'est votre Écuyer Tranchant, mon oncle."
+				},
+				{
+					"who": "theodort",
+					"text": "J'ai un Écuyer Tranchant. Voilà qui est bien. Et Grimace ? J'entends qu'il s'est tu. Il ne s'est jamais tu. C'est inquiétant."
+				},
+				{
+					"who": "eolaine",
+					"text": "Il a été vaincu. Il rédigeait des rapports pour l'Ordre des Mages."
+				},
+				{
+					"who": "theodort",
+					"text": "Je le savais. Je dormais, mais ça n'empêche pas de savoir. Réveillez la plaine. Cabécou marche sur l'Isengarde, ce soir."
+				},
+				{
+					"set": "roi_reveille"
+				},
+				{
+					"text": "Un cor sonne, au loin. Puis un autre. Dans la cour, les cavaliers sautent en selle. Et, à la porte de la Bergerie, entre un petit groupe de voyageurs en cape, que personne n'a annoncé."
+				},
+				{
+					"who": "sam",
+					"text": "Glandoulf ?"
+				},
+				{
+					"who": "glandoulf",
+					"text": "Il paraît que je suis en retard. Je ne m'étais pas rendu compte que j'étais attendu."
+				},
+				{
+					"who": "froton",
+					"text": "Tu es tombé."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Je suis tombé en avant. Cela se produit plus souvent qu'on ne croit. Froton, avant que tu parles : je sais ce que je t'ai fait. Je vous raconterai tout. À chacun, dans l'ordre, sans rien arranger."
+				},
+				{
+					"who": "froton",
+					"text": "Je l'ai lu. Dans le Dossier. Avant de l'enfiler, cet anneau. Ça m'a coûté cher."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Je sais. Garde l'anneau. Garde-le pour toi, et pour moi. Je n'ai plus aucun droit de te dire quoi que ce soit, et je compte le garder encore longtemps."
+				},
+				{
+					"who": "sam",
+					"text": "Alors c'est réglé. On reste ensemble. On est huit, on a une plaine, des arbres qui marchent, un roi qui se réveille et une forteresse qui cuit."
+				},
+				{
+					"set": "reunion_faite"
+				},
+				{
+					"action": "groupe:tous"
+				},
+				{
+					"action": "groupe:glandoulf,sam,froton,aragrogne"
+				},
+				{
+					"action": "save"
+				},
+				{
+					"text": "(L'équipe est réunie : huit compagnons, dont quatre combattent à la fois. Le menu Équipe permet d'échanger ceux qui attendent. L'Isengarde-Manger, plein sud depuis Cabécou, n'attend plus que vous.)"
+				}
+			]
+		}
+	],
+	"bergerie_etendard": [
+		{
+			"text": "Un étendard de lin vert, brodé d'une brebis cabrée sur fond d'or. La devise, en lettres de laiton : « Qui mène ses brebis ne perd pas le fil. »"
+		}
+	],
+	"bergerie_coffre": [
+		{
+			"if": "coffre_bergerie_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, sauf un reçu : « Restitué. »"
+				}
+			],
+			"else": [
+				{
+					"text": "Au pied du trône, un coffre à pieds de brebis, rempli des présents que les voyageurs offrent au roi pour qu'il se réveille. Sur le couvercle : « Libre-service. »"
+				},
+				{
+					"give": "heaume_a_criniere"
+				},
+				{
+					"give": "brioche_du_cavalier",
+					"count": 2
+				},
+				{
+					"money": 200
+				},
+				{
+					"set": "coffre_bergerie_pris"
+				},
+				{
+					"text": "Un Heaume à crinière, deux brioches du cavalier et un peu d'or. Le roi n'en a pas besoin, ou il l'aurait déjà dit."
+				}
+			]
+		}
+	],
+	"isengarde_arrivee": [
+		{
+			"banner": "L'Isengarde-Manger",
+			"sub": "Fours chauds, fosses levées"
+		},
+		{
+			"set": "isengarde_vu"
+		},
+		{
+			"text": "Elle monte de la plaine comme un cauchemar de cuisinier : une grande tour de pierre noire, entourée d'un cercle de fosses où la pâte lève, tout en bulles et en soupirs, sous des couvercles de fonte. Des cheminées par dizaines. Des fours à n'en plus finir. L'air a l'odeur du pain qui n'a jamais été donné."
+		},
+		{
+			"who": "glandoulf",
+			"text": "L'Isengarde-Manger. Je l'ai vue bâtir, il y a longtemps. Elle n'était qu'une boulangerie. Le jour où on a recruté un contremaître, tout a basculé."
+		},
+		{
+			"who": "aragrogne",
+			"text": "La tour est au centre, le cercle de fosses la protège, et la route passe au milieu, comme une langue."
+		},
+		{
+			"who": "sam",
+			"text": "Les fours soufflent trop fort. On n'approchera pas, tant qu'ils chauffent."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Il faut les éteindre. Pour cela, il faut de l'eau, beaucoup. Les arbres s'en occuperont, s'ils sont arrivés."
+		},
+		{
+			"text": "Un craquement, dans l'obscurité, derrière eux. Une silhouette immense s'avance dans la plaine, une racine à la fois, en portant sur son dos un lac entier, qu'elle ne songe pas à renverser avant l'heure."
+		},
+		{
+			"who": "barbe_molle",
+			"text": "Nous… sommes là. Nous… sommes arrivés. Nous… avons… pris… du retard. Mais pas autant que prévu."
+		}
+	],
+	"isengarde_breche": [
+		{
+			"set": "breche_lancee"
+		},
+		{
+			"text": "La route mène à la grande porte de fonte. Elle est gardée par une brigade complète : des Ouroukouilles de ligne, des brocheurs, un pétrisseur en tablier de cuir. Ils se mettent en rang, en silence, sans que personne ait donné d'ordre."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Les Cavaliers tiennent la plaine. Les Entremets tiennent les fosses. Nous, on tient la porte. Ne reculez pas : derrière nous, il n'y a que du pain qui lève."
+		},
+		{
+			"battle": "breche"
+		},
+		{
+			"if": "combat_breche",
+			"then": [
+				{
+					"text": "La porte de fonte cède, d'un côté, avec le bruit d'un très gros couvercle qu'on pose de travers. La brigade s'écarte. Derrière elle, le cercle de fosses ronronne, jaune et rouge, sous un ciel de fumée."
+				},
+				{
+					"who": "barbe_molle",
+					"text": "Maintenant… nous… ouvrons… les… vannes."
+				},
+				{
+					"text": "Sur son dos, un lac. Barbe-Molle se penche, avec la lenteur d'un tronc qu'on abat, et déverse. Des cascades. De l'eau, de l'eau, sur les fosses, sur les fours, sur les cheminées. Les flammes sifflent, hésitent et s'éteignent, l'une après l'autre. La pâte, dans les fosses, lève, lève, trop vite, et déborde, sans prévenir."
+				},
+				{
+					"who": "sam",
+					"text": "La pâte déborde. Elle va tout recouvrir."
+				},
+				{
+					"who": "glandoulf",
+					"text": "C'est ce qu'on voulait. Elle lève trop : elle étouffe les fours. À la Maison, on n'a jamais prévu qu'un jour il y aurait trop de pain."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Rien ne sert de serrer, il faut mollir à point."
+				},
+				{
+					"who": "digoulasse",
+					"text": "Tu as eu cette phrase en réserve depuis le début, je suppose."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Depuis mon grand-père. Je ne la comprenais pas. Maintenant, si."
+				},
+				{
+					"set": "fosses_inondees"
+				},
+				{
+					"set": "fours_eteints"
+				},
+				{
+					"text": "La tour de l'Office, au centre du cercle, se découpe, noire et froide, sous un dernier filet de fumée. Une porte, au pied de la tour, s'ouvre toute seule. Pas un geste, pas un cri : une invitation, ou un rapport."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Il nous attend. Il aime les rendez-vous."
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"isengarde_pancarte": [
+		{
+			"text": "Une pancarte de tôle, fixée à un portique : « MAISON DE L'ISENGARDE-MANGER. DIRECTION GÉNÉRALE DES PÂTES, DES ÂMES ET DES AUTRES CONDITIONNEMENTS. SERVICE À LA CLIENTÈLE : SANS OBJET. »"
+		}
+	],
+	"isengarde_sac": [
+		{
+			"if": "coffre_isengarde_pris",
+			"then": [
+				{
+					"text": "Le sac est vide, sauf un reste de farine."
+				}
+			],
+			"else": [
+				{
+					"text": "Un sac de farine éventré, au pied d'un four éteint. Il y en a un autre, dessous, intact, avec la mention « Réserve de guerre ». Quelqu'un y a ajouté, à la craie : « Et de paix, si possible. »"
+				},
+				{
+					"give": "farine_en_sac",
+					"count": 3
+				},
+				{
+					"give": "brioche_non_conforme",
+					"count": 2
+				},
+				{
+					"money": 160
+				},
+				{
+					"set": "coffre_isengarde_pris"
+				},
+				{
+					"text": "Trois sacs de farine, deux brioches non conformes (la boulangère de Cabécou en voudra), et quelques pièces."
+				}
+			]
+		}
+	],
+	"isengarde_repos": [
+		{
+			"text": "Un fournil abandonné, éteint, avec un banc de pierre tiède. Dans la braise froide, un petit mot : « Aux compagnons de passage. Ne pas toucher à la pâte. »"
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'allonge sur le banc. Dehors, l'eau claque contre les fosses, et la pâte soupire, trop levée pour protester."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": []
+				}
+			]
+		}
+	],
+	"terrasse_arrivee": [
+		{
+			"banner": "La terrasse de l'Office",
+			"sub": "Direction générale, sans objet"
+		},
+		{
+			"set": "terrasse_vue"
+		},
+		{
+			"text": "Le sommet de la tour est une terrasse de fonte et de ferraille, sans parapet. Au milieu, une table de bureau, très ordinaire, et un grand fauteuil. Sarumâle, assis, finit de ranger ses stylos. Il lève les yeux comme on lève la tête d'un registre : sans impatience."
+		},
+		{
+			"who": "sarumale",
+			"text": "Ah. Vous. Bien. Reprenons le point un : vous."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Sarumâle. Je suis venu rendre des comptes."
+		},
+		{
+			"who": "sarumale",
+			"text": "Nous nous connaissons de vue. Vous avez dormi pendant que le monde changeait de main. Je n'ai pas dormi. C'est la seule différence, et tout le reste en découle."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je ne la nie pas."
+		},
+		{
+			"who": "sarumale",
+			"text": "C'est précisément ce que je redoutais. Vous êtes devenu quelqu'un qui assume. Cela rend les dossiers beaucoup plus difficiles à clore."
+		},
+		{
+			"who": "sam",
+			"text": "Vous vouliez l'anneau. Vous avez voulu faire de nous des colis."
+		},
+		{
+			"who": "sarumale",
+			"text": "Je voulais le remettre à qui de droit, au terme d'une procédure. La procédure est le seul rempart contre le chaos. Sans elle, vous marchez sur l'Isengarde avec des arbres, des cavaliers et un magicien en retard. Je trouve cela, à titre personnel, un peu… sale."
+		},
+		{
+			"who": "merri",
+			"text": "Un peu sale. Ce n'est pas un motif."
+		},
+		{
+			"who": "sarumale",
+			"text": "Tout est motif, pour qui sait le rédiger."
+		},
+		{
+			"text": "Il se lève. Sa robe blanc-cassé se tend, d'un coup, et se met à blanchir, de bas en haut, comme une neige tenace. Il tient un bâton blanc, plus grand que lui, gravé de la même mention : « propriété de la Compagnie »."
+		},
+		{
+			"who": "sarumale",
+			"text": "Je vous demande, pour finir, de ne pas vous sentir offensés. C'est en tout bien tout honneur."
+		},
+		{
+			"battle": "sarumale"
+		},
+		{
+			"if": "combat_sarumale",
+			"then": [
+				{
+					"text": "Sarumâle s'agenouille sur la terrasse. Sa robe, d'un blanc de chaux, se fendille. Les couleurs en sortent, toutes ensemble, en désordre : du rouge, du vert, du bleu, un peu de jaune, un reste d'orange. Chaque couleur proteste, et personne n'a plus la force de les mettre en ordre."
+				},
+				{
+					"who": "sarumale",
+					"text": "Elle était blanche. Elle est… de toutes les couleurs. Il va falloir la repasser."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Ça te va mieux, d'ailleurs."
+				},
+				{
+					"who": "sarumale",
+					"text": "Ne soyez pas aimable. Je ne sais pas gérer."
+				},
+				{
+					"text": "Au pied de la tour, la forêt entière a levé la tête. Barbe-Molle monte, une racine à la fois, par l'escalier extérieur. Il lui faut un long moment. Il y met le temps qu'il faut."
+				},
+				{
+					"who": "barbe_molle",
+					"text": "Nous… avons… délibéré. Nous… te condamnons… à rester… sur place… le temps… qu'il faut."
+				},
+				{
+					"who": "sarumale",
+					"text": "Combien de temps, exactement ?"
+				},
+				{
+					"who": "barbe_molle",
+					"text": "Le temps… qu'il faut."
+				},
+				{
+					"who": "sarumale",
+					"text": "Ce n'est pas une durée."
+				},
+				{
+					"who": "barbe_molle",
+					"text": "Non. C'est… pour ça… que c'est… une peine."
+				},
+				{
+					"set": "sarumale_vaincu"
+				},
+				{
+					"give": "robe_bariolee"
+				},
+				{
+					"text": "(Robe bariolée, tombée de ses épaules, ramassée par Glandoulf, qui n'ose pas la mettre. Il l'enfilera plus tard, quand plus personne ne le regardera.)"
+				},
+				{
+					"text": "Le soir tombe sur l'Isengarde. En bas, les fours sont froids, et la pâte déborde dans la plaine. Les cavaliers, en cercle, applaudissent à leur manière : en tapant des étriers contre les selles."
+				},
+				{
+					"text": "Les Entremets repartent dans la forêt, très lentement, un par un, en s'enracinant tous les cent pas. Au premier plan, Sarumâle, assis par terre, regarde sa robe."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Un chapitre de moins. Il en reste, je crois, deux."
+				},
+				{
+					"banner": "Chapitre 5 terminé",
+					"sub": "Le Roquefort et l'Isengarde-Manger"
+				},
+				{
+					"set": "chapitre_5_fini"
+				},
+				{
+					"chapter": "chapitre_6"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"sarumale_assis": [
+		{
+			"text": "Sarumâle est assis par terre, au bord de la terrasse, sa robe bariolée sur les genoux. Il la regarde. Il ne la regarde pas avec colère : il la regarde comme on regarde un tableau dont on est l'auteur et qu'on ne reconnaît pas."
+		},
+		{
+			"who": "sarumale",
+			"text": "Ne me parlez pas. J'ai quelque chose à prendre en compte."
+		}
+	],
+	"terrasse_ecriteau": [
+		{
+			"text": "Un écriteau de bureau, en lettres capitales : « DIRECTION GÉNÉRALE. PRIÈRE DE NE PAS DÉRANGER. SAUF POUR UNE RAISON VALABLE. » Quelqu'un a barré « valable » et écrit « grave ». Puis a barré « grave ». Il ne reste rien."
+		}
+	]
+}

@@ -1,0 +1,254 @@
+{
+	"id": "chutes_gratin",
+	"name": "Les Chutes du Gratin",
+	"region": "Terres de l'Est",
+	"size": [
+		44,
+		24
+	],
+	"ambiance": "chutes",
+	"music": "chutes_gratin",
+	"arena": "chutes_gratin",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "chu_gravier",
+		"fills": [
+			{
+				"type": "chu_roche",
+				"rect": [
+					0,
+					10,
+					44,
+					4
+				]
+			},
+			{
+				"type": "water",
+				"rect": [
+					15,
+					0,
+					14,
+					7
+				]
+			},
+			{
+				"type": "chu_roche",
+				"rect": [
+					31,
+					2,
+					11,
+					6
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.0,
+				12.0
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				41.0,
+				12.0
+			],
+			"facing": "left"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				31,
+				2,
+				11,
+				6
+			],
+			"h": 1.5
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				34,
+				8,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 1.5
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "chutes_embuscade",
+			"unless": "embuscade_faite"
+		}
+	],
+	"style": "chutes",
+	"water": {
+		"deep": "#7a4a14",
+		"shallow": "#d89a30",
+		"ripple": "#ffe090",
+		"glint": "#fff4c0"
+	},
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				0.0,
+				10.0,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "portes_est",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				43.2,
+				10.0,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "plaine_roquefort",
+				"spawn": "ouest"
+			},
+			"if": "embuscade_faite"
+		},
+		{
+			"type": "chu_cascade",
+			"pos": [
+				22.0,
+				1.4
+			],
+			"height": 5.0,
+			"width": 5.0
+		},
+		{
+			"type": "ent_panonceau",
+			"pos": [
+				7.0,
+				9.2
+			],
+			"dialogue": "chutes_panneau",
+			"label": "Lire"
+		},
+		{
+			"type": "chu_ecume",
+			"pos": [
+				19.0,
+				7.4
+			],
+			"dialogue": "chutes_cascade",
+			"label": "Regarder"
+		},
+		{
+			"type": "chu_pierre",
+			"pos": [
+				34.5,
+				11.2
+			],
+			"dialogue": "chutes_louche_trouvee",
+			"label": "Examiner",
+			"variant": 1
+		},
+		{
+			"type": "crate",
+			"pos": [
+				38.0,
+				5.0
+			],
+			"dialogue": "chutes_coffre",
+			"label": "Ouvrir",
+			"turn": 8
+		},
+		{
+			"type": "scatter",
+			"prop": "elf_pine",
+			"rect": [
+				0,
+				15,
+				44,
+				9
+			],
+			"count": 14,
+			"min_dist": 2.4,
+			"seed": 51,
+			"on": [
+				"chu_gravier"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "elf_pine",
+			"rect": [
+				0,
+				0,
+				14,
+				9
+			],
+			"count": 8,
+			"min_dist": 2.4,
+			"seed": 52,
+			"on": [
+				"chu_gravier"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "chu_pierre",
+			"rect": [
+				0,
+				14,
+				44,
+				10
+			],
+			"count": 9,
+			"min_dist": 2.0,
+			"seed": 53,
+			"on": [
+				"chu_gravier"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "chu_ecume",
+			"rect": [
+				14,
+				5,
+				16,
+				3
+			],
+			"count": 4,
+			"min_dist": 2.0,
+			"seed": 54,
+			"on": [
+				"water"
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				22,
+				6
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.8,
+			"range": 12.0
+		}
+	]
+}

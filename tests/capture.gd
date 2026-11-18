@@ -23,6 +23,9 @@ func _ready() -> void:
 	if args.size() > 1 and args[1] == "chap4":
 		await _dwarven_only()
 		return
+	if args.size() > 1 and args[1] == "chap5":
+		await _rider_only()
+		return
 	await _shot("1_titre")
 
 	main.start_new_game()
@@ -423,6 +426,120 @@ func _dwarven_only() -> void:
 	await _dwarven_arenas(true)
 	SaveManager.delete_save()
 	print("CAPTURES CHAP4 OK : ", out_dir)
+	get_tree().quit()
+
+
+## Chapitre 5 : les huit cartes, les sept arènes et les grands ennemis (mode « chap5 » seul).
+func _rider_shots() -> void:
+	for f: String in ["chapitre_4_fini", "portes_vues", "bromure_invite", "embuscade_faite", "plaine_vue", "cabecou_vu", "fongorn_vu", "garde_vu", "bergerie_vue", "isengarde_vu", "bilan_fait", "glandoulf_revenu", "bromure_revenu", "bromure_mort"]:
+		GameState.set_flag(f)
+	main.change_map("portes_est", "pont")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(12.0, 0.0, 12.4), "right")
+	await _shot("90_portes_tombe")
+	main.change_map("chutes_gratin", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("91_chutes_arrivee")
+	await _goto(Vector3(24.0, 0.0, 9.2), "up")
+	await _shot("92_chutes_cascade")
+	await _goto(Vector3(37.0, 0.0, 5.5), "left")
+	await _shot("93_chutes_terrasse")
+	main.change_map("plaine_roquefort", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("94_plaine_arrivee")
+	await _goto(Vector3(29.0, 0.0, 7.0), "down")
+	await _shot("95_plaine_colline")
+	await _goto(Vector3(44.0, 0.0, 19.0), "right")
+	await _shot("96_plaine_enclos")
+	main.change_map("cabecou", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("97_cabecou_arrivee")
+	await _goto(Vector3(30.0, 0.0, 14.5), "up")
+	await _shot("98_cabecou_halle")
+	await _goto(Vector3(50.0, 0.0, 7.5), "left")
+	await _shot("99_cabecou_terrasse")
+	main.change_map("fongorn", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("100_fongorn_arrivee")
+	await _goto(Vector3(40.0, 0.0, 10.0), "up")
+	await _shot("101_fongorn_barbe_molle")
+	GameState.set_flag("grimace_vaincue")
+	main.change_map("bergerie_or", "porte")
+	await _frames(150)
+	await _idle()
+	await _shot("102_bergerie_entree")
+	await _goto(Vector3(20.0, 0.0, 8.0), "up")
+	await _shot("103_bergerie_trone")
+	main.change_map("garde_manger", "cellules")
+	await _frames(150)
+	await _idle()
+	await _shot("104_garde_cellules")
+	await _goto(Vector3(29.0, 0.0, 13.0), "right")
+	await _shot("105_garde_salle")
+	main.change_map("isengarde", "sud")
+	await _frames(150)
+	await _idle()
+	await _shot("106_isengarde_arrivee")
+	await _goto(Vector3(32.0, 0.0, 14.0), "up")
+	await _shot("107_isengarde_chaussee")
+	GameState.set_flag("fosses_inondees")
+	GameState.set_flag("fours_eteints")
+	main.change_map("isengarde", "tour")
+	await _frames(150)
+	await _idle()
+	await _shot("108_isengarde_inondee")
+	GameState.set_flag("sarumale_vaincu")
+	main.change_map("terrasse_office", "entree")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(13.0, 0.0, 9.0), "right")
+	await _shot("109_terrasse_office")
+
+
+func _rider_arenas(bosses: bool) -> void:
+	var cases := [["chutes_gratin", ["ouroukouille_ligne", "ouroukouille_brocheur", "ouroukouille_petrisseur"]], ["plaine_roquefort", ["ouargue", "hirsute", "corbeau_controleur"]],
+		["fongorn", ["hors_oeuvre", "hors_oeuvre", "hors_oeuvre"]], ["bergerie_or", ["paton", "ouroukouille_ligne"]],
+		["garde_manger", ["ouroukouille_ligne", "paton", "paton"]], ["petrins", ["ouroukouille_ligne", "ouroukouille_petrisseur", "ouroukouille_brocheur", "paton"]],
+		["terrasse_office", ["ouroukouille_ligne", "ouroukouille_brocheur"]]]
+	if bosses:
+		cases = [["chutes_gratin", ["uglouk", "ouroukouille_ligne", "ouroukouille_brocheur"]], ["plaine_roquefort", ["grimace", "corbeau_controleur", "corbeau_controleur"]],
+			["garde_manger", ["froton_anneaute"]], ["terrasse_office", ["sarumale"]]]
+	var n := 110 if not bosses else 118
+	for c: Array in cases:
+		main.start_battle({"enemies": c[1], "arena": c[0], "flee": true})
+		await _until_menu()
+		await _frames(50)
+		await _shot("%d_arene_%s" % [n, str(c[0])])
+		n += 1
+		(main.battle_ui._root_list.get_child(4) as Button).pressed.emit()
+		await _until_end()
+		main.battle_ui._on_end("ok")
+		await _frames(120)
+
+
+func _rider_only() -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["sam", "froton", "pepin", "merri", "aragrogne", "digoulasse", "grimli", "glandoulf"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 18
+	GameState.set_flag("chapitre_4_fini")
+	GameState.map_id = "portes_est"
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	await _rider_shots()
+	await _rider_arenas(false)
+	await _rider_arenas(true)
+	SaveManager.delete_save()
+	print("CAPTURES CHAP5 OK : ", out_dir)
 	get_tree().quit()
 
 

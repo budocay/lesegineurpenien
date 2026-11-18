@@ -1,0 +1,464 @@
+{
+	"id": "cabecou",
+	"name": "Cabécou",
+	"region": "Plaine à Brebis",
+	"size": [
+		60,
+		30
+	],
+	"ambiance": "plaine_or",
+	"music": "plaine_or",
+	"arena": "plaine_roquefort",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "cav_herbe",
+		"fills": [
+			{
+				"type": "cav_chemin",
+				"rect": [
+					0,
+					15,
+					60,
+					3
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					28,
+					10,
+					4,
+					6
+				]
+			},
+			{
+				"type": "cav_planches",
+				"rect": [
+					24,
+					16,
+					12,
+					6
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					8,
+					0,
+					3,
+					15
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					44,
+					3,
+					14,
+					7
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.0,
+				16.5
+			],
+			"facing": "right"
+		},
+		"fongorn": {
+			"pos": [
+				56.5,
+				16.5
+			],
+			"facing": "left"
+		},
+		"nord": {
+			"pos": [
+				9.5,
+				2.5
+			],
+			"facing": "down"
+		},
+		"porte": {
+			"pos": [
+				30.0,
+				11.6
+			],
+			"facing": "down"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				44,
+				3,
+				14,
+				7
+			],
+			"h": 1.4
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				42,
+				5,
+				2,
+				2
+			],
+			"dir": "right",
+			"from": 0.0,
+			"to": 1.4
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "cabecou_arrivee",
+			"unless": "cabecou_vu"
+		}
+	],
+	"style": "cavalier",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				0.0,
+				14.5,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "plaine_roquefort",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				59.2,
+				14.5,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "fongorn",
+				"spawn": "ouest"
+			},
+			"if": "grimace_vaincue"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				8.0,
+				0.0,
+				3.0,
+				0.8
+			],
+			"to": {
+				"map": "isengarde",
+				"spawn": "sud"
+			},
+			"if": "reunion_faite"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				29.0,
+				10.2,
+				2.0,
+				1.2
+			],
+			"to": {
+				"map": "bergerie_or",
+				"spawn": "porte"
+			},
+			"if": "grimace_vaincue"
+		},
+		{
+			"type": "cav_halle",
+			"pos": [
+				30.0,
+				7.0
+			],
+			"size": [
+				12.0,
+				6.0
+			],
+			"height": 4.0
+		},
+		{
+			"type": "cav_palissade",
+			"pos": [
+				0,
+				0
+			],
+			"points": [
+				[
+					14,
+					3
+				],
+				[
+					24,
+					3
+				]
+			],
+			"height": 1.6
+		},
+		{
+			"type": "cav_palissade",
+			"pos": [
+				0,
+				0
+			],
+			"points": [
+				[
+					36,
+					3
+				],
+				[
+					42,
+					3
+				]
+			],
+			"height": 1.6
+		},
+		{
+			"type": "npc",
+			"id": "grimace",
+			"pos": [
+				30.0,
+				12.6
+			],
+			"facing": "down",
+			"reach": 2.4,
+			"dialogue": "grimace_gate",
+			"unless": "combat_grimace"
+		},
+		{
+			"type": "npc",
+			"id": "eolaine",
+			"pos": [
+				21.0,
+				16.8
+			],
+			"facing": "right",
+			"reach": 1.9
+		},
+		{
+			"type": "npc",
+			"id": "eomeche",
+			"pos": [
+				34.5,
+				17.2
+			],
+			"facing": "left",
+			"reach": 1.9
+		},
+		{
+			"type": "npc",
+			"id": "boulangere",
+			"pos": [
+				47.0,
+				6.6
+			],
+			"facing": "down",
+			"reach": 1.9
+		},
+		{
+			"type": "npc",
+			"id": "cavalier",
+			"pos": [
+				26.0,
+				13.4
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"wander": 1.5
+		},
+		{
+			"type": "npc",
+			"id": "cavaliere",
+			"pos": [
+				14.0,
+				19.8
+			],
+			"facing": "up",
+			"reach": 1.9,
+			"wander": 2.0
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				26.8,
+				18.6
+			],
+			"dialogue": "cabecou_panneau",
+			"label": "Lire",
+			"variant": 0
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				27.0,
+				11.2
+			],
+			"dialogue": "cabecou_halle_fermee",
+			"label": "Lire",
+			"variant": 1,
+			"unless": "grimace_vaincue"
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				33.0,
+				11.2
+			],
+			"variant": 1
+		},
+		{
+			"type": "cav_grange",
+			"pos": [
+				12.0,
+				21.0
+			]
+		},
+		{
+			"type": "cav_grange",
+			"pos": [
+				50.0,
+				22.0
+			]
+		},
+		{
+			"type": "cav_grange",
+			"pos": [
+				16.0,
+				7.0
+			]
+		},
+		{
+			"type": "cav_enclos",
+			"pos": [
+				40.0,
+				24.0
+			]
+		},
+		{
+			"type": "cav_enclos",
+			"pos": [
+				8.0,
+				25.0
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_arbre",
+			"rect": [
+				0,
+				0,
+				60,
+				4
+			],
+			"count": 14,
+			"min_dist": 2.4,
+			"seed": 71,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_arbre",
+			"rect": [
+				0,
+				26,
+				60,
+				4
+			],
+			"count": 16,
+			"min_dist": 2.4,
+			"seed": 72,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_brebis",
+			"rect": [
+				2,
+				19,
+				56,
+				7
+			],
+			"count": 9,
+			"min_dist": 3.0,
+			"seed": 73,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_botte",
+			"rect": [
+				2,
+				19,
+				56,
+				7
+			],
+			"count": 6,
+			"min_dist": 3.0,
+			"seed": 74,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "grass",
+			"rect": [
+				0,
+				3,
+				60,
+				24
+			],
+			"count": 30,
+			"min_dist": 1.2,
+			"seed": 75,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				18
+			],
+			"height": 2.6,
+			"color": "#ffe8b0",
+			"energy": 1.6,
+			"range": 14.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				48,
+				6
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.2,
+			"range": 9.0
+		}
+	]
+}

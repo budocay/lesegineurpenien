@@ -36,6 +36,13 @@
 				12.0
 			],
 			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				33.0,
+				12.0
+			],
+			"facing": "left"
 		}
 	},
 	"on_enter": [
@@ -58,7 +65,7 @@
 				22.0,
 				9.4
 			],
-			"dialogue": "portes_panneau",
+			"dialogue": "portes_panneau_5",
 			"label": "Lire"
 		},
 		{
@@ -119,6 +126,54 @@
 			"count": 7,
 			"min_dist": 2.0,
 			"seed": 13
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				7.0,
+				10.0,
+				1.2,
+				4.0
+			],
+			"dialogue": "bromure_adieu",
+			"unless": "bromure_mort"
+		},
+		{
+			"type": "npc",
+			"id": "bromure",
+			"pos": [
+				12.5,
+				11.2
+			],
+			"facing": "left",
+			"reach": 2.0,
+			"dialogue": "bromure_adieu",
+			"if": "portes_vues",
+			"unless": "bromure_mort"
+		},
+		{
+			"type": "nain_stele",
+			"pos": [
+				14.6,
+				10.9
+			],
+			"dialogue": "bromure_tombe",
+			"label": "Lire",
+			"if": "bromure_mort"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				35.0,
+				10.0,
+				0.9,
+				4.0
+			],
+			"to": {
+				"map": "chutes_gratin",
+				"spawn": "ouest"
+			},
+			"if": "bromure_mort"
 		}
 	]
 }

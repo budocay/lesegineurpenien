@@ -25,6 +25,7 @@ var chapter: String = "chapitre_1"
 var flags: Dictionary = {}
 var quests: Dictionary = {}      # id de quête -> "active" ou "done" (absente : pas commencée)
 var party: Array = []            # ids de tous les personnages recrutés, dans l'ordre : les MAX_ACTIVE premiers se battent, les autres sont en réserve
+var bench: Array = []            # compagnons séparés du groupe (chapitre 5 : l'équipe se scinde) ; leurs fiches restent dans le registre
 var roster: Dictionary = {}      # id -> {level, xp, hp, mp, equip: {emplacement: objet}, specialization, talents}
 var bestiary: Dictionary = {}    # id d'ennemi -> faiblesses déjà découvertes
 var inventory: Dictionary = {}   # id d'objet -> quantité (l'équipement porté n'y figure pas)
@@ -59,6 +60,7 @@ func new_game() -> void:
 	bestiary = {}
 	tutorials_seen = {}
 	party = []
+	bench = []
 	for id: Variant in start.get("party", ["glandoulf"]):
 		add_to_party(str(id))
 	money = int(start.get("money", 0))
@@ -87,6 +89,42 @@ func add_to_party(id: String, catch_up: bool = false) -> String:
 	if not is_active(id):
 		Tutorial.fire("reserve")
 	return "active" if is_active(id) else "reserve"
+
+
+## Scinde ou réunit le groupe (action de dialogue `groupe:a,b,c`). Les personnages listés
+## forment l'équipe, dans cet ordre (le premier mène) ; les recrutés qui n'y sont pas passent
+## sur le banc, fiche intacte (niveau, expérience, équipement, talents). Un personnage qui
+## entre dans l'équipe et que son niveau laisse en retard sur ceux qui y étaient déjà les
+## rattrape (il ne gagne pas d'expérience pendant son absence). Renvoie faux si rien de valable.
+func set_group(ids: Array) -> bool:
+	var next: Array = []
+	for id: Variant in ids:
+		var sid := str(id)
+		if not next.has(sid) and not Rules.battle_def(sid).is_empty():
+			next.append(sid)
+	if next.is_empty():
+		return false
+	var top := 0
+	for id: Variant in next:
+		if party.has(id):
+			top = maxi(top, int(member(str(id))["level"]))
+	var away: Array = []
+	for id: Variant in party + bench:
+		if not next.has(id) and not away.has(id):
+			away.append(id)
+	for id: Variant in next:
+		if not party.has(id):
+			var m := member(str(id))
+			if top > int(m["level"]):
+				m["level"] = top
+				m["xp"] = 0
+				m.erase("hp")
+				m.erase("mp")
+				member(str(id))
+	party = next
+	bench = away
+	refresh_quests()
+	return true
 
 
 ## Les personnages qui se battent : les quatre premiers de la liste.
@@ -314,6 +352,12 @@ func member_skills(id: String) -> Array:
 		for s: Variant in _array(Rules.talent_def(id, str(t)).get("skills")):
 			if not out.has(str(s)) and not Database.get_skill(str(s)).is_empty():
 				out.append(str(s))
+	var gear: Dictionary = member(id)["equip"]
+	for slot: String in SLOTS:   # une pièce d'équipement peut donner des compétences (champ « skills » de l'objet)
+		if gear.has(slot):
+			for s: Variant in _array(Database.get_item(str(gear[slot])).get("skills")):
+				if not out.has(str(s)) and not Database.get_skill(str(s)).is_empty():
+					out.append(str(s))
 	return out
 
 
@@ -743,6 +787,7 @@ func to_dict() -> Dictionary:
 		"flags": flags.duplicate(true),
 		"quests": quests.duplicate(true),
 		"party": party.duplicate(),
+		"bench": bench.duplicate(),
 		"roster": roster.duplicate(true),
 		"bestiary": bestiary.duplicate(true),
 		"inventory": inventory.duplicate(true),
@@ -770,11 +815,12 @@ func from_dict(d_in: Dictionary) -> bool:
 	bestiary = _dict(d.get("bestiary"))
 	inventory = _dict(d.get("inventory"))
 	party = _array(d.get("party"))
+	bench = _array(d.get("bench"))
 	money = int(d.get("money", 0))
 	_refreshing = true   # pas de quête qui démarre au milieu du chargement
 	if party.is_empty():
 		add_to_party(str(Database.game.get("player", "glandoulf")))
-	for id: Variant in party:
+	for id: Variant in party + bench:
 		member(str(id))   # complète les fiches des anciennes sauvegardes
 		_clean_talents(str(id))
 		_clean_equipment(str(id))

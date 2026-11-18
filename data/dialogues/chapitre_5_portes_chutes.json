@@ -1,0 +1,343 @@
+{
+	"bromure_adieu": [
+		{
+			"set": "bromure_revenu"
+		},
+		{
+			"text": "Derrière eux, sur le sentier, quelqu'un descend en clopinant. Une cape rouge en lambeaux. Un casque posé de travers. Un homme qui marche comme on tient une promesse : sans savoir d'où vient la force."
+		},
+		{
+			"who": "sam",
+			"text": "Bromure ? Mais le pont est tombé. Tu étais de l'autre côté."
+		},
+		{
+			"who": "bromure",
+			"text": "Je suis passé par en dessous."
+		},
+		{
+			"who": "merri",
+			"text": "En dessous, il y a un gouffre. Je l'ai vu. Je l'ai même noté."
+		},
+		{
+			"who": "bromure",
+			"text": "Et dans le gouffre, il y avait le Balourd. Il m'est tombé dessus."
+		},
+		{
+			"who": "grimli",
+			"text": "Un Balourd. Tombé sur toi."
+		},
+		{
+			"who": "bromure",
+			"text": "Je suis tombé sur un tas de laine. Il y avait un tas de laine, au fond d'un gouffre, dans une mine. Je ne cherche plus à comprendre."
+		},
+		{
+			"who": "pepin",
+			"text": "Et les gobelins du camp ? Ils t'ont tiré dessus, avant le lac. Je les ai entendus."
+		},
+		{
+			"who": "bromure",
+			"text": "Douze flèches. Toutes dans mon sac de ration. Douze, dans le pain. J'ai mangé le pain. Il était encore bon."
+		},
+		{
+			"who": "froton",
+			"text": "Douze flèches dans le pain, un Balourd sur la laine, un pont qui s'écroule. Tu n'as pas une égratignure."
+		},
+		{
+			"who": "bromure",
+			"text": "Non. Et c'est bien ce qui m'inquiète."
+		},
+		{
+			"text": "Il s'assoit sur l'établi de pierre, sous le surplomb. Au-dessus de lui, le rocher porte une rangée de glaçons, fins comme des cuillères, que le soleil de l'est commence à fatiguer. Personne ne les regarde. Ils ne regardent personne non plus."
+		},
+		{
+			"who": "bromure",
+			"text": "On n'échappe pas quatre fois. La cinquième, ça se paie. Je le sais comme on sait l'heure : sans montre. Asseyez-vous. Je vais parler, et je vous demande de ne pas m'interrompre : j'ai quelqu'un de plus pressé que moi pour le faire."
+		},
+		{
+			"who": "sam",
+			"text": "Qui ?"
+		},
+		{
+			"who": "bromure",
+			"text": "Le destin. Il a beaucoup de retard à rattraper avec moi."
+		},
+		{
+			"text": "Ils se rangent en demi-cercle dans la neige. Pas un ne sourit. Aragrogne a ôté son capuchon, Grimli son casque. C'est la minute où les gens se taisent parce qu'ils ont compris."
+		},
+		{
+			"who": "bromure",
+			"text": "Mon père est l'Intendant de Minas Tartine. Un homme qui pèse tout, y compris ses mots. Il m'a dit un jour : « Un Gouda ne ment pas, il vieillit. » Je n'ai jamais su s'il parlait de moi ou du fromage. Dites-lui, quand vous le verrez, que j'ai vieilli."
+		},
+		{
+			"who": "bromure",
+			"text": "L'anneau. Je l'ai voulu. Je l'ai voulu à en avoir mal aux mains, devant le Conseil entier, et devant toi, Froton. J'ai tendu le bras. Je ne suis pas fier de ce que j'ai tendu. Je suis fier de ce que j'ai lâché : c'est la seule chose de ma vie que j'aie rendue à temps."
+		},
+		{
+			"who": "froton",
+			"text": "Je ne t'en ai jamais voulu."
+		},
+		{
+			"who": "bromure",
+			"text": "Tu aurais dû. Ça m'aurait aidé. On dit chez nous : « On ne prête qu'aux doigts qui portent. » Je n'étais pas de ceux-là. C'est une chose très dure à apprendre, quand on a la main large et le cœur bien placé."
+		},
+		{
+			"who": "bromure",
+			"text": "Minas Tartine tiendra. Elle a tenu sans nous bien des hivers, elle tiendra sans moi quelques déjeuners. Je laisse ma cape à qui la veut : elle a douze trous, mais elle a tenu. Je laisse mon casque à Sam, qui en fera une casserole. Je laisse mon nom au Gouda, qui n'en a jamais eu besoin."
+		},
+		{
+			"who": "sam",
+			"text": "Je le garderai. Je ne ferai pas de casserole. Enfin, pas tout de suite."
+		},
+		{
+			"who": "bromure",
+			"text": "Faites. Un casque qui sert à quelque chose, c'est tout ce qu'on peut souhaiter à un casque."
+		},
+		{
+			"who": "bromure",
+			"text": "Une dernière chose. Je voudrais qu'on se souvienne que je n'ai jamais, au grand jamais, cédé. Ni aux Ouroukouilles, ni aux gobelins, ni au Balourd, ni aux Ordres, ni aux Anneaux, ni les…"
+		},
+		{
+			"text": "Un glaçon se détache du surplomb. Un petit bruit, sec, très court, presque poli. Bromure ne finit pas sa phrase. Il ne la finira plus."
+		},
+		{
+			"text": "Le silence dure assez longtemps pour que la neige, tout autour, ait le temps de le trouver respectueux."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Il allait dire quelque chose."
+		},
+		{
+			"who": "merri",
+			"text": "Cause du décès : glaçon. Circonstances à préciser."
+		},
+		{
+			"who": "sam",
+			"text": "Il avait tout traversé. Tout. Je ne comprends pas."
+		},
+		{
+			"who": "froton",
+			"text": "Ça vient du toit."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Une armée, un lac, un Balourd, un pont. Et il perd contre de l'eau."
+		},
+		{
+			"who": "pepin",
+			"text": "Un glaçon, c'est de l'eau qui s'est fait des idées."
+		},
+		{
+			"who": "grimli",
+			"text": "Un nain en aurait fait un proverbe. Je n'en trouve pas. C'est la première fois."
+		},
+		{
+			"who": "merri",
+			"text": "Je note sa dernière phrase : « ni les… ». Je laisse la ligne ouverte. Pour un registre, c'est la plus honnête."
+		},
+		{
+			"text": "Sam retire son chapeau. Les autres l'imitent, un à un, dans le désordre. Grimli sort son petit couteau et grave la pierre de l'établi, sans parler, en y mettant le temps qu'il faut et pas un mot de plus."
+		},
+		{
+			"set": "bromure_mort"
+		},
+		{
+			"give": "cape_de_bromure"
+		},
+		{
+			"text": "(La Cape de Bromure rejoint le sac. Douze trous, un seul propriétaire, plus personne dedans.)"
+		},
+		{
+			"who": "sam",
+			"text": "On avance. Prudemment. Et personne ne passe sous un toit sans le regarder d'abord."
+		},
+		{
+			"action": "save"
+		}
+	],
+	"bromure_tombe": [
+		{
+			"text": "Sur l'établi de pierre, au couteau, d'une main de nain : « Ci-gît Bromure du Gouda, mort à la suite d'une phrase. » Dessous, plus petit : « Il ne l'a pas finie. »"
+		},
+		{
+			"text": "Au-dessus, un trou tout neuf dans la rangée de glaçons. Le soleil, lui, continue son travail avec le sérieux de ceux qui n'ont rien à se reprocher."
+		}
+	],
+	"portes_panneau_5": [
+		{
+			"text": "Un panneau gravé par un nain pressé : « VERS LA FORÊT DE LOTHLORRAINE. PRIÈRE DE NE PAS FAIRE DE BRUIT, LA DAME DORT. » Plus bas, à la craie, d'une autre main : « Chemin de l'Est : Chutes du Gratin, 2 lieues, serrées. »"
+		},
+		{
+			"if": "bromure_mort",
+			"then": [
+				{
+					"text": "Le sentier de l'est descend vers la plaine. Il n'a pas l'air dangereux, ce qui, après les Mines, est en soi inquiétant."
+				}
+			],
+			"else": [
+				{
+					"text": "Une silhouette rouge, au loin, s'assoit sur l'établi. Il vaut peut-être mieux aller lui parler."
+				}
+			]
+		}
+	],
+	"chutes_embuscade": [
+		{
+			"banner": "Les Chutes du Gratin",
+			"sub": "Dorées à point, servies chaudes"
+		},
+		{
+			"action": "groupe:sam,froton,merri,pepin"
+		},
+		{
+			"text": "L'aube sent la croûte. Au bout du sentier, l'eau tombe d'une falaise en nappe dorée, épaisse, bouillonnante, avec ce grésillement des choses qui finissent bien cuites. Aragrogne, Digoulasse et Grimli sont partis en amont chercher un gué. Sam, Froton, Merri et Pépin gardent les sacs."
+		},
+		{
+			"who": "sam",
+			"text": "C'est beau. C'est même un peu trop beau. Je me méfie des cascades qui ont l'air de se laisser manger."
+		},
+		{
+			"who": "merri",
+			"text": "Les cartes disent « Chutes du Gratin, sous réserve de croûte ». Je ne sais pas ce que cela signifie."
+		},
+		{
+			"text": "Des silhouettes se lèvent entre les rochers, trop hautes, trop larges, tablier noir et toque blanche sur le crâne. Elles avancent en ligne, au pas, avec des louches. Au centre, un sergent consulte un papier."
+		},
+		{
+			"who": "uglouk_pnj",
+			"text": "Livraison. Quatre colis, un anneau. Veuillez signer ici."
+		},
+		{
+			"who": "froton",
+			"text": "Nous ne vous devons aucune livraison."
+		},
+		{
+			"who": "uglouk_pnj",
+			"text": "Bon de commande 31, au nom de la Maison. Ouroukouille de ligne Uglouk, chef de brigade. Je suis ici pour conditionner."
+		},
+		{
+			"who": "pepin",
+			"text": "Regarde son plastron. Cette louche gravée, dans le métal. Elle est blanche. Il y a écrit « Signé »."
+		},
+		{
+			"who": "sam",
+			"text": "Signé par qui ?"
+		},
+		{
+			"who": "pepin",
+			"text": "La signature est illisible. C'est ce qui est inquiétant : elle a l'air très sûre d'elle."
+		},
+		{
+			"text": "Uglouk lève sa louche, qu'il tient comme on tient un sceptre. Les Ouroukouilles ferment le demi-cercle. Il n'y a pas d'autre sortie que la falaise, et elle est brûlante."
+		},
+		{
+			"battle": "ambuscade_chutes"
+		},
+		{
+			"if": "combat_ambuscade_chutes",
+			"then": [
+				{
+					"text": "Uglouk plie un genou, son papier à la main. Il n'est pas vaincu : il est interrompu. Et pendant qu'il se relève, la rive se remplit."
+				},
+				{
+					"text": "Trente, quarante Ouroukouilles sortent de derrière les rochers, comme on sort d'une file d'attente. Elles ne chargent pas. Elles encerclent, avec méthode, en ordre alphabétique."
+				},
+				{
+					"who": "sam",
+					"text": "Rendons-nous. Poliment. Ils ont des feuilles, et eux savent s'en servir."
+				},
+				{
+					"who": "uglouk_pnj",
+					"text": "Reçu de livraison. Quatre colis en bon état, un anneau déclaré. Merci de signer au bas, en trois exemplaires."
+				},
+				{
+					"who": "merri",
+					"text": "Je signe où ?"
+				},
+				{
+					"who": "froton",
+					"text": "Merri !"
+				},
+				{
+					"who": "merri",
+					"text": "C'est un réflexe. Je le fais sans penser, comme les gens qui éternuent."
+				},
+				{
+					"who": "uglouk_pnj",
+					"text": "Parfait. Fouille des colis : demain, avant la soupe. À la Maison, on ne prend jamais un anneau à la hâte. On le prend à l'heure."
+				},
+				{
+					"text": "On leur lie les mains avec de la ficelle de boucher. Elle est très bien nouée. Merri, au passage, la félicite."
+				},
+				{
+					"set": "embuscade_faite"
+				},
+				{
+					"banner": "Pendant ce temps",
+					"sub": "Dans la plaine, sans eux"
+				},
+				{
+					"action": "groupe:aragrogne,digoulasse,grimli"
+				},
+				{
+					"action": "va:plaine_roquefort:ouest"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"chutes_panneau": [
+		{
+			"text": "Un panneau planté de travers : « CHUTES DU GRATIN. NE PAS CHAUFFER LA CHUTE. NE PAS JETER DE PÂTES. LES PÂTES NE SONT PAS COMPRISES DANS LE PRIX. »"
+		}
+	],
+	"chutes_louche_trouvee": [
+		{
+			"text": "Au bord de l'eau, coincée entre deux galets, une vieille louche blanche. Pas un ustensile : un bâton de service. Elle porte un numéro de série à six chiffres et la mention « propriété de la Compagnie ». Elle est tiède, comme si quelqu'un la tenait encore."
+		},
+		{
+			"text": "Mieux vaut la laisser où elle est. Elle n'a pas l'air d'avoir fini son travail ici."
+		}
+	],
+	"chutes_cascade": [
+		{
+			"text": "La cascade tombe en rideau d'ambre, avec un petit bruit de friture. En s'approchant, on distingue des croûtons qui flottent, au pied de la chute, et qui descendent la rivière, dociles."
+		},
+		{
+			"who": "pepin",
+			"text": "Je n'ai pas faim. Mais je suis tenté de le dire plus fort pour qu'on me croie."
+		}
+	],
+	"chutes_coffre": [
+		{
+			"if": "coffre_chutes_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Dedans, il reste l'odeur du pain."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre échoué sur la rive, rempli de colis non réclamés. Tous ont une étiquette « Service des colis ». Tous sont à votre nom."
+				},
+				{
+					"give": "brioche_du_cavalier",
+					"count": 2
+				},
+				{
+					"give": "sirop_de_seve"
+				},
+				{
+					"money": 160
+				},
+				{
+					"set": "coffre_chutes_pris"
+				},
+				{
+					"text": "Brioches, sirop et pièces. Livraison conforme, sans signature, ce qui est une première."
+				}
+			]
+		}
+	]
+}

@@ -38,7 +38,9 @@ const FAMILY := {"baveuse": "limace", "sangsue": "limace", "frelon": "guepe", "a
 ## passent par la vieille passe `_volume`.
 const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon", "amanite", "sanglier",
 	"solitaire", "grenouille", "crapaud", "follet", "epouvantail", "rat", "coq", "asticot", "vacherin",
-	"mouche", "moisi", "gobelin", "gobelin_pic", "gobelin_chef", "chauve", "troll", "guetteur", "goulum", "balourd"]
+	"mouche", "moisi", "gobelin", "gobelin_pic", "gobelin_chef", "chauve", "troll", "guetteur", "goulum", "balourd",
+	"ouroukouille", "ouroukouille_brocheur", "ouroukouille_petrisseur", "ouroukouille_chef", "paton", "ouargue",
+	"corbeau", "hirsute", "hors_oeuvre"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -71,6 +73,15 @@ const SIZES := {
 	"guetteur": Vector2i(58, 52),
 	"goulum": Vector2i(38, 46),
 	"balourd": Vector2i(68, 76),
+	"ouroukouille": Vector2i(42, 50),
+	"ouroukouille_brocheur": Vector2i(44, 50),
+	"ouroukouille_petrisseur": Vector2i(46, 50),
+	"ouroukouille_chef": Vector2i(50, 58),
+	"paton": Vector2i(38, 36),
+	"ouargue": Vector2i(52, 36),
+	"corbeau": Vector2i(40, 36),
+	"hirsute": Vector2i(42, 50),
+	"hors_oeuvre": Vector2i(32, 36),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -120,6 +131,15 @@ static func paint(kind: String) -> Image:
 			"guetteur": _watcher(img, ox, f, col)
 			"goulum": _gollum(img, ox, f, col)
 			"balourd": _balrog(img, ox, f, col)
+			"ouroukouille": _orc(img, ox, f, col, 0)
+			"ouroukouille_brocheur": _orc(img, ox, f, col, 1)
+			"ouroukouille_petrisseur": _orc(img, ox, f, col, 2)
+			"ouroukouille_chef": _orc(img, ox, f, col, 3)
+			"paton": _dough(img, ox, f, col)
+			"ouargue": _warg(img, ox, f, col)
+			"corbeau": _crow(img, ox, f, col)
+			"hirsute": _hillman(img, ox, f, col)
+			"hors_oeuvre": _canape(img, ox, f, col)
 			_:
 				PA.rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		if not PAINTED.has(kind):
@@ -1177,3 +1197,188 @@ static func _balrog(img: Image, ox: int, f: int, col: int) -> void:
 		for k in 4:
 			PA.px(img, ox + 29 + k * 3, 28 + dy, Color.WHITE)
 
+
+
+# ---------------------------------------------------------- chapitre 5
+
+## Ouroukouille, grand orque de l'Isengarde-Manger. kind : 0 de ligne (casque de marmite, couvercle
+## en bouclier), 1 brocheur (brochette de deux mètres), 2 pétrisseur (tablier de farine, rouleau),
+## 3 chef de cuisine (toque noircie, louche).
+static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
+	var skin := _ramp("#4a4a46" if kind != 3 else "#3c4440")
+	var cloth := _ramp(["#6a4a32", "#5a3a2a", "#d8d2c0", "#2a2a30"][kind])
+	var metal := _ramp("#8a8ea0")
+	var fat := 3.0 if kind == 2 else 0.0
+	var dy := f
+	var base := 4 if kind == 3 else 0
+	var cx := 21.0 + (2.0 if kind == 3 else 0.0)
+	_cap(img, ox + cx - 5.0, 33.0 + dy + base, ox + cx - 6.0, 44.0 + base, 3.0, 2.6, _dim(skin))
+	_cap(img, ox + cx + 5.0, 33.0 + dy + base, ox + cx + 6.0, 44.0 + base, 3.0, 2.6, skin)
+	PA.rect(img, ox + int(cx) - 10, 44 + base, 7, 3, skin[1])
+	PA.rect(img, ox + int(cx) + 3, 44 + base, 7, 3, skin[2])
+	_ell(img, ox + cx, 26.0 + dy + base, 10.0 + fat, 10.5 + fat * 0.6, cloth)
+	if kind == 2:
+		PA.rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 14, Color("#f0ece0"))
+		PA.rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 1, Color.WHITE)
+		for k in 5:
+			PA.px(img, ox + int(cx) - 5 + k * 3, 28 + dy + base + (k % 2) * 3, Color("#c8c2b0"))
+	else:
+		PA.rect(img, ox + int(cx) - 8, 32 + dy + base, 17, 2, Color("#c9a24a"))
+	var hx := cx + 3.0
+	var hy := 12.0 + dy + base
+	_ell(img, ox + hx, hy, 8.0, 7.5, skin, 0.05)
+	_ell(img, ox + hx + 7.0, hy + 3.0, 3.6, 2.8, skin, 0.15)
+	_cap(img, ox + hx - 6.0, hy - 2.0, ox + hx - 12.0, hy - 6.0, 2.0, 0.8, skin)
+	var ey := int(hy) - 2
+	if col == 3:
+		PA.rect(img, ox + int(hx) + 1, ey + 1, 5, 1, Color("#1c1418"))
+	else:
+		PA.rect(img, ox + int(hx) + 1, ey, 5, 3, Color("#e8c040"))
+		PA.rect(img, ox + int(hx) + 4, ey, 2, 3, Color("#1c1418"))
+		PA.rect(img, ox + int(hx), ey - 1, 7, 1, Color("#1c1418"))
+	if col == 2:
+		PA.rect(img, ox + int(hx) + 1, int(hy) + 4, 8, 4, Color("#4a1424"))
+		PA.rect(img, ox + int(hx) + 2, int(hy) + 4, 1, 2, Color.WHITE)
+		PA.rect(img, ox + int(hx) + 7, int(hy) + 4, 1, 2, Color.WHITE)
+	else:
+		PA.rect(img, ox + int(hx) + 2, int(hy) + 5, 7, 1, Color("#1c1418"))
+		PA.px(img, ox + int(hx) + 3, int(hy) + 6, Color.WHITE)
+		PA.px(img, ox + int(hx) + 8, int(hy) + 6, Color.WHITE)
+	match kind:
+		0:   # casque de marmite
+			_ell(img, ox + hx, hy - 5.0, 8.0, 4.4, metal, 0.0, hy - 1.0)
+			PA.rect(img, ox + int(hx) - 8, int(hy) - 3, 17, 2, metal[1])
+		1:
+			PA.rect(img, ox + int(hx) - 7, int(hy) - 6, 14, 3, Color("#8a3a2a"))
+		2:
+			PA.rect(img, ox + int(hx) - 6, int(hy) - 9, 12, 5, Color("#f4f0e4"))
+			PA.rect(img, ox + int(hx) - 6, int(hy) - 5, 12, 1, Color("#c8c2b0"))
+		3:
+			PA.rect(img, ox + int(hx) - 5, int(hy) - 14, 11, 9, Color("#4a4640"))
+			_ell(img, ox + hx, hy - 14.0, 7.0, 3.5, _ramp("#5a564e"))
+	var hand_x := cx + 13.0
+	var hand_y := 24.0 + dy + base if col != 2 else 12.0
+	_cap(img, ox + cx + 7.0, 22.0 + dy + base, ox + hand_x, hand_y, 2.6, 2.2, skin)
+	match kind:
+		0:
+			PA.line(img, ox + int(hand_x), int(hand_y) + 8, ox + int(hand_x), int(hand_y) - 8, Color("#7a5632"))
+			_ell(img, ox + hand_x, hand_y - 10.0, 5.0, 4.0, metal)
+			_ell(img, ox + cx - 9.0, 28.0 + dy + base, 5.0, 7.0, _ramp("#a8aab8"))   # couvercle
+			PA.px(img, ox + int(cx) - 10, 27 + dy + base, Color.WHITE)
+		1:
+			PA.line(img, ox + int(hand_x) - 10, int(hand_y) + 6, ox + int(hand_x) + 3, int(hand_y) - 14, Color("#9a9aa6"))
+			for k in 3:
+				_ell(img, ox + hand_x - 3.0 - k * 1.4, hand_y - 4.0 - k * 4.0, 2.2, 2.0, _ramp("#b8803c" if k % 2 == 0 else "#a83c2a"))
+		2:
+			_cap(img, ox + hand_x - 6.0, hand_y + 1.0, ox + hand_x + 6.0, hand_y - 3.0, 1.8, 1.8, _ramp("#c8a064"))
+		3:
+			PA.line(img, ox + int(hand_x), int(hand_y) + 8, ox + int(hand_x), int(hand_y) - 10, Color("#7a5632"))
+			_ell(img, ox + hand_x, hand_y - 12.0, 5.5, 4.5, metal)
+			_ell(img, ox + hand_x, hand_y - 12.0, 3.5, 2.6, _ramp("#2a2a30"))
+
+
+## Pâton : une boule de pâte qui lève, deux yeux d'olive et une bouche de fournil.
+static func _dough(img: Image, ox: int, f: int, col: int) -> void:
+	var d := _ramp("#e8d8b0")
+	var rise := 2.0 if f == 1 else 0.0
+	_ell(img, ox + 19.0, 24.0 - rise * 0.5, 14.0, 10.0 + rise, d)
+	_ell(img, ox + 12.0, 28.0, 7.0, 5.0, d)
+	_ell(img, ox + 27.0, 28.0, 7.0, 5.0, d)
+	for k in 4:
+		PA.px(img, ox + 10 + k * 5, 18 + (k % 2) * 3, Color("#f8f0d8"))
+	var ey := 20 if col != 3 else 22
+	PA.rect(img, ox + 14, ey, 3, 3, Color("#4a5a2a"))
+	PA.rect(img, ox + 22, ey, 3, 3, Color("#4a5a2a"))
+	PA.px(img, ox + 14, ey, Color("#e8f0b0"))
+	PA.px(img, ox + 22, ey, Color("#e8f0b0"))
+	if col == 2:
+		PA.rect(img, ox + 15, 27, 10, 4, Color("#5a2a1c"))
+	else:
+		PA.rect(img, ox + 16, 28, 7, 1, Color("#5a2a1c"))
+
+
+## Ouargue-Garou : loup maigre à collier de moine, gueule ouverte, regard sur les restes.
+static func _warg(img: Image, ox: int, f: int, col: int) -> void:
+	var fur := _ramp("#5a5448")
+	var dy := f
+	_cap(img, ox + 14.0, 22.0 + dy, ox + 11.0, 32.0, 2.4, 1.8, _dim(fur))
+	_cap(img, ox + 36.0, 22.0 + dy, ox + 39.0, 32.0, 2.4, 1.8, _dim(fur))
+	_ell(img, ox + 25.0, 21.0 + dy, 15.0, 8.5, fur)
+	_cap(img, ox + 18.0, 24.0 + dy, ox + 17.0, 33.0, 2.6, 2.0, fur)
+	_cap(img, ox + 32.0, 24.0 + dy, ox + 33.0, 33.0, 2.6, 2.0, fur)
+	_cap(img, ox + 10.0, 18.0 + dy, ox + 3.0, 12.0 - dy, 2.4, 0.8, fur)
+	var hx := 39.0
+	var hy := 14.0 + dy
+	_ell(img, ox + hx, hy, 6.5, 5.5, fur, 0.05)
+	_ell(img, ox + hx + 6.0, hy + 2.0, 4.0, 2.6, _ramp("#6a6458"))
+	_tri(img, Vector2(ox + hx - 4.0, hy - 4.0), Vector2(ox + hx - 2.0, hy - 10.0), Vector2(ox + hx + 1.0, hy - 4.0), fur[2])
+	PA.rect(img, ox + int(hx) + 1, int(hy) - 1, 3, 2, Color("#f0c040") if col != 3 else Color("#1c1418"))
+	PA.px(img, ox + int(hx) + 3, int(hy) - 1, Color("#1c1418"))
+	if col == 2:
+		PA.rect(img, ox + int(hx) + 3, int(hy) + 2, 7, 4, Color("#4a1424"))
+		PA.px(img, ox + int(hx) + 4, int(hy) + 2, Color.WHITE)
+		PA.px(img, ox + int(hx) + 8, int(hy) + 2, Color.WHITE)
+	else:
+		PA.rect(img, ox + int(hx) + 4, int(hy) + 3, 6, 1, Color("#1c1418"))
+	PA.rect(img, ox + int(hx) - 5, int(hy) + 4, 9, 2, Color("#d8d0b8"))   # collier de moine
+
+
+## Corbeau contrôleur : un oiseau noir à lunettes, un carnet sous l'aile.
+static func _crow(img: Image, ox: int, f: int, col: int) -> void:
+	var fe := _ramp("#2a2a38")
+	var dy := f
+	_cap(img, ox + 17.0, 30.0, ox + 16.0, 34.0, 1.0, 0.8, _ramp("#c89a3c"))
+	_cap(img, ox + 24.0, 30.0, ox + 25.0, 34.0, 1.0, 0.8, _ramp("#c89a3c"))
+	_ell(img, ox + 20.0, 22.0 + dy, 10.0, 9.0, fe)
+	_cap(img, ox + 11.0, 24.0 + dy, ox + 3.0, 31.0, 3.0, 1.0, fe)
+	var wing_y := 18.0 if col != 2 else 8.0
+	_cap(img, ox + 15.0, 20.0 + dy, ox + 7.0, wing_y, 3.5, 1.4, _ramp("#3a3a4c"))
+	_ell(img, ox + 29.0, 13.0 + dy, 5.5, 5.0, fe, 0.05)
+	_tri(img, Vector2(ox + 33.0, 11.0 + dy), Vector2(ox + 38.0, 14.0 + dy), Vector2(ox + 33.0, 16.0 + dy), Color("#e8a830"))
+	PA.rect(img, ox + 28, 10 + int(dy), 5, 4, Color("#e8e0c8"))   # lunettes
+	PA.rect(img, ox + 29, 11 + int(dy), 2, 2, Color("#1c1418") if col != 3 else Color("#8a3a3a"))
+	PA.rect(img, ox + 23, 24 + int(dy), 6, 5, Color("#d8d0b0"))   # carnet
+	PA.rect(img, ox + 24, 26 + int(dy), 4, 1, Color("#6a5a40"))
+
+
+## Hirsute de Dunlande : un bûcheron de colline, barbe en broussaille, gourdin noueux.
+static func _hillman(img: Image, ox: int, f: int, col: int) -> void:
+	var skin := _ramp("#c8906a")
+	var cloth := _ramp("#6a5030")
+	var dy := f
+	_cap(img, ox + 16.0, 34.0 + dy, ox + 15.0, 45.0, 3.0, 2.6, _dim(cloth))
+	_cap(img, ox + 26.0, 34.0 + dy, ox + 27.0, 45.0, 3.0, 2.6, cloth)
+	PA.rect(img, ox + 11, 45, 8, 3, Color("#3a2a20"))
+	PA.rect(img, ox + 24, 45, 8, 3, Color("#3a2a20"))
+	_ell(img, ox + 21.0, 27.0 + dy, 11.0, 10.0, cloth)
+	PA.rect(img, ox + 12, 24 + dy, 18, 3, Color("#a83a2a"))   # chemise à carreaux
+	PA.rect(img, ox + 12, 30 + dy, 18, 3, Color("#a83a2a"))
+	_ell(img, ox + 21.0, 14.0 + dy, 7.5, 7.0, skin)
+	_ell(img, ox + 21.0, 20.0 + dy, 8.0, 5.0, _ramp("#7a4a2a"))   # barbe
+	PA.rect(img, ox + 18, 12 + int(dy), 2, 2, Color("#1c1418") if col != 3 else Color("#1c1418"))
+	PA.rect(img, ox + 23, 12 + int(dy), 2, 2, Color("#1c1418"))
+	PA.rect(img, ox + 13, 8 + int(dy), 16, 3, Color("#8a8a90"))   # bonnet de laine
+	var hand_y := 28.0 + dy if col != 2 else 12.0
+	_cap(img, ox + 31.0, 24.0 + dy, ox + 35.0, hand_y, 2.6, 2.2, skin)
+	PA.line(img, ox + 35, int(hand_y) + 8, ox + 36, int(hand_y) - 12, Color("#7a5632"))
+	_ell(img, ox + 36.0, hand_y - 14.0, 4.0, 5.0, _ramp("#8a6a42"))
+
+
+## Hors-d'œuvre : un canapé sur pattes de brindille, olive en guise de tête.
+static func _canape(img: Image, ox: int, f: int, col: int) -> void:
+	var dy := f
+	_cap(img, ox + 11.0, 26.0, ox + 9.0, 33.0, 1.0, 1.0, _ramp("#7a5632"))
+	_cap(img, ox + 21.0, 26.0, ox + 23.0, 33.0, 1.0, 1.0, _ramp("#7a5632"))
+	PA.rect(img, ox + 6, 21 + dy, 20, 6, Color("#d8b068"))   # pain
+	PA.rect(img, ox + 6, 21 + dy, 20, 1, Color("#f0d090"))
+	_ell(img, ox + 16.0, 19.0 + dy, 8.0, 3.5, _ramp("#e8d878"))   # fromage
+	_ell(img, ox + 16.0, 14.0 + dy, 4.5, 4.0, _ramp("#6a8a3a"))   # olive
+	PA.rect(img, ox + 14, 13 + int(dy), 2, 2, Color("#f0f0e0") if col != 3 else Color("#1c1418"))
+	PA.rect(img, ox + 18, 13 + int(dy), 2, 2, Color("#f0f0e0") if col != 3 else Color("#1c1418"))
+	PA.px(img, ox + 15, 14 + int(dy), Color("#1c1418"))
+	PA.px(img, ox + 19, 14 + int(dy), Color("#1c1418"))
+	PA.rect(img, ox + 15, 17 + int(dy), 3, 1, Color("#3a2a1c"))
+	PA.px(img, ox + 16, 7 + int(dy), Color("#a83a2a"))   # piment sur la tête
+	PA.rect(img, ox + 16, 8 + int(dy), 1, 2, Color("#a83a2a"))
+	var arm_y := 20.0 if col != 2 else 11.0
+	_cap(img, ox + 24.0, 22.0, ox + 29.0, arm_y, 1.0, 1.0, _ramp("#7a5632"))

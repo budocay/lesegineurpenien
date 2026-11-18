@@ -1,0 +1,406 @@
+{
+	"fongorn_arrivee": [
+		{
+			"banner": "La forêt de Fongorn",
+			"sub": "Les arbres y sont en réunion"
+		},
+		{
+			"set": "fongorn_vu"
+		},
+		{
+			"text": "Le jour a cessé d'entrer. Dans la forêt de Fongorn, les troncs sont si gros qu'ils tiennent lieu de murs, et si anciens qu'ils ont des plis aux endroits où l'on a des visages. Il n'y a pas de vent. Quelque chose, pourtant, murmure : lentement, en plusieurs voix, un mot à la fois."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Ils parlent. Les arbres. Je les entends. Ils en sont à la deuxième syllabe d'une phrase, et je crois qu'elle est longue."
+		},
+		{
+			"who": "grimli",
+			"text": "Un conseil. Ils sont en conseil. Je reconnais le silence : c'est celui d'un ordre du jour qui n'est pas encore passé."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Là-bas, sur une racine. Quelqu'un est assis."
+		}
+	],
+	"retour_glandoulf": [
+		{
+			"banner": "Fongorn",
+			"sub": "Colis non réclamé"
+		},
+		{
+			"text": "Sur une racine plus grosse qu'une barque, un vieillard est assis, la pipe éteinte à la bouche. Sa robe n'est plus grise. Elle n'est pas non plus blanche : elle est blanc-cassé, avec l'air de n'avoir pas décidé. Un chapeau pointu, très abîmé, posé sur les genoux, comme on pose un chat qui a mal."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Ce n'est pas possible."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Rien ne l'est, à mon âge. C'est même ce qui occupe."
+		},
+		{
+			"who": "grimli",
+			"text": "Tu es tombé. Je t'ai vu tomber. Avec le pont, le fouet, tout."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je suis tombé. Puis j'ai cessé de tomber, ce qui était déjà mieux. Ensuite une aigle m'a pris dans ses serres, sans demander. Grosse-Plume, du Service des colis non réclamés. Elle m'a fait remplir un formulaire, en vol, dans la nuit. Section C, motif du colis. J'ai coché « non réclamé »."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Et elle t'a déposé ici."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Elle m'a déposé ici, avec la mention « fragile », ce qui m'a vexé et fait plaisir à la fois. Elle m'a laissé sa plume sur la manche."
+		},
+		{
+			"give": "plume_de_l_aigle"
+		},
+		{
+			"text": "Glandoulf se lève. Il le fait avec lenteur, comme les arbres, comme ceux qui ont compris qu'il est trop tard pour se presser. Il regarde les trois compagnons, l'un après l'autre. Ce n'est pas un regard de magicien. C'est celui d'un homme qui va payer."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je vais vous dire quelque chose. Je ne vous demande pas de m'écouter jusqu'au bout. Je vous demande de ne pas m'arrêter avant."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Au Mont Brouillard, quand Isidur a gardé l'anneau, je n'ai rien fait. Je l'ai regardé le prendre. J'ai dit « ce n'est pas dangereux ». J'avais sommeil. Je l'ai dit par sommeil, et j'ai appelé ça du jugement."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Puis j'ai menti. À tout le monde. Je vous ai raconté qu'il l'avait perdu, ou qu'il l'avait jeté, ou que la montagne l'avait mangé. Chaque fois une version différente, jamais la même : ceux qui mentent bien se souviennent de leur mensonge. Moi, je ne m'en souvenais pas."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Au Gué des Poireaux, j'ai fait une sieste. Pas longue. Quatre-vingt-trois ans, d'après l'aigle. Pendant ce temps, le Conseil m'a écrit trois lettres. J'ai répondu à chacune : « tout est en règle ». Je ne les ai pas lues. Je les ai signées."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Voilà. Je n'ai pas laissé tomber l'anneau : j'ai laissé faire. Le reste, c'est de la poussière sur un dossier."
+		},
+		{
+			"text": "Personne ne parle. Les arbres, autour, ont arrêté leur phrase. Même eux savent attendre."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Ma lignée l'a su aussi."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je sais. Ton grand-père m'a regardé, une fois, d'une façon que je n'ai jamais oubliée."
+		},
+		{
+			"who": "aragrogne",
+			"text": "On nous a dit de nous taire : « Un magicien était là-haut, il sait ce qu'il fait. » Nous nous sommes tus pendant des générations, avec la certitude de ceux qui ne savent pas de quoi ils se taisent. Je ne te pardonne pas. Je te dis seulement que je suis dans le même dossier."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Alors on est tous coupables. Ça arrange tout le monde."
+		},
+		{
+			"who": "grimli",
+			"text": "Chez les nains, on appelle ça une dette partagée. Elle ne s'éteint pas. Elle s'amortit."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je prends la mienne. Et je prends la tête, si vous le voulez : je suis le seul à avoir fait toutes les erreurs, donc le seul à savoir lesquelles éviter."
+		},
+		{
+			"who": "digoulasse",
+			"text": "C'est le pire argument que j'aie jamais entendu. Et c'est le seul qui tienne."
+		},
+		{
+			"give": "louche_blanche"
+		},
+		{
+			"text": "Au pied de la racine, un bâton blanc traîne dans la mousse, un bâton d'une blancheur douteuse, avec la mention « propriété de la Compagnie ». Glandoulf le ramasse sans y penser, comme on reprend un mauvais habit qui a fini par vous aller."
+		},
+		{
+			"action": "equipe:glandoulf:louche_blanche"
+		},
+		{
+			"who": "glandoulf",
+			"text": "On m'a dit que ça s'appelle une Louche Blanche. Elle sait faire deux choses. Veiller, d'abord : s'asseoir devant vous et ne plus bouger, jusqu'à ce que le danger comprenne qu'il est de trop. Et se reposer vraiment, ensuite, le vrai repos, pas la sieste."
+		},
+		{
+			"set": "glandoulf_revenu"
+		},
+		{
+			"action": "groupe:glandoulf,aragrogne,digoulasse,grimli"
+		},
+		{
+			"action": "save"
+		},
+		{
+			"text": "(Glandoulf reprend la tête de l'équipe, avec sa Louche Blanche. La Veille de Pierre et le Vrai Repos rejoignent ses sorts.)"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Maintenant, les arbres. Ce sont eux qui ont du retard, pas moi. C'est rare, et je compte en profiter."
+		}
+	],
+	"barbe_molle": [
+		{
+			"if": "nouvelles_rendues",
+			"then": [
+				{
+					"who": "barbe_molle",
+					"text": "Nous avons terminé. Nous nous levons. Nous ne sommes pas pressés : mais nous avons compris que nous l'étions."
+				}
+			],
+			"else": [
+				{
+					"if": "nouvelles_demandees",
+					"then": [
+						{
+							"if": "nouvelle_mousse & nouvelle_ecorce & nouvelle_rejet",
+							"then": [
+								{
+									"who": "barbe_molle",
+									"text": "Mmm. Vous… revenez… avec… les trois. Voyons…"
+								},
+								{
+									"who": "barbe_molle",
+									"text": "Il y a… quatre siècles… on a ouvert un fromage… dans la plaine. Il n'est pas fini. Il y a… quarante ans… un nain a trébuché sur une racine. Il s'est excusé. Enfin, il y a… très récemment… un Grobitte a demandé son chemin à un arbre."
+								},
+								{
+									"who": "barbe_molle",
+									"text": "Ce sont… des nouvelles… très fraîches."
+								},
+								{
+									"set": "nouvelles_rendues"
+								},
+								{
+									"who": "glandoulf",
+									"text": "Quatre siècles, quarante ans, et hier. Il faut que vos nouvelles mûrissent, pour que vous les trouviez fraîches."
+								},
+								{
+									"who": "barbe_molle",
+									"text": "Nous… avons décidé. Nous… nous levons. Nous ne sommes pas pressés. Mais nous avons compris que nous l'étions."
+								},
+								{
+									"text": "Un craquement très lent traverse la forêt, de tronc en tronc, comme un seul gros soupir. Un arbre lève une racine. Puis un autre. Puis tous, dans un désordre de plusieurs jours, avec la méthode des cortèges qui n'ont pas de date."
+								},
+								{
+									"who": "grimli",
+									"text": "Ils marchent. Ils marchent vraiment. Je n'aurais pas parié sur eux avant le printemps."
+								},
+								{
+									"who": "barbe_molle",
+									"text": "Vers l'Isengarde… nous allons… très vite. Nous y serons… après-demain. Nous partons… maintenant."
+								},
+								{
+									"banner": "Pendant ce temps",
+									"sub": "Au Garde-Manger, à conserver au frais"
+								},
+								{
+									"action": "groupe:sam,froton,merri,pepin"
+								},
+								{
+									"action": "va:garde_manger:cellules"
+								},
+								{
+									"action": "save"
+								}
+							],
+							"else": [
+								{
+									"who": "barbe_molle",
+									"text": "Les… trois… nouvelles. Mousse-Fine. Vieille-Écorce. Petit-Rejet. Chacun… en a une. Elles ne sortent pas… toutes seules. Il faut… les demander."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "barbe_molle",
+							"text": "Nous… sommes… les Entremets. Les… plus… anciens. Nous délibérons… depuis trois jours. Nous n'avons pas… encore… décidé."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Décider quoi ?"
+						},
+						{
+							"who": "barbe_molle",
+							"text": "Si… nous… nous levons. L'Isengarde… nous a pris… des arbres. Beaucoup. On y fait cuire… des fours… avec nos cousins. Nous sommes… inquiets. Mais nous ne sommes pas… pressés."
+						},
+						{
+							"who": "aragrogne",
+							"text": "Il leur faut trois jours, et nous en avons un, au plus."
+						},
+						{
+							"who": "barbe_molle",
+							"text": "Pour décider vite… nous devons… savoir ce qui se passe dans le monde. Rapportez-nous… trois nouvelles. Une à chacun… de mes… trois… voisins. Alors… nous déciderons."
+						},
+						{
+							"set": "nouvelles_demandees"
+						},
+						{
+							"text": "(Quête : Les trois nouvelles des Entremets. Mousse-Fine, Vieille-Écorce et Petit-Rejet attendent, plus loin dans la clairière.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"entremet_mousse": [
+		{
+			"if": "nouvelles_demandees",
+			"then": [
+				{
+					"if": "nouvelle_mousse",
+					"then": [
+						{
+							"who": "entremet_mousse",
+							"text": "Je… vous ai dit… ma nouvelle. Elle est… toujours vraie. Elle l'est… depuis quatre siècles."
+						}
+					],
+					"else": [
+						{
+							"who": "entremet_mousse",
+							"text": "Une nouvelle… oui. Il y a… quatre siècles… on a ouvert… un fromage… dans la plaine. Il n'est… toujours pas fini. Voilà."
+						},
+						{
+							"set": "nouvelle_mousse"
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"who": "entremet_mousse",
+					"text": "Nous… délibérons. Revenez… dans un jour. Ou trois."
+				}
+			]
+		}
+	],
+	"entremet_ecorce": [
+		{
+			"if": "nouvelles_demandees",
+			"then": [
+				{
+					"if": "nouvelle_ecorce",
+					"then": [
+						{
+							"who": "entremet_ecorce",
+							"text": "Ma nouvelle… n'a pas changé. Elle date… de quarante ans. Elle est encore… tiède."
+						}
+					],
+					"else": [
+						{
+							"who": "entremet_ecorce",
+							"text": "Ma nouvelle… un nain… a trébuché… sur l'une de mes racines. Il y a… quarante ans. Il s'est… excusé. Je ne m'en suis… pas remis."
+						},
+						{
+							"set": "nouvelle_ecorce"
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"who": "entremet_ecorce",
+					"text": "Nous… ne sommes pas… pressés. Revenez… plus tard. Beaucoup plus tard."
+				}
+			]
+		}
+	],
+	"entremet_rejet": [
+		{
+			"if": "nouvelles_demandees",
+			"then": [
+				{
+					"if": "nouvelle_rejet",
+					"then": [
+						{
+							"who": "entremet_rejet",
+							"text": "Je suis jeune : j'ai déjà dit ma nouvelle !"
+						}
+					],
+					"else": [
+						{
+							"who": "entremet_rejet",
+							"text": "Moi, moi ! Une nouvelle toute neuve ! Hier, un Grobitte a demandé son chemin à un arbre. Il n'a pas attendu la réponse. Ça m'a fait de la peine. Je n'avais pas fini de commencer."
+						},
+						{
+							"set": "nouvelle_rejet"
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"who": "entremet_rejet",
+					"text": "On n'a pas encore décidé. On ne décide rien tant qu'on n'a pas fini d'y penser. Moi, j'aimerais qu'on se dépêche, mais je suis jeune : on ne m'écoute pas."
+				}
+			]
+		}
+	],
+	"fongorn_repos": [
+		{
+			"text": "Une racine, creusée comme un banc, couverte de mousse sèche. Quelqu'un y a gravé : « Pour qui n'est pas pressé. »"
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'allonge. Autour d'elle, la forêt retient une phrase qu'elle comptait finir plus tard."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": []
+				}
+			]
+		}
+	],
+	"fongorn_panonceau": [
+		{
+			"text": "Un panonceau cloué au tronc, très haut, très ancien : « FORÊT DE FONGORN. PRIÈRE DE NE PAS COUPER LA PAROLE AUX ARBRES. LA PAROLE EST AUX ARBRES. » Plus bas, une main d'enfant a ajouté : « (Et aux champignons.) »"
+		}
+	],
+	"fongorn_coffre": [
+		{
+			"if": "coffre_fongorn_pris",
+			"then": [
+				{
+					"text": "Le creux est vide. Un escargot l'occupe, et prétend payer un loyer."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans le creux d'un tronc, un nid de ficelle et de mousse. Au fond, quelqu'un a laissé un sac de sirop de sève, une écorce gravée « pour qui passera » et une poignée de pièces. Les arbres, en plus d'être lents, sont généreux."
+				},
+				{
+					"give": "sirop_de_seve",
+					"count": 2
+				},
+				{
+					"give": "cotte_de_bois_dore"
+				},
+				{
+					"money": 120
+				},
+				{
+					"set": "coffre_fongorn_pris"
+				},
+				{
+					"text": "Une Cotte de bois doré, du sirop, et de quoi payer la prochaine tournée."
+				}
+			]
+		}
+	]
+}

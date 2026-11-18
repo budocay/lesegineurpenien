@@ -1,0 +1,291 @@
+{
+	"id": "garde_manger",
+	"name": "Le Garde-Manger",
+	"region": "Isengarde-Manger",
+	"size": [
+		48,
+		24
+	],
+	"interior": true,
+	"wall_height": 4.5,
+	"ambiance": "garde_manger",
+	"music": "garde_manger",
+	"arena": "garde_manger",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "isen_dalle",
+				"rect": [
+					2,
+					9,
+					9,
+					7
+				]
+			},
+			{
+				"type": "isen_fonte",
+				"rect": [
+					11,
+					11,
+					12,
+					3
+				]
+			},
+			{
+				"type": "isen_dalle",
+				"rect": [
+					23,
+					6,
+					14,
+					13
+				]
+			},
+			{
+				"type": "isen_fonte",
+				"rect": [
+					37,
+					11,
+					6,
+					3
+				]
+			},
+			{
+				"type": "isen_dalle",
+				"rect": [
+					43,
+					8,
+					4,
+					8
+				]
+			}
+		]
+	},
+	"spawns": {
+		"cellules": {
+			"pos": [
+				5.0,
+				12.5
+			],
+			"facing": "right"
+		},
+		"goulotte": {
+			"pos": [
+				44.0,
+				12.0
+			],
+			"facing": "left"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				28,
+				7,
+				7,
+				4
+			],
+			"h": 1.0
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				26,
+				8,
+				2,
+				2
+			],
+			"dir": "right",
+			"from": 0.0,
+			"to": 1.0
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "garde_arrivee",
+			"unless": "garde_vu"
+		}
+	],
+	"style": "isengarde",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				46.4,
+				9.0,
+				0.8,
+				5.0
+			],
+			"to": {
+				"map": "bergerie_or",
+				"spawn": "entree"
+			},
+			"if": "froton_libere"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				13.0,
+				10.5,
+				1.2,
+				4.0
+			],
+			"dialogue": "garde_bilan",
+			"unless": "bilan_fait"
+		},
+		{
+			"type": "monster",
+			"id": "uglouk",
+			"pos": [
+				31.0,
+				15.4
+			],
+			"dialogue": "garde_ronde",
+			"solid": 1.0,
+			"unless": "combat_uglouk_garde"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				11,
+				11,
+				12,
+				3
+			],
+			"table": "garde_manger"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				23,
+				6,
+				14,
+				13
+			],
+			"table": "garde_manger"
+		},
+		{
+			"type": "isen_cheminee",
+			"pos": [
+				45.0,
+				10.0
+			],
+			"dialogue": "garde_goulotte",
+			"label": "Descendre",
+			"reach": 2.4
+		},
+		{
+			"type": "isen_pancarte",
+			"pos": [
+				6.0,
+				10.4
+			],
+			"dialogue": "garde_etiquette",
+			"label": "Lire"
+		},
+		{
+			"type": "isen_cage",
+			"pos": [
+				8.0,
+				14.6
+			],
+			"dialogue": "garde_cage",
+			"label": "Examiner",
+			"reach": 2.0
+		},
+		{
+			"type": "crate",
+			"pos": [
+				32.0,
+				8.5
+			],
+			"dialogue": "garde_coffre",
+			"label": "Fouiller",
+			"turn": 8
+		},
+		{
+			"type": "isen_cage",
+			"pos": [
+				4.0,
+				14.8
+			]
+		},
+		{
+			"type": "isen_cage",
+			"pos": [
+				9.5,
+				10.2
+			]
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				25.0,
+				17.6
+			]
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				35.6,
+				17.2
+			],
+			"variant": 1
+		},
+		{
+			"type": "isen_marmite",
+			"pos": [
+				24.4,
+				7.2
+			]
+		},
+		{
+			"type": "isen_four",
+			"pos": [
+				34.6,
+				6.8
+			],
+			"variant": 1
+		},
+		{
+			"type": "light",
+			"pos": [
+				6,
+				12
+			],
+			"height": 2.6,
+			"color": "#a8c0e0",
+			"energy": 1.2,
+			"range": 10.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				12
+			],
+			"height": 2.6,
+			"color": "#ff9a60",
+			"energy": 1.8,
+			"range": 12.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				44,
+				12
+			],
+			"height": 2.6,
+			"color": "#ffb070",
+			"energy": 1.4,
+			"range": 8.0
+		}
+	]
+}

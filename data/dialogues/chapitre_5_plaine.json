@@ -1,0 +1,452 @@
+{
+	"plaine_nuit": [
+		{
+			"banner": "La plaine du Roquefort",
+			"sub": "Herbe haute, cavaliers plus hauts encore"
+		},
+		{
+			"set": "plaine_vue"
+		},
+		{
+			"text": "La nuit tombe sur l'herbe à épis, très lentement, comme une nappe qu'on déplie. Aragrogne marche devant, le nez près du sol. Digoulasse ferme la file. Grimli compte, tout haut, les traces."
+		},
+		{
+			"who": "grimli",
+			"text": "Quarante-deux pieds ferrés. Cent six bottes de ouroukouille. Un chariot. Un chariot sur lequel on avait étiqueté « urgent »."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Ça sent le pain chaud. Je n'aime pas quand la piste de l'ennemi sent le pain chaud. On pourrait presque la suivre à l'appétit."
+		},
+		{
+			"who": "aragrogne",
+			"text": "On la suit. Ils ont pris nos amis. J'ai laissé mon père mourir sous un pont, et ma lignée sous un mensonge. Je ne laisserai pas un troisième nom sur la liste."
+		},
+		{
+			"text": "Un galop, derrière eux. Puis devant. Puis tout autour, en cercle : des cavaliers aux crinières blondes, aux lances à pointe de laiton, qui tournent autour du groupe sans le moindre bruit de sabot."
+		},
+		{
+			"who": "eolaine",
+			"text": "Qui va là ? Voleurs de brebis, ou simples égarés ?"
+		},
+		{
+			"who": "aragrogne",
+			"text": "Ni l'un ni l'autre. Nous suivons une piste d'Ouroukouilles, vers l'est."
+		},
+		{
+			"who": "eolaine",
+			"text": "Alors vous suivez une piste de voleurs de brebis, mais en moins honnête. Je suis Éolaine, nièce du roi Théodort, cavalière du Roquefort. Vous allez nous suivre, les mains en l'air et les doigts à l'œil."
+		},
+		{
+			"who": "digoulasse",
+			"text": "On dit « au doigt et à l'œil » quand on obéit."
+		},
+		{
+			"who": "eolaine",
+			"text": "On le dit chez nous quand on surveille. C'est un peu la même chose, avec plus d'élan."
+		},
+		{
+			"text": "Elle les fouille, très vite, à la manière des gens qui ont fouillé beaucoup de monde. Elle s'arrête sur le sac de Grimli."
+		},
+		{
+			"who": "eolaine",
+			"text": "Un fromage. Non déclaré."
+		},
+		{
+			"who": "grimli",
+			"text": "Je l'ai gardé pour les moments difficiles."
+		},
+		{
+			"who": "eolaine",
+			"text": "Il y a une taxe de passage, sur les fromages, pour la plaine. Un tiers. Il faudra aussi l'inscrire au registre des biens, au nom d'un cavalier. Je vous l'enlève, avec toute la bienveillance du peuple de la Plaine."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Ça commence mal."
+		},
+		{
+			"who": "eolaine",
+			"text": "Cabécou est à une demi-lieue. Dans la plaine, on ne laisse dormir dehors que les moutons et les rois. Venez."
+		},
+		{
+			"set": "nuit_plaine_faite"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"plaine_panneau": [
+		{
+			"text": "Un poteau planté dans l'herbe : « CABÉCOU, CAPITALE DU PEUPLE DE LA PLAINE. À L'EST. EN CAS DE BROUILLARD, SUIVRE LES BREBIS : ELLES SAVENT. »"
+		}
+	],
+	"plaine_camp": [
+		{
+			"text": "Un feu de camp, tenu par deux cavaliers qui regardent ailleurs. Une couverture de laine pliée. Une écuelle de lait caillé. Sur un tronc, quelqu'un a écrit : « Qui s'y repose y est attendu. »"
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe se couche près des braises. L'herbe, tout autour, murmure ce qu'elle sait des orages."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": []
+				}
+			]
+		}
+	],
+	"plaine_botte": [
+		{
+			"text": "Une meule de foin haute comme un clocher, ficelée avec un nœud à l'ancienne. Sur un papier, épinglé : « Ne pas fouiller. Il y a un cavalier dedans. »"
+		},
+		{
+			"text": "Il y en a effectivement un. Il dort, avec l'air de quelqu'un qui préférerait qu'on le laisse."
+		}
+	],
+	"plaine_brebis": [
+		{
+			"text": "La brebis lève la tête, regarde l'équipe, puis regarde ailleurs. Elle a l'œil d'une employée de la Maison qui a déjà vu mieux."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Elle a un regard qui évalue. Ils élèvent des brebis, ou des comptables ?"
+		}
+	],
+	"plaine_coffre": [
+		{
+			"if": "coffre_plaine_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. On y a laissé un brin de paille, par politesse."
+				}
+			],
+			"else": [
+				{
+					"text": "Au pied d'un arbre doré, un coffre de rondins aux ferrures de laiton. Il n'est pas fermé à clé : on ne ferme pas à clé, dans la plaine. On se contente de s'asseoir dessus."
+				},
+				{
+					"give": "fer_a_cheval_dore"
+				},
+				{
+					"money": 140
+				},
+				{
+					"set": "coffre_plaine_pris"
+				},
+				{
+					"text": "Un Fer à cheval doré, et quelques pièces. La chance, ici, se porte à l'envers pour qu'elle ne coule pas."
+				}
+			]
+		}
+	],
+	"plaine_cisailles": [
+		{
+			"if": "item:cisailles_de_tonte",
+			"then": [
+				{
+					"text": "Il n'y a plus rien ici qu'un tas de laine, et le souvenir d'un très grand bruit."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans l'enclos, un tondeur a posé ses outils pour aller déjeuner. Une paire de grandes cisailles de tonte, appuyée contre la barrière."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Elles font un bruit très précis : celui d'une laine qui s'en va. Les brebis le reconnaissent, les rois aussi, paraît-il."
+				},
+				{
+					"give": "cisailles_de_tonte"
+				},
+				{
+					"text": "(Cisailles de tonte : à jouer, au chevet du roi, à la demande d'Éolaine.)"
+				}
+			]
+		}
+	],
+	"cabecou_arrivee": [
+		{
+			"banner": "Cabécou",
+			"sub": "Capitale de la Plaine, sous réserve de croûte"
+		},
+		{
+			"set": "cabecou_vu"
+		},
+		{
+			"text": "Cabécou tient sur une colline, serrée dans une palissade de pieux dorés. En bas, des brebis. En haut, une grande halle de bois, avec des cornes de faîte en croix, qui brille comme une meule de beurre sous le soleil du matin."
+		},
+		{
+			"who": "eolaine",
+			"text": "La Bergerie d'Or. Le roi y dort depuis plusieurs saisons. Je dis dort, par politesse envers lui."
+		},
+		{
+			"who": "aragrogne",
+			"text": "On ne réveille pas un roi ?"
+		},
+		{
+			"who": "eolaine",
+			"text": "On ne peut plus lui parler. Il y a Grimace Langue-de-Bois, son conseiller. Il parle pour lui. Il parle même à sa place. Et ce qu'il dit, personne n'ose le trouver faux : c'est écrit trop beau."
+		},
+		{
+			"who": "grimli",
+			"text": "Un conseiller qui parle à la place du roi, un roi qui dort et un peuple qui obéit à voix basse. J'ai déjà vu ça. C'était dans une mine, et le plafond a fini par tomber."
+		}
+	],
+	"eolaine": [
+		{
+			"if": "grimace_vaincue",
+			"then": [
+				{
+					"set": "eolaine_demande"
+				},
+				{
+					"if": "roi_ecoute",
+					"then": [
+						{
+							"who": "eolaine",
+							"text": "Mon oncle dort un peu mieux, et l'œil qu'il tient entrouvert me suit partout. C'est nouveau. Merci."
+						}
+					],
+					"else": [
+						{
+							"if": "item:cisailles_de_tonte",
+							"then": [
+								{
+									"who": "eolaine",
+									"text": "Vous avez les cisailles. Posez-les au chevet du roi, dans la Bergerie, et jouez-en. On dit que le bruit d'une brebis qu'on tond réveille ce que les mots endorment."
+								}
+							],
+							"else": [
+								{
+									"who": "eolaine",
+									"text": "Mon oncle n'écoute plus les mots : il en a trop entendu, de la bouche de Grimace. Il lui faut un bruit qui ne soit pas une phrase. Cherchez une paire de cisailles de tonte, à l'enclos, au sud de la plaine. Puis jouez-en au chevet du roi."
+								}
+							]
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"who": "eolaine",
+					"text": "Grimace barre la salle du trône. Il vous recevra avant de vous recevoir : il aime que les gens soient déjà là quand il dit qu'ils ne sont pas encore arrivés."
+				}
+			]
+		}
+	],
+	"eomeche": [
+		{
+			"who": "eomeche",
+			"text": "Éomèche, intendant de Cabécou. Banni par Grimace, rappelé par le peuple, assis par la force des choses. Qu'est-ce qu'il vous faut pour une chevauchée ?"
+		},
+		{
+			"shop": "cabecou_marche"
+		}
+	],
+	"boulangere": [
+		{
+			"if": "quest_done:levain",
+			"then": [
+				{
+					"who": "boulangere",
+					"text": "Quarante brioches non conformes, c'est le plus beau jour de ma vie. Je ne suis plus conforme, moi non plus. Je m'en porte mieux."
+				}
+			],
+			"else": [
+				{
+					"if": "levain_demande",
+					"then": [
+						{
+							"if": "item:brioche_non_conforme:3",
+							"then": [
+								{
+									"who": "boulangere",
+									"text": "Trois brioches levées en cachette ! Donnez, donnez. Ça lève, ça lève, c'est du levain de première classe."
+								},
+								{
+									"take": "brioche_non_conforme",
+									"count": 3
+								},
+								{
+									"set": "levain_rendu"
+								}
+							],
+							"else": [
+								{
+									"who": "boulangere",
+									"text": "Trois brioches non conformes, c'est trois Pâtons à désarmer, ou à convaincre. Il y en a dans le Garde-Manger de l'Isengarde, et dans ses fours."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "boulangere",
+							"text": "Pas de levain, pas de guerre. J'ai quarante commandes pour la veillée d'armes, un four prêt et pas un gramme de levain. La Maison de l'Isengarde en a plein ses cuves : de la farine volée, de la pâte vivante. Rapportez-moi-en trois brioches non conformes, et je vous cuis le reste."
+						},
+						{
+							"set": "levain_demande"
+						}
+					]
+				}
+			]
+		}
+	],
+	"cavalier": [
+		{
+			"who": "cavalier",
+			"text": "On dit que le roi dort mal. Moi, je trouve qu'il dort très bien : c'est nous qui faisons des cauchemars, à sa place."
+		}
+	],
+	"cavaliere": [
+		{
+			"who": "cavaliere",
+			"text": "Mon frère est parti vers l'Isengarde, avec des brioches non conformes. Il n'est pas revenu. Les brioches non plus."
+		}
+	],
+	"cabecou_panneau": [
+		{
+			"text": "Un panneau cloué au poteau de la place : « RÈGLEMENT DE CABÉCOU. ARTICLE 1 : ON NE PARLE PAS AU ROI. ARTICLE 2 : ON NE PARLE PAS À GRIMACE, IL A DÉJÀ PARLÉ. ARTICLE 3 : ON PARLE AUX BREBIS, ELLES NE RÉPONDENT PAS. »"
+		}
+	],
+	"cabecou_halle_fermee": [
+		{
+			"text": "Les deux battants de la Bergerie d'Or sont barrés d'une poutre de laiton. Devant, sur une estrade, un fonctionnaire en toque sombre lit un papier à voix très haute."
+		},
+		{
+			"who": "grimace",
+			"text": "Les audiences sont suspendues. Les suspensions sont reconduites. Les reconductions sont, en tant que de besoin, réputées avoir lieu."
+		}
+	],
+	"grimace_gate": [
+		{
+			"who": "grimace",
+			"text": "Ah. Les arrivants. Nous allons, si vous le permettez, rappeler le cadre. Dans le cadre de la circulation des biens, des personnes, des brebis, et des personnes qui sont comme des brebis, il apparaît, à la lumière des éléments portés à ma connaissance, que votre présence est, sans être contestable, discutable."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Nous voulons voir le roi."
+		},
+		{
+			"who": "grimace",
+			"text": "Le roi est dans son sommeil, qui est dans sa fonction, qui est dans son cadre. Ouvrir la salle du trône, c'est ouvrir le dossier. Et je ne puis ouvrir un dossier qui n'est pas clos, ni clore un dossier qui n'est pas ouvert."
+		},
+		{
+			"who": "eolaine",
+			"text": "Vous le gardez, Grimace. Vous le gardez depuis des saisons, et mon oncle ne dit plus rien sans que vous l'ayez dit avant lui."
+		},
+		{
+			"who": "grimace",
+			"text": "Je parle pour le roi, madame. Et lorsque le roi se taira vraiment, c'est moi qui parlerai pour tout le monde. Dans le cadre, bien entendu."
+		},
+		{
+			"who": "grimli",
+			"text": "Il parle sans respirer. Je vous le dis : il faut lui couper la parole trois fois, comme on coupe un fil trois fois avant de le nouer."
+		},
+		{
+			"text": "Grimace ajuste sa toque noire. Deux corbeaux, juchés sur les pieux de la palissade, déplient leurs ailes et sortent un carnet."
+		},
+		{
+			"battle": "grimace"
+		},
+		{
+			"if": "combat_grimace",
+			"then": [
+				{
+					"text": "Grimace pose un genou à terre. Il n'a pas le souffle coupé : il l'a perdu, c'est plus grave. Un papier tombe de sa manche, sans bruit."
+				},
+				{
+					"text": "Sur le papier, d'une écriture soignée : « Rapport hebdomadaire à l'Ordre des Mages. Objet : sans objet. »"
+				},
+				{
+					"who": "aragrogne",
+					"text": "L'Ordre des Mages. Il en rend compte à quelqu'un d'autre."
+				},
+				{
+					"who": "eolaine",
+					"text": "Il est fini. Je ne sais pas encore si le peuple le croit, mais la plaine, elle, a retrouvé son silence. Allez : la halle est ouverte. Et Éomèche, banni, peut rentrer chez lui."
+				},
+				{
+					"set": "grimace_vaincue"
+				},
+				{
+					"give": "feuillet_a_souche"
+				},
+				{
+					"text": "(Feuillet à souche : le talon d'un bon de commande, arraché au conseiller. Trois exemplaires, un seul rendu.)"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"trone_roi": [
+		{
+			"if": "roi_reveille",
+			"then": [
+				{
+					"who": "theodort",
+					"text": "Je suis très reposé. C'est dire à quel point je me suis ennuyé. Allez, et nettoyez-moi cette Maison."
+				}
+			],
+			"else": [
+				{
+					"if": "!grimace_vaincue",
+					"then": [
+						{
+							"text": "On ne peut pas approcher du trône : une poutre de laiton barre la salle."
+						}
+					],
+					"else": [
+						{
+							"if": "roi_ecoute",
+							"then": [
+								{
+									"text": "Le roi dort, la bouche entrouverte, un sourire de brebis sur le visage. Depuis la tonte, il a l'air de mieux rêver."
+								}
+							],
+							"else": [
+								{
+									"if": "item:cisailles_de_tonte",
+									"then": [
+										{
+											"text": "Au chevet du roi, sur un lit de peaux, Théodort dort, la barbe étalée comme un champ de blé à l'automne. Aragrogne prend les grandes cisailles et, sans un mot, tond une brebis imaginaire."
+										},
+										{
+											"text": "Chrrrrk. Chrrrrk. Le bruit remplit la salle, très précis, très laineux. Un sourcil du roi se lève. Une moustache frémit. Le roi roule sur le côté, soupire, et, dans son sommeil, murmure « enfin »."
+										},
+										{
+											"set": "roi_ecoute"
+										},
+										{
+											"action": "save"
+										}
+									],
+									"else": [
+										{
+											"text": "Le roi Théodort dort sur son trône, immobile, le menton sur la poitrine. Sa barbe a pris, depuis des saisons, la teinte de la paille. Éolaine dit qu'il suffirait d'un bruit, un seul, qui ne soit pas une phrase."
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

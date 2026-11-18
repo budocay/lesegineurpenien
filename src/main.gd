@@ -22,6 +22,7 @@ var busy := false
 var battle: Node3D = null       # combat en cours, sinon null
 var auto_battles := false       # tests : les combats se jouent tout seuls, sans attente
 var _abort_flow := false        # une défaite a renvoyé à l'écran-titre : les scènes en cours s'arrêtent
+var _jump: Array = []              # destination demandée par une action « va: » : [carte, arrivée], jouée à la fin du dialogue
 
 var hud: Control
 var dialogue: Control
@@ -272,9 +273,19 @@ func run_dialogue(dialogue_id: String) -> void:
 		current.set_input(false)
 	hud.hide_prompt()
 	dialogue.start(dialogue_id)
-	await dialogue.finished
+	# Un dialogue dont toutes les branches sont muettes (condition fausse, `set` seuls) se termine
+	# dans `start` même : le signal est déjà parti, l'attendre bloquerait pour toujours.
+	if dialogue.active or Database.get_dialogue(dialogue_id).is_empty():
+		await dialogue.finished
 	if _abort_flow:
 		return
+	if _jump.size() == 2:
+		# action `va:<carte>:<arrivée>` : changement de lieu demandé par un dialogue (chapitre 5)
+		var to: Array = _jump
+		_jump = []
+		if world == current and mode == Mode.PLAY and not busy:
+			await change_map(str(to[0]), str(to[1]))
+			return
 	if world == current and current != null and mode == Mode.PLAY and not busy:
 		if current.needs_refresh():
 			await _refresh_world()
@@ -457,7 +468,31 @@ func _on_dialogue_action(action: String) -> void:
 			hud.toast("L'équipe est reposée")
 			Tutorial.fire("rest")
 		_:
-			if action.begins_with("quitte:"):
+			if action.begins_with("va:"):
+				var dest := action.substr(3).split(":")
+				if dest.size() == 2 and Database.has_map(dest[0]):
+					_jump = [dest[0], dest[1]]
+				else:
+					push_warning("Action de déplacement inconnue : " + action)
+			elif action.begins_with("groupe:"):
+				# `groupe:a,b,c,d` : l'équipe se scinde ou se réunit (chapitre 5). Le premier nom
+				# mène ; les autres recrutés attendent sur le banc, fiche conservée.
+				# `groupe:tous` rappelle le banc derrière l'équipe actuelle.
+				var spec := action.substr(7)
+				var ids: Array = []
+				if spec == "tous":
+					ids = GameState.party + GameState.bench
+				else:
+					ids = Array(spec.split(","))
+				if not GameState.set_group(ids):
+					push_warning("Action de groupe sans personnage valable : " + action)
+			elif action.begins_with("equipe:"):
+				# `equipe:<id>:<objet>` : le personnage équipe l'objet pris dans le sac (chapitre 5 :
+				# la Louche Blanche de Glandoulf, la dague de Merri).
+				var eq := action.substr(7).split(":")
+				if eq.size() < 2 or not GameState.equip(eq[0], eq[1]):
+					push_warning("Équipement impossible : " + action)
+			elif action.begins_with("quitte:"):
 				# un compagnon quitte définitivement l'équipe (chapitre 4 : la chute de Glandoulf) ;
 				# la carte reconstruite à la fin du dialogue prend le nouveau meneur.
 				# `quitte:<id>` ou `quitte:<id>:<meneur>` : le second nom prend la tête de l'équipe.

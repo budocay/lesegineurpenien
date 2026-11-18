@@ -9,7 +9,7 @@ const PA = preload("res://src/gfx/pixel_art.gd")
 const TP = preload("res://src/gfx/tile_painter.gd")
 const PPU := 24.0
 
-const KINDS: Array[String] = ["taverne", "etage", "ruelle", "cave", "ferme", "route", "col", "cite", "conseil", "archives", "quai"]
+const KINDS: Array[String] = ["taverne", "etage", "ruelle", "cave", "ferme", "route", "col", "cite", "conseil", "archives", "quai", "bergerie", "garde_manger"]
 
 static var _cache: Dictionary = {}
 static var _tiles: Dictionary = {}
@@ -47,6 +47,8 @@ static func panel(kind: String, w_units: float, h_units: float) -> Image:
 		"conseil": _conseil(img)
 		"archives": _archives(img)
 		"quai": _quai(img)
+		"bergerie": _bergerie(img)
+		"garde_manger": _garde_manger(img)
 	_cache[key] = img
 	return img
 
@@ -888,3 +890,66 @@ static func _quai(img: Image) -> void:
 	_barrel(img, 0.3, 0.0, 1.0, 1.0, Color("#5a4a3a"))
 	_glow(img, 6.0, 2.5, 12.0, Color(1.0, 0.6, 0.3), 0.18)
 	_band(img, img.get_height() - 8, img.get_height(), 0.0, 0.3)
+
+
+# ================================================================== bergerie d'or
+
+## Mur de rondins dorés, poteaux sculptés, étendards verts à la brebis cabrée, torches.
+static func _bergerie(img: Image) -> void:
+	_fill_tile(img, "cav_mur", 0, 0, img.get_width(), img.get_height(), Color(0.78, 0.7, 0.62))
+	var posts: Array[float] = [-17.0, -11.0, -5.0, 1.0, 7.0, 13.0, 18.0]
+	for px: float in posts:
+		_post(img, px, 0.0, 5.6, 0.7, Color("#a8742a"))
+		_wr(img, px - 0.5, 4.6, px + 0.5, 4.9, Color("#e0b048"))
+	# étendards entre les poteaux : drap vert, brebis d'or
+	for i in range(posts.size() - 1):
+		var mid: float = (posts[i] + posts[i + 1]) * 0.5
+		_wr(img, mid - 1.0, 1.9, mid + 1.0, 4.4, Color("#2f6a3c"))
+		_wr(img, mid - 1.0, 1.9, mid - 0.88, 4.4, Color("#e0b048"))
+		_wr(img, mid + 0.88, 1.9, mid + 1.0, 4.4, Color("#e0b048"))
+		var cx := _X(img, mid)
+		var cy := _Y(img, 3.0)
+		PA.ellipse(img, float(cx), float(cy), 9.0, 6.0, Color("#e8c458"))
+		PA.rect(img, cx + 6, cy - 9, 5, 5, Color("#e8c458"))
+		PA.rect(img, cx - 6, cy + 4, 2, 6, Color("#b88a2a"))
+		PA.rect(img, cx + 3, cy + 4, 2, 6, Color("#b88a2a"))
+		for k in 3:
+			_wr(img, mid - 0.9 + float(k) * 0.7, 1.55, mid - 0.7 + float(k) * 0.7, 1.9, Color("#e0b048"))
+	# la poutre du haut, sombre
+	_wr(img, -20.0, 5.1, 20.0, 6.2, Color("#2a1a0c"))
+	for lx: float in [-8.0, 4.0, 16.0]:
+		_lantern(img, lx, 4.9, Color("#ffd890"))
+		_glow(img, lx, 4.2, 3.2, Color(0.9, 0.6, 0.25), 0.55)
+	_band(img, 0, 24, 0.45, 0.0)
+	_band(img, img.get_height() - 22, img.get_height(), 0.0, 0.6, Color(0.05, 0.03, 0.02))
+
+
+# ================================================================ garde-manger
+
+## Tôle noire et briques froides, jambons pendus, cages à jambon, tuyaux, lumière de frigo.
+static func _garde_manger(img: Image) -> void:
+	_fill_tile(img, "isen_mur", 0, 0, img.get_width(), img.get_height(), Color(0.72, 0.78, 0.86))
+	for px: float in [-16.0, -8.0, 0.0, 8.0, 16.0]:
+		_post(img, px, 0.0, 6.0, 0.5, Color("#30343c"))
+	# rails au plafond, jambons accrochés
+	_wr(img, -20.0, 4.9, 20.0, 5.1, Color("#202228"))
+	for i in 22:
+		var wx := -19.0 + float(i) * 1.75 + PA.rnd(i, 3, 81) * 0.5
+		var drop := 0.6 + PA.rnd(i, 4, 81) * 0.9
+		_wr(img, wx - 0.03, 4.9 - drop, wx + 0.03, 4.9, Color("#14151a"))
+		var cx := _X(img, wx)
+		var cy := _Y(img, 4.9 - drop)
+		PA.ellipse(img, float(cx), float(cy + 8), 7.0, 11.0, Color("#b4544a") if i % 3 != 0 else Color("#d8b090"))
+		PA.rect(img, cx - 2, cy - 1, 4, 4, Color("#e8dcc0"))
+	# cages à jambon posées au sol, vides
+	for cxw: float in [-12.0, -3.0, 6.0, 14.0]:
+		_wr(img, cxw - 0.9, 0.0, cxw + 0.9, 1.9, Color("#14151a"))
+		for k in 5:
+			_wr(img, cxw - 0.8 + float(k) * 0.4, 0.05, cxw - 0.74 + float(k) * 0.4, 1.85, Color("#5a6068"))
+	# lumière froide, tuyaux
+	_wr(img, -20.0, 3.4, 20.0, 3.6, Color("#4a4e58"))
+	for lx: float in [-10.0, 2.0, 12.0]:
+		_glow(img, lx, 4.0, 3.6, Color(0.45, 0.6, 0.85), 0.5)
+	_band(img, 0, 26, 0.5, 0.0)
+	_wash(img, Color(0.06, 0.1, 0.16), 0.22)
+

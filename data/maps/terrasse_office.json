@@ -1,0 +1,117 @@
+{
+	"id": "terrasse_office",
+	"name": "La terrasse de l'Office",
+	"region": "Terres de l'Est",
+	"size": [
+		30,
+		18
+	],
+	"ambiance": "terrasse",
+	"music": "isengarde",
+	"arena": "terrasse_office",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "isen_fonte",
+				"rect": [
+					3,
+					4,
+					24,
+					10
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				5.0,
+				9.0
+			],
+			"facing": "right"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "terrasse_arrivee",
+			"unless": "sarumale_vaincu"
+		}
+	],
+	"style": "isengarde",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				3.0,
+				7.0,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "isengarde",
+				"spawn": "tour"
+			}
+		},
+		{
+			"type": "npc",
+			"id": "sarumale",
+			"pos": [
+				18.0,
+				9.0
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "sarumale_assis",
+			"if": "sarumale_vaincu"
+		},
+		{
+			"type": "isen_pancarte",
+			"pos": [
+				22.0,
+				6.0
+			],
+			"dialogue": "terrasse_ecriteau",
+			"label": "Lire"
+		},
+		{
+			"type": "isen_cheminee",
+			"pos": [
+				8.0,
+				4.4
+			]
+		},
+		{
+			"type": "isen_cheminee",
+			"pos": [
+				24.0,
+				4.2
+			]
+		},
+		{
+			"type": "isen_four",
+			"pos": [
+				14.0,
+				4.6
+			],
+			"variant": 0
+		},
+		{
+			"type": "light",
+			"pos": [
+				15,
+				9
+			],
+			"height": 2.6,
+			"color": "#ffa070",
+			"energy": 1.8,
+			"range": 14.0
+		}
+	]
+}

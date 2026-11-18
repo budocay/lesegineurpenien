@@ -1,0 +1,333 @@
+{
+	"id": "plaine_roquefort",
+	"name": "La plaine du Roquefort",
+	"region": "Plaine à Brebis",
+	"size": [
+		56,
+		28
+	],
+	"ambiance": "plaine_or",
+	"music": "plaine_or",
+	"arena": "plaine_roquefort",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "cav_herbe",
+		"fills": [
+			{
+				"type": "cav_chemin",
+				"rect": [
+					0,
+					12,
+					56,
+					3
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					44,
+					15,
+					3,
+					10
+				]
+			},
+			{
+				"type": "cav_chemin",
+				"rect": [
+					22,
+					3,
+					14,
+					9
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.0,
+				13.5
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				53.0,
+				13.5
+			],
+			"facing": "left"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				22,
+				3,
+				14,
+				9
+			],
+			"h": 1.6
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				20,
+				6,
+				2,
+				2
+			],
+			"dir": "right",
+			"from": 0.0,
+			"to": 1.6
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "plaine_nuit",
+			"unless": "plaine_vue"
+		}
+	],
+	"style": "cavalier",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				0.0,
+				11.5,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "chutes_gratin",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				55.2,
+				11.5,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "cabecou",
+				"spawn": "ouest"
+			}
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				2,
+				2,
+				18,
+				9
+			],
+			"table": "plaine"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				36,
+				2,
+				18,
+				9
+			],
+			"table": "plaine"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				2,
+				16,
+				40,
+				10
+			],
+			"table": "plaine"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				36,
+				16,
+				8,
+				10
+			],
+			"table": "plaine"
+		},
+		{
+			"type": "cav_lit",
+			"pos": [
+				12.0,
+				10.4
+			],
+			"dialogue": "plaine_camp",
+			"label": "Se reposer",
+			"reach": 2.0
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				49.5,
+				11.2
+			],
+			"dialogue": "plaine_panneau",
+			"label": "Lire",
+			"variant": 0
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				30.0,
+				19.0
+			],
+			"dialogue": "plaine_botte",
+			"label": "Examiner"
+		},
+		{
+			"type": "cav_brebis",
+			"pos": [
+				14.0,
+				20.0
+			],
+			"dialogue": "plaine_brebis",
+			"label": "Examiner",
+			"variant": 0
+		},
+		{
+			"type": "cav_brebis",
+			"pos": [
+				38.5,
+				21.0
+			],
+			"dialogue": "plaine_brebis",
+			"label": "Examiner",
+			"variant": 1
+		},
+		{
+			"type": "cav_enclos",
+			"pos": [
+				45.5,
+				22.0
+			],
+			"dialogue": "plaine_cisailles",
+			"label": "Fouiller",
+			"reach": 2.2
+		},
+		{
+			"type": "crate",
+			"pos": [
+				29.0,
+				6.0
+			],
+			"dialogue": "plaine_coffre",
+			"label": "Ouvrir",
+			"turn": 8
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				8.0,
+				11.0
+			],
+			"variant": 1
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_arbre",
+			"rect": [
+				0,
+				0,
+				56,
+				3
+			],
+			"count": 16,
+			"min_dist": 2.2,
+			"seed": 61,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_arbre",
+			"rect": [
+				0,
+				25,
+				56,
+				3
+			],
+			"count": 14,
+			"min_dist": 2.2,
+			"seed": 62,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_botte",
+			"rect": [
+				0,
+				16,
+				56,
+				10
+			],
+			"count": 8,
+			"min_dist": 3.0,
+			"seed": 63,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "cav_brebis",
+			"rect": [
+				0,
+				16,
+				40,
+				10
+			],
+			"count": 7,
+			"min_dist": 3.0,
+			"seed": 64,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "grass",
+			"rect": [
+				0,
+				3,
+				56,
+				22
+			],
+			"count": 40,
+			"min_dist": 1.2,
+			"seed": 65,
+			"on": [
+				"cav_herbe"
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				12
+			],
+			"height": 2.6,
+			"color": "#ffe8b0",
+			"energy": 1.2,
+			"range": 14.0
+		}
+	]
+}
