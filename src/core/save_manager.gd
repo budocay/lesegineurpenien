@@ -146,12 +146,18 @@ func describe(d: Dictionary) -> Dictionary:
 			if m is Dictionary:
 				levels += int((m as Dictionary).get("level", 1))
 				count += 1
+	var faces: Array = []   # les combattants (quatre au plus), pour les vignettes de la liste
+	if party is Array:
+		for id: Variant in (party as Array).slice(0, GameState.MAX_ACTIVE):
+			if Database.characters.has(str(id)):
+				faces.append(str(id))
 	var chapter := str(d.get("chapter", "chapitre_1")).replace("_", " ")
 	return {
 		"map_name": str(map.get("name", "?")),
 		"chapter": chapter.substr(0, 1).to_upper() + chapter.substr(1),
 		"quest": quest,
 		"level": int(round(float(levels) / float(count))) if count > 0 else 1,
+		"party": faces,
 		"playtime": int(float(d.get("playtime", 0.0))),
 		"saved_at": str(d.get("saved_at", "")),
 		"stamp": _stamp(d),

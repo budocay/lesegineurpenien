@@ -1,12 +1,15 @@
 extends Control
 ## Écran des sauvegardes : liste des emplacements pour sauvegarder ou charger.
 ## Même style et mêmes commandes que les autres menus : flèches, Entrée/E, Échap pour revenir.
-## Suppr (ou Retour arrière, ou X) efface l'emplacement visé, après confirmation.
+## Suppr (clavier) ou X (manette) efface l'emplacement visé, après confirmation.
 
 signal finished(chosen: String)   # identifiant à charger, ou "" (annulé, ou sauvegarde faite)
 signal saved(id: String)
 
 const UI = preload("res://src/ui/ui_kit.gd")
+
+const ROW_H := 62
+const FACE := 44.0
 
 var mode := "load"        # "save" ou "load"
 var context := ""         # à qui rendre la main : "title", "pause" ou "defeat" (lu par main.gd)
@@ -101,6 +104,8 @@ func open(new_mode: String, new_context: String = "") -> void:
 func close(chosen: String = "", silent: bool = false) -> void:
 	if not visible:
 		return
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	_modal.visible = false
 	if not silent:
@@ -166,17 +171,17 @@ func _rebuild(focus_id: String) -> void:
 		_hint.remove_child(c)
 		c.queue_free()
 	_note.text = ""
-	_hint.add_child(UI.hints([["Flèches", "choisir"], ["Entrée", "sauvegarder ici" if mode == "save" else "charger"], ["Suppr", "effacer"], ["Échap", "retour"]]))
+	_hint.add_child(UI.hints([["nav", "choisir"], ["ok", "sauvegarder ici" if mode == "save" else "charger"], ["delete", "effacer"], ["back", "retour"]]))
 	_last_focus = null
 	previous = null
 
 
 func _make_row(e: Dictionary) -> Button:
 	var id := str(e["id"])
-	var row := UI.menu_button("", 20)
-	row.custom_minimum_size = Vector2(0, 44 if bool(e["empty"]) else 60)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var empty := bool(e["empty"])
+	var row := UI.menu_button("", 20)
+	row.custom_minimum_size = Vector2(0, 46 if empty else ROW_H)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var usable := mode == "save" or not empty
 	row.disabled = not usable
 	row.focus_mode = Control.FOCUS_ALL if usable else Control.FOCUS_NONE
@@ -186,47 +191,100 @@ func _make_row(e: Dictionary) -> Button:
 	UI.full_rect(margin)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_top", 8 if bool(e["empty"]) else 5)
-	margin.add_theme_constant_override("margin_bottom", 4)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_bottom", 6)
 	row.add_child(margin)
-	var v := VBoxContainer.new()
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_theme_constant_override("separation", 0)
-	margin.add_child(v)
+	var line := HBoxContainer.new()
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_theme_constant_override("separation", 18)
+	margin.add_child(line)
 
-	var top := HBoxContainer.new()
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.add_child(top)
-	var slot_name := UI.label(SaveManager.slot_label(id), 20, UI.GOLD if not empty else UI.INK_FAINT)
-	slot_name.custom_minimum_size = Vector2(190, 0)
-	top.add_child(slot_name)
+	# colonne 1 : le nom de l'emplacement (et d'où vient une sauvegarde automatique)
+	var names := VBoxContainer.new()
+	names.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	names.add_theme_constant_override("separation", 0)
+	names.custom_minimum_size = Vector2(176, 0)
+	names.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.add_child(names)
+	names.add_child(UI.label(SaveManager.slot_label(id), 20, UI.GOLD if not empty else UI.INK_FAINT))
 	if empty:
-		var vide := UI.label("— vide —", 19, UI.INK_DIM, false, true)
-		top.add_child(vide)
+		line.add_child(UI.label("— vide —", 19, UI.INK_DIM, false, true))
 		return row
-	var place := UI.label(str(e["map_name"]), 20, UI.INK)
-	place.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	place.clip_text = true
-	top.add_child(place)
-	var when := UI.label(_date_text(str(e["saved_at"])), 17, UI.INK_DIM)
-	when.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	top.add_child(when)
+	var kind_text := "Sauvegarde manuelle"
+	if str(e["kind"]) == "auto":
+		kind_text = "Avant un combat" if str(e["auto_reason"]) == "combat" else "Changement de lieu"
+	names.add_child(UI.label(kind_text, 14, UI.INK_FAINT, false, true))
 
-	var parts: Array = []
+	# colonne 2 : les quatre combattants et le niveau moyen
+	var faces := HBoxContainer.new()
+	faces.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	faces.add_theme_constant_override("separation", 3)
+	faces.custom_minimum_size = Vector2(4.0 * (FACE + 7.0) + 64.0, 0)
+	faces.alignment = BoxContainer.ALIGNMENT_BEGIN
+	var party_ids: Array = e.get("party", [])   # absent d'une très ancienne sauvegarde : pas de vignettes
+	for who: Variant in party_ids:
+		faces.add_child(_face(str(who)))
+	if not party_ids.is_empty():
+		var lv := UI.label("niv. %d" % int(e["level"]), 16, UI.INK_DIM)
+		lv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		var gap := Control.new()
+		gap.custom_minimum_size = Vector2(6, 0)
+		faces.add_child(gap)
+		faces.add_child(lv)
+	line.add_child(faces)
+
+	# colonne 3 : le lieu, puis le chapitre et la quête en cours
+	var where := VBoxContainer.new()
+	where.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	where.add_theme_constant_override("separation", 1)
+	where.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	where.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.add_child(where)
+	var place := UI.label(str(e["map_name"]), 21, UI.INK)
+	place.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	where.add_child(place)
 	var chapter_quest := str(e["chapter"])
 	if str(e["quest"]) != "":
 		chapter_quest += "  ·  " + str(e["quest"])
-	parts.append(chapter_quest)
-	parts.append("Équipe niv. %d" % int(e["level"]))
+	var detail := UI.label(chapter_quest, 16, UI.INK_DIM)
+	detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	where.add_child(detail)
+
+	# colonne 4 : la date et le temps de jeu
+	var when := VBoxContainer.new()
+	when.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	when.add_theme_constant_override("separation", 1)
+	when.custom_minimum_size = Vector2(146, 0)
+	when.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.add_child(when)
+	var date := UI.label(_date_text(str(e["saved_at"])), 17, UI.INK)
+	date.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	when.add_child(date)
 	var total := int(e["playtime"])
-	parts.append("%dh%02d de jeu" % [total / 3600, (total % 3600) / 60])
-	if str(e["kind"]) == "auto":
-		parts.append("avant un combat" if str(e["auto_reason"]) == "combat" else "changement de lieu")
-	var detail := UI.label("   ·   ".join(parts), 16, UI.INK_DIM)
-	detail.clip_text = true
-	v.add_child(detail)
+	var played := UI.label("%dh%02d de jeu" % [total / 3600, (total % 3600) / 60], 16, UI.INK_DIM)
+	played.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	when.add_child(played)
 	return row
+
+
+## Vignette d'un personnage : son portrait dans un petit cadre doré.
+func _face(who: String) -> Control:
+	var frame := PanelContainer.new()
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var fs := UI.panel_style(Color(0.02, 0.02, 0.05, 0.7), UI.GOLD_LINE, 2, 1)
+	fs.set_content_margin_all(2.0)
+	frame.add_theme_stylebox_override("panel", fs)
+	var pic := TextureRect.new()
+	pic.texture = Sprites.portrait(who)
+	pic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	pic.custom_minimum_size = Vector2(FACE, FACE)
+	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(pic)
+	return frame
 
 
 ## « 2026-11-18 14:30:05 » -> « 18/11/2026 14:30 »
@@ -332,8 +390,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if _modal.visible:
 		return
-	if event is InputEventKey and event.pressed and not event.echo \
-			and event.keycode in [KEY_DELETE, KEY_BACKSPACE, KEY_X]:
+	if event.is_action_pressed("delete"):
 		var id := _focused_id()
 		if id == "" or bool((_entries[id] as Dictionary)["empty"]):
 			return
