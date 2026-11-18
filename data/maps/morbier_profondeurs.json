@@ -1,0 +1,377 @@
+{
+	"id": "morbier_profondeurs",
+	"name": "Les Profondeurs",
+	"region": "Mines de Morbier",
+	"size": [
+		48,
+		26
+	],
+	"interior": true,
+	"wall_height": 4.4,
+	"ambiance": "mines_profondeurs",
+	"music": "morbier_mines",
+	"arena": "galerie_mine",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "nain_dalle",
+				"rect": [
+					1,
+					4,
+					10,
+					8
+				]
+			},
+			{
+				"type": "nain_dalle",
+				"rect": [
+					1,
+					12,
+					20,
+					12
+				]
+			},
+			{
+				"type": "nain_dalle",
+				"rect": [
+					11,
+					4,
+					4,
+					8
+				]
+			},
+			{
+				"type": "nain_abime",
+				"rect": [
+					21,
+					10,
+					12,
+					14
+				]
+			},
+			{
+				"type": "nain_pont",
+				"rect": [
+					21,
+					16,
+					12,
+					2
+				]
+			},
+			{
+				"type": "nain_dalle",
+				"rect": [
+					33,
+					9,
+					13,
+					14
+				]
+			},
+			{
+				"type": "nain_marbre",
+				"rect": [
+					36,
+					3,
+					9,
+					6
+				]
+			},
+			{
+				"type": "nain_veine",
+				"rect": [
+					1,
+					17,
+					20,
+					1
+				]
+			}
+		]
+	},
+	"spawns": {
+		"haut": {
+			"pos": [
+				3.6,
+				7.6
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				43.0,
+				16.5
+			],
+			"facing": "left"
+		}
+	},
+	"style": "nain",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				1.0,
+				6.2,
+				0.8,
+				2.6
+			],
+			"to": {
+				"map": "morbier_halle",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				44.2,
+				15.0,
+				0.8,
+				3.0
+			],
+			"to": {
+				"map": "morbier_antre",
+				"spawn": "entree"
+			}
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				1,
+				12,
+				20,
+				12
+			],
+			"table": "morbier_profondeurs"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				33,
+				9,
+				13,
+				14
+			],
+			"table": "morbier_profondeurs"
+		},
+		{
+			"type": "crate",
+			"pos": [
+				8.0,
+				6.4
+			],
+			"dialogue": "coffre_prof_1",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				13.4,
+				5.2
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				41.8,
+				5.6
+			],
+			"dialogue": "coffre_prof_2",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "nain_parapet",
+			"points": [
+				[
+					21,
+					15.9
+				],
+				[
+					33,
+					15.9
+				]
+			],
+			"height": 0.55
+		},
+		{
+			"type": "nain_parapet",
+			"points": [
+				[
+					21,
+					18.1
+				],
+				[
+					33,
+					18.1
+				]
+			],
+			"height": 0.55
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				20.4,
+				11.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				33.6,
+				22.2
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				19.6,
+				22.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				33.4,
+				10.4
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				6.0,
+				19.0
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				14.0,
+				14.4
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				40.0,
+				19.6
+			]
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				10.0,
+				20.6
+			],
+			"variant": 1
+		},
+		{
+			"type": "nain_stele",
+			"pos": [
+				4.8,
+				12.2
+			],
+			"dialogue": "stele_profondeurs",
+			"label": "Lire"
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				2.8,
+				5.6
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				9.0,
+				5.6
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				37.0,
+				4.4
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				43.6,
+				4.4
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				14.0,
+				12.1
+			]
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				17.0,
+				13.4
+			],
+			"height": 4.2
+		}
+	],
+	"heights": [
+		{
+			"rect": [
+				1,
+				4,
+				10,
+				8
+			],
+			"h": 3.0
+		},
+		{
+			"rect": [
+				36,
+				3,
+				9,
+				6
+			],
+			"h": 3.0
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				5,
+				12,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 3.0
+		},
+		{
+			"rect": [
+				38,
+				9,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 3.0
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "arrivee_profondeurs",
+			"unless": "profondeurs_vues"
+		}
+	],
+	"wall_tile": "nain_mur_morbier"
+}

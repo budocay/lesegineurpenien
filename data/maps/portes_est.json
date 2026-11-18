@@ -1,0 +1,124 @@
+{
+	"id": "portes_est",
+	"name": "Les portes de l'Est",
+	"region": "Monts de Morbier",
+	"size": [
+		36,
+		24
+	],
+	"ambiance": "portes_est",
+	"music": "morbier_adieu",
+	"arena": "col",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "nain_neige",
+		"fills": [
+			{
+				"type": "nain_sentier",
+				"rect": [
+					0,
+					10,
+					36,
+					4
+				]
+			}
+		]
+	},
+	"spawns": {
+		"pont": {
+			"pos": [
+				3.0,
+				12.0
+			],
+			"facing": "right"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "deuil_portes",
+			"unless": "portes_vues"
+		}
+	],
+	"style": "nain",
+	"water": {
+		"deep": "#101c34",
+		"shallow": "#2a4a6a",
+		"ripple": "#8ab4d8",
+		"glint": "#e8f4ff"
+	},
+	"objects": [
+		{
+			"type": "nain_panneau",
+			"pos": [
+				22.0,
+				9.4
+			],
+			"dialogue": "portes_panneau",
+			"label": "Lire"
+		},
+		{
+			"type": "nain_etabli",
+			"pos": [
+				14.0,
+				9.0
+			],
+			"variant": 1,
+			"dialogue": "portes_repos",
+			"label": "Se reposer",
+			"reach": 2.0
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				11.2,
+				12.4
+			],
+			"dialogue": "chapeau_gris",
+			"label": "Examiner"
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_sapin",
+			"rect": [
+				0,
+				0,
+				36,
+				7
+			],
+			"count": 14,
+			"min_dist": 2.2,
+			"seed": 11
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_sapin",
+			"rect": [
+				0,
+				16,
+				36,
+				8
+			],
+			"count": 14,
+			"min_dist": 2.2,
+			"seed": 12
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_neige_tas",
+			"rect": [
+				2,
+				15,
+				30,
+				6
+			],
+			"count": 7,
+			"min_dist": 2.0,
+			"seed": 13
+		}
+	]
+}

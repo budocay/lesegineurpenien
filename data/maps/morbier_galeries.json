@@ -1,0 +1,371 @@
+{
+	"id": "morbier_galeries",
+	"name": "Les galeries de Morbier",
+	"region": "Mines de Morbier",
+	"size": [
+		46,
+		28
+	],
+	"interior": true,
+	"wall_height": 3.8,
+	"ambiance": "mines",
+	"music": "morbier_mines",
+	"arena": "galerie_mine",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "nain_dalle",
+				"rect": [
+					1,
+					11,
+					9,
+					8
+				]
+			},
+			{
+				"type": "nain_voie",
+				"rect": [
+					10,
+					13,
+					12,
+					3
+				]
+			},
+			{
+				"type": "nain_pate",
+				"rect": [
+					22,
+					5,
+					14,
+					17
+				]
+			},
+			{
+				"type": "nain_abime",
+				"rect": [
+					27,
+					11,
+					5,
+					5
+				]
+			},
+			{
+				"type": "nain_marbre",
+				"rect": [
+					36,
+					3,
+					9,
+					7
+				]
+			},
+			{
+				"type": "nain_voie",
+				"rect": [
+					36,
+					13,
+					9,
+					3
+				]
+			}
+		]
+	},
+	"spawns": {
+		"porte": {
+			"pos": [
+				3.5,
+				15.0
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				43.0,
+				14.5
+			],
+			"facing": "left"
+		}
+	},
+	"style": "nain",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				1.0,
+				13.0,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "porte_morbier",
+				"spawn": "mines"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				44.1,
+				13.4,
+				0.8,
+				3.2
+			],
+			"to": {
+				"map": "morbier_halle",
+				"spawn": "ouest"
+			}
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				10,
+				13,
+				12,
+				3
+			],
+			"table": "morbier_galeries"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				22,
+				5,
+				14,
+				17
+			],
+			"table": "morbier_galeries"
+		},
+		{
+			"type": "nain_stele",
+			"pos": [
+				5.4,
+				11.9
+			],
+			"dialogue": "stele_galeries",
+			"label": "Lire"
+		},
+		{
+			"type": "nain_panneau",
+			"pos": [
+				19.6,
+				13.7
+			],
+			"dialogue": "panneau_galeries",
+			"label": "Lire"
+		},
+		{
+			"type": "nain_wagonnet",
+			"pos": [
+				15.5,
+				13.9
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				2.2,
+				12.0
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				8.4,
+				18.0
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				22.8,
+				20.6
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				35.0,
+				6.0
+			]
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				28.4,
+				8.9
+			],
+			"dialogue": "squelette_galeries",
+			"label": "Examiner"
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				24.4,
+				20.4
+			],
+			"dialogue": "pioche_trouvee",
+			"label": "Fouiller",
+			"unless": "pioche_prise"
+		},
+		{
+			"type": "nain_meule",
+			"pos": [
+				26.4,
+				19.6
+			],
+			"variant": 1
+		},
+		{
+			"type": "crate",
+			"pos": [
+				41.5,
+				5.4
+			],
+			"dialogue": "coffre_galerie_1",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "crate",
+			"pos": [
+				8.7,
+				12.2
+			],
+			"dialogue": "coffre_galerie_2",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "crate",
+			"pos": [
+				34.4,
+				19.8
+			],
+			"dialogue": "coffre_camp",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "monster",
+			"id": "gobe_gras",
+			"pos": [
+				29.5,
+				19.4
+			],
+			"dialogue": "camp_gobelins",
+			"solid": 1.0,
+			"unless": "combat_gobelins_du_camp"
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				6.2,
+				17.8
+			],
+			"energy": 2.4
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				24.0,
+				6.3
+			],
+			"energy": 2.4
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				42.5,
+				8.6
+			],
+			"energy": 2.2
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				42.0,
+				14.6
+			],
+			"energy": 2.2
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				12.0,
+				13.1
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				19.0,
+				13.1
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				39.5,
+				13.1
+			]
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				24.2,
+				9.4
+			]
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				33.6,
+				9.4
+			]
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				24.2,
+				18.2
+			]
+		}
+	],
+	"heights": [
+		{
+			"rect": [
+				36,
+				3,
+				9,
+				7
+			],
+			"h": 1.5
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				34,
+				5,
+				2,
+				2
+			],
+			"dir": "right",
+			"from": 0.0,
+			"to": 1.5
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "arrivee_galeries",
+			"unless": "galeries_vues"
+		}
+	],
+	"wall_tile": "nain_mur_morbier",
+	"wall_glow": 0.25
+}

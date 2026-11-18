@@ -24,6 +24,7 @@ const FxPainter = preload("res://src/gfx/fx_painter.gd")
 
 var failures := 0
 var checks := 0
+var pick_queue: Array = []   # réponses successives aux choix d'un dialogue (sinon : la première)
 var verbose := false
 
 
@@ -62,6 +63,7 @@ func _ready() -> void:
 	_test_scenery()
 	_test_chapter_2_data()
 	_test_chapter_3_data()
+	_test_chapter_4_data()
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_interface()
@@ -105,8 +107,11 @@ func _ready() -> void:
 	await _test_flow()
 	await _test_chapter_2()
 	await _test_chapter_3()
+	await _test_chapter_4()
 	print("== Décors elfiques (style de Fondue-Combe) ==")
 	await _test_elven_scenery()
+	print("== Décors nains (Mines de Morbier) ==")
+	await _test_dwarven_scenery()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -1796,7 +1801,8 @@ func _wait_idle(main: Node, seconds: float = 40.0) -> void:
 			if main.dialogue._choosing:
 				var buttons: Array = main.dialogue._choice_list.get_children()
 				if not buttons.is_empty():
-					(buttons[0] as Button).pressed.emit()
+					var pick: int = int(pick_queue.pop_front()) if not pick_queue.is_empty() else 0
+					(buttons[clampi(pick, 0, buttons.size() - 1)] as Button).pressed.emit()
 			elif main.dialogue._typing:
 				main.dialogue._finish_typing()
 			else:
@@ -3420,6 +3426,249 @@ func _test_chapter_3() -> void:
 	await get_tree().process_frame
 
 
+## Dit un dialogue de bout en bout, en répondant aux choix dans l'ordre de `picks`.
+func _c4_say(main: Node, id: String, picks: Array = [], seconds: float = 60.0) -> void:
+	pick_queue = picks.duplicate()
+	main.run_dialogue(id)
+	await _wait_idle(main, seconds)
+	pick_queue = []
+
+
+func _c4_has_warp(main: Node, map_id: String) -> bool:
+	for wp: Dictionary in main.world.warps:
+		if str(wp["map"]) == map_id:
+			return true
+	return false
+
+
+## Chapitre 4 : les Mines de Morbier, joué dans le vrai jeu, de Fondue-Combe aux Portes de l'Est.
+func _test_chapter_4() -> void:
+	print("== Chapitre 4 : déroulé complet ==")
+	# toutes les cartes, dans leurs différents états : tout passage est atteignable à pied
+	await _test_map("porte_morbier", ["chapitre_3_fini", "bromure_invite"], "porte fermée")
+	await _test_map("porte_morbier", ["chapitre_3_fini", "bromure_invite", "porte_ouverte", "porte_vue"], "porte ouverte")
+	await _test_map("morbier_galeries", [], "galeries")
+	await _test_map("morbier_galeries", ["combat_gobelins_du_camp", "pioche_prise", "bromure_invite"], "galeries, camp vaincu")
+	await _test_map("morbier_halle", [], "halle")
+	await _test_map("morbier_halle", ["combat_gros_bleu", "tombe_visitee", "bromure_invite"], "halle, tombe visitée")
+	await _test_map("morbier_tombe", [], "tombe")
+	await _test_map("morbier_tombe", ["combat_gros_bleu"], "tombe, troll vaincu")
+	await _test_map("morbier_profondeurs", [], "profondeurs")
+	await _test_map("morbier_antre", [], "antre")
+	await _test_map("morbier_antre", ["goulum_rencontre", "combat_goulum", "bromure_invite"], "antre, duel fini")
+	await _test_map("morbier_pont", [], "pont")
+	await _test_map("morbier_pont", ["balourd_fait", "combat_balourd", "glandoulf_tombe", "bromure_invite"], "pont, Balourd tombé")
+	await _test_map("portes_est", [], "portes de l'Est")
+
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	check(GameState.has_flag("chapitre_3_fini") and GameState.chapter == "chapitre_4", "reprise à la fin du chapitre 3 (%s)" % GameState.chapter)
+	check(GameState.party.has("glandoulf") and GameState.party.has("grimli") and GameState.party.size() == 8, "huit compagnons au départ (%d)" % GameState.party.size())
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 16   # déroulé, pas équilibre : au-dessus du niveau attendu
+	GameState.heal_party()
+
+	# Fondue-Combe mène à la porte de Morbier une fois le chapitre 3 fini
+	main.change_map("fondue_combe", "conseil_porte")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "porte_morbier"), "Fondue-Combe : la sortie ouest mène aux Monts de Morbier")
+	main.change_map("porte_morbier", "vallee")
+	await _wait_idle(main)
+	check(main.world.map_id == "porte_morbier" and GameState.has_flag("porte_vue"), "la porte de Morbier")
+	check(GameState.quest_state("morbier") != "" and GameState.quest_state("morbier") != "done", "la quête des Mines est lancée (%s)" % GameState.quest_state("morbier"))
+	check(not _c4_has_warp(main, "morbier_galeries"), "la porte est fermée tant que l'énigme n'est pas résolue")
+	# l'énigme : deux mauvaises réponses, puis la bonne ; le lac se réveille
+	await _c4_say(main, "porte_enigme", [0])
+	check(GameState.has_flag("porte_essai") and not GameState.has_flag("porte_ouverte"), "« Mellon » : la porte ne s'ouvre pas")
+	await _c4_say(main, "porte_enigme", [1])
+	check(not GameState.has_flag("porte_ouverte"), "« Camembert » : la porte ne s'ouvre pas non plus")
+	await _c4_say(main, "porte_enigme", [2], 200.0)
+	check(GameState.has_flag("porte_ouverte") and GameState.has_flag("combat_guetteur_du_lac"), "« Ami du Chambertin » : la porte s'ouvre, le Guetteur du lac est vaincu")
+	check(_c4_has_warp(main, "morbier_galeries"), "la porte ouverte mène aux galeries")
+	GameState.heal_party()
+	check(SaveManager.has_save(), "sauvegarde à la porte")
+
+	# les galeries : pioche, coffres, camp de gobelins
+	main.change_map("morbier_galeries", "porte")
+	await _wait_idle(main)
+	check(main.world.map_id == "morbier_galeries" and GameState.has_flag("galeries_vues"), "les galeries de Morbier")
+	await _c4_say(main, "pioche_trouvee")
+	check(GameState.item_count("pioche_rondin") == 1, "la pioche de Rondin est ramassée")
+	await _c4_say(main, "coffre_galerie_1")
+	check(GameState.item_count("page_comptes") == 1, "première page du registre")
+	await _c4_say(main, "coffre_galerie_2")
+	await _c4_say(main, "coffre_camp")
+	check(GameState.item_count("meule_morbier") == 1, "la meule du camp est dans le sac")
+	await _c4_say(main, "camp_gobelins", [], 200.0)
+	check(GameState.has_flag("combat_gobelins_du_camp") and GameState.has_flag("camp_vaincu"), "le camp de gobelins est vaincu")
+	GameState.heal_party()
+
+	# la Grande Salle des Forges : Rondin, Grimli barre la route de l'est
+	main.change_map("morbier_halle", "ouest")
+	await _wait_idle(main)
+	check(GameState.has_flag("halle_vue"), "la Grande Salle des Forges")
+	check(not _c4_has_warp(main, "morbier_profondeurs"), "la sortie est reste fermée avant la tombe")
+	await _c4_say(main, "rondin", [1])
+	await _c4_say(main, "rondin", [2])
+	check(GameState.has_flag("pioche_rendue") and GameState.has_flag("meule_livree"), "Rondin récupère sa pioche et sa meule")
+	await _c4_say(main, "coffre_halle")
+	await _c4_say(main, "halle_repos", [0])
+	GameState.heal_party()
+
+	# la tombe : Gros Bleu, puis le Roi Ballot
+	main.change_map("morbier_tombe", "entree")
+	await _wait_idle(main)
+	check(GameState.has_flag("tombe_vue"), "la tombe du Roi Ballot")
+	await _c4_say(main, "tombe_ballot")
+	check(not GameState.has_flag("tombe_visitee"), "la dalle reste muette tant que le troll garde la salle")
+	await _c4_say(main, "troll_tombe", [], 200.0)
+	check(GameState.has_flag("combat_gros_bleu") and GameState.has_flag("gros_bleu_vaincu"), "le Gros Bleu des caves est vaincu")
+	await _c4_say(main, "tombe_ballot")
+	check(GameState.has_flag("tombe_visitee"), "Grimli salue le Roi Ballot")
+	await _c4_say(main, "coffre_tombe")
+	GameState.heal_party()
+	main.change_map("morbier_halle", "tombe")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "morbier_profondeurs"), "la halle s'ouvre vers les profondeurs")
+
+	# les profondeurs : trois coffres, un pont sur l'abîme
+	main.change_map("morbier_profondeurs", "haut")
+	await _wait_idle(main)
+	check(GameState.has_flag("profondeurs_vues"), "les profondeurs")
+	await _c4_say(main, "coffre_prof_1")
+	await _c4_say(main, "coffre_prof_2")
+	check(GameState.item_count("page_comptes") == 3, "les trois pages du registre sont réunies (%d)" % GameState.item_count("page_comptes"))
+	main.change_map("morbier_tombe", "entree")
+	await _wait_idle(main)
+	await _c4_say(main, "registre_ballot")
+	await _c4_say(main, "registre_ballot")
+	check(GameState.has_flag("comptes_rendus") and GameState.item_count("page_comptes") == 0, "le Roi Ballot reprend ses pages")
+	GameState.heal_party()
+
+	# le lac de Maroilles : la devinette, puis le combat contre Goulûm
+	main.change_map("morbier_antre", "entree")
+	await _wait_idle(main)
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 24   # le duel de devinettes puis le combat : au-dessus du niveau attendu
+	GameState.heal_party()
+	await _c4_say(main, "goulum_duel", [0, 0, 0], 300.0)
+	check(GameState.has_flag("goulum_rencontre") and GameState.has_flag("devinette_1") and GameState.has_flag("devinette_2"), "deux devinettes sur trois résolues")
+	check(GameState.has_flag("combat_goulum"), "Goulûm est vaincu")
+	check(GameState.has_flag("anneau_repris") and GameState.has_flag("froton_porte_anneau"), "l'anneau est repris, Froton le porte")
+	check(GameState.has_flag("bromure_invite") and GameState.party.has("glandoulf"), "Bromure a suivi l'équipe, Glandoulf est toujours là")
+	GameState.heal_party()
+
+	# le pont : Glandoulf retient le Balourd et tombe
+	main.change_map("morbier_pont", "ouest")
+	await _wait_idle(main)
+	check(not _c4_has_warp(main, "portes_est"), "la sortie est est coupée avant le Balourd")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 24
+	GameState.heal_party()
+	await _c4_say(main, "balourd_pont", [], 300.0)
+	check(GameState.has_flag("combat_balourd") and GameState.has_flag("glandoulf_tombe"), "le Balourd est tombé, Glandoulf avec lui")
+	check(not GameState.party.has("glandoulf") and GameState.leader() == "sam", "Glandoulf quitte l'équipe : Sam la mène (%s)" % GameState.leader())
+	check(GameState.party.size() == 7 and GameState.active_party().size() == 4, "sept compagnons, quatre au combat (%d)" % GameState.party.size())
+	check(not GameState.active_party().has("glandoulf") and GameState.member("sam").get("level", 0) >= 16, "l'équipe active est complète sans Glandoulf")
+	check(_c4_has_warp(main, "portes_est"), "le pont mène aux Portes de l'Est")
+
+	# les Portes de l'Est : fin du chapitre
+	main.change_map("portes_est", "pont")
+	await _wait_idle(main)
+	check(main.world.map_id == "portes_est" and main.world.player != null, "les Portes de l'Est se jouent sans Glandoulf")
+	await _c4_say(main, "deuil_portes")
+	check(GameState.has_flag("chapitre_4_fini") and GameState.chapter == "chapitre_5", "le chapitre 4 se termine (%s)" % GameState.chapter)
+	check(GameState.quest_state("morbier") == "done", "la quête des Mines est accomplie")
+	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 4")
+	# une carte quelconque se construit encore sans Glandoulf
+	main.change_map("fondue_combe", "est")
+	await _wait_idle(main)
+	check(main.world.map_id == "fondue_combe", "le monde se construit sans Glandoulf dans l'équipe")
+	main.queue_free()
+	await get_tree().process_frame
+
+
+## Style nain : tuiles, décors et objets peints, cartes du chapitre 4, construction des cartes.
+func _test_dwarven_scenery() -> void:
+	var Dwarven: GDScript = load("res://src/gfx/dwarven_painter.gd")
+	var DwarvenBuilder: GDScript = load("res://src/world/dwarven_builder.gd")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for kind: String in Dwarven.TILES:
+		var img: Image = Sprites.tile_image(kind)
+		check(img != null and img.get_width() >= 48, "style nain : la tuile %s est peinte" % kind)
+		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style nain : la tuile %s n'est pas le magenta de secours" % kind)
+		check(docs.contains(kind), "style nain : la tuile %s est documentée" % kind)
+	for kind: String in Dwarven.PROP_VARIANTS:
+		check(MapBuilder.PROPS.has(kind), "style nain : %s est un accessoire déclaré" % kind)
+		check(docs.contains(kind), "style nain : %s est documenté" % kind)
+		for v in int(Dwarven.PROP_VARIANTS[kind]):
+			var tex: Texture2D = Sprites.prop(kind, v)
+			check(tex != null and tex.get_width() > 4 and tex.get_height() > 4, "style nain : %s variante %d peint" % [kind, v])
+	for kind: String in DwarvenBuilder.OBJECTS:
+		check(docs.contains(kind), "style nain : l'objet %s est documenté" % kind)
+	check(load("res://src/world/atmosphere.gd").PARTICLES.has("neige") and docs.contains("neige"), "style nain : particules de neige")
+	check(docs.contains("quitte:"), "l'action de dialogue quitte: est documentée")
+
+	var maps: Array[String] = ["porte_morbier", "morbier_galeries", "morbier_halle", "morbier_tombe", "morbier_profondeurs", "morbier_antre", "morbier_pont", "portes_est"]
+	for id: String in maps:
+		var map := Database.get_map(id)
+		check(str(map.get("style", "")) == "nain", "carte %s : style nain" % id)
+		for f: Dictionary in (map.get("ground", {}) as Dictionary).get("fills", []):
+			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
+		for o: Dictionary in map.get("objects", []):
+			var t := str(o.get("type", ""))
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence"] \
+					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t)
+			check(known, "carte %s : objet « %s » connu" % [id, t])
+			if t == "scatter":
+				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
+		if bool(map.get("interior", false)):
+			var wt := str(map.get("wall_tile", "nain_mur"))
+			check(Dwarven.TILES.has(wt), "carte %s : tuile de mur « %s » connue" % [id, wt])
+
+	# construction : parois et massif, braseros, ponts ; plus de village rustique
+	for id: String in maps:
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await get_tree().process_frame
+		var interior := bool(Database.get_map(id).get("interior", false))
+		if interior:
+			check(world.get_node_or_null("Walls") != null, "carte %s : murs nains construits" % id)
+		else:
+			check(world.get_node_or_null("MassifRock") != null and world.get_node_or_null("MassifSnow") != null, "carte %s : le massif est bâti" % id)
+		var lit := 0
+		for n: Node in world.get_children():
+			if n.name.begins_with("NainBrasero") or n.name.begins_with("NainTorche") or n.name.begins_with("NainForgeMurale"):
+				lit += 1
+		if interior and id != "morbier_pont":
+			check(lit >= 1, "carte %s : des feux éclairent la salle (%d)" % [id, lit])
+		if id == "porte_morbier":
+			check(world.get_node_or_null("Water") != null, "la porte de Morbier : le lac est là")
+		world.queue_free()
+		await get_tree().process_frame
+
+	# les cartes des chapitres précédents ne changent pas
+	GameState.new_game()
+	var village: Node3D = World.new()
+	add_child(village)
+	village.setup("brie", str(Database.get_map("brie")["spawns"].keys()[0]))
+	await get_tree().process_frame
+	var any_nain := false
+	for n: Node in village.get_children():
+		if n.name.begins_with("Nain") or n.name.begins_with("Massif"):
+			any_nain = true
+	check(not any_nain, "Brie : aucun décor nain (le style se choisit par les données)")
+	village.queue_free()
+	await get_tree().process_frame
+
+
 ## Arènes : chacune se construit avec 1 à 5 ennemis, aucun décor n'occupe la zone de jeu,
 ## les champs « stage », « backdrop » et « particles » sont valides.
 func _test_arenas() -> void:
@@ -4137,6 +4386,9 @@ func _test_arena_by_place() -> void:
 		"ferme_pinard": "ferme", "fondue_combe": "cite_elfique", "fromagerie": "cave_fromage",
 		"poney_etage": "etage_auberge", "poney_flagada": "taverne", "pre_couche": "pre",
 		"roseliere": "marais", "route_brie": "route", "salle_conseil": "salle_conseil",
+		"porte_morbier": "bord_du_lac", "morbier_galeries": "galerie_mine", "morbier_halle": "halle_piliers",
+		"morbier_tombe": "halle_piliers", "morbier_profondeurs": "galerie_mine", "morbier_antre": "bord_du_lac",
+		"morbier_pont": "pont_abime", "portes_est": "col",
 	}
 	for map_id: String in Database.list_maps():
 		var map := Database.get_map(map_id)
@@ -4174,3 +4426,66 @@ func _test_arena_by_place() -> void:
 		for pan: Variant in back.get("panels", []):
 			var img2: Image = preload("res://src/gfx/arena_panels.gd").panel(str((pan as Dictionary).get("kind", "")), float((pan as Dictionary).get("w", 36.0)), float((pan as Dictionary).get("h", 6.0)))
 			check(img2 != null and img2.get_width() > 0, "arène %s : panneau %s peint" % [id, str((pan as Dictionary).get("kind", ""))])
+
+
+
+# -------------------------------------------------------------------- chapitre 4
+
+const C4_MAPS := ["porte_morbier", "morbier_galeries", "morbier_halle", "morbier_tombe", "morbier_profondeurs", "morbier_antre", "morbier_pont", "portes_est"]
+const C4_MONSTERS := ["gobelin", "gobelin_pic", "gobelin_chef", "chauve", "troll", "guetteur", "goulum", "balourd"]
+
+
+func _test_chapter_4_data() -> void:
+	print("== Chapitre 4 : données et équilibre ==")
+	for id: String in C4_MAPS:
+		check(Database.has_map(id), "carte %s existe" % id)
+		check(Database.get_map(id).has("music") and Database.music.has(str(Database.get_map(id)["music"])), "carte %s : musique connue" % id)
+		check(str(Database.get_map(id).get("style", "")) == "nain", "carte %s : style nain" % id)
+	for kind: String in C4_MONSTERS:
+		check(MonsterPainter.has(kind), "monstre %s : espèce connue" % kind)
+		var img: Image = MonsterPainter.paint(kind)
+		var magenta := 0
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					filled += 1
+					if c.r > 0.95 and c.g < 0.05 and c.b > 0.95:
+						magenta += 1
+		check(magenta == 0 and filled > 200, "monstre %s : dessiné, sans carré magenta (%d px, %d magenta)" % [kind, filled, magenta])
+	for q: String in ["morbier", "comptes_ballot", "pioche_rondin", "meule_morbier"]:
+		check(not Database.get_quest(q).is_empty(), "quête %s décrite" % q)
+	check(Database.get_quest("morbier").get("kind") == "principale", "les Mines sont la quête principale")
+	for ch: String in ["rondin", "goulum", "balourd", "roi_ballot"]:
+		check(Database.characters.has(ch), "personnage %s décrit" % ch)
+	for it: String in ["page_comptes", "meule_morbier", "pioche_rondin"]:
+		check(Database.item_kind(it) == "key", "objet de quête %s" % it)
+	check(not Database.get_shop("rondin").is_empty(), "boutique de Rondin")
+	for e: String in ["guetteur_du_lac", "gobelins_du_camp", "gros_bleu", "goulum", "balourd"]:
+		check(not Database.get_encounter(e).is_empty(), "rencontre %s" % e)
+	# les quatre arènes du chapitre existent et se construisent
+	for a: String in ["galerie_mine", "halle_piliers", "bord_du_lac", "pont_abime"]:
+		check(Database.arenas.has(a), "arène %s" % a)
+	# la sortie de Fondue-Combe mène aux Mines
+	var gate := false
+	for o: Dictionary in Database.get_map("fondue_combe").get("objects", []):
+		if str(o.get("type", "")) == "warp" and str((o.get("to", {}) as Dictionary).get("map", "")) == "porte_morbier":
+			gate = str(o.get("if", "")) == "chapitre_3_fini"
+	check(gate, "Fondue-Combe ouvre la route de Morbier une fois le chapitre 3 fini")
+	for table: String in ["morbier_galeries", "morbier_halle", "morbier_profondeurs"]:
+		check(Database.encounter_tables.has(table), "table %s" % table)
+		var r := _c3_group_rate(table, 12, -1)
+		check(float(r[0]) >= 0.85, "table %s, quatre niv. 12 sans talents : pire groupe %d %% (%s)" % [table, int(float(r[0]) * 100.0), str(r[1])])
+		print("  table %-20s pire groupe %3d %%  (%s)" % [table, int(float(r[0]) * 100.0), str(r[1])])
+	# les cinq combats forcés : (rencontre, niveau, minimum avec talents, minimum sans talents)
+	for case: Array in [["guetteur_du_lac", 12, 0.6, 0.1], ["gobelins_du_camp", 12, 0.7, 0.4], ["gros_bleu", 13, 0.6, 0.15], ["goulum", 14, 0.6, 0.3], ["balourd", 16, 0.6, 0.25]]:
+		var enc := Database.get_encounter(str(case[0]))
+		var a := _c2_rate(TEAM, int(case[1]), enc, 0)
+		var b := _c2_rate(TEAM, int(case[1]), enc, -1)
+		var alt := _c2_rate(["glandoulf", "sam", "pepin", "merri"], int(case[1]), enc, 0)
+		check(a >= float(case[2]), "%s, quatre niv. %d, talents A : %d %%" % [str(case[0]), int(case[1]), int(a * 100.0)])
+		check(b >= float(case[3]), "%s, quatre niv. %d, sans talents : %d %%" % [str(case[0]), int(case[1]), int(b * 100.0)])
+		check(alt >= 0.35, "%s, autre équipe de quatre : %d %%" % [str(case[0]), int(alt * 100.0)])
+		print("  %-18s niv. %2d : %3d %% avec talents, %3d %% sans, %3d %% autre équipe" % [str(case[0]), int(case[1]), int(a * 100.0), int(b * 100.0), int(alt * 100.0)])
+	GameState.new_game()

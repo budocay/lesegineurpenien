@@ -583,5 +583,21 @@
 	"en_triple_exemplaire": {"name": "En triple exemplaire", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 64, "element": "torpeur"}]},
 	"consultation_interdite": {"name": "Consultation interdite", "target": "enemy", "effects": [{"type": "damage", "stat": "mag", "power": 105, "element": "torpeur"}, {"type": "status", "id": "sommeil", "chance": 0.3, "turns": 2}]},
 	"rappel_a_l_ordre": {"name": "Rappel à l'ordre", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.6, "turns": 3}]},
-	"rayonnage_effondre": {"name": "Rayonnage effondré", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 78, "element": "contondant"}]}
+	"rayonnage_effondre": {"name": "Rayonnage effondré", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 78, "element": "contondant"}]},
+	"piochage": {"name": "Piochage", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 88, "element": "tranchant"}, {"type": "status", "id": "ebranle", "chance": 0.4, "turns": 2}]},
+	"jet_de_croute": {"name": "Jet de croûte", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 58, "element": "contondant"}]},
+	"battement_tiede": {"name": "Battement tiède", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.5, "turns": 3}]},
+	"grosse_tomme": {"name": "Grosse tomme", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 130, "element": "contondant"}]},
+	"claque_moisie": {"name": "Claque moisie", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 78, "element": "contondant"}, {"type": "status", "id": "poison", "chance": 0.6, "turns": 3}]},
+	"ecrasement_de_cave": {"name": "Écrasement de cave", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 66, "element": "contondant"}]},
+	"regard_du_lac": {"name": "Regard du lac", "target": "enemy", "effects": [{"type": "status", "id": "sonne", "chance": 0.55, "turns": 1}]},
+	"etreinte_du_lac": {"name": "Étreinte du lac", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 95, "element": "contondant"}, {"type": "status", "id": "englue", "chance": 0.5, "turns": 3}]},
+	"vague_noire": {"name": "Vague noire", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 62, "element": "contondant"}]},
+	"devinette_vicieuse": {"name": "Devinette vicieuse", "target": "enemy", "effects": [{"type": "status", "id": "sommeil", "chance": 0.5, "turns": 2}]},
+	"morsure_de_poisson": {"name": "Morsure de poisson cru", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 92, "element": "tranchant"}, {"type": "status", "id": "poison", "chance": 0.5, "turns": 3}]},
+	"bijou_de_famille": {"name": "Bijou de famille", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.55, "turns": 3}, {"type": "damage", "stat": "mag", "power": 40, "element": "torpeur"}]},
+	"fouet_de_flamme": {"name": "Fouet de flamme", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 72, "element": "feu"}]},
+	"coup_de_balourd": {"name": "Coup de Balourd", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 140, "element": "contondant"}]},
+	"souffle_de_cave": {"name": "Souffle de cave", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 92, "element": "feu"}, {"type": "status", "id": "enfume", "chance": 0.4, "turns": 2}]},
+	"crevasse": {"name": "Crevasse", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 118, "element": "contondant"}, {"type": "status", "id": "sonne", "chance": 0.35, "turns": 1}]}
 }

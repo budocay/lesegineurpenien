@@ -343,7 +343,7 @@ liste d'instructions lues dans l'ordre :
   quand le joueur la referme.
 - `set` pose un drapeau dans l'état de la partie ; `if` le teste. C'est ainsi qu'un
   personnage dit autre chose la seconde fois.
-- `action` demande quelque chose au jeu : `save` (sauvegarder) ou `rest` (repos : toute
+- `action` demande quelque chose au jeu : `save` (sauvegarder), `quitte:<identifiant>` ou `quitte:<identifiant>:<meneur>` (le personnage quitte l'équipe pour de bon, Glandoulf à la fin du chapitre 4 ; le second nom, s'il est donné, prend la tête de l'équipe, sinon c'est le suivant de la liste) ou `rest` (repos : toute
   l'équipe retrouve PV et mana).
 - `{"battle": "identifiant"}` lance une rencontre de `encounters.json`. Le dialogue
   reprend après le combat ; en cas de victoire le drapeau `combat_<identifiant>` est posé,
@@ -358,6 +358,63 @@ liste d'instructions lues dans l'ordre :
 - `{"chapter": "chapitre_2"}` change le chapitre courant de la partie.
 - `{"banner": "Titre", "sub": "Sous-titre"}` affiche le grand bandeau à l'écran (celui
   des arrivées dans un lieu), sans interrompre le dialogue.
+
+## Style nain (Mines de Morbier)
+
+`"style": "nain"` à la racine d'une carte active l'architecture des Nains (chapitre 4), de la
+même façon que `elfe` : `MapBuilder` confie la construction à `src/world/dwarven_builder.gd`,
+les tuiles et décors se peignent dans `src/gfx/dwarven_painter.gd`. Aucune carte existante
+n'est touchée. Les mines se passent dans un fromage de Morbier : pierre bleu-gris veinée,
+or, braise des forges, et la raie sombre du fromage dans les murs.
+
+### Champs de carte propres au style nain
+
+- `style` : `"nain"`. `water` : couleurs du lac (`deep`, `shallow`, `ripple`, `glint`).
+- Extérieur (Monts) : neige au sol, roche, sapins ; `massif` : étages de roche au nord, liste
+  de `[z, hauteur]` (par défaut trois : `[-6, 5]`, `[-13, 9]`, `[-21, 14]`).
+- Intérieur : `wall_tile` parmi `nain_mur`, `nain_mur_morbier` (pierre à raie de fromage) et
+  `nain_mur_forge` (pierre rougie par les forges) ; `wall_cap` (couleur du chapeau des murs,
+  `#15131f`) ; `wall_glow` (part d'auto-illumination des murs, 0,22). Les murs se bâtissent
+  seuls au nord, à l'ouest et à l'est des cases de sol voisines d'un trou (`void`). Un
+  `nain_abime` est solide sans être un trou : on ne le traverse pas, mais on le voit.
+- Le relief (`heights`, `stairs`) est permis dans les intérieurs nains, avec les mêmes règles
+  que dans le style elfe (rampe de 2 x 2, `dir` = sens de la montée).
+- Ambiances : `neige_morbier` (Monts, neige), `mines`, `mines_forge`, `mines_profondeurs`,
+  `lac_noir`, `mines_combat`, `portes_est`.
+
+### Sols et tuiles
+
+`nain_dalle` (dalles sombres), `nain_veine` (dalle à veine d'or), `nain_voie` et `nain_voie_v`
+(rail de wagonnet, horizontal et vertical), `nain_pont` (tablier de pont, franchissable sur
+un abîme), `nain_marbre` (marbre de la Grande Salle, motif de forge), `nain_pate` (croûte du
+fromage), `nain_abime` (vide solide), `nain_neige`, `nain_sentier`, `nain_roc`,
+`nain_marches`, `nain_pierre`, et les murs `nain_mur`, `nain_mur_morbier`, `nain_mur_forge`.
+
+### Accessoires (sprites debout)
+
+Champs communs : `pos`, `variant`, `scale`, `height`, `dialogue`, `label`, `if`, `unless`.
+`nain_sapin` (2), `nain_cristal` (3), `nain_wagonnet` (2), `nain_meule` (2), `nain_tombe`,
+`nain_registre`, `nain_porte` (2 : fermée, ouverte), `nain_statue`, `nain_squelette` (2),
+`nain_panneau`, `nain_stele`, `nain_etabli` (2), `nain_gravats` (3), `nain_neige_tas` (2).
+
+### Objets construits
+
+- `nain_pilier` : pilier carré à bandes d'or, en volume, bloque le passage. `pos`, `height`,
+  `size` (1,3).
+- `nain_brasero` : brasero allumé. `pos`, `color`, `energy`, `range`, `shadow`.
+- `nain_torche` : torche murale. `pos`, `height` (1,9), `color`, `energy`, `range`.
+- `nain_parapet` : parapet de pierre crénelé. `points` (comme `elf_rail`), `height` (0,55).
+- `nain_dais` : estrade basse. `rect`, `height` (0,25).
+- `nain_forge_murale` : gueule de forge dans le mur. `pos`, `width` (3), `energy`, `range`.
+
+### Particules d'ambiance du style
+
+`neige` (flocons des Monts). Les mines reprennent `dust`, `embers` et `lueurs`.
+
+### Monstres peints du chapitre 4 (champ `sprite.species` d'un ennemi)
+
+`gobelin`, `gobelin_pic`, `gobelin_chef`, `chauve` (chauve-souris), `troll`, `guetteur`
+(tentacule du lac), `goulum`, `balourd`.
 
 ### Conditions
 
@@ -402,7 +459,7 @@ les quatre premiers combattent et les autres sont en réserve.
 - Écran Équipe (Échap, Équipe) : combattants puis réservistes (grisés, « réserve »). La
   fiche d'un personnage propose « Passer en réserve » ou « Entrer dans l'équipe » :
   on choisit alors avec qui il échange sa place (`GameState.swap_members`). Le meneur
-  (Glandoulf) ne peut pas quitter la tête de l'équipe ; il n'y a donc jamais d'équipe
+  (Glandoulf) ne peut pas quitter la tête de l'équipe par le menu (seule l'action `quitte:` d'un dialogue le retire, au chapitre 4) ; il n'y a donc jamais d'équipe
   vide, et elle compte toujours quatre combattants dès qu'il y a quatre recrutés.
 
 ## Quêtes — `data/quests.json`

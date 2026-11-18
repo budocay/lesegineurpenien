@@ -5,7 +5,7 @@ extends RefCounted
 const Flicker = preload("res://src/world/light_flicker.gd")
 const RAYS_SHADER = preload("res://src/gfx/shaders/rays.gdshader")
 ## Particules qu'une ambiance peut demander (le test automatique vérifie les données).
-const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs", "snow", "mist", "spores", "paper"]
+const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs", "snow", "mist", "spores", "paper", "neige"]
 
 
 static func _c(d: Dictionary, key: String, fallback: String) -> Color:
@@ -307,6 +307,21 @@ static func make_particles(kind: String) -> CPUParticles3D:
 			p.angular_velocity_max = 90.0
 			p.scale_amount_min = 0.6
 			p.scale_amount_max = 1.4
+			p.color_ramp = fade_in_out
+		"neige":
+			quad.size = Vector2(0.09, 0.09)
+			quad.material = _particle_material(Color(1.5, 1.55, 1.7), false)
+			p.amount = 120
+			p.lifetime = 7.0
+			p.preprocess = 7.0
+			p.emission_box_extents = Vector3(15.0, 3.0, 10.0)
+			p.direction = Vector3(0.4, -1, 0.1)
+			p.spread = 20.0
+			p.gravity = Vector3(0.08, -0.25, 0)
+			p.initial_velocity_min = 0.2
+			p.initial_velocity_max = 0.6
+			p.scale_amount_min = 0.5
+			p.scale_amount_max = 1.5
 			p.color_ramp = fade_in_out
 		"lueurs":
 			quad.size = Vector2(0.1, 0.1)

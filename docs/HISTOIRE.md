@@ -699,3 +699,37 @@ Ce qui est inventé pour le chapitre, au-delà de la bible. Tout reste modifiabl
   reprise, la suspension, et « 8. (voir 6.) ». La route de Morbier part de l'extrémité
   ouest de la ville : un panneau, et un dialogue qui dit « la suite arrivera avec le
   chapitre 4 ».
+
+### Chapitre 4 — Les Mines de Morbier (18 novembre 2026)
+
+Tout ce qui suit est inventé pour le chapitre ; rien n'est tiré d'ailleurs que de la bible.
+
+- **Les Monts de Morbier.** La Communauté quitte Fondue-Combe par l'ouest ; la montagne refuse
+  le passage (la stèle du col dit « fermé pour cause de caractère »). Grimli propose les
+  Mines, qui sont à l'intérieur d'un fromage de Morbier : la raie sombre dans les murs en est
+  la preuve, et l'excuse.
+- **La porte et le lac.** La porte nain demande « le nom de l'ami » (le Mellon des Elfes
+  devient un melon, que Merri ne pardonne pas). Bonne réponse : « Ami du Chambertin ».
+  Quelque chose dans le lac l'a entendue : le Guetteur du lac Noir, ses tentacules, et une
+  perle en moins à la fin. Merri « tient la corde » : c'est sa phrase du chapitre.
+- **Les galeries et la halle.** Un camp de gobelins (Gobe-Lard, Gobe-Pic, Gobe-Gras, chauves
+  ramollies), des wagonnets, la pioche de Rondin à retrouver. Rondin est un forgeron nain
+  resté à son étal, qui vend et qui compte : il rend service contre une pioche et une meule.
+- **La tombe du Roi Ballot.** Gardée par le Gros Bleu des caves (troll). Le roi parle depuis
+  sa dalle, réclame à Grimli trois siècles et deux écus, et avertit : sous le pont dort un
+  Balourd. Trois pages de son registre (galeries, tombe, profondeurs) se sont cachées « pour
+  ne pas payer » ; Glandoulf pense à un écrit de sa main qui lui doit encore quelque chose.
+- **Goulûm, dit Trempette.** Au lac de Maroilles, duel de devinettes (gruyère, camembert, et
+  une troisième qui n'a pas de réponse) puis combat. L'anneau est repris et confié à Froton.
+  Merri est le premier à voir le regard de Froton changer, et le dit.
+- **Bromure.** Invité du Conseil, il suit sans combattre ; il tente de prendre l'anneau,
+  renonce de honte, et tient seul le bout de pont après la chute.
+- **Le pont et le Balourd.** Glandoulf se place devant : « Vous ne passerez pas. Enfin si, mais
+  pas tout de suite, je suis crevé. » Le Balourd, déconcerté plus que vaincu, bascule ; son
+  fouet s'enroule à la cheville du magicien, qui coupe lui-même la corde avec un canif.
+  Glandoulf tombe. Le chapitre 5 se joue sans lui : Sam mène l'équipe.
+- **Les Portes de l'Est.** Un deuil sans cérémonie, une forge éteinte, et le chapitre se clôt
+  (flag `chapitre_4_fini`, chapitre suivant `chapitre_5`).
+- **Dans le décor.** « Ça fait des trous mais ça ne creuse pas » (le gruyère), le Chambertin
+  comme mot de passe, un registre dont chaque total est faux d'un écu, le chapeau gris
+  retrouvé au bord de l'abîme.

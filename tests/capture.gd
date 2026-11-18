@@ -20,6 +20,9 @@ func _ready() -> void:
 	main = MAIN.instantiate()
 	add_child(main)
 	await _frames(150)
+	if args.size() > 1 and args[1] == "chap4":
+		await _dwarven_only()
+		return
 	await _shot("1_titre")
 
 	main.start_new_game()
@@ -134,6 +137,7 @@ func _ready() -> void:
 	await _shot("44_roseliere")
 	await _arena_shots()
 	await _elven_shots()
+	await _dwarven_shots()
 	main.change_map("roseliere", "ouest")
 	await _frames(150)
 	await _idle()
@@ -313,6 +317,113 @@ func _arena_shots() -> void:
 		await _frames(20)
 		main.battle_ui._on_end("ok")
 		await _frames(120)
+
+
+## Chapitre 4 : les Mines de Morbier (vues des huit cartes).
+func _dwarven_shots() -> void:
+	for f: String in ["chapitre_3_fini", "bromure_invite", "porte_vue", "galeries_vues", "halle_vue", "tombe_vue", "profondeurs_vues", "pont_vu", "portes_vues", "goulum_rencontre", "balourd_fait"]:
+		GameState.set_flag(f)
+	main.change_map("porte_morbier", "vallee")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(20.0, 0.0, 14.0), "up")
+	await _shot("60_porte_morbier")
+	GameState.set_flag("porte_ouverte")
+	main.change_map("porte_morbier", "mines")
+	await _frames(150)
+	await _idle()
+	await _shot("61_porte_ouverte")
+	main.change_map("morbier_galeries", "porte")
+	await _frames(150)
+	await _idle()
+	await _shot("62_galeries_entree")
+	await _goto(Vector3(27.0, 0.0, 19.5), "right")
+	await _shot("63_galeries_chambre")
+	await _goto(Vector3(40.0, 0.0, 6.5), "left")
+	await _shot("64_galeries_terrasse")
+	main.change_map("morbier_halle", "ouest")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(21.0, 0.0, 15.0), "right")
+	await _shot("65_halle_des_forges")
+	await _goto(Vector3(29.0, 0.0, 12.6), "up")
+	await _shot("66_halle_rondin")
+	main.change_map("morbier_tombe", "entree")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(15.0, 0.0, 18.5), "up")
+	await _shot("67_tombe_troll")
+	GameState.set_flag("combat_gros_bleu")
+	main.change_map("morbier_tombe", "entree")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(15.0, 0.0, 12.0), "up")
+	await _shot("68_tombe_ballot")
+	main.change_map("morbier_profondeurs", "haut")
+	await _frames(150)
+	await _idle()
+	await _shot("69_profondeurs_haut")
+	await _goto(Vector3(17.0, 0.0, 17.0), "right")
+	await _shot("70_profondeurs_pont")
+	await _goto(Vector3(40.0, 0.0, 13.0), "up")
+	await _shot("71_profondeurs_est")
+	main.change_map("morbier_antre", "entree")
+	await _frames(150)
+	await _idle()
+	await _shot("72_antre_rive")
+	await _goto(Vector3(24.0, 0.0, 18.0), "up")
+	await _shot("73_antre_lac")
+	main.change_map("morbier_pont", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("74_pont_depart")
+	await _goto(Vector3(22.0, 0.0, 12.0), "right")
+	await _shot("75_pont_milieu")
+	main.change_map("portes_est", "pont")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(10.0, 0.0, 12.0), "right")
+	await _shot("76_portes_est")
+
+
+## Arènes du chapitre 4, puis les quatre grands ennemis (mode « chap4 » seul).
+func _dwarven_arenas(bosses: bool) -> void:
+	var cases := [["galerie_mine", ["gobe_lard", "gobe_pic", "chauve_molle"]], ["halle_piliers", ["gobe_gras", "gobe_pic"]],
+		["bord_du_lac", ["tentacule_lac", "tentacule_lac"]], ["pont_abime", ["gobe_lard", "gobe_lard"]]]
+	if bosses:
+		cases = [["bord_du_lac", ["guetteur_lac", "tentacule_lac"]], ["halle_piliers", ["gros_bleu", "gobe_lard"]], ["bord_du_lac", ["goulum"]], ["pont_abime", ["balourd"]]]
+	var n := 80 if not bosses else 84
+	for c: Array in cases:
+		main.start_battle({"enemies": c[1], "arena": c[0], "flee": true})
+		await _until_menu()
+		await _frames(50)
+		await _shot("%d_arene_%s" % [n, str(c[0])])
+		n += 1
+		(main.battle_ui._root_list.get_child(4) as Button).pressed.emit()
+		await _until_end()
+		main.battle_ui._on_end("ok")
+		await _frames(120)
+
+
+func _dwarven_only() -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["glandoulf", "sam", "froton", "pepin", "merri", "aragrogne", "digoulasse", "grimli"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 14
+	GameState.set_flag("chapitre_3_fini")
+	GameState.map_id = "fondue_combe"
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	await _dwarven_shots()
+	await _dwarven_arenas(false)
+	await _dwarven_arenas(true)
+	SaveManager.delete_save()
+	print("CAPTURES CHAP4 OK : ", out_dir)
+	get_tree().quit()
 
 
 func _frames(n: int) -> void:

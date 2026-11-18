@@ -48,6 +48,9 @@ static func paint(kind: String) -> Image:
 	var arena: GDScript = load("res://src/gfx/arena_painter.gd")
 	if arena.has_tile(kind):
 		return arena.paint_tile(kind)
+	var dwarven: GDScript = load("res://src/gfx/dwarven_painter.gd")
+	if dwarven.has_tile(kind):
+		return dwarven.paint_tile(kind)
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img

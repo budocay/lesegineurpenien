@@ -8,6 +8,7 @@ const TilePainter = preload("res://src/gfx/tile_painter.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Npc = preload("res://src/world/npc.gd")
 const ElvenBuilder = preload("res://src/world/elven_builder.gd")
+const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -22,6 +23,10 @@ const GROUND := {
 	# style elfe (voir docs/FORMAT_DONNEES.md)
 	"elf_flag": {}, "elf_flag_dim": {}, "elf_path": {}, "elf_lawn": {},
 	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
+	# style nain (voir docs/FORMAT_DONNEES.md)
+	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
+	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true},
+	"nain_abime": {"hard": true, "solid": true}, "nain_neige": {}, "nain_sentier": {},
 }
 
 ## Accessoires affichés comme des sprites debout.
@@ -76,6 +81,21 @@ const PROPS := {
 	"elf_bridge_face": {},
 	"elf_ivy": {"variants": 2, "sway": 0.02},
 	"elf_stamp": {},
+	# style nain
+	"nain_sapin": {"variants": 2, "solid": 0.4, "sway": 0.02, "flip": true},
+	"nain_cristal": {"variants": 3, "solid": 0.3, "glow": 1.1},
+	"nain_wagonnet": {"variants": 2, "solid": 0.7},
+	"nain_meule": {"variants": 2, "solid": 0.7},
+	"nain_tombe": {"solid": 1.0},
+	"nain_registre": {"solid": 0.5},
+	"nain_porte": {"variants": 2},
+	"nain_statue": {"solid": 0.5},
+	"nain_squelette": {"variants": 2},
+	"nain_panneau": {"solid": 0.3},
+	"nain_stele": {"solid": 0.4},
+	"nain_etabli": {"variants": 2, "solid": 0.7},
+	"nain_gravats": {"variants": 3},
+	"nain_neige_tas": {"variants": 2, "solid": 0.4},
 }
 
 var world: Node3D
@@ -121,6 +141,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		_build_outskirts()
 	if ElvenBuilder.is_elven(self):
 		ElvenBuilder.restyle(self)
+	elif DwarvenBuilder.is_dwarven(self):
+		DwarvenBuilder.restyle(self)
 
 	var spawns: Dictionary = map.get("spawns", {})
 	for key: String in spawns:
@@ -155,7 +177,7 @@ func _build_relief() -> void:
 	var hs: Array = map.get("heights", [])
 	var ss: Array = map.get("stairs", [])
 	world.has_relief = false
-	if bool(map.get("interior", false)) or (hs.is_empty() and ss.is_empty()):
+	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self)) or (hs.is_empty() and ss.is_empty()):
 		return
 	world.cell_h = PackedFloat32Array()
 	world.cell_h.resize(w * h)
@@ -482,7 +504,7 @@ func _build_outskirts() -> void:
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
-	var rustic := not ElvenBuilder.is_elven(self)   # le style elfe plante ses propres arbres
+	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self)   # les styles elfe et nain plantent les leurs
 	for i in (120 if rustic else 0):
 		var p := Vector3.ZERO
 		if i < 76:
@@ -563,17 +585,17 @@ func _build_interior_walls() -> void:
 			var x1 := x0 + 1.0
 			var z0 := float(ty)
 			var z1 := z0 + 1.0
-			if ty == 0 or _flag(cells[(ty - 1) * w + tx], "hole"):
+			if ty == 0 or _wall_gap((ty - 1) * w + tx):
 				MeshKit.quad(st, Vector3(x0, hgt, z0), Vector3(x1, hgt, z0), Vector3(x1, 0, z0), Vector3(x0, 0, z0),
 						Vector2(x0 / 2.0, 0.0), Vector2(x1 / 2.0, v1))
 				MeshKit.quad(cap, Vector3(x0 - 0.4, hgt, z0 - 0.4), Vector3(x1 + 0.4, hgt, z0 - 0.4), Vector3(x1 + 0.4, hgt, z0), Vector3(x0 - 0.4, hgt, z0))
 				any = true
-			if (tx == 0 or _flag(cells[ty * w + tx - 1], "hole")) and not _juts_out(tx - 1, ty):
+			if (tx == 0 or _wall_gap(ty * w + tx - 1)) and not _juts_out(tx - 1, ty):
 				MeshKit.quad(st, Vector3(x0, hgt, z1), Vector3(x0, hgt, z0), Vector3(x0, 0, z0), Vector3(x0, 0, z1),
 						Vector2(z1 / 2.0, 0.0), Vector2(z0 / 2.0, v1))
 				MeshKit.quad(cap, Vector3(x0 - 0.4, hgt, z0), Vector3(x0, hgt, z0), Vector3(x0, hgt, z1), Vector3(x0 - 0.4, hgt, z1))
 				any = true
-			if (tx == w - 1 or _flag(cells[ty * w + tx + 1], "hole")) and not _juts_out(tx + 1, ty):
+			if (tx == w - 1 or _wall_gap(ty * w + tx + 1)) and not _juts_out(tx + 1, ty):
 				MeshKit.quad(st, Vector3(x1, hgt, z0), Vector3(x1, hgt, z1), Vector3(x1, 0, z1), Vector3(x1, 0, z0),
 						Vector2(z0 / 2.0, 0.0), Vector2(z1 / 2.0, v1))
 				MeshKit.quad(cap, Vector3(x1, hgt, z0), Vector3(x1 + 0.4, hgt, z0), Vector3(x1 + 0.4, hgt, z1), Vector3(x1, hgt, z1))
@@ -586,6 +608,12 @@ func _build_interior_walls() -> void:
 	var caps := MeshKit.finish(cap, MeshKit.flat_material(Color("#0d0a12")))
 	caps.name = "WallCaps"
 	world.add_child(caps)
+
+
+## Vrai si la case d'indice i laisse un vide contre lequel bâtir un mur. Dans le style nain,
+## l'eau d'un lac souterrain n'en est pas un : on la longe sans mur, le lac s'étend dans le noir.
+func _wall_gap(i: int) -> bool:
+	return _flag(cells[i], "hole") and not (cells[i] == "water" and DwarvenBuilder.is_dwarven(self))
 
 
 ## Vrai si un mur latéral posé contre la case vide (tx, ty) dépasserait de la pièce vers
@@ -644,7 +672,7 @@ func _object(o: Dictionary) -> void:
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
-			elif ElvenBuilder.object(self, type, o):
+			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o):
 				pass
 			else:
 				push_warning("Type d'objet inconnu dans la carte %s : %s" % [str(map.get("id", "")), type])
