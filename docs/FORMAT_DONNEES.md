@@ -210,7 +210,8 @@ liste d'instructions lues dans l'ordre :
 - `{"give": "objet", "count": 3}` ajoute des objets à l'inventaire (`count` vaut 1 par défaut).
 - `{"join": "personnage"}` fait entrer un personnage dans l'équipe (il lui faut un bloc
   `battle` dans `characters.json`). Il arrive un niveau sous le meneur, avec l'équipement
-  de son bloc `equip`.
+  de son bloc `equip`. Si les quatre places de combat sont prises, il va en réserve et un
+  message le dit (voir « Équipe active » plus bas).
 - `{"set": "drapeau", "value": false}` retire un drapeau (par exemple à la fin d'une
   invasion).
 - `{"chapter": "chapitre_2"}` change le chapitre courant de la partie.
@@ -227,7 +228,7 @@ Partout où le contenu pose une condition (`if` d'un dialogue, `start` / `comple
 | `"drapeau"` | le drapeau est posé |
 | `"!drapeau"` | il ne l'est pas (le `!` marche devant tous les tests) |
 | `"item:cale"`, `"item:cale:3"` | le sac contient au moins un, au moins trois exemplaires |
-| `"party:sam"` | Sam est dans l'équipe |
+| `"party:sam"` | Sam voyage avec l'équipe (au combat ou en réserve) |
 | `"money:40"` | l'équipe a au moins 40 écus |
 | `"quest:poele"`, `"quest_done:poele"` | la quête est en cours, est terminée |
 | `"a & b & c"` | tous les tests sont vrais |
@@ -237,6 +238,32 @@ chacun. Un objet peut porter les deux à la fois : il n'est alors présent que s
 `if` est posé et que le drapeau `unless` ne l'est pas (les Morfales pendant l'invasion).
 Une caisse (`crate`) qui porte un `dialogue` devient un objet à examiner (l'estrade de la
 Fête) ; `size` règle sa taille.
+
+## Équipe active et réserve
+
+Une équipe ne se bat jamais à plus de **quatre** (`GameState.MAX_ACTIVE`). Structure :
+`GameState.party` reste la liste de **tous** les recrutés, dans l'ordre ; les quatre
+premiers se battent (`active_party()`), les suivants sont en réserve (`reserve_party()`).
+Une sauvegarde n'a donc rien de nouveau : une partie à cinq ou six personnages se charge,
+les quatre premiers combattent et les autres sont en réserve.
+
+- `{"join": ...}` d'un cinquième : il va en réserve, avec une notice (« rejoint le groupe,
+  en réserve »). Rien à écrire de plus dans les dialogues.
+- Les conditions `party:x`, les quêtes, les talents, l'équipement, le sac et les soins
+  (`heal_party`) comptent **tous** les recrutés : un réserviste voyage avec le groupe.
+- Le combat (`BattleEngine.setup`) ne prend que `active_party()` ; les rencontres
+  aléatoires comptent aussi les actifs pour `min_party` / `max_party`. Les combats
+  scénarisés qui imposent leur équipe (`party` d'une rencontre, comme Sam seul au bras de
+  fer) ne lisent pas l'équipe du joueur et ne changent rien.
+- Après une victoire, les actifs gagnent l'expérience en entier et la réserve en gagne
+  `GameState.RESERVE_XP` (les trois quarts, arrondis au-dessus) ; un réserviste qui
+  change de niveau apparaît dans l'annonce de la victoire. L'expérience des quêtes, elle,
+  va à tous.
+- Écran Équipe (Échap, Équipe) : combattants puis réservistes (grisés, « réserve »). La
+  fiche d'un personnage propose « Passer en réserve » ou « Entrer dans l'équipe » :
+  on choisit alors avec qui il échange sa place (`GameState.swap_members`). Le meneur
+  (Glandoulf) ne peut pas quitter la tête de l'équipe ; il n'y a donc jamais d'équipe
+  vide, et elle compte toujours quatre combattants dès qu'il y a quatre recrutés.
 
 ## Quêtes — `data/quests.json`
 

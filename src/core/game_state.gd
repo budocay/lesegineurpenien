@@ -14,11 +14,13 @@ const SLOTS := ["weapon", "armor", "trinket"]
 const SLOT_NAMES := {"weapon": "Arme", "armor": "Tenue", "trinket": "Babiole"}
 const STAT_NAMES := {"hp": "PV", "mp": "PM", "atk": "Attaque", "def": "Défense", "mag": "Magie", "res": "Résistance", "spd": "Vitesse"}
 const MONEY_NAME := "écus"
+const MAX_ACTIVE := 4            # une équipe ne se bat jamais à plus de quatre
+const RESERVE_XP := 0.75         # part d'expérience que gagne un personnage en réserve
 
 var chapter: String = "chapitre_1"
 var flags: Dictionary = {}
 var quests: Dictionary = {}      # id de quête -> "active" ou "done" (absente : pas commencée)
-var party: Array = []            # ids des personnages actifs
+var party: Array = []            # ids de tous les personnages recrutés, dans l'ordre : les MAX_ACTIVE premiers se battent, les autres sont en réserve
 var roster: Dictionary = {}      # id -> {level, xp, hp, mp, equip: {emplacement: objet}, specialization, talents}
 var bestiary: Dictionary = {}    # id d'ennemi -> faiblesses déjà découvertes
 var inventory: Dictionary = {}   # id d'objet -> quantité (l'équipement porté n'y figure pas)
@@ -63,7 +65,9 @@ func new_game() -> void:
 
 ## Fait entrer quelqu'un dans l'équipe. Avec catch_up, une nouvelle recrue arrive
 ## presque au niveau du meneur (un de moins) au lieu de repartir du niveau 1.
-func add_to_party(id: String, catch_up: bool = false) -> void:
+## Renvoie "active" si la recrue prend place parmi les combattants, "reserve" si l'équipe
+## de quatre est déjà pleine.
+func add_to_party(id: String, catch_up: bool = false) -> String:
 	var is_new := not (roster.get(id) is Dictionary)
 	if not party.has(id):
 		party.append(id)
@@ -74,6 +78,40 @@ func add_to_party(id: String, catch_up: bool = false) -> void:
 		m.erase("mp")
 		member(id)
 	refresh_quests()
+	return "active" if is_active(id) else "reserve"
+
+
+## Les personnages qui se battent : les quatre premiers de la liste.
+func active_party() -> Array:
+	return party.slice(0, MAX_ACTIVE)
+
+
+## Les recrutés qui ne se battent pas (mais voyagent avec le groupe et gagnent de l'expérience).
+func reserve_party() -> Array:
+	return party.slice(MAX_ACTIVE)
+
+
+func is_active(id: String) -> bool:
+	return party.find(id) in range(MAX_ACTIVE)
+
+
+func is_reserve(id: String) -> bool:
+	return party.find(id) >= MAX_ACTIVE
+
+
+## Échange un combattant et un réserviste : chacun prend la place de l'autre. Refusé si les
+## deux sont du même côté, si l'un est inconnu, ou si l'on retire le meneur (le héros du
+## jeu garde la tête de l'équipe, c'est lui que la caméra suit).
+func swap_members(a: String, b: String) -> bool:
+	var ia := party.find(a)
+	var ib := party.find(b)
+	if ia < 0 or ib < 0 or (ia < MAX_ACTIVE) == (ib < MAX_ACTIVE):
+		return false
+	if mini(ia, ib) == 0:
+		return false
+	party[ia] = b
+	party[ib] = a
+	return true
 
 
 ## Fiche d'un membre de l'équipe (créée et complétée au besoin) : niveau, xp, PV et PM
@@ -449,11 +487,16 @@ func has_firm_gear(id: String) -> bool:
 ## Résumé de l'équipe pour le menu de pause.
 func party_summary() -> String:
 	var lines: Array = []
-	for id: Variant in party:
+	for id: Variant in active_party():
 		var m := member(str(id))
 		var stats := member_stats(str(id))
 		lines.append("%s   Nv %d   PV %d/%d   PM %d/%d" % [
 			Database.get_character_name(str(id)), int(m["level"]), int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])])
+	if not reserve_party().is_empty():
+		var names: Array = []
+		for id: Variant in reserve_party():
+			names.append(Database.get_character_name(str(id)))
+		lines.append("En réserve : " + ", ".join(names))
 	var points := party_talent_points()
 	if points > 0:
 		lines.append("%d point%s de talent à dépenser (Talents)" % [points, "s" if points > 1 else ""])

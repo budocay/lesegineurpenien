@@ -249,10 +249,7 @@
 			"then": [
 				{
 					"who": "glandoulf",
-					"text": "Fondue-Combe est par là. Cinq jours de marche. Rien ne presse : le formulaire nous attendra."
-				},
-				{
-					"text": "(La suite du voyage arrivera avec le chapitre 3. En attendant, Brie reste ouverte.)"
+					"text": "Fondue-Combe est par là, derrière le col des Biscottes. Cinq jours de marche. Rien ne presse : le formulaire nous attendra."
 				}
 			],
 			"else": [

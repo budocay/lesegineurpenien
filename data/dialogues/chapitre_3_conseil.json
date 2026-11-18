@@ -1,0 +1,484 @@
+{
+	"huissier": [
+		{
+			"if": "chapitre_3_fini",
+			"then": [
+				{
+					"who": "huissier",
+					"text": "Le Conseil est levé. C'est la première fois dans ma carrière. Je ne sais plus quoi faire de mes mains."
+				}
+			],
+			"else": [
+				{
+					"if": "gardien_vaincu & item:proces_verbal",
+					"then": [
+						{
+							"who": "huissier",
+							"text": "Le Conseil de Fondue-Combe reprend ses travaux. Après trois jours de suspension, il a l'honneur de constater qu'il n'a pas avancé."
+						},
+						{
+							"who": "elrond",
+							"text": "Le procès-verbal d'origine. Vous l'avez, je vois. Il a été confié à un Gardien qui ne confie rien. Vous l'avez donc battu. Je le note, sous la rubrique « Incidents »."
+						},
+						{
+							"if": "party:merri",
+							"then": [
+								{
+									"who": "merri",
+									"text": "Je puis le lire à voix haute, monsieur le Président. J'ai la voix des notes, comme on dit."
+								}
+							],
+							"else": [
+								{
+									"who": "pepin",
+									"text": "Quelqu'un lit ça ?"
+								}
+							]
+						},
+						{
+							"take": "proces_verbal"
+						},
+						{
+							"text": "Merri déplie le parchemin avec des précautions d'accoucheur. Il lit, au début, d'une voix posée : l'ouverture de l'Alliance, le serment, les noms des signataires, la liste interminable des présents. Puis il arrive au quatrième feuillet, et sa voix ralentit."
+						},
+						{
+							"who": "merri",
+							"text": "« ...Sur le sort de l'anneau, le Conseil a entendu Isidur, fils d'Elendil, qui a déclaré le garder pour lui, au prix de sa vie s'il le fallait. Glandoulf le Gris, présent, n'a pas contredit. Interrogé, il a répondu : cela est de moindre importance. »"
+						},
+						{
+							"text": "Merri s'arrête. Le silence tombe sur la salle, de ceux dont on n'entend plus que les plumes."
+						},
+						{
+							"who": "merri",
+							"text": "« ...Ultérieurement, Glandoulf a certifié par écrit, devant témoins, que l'anneau avait été jeté dans le feu de la Montagne. Signature : Glandoulf le Gris. »"
+						},
+						{
+							"who": "aragrogne",
+							"text": "Certifié. Il a certifié. Isidur l'a gardé, vous avez laissé faire, et vous avez ensuite écrit que le feu l'avait pris."
+						},
+						{
+							"who": "bromure",
+							"text": "Vous avez menti. À tous. Pendant trois mille ans, tous les peuples ont cru que l'objet était détruit, alors qu'il était dans la poche d'un roi."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Oui."
+						},
+						{
+							"text": "Glandoulf ne baisse pas les yeux. Mais son chapeau, lui, baisse un peu."
+						},
+						{
+							"who": "glandoulf",
+							"text": "J'ai laissé faire, puis j'ai dit autre chose. Pas pour mon intérêt : par lassitude, et par peur de ce que ce serait, d'avouer. Je vous dois l'explication entière. Pas devant un greffier, ni devant un Conseil qui compte les heures. Mais je vous la dois, et je la paierai."
+						},
+						{
+							"who": "pepin",
+							"text": "Je crois que c'est la première fois que je vous entends dire « je vous dois »."
+						},
+						{
+							"who": "sam",
+							"text": "Ça lui fait du bien, je trouve. Un peu comme une taille de printemps."
+						},
+						{
+							"who": "elrond",
+							"text": "Seigneur Merri, consignez-vous cet échange ?"
+						},
+						{
+							"if": "party:merri",
+							"then": [
+								{
+									"text": "Merri regarde la plume, le feuillet, le magicien. Longuement. Puis il repose la plume."
+								},
+								{
+									"who": "merri",
+									"text": "Non, monsieur le Président. Pas celui-ci. Un procès-verbal sert à garder ce qu'il faut ne pas oublier. Il ne sert pas à... enfoncer."
+								},
+								{
+									"who": "elrond",
+									"text": "Vous avez compris la chose la plus rare de ma charge. Que la mémoire n'est pas toujours un tribunal."
+								},
+								{
+									"set": "merri_elrond_ami"
+								}
+							]
+						},
+						{
+							"who": "elrond",
+							"text": "Le Conseil, sur la foi du procès-verbal, constate : un, que l'anneau est repris, ou le sera ; deux, que nul ne peut le détruire que dans la Montagne de Morbier, où se trouve la faille ; trois, qu'il faut un porteur. Les précédents sont clairs : le porteur doit être celui qui le désire le moins."
+						},
+						{
+							"who": "bromure",
+							"text": "Sauf votre respect, Président, c'est de la folie. Le plus vaillant doit le porter. Je suis le plus vaillant."
+						},
+						{
+							"who": "elrond",
+							"text": "Vous le désirez, donc vous ne le portez pas. C'est le principe. Je l'ai relu trois fois."
+						},
+						{
+							"who": "bromure",
+							"text": "Alors qui ?"
+						},
+						{
+							"text": "Un à un, les sièges se lèvent. Un conseiller elfe le veut « pour le bien de tous », un autre aussi, un troisième, plus modestement, « pour le bien de tous, mais le sien d'abord ». Bromure propose de s'en servir pour sauver Minas Tartine, ce qui est applaudi poliment, puis discuté pendant deux jours. Seuls les Grobittes de la table, Pépin et Merri, regardent leurs pieds et répètent à voix basse qu'ils voudraient rentrer."
+						},
+						{
+							"who": "elrond",
+							"text": "Je constate une unanimité : tous le veulent, sauf ceux qui n'y comprennent rien. Selon les précédents, le porteur doit être celui qui le désire le moins. Le Conseil se tourne donc vers les Grobittes."
+						},
+						{
+							"who": "pepin",
+							"text": "Moi, certainement pas. Je suis infusionniste, pas porteur."
+						},
+						{
+							"who": "merri",
+							"text": "Je ne suis qu'un cousin. Un cousin ne porte pas, il suit."
+						},
+						{
+							"text": "Tous les regards se tournent vers Froton, qui hésite, regarde ses doigts, regarde la salle, regarde le plafond."
+						},
+						{
+							"who": "froton",
+							"text": "Je ne le veux pas. Je ne le veux vraiment pas. Mais si personne ne le prend, il restera là, sur la table, à nous regarder tous."
+						},
+						{
+							"who": "froton",
+							"text": "Je le porterai. Je dis « je le porterai », hein, pas « je le veux »."
+						},
+						{
+							"who": "elrond",
+							"text": "Voilà qui est parfait. Le Conseil prend acte : Froton Salfait, de Bittebourg, porteur désigné, faute d'ambition, par unanimité des désintéressés."
+						},
+						{
+							"who": "sam",
+							"text": "Je vous suis, monsieur Froton. Où que ce soit. Et si c'est au fond d'un trou, je ramène la corde."
+						},
+						{
+							"who": "froton",
+							"text": "Merci, Sam. Je ne crois pas qu'on ira bien loin sans un jardinier."
+						},
+						{
+							"who": "bromure",
+							"text": "Président, je fais appel de cette décision."
+						},
+						{
+							"who": "elrond",
+							"text": "Appel enregistré. Le Conseil se réunira dans quarante ans pour l'examiner. D'ici là, vous êtes notre invité."
+						},
+						{
+							"who": "bromure",
+							"text": "...Invité."
+						},
+						{
+							"who": "elrond",
+							"text": "À Fondue-Combe, c'est le statut le plus distingué. On ne le refuse jamais."
+						},
+						{
+							"who": "bromure",
+							"text": "J'accompagne Froton, alors, sans voix. Et le jour où il vacillera, je serai là."
+						},
+						{
+							"who": "glandoulf",
+							"text": "C'est ce que je craignais, mais c'est un risque que je préfère courir en vous voyant."
+						},
+						{
+							"set": "bromure_invite"
+						},
+						{
+							"text": "Un fracas métallique retentit au bout de la salle. La porte s'ouvre sur un petit homme large comme un tonneau, la barbe nattée en trois, la hache dans le dos, le casque de travers, couvert de poussière de pierre."
+						},
+						{
+							"who": "grimli",
+							"text": "Grimli ! Grimli, fils de Glomlin, du clan Barbe-à-Sel ! J'arrive de Morbier par les monts, quatre jours de marche, et je trouve le Conseil qui vote encore ! Le dernier siècle, c'était le même point à l'ordre du jour !"
+						},
+						{
+							"who": "elrond",
+							"text": "Seigneur Grimli, vous êtes en avance de quelques jours. Votre convocation portait sur le mois prochain."
+						},
+						{
+							"who": "grimli",
+							"text": "J'ai pas lu. J'ai senti qu'il fallait venir. Les nains, ça se sent. Surtout quand une affaire traîne depuis plus de cent ans."
+						},
+						{
+							"who": "grimli",
+							"text": "Écoutez-moi. On dit que quelqu'un va porter l'anneau jusqu'à la Montagne. La route passe par les mines de Morbier. Moi, je connais les mines : j'y suis né, j'y ai perdu trois cousins, un oncle, et un chapeau. Je serai votre guide."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Les mines de Morbier, avec les Morfales, les nains en grève et le reste ?"
+						},
+						{
+							"who": "grimli",
+							"text": "Avec les Morfales, la grève, et le reste. C'est pour ça qu'il vous faut un guide qui sait où ne pas mettre les pieds."
+						},
+						{
+							"join": "grimli"
+						},
+						{
+							"set": "grimli_equipe"
+						},
+						{
+							"who": "elrond",
+							"text": "Le Conseil se sépare. Il le fait pour la première fois depuis longtemps, ce qui est un événement. Je le consigne sous la rubrique « Merveilles »."
+						},
+						{
+							"text": "Les elfes se lèvent. Quelques-uns, de surprise, restent debout plus longtemps que prévu. Elrond serre la main de Merri, un peu trop longtemps, un peu trop fort, avec la tendresse d'un homme qui a enfin trouvé son successeur."
+						},
+						{
+							"banner": "Fin du chapitre 3",
+							"sub": "Le Conseil de Fondue-Combe"
+						},
+						{
+							"set": "chapitre_3_fini"
+						},
+						{
+							"chapter": "chapitre_4"
+						},
+						{
+							"text": "La suite : Morbier, ses mines, ses nains, et l'anneau dans la poche d'un Grobitte qui ne le voulait pas."
+						},
+						{
+							"action": "save"
+						}
+					],
+					"else": [
+						{
+							"if": "conseil_1_fait",
+							"then": [
+								{
+									"who": "huissier",
+									"text": "Le Conseil est suspendu jusqu'à production du procès-verbal d'origine. Les Archives sont dans l'édifice voisin, au nord-est de la place. Porte épaisse, serrure large. Le Gardien est de mauvaise humeur depuis neuf siècles."
+								}
+							],
+							"else": [
+								{
+									"if": "item:formulaire_3ex",
+									"then": [
+										{
+											"who": "huissier",
+											"text": "Le Conseil de Fondue-Combe est ouvert. Il l'était déjà. Il le reste. Que l'on prenne place, et que l'on s'abstienne, autant que possible, de s'en aller."
+										},
+										{
+											"text": "La Salle du Conseil sent la cire, le vieux papier et une patience entretenue au fil des siècles. Autour d'une table longue comme une rivière siègent des elfes en robes grises, chacun devant une plume et une pile de feuillets. Au centre, Elrond de Cuir : grand, sec, le visage patiné comme sa robe, le regard d'un homme qui n'a jamais eu à se presser et n'en a jamais pris l'habitude."
+										},
+										{
+											"who": "elrond",
+											"text": "Glandoulf le Gris. Vous êtes en retard de quelques décennies, mais le Conseil n'en tient pas rigueur : il a lui-même pris du retard sur sa propre convocation."
+										},
+										{
+											"who": "glandoulf",
+											"text": "Un voyage est un voyage. Je vous ai apporté le formulaire A-38."
+										},
+										{
+											"take": "formulaire_3ex"
+										},
+										{
+											"who": "elrond",
+											"text": "En trois exemplaires. Je l'aurais juré. Un jour, quelqu'un en présentera un seul, et ce jour-là, le monde aura changé."
+										},
+										{
+											"text": "Elrond tamponne le premier exemplaire, plie le deuxième, et passe le troisième à un greffier qui le range sans le lire."
+										},
+										{
+											"if": "party:merri",
+											"then": [
+												{
+													"who": "merri",
+													"text": "Je me permets, monsieur le Président. Quelqu'un prend-il les notes de la séance ? Il me semble que le procès-verbal est la chose la plus belle qui existe, et la plus mal tenue."
+												},
+												{
+													"who": "elrond",
+													"text": "Vous... vous proposez de prendre les notes ? En colonnes ? Avec les interventions numérotées ?"
+												},
+												{
+													"who": "merri",
+													"text": "Et un index. Et, si le Conseil le permet, une table des matières."
+												},
+												{
+													"text": "Un silence passe, long, ému. Elrond fixe Merri comme on regarde un frère retrouvé après trois mille ans."
+												},
+												{
+													"who": "elrond",
+													"text": "Asseyez-vous là. Voici la plume. Jamais, je dis bien jamais, un visiteur ne m'avait compris aussi vite."
+												},
+												{
+													"set": "merri_elrond"
+												}
+											],
+											"else": [
+												{
+													"who": "elrond",
+													"text": "Il manque un greffier de séance depuis le dernier siècle. Si l'un de vous sait écrire, qu'il le dise."
+												}
+											]
+										},
+										{
+											"who": "elrond",
+											"text": "Ordre du jour. Un : approbation du procès-verbal de la séance précédente. Deux : définition du mot « porter ». Trois : désignation de celui qui portera l'anneau, une fois repris. Quatre : questions diverses. Cinq : suspension."
+										},
+										{
+											"who": "pepin",
+											"text": "Quatre points avant de savoir qui porte ? Ça fait cinq choses avant la bonne."
+										},
+										{
+											"who": "elrond",
+											"text": "Chez nous, la bonne est toujours la dernière. On y arrive par la patience."
+										},
+										{
+											"who": "bromure",
+											"text": "Président, si je puis. Bromure du Gouda, fils de l'Intendant de Minas Tartine. Mon père tient la ville depuis dix ans contre les Morfales, avec des tartines et un bon dos. L'anneau doit venir chez nous. Nous le garderons, nous le défendrons, nous le..."
+										},
+										{
+											"who": "elrond",
+											"text": "Merci, Seigneur Bromure. Vous avez la parole pour trois minutes, que je décompte à l'heure elfique, soit environ une semaine."
+										},
+										{
+											"who": "bromure",
+											"text": "Une semaine ?"
+										},
+										{
+											"who": "elrond",
+											"text": "Environ. Prenez le temps qu'il vous faut."
+										},
+										{
+											"text": "Les heures passent. Le soleil quitte la salle par un côté et y revient par l'autre. Bromure parle, argumente, s'échauffe, s'enroue, reprend. Un elfe somnole, un autre note, un autre note que le premier somnole. Pépin compte les poutres du plafond et trouve le même nombre à chaque tentative, ce qui l'inquiète un peu."
+										},
+										{
+											"who": "froton",
+											"text": "Je crois que j'ai connu trois saisons dans cette salle. Aucune n'a changé de décor."
+										},
+										{
+											"who": "sam",
+											"text": "Je me suis habitué. Ça aide de penser que ce sont des siècles pour ceux qui n'en ont qu'un."
+										},
+										{
+											"who": "elrond",
+											"text": "Point deux : le mot « porter ». Est-ce tenir, garder, supporter, transporter, ou endurer ? Chaque sens a ses défenseurs et ses ennemis."
+										},
+										{
+											"who": "glandoulf",
+											"text": "C'est un point utile, Seigneur Elrond, mais peut-être..."
+										},
+										{
+											"who": "elrond",
+											"text": "Peut-être. Peut-être le Conseil ne peut-il trancher sans jurisprudence. Nous devrions consulter le procès-verbal d'origine de l'Alliance du Dernier Gouda, qui a débattu, en son temps, d'une affaire semblable : le sort de l'anneau, après la chute de Sauron."
+										},
+										{
+											"text": "[i](Le procès-verbal d'origine. Celui que j'ai signé. Celui où il est écrit que l'anneau a été jeté dans le feu, de ma main, d'une plume, d'un mensonge.)[/i]"
+										},
+										{
+											"who": "glandoulf",
+											"text": "Les archives sont peut-être lacunaires, Seigneur Elrond. Ce genre de document disparaît avec le temps, ou s'abîme avec la poussière."
+										},
+										{
+											"who": "elrond",
+											"text": "Les archives du Conseil ne sont jamais lacunaires, Glandoulf. C'est leur seul défaut."
+										},
+										{
+											"who": "aragrogne",
+											"text": "Seigneur Elrond, que contiennent-elles, précisément ? Je n'ai jamais lu ce que mon ancêtre a laissé là."
+										},
+										{
+											"who": "elrond",
+											"text": "Rien que de très ordinaire : la mémoire des hommes, la parole des elfes, les petits mensonges de tous. Je vous remets la clef, avec reçu."
+										},
+										{
+											"give": "clef_archives"
+										},
+										{
+											"set": "archives_ouvertes"
+										},
+										{
+											"who": "elrond",
+											"text": "Les Archives sont dans l'édifice voisin. Elles sont gardées. Rassurez-vous : le Gardien est mal luné d'ordinaire, mais ferme au règlement. Rapportez-moi le procès-verbal, et le Conseil reprendra là où il s'est suspendu."
+										},
+										{
+											"text": "La séance est suspendue. Elle l'est depuis trois jours, et pour combien de temps, personne ne peut le dire."
+										},
+										{
+											"set": "conseil_1_fait"
+										},
+										{
+											"text": "Dehors, sous les arcades, une silhouette longue et mince s'est détachée d'un pilier. Une elfe, un arc dans le dos, un air d'ennui accumulé depuis un siècle ou deux."
+										},
+										{
+											"who": "digoulasse",
+											"text": "Vous êtes ceux qu'on a convoqués ? Digoulasse. Deux mille neuf cents ans de garde sur cette terrasse, et je jure que ces trois derniers jours sont les plus longs."
+										},
+										{
+											"who": "digoulasse",
+											"text": "J'ai entendu votre histoire. Une affaire d'anneau, de roi qui a oublié de le jeter, d'un magicien qui n'en dit pas plus. Je ne suis pas certaine de croire à la moitié. Mais je viens avec vous : n'importe quoi, plutôt que ce Conseil."
+										},
+										{
+											"who": "glandoulf",
+											"text": "Vous êtes archère ?"
+										},
+										{
+											"who": "digoulasse",
+											"text": "Je suis surtout très, très en retard sur mon propre ennui. Je tire droit, je vois loin, je m'ennuie avec classe. Cela peut servir."
+										},
+										{
+											"join": "digoulasse"
+										},
+										{
+											"set": "digoulasse_equipe"
+										}
+									],
+									"else": [
+										{
+											"who": "huissier",
+											"text": "Prière de présenter le formulaire A-38, en trois exemplaires, tamponnés, sans rature. À défaut, la Chancellerie, à gauche en entrant sur la place, vous renseignera. Sinon, elle vous fera patienter."
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"elrond": [
+		{
+			"if": "chapitre_3_fini",
+			"then": [
+				{
+					"who": "elrond",
+					"text": "Merci d'avoir ouvert une séance qui s'est terminée. Je crois que c'est une prouesse. Votre ami Merri a son siège ici, à vie. Je l'ai noté."
+				}
+			],
+			"else": [
+				{
+					"if": "conseil_1_fait",
+					"then": [
+						{
+							"who": "elrond",
+							"text": "Les Archives, dans l'édifice voisin. Le Gardien exige qu'on lui parle, mais il comprend aussi les autres langages."
+						}
+					],
+					"else": [
+						{
+							"who": "elrond",
+							"text": "Le Conseil siège. Présentez-vous à l'huissier, avec votre formulaire, bien sûr. Sans cela, je ne puis vous entendre : le règlement est mon seul ami."
+						}
+					]
+				}
+			]
+		}
+	],
+	"bromure_salle": [
+		{
+			"who": "bromure",
+			"text": "Je plaiderai ma cause devant le Président aussi longtemps qu'il le faudra. Je suis patient. Ou plutôt, je le deviens. Ça fait mal, mais ça passe."
+		}
+	],
+	"ordre_du_jour": [
+		{
+			"text": "« ORDRE DU JOUR : 1. Approbation du procès-verbal précédent. 2. Définition du mot « porter ». 3. Désignation du porteur. 4. Questions diverses. 5. Suspension. 6. Reprise. 7. Suspension. 8. (voir 6.) »"
+		}
+	],
+	"cheminee_conseil": [
+		{
+			"text": "Le feu de la cheminée brûle depuis la fondation du Conseil. Personne n'est autorisé à le rallumer, ni à l'éteindre, ni à se demander pourquoi."
+		}
+	]
+}

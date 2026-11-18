@@ -422,3 +422,67 @@ suit sur Merri est inventé pour lui donner corps ; l'auteur a validé le nom, p
 - **Changements de nom et d'accords.** Le jeu de mots sur le nom de Froton joue maintenant sur « Sale fait »
   (Salfait). Pépin est maintenant un homme : Pépin est « le jeune herboriste », sa
   voie « Fumeur de Pipe ».
+
+### Chapitre 3 — Fondue-Combe (18 novembre 2026)
+
+Ce qui est inventé pour le chapitre, au-delà de la bible. Tout reste modifiable.
+
+- **Le trajet.** De Brie, la route de l'ouest monte au **col des Biscottes** (chamois
+  blasés, marmottes voraces, taons des cols) puis descend sur Fondue-Combe. Chaque lieu
+  est une carte : col, ville, Salle du Conseil, Chancellerie, auberge « Au Repos Feuillu »,
+  Archives du Conseil.
+- **Elrond de Cuir.** Président du Conseil, elfe sec en robe de cuir patiné, couronne
+  ternie. Il ne se presse jamais, ne tranche rien sans jurisprudence et tient le règlement
+  pour son seul ami. Il n'est pas méchant : il est intact. Il a besoin d'un greffier de
+  séance depuis un siècle ; Merri se propose, avec index et table des matières, et ils
+  deviennent amis sur-le-champ (flag `merri_elrond`).
+- **Le formulaire A-38.** La convocation d'Elrond (chapitre 2) exige un formulaire en trois
+  exemplaires. À la Chancellerie (greffier **Tamponnel**), Merri les recopie sans une
+  rature ; sans Merri, le copiste de la maison les fait pour trente écus et neuf heures.
+- **La procédure.** Première séance : définition du mot « porter », discours de Bromure
+  (« trois minutes », décomptées à l'heure elfique, soit une semaine). Le Conseil ne peut
+  trancher sans le **procès-verbal d'origine** de l'Alliance du Dernier Gouda. Elrond
+  remet la clef des Archives. Seconde séance, une fois le procès-verbal rapporté, décision
+  par la règle « le porteur est celui qui le désire le moins ».
+- **Le secret de Glandoulf pèse.** Le procès-verbal dit qu'Isidur a déclaré garder l'anneau,
+  que Glandoulf n'a pas contredit, puis qu'il a **certifié par écrit** que l'anneau avait
+  été jeté au feu. Merri le lit tout haut. Glandoulf reconnaît (« Oui. J'ai laissé faire,
+  puis j'ai dit autre chose. ») et promet l'explication entière plus tard, pas devant un
+  greffier. Aragrogne (descendant d'Isidur) l'entend. Merri refuse de le consigner :
+  « un procès-verbal sert à garder ce qu'il faut ne pas oublier, pas à enfoncer ».
+- **Le porteur.** Les conseillers veulent tous l'anneau « pour le bien de tous ». Seuls les
+  Grobittes veulent rentrer. Par la règle d'Elrond, le Conseil se tourne vers eux : Pépin
+  refuse (« infusionniste, pas porteur »), Merri aussi (« un cousin suit »), Froton cède
+  (« je dis je le porterai, pas je le veux »). C'est le seul Grobitte qui rêve d'être
+  quelqu'un : la bible le tient pour le plus vulnérable, le choix prépare le chapitre 4.
+- **Bromure du Gouda.** Fils de l'Intendant de Minas Tartine, il plaide pour s'en servir
+  contre les Morfales, fait appel (« dans quarante ans »), puis devient **invité** du
+  Conseil, statut le plus distingué de Fondue-Combe. Il suit l'équipe **sans combattre**
+  (flag `bromure_invite`) : il attend en ville, à l'ouest, pour partir vers Morbier. Il
+  n'a pas de fiche de combat : voir les décisions de l'étape B.
+- **Digoulasse.** Archère de la Garde de la Combe, 2 900 ans de service sur la terrasse. Elle
+  quitte le Conseil, à bout d'ennui, dès la fin de la première séance et rejoint l'équipe
+  (« n'importe quoi, plutôt que ce Conseil »). Elle arrive en réserve.
+- **Grimli.** Nain du clan Barbe-à-Sel, arrivé de Morbier avec trois jours d'avance sur sa
+  convocation, car « les nains, ça se sent ». Il connaît les mines (il y a perdu trois
+  cousins, un oncle et un chapeau) et sera le guide du chapitre 4. Il arrive en réserve.
+- **Le Gardien des Archives.** Elfe voûté aux yeux blancs d'encre, trois mille ans sans un
+  seul prêt, escorté de parchemins vivants qui se dressent comme des chiens de garde.
+  Battu, il cède le procès-verbal : « je n'ai pas de rubrique ». Sa carte d'attaque
+  (`en_triple_exemplaire`, `consultation_interdite`, `rappel_a_l_ordre`) est celle d'un
+  règlement.
+- **Les annexes.** Les tampons de la Chancellerie se sont échappés de leurs tiroirs et
+  tamponnent tout ce qu'ils croisent (quatre à retrouver : col, jardin, auberge, Archives ;
+  récompense : le **sceau de la Chancellerie**). Lorélia, chanteuse du chant de neuf
+  heures, a perdu sa voix : une tisane corsée la lui rend, trois couplets suivent (arbre,
+  rivière, chanteur ; récompense : son **diapason**). Maître Buisson, jardinier, a trois
+  haies qui poussent sans s'arrêter depuis le dernier roi : Sam les taille (il faut qu'il
+  soit dans le groupe ; récompense : les **cisailles elfiques**, pour Sam).
+- **Fin du chapitre.** Grimli entre au Conseil, trouve qu'il vote encore, se propose comme
+  guide. Elrond constate que le Conseil se sépare, pour la première fois depuis longtemps,
+  et le consigne « sous la rubrique Merveilles ». Le chapitre passe à `chapitre_4`.
+- **Dans le décor.** « Séance permanente », « Prière d'essuyer ses pieds, ses idées et ses
+  objections », « la porte est susceptible », ordre du jour qui prévoit la suspension, la
+  reprise, la suspension, et « 8. (voir 6.) ». La route de Morbier part de l'extrémité
+  ouest de la ville : un panneau, et un dialogue qui dit « la suite arrivera avec le
+  chapitre 4 ».

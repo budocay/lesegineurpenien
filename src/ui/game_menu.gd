@@ -243,7 +243,7 @@ static func item_detail(id: String) -> String:
 static func _member_line(id: String) -> String:
 	var m := GameState.member(id)
 	var stats := GameState.member_stats(id)
-	return "%s   PV %d/%d   PM %d/%d" % [Database.get_character_name(id), int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])]
+	return "%s%s   PV %d/%d   PM %d/%d" % [Database.get_character_name(id), " (réserve)" if GameState.is_reserve(id) else "", int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])]
 
 
 static func _member_detail(id: String) -> String:
@@ -253,6 +253,8 @@ static func _member_detail(id: String) -> String:
 	var bare := Rules.stats_at(id, int(m["level"]))
 	var lines: Array = [str(ch.get("full_name", ch.get("name", id)))]
 	lines.append("%s   ·   Niveau %d   ·   XP %d / %d" % [str(ch.get("role", "")).capitalize(), int(m["level"]), int(m["xp"]), Rules.xp_to_next(int(m["level"]))])
+	if GameState.is_reserve(id):
+		lines.append("En réserve : ne se bat pas, mais gagne %d %% de l'expérience." % int(GameState.RESERVE_XP * 100.0))
 	lines.append("PV %d/%d      PM %d/%d" % [int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])])
 	var spec := GameState.specialization_name(id)
 	var points := GameState.talent_points(id)
@@ -425,20 +427,25 @@ func _team(focus: int = 0) -> void:
 	var entries: Array = []
 	for id: Variant in GameState.party:
 		var who := str(id)
-		var text := "%s   Nv %d" % [Database.get_character_name(who), int(GameState.member(who)["level"])]
+		var reserve := GameState.is_reserve(who)
+		var text := "%s   %s" % [Database.get_character_name(who), "réserve" if reserve else "Nv %d" % int(GameState.member(who)["level"])]
 		var points := GameState.talent_points(who)
 		if points > 0:
-			text += "  ·  %s" % _points(points)
+			text += "  ·  %d pt%s" % [points, "s" if points > 1 else ""]
 		entries.append({
 			"text": text,
 			"icon": Sprites.portrait(who),
+			"dim": reserve,
 			"detail": _member_detail(who),
 			"action": _member.bind(who, entries.size(), 0),
 		})
-	_page("Équipe", entries, Callable(), focus)
+	var title := "Équipe"
+	if not GameState.reserve_party().is_empty():
+		title = "Équipe   ·   %d au combat, %d en réserve" % [GameState.active_party().size(), GameState.reserve_party().size()]
+	_page(title, entries, Callable(), focus)
 
 
-## Fiche d'un personnage : de là, on règle son équipement ou ses talents.
+## Fiche d'un personnage : de là, on règle son équipement ou ses talents, ou on l'échange.
 func _member(who: String, from: int, focus: int = 0) -> void:
 	var points := GameState.talent_points(who)
 	var entries: Array = [
@@ -449,7 +456,38 @@ func _member(who: String, from: int, focus: int = 0) -> void:
 			"action": func() -> void: talents_requested.emit(who),
 		},
 	]
+	if not GameState.reserve_party().is_empty():
+		var reserve := GameState.is_reserve(who)
+		entries.append({
+			"text": "Entrer dans l'équipe" if reserve else "Passer en réserve",
+			"detail": ("Prend la place d'un des quatre qui se battent." if reserve else "Cède sa place à un personnage de la réserve.") + "\n\nQuatre personnages au plus se battent en même temps.",
+			"action": _swap_targets.bind(who, from),
+		})
 	_page(Database.get_character_name(who), entries, _team.bind(from), focus)
+
+
+## Choix de celui qui prend la place de `who` (un réserviste pour un combattant, et inversement).
+func _swap_targets(who: String, from: int) -> void:
+	var entries: Array = []
+	var ids: Array = GameState.active_party() if GameState.is_reserve(who) else GameState.reserve_party()
+	for id: Variant in ids:
+		var other := str(id)
+		entries.append({
+			"text": "%s   Nv %d" % [Database.get_character_name(other), int(GameState.member(other)["level"])],
+			"icon": Sprites.portrait(other),
+			"detail": _member_detail(other),
+			"action": _do_swap.bind(who, other),
+		})
+	_page("Échanger %s avec…" % Database.get_character_name(who), entries, _member.bind(who, from, 2))
+
+
+func _do_swap(who: String, other: String) -> void:
+	if not GameState.swap_members(who, other):
+		_say("%s ne peut pas quitter la tête de l'équipe." % Database.get_character_name(who if GameState.party.find(who) == 0 else other), false)
+		return
+	var focus := GameState.party.find(who)
+	_team(focus)
+	_say("%s et %s échangent leur place." % [Database.get_character_name(who), Database.get_character_name(other)])
 
 
 # ------------------------------------------------------------------- talents
