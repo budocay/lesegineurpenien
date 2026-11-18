@@ -42,8 +42,8 @@ if (Test-Path $exe) {
 }
 
 Write-Host "Préparation du jeu (une minute environ la première fois)..."
+# Programme principal, pas la variante « console » : celle-ci échoue quand le chemin contient une espace.
 $outil = $exe
-if (Test-Path $console) { $outil = $console }
 $p = Start-Process -FilePath $outil -ArgumentList @("--headless", "--path", "`"$racine`"", "--import") -Wait -PassThru -NoNewWindow
 if ($p.ExitCode -ne 0) {
     Write-Host "La préparation a renvoyé le code $($p.ExitCode). Le jeu se lancera peut-être quand même." -ForegroundColor Yellow

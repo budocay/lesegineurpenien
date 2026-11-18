@@ -6,7 +6,9 @@ $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $version = "4.7.2"
 $racine = Split-Path -Parent $PSScriptRoot
-$godot = Join-Path $PSScriptRoot "godot\Godot_v$version-stable_win64_console.exe"
+# On lance le programme principal, pas sa variante « console » : celle-ci échoue
+# (« CreateProcess failed, error 193 ») quand le chemin du dossier contient une espace.
+$godot = Join-Path $PSScriptRoot "godot\Godot_v$version-stable_win64.exe"
 if (-not (Test-Path $godot)) {
     & (Join-Path $PSScriptRoot "installer_windows.ps1")
     if (-not (Test-Path $godot)) { Write-Host "Godot introuvable." -ForegroundColor Red; exit 1 }
