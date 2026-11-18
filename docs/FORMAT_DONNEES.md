@@ -548,8 +548,30 @@ Où les morceaux sont utilisés :
 
 ## Sauvegarde
 
-Une seule partie, dans `user://sauvegarde.json` (sur Mac :
-`~/Library/Application Support/Godot/app_userdata/Glandoulf le Gris/`). Le fichier contient
+Plusieurs parties, dans le dossier utilisateur (sur Mac :
+`~/Library/Application Support/Godot/app_userdata/Glandoulf le Gris/`), un fichier JSON par
+emplacement, nommés d'après `SaveManager.save_path` (`user://sauvegarde.json` par défaut) :
+
+- `sauvegarde_m1.json` à `sauvegarde_m8.json` : 8 emplacements manuels (identifiants `m1`...`m8`),
+  choisis par le joueur (menu de pause, « Sauvegarder » / « Charger », ou écran-titre).
+- `sauvegarde_a1.json` à `sauvegarde_a3.json` : 3 sauvegardes automatiques tournantes (`a1` est
+  la plus récente ; une nouvelle décale a1 vers a2 et a2 vers a3, la plus vieille disparaît).
+  Elles sont faites à chaque changement de lieu (`auto_reason` = `lieu`) et juste avant chaque
+  combat où la fuite est impossible, boss compris (`auto_reason` = `combat`, avec un
+  `battle_token` qui permet à l'écran de défaite de proposer « Revenir avant le combat »).
+- Écriture atomique : fichier `.tmp` (ou `.new`) écrit en entier puis renommé. Un fichier
+  illisible, qui n'est pas un objet JSON ou dont la carte est inconnue est simplement ignoré
+  (l'emplacement apparaît vide).
+- L'ancien fichier unique (`save_path` lui-même, sans suffixe) est migré tout seul vers le
+  premier emplacement manuel libre dès qu'on lit les sauvegardes ; sa date est conservée.
+- Changer `save_path` isole tous les fichiers (les tests mettent un chemin par processus) ;
+  `SaveManager.delete_save()` efface tous les emplacements dérivés, `delete_slot(id)` un seul.
+- En plus de l'état de la partie, chaque fichier porte `saved_at` (texte lisible) et
+  `saved_unix` (tri du plus récent au plus ancien). La liste affiche lieu, chapitre, quête en
+  cours (la principale d'abord), niveau moyen de l'équipe, temps de jeu et date, calculés à la
+  lecture : aucun index séparé.
+
+Le contenu d'un fichier est
 l'état de la partie tel que le décrit `src/core/game_state.gd` : chapitre, drapeaux,
 quêtes (en cours ou terminées), équipe (niveau, expérience, PV, mana, équipement et
 talents appris de chacun), inventaire, argent, faiblesses

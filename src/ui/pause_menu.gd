@@ -3,6 +3,7 @@ extends Control
 
 signal resumed
 signal save_requested
+signal load_requested
 signal title_requested
 signal quit_requested
 signal screen_requested(which: String)   # "team", "talents", "inventory" ou "quests"
@@ -53,6 +54,7 @@ func _ready() -> void:
 	_button(box, "Inventaire", func() -> void: screen_requested.emit("inventory"))
 	_button(box, "Quêtes", func() -> void: screen_requested.emit("quests"))
 	_button(box, "Sauvegarder", func() -> void: save_requested.emit())
+	_button(box, "Charger", func() -> void: load_requested.emit())
 	_button(box, "Plein écran", func() -> void: toggle_fullscreen())
 	_button(box, "Retour à l'écran-titre", func() -> void: title_requested.emit())
 	_button(box, "Quitter le jeu", func() -> void: quit_requested.emit())

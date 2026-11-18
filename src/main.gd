@@ -11,6 +11,7 @@ const BattleScene = preload("res://src/battle/battle_scene.gd")
 const BattleUI = preload("res://src/battle/battle_ui.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
+const SaveScreen = preload("res://src/ui/save_screen.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
 
@@ -30,7 +31,9 @@ var menus: Control              # équipe, inventaire, journal de quêtes, bouti
 var _menus_from := ""           # "pause" ou "dialogue" : à qui rendre la main quand ils se ferment
 var talents: Control            # écran de talents
 var _talents_from := ""         # "pause" ou "team" : où revenir quand il se ferme
+var saves: Control             # liste des sauvegardes (charger, sauvegarder)
 var _fade: ColorRect
+var _pending_load := ""         # emplacement choisi depuis l'écran de défaite
 
 
 func _ready() -> void:
@@ -63,6 +66,9 @@ func _ready() -> void:
 	ui.add_child(menus)
 	talents = TalentScreen.new()
 	ui.add_child(talents)
+	saves = SaveScreen.new()
+	ui.add_child(saves)
+	battle_ui.save_screen = saves
 
 	var top := CanvasLayer.new()
 	top.layer = 10
@@ -74,7 +80,11 @@ func _ready() -> void:
 	top.add_child(_fade)
 
 	title.new_game_requested.connect(start_new_game)
-	title.continue_requested.connect(continue_game)
+	title.continue_requested.connect(func() -> void: continue_game())
+	title.load_requested.connect(func() -> void: _open_saves("load", "title"))
+	saves.finished.connect(_on_saves_finished)
+	saves.saved.connect(_on_slot_saved)
+	pause.load_requested.connect(func() -> void: _open_saves("load", "pause"))
 	title.quit_requested.connect(func() -> void: get_tree().quit())
 	pause.resumed.connect(_on_pause_closed)
 	pause.save_requested.connect(_on_save_requested)
@@ -172,13 +182,18 @@ func start_new_game() -> void:
 	await _begin_play([], "")
 
 
-func continue_game() -> void:
+## Reprend une partie : la plus récente, ou l'emplacement `slot` ("m1", "a2"...).
+func continue_game(slot: String = "") -> void:
 	if busy:
 		return
-	if not SaveManager.load_game():
-		title.open()
+	if not SaveManager.load_game(slot):
+		if mode == Mode.TITLE:
+			title.open()
+		else:
+			hud.toast("Cette sauvegarde est illisible.")
 		return
 	busy = true
+	pause.close(true)
 	await _fade_to(1.0)
 	title.close()
 	await _begin_play(GameState.player_pos, GameState.player_facing)
@@ -212,7 +227,7 @@ func change_map(map_id: String, spawn_id: String) -> void:
 	GameState.spawn_id = spawn_id
 	GameState.player_pos = []
 	_load_world(map_id, spawn_id, [], "", false)
-	SaveManager.save_game()   # sauvegarde automatique à chaque changement de lieu
+	SaveManager.autosave("lieu")   # sauvegarde automatique à chaque changement de lieu
 	await _arrive()
 
 
@@ -288,6 +303,13 @@ func start_battle(encounter: Dictionary) -> String:
 			encounter = encounter.duplicate()
 			encounter["ramollissement"] = Database.softness(field.map)
 	hud.set_softness(0.0)
+	# Combat sans fuite (boss, scène) : sauvegarde automatique juste avant, pour pouvoir revenir.
+	var token := ""
+	battle_ui.before_battle_slot = ""
+	if field != null and not bool(encounter.get("flee", true)):
+		token = str(Time.get_ticks_msec())
+		if SaveManager.autosave("combat", token) != "":
+			battle_ui.before_battle_slot = SaveManager.find_battle_slot(token)
 	Sfx.play("encounter")
 	var music_before := Music.current
 	await _fade_to(1.0, 0.35)
@@ -313,11 +335,15 @@ func start_battle(encounter: Dictionary) -> String:
 		remove_child(battle)
 		battle.queue_free()
 		battle = null
-	if outcome == "title":
+	battle_ui.before_battle_slot = ""
+	if outcome == "title" or outcome.begins_with("load:"):
 		if field != null:
 			field.queue_free()
 			world = null
 		busy = false
+		if outcome.begins_with("load:"):
+			_pending_load = outcome.substr(5)
+			outcome = "load"
 		return outcome
 	Music.play(music_before)
 	if field != null:
@@ -332,6 +358,17 @@ func start_battle(encounter: Dictionary) -> String:
 	return outcome
 
 
+## Après une défaite : retour à l'écran-titre, ou chargement de la sauvegarde choisie.
+func _leave_after_defeat(outcome: String) -> void:
+	if outcome == "load" and _pending_load != "":
+		var slot := _pending_load
+		_pending_load = ""
+		_abort_flow = false
+		continue_game(slot)
+	else:
+		show_title()
+
+
 func _on_dialogue_battle(encounter_id: String) -> void:
 	var outcome := "victory"
 	var enc := Database.get_encounter(encounter_id)
@@ -339,10 +376,10 @@ func _on_dialogue_battle(encounter_id: String) -> void:
 		push_warning("Rencontre inconnue : " + encounter_id)
 	else:
 		outcome = await start_battle(enc)
-	if outcome == "title":
+	if outcome == "title" or outcome == "load":
 		_abort_flow = true
 		dialogue.abort()
-		show_title()
+		_leave_after_defeat(outcome)
 		return
 	if outcome == "victory":
 		GameState.set_flag("combat_" + encounter_id)
@@ -356,8 +393,8 @@ func _on_encounter(table_id: String) -> void:
 	if enc.is_empty():
 		return
 	var outcome: String = await start_battle(enc)
-	if outcome == "title":
-		show_title()
+	if outcome == "title" or outcome == "load":
+		_leave_after_defeat(outcome)
 	elif world != null and not dialogue.active:
 		world.set_input(true)
 
@@ -387,7 +424,7 @@ func _on_dialogue_action(action: String) -> void:
 		"save":
 			if SaveManager.save_game():
 				Sfx.play("save")
-				hud.toast("Partie sauvegardée")
+				hud.toast("Partie sauvegardée (%s)" % SaveManager.slot_label(SaveManager.current_slot).to_lower())
 		"rest":
 			GameState.heal_party()
 			Sfx.play("heal")
@@ -402,7 +439,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("fullscreen"):
 		PauseMenu.toggle_fullscreen()
 		return
-	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and event.is_action_pressed("menu"):
+	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		_open_pause()
 
@@ -480,12 +517,36 @@ func _on_pause_closed() -> void:
 		world.set_input(true)
 
 
+## Ouvre la liste des sauvegardes. `from` : "title" ou "pause" (où revenir si on annule).
+func _open_saves(which: String, from: String) -> void:
+	if from == "pause":
+		pause.close(true)
+	saves.open(which, from)
+
+
+func _on_saves_finished(chosen: String) -> void:
+	match saves.context:
+		"defeat":
+			return   # l'écran de défaite attend lui-même la réponse
+		"title":
+			if chosen != "":
+				continue_game(chosen)
+			elif mode == Mode.TITLE:
+				title.open()
+		"pause":
+			if chosen != "":
+				continue_game(chosen)
+			elif mode == Mode.PLAY and world != null and not busy:
+				_open_pause()
+
+
+func _on_slot_saved(id: String) -> void:
+	Sfx.play("save")
+	hud.toast("Partie sauvegardée (%s)" % SaveManager.slot_label(id).to_lower())
+
+
 func _on_save_requested() -> void:
-	if SaveManager.save_game():
-		Sfx.play("save")
-		pause.notify("Partie sauvegardée.")
-	else:
-		pause.notify("Échec de la sauvegarde.")
+	_open_saves("save", "pause")
 
 
 func _sync_state() -> void:
@@ -496,7 +557,7 @@ func _sync_state() -> void:
 
 
 func _process(_delta: float) -> void:
-	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or world.focus.is_empty():
+	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or saves.visible or world.focus.is_empty():
 		hud.hide_prompt()
 		return
 	var it: Dictionary = world.focus
