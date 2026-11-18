@@ -63,6 +63,7 @@ func _ready() -> void:
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_interface()
+	_test_retouches()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -3027,3 +3028,18 @@ func _test_interface() -> void:
 		_ui_inside(saves, "sauvegardes (%s)" % mode)
 		saves.close("", true)
 	layer.queue_free()
+
+
+## Retouches : échelle, formation de combat, sol de sous-bois.
+func _test_retouches() -> void:
+	print("== Retouches ==")
+	check(Sprites.tile_texture("humus") != null, "sol de sous-bois peint")
+	for n in range(2, 7):
+		var sc: Array[float] = []
+		for i in n:
+			sc.append(1.0)
+		var spots: Array[Vector3] = BattleScene.formation(sc)
+		check(spots.size() == n, "formation à %d" % n)
+		for i in range(1, n):
+			# l'écart latéral sur l'écran (x) ne doit pas s'effondrer : chacun reste visible
+			check(absf(spots[i].x - spots[i - 1].x) > 0.1 or absf(spots[i].z - spots[i - 1].z) > 0.6, "formation à %d : %d et %d séparés" % [n, i - 1, i])

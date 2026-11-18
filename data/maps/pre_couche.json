@@ -22,7 +22,7 @@
 	],
 	"stairs": [
 		{"rect": [32, 8, 2, 2], "dir": "up", "from": 0.0, "to": 1.2},
-		{"rect": [6, 4, 2, 2], "dir": "left", "from": 0.0, "to": 1.0}
+		{"rect": [2, 8, 2, 2], "dir": "up", "from": 0.0, "to": 1.0}
 	],
 	"spawns": {
 		"ouest": {"pos": [1.5, 10.5], "facing": "right"}
@@ -37,7 +37,7 @@
 		{"type": "encounter_zone", "rect": [6, 2, 18, 6], "table": "pre_couche_nord"},
 		{"type": "encounter_zone", "rect": [8, 14, 24, 6], "table": "pre_couche_sud"},
 
-		{"type": "lantern", "pos": [3, 9]},
+		{"type": "lantern", "pos": [5.4, 9.3]},
 		{"type": "lantern", "pos": [17, 12.2]},
 		{"type": "lantern", "pos": [30.5, 8.6]},
 		{"type": "lantern", "pos": [36, 12.2], "shadow": false},

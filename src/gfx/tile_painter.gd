@@ -23,6 +23,7 @@ static func paint(kind: String) -> Image:
 		"floor": return _planks(Color("#9a6b3e"), Color("#6a4528"), Color("#b5834e"))
 		"wood": return _planks(Color("#86562f"), Color("#5c3920"), Color("#a26d3d"))
 		"soil": return _soil()
+		"humus": return _humus()
 		"plaster": return _plaster(Color("#e2cfa6"))
 		"brick": return _stones(["#a85a44", "#9a4e3c", "#b56a50", "#a0604a"], Color("#6d5a50"), 12, 6)
 		"stone": return _stones(["#85828e", "#928f9a", "#777482", "#8d8880"], Color("#45414c"), 16, 12)
@@ -322,6 +323,39 @@ static func _planks(base: Color, dark: Color, light: Color) -> Image:
 			PA.rect(img, kx + 1, y0 + 3, 2, 1, dark)
 			PA.px(img, kx - 1, y0 + 4, tone.lerp(light, 0.4))
 			PA.px(img, kx + 4, y0 + 3, tone.lerp(light, 0.4))
+	return img
+
+
+## Sous-bois : terreau feuillu, mousse, feuilles mortes et aiguilles. Se lit comme un sol
+## de forêt, pas comme un trou sombre.
+static func _humus() -> Image:
+	var img := PA.new_image(T, T)
+	var base := Color("#4d4a2e")
+	img.fill(base)
+	_blotches(img, 71, 10, Color("#5c5a34"), 5.0, 11.0)
+	_blotches(img, 72, 8, Color("#3e3a26"), 3.0, 7.0)
+	_blotches(img, 73, 6, Color("#4a6a38"), 3.0, 6.0)   # mousse
+	_specks(img, 74, 60, Color("#6a6238"))
+	_specks(img, 75, 40, Color("#352f20"))
+	var leaves := [Color("#b8642c"), Color("#d08a3a"), Color("#8a4a28"), Color("#c8a040"), Color("#a8502c")]
+	for i in 16:
+		var x := int(PA.rnd(i, 1, 76) * (T - 3))
+		var y := int(PA.rnd(i, 2, 76) * (T - 3))
+		var c: Color = leaves[i % leaves.size()]
+		PA.rect(img, x, y, 3, 2, c)
+		PA.px(img, x, y, PA.shade(c, 0.25))
+		PA.rect(img, x + 1, y + 2, 2, 1, PA.shade(c, -0.35))
+	for i in 12:
+		var x := int(PA.rnd(i, 3, 77) * (T - 5))
+		var y := int(PA.rnd(i, 4, 77) * (T - 3))
+		for k in 4:
+			PA.px(img, x + k, y + (k % 2), Color("#8a7a4a"))
+	for i in 5:
+		var x := int(PA.rnd(i, 5, 78) * (T - 2))
+		var y := 1 + int(PA.rnd(i, 6, 78) * (T - 3))
+		PA.px(img, x, y, Color("#7fae52"))
+		PA.px(img, x + 1, y - 1, Color("#7fae52"))
+		PA.px(img, x, y + 1, Color("#4f7a3a"))
 	return img
 
 
@@ -768,51 +802,54 @@ static func _window(img: Image, emi: Image, wx: float, wy: float, lit: bool, shu
 
 
 static func _door(img: Image, dx0: float, door_color: Color, h: int) -> void:
+	# porte et arc à l'échelle des personnages (planches de 72 px à 40 px par unité) :
+	# rayon 24 px, soit une porte de près de deux unités sous son arc
 	var frame := Color("#4a3122")
-	var dy0 := float(h) - 15.0
+	var rr := 24.0
+	var dy0 := float(h) - 21.0
 	# marches
-	PA.rect(img, int(dx0) - 17, h - 2, 34, 2, Color("#8a8590"))
-	PA.rect(img, int(dx0) - 15, h - 4, 30, 2, Color("#a8a3ac"))
-	PA.rect(img, int(dx0) - 15, h - 4, 30, 1, Color("#cdc7d0"))
+	PA.rect(img, int(dx0) - 23, h - 2, 46, 2, Color("#8a8590"))
+	PA.rect(img, int(dx0) - 21, h - 4, 42, 2, Color("#a8a3ac"))
+	PA.rect(img, int(dx0) - 21, h - 4, 42, 1, Color("#cdc7d0"))
 	# arc de pierre : claveaux
-	for y in range(int(dy0) - 22, h - 3):
-		for x in range(int(dx0) - 22, int(dx0) + 22):
+	for y in range(int(dy0) - 30, h - 3):
+		for x in range(int(dx0) - 30, int(dx0) + 30):
 			var ddx := x + 0.5 - dx0
 			var ddy := y + 0.5 - dy0
 			var r := sqrt(ddx * ddx + ddy * ddy)
-			if r > 18.0 and r < 22.0 and ddy < 6.0:
+			if r > rr and r < rr + 5.0 and ddy < 8.0:
 				var ang := atan2(ddy, ddx)
 				var seg := int(floor(ang / (PI / 14.0)))
 				var tone := Color("#a29c94") if seg % 2 == 0 else Color("#8e8880")
-				if r < 19.0:
+				if r < rr + 1.0:
 					tone = PA.shade(tone, -0.25)
 				PA.px(img, x, y, tone)
-	PA.ellipse(img, dx0, dy0, 18.0, 18.0, frame)
-	PA.ellipse(img, dx0, dy0, 17.0, 17.0, Color("#7d5a3d"))
-	for y in range(int(dy0) - 16, h - 4):
-		for x in range(int(dx0) - 16, int(dx0) + 16):
+	PA.ellipse(img, dx0, dy0, rr, rr, frame)
+	PA.ellipse(img, dx0, dy0, rr - 1.0, rr - 1.0, Color("#7d5a3d"))
+	for y in range(int(dy0 - rr), h - 4):
+		for x in range(int(dx0 - rr), int(dx0 + rr)):
 			var ddx := x + 0.5 - dx0
 			var ddy := y + 0.5 - dy0
-			if ddx * ddx + ddy * ddy > 15.0 * 15.0:
+			if ddx * ddx + ddy * ddy > (rr - 3.0) * (rr - 3.0):
 				continue
 			var c := door_color
-			if posmod(x - int(dx0), 6) == 0:
+			if posmod(x - int(dx0), 7) == 0:
 				c = PA.shade(door_color, -0.28)
-			elif posmod(x - int(dx0), 6) == 1:
+			elif posmod(x - int(dx0), 7) == 1:
 				c = PA.shade(door_color, 0.1)
-			elif ddx > 8.0:
+			elif ddx > 11.0:
 				c = PA.shade(door_color, -0.14)
-			elif ddx < -9.0 and ddy < 0.0:
+			elif ddx < -12.0 and ddy < 0.0:
 				c = PA.shade(door_color, 0.16)
 			PA.px(img, x, y, c)
 	var idx := int(dx0)
 	var idy := int(dy0)
 	# ferrures, serrure, heurtoir
-	PA.rect(img, idx - 15, idy - 8, 11, 2, Color("#2f2c38"))
-	PA.rect(img, idx - 15, idy + 5, 11, 2, Color("#2f2c38"))
-	PA.px(img, idx - 15, idy - 8, Color("#6a6878"))
-	PA.rect(img, idx + 4, idy - 1, 3, 4, Color("#2f2c38"))
-	PA.rect(img, idx + 4, idy - 1, 3, 1, Color("#d9b04a"))
+	PA.rect(img, idx - 21, idy - 9, 15, 2, Color("#2f2c38"))
+	PA.rect(img, idx - 21, idy + 8, 15, 2, Color("#2f2c38"))
+	PA.px(img, idx - 21, idy - 9, Color("#6a6878"))
+	PA.rect(img, idx + 6, idy + 1, 3, 4, Color("#2f2c38"))
+	PA.rect(img, idx + 6, idy + 1, 3, 1, Color("#d9b04a"))
 	PA.ellipse(img, float(idx) - 1.0, float(idy) - 3.0, 2.6, 2.6, Color("#d9b04a"))
 	PA.ellipse(img, float(idx) - 1.0, float(idy) - 3.0, 1.4, 1.4, Color("#5a3d22"))
 	PA.px(img, idx - 3, idy - 5, Color("#fff0b0"))

@@ -1,9 +1,9 @@
 {
 	"pre": {
 		"ground": "grass",
-		"ambiance": "crepuscule",
+		"ambiance": "pre_combat",
 		"backdrop": {
-			"tile": "rock_face",
+			"tile": "rock_face_moss",
 			"far": "hills",
 			"sky": [
 				"#2a2250",
@@ -32,6 +32,36 @@
 				],
 				"min_dist": 3.0,
 				"scale": 0.62
+			},
+			{
+				"prop": "tree",
+				"at": [
+					[
+						-12.4,
+						-9.4
+					],
+					[
+						-8.2,
+						-11.6
+					],
+					[
+						8.6,
+						-11.2
+					],
+					[
+						12.8,
+						-9.6
+					],
+					[
+						-15.0,
+						-8.0
+					],
+					[
+						15.4,
+						-7.6
+					]
+				],
+				"scale": 1.25
 			},
 			{
 				"prop": "bush",
@@ -170,9 +200,9 @@
 		"lights": [
 			{
 				"pos": [
-					-6.5,
+					0.3,
 					2.3,
-					-3.2
+					-4.4
 				],
 				"color": "#ffb45e",
 				"energy": 3.2,
@@ -189,7 +219,7 @@
 				"color": "#ffb45e",
 				"energy": 3.2,
 				"range": 9,
-				"lantern": true,
+				"lantern": false,
 				"shadow": true
 			},
 			{
@@ -549,9 +579,9 @@
 		"lights": [
 			{
 				"pos": [
-					-6.5,
+					0.3,
 					2.3,
-					-3.2
+					-4.4
 				],
 				"color": "#ffb45e",
 				"energy": 3.0,
@@ -745,9 +775,9 @@
 		"lights": [
 			{
 				"pos": [
-					-6.5,
+					0.3,
 					2.3,
-					-3.2
+					-4.4
 				],
 				"color": "#ffb45e",
 				"energy": 2.8,
@@ -908,9 +938,9 @@
 		"lights": [
 			{
 				"pos": [
-					-6.5,
+					0.3,
 					2.3,
-					-3.2
+					-4.4
 				],
 				"color": "#ffb45e",
 				"energy": 3.4,
@@ -927,7 +957,7 @@
 				"color": "#ffb45e",
 				"energy": 3.4,
 				"range": 9,
-				"lantern": true,
+				"lantern": false,
 				"shadow": true
 			},
 			{

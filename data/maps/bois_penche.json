@@ -11,9 +11,9 @@
 		"default": "grass",
 		"fills": [
 			{"type": "path", "rect": [17, 22, 2, 6]},
-			{"type": "soil", "rect": [10, 16, 16, 6]},
+			{"type": "humus", "rect": [10, 16, 16, 6]},
 			{"type": "path", "rect": [12, 10, 2, 6]},
-			{"type": "soil", "rect": [4, 4, 12, 6]},
+			{"type": "humus", "rect": [4, 4, 12, 6]},
 			{"type": "path", "rect": [16, 6, 8, 2]},
 			{"type": "path", "rect": [24, 3, 9, 8]}
 		]
@@ -60,10 +60,10 @@
 		{"type": "scatter", "prop": "rock", "rect": [0, 0, 36, 28], "count": 5, "min_dist": 4.0, "seed": 43},
 		{"type": "scatter", "prop": "flowers", "rect": [0, 0, 36, 28], "count": 26, "min_dist": 0.9, "seed": 44},
 		{"type": "scatter", "prop": "grass", "rect": [0, 0, 36, 28], "count": 120, "min_dist": 0.55, "seed": 45},
-		{"type": "scatter", "prop": "grass", "rect": [10, 16, 16, 6], "count": 90, "min_dist": 0.5, "seed": 46, "on": ["soil"]},
-		{"type": "scatter", "prop": "wilted", "rect": [10, 16, 16, 6], "count": 20, "min_dist": 0.8, "seed": 47, "on": ["soil"]},
-		{"type": "scatter", "prop": "grass", "rect": [4, 4, 12, 6], "count": 70, "min_dist": 0.5, "seed": 48, "on": ["soil"]},
-		{"type": "scatter", "prop": "wilted", "rect": [4, 4, 12, 6], "count": 16, "min_dist": 0.8, "seed": 49, "on": ["soil"]},
+		{"type": "scatter", "prop": "grass", "rect": [10, 16, 16, 6], "count": 90, "min_dist": 0.5, "seed": 46, "on": ["humus"]},
+		{"type": "scatter", "prop": "wilted", "rect": [10, 16, 16, 6], "count": 20, "min_dist": 0.8, "seed": 47, "on": ["humus"]},
+		{"type": "scatter", "prop": "grass", "rect": [4, 4, 12, 6], "count": 70, "min_dist": 0.5, "seed": 48, "on": ["humus"]},
+		{"type": "scatter", "prop": "wilted", "rect": [4, 4, 12, 6], "count": 16, "min_dist": 0.8, "seed": 49, "on": ["humus"]},
 		{"type": "scatter", "prop": "flowers", "rect": [24, 3, 9, 8], "count": 12, "min_dist": 0.9, "seed": 50, "on": ["path"]}
 	]
 }

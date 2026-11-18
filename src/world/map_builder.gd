@@ -14,7 +14,7 @@ const WARM := Color("#ffb45e")
 
 ## Types de sol. hole = pas de sol dessiné ; solid = infranchissable ; hard = bord net.
 const GROUND := {
-	"grass": {}, "path": {}, "cobble": {}, "soil": {},
+	"grass": {}, "path": {}, "cobble": {}, "soil": {}, "humus": {},
 	"planks": {"hard": true}, "floor": {"hard": true},
 	"water": {"hole": true, "solid": true},
 	"void": {"hole": true, "solid": true, "hard": true},
@@ -498,7 +498,7 @@ func _undergrowth() -> void:
 			if p.x < 0.2 or p.y < 0.2 or p.x > w - 0.2 or p.y > h - 0.2:
 				continue
 			var cell := _cell(int(p.x), int(p.y))
-			if cell != "grass" and cell != "soil":
+			if cell != "grass" and cell != "soil" and cell != "humus":
 				continue
 			if not _flat_around(p, 0.4):
 				continue
