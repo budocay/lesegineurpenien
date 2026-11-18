@@ -24,7 +24,14 @@ if (Test-Path $exe) {
     New-Item -ItemType Directory -Force -Path $dossier | Out-Null
     $zip = Join-Path $dossier "godot.zip"
     Write-Host "Téléchargement de Godot $version (environ 70 Mo)..."
-    Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+    # curl.exe (fourni avec Windows 10 et 11) affiche une barre de progression ; sinon repli silencieux
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        & curl.exe -L --fail --progress-bar -o $zip $url
+        if ($LASTEXITCODE -ne 0) { Write-Host "Le téléchargement a échoué." -ForegroundColor Red; exit 1 }
+    } else {
+        Write-Host "(pas de barre de progression sur cette machine : patienter, la fenêtre ne bouge pas pendant le téléchargement)"
+        Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+    }
     Write-Host "Décompression..."
     Expand-Archive -Path $zip -DestinationPath $dossier -Force
     Remove-Item $zip
