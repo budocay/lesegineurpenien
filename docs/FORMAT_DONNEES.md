@@ -632,6 +632,15 @@ les quatre premiers combattent et les autres sont en réserve.
 - `steps` : les étapes affichées, cochées quand leur `done` est vrai. Le journal s'arrête
   à la première étape non faite.
 - `reward` : `money`, `xp` (donnée à chaque membre de l'équipe), `items`.
+- `target` (facultatif, par étape) : où se trouve l'objectif. Sert au **repère de quête** : une
+  marque dorée flotte au-dessus de la cible quand on est dans sa carte ; dans une autre carte,
+  le rappel de quête ajoute « vers l'est : Brie » (le trajet est calculé d'après les passages des
+  cartes). Une cible est `{"map": "bittebourg", "npc": "pepin"}` (un personnage),
+  `{"map": "...", "dialogue": "potager"}` (un objet, une maison ou un déclencheur qui porte ce
+  dialogue), `{"map": "...", "pos": [x, z]}` (un point) ou `{"map": "..."}` (la carte seule, sans
+  marque). Une liste de cibles est permise (le repère montre toutes celles de la carte). Le test
+  vérifie que la carte, le personnage ou le dialogue existent. Le joueur peut couper le repère :
+  Paramètres, « Repère de quête » (réglage `repere`).
 
 ## Boutiques — `data/shops.json`
 
@@ -1118,7 +1127,7 @@ rangent dans « Aide » du menu de pause. Le moteur est `src/core/tutorial.gd` (
 | `when` | condition facultative, termes liés par `&` : `turn>=N`, `elan`, `shield`, `ally_down`, `boss`, ou une condition de `GameState.check` |
 | `who` | personnage qui explique (identifiant ou liste ; le premier présent dans l'équipe parle) |
 | `title`, `text` | titre court (40 signes) et texte (320 signes au plus) ; `{interact}` etc. sont remplacés par la touche |
-| `keys` | `[[action, verbe], ...]` : pictogrammes affichés (`move`, `interact`, `cancel`, `menu`, `elan`, `choose` ou toute action de `InputMap`) ; clavier ou manette selon la dernière entrée |
+| `keys` | `[[action, verbe], ...]` : pictogrammes affichés (`move`, `interact`, `cancel`, `menu`, `journal`, `elan`, `choose` ou toute action de `InputMap`) ; clavier ou manette selon la dernière entrée |
 
 Règles : un conseil ne s'affiche qu'une fois par partie ; une sauvegarde sans clé `tutorials`
 (ancienne) les compte tous comme vus ; l'option `conseils` (Paramètres, « Conseils de jeu »)
@@ -1128,4 +1137,6 @@ conseils dans les tests sauf `Tutorial.force_on`.
 
 Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale active et son
 étape (premier `steps[].done` non rempli de `data/quests.json`), annonce « Nouvelle quête »,
-« Quête mise à jour », « Quête terminée ».
+« Quête mise à jour », « Quête terminée » (l'encart glisse depuis la gauche et s'allume d'un éclat
+doré). La touche `journal` (J au clavier, Y à la manette) ouvre le journal de quêtes directement ;
+elle est rappelée par le rappel et par le conseil « journal ».

@@ -14,6 +14,7 @@ func _ready() -> void:
 	_action("interact", [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE], [KEY_E], [JOY_BUTTON_A])
 	_action("cancel", [KEY_BACKSPACE], [KEY_X], [JOY_BUTTON_B])
 	_action("menu", [KEY_ESCAPE, KEY_TAB, KEY_M], [], [JOY_BUTTON_START])
+	_action("journal", [KEY_J], [], [JOY_BUTTON_Y])   # ouvre le journal de quêtes d'un geste
 	_action("fullscreen", [KEY_F11, KEY_F], [], [])
 	# Navigation dans les menus : on complète les actions intégrées de Godot.
 	_extend_physical("ui_up", KEY_W)

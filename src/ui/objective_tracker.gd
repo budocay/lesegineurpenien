@@ -8,6 +8,8 @@ extends Control
 
 const UI = preload("res://src/ui/ui_kit.gd")
 const TipPanel = preload("res://src/ui/tutorial_panel.gd")
+const QuestTarget = preload("res://src/core/quest_target.gd")
+const QuestMarker = preload("res://src/ui/quest_marker.gd")
 
 const POLL := 0.2
 const FLASH_SECONDS := 4.0
@@ -15,12 +17,20 @@ const WIDTH := 480.0
 
 var tracked := ""                  # quête affichée
 var step_text := ""                # étape affichée
+var step_no := 0                   # indice de l'étape affichée
+var hint_text := ""                # « vers l'est : Brie » quand la cible de l'étape est dans une autre carte
 var flash_text := ""               # « Nouvelle quête »... tant que l'animation dure
 
 var _panel: PanelContainer
 var _kicker: Label
 var _name: Label
 var _line: Label
+var _hint: Label
+var _marker: Control
+var _style: StyleBoxFlat
+var _slide := 0.0                  # décalage d'entrée (px) pendant l'annonce
+var _glow := 0.0                   # éclat doré de l'annonce (1 -> 0)
+var _anim: Tween
 var _keys: HBoxContainer
 var _poll := 0.0
 var _flash := 0.0
@@ -39,6 +49,7 @@ func _ready() -> void:
 	st.content_margin_right = 16
 	st.content_margin_top = 6
 	st.content_margin_bottom = 8
+	_style = st
 	_panel.add_theme_stylebox_override("panel", st)
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.custom_minimum_size = Vector2(WIDTH, 0)
@@ -70,6 +81,12 @@ func _ready() -> void:
 	_line.custom_minimum_size = Vector2(WIDTH - 30.0, 0)
 	_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(_line)
+	_hint = UI.label("", 15, UI.GOLD_DIM, false, true)
+	_hint.visible = false
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(_hint)
+	_marker = QuestMarker.new()
+	add_child(_marker)
 
 
 # ------------------------------------------------------------------ quêtes
@@ -125,8 +142,13 @@ func update_now(silent: bool = false) -> void:
 		tracked = str(list[0]) if not list.is_empty() else ""
 	if tracked != "":
 		step_text = step_text_of(tracked)
+		step_no = step_index(tracked)
 	else:
 		step_text = ""
+		step_no = 0
+	_marker.set("quest", tracked if GameState.quest_state(tracked) == "active" else "")
+	_marker.set("step", step_no)
+	hint_text = _hint_for_step()
 
 
 func _on_started(id: String) -> void:
@@ -152,10 +174,15 @@ func _announce(text: String, id: String) -> void:
 	flash_text = text
 	_flash = FLASH_SECONDS
 	_log.append([text, id])
-	if _panel.visible:
-		UI.pop(_panel, 0.35)
-	if text != "Quête terminée":
-		Sfx.play("confirm")
+	# entrée de l'encart : il glisse depuis la gauche et s'allume d'un éclat doré qui retombe
+	if _anim != null and _anim.is_valid():
+		_anim.kill()
+	_slide = 48.0
+	_glow = 1.0
+	_anim = create_tween().set_parallel(true)
+	_anim.tween_property(self, "_slide", 0.0, 0.55).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_anim.tween_property(self, "_glow", 0.0, 1.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	Sfx.play("save" if text == "Quête terminée" else "confirm")
 
 
 # ------------------------------------------------------------------ affichage
@@ -187,29 +214,40 @@ func _process(delta: float) -> void:
 		_panel.visible = false
 		return
 	_panel.visible = true
-	_panel.modulate.a = 0.0 if banner_up else 1.0
+	var arrive := 1.0 - clampf(_slide / 48.0, 0.0, 1.0)
+	_panel.modulate = Color(1.0 + 0.45 * _glow, 1.0 + 0.35 * _glow, 1.0 + 0.1 * _glow, 0.0 if banner_up else arrive)
 	var q := Database.get_quest(tracked)
-	_kicker.text = flash_text if flash_text != "" else "Quête"
-	_kicker.add_theme_color_override("font_color", UI.GOLD if flash_text != "" else UI.GOLD_DIM)
+	var flashing := flash_text != ""
+	_kicker.text = flash_text if flashing else "Quête"
+	_kicker.add_theme_color_override("font_color", UI.GOLD if flashing else UI.GOLD_DIM)
+	_kicker.add_theme_font_size_override("font_size", 17 if flashing else 13)
+	_style.border_color = Color(UI.GOLD, 0.95) if flashing else UI.GOLD_LINE
+	_style.set_border_width_all(2 if flashing else 1)
+	_style.border_width_left = 4 if flashing else 1
+	_style.bg_color = Color(0.05, 0.045, 0.07, 0.86) if flashing else Color(0.03, 0.035, 0.08, 0.74)
 	var shown_name := "·  " + str(q.get("name", tracked))
 	var shown_line := step_text if GameState.quest_state(tracked) == "active" else "Terminée. Bien joué, dans l'ensemble."
 	if shown_name != _name.text or shown_line != _line.text:
 		_name.text = shown_name
 		_line.text = shown_line
 		_panel.reset_size()
+	if hint_text != _hint.text or _hint.visible != (hint_text != "" and bool(Settings.get_value("repere"))):
+		_hint.text = hint_text
+		_hint.visible = hint_text != "" and bool(Settings.get_value("repere"))
+		_panel.reset_size()
 	_fill_keys()
 	var y := 24.0
 	var soft: Variant = hud.get("_soft") if hud != null else null
 	if soft != null and (soft as Control).visible:
 		y += (soft as Control).size.y + 8.0
-	_panel.position = Vector2(28.0, y)
+	_panel.position = Vector2(28.0 - _slide, y)
 
 
 var _keys_shown := ""
 
 
 func _fill_keys() -> void:
-	var caps: Array = Tutorial.caps_for("menu")
+	var caps: Array = Tutorial.caps_for("journal")
 	var sig := ",".join(caps) + str(Tutorial.pad)
 	if sig == _keys_shown:
 		return
@@ -220,6 +258,25 @@ func _fill_keys() -> void:
 	for c: Control in TipPanel.caps_nodes([caps[0]], 12):
 		_keys.add_child(c)
 	_keys.add_child(UI.label("journal", 13, UI.INK_FAINT))
+
+
+## « vers l'est : Brie » : où aller quand la cible de l'étape est dans une autre carte (si les données
+## le disent). Calculé depuis la position du joueur et les passages de la carte (QuestTarget.route).
+func _hint_for_step() -> String:
+	if tracked == "" or GameState.quest_state(tracked) != "active":
+		return ""
+	var host: Variant = Tutorial.host
+	if host == null or not is_instance_valid(host) or (host as Node).get("world") == null:
+		return ""
+	var world: Node3D = (host as Node).get("world")
+	var player: Node3D = world.get("player")
+	if player == null:
+		return ""
+	for t: Dictionary in QuestTarget.targets_of_step(tracked, step_no):
+		var hint := QuestTarget.direction_hint(str(world.get("map_id")), Vector2(player.position.x, player.position.z), t)
+		if hint != "":
+			return hint
+	return ""
 
 
 ## Rectangle (à l'écran) du rappel, ou rien s'il est caché.

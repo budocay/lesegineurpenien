@@ -32,7 +32,7 @@ var _shop_who := ""            # personnage pour lequel la boutique compare l'é
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "", Vector2(1040, 520), 0.62)
+	var frame := UI.screen(self, "")
 	_panel = frame["panel"]
 	_title = frame["title"]
 	_money = frame["right"]
@@ -43,6 +43,7 @@ func _ready() -> void:
 	body.add_child(cols)
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(450, 430)
+	UI.style_scroll(scroll)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	cols.add_child(scroll)
@@ -53,6 +54,7 @@ func _ready() -> void:
 	cols.add_child(UI.vline())
 	_detail_scroll = ScrollContainer.new()
 	_detail_scroll.custom_minimum_size = Vector2(480, 430)
+	UI.style_scroll(_detail_scroll)
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(_detail_scroll)
@@ -105,7 +107,7 @@ func close(silent: bool = false) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or Engine.get_process_frames() == _opened_at:
 		return
-	if event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("menu"):
+	if event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("menu") or (event.is_action_pressed("journal") and _title.text == "Journal de quêtes"):
 		get_viewport().set_input_as_handled()
 		go_back()
 	elif _cycle and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
@@ -815,7 +817,7 @@ func _shop_buy(focus: int = 0) -> void:
 ## Détail d'un article : description, comparaison pour le personnage choisi (gauche / droite en change).
 func _shop_markup(item: String) -> String:
 	var owned := GameState.item_count(item)
-	var tail := "\n \nDans le sac : %d" % owned
+	var tail := "\nDans le sac : %d" % owned
 	if Database.item_kind(item) != "equipment":
 		return item_markup(item, tail)
 	var able := wearers(item)
@@ -823,7 +825,7 @@ func _shop_markup(item: String) -> String:
 		return item_markup(item, tail)
 	if not able.has(_shop_who):
 		_shop_who = str(able[0])
-	var extra := "\n" + compare_block(_shop_who, item) + tail
+	var extra := tail + "\n \n" + compare_block(_shop_who, item)
 	if able.size() > 1:
 		extra += "\n" + UI.tint("◄ ►  pour comparer avec un autre personnage", UI.INK_FAINT)
 	return item_markup(item, extra)

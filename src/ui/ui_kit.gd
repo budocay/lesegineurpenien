@@ -16,6 +16,16 @@ const GOOD := Color("#9fd69a")           # hausse d'une caractéristique
 const NIGHT := Color(0.035, 0.04, 0.085, 0.82)
 const SHADE := Color(0.015, 0.015, 0.04, 0.6)
 
+## Cadre commun de tous les écrans plein cadre : mêmes dimensions, même voile, mêmes marges.
+const SCREEN_SIZE := Vector2(1040, 590)
+const SHADE_ALPHA := 0.7
+const MARGIN := 26                        # marge intérieure d'un panneau d'écran
+const TITLE_SIZE := 34                    # titre d'écran
+const HEAD_SIZE := 27                     # titre d'un détail
+const BODY_SIZE := 19                     # texte courant des écrans
+const SMALL_SIZE := 16                    # notes, légendes, mentions discrètes
+const ROW_SIZE := 22                      # entrées de liste
+
 ## Rappels de touches : mêmes mots partout.
 const KEYS_MENU := [["Flèches", "choisir"], ["Entrée", "valider"], ["Échap", "retour"]]
 
@@ -329,7 +339,7 @@ static func plate(text: String, size: int = 22) -> PanelContainer:
 ## Squelette commun des écrans plein cadre (équipe, inventaire, talents, sauvegardes...) :
 ## voile, panneau fondu centré, titre + mention à droite, filet orné, corps, rappels de touches.
 ## Renvoie {"panel", "title", "right", "body", "foot"}.
-static func screen(root: Control, title: String, min_size: Vector2, shade_alpha: float = 0.6) -> Dictionary:
+static func screen(root: Control, title: String, min_size: Vector2 = SCREEN_SIZE, shade_alpha: float = SHADE_ALPHA) -> Dictionary:
 	var shade := ColorRect.new()
 	shade.color = Color(SHADE, shade_alpha)
 	full_rect(shade)
@@ -338,7 +348,7 @@ static func screen(root: Control, title: String, min_size: Vector2, shade_alpha:
 	full_rect(center)
 	root.add_child(center)
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", soft_style(0.95, 26))
+	panel.add_theme_stylebox_override("panel", soft_style(0.95, MARGIN))
 	panel.custom_minimum_size = min_size
 	center.add_child(panel)
 	var box := VBoxContainer.new()
@@ -346,11 +356,12 @@ static func screen(root: Control, title: String, min_size: Vector2, shade_alpha:
 	panel.add_child(box)
 	var header := HBoxContainer.new()
 	box.add_child(header)
-	var t := label(title, 34, GOLD)
+	var t := label(title, TITLE_SIZE, GOLD)
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(t)
-	var right := label("", 21, GOLD)
+	var right := label("", ROW_SIZE - 1, GOLD)
 	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	right.custom_minimum_size = Vector2(0, 30)   # même hauteur d'en-tête partout, mention ou non
 	header.add_child(right)
 	box.add_child(rule())
 	var body := VBoxContainer.new()
@@ -360,6 +371,24 @@ static func screen(root: Control, title: String, min_size: Vector2, shade_alpha:
 	var foot := HBoxContainer.new()
 	box.add_child(foot)
 	return {"panel": panel, "title": t, "right": right, "body": body, "foot": foot}
+
+
+## Barre de défilement fine et dorée, à la place de celle de Godot (grise et épaisse).
+static func style_scroll(sc: ScrollContainer) -> void:
+	var bar := sc.get_v_scroll_bar()
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color(1, 1, 1, 0.04)
+	track.set_corner_radius_all(2)
+	var grab := StyleBoxFlat.new()
+	grab.bg_color = Color(GOLD_DIM, 0.55)
+	grab.set_corner_radius_all(2)
+	var grab_hot := grab.duplicate() as StyleBoxFlat
+	grab_hot.bg_color = Color(GOLD, 0.8)
+	bar.custom_minimum_size.x = 5
+	bar.add_theme_stylebox_override("scroll", track)
+	bar.add_theme_stylebox_override("grabber", grab)
+	bar.add_theme_stylebox_override("grabber_highlight", grab_hot)
+	bar.add_theme_stylebox_override("grabber_pressed", grab_hot)
 
 
 ## Apparition courte d'un panneau : fondu et léger grossissement (centré sur lui-même).
