@@ -1,4 +1,4 @@
-# Glandoulf le Gris et l'Anneau pénien de Sauron : bible de l'histoire
+# Le Seigneur des Anneaux Péniens : bible de l'histoire
 
 ## Règle de ton
 

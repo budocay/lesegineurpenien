@@ -742,6 +742,13 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      au-dessus du niveau attendu (et Sam au niveau 14 dans ses duels, le temps du test) ;
      l'équilibre reste mesuré à part, sur des dizaines de combats au niveau prévu.
 
+124. **Le jeu s'appelle « Le Seigneur des Anneaux Péniens »** (titre de l'auteur ; « Glandoulf
+     le Gris » était un titre de travail). Écran-titre, nom de la fenêtre, `data/game.json`
+     et bible changés ; le dossier et les identifiants ne bougent pas. L'auteur demande que
+     le jeu joue de ce titre partout, en clair ou en sous-entendu, et reste drôle : noms de
+     créatures, de lieux, d'objets et de compétences à double sens, les personnages restant
+     sérieux (règle de ton inchangée : jamais de mot cru).
+
 ## Demandes de l'auteur (18 novembre 2026, soir)
 
 Faites : réserve sans expérience (116), quatre combattants (115), interface (114), cité

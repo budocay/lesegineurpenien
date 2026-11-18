@@ -1,4 +1,8 @@
-# Glandoulf le Gris — consignes pour Claude
+# Le Seigneur des Anneaux Péniens — consignes pour Claude
+
+Titre du jeu : « Le Seigneur des Anneaux Péniens » (décision 124 ; « Glandoulf le Gris » est
+le héros et l'ancien titre de travail, le dossier garde ce nom). Le jeu doit en jouer partout :
+sous-entendus, noms de créatures, de lieux et d'objets à double sens, sans jamais un mot cru.
 
 RPG parodique HD-2D sous Godot 4.7 (Forward+, macOS), construit session après session.
 L'auteur n'est pas développeur : il appuie sur F5, joue, et dit ce qu'il en pense.

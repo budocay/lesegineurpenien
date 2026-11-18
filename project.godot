@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Glandoulf le Gris"
-config/description="RPG parodique HD-2D : Glandoulf le Gris et l'Anneau pénien de Sauron."
+config/name="Le Seigneur des Anneaux Péniens"
+config/description="RPG parodique HD-2D : Le Seigneur des Anneaux Péniens."
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
