@@ -420,7 +420,7 @@ func _test_sprites() -> void:
 	for id: String in Database.characters:
 		var sheet := Sprites.character(id)
 		var img: Image = sheet["image"]
-		check(img.get_width() == 528 and img.get_height() == 288, "planche de %s : 528 x 288" % id)
+		check(img.get_width() == 968 and img.get_height() == 528, "planche de %s : 968 x 528" % id)
 		var fw: int = sheet["frame_w"]
 		var fh: int = sheet["frame_h"]
 		check((sheet["walk"] as Array).size() >= 4, "planche de %s : au moins quatre poses de marche" % id)
@@ -434,11 +434,11 @@ func _test_sprites() -> void:
 				seen[img.get_region(Rect2i(col * fw, row * fh, fw, fh)).get_data()] = true
 			check(seen.size() == 4, "planche de %s : quatre poses de marche distinctes, ligne %d" % [id, row])
 		var pimg: Image = Sprites.portrait(id).get_image()
-		check(pimg.get_width() == 48 and pimg.get_height() == 48, "portrait de %s : 48 x 48" % id)
+		check(pimg.get_width() == 64 and pimg.get_height() == 64, "portrait de %s : 64 x 64" % id)
 		for row in 4:
 			for col in int(sheet["columns"]):
 				var b := Sprites.PA.opaque_bounds(img, Rect2i(col * fw, row * fh, fw, fh))
-				check(b.size.y > 12 and b.size.y < fh and b.position.y > 0, "planche de %s : case %d,%d non vide et dans le cadre" % [id, col, row])
+				check(b.size.y > 20 and b.size.y < fh and b.position.y > 0, "planche de %s : case %d,%d non vide et dans le cadre" % [id, col, row])
 				check(b.position.x > 0 and b.end.x < fw, "planche de %s : case %d,%d ne touche pas les bords" % [id, col, row])
 		check(Sprites.portrait(id) != null, "portrait de %s" % id)
 	for kind: String in MonsterPainter.SIZES:
@@ -457,17 +457,17 @@ func _test_sprites() -> void:
 		for id: String in ["glandoulf", "sam", "pepin"]:
 			var img: Image = Sprites.character(id)["image"]
 			print("  %s : face, pas de côté, dos" % id)
-			_ascii(img, Rect2i(0, 0, 32, 48))
-			_ascii(img, Rect2i(32, 48, 32, 48))
-			_ascii(img, Rect2i(0, 144, 32, 48))
+			_ascii(img, Rect2i(28, 20, 32, 48))
+			_ascii(img, Rect2i(88 + 28, 132 + 20, 32, 48))
+			_ascii(img, Rect2i(28, 396 + 20, 32, 48))
 		for kind: String in MonsterPainter.SIZES:
 			print("  monstre : ", kind)
 			var size: Vector2i = MonsterPainter.SIZES[kind]
 			_ascii(Sprites.monster(kind)["image"], Rect2i(0, 0, size.x, size.y))
 		for id: String in ["isidur", "sauron"]:
 			print("  %s : face, côté" % id)
-			_ascii(Sprites.character(id)["image"], Rect2i(0, 0, 32, 48))
-			_ascii(Sprites.character(id)["image"], Rect2i(0, 48, 32, 48))
+			_ascii(Sprites.character(id)["image"], Rect2i(28, 20, 32, 48))
+			_ascii(Sprites.character(id)["image"], Rect2i(28, 152, 32, 48))
 		print("  bitte d'amarrage / arbre")
 		_ascii(Sprites.prop("bollard", 0).get_image(), Rect2i(0, 0, 22, 30))
 		_ascii(Sprites.prop("tree", 0).get_image(), Rect2i(0, 0, 72, 100))
@@ -2295,27 +2295,48 @@ func _test_relief() -> void:
 
 func _test_character_art() -> void:
 	var CP: GDScript = load("res://src/gfx/character_painter.gd")
-	check(CP.FRAME_W == 48 and CP.FRAME_H == 72, "cases de personnages : 48 x 72")
+	check(CP.FRAME_W == 88 and CP.FRAME_H == 132, "cases de personnages : 88 x 132")
+	var door_h := 2.6   # hauteur d'une porte de maison, en unités monde
 	for id: String in Database.characters:
 		var sheet := Sprites.character(id)
 		var img: Image = sheet["image"]
-		check(img.get_width() == 48 * 11 and img.get_height() == 72 * 4, "planche de %s : 11 x 4 cases de 48 x 72" % id)
+		check(img.get_width() == 88 * 11 and img.get_height() == 132 * 4, "planche de %s : 11 x 4 cases de 88 x 132" % id)
 		check(float(sheet["ppu"]) == CP.PPU, "planche de %s : échelle peinte" % id)
-		# le dessin occupe la hauteur attendue (nettement plus grand qu'avant : 32 x 48)
-		var b := Sprites.PA.opaque_bounds(img, Rect2i(0, 0, 48, 72))
-		check(b.size.y >= 34, "planche de %s : sprite haut d'au moins 34 pixels" % id)
-		# le contour n'est pas un noir uniforme : au moins trois teintes de contour différentes
+		# le dessin occupe la hauteur attendue (nettement plus grand qu'avant : 64 pixels)
+		var b := Sprites.PA.opaque_bounds(img, Rect2i(0, 0, 88, 132))
+		check(b.size.y >= 62, "planche de %s : sprite haut d'au moins 62 pixels" % id)
+		var shown: float = float(b.size.y) / float(CP.PPU)
+		check(shown > 1.3 and shown < door_h * 1.25, "planche de %s : taille affichée %.2f entre une taille de Grobitte et une porte" % [id, shown])
+		# nombre de tons : au moins 24 couleurs distinctes dans la pose de repos
 		var seen := {}
-		for y in 72:
-			for x in 48:
+		var dark := {}
+		for y in 132:
+			for x in 88:
 				var c := img.get_pixel(x, y)
-				if c.a > 0.5 and c.get_luminance() < 0.12:
+				if c.a > 0.5:
 					seen[c.to_html()] = true
-		check(seen.size() >= 3, "planche de %s : contour coloré" % id)
+					if c.get_luminance() < 0.12:
+						dark[c.to_html()] = true
+		check(seen.size() >= 24, "planche de %s : au moins 24 tons (%d)" % [id, seen.size()])
+		check(dark.size() >= 3, "planche de %s : contour coloré" % id)
+		# aucune couleur magenta
+		var magenta := false
+		for y in 132:
+			for x in 88:
+				var c2 := img.get_pixel(x, y)
+				if c2.a > 0.5 and c2.r > 0.95 and c2.b > 0.95 and c2.g < 0.1:
+					magenta = true
+		check(not magenta, "planche de %s : pas de magenta" % id)
+		# les poses de combat diffèrent entre elles et du repos
+		var poses := {}
+		for col in [0, 7, 8, 9, 10]:
+			poses[img.get_region(Rect2i(col * 88, 0, 88, 132)).get_data()] = true
+		check(poses.size() == 5, "planche de %s : repos, attaque, sort, coup reçu et KO distincts" % id)
 		# la ligne « droite » est peinte avec la lumière inversée, pas copiée du miroir
-		var left := img.get_region(Rect2i(0, 72, 48, 72))
+		var left := img.get_region(Rect2i(0, 132, 88, 132))
 		left.flip_x()
-		check(left.get_data() != img.get_region(Rect2i(0, 144, 48, 72)).get_data(), "planche de %s : ligne droite éclairée à part" % id)
+		check(left.get_data() != img.get_region(Rect2i(0, 264, 88, 132)).get_data(), "planche de %s : ligne droite éclairée à part" % id)
+		check(Sprites.portrait(id).get_width() == 64, "portrait de %s : 64 pixels" % id)
 
 
 ## Décors, façades et arènes : paroi irrégulière, éléments connus, rien de magenta.
