@@ -751,6 +751,24 @@ Restent :
 
 - **Sol des arènes et chevauchements en combat.** L'auteur trouve que le sol fait « terre »
   et voit des éléments qui se gênent : passe en cours.
+- **Petits détails d'interface de combat façon Octopath** (demande de l'auteur) : bouclier
+  chiffré et faiblesses en icônes sous chaque ennemi, moment « Brisé », icônes des commandes
+  et des éléments, vrais portraits dans la frise, main qui pointe, entrée de combat.
+- **Points d'élan** (accord de l'auteur) : un point gagné par tour, à dépenser pour frapper
+  plusieurs fois ou renforcer un sort, pastilles sous chaque héros. Oblige à régler de
+  nouveau tous les combats ; à faire après la fusion de l'équipement (même moteur).
+- **Une ambiance de combat par lieu** (demande de l'auteur). Aujourd'hui cinq arènes
+  seulement (pré, bois, marais, place, Grand Four) servent aux 26 rencontres : la cave de
+  Brie, le col des Biscottes, Fondue-Combe et les archives se battent sur « place » ou
+  « pré ». Il faut une arène par type de lieu (taverne, cave, ruelle de nuit, col enneigé,
+  cité elfique, archives, puis mines, plaine, marais des morts, Mordgras), avec son sol, son
+  fond, sa lumière, ses particules et sa musique, choisie par la carte où l'on se trouve.
+- **Bestiaire fidèle au récit d'origine, par région et par moment de l'histoire** (demande
+  de l'auteur) : orques, grands orques d'élite, gobelins des mines, loups montés, trolls,
+  le démon des profondeurs, l'araignée géante, les spectres, etc., chacun à l'endroit où
+  le récit le place, et toujours avec un nom drôle dans le ton du jeu (les orques sont déjà
+  les Morfales, les spectres de l'anneau les Nazes). Noms à inventer et à noter dans la
+  bible, section « Ajouts », avant chaque chapitre.
 - **Écran de paramètres** : plein écran, niveau de détail, échelle de rendu, mise à l'échelle
   (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier), volumes. Réglages
   gardés d'une session à l'autre.
