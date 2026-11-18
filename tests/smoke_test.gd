@@ -96,6 +96,7 @@ func _ready() -> void:
 	_test_names_and_merri()
 	await _test_tutorials()
 	await _test_interface()
+	await _test_interface_input()
 	_test_retouches()
 	await _test_active_party()
 	await _test_arenas()
@@ -3145,6 +3146,193 @@ func _ui_focus_in(root: Control, what: String) -> void:
 	check(owner != null and root.is_ancestor_of(owner), "interface : %s a un focus visible" % what)
 
 
+## Touche pressée puis relâchée, par clavier (kb) ou par manette : passe par la file d'entrées du jeu.
+func _tap(kb: bool, action: String) -> void:
+	var keys := {"down": KEY_DOWN, "up": KEY_UP, "ok": KEY_ENTER, "back": KEY_BACKSPACE, "menu": KEY_ESCAPE, "left": KEY_LEFT, "right": KEY_RIGHT}
+	var pads := {"down": JOY_BUTTON_DPAD_DOWN, "up": JOY_BUTTON_DPAD_UP, "ok": JOY_BUTTON_A, "back": JOY_BUTTON_B, "menu": JOY_BUTTON_START, "left": JOY_BUTTON_DPAD_LEFT, "right": JOY_BUTTON_DPAD_RIGHT}
+	for down in [true, false]:
+		var ev: InputEvent
+		if kb:
+			var k := InputEventKey.new()
+			k.keycode = keys[action] as Key
+			k.physical_keycode = keys[action] as Key
+			k.pressed = down
+			ev = k
+		else:
+			var j := InputEventJoypadButton.new()
+			j.button_index = pads[action] as JoyButton
+			j.pressed = down
+			ev = j
+		get_viewport().push_input(ev)
+		await get_tree().process_frame
+
+
+func _hint_texts(node: Node) -> String:
+	var out := ""
+	if node is Label:
+		out += (node as Label).text + "|"
+	for c in node.get_children():
+		out += _hint_texts(c)
+	return out
+
+
+func _test_interface_input() -> void:
+	print("== Interface : clavier seul, manette seule, rappels de touches ==")
+	GameState.new_game()
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var pad_before := Controls.pad
+	for tip_id: String in ["boutique", "elan", "faiblesse"]:
+		Tutorial.mark_seen(tip_id)   # l'aide a de quoi se parcourir
+	GameState.add_to_party("sam")
+	GameState.add_item("tisane")
+	GameState.add_item("baton_ferre")
+	GameState.set_flag("cales_recues")
+	GameState.set_flag("intro_vue")   # le journal a une quête à montrer
+	check(SaveManager.save_game("m1") and SaveManager.save_game("m2"), "interface : deux sauvegardes d'essai pour l'écran de chargement")
+
+	# les rappels de touches suivent le dernier périphérique utilisé
+	Controls.set_pad(false)
+	var UIKit = preload("res://src/ui/ui_kit.gd")
+	var row: Control = UIKit.hints(UIKit.KEYS_MENU)
+	layer.add_child(row)
+	await get_tree().process_frame
+	check(_hint_texts(row).contains("Entrée") and not _hint_texts(row).contains("valider|valider"), "rappels : au clavier, les touches du clavier (%s)" % _hint_texts(row))
+	Controls.set_pad(true)
+	await get_tree().process_frame
+	check(not _hint_texts(row).contains("Entrée") and _hint_texts(row).contains("valider"), "rappels : à la manette, plus de nom de touche du clavier (%s)" % _hint_texts(row))
+	check(UIKit.key_text("ok") != "Entrée" and UIKit.key_text("menu") != "Échap", "rappels : les phrases parlent du bouton de la manette (%s)" % UIKit.key_text("ok"))
+	Controls.set_pad(false)
+	check(UIKit.key_text("ok") == "Entrée", "rappels : retour au clavier, retour à « Entrée »")
+	var swapped := InputEventJoypadButton.new()
+	swapped.button_index = JOY_BUTTON_A
+	swapped.pressed = true
+	get_viewport().push_input(swapped)
+	await get_tree().process_frame
+	check(Controls.pad, "rappels : un bouton de manette bascule les rappels sur la manette")
+	var tapped := InputEventKey.new()
+	tapped.keycode = KEY_DOWN
+	tapped.pressed = true
+	get_viewport().push_input(tapped)
+	await get_tree().process_frame
+	check(not Controls.pad, "rappels : une touche du clavier les rebascule")
+	row.queue_free()
+
+	# chaque écran se parcourt et se quitte avec un seul périphérique : aucune impasse
+	for kb in [true, false]:
+		var who := "clavier" if kb else "manette"
+		Controls.set_pad(not kb)
+		var screens := {}
+		var pause: Control = PauseMenu.new()
+		layer.add_child(pause)
+		var settings: Control = preload("res://src/ui/settings_screen.gd").new()
+		layer.add_child(settings)
+		var help: Control = preload("res://src/ui/help_screen.gd").new()
+		layer.add_child(help)
+		var saves: Control = preload("res://src/ui/save_screen.gd").new()
+		layer.add_child(saves)
+		var menu: Control = GameMenu.new()
+		layer.add_child(menu)
+		await get_tree().process_frame
+		var openers := {
+			"pause": func() -> void: pause.open("Test"),
+			"paramètres": func() -> void: settings.open("test"),
+			"aide": func() -> void: help.open(),
+			"sauvegardes": func() -> void: saves.open("load", "test"),
+			"inventaire": func() -> void: menu.open("inventory"),
+			"équipe": func() -> void: menu.open("team"),
+			"journal": func() -> void: menu.open("quests"),
+		}
+		var nodes := {"pause": pause, "paramètres": settings, "aide": help, "sauvegardes": saves, "inventaire": menu, "équipe": menu, "journal": menu}
+		for name: String in openers:
+			var node: Control = nodes[name]
+			(openers[name] as Callable).call()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var first: Control = node.get_viewport().gui_get_focus_owner()
+			check(node.visible and first != null and node.is_ancestor_of(first), "%s, %s : ouvert, le curseur est quelque part (%s)" % [name, who, str(first)])
+			var seen := {first: true}
+			for _i in 8:
+				await _tap(kb, "down")
+				var f: Control = node.get_viewport().gui_get_focus_owner()
+				check(f != null, "%s, %s : le curseur ne disparaît jamais en descendant" % [name, who])
+				if f != null:
+					seen[f] = true
+			for _i in 3:
+				await _tap(kb, "up")
+				var g: Control = node.get_viewport().gui_get_focus_owner()
+				check(g != null, "%s, %s : le curseur ne disparaît jamais en montant" % [name, who])
+				if g != null:
+					seen[g] = true
+			check(seen.size() >= 2 or name == "aide", "%s, %s : les touches fléchées déplacent le curseur (%d lignes visitées)" % [name, who, seen.size()])
+			await _tap(kb, "back")
+			await get_tree().process_frame
+			check(not node.visible, "%s, %s : retour ferme l'écran (pas d'impasse)" % [name, who])
+		pause.queue_free()
+		settings.queue_free()
+		help.queue_free()
+		saves.queue_free()
+		menu.queue_free()
+		await get_tree().process_frame
+	Controls.set_pad(pad_before)
+	SaveManager.delete_slot("m1")
+	SaveManager.delete_slot("m2")
+	Tutorial.reset_seen()
+
+	# une ligne de sauvegarde : récente (avec équipe), très ancienne (sans rien), jamais d'erreur
+	var SaveScreenS = preload("res://src/ui/save_screen.gd")
+	var ss: Control = SaveScreenS.new()
+	layer.add_child(ss)
+	await get_tree().process_frame
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	GameState.map_id = "auberge"
+	var keep_slot := SaveManager.current_slot
+	check(SaveManager.save_game("m1"), "sauvegardes : écriture d'essai pour les lignes")
+	var fresh: Dictionary = (SaveManager.list_slots(false)[0] as Dictionary).duplicate()
+	var old: Dictionary = fresh.duplicate()
+	old.erase("party")   # une très ancienne sauvegarde ne portait pas l'équipe
+	old["id"] = "m2"
+	var empty: Dictionary = (SaveManager.list_slots(false)[3] as Dictionary).duplicate()
+	empty["empty"] = true
+	var r1: Button = ss._make_row(fresh)
+	var r2: Button = ss._make_row(old)
+	var r3: Button = ss._make_row(empty)
+	layer.add_child(r1)
+	layer.add_child(r2)
+	layer.add_child(r3)
+	await get_tree().process_frame
+	check(r1 != null and r2 != null and r3 != null, "sauvegardes : une ligne récente, une ancienne sans équipe et une vide se construisent")
+	check(_hint_texts(r1).contains("niv.") and _hint_texts(r1).contains("Au Bon Mouillage"), "sauvegardes : la ligne récente donne niveau et lieu (%s)" % _hint_texts(r1))
+	check(_hint_texts(r2).contains("Au Bon Mouillage"), "sauvegardes : la ligne d'une ancienne sauvegarde s'affiche sans équipe")
+	var faces1 := 0
+	for c in _all_nodes(r1):
+		if c is TextureRect:
+			faces1 += 1
+	var faces2 := 0
+	for c in _all_nodes(r2):
+		if c is TextureRect:
+			faces2 += 1
+	check(faces1 >= 2 and faces2 == 0, "sauvegardes : des vignettes pour une partie récente (%d), aucune pour une ancienne (%d)" % [faces1, faces2])
+	SaveManager.delete_slot("m1")
+	SaveManager.current_slot = keep_slot
+	check(r1.size.y >= SaveScreenS.ROW_H - 1, "sauvegardes : la ligne est assez haute pour les vignettes")
+	r1.queue_free()
+	r2.queue_free()
+	r3.queue_free()
+	ss.queue_free()
+	var described := SaveManager.describe(GameState.to_dict())
+	check(described.has("party") and (described["party"] as Array).size() <= GameState.MAX_ACTIVE, "sauvegardes : la description donne au plus %d visages" % GameState.MAX_ACTIVE)
+	layer.queue_free()
+
+
+func _all_nodes(n: Node) -> Array:
+	var out: Array = [n]
+	for c in n.get_children():
+		out.append_array(_all_nodes(c))
+	return out
+
+
 func _test_interface() -> void:
 	print("== Interface : chaque écran se construit, tient dans la fenêtre et rend le focus ==")
 	GameState.new_game()
@@ -5576,12 +5764,24 @@ func _test_tutorials() -> void:
 	scene.run()
 	var overlapped := false
 	var saw_modal := false
+	var placement_checked := false
 	for _i in 2400:
 		await get_tree().process_frame
 		if Tutorial._modal:
 			saw_modal = true
 			if ui._state == ui.S.ROOT:
 				overlapped = true
+			if not placement_checked and Tutorial._guard <= 0.0 and Tutorial.shown_log.back() == "combat_tours":
+				placement_checked = true
+				var tip_box: Rect2 = Tutorial.panel_rect()
+				var touched := 0
+				for key: String in ui._plates:
+					var root: Control = (ui._plates[key] as Dictionary)["root"]
+					if root.visible and tip_box.intersects(Rect2(root.position, root.size)):
+						touched += 1
+				var frieze: Rect2 = Tutorial.target_rect("frise")
+				check(touched == 0, "conseils : l'encart ne touche aucune plaque (%d touchées)" % touched)
+				check(frieze.size == Vector2.ZERO or not tip_box.intersects(frieze), "conseils : l'encart des tours ne couvre pas la frise qu'il désigne")
 			if Tutorial._guard <= 0.0 and Tutorial.shown_log.back() == "combat_tours":
 				Input.parse_input_event(press)
 		elif ui._state == ui.S.ROOT:

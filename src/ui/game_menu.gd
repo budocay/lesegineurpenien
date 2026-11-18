@@ -96,6 +96,8 @@ func _show() -> void:
 func close(silent: bool = false) -> void:
 	if not visible:
 		return
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	_entries = []
 	_back = Callable()

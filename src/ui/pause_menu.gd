@@ -102,6 +102,8 @@ func open(info: String) -> void:
 func close(silent: bool = false) -> void:
 	if not visible:
 		return
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	if not silent:
 		_remember = null
