@@ -31,6 +31,18 @@ const PROPS := {
 	"barrel": {"solid": 0.36},
 	"sign": {"solid": 0.25},
 	"rock": {"variants": 2, "solid": 0.4},
+	"boulder": {"variants": 2, "solid": 0.9},
+	"stump": {"variants": 2, "solid": 0.3},
+	"log": {"variants": 2},
+	"mushrooms": {"variants": 2},
+	"reeds": {"variants": 2, "sway": 0.03},
+	"haystack": {"solid": 0.7},
+	"fence": {"variants": 2},
+	"pillar": {"solid": 0.5},
+	"brazier": {"solid": 0.3, "glow": 0.45},
+	"anvil": {"solid": 0.35},
+	"forge": {"solid": 1.2, "glow": 0.3},
+	"deadtree": {"solid": 0.35},
 	"fern": {"variants": 3, "sway": 0.02},
 	"bollard": {"solid": 0.3},
 	"monument": {"solid": 1.1},
@@ -813,6 +825,16 @@ func _house(o: Dictionary) -> void:
 
 	if door_x >= 0.0:
 		var xd := x0 + door_x
+		if bool(o.get("awning", true)) and wh > 2.2:
+			# auvent de tuiles au-dessus de la porte, sur deux consoles de bois
+			var ast := MeshKit.begin()
+			MeshKit.quad(ast, Vector3(xd - 0.95, 1.98, z1), Vector3(xd + 0.95, 1.98, z1), Vector3(xd + 0.95, 1.66, z1 + 0.55), Vector3(xd - 0.95, 1.66, z1 + 0.55), Vector2.ZERO, Vector2(0.95, 0.35))
+			var awn := MeshKit.finish(ast, MeshKit.pixel_material(Sprites.tile_texture("roof_" + roof)))
+			house.add_child(awn)
+			var awn_parts: Array = [awn, _mesh_box(Vector3(xd, 1.62, z1 + 0.55), Vector3(1.9, 0.07, 0.07), MeshKit.flat_material(Color("#3c281c")), false)]
+			for sx: float in [-0.85, 0.85]:
+				awn_parts.append(_mesh_box(Vector3(xd + sx, 1.78, z1 + 0.3), Vector3(0.07, 0.07, 0.5), MeshKit.flat_material(Color("#3c281c")), false))
+			(world.occluders.back()["nodes"] as Array).append_array(awn_parts)
 		_mesh_box(Vector3(xd, wh - 0.5, z1 + 0.1), Vector3(0.2, 0.26, 0.16), MeshKit.flat_material(Color("#ffd28a"), 4.0), false)
 		_mesh_box(Vector3(xd, wh - 0.34, z1 + 0.1), Vector3(0.28, 0.06, 0.24), MeshKit.flat_material(Color("#2f2c38")), false)
 		_add_light(Vector3(xd, wh - 0.6, z1 + 0.55), WARM, 1.6, 4.6, true, 0.08)
