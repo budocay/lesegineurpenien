@@ -9,6 +9,7 @@ const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Npc = preload("res://src/world/npc.gd")
 const ElvenBuilder = preload("res://src/world/elven_builder.gd")
 const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
+const HouseBuilder = preload("res://src/world/house_builder.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -707,7 +708,7 @@ func _object(o: Dictionary) -> void:
 			if ElvenBuilder.style_of(self, o) == "elfe":
 				ElvenBuilder.house(self, o)
 			else:
-				_house(o)
+				HouseBuilder.house(self, o)
 		"lantern": _lantern(o)
 		"fence": _fence(o)
 		"npc": _npc(o)
