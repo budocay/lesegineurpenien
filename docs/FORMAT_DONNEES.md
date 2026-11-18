@@ -255,10 +255,9 @@ les quatre premiers combattent et les autres sont en réserve.
   aléatoires comptent aussi les actifs pour `min_party` / `max_party`. Les combats
   scénarisés qui imposent leur équipe (`party` d'une rencontre, comme Sam seul au bras de
   fer) ne lisent pas l'équipe du joueur et ne changent rien.
-- Après une victoire, les actifs gagnent l'expérience en entier et la réserve en gagne
-  `GameState.RESERVE_XP` (les trois quarts, arrondis au-dessus) ; un réserviste qui
-  change de niveau apparaît dans l'annonce de la victoire. L'expérience des quêtes, elle,
-  va à tous.
+- Après une victoire, seuls les combattants gagnent l'expérience : la réserve ne gagne
+  rien (`GameState.RESERVE_XP` vaut 0, règle de l'auteur). L'expérience des quêtes, elle,
+  va à tous, et une recrue arrive au niveau du groupe (`catch_up`).
 - Écran Équipe (Échap, Équipe) : combattants puis réservistes (grisés, « réserve »). La
   fiche d'un personnage propose « Passer en réserve » ou « Entrer dans l'équipe » :
   on choisit alors avec qui il échange sa place (`GameState.swap_members`). Le meneur

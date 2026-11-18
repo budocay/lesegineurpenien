@@ -698,6 +698,10 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      et précise qu'il tient ses fourneaux. `repriste.txt` porte la nouvelle liste de noms.
 ## Demandes de l'auteur à faire (18 novembre 2026, soir)
 
+- **La réserve ne gagne pas l'expérience des combats** (règle de l'auteur, fait :
+  `GameState.RESERVE_XP` à 0). L'expérience des quêtes va à tous. Conséquence à surveiller :
+  un réserviste laissé longtemps de côté décroche ; les combats se règlent sur quatre
+  personnages au niveau attendu, pas sur toute la troupe.
 - **Quatre combattants au plus.** Une équipe ne dépasse jamais quatre personnages en
   combat (« sinon c'est trop craqué »). Les autres sont en réserve. À faire avec le
   chapitre 3 (équipe active choisie dans l'écran Équipe, réserve qui gagne l'expérience) ;

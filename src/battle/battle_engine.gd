@@ -672,8 +672,10 @@ func commit() -> Dictionary:
 		var up := GameState.grant_xp(c.source, int(out["xp"]))
 		if not up.is_empty():
 			(out["levelups"] as Array).append(up)
-	# la réserve ne se bat pas mais apprend en regardant : une part réduite de l'expérience
+	# la réserve ne se bat pas : elle ne gagne rien tant que RESERVE_XP vaut zéro
 	for id: Variant in GameState.reserve_party():
+		if GameState.RESERVE_XP <= 0.0:
+			break
 		var up_r := GameState.grant_xp(str(id), int(ceil(float(out["xp"]) * GameState.RESERVE_XP)))
 		if not up_r.is_empty():
 			(out["levelups"] as Array).append(up_r)

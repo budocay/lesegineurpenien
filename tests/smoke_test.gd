@@ -3111,9 +3111,8 @@ func _test_active_party() -> void:
 	var gained := int(loot["xp"])
 	check(gained > 0, "le combat rapporte de l'expérience (%d)" % gained)
 	check(int(GameState.member("merri")["xp"]) == gained and int(GameState.member("pepin")["xp"]) == gained, "les actifs gagnent toute l'expérience (%d)" % int(GameState.member("merri")["xp"]))
-	var share := int(ceil(float(gained) * GameState.RESERVE_XP))
-	check(int(GameState.member("aragrogne")["xp"]) == share and int(GameState.member("sam")["xp"]) == share and share < gained, "la réserve gagne les trois quarts (%d sur %d)" % [share, gained])
-	# la réserve peut changer de niveau, et le dit
+	check(int(GameState.member("aragrogne")["xp"]) == 0 and int(GameState.member("sam")["xp"]) == 0, "la réserve ne gagne pas l'expérience du combat")
+	# un réserviste au bord du niveau suivant n'y passe pas, et la victoire ne le cite pas
 	GameState.member("sam")["xp"] = Rules.xp_to_next(9) - 1
 	var fight2 := _fight({"enemies": ["limace_molle"], "arena": "pre"}, 6)
 	var loot2: Dictionary = fight2.commit()
@@ -3121,7 +3120,7 @@ func _test_active_party() -> void:
 	for up: Dictionary in loot2["levelups"]:
 		if str(up.get("id", "")) == "sam":
 			named = true
-	check(int(GameState.member("sam")["level"]) == 10 and named, "un réserviste monte de niveau en regardant, et la victoire le signale")
+	check(int(GameState.member("sam")["level"]) == 9 and not named, "un réserviste ne monte pas de niveau sans se battre")
 	# une autre composition de quatre tient aussi contre les Nazes (le choix du joueur compte)
 	for alt: Array in [["glandoulf", "sam", "aragrogne", "merri"], ["glandoulf", "pepin", "aragrogne", "froton"]]:
 		var rate := _c2_rate(alt, 9, _soft("nazes_nuit", 0.3), 0)

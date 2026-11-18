@@ -254,7 +254,7 @@ static func _member_detail(id: String) -> String:
 	var lines: Array = [str(ch.get("full_name", ch.get("name", id)))]
 	lines.append("%s   ·   Niveau %d   ·   XP %d / %d" % [str(ch.get("role", "")).capitalize(), int(m["level"]), int(m["xp"]), Rules.xp_to_next(int(m["level"]))])
 	if GameState.is_reserve(id):
-		lines.append("En réserve : ne se bat pas, mais gagne %d %% de l'expérience." % int(GameState.RESERVE_XP * 100.0))
+		lines.append("En réserve : ne se bat pas et ne gagne pas l'expérience des combats.")
 	lines.append("PV %d/%d      PM %d/%d" % [int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])])
 	var spec := GameState.specialization_name(id)
 	var points := GameState.talent_points(id)

@@ -15,7 +15,7 @@ const SLOT_NAMES := {"weapon": "Arme", "armor": "Tenue", "trinket": "Babiole"}
 const STAT_NAMES := {"hp": "PV", "mp": "PM", "atk": "Attaque", "def": "Défense", "mag": "Magie", "res": "Résistance", "spd": "Vitesse"}
 const MONEY_NAME := "écus"
 const MAX_ACTIVE := 4            # une équipe ne se bat jamais à plus de quatre
-const RESERVE_XP := 0.75         # part d'expérience que gagne un personnage en réserve
+const RESERVE_XP := 0.0          # part d'expérience de combat d'un réserviste : aucune (règle de l'auteur)
 
 var chapter: String = "chapitre_1"
 var flags: Dictionary = {}
