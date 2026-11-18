@@ -309,6 +309,8 @@ func _process(delta: float) -> void:
 	_fade_occluders(delta)
 	if player == null:
 		return
+	# les décors placés devant le héros s'ajourent autour de lui (voir sprite.gdshader)
+	RenderingServer.global_shader_parameter_set("focus_world", player.global_position + Vector3(0.0, 0.75, 0.0))
 	_update_focus()
 	if input_enabled:
 		_check_warps()

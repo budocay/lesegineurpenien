@@ -295,7 +295,7 @@ func start_battle(encounter: Dictionary) -> String:
 		remove_child(field)
 	var outcome := "retry"
 	while outcome == "retry":
-		Music.play(Music.for_encounter(encounter), 0.4)
+		RenderingServer.global_shader_parameter_set("focus_world", Vector3(0.0, 0.0, 100000.0)); Music.play(Music.for_encounter(encounter), 0.4)
 		battle = BattleScene.new()
 		battle.name = "Battle"
 		add_child(battle)

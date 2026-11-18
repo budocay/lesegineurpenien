@@ -52,6 +52,7 @@ func _ready() -> void:
 	_test_music()
 	_test_rendering()
 	_test_relief()
+	_test_character_art()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -382,7 +383,7 @@ func _test_sprites() -> void:
 	for id: String in Database.characters:
 		var sheet := Sprites.character(id)
 		var img: Image = sheet["image"]
-		check(img.get_width() == 352 and img.get_height() == 192, "planche de %s : 352 x 192" % id)
+		check(img.get_width() == 528 and img.get_height() == 288, "planche de %s : 528 x 288" % id)
 		var fw: int = sheet["frame_w"]
 		var fh: int = sheet["frame_h"]
 		check((sheet["walk"] as Array).size() >= 4, "planche de %s : au moins quatre poses de marche" % id)
@@ -2228,3 +2229,28 @@ func _test_relief() -> void:
 	check(not w2.has_relief and w2.ground_y(5.0, 5.0) == 0.0, "relief : une carte sans relief garde un sol à zéro")
 	remove_child(w2)
 	w2.queue_free()
+
+
+func _test_character_art() -> void:
+	var CP: GDScript = load("res://src/gfx/character_painter.gd")
+	check(CP.FRAME_W == 48 and CP.FRAME_H == 72, "cases de personnages : 48 x 72")
+	for id: String in Database.characters:
+		var sheet := Sprites.character(id)
+		var img: Image = sheet["image"]
+		check(img.get_width() == 48 * 11 and img.get_height() == 72 * 4, "planche de %s : 11 x 4 cases de 48 x 72" % id)
+		check(float(sheet["ppu"]) == CP.PPU, "planche de %s : échelle peinte" % id)
+		# le dessin occupe la hauteur attendue (nettement plus grand qu'avant : 32 x 48)
+		var b := Sprites.PA.opaque_bounds(img, Rect2i(0, 0, 48, 72))
+		check(b.size.y >= 34, "planche de %s : sprite haut d'au moins 34 pixels" % id)
+		# le contour n'est pas un noir uniforme : au moins trois teintes de contour différentes
+		var seen := {}
+		for y in 72:
+			for x in 48:
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5 and c.get_luminance() < 0.12:
+					seen[c.to_html()] = true
+		check(seen.size() >= 3, "planche de %s : contour coloré" % id)
+		# la ligne « droite » est peinte avec la lumière inversée, pas copiée du miroir
+		var left := img.get_region(Rect2i(0, 72, 48, 72))
+		left.flip_x()
+		check(left.get_data() != img.get_region(Rect2i(0, 144, 48, 72)).get_data(), "planche de %s : ligne droite éclairée à part" % id)

@@ -72,7 +72,7 @@ func character(id: String) -> Dictionary:
 		"idle_seq": CharacterPainter.IDLE,
 		"idle_fps": 4.0,
 		"poses": CharacterPainter.POSES,
-		"ppu": PPU,
+		"ppu": CharacterPainter.PPU,
 		"foot": CharacterPainter.FOOT_MARGIN,
 		"fps": 7.0,
 	}

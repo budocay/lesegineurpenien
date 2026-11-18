@@ -29,6 +29,10 @@ Un objet par personnage, rangé par identifiant.
   - `hat` : `none`, `magicien`, `toque`, `casquette`, `capuche`, `chapeau_paille`,
     `foulard` ; `hat_color`, `band`.
   - `item` : `baton`, `pipe`.
+  - Facultatifs (dessin des personnages) : `cape` (couleur d'une cape dans le dos),
+    `eye` (couleur des yeux), `ears` (`elfe` : longues oreilles pointues), `crest`
+    (`cornes` : cornes sur un `heaume`). Les planches peintes par code font 48 x 72 px
+    par case et s'affichent à 32 pixels par unité.
 
 ## `data/ambiances.json`
 
