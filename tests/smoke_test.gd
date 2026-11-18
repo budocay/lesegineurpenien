@@ -59,6 +59,7 @@ func _ready() -> void:
 	_test_chapter_2_data()
 	await _test_saves()
 	_test_names_and_merri()
+	await _test_active_party()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2342,7 +2343,7 @@ func _test_scenery() -> void:
 
 # ------------------------------------------------------------------ chapitre 2
 
-const TEAM5 := ["glandoulf", "sam", "froton", "pepin", "aragrogne"]
+const TEAM5 := ["glandoulf", "sam", "froton", "pepin", "aragrogne"]   # cinq recrutés : seuls les quatre premiers se battent
 
 
 ## Taux de victoire d'une rencontre du chapitre 2 (jeu automatique, 40 combats).
@@ -2371,8 +2372,8 @@ func _test_chapter_2_data() -> void:
 	check(Database.get_item("plume_chantecler").get("firm", false) == true, "la plume de Chantecler rend ferme")
 	check(not Database.get_character("aragrogne").is_empty(), "Aragrogne existe")
 	var cases := [
-		["Nazes, cinq niv. 9, talents A", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
-		["Nazes, cinq niv. 9, sans talents", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
+		["Nazes, quatre actifs niv. 9, talents A", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
+		["Nazes, quatre actifs niv. 9, sans talents", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
 		["Chantecler, quatre niv. 8", TEAM, 8, _soft("chantecler", 0.2), 0.7, 0],
 		["Vacherin, quatre niv. 8", TEAM, 8, _soft("vacherin", 0.2), 0.7, 0],
 		["Gaston, Sam seul", ["sam"], 9, Database.get_encounter("duel_gaston"), 0.7, -1],
@@ -2428,6 +2429,7 @@ func _test_chapter_2() -> void:
 	main.run_dialogue("aragrogne")
 	await _wait_idle(main)
 	check(GameState.party.has("aragrogne") and GameState.has_flag("aragrogne_equipe"), "Aragrogne rejoint l'équipe")
+	check(GameState.is_reserve("aragrogne") and GameState.active_party().size() == 4, "Aragrogne, cinquième, va en réserve")
 	GameState.member("aragrogne")["level"] = 9
 	GameState.heal_party()
 
@@ -2866,15 +2868,130 @@ func _test_names_and_merri() -> void:
 		if o is Dictionary and str(o.get("id", "")) == "merri":
 			brie_npc = true
 	check(brie_npc, "Merri est posé sur la carte de Brie")
-	# --- équilibre : une équipe à six (avec Merri) reste dans les fourchettes du chapitre 2
+	# --- équilibre : six recrutés (avec Merri), mais quatre au combat, restent dans les fourchettes du chapitre 2
 	var cases6 := [
-		["Nazes, six niv. 9, talents A", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
-		["Nazes, six niv. 9, sans talents", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
-		["Chantecler, six niv. 8", TEAM6, 8, _soft("chantecler", 0.2), 0.7, 0],
-		["Vacherin, six niv. 8", TEAM6, 8, _soft("vacherin", 0.2), 0.7, 0],
+		["Nazes, six recrutés niv. 9, talents A", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
+		["Nazes, six recrutés niv. 9, sans talents", TEAM6, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
+		["Chantecler, six recrutés niv. 8", TEAM6, 8, _soft("chantecler", 0.2), 0.7, 0],
+		["Vacherin, six recrutés niv. 8", TEAM6, 8, _soft("vacherin", 0.2), 0.7, 0],
 	]
 	for case: Array in cases6:
 		var rate := _c2_rate(case[1], int(case[2]), case[3], int(case[5]))
 		check(rate >= float(case[4]), "%s : %d %% de victoires (attendu : au moins %d %%)" % [str(case[0]), int(rate * 100.0), int(float(case[4]) * 100.0)])
 		print("  %-40s %3d %% de victoires" % [str(case[0]), int(rate * 100.0)])
+	GameState.new_game()
+
+
+# ------------------------------------------------------------ quatre combattants au plus
+
+func _test_active_party() -> void:
+	print("== Équipe active : quatre au plus, réserve ==")
+	GameState.new_game()
+	check(GameState.add_to_party("sam") == "active" and GameState.add_to_party("froton") == "active" and GameState.add_to_party("pepin") == "active", "les quatre premiers sont actifs")
+	check(GameState.add_to_party("aragrogne") == "reserve" and GameState.add_to_party("merri") == "reserve", "le cinquième et le sixième vont en réserve")
+	check(GameState.party.size() == 6 and GameState.active_party().size() == 4 and GameState.reserve_party() == ["aragrogne", "merri"], "6 recrutés : 4 actifs, 2 en réserve (%s)" % str(GameState.reserve_party()))
+	check(GameState.add_to_party("merri") == "reserve" and GameState.party.size() == 6, "recruter deux fois ne double rien")
+	check(GameState.check("party:merri") and GameState.check("party:aragrogne & party:sam"), "les dialogues party: voient aussi la réserve")
+	check(GameState.is_active("sam") and GameState.is_reserve("merri") and not GameState.is_active("merri"), "is_active et is_reserve")
+	for id: Variant in GameState.party:
+		GameState.member(str(id))["level"] = 9
+	GameState.heal_party()
+	# le combat ne prend que les actifs
+	var e: RefCounted = BattleEngine.new()
+	e.setup({"enemies": ["limace_molle"], "arena": "pre"}, 1)
+	var ids: Array = []
+	for c: RefCounted in e.party:
+		ids.append(str(c.source))
+	check(ids == ["glandoulf", "sam", "froton", "pepin"], "un combat lance quatre personnages au plus (%s)" % str(ids))
+	check(Database.roll_encounter("pre_couche", GameState.active_party().size()).size() >= 0, "les rencontres aléatoires comptent les actifs")
+	# l'échange
+	check(not GameState.swap_members("sam", "froton"), "deux actifs ne s'échangent pas")
+	check(not GameState.swap_members("aragrogne", "merri"), "deux réservistes ne s'échangent pas")
+	check(not GameState.swap_members("glandoulf", "merri"), "le meneur ne passe pas en réserve")
+	check(not GameState.swap_members("sam", "fantome"), "un inconnu ne s'échange pas")
+	check(GameState.swap_members("sam", "merri"), "Sam et Merri échangent leur place")
+	check(GameState.party == ["glandoulf", "merri", "froton", "pepin", "aragrogne", "sam"], "ordre après l'échange : %s" % str(GameState.party))
+	e = BattleEngine.new()
+	e.setup({"enemies": ["limace_molle"], "arena": "pre"}, 1)
+	ids = []
+	for c: RefCounted in e.party:
+		ids.append(str(c.source))
+	check(ids == ["glandoulf", "merri", "froton", "pepin"], "le combat suit l'échange (%s)" % str(ids))
+	# l'expérience : les actifs la gagnent en entier, la réserve aux trois quarts
+	for id: Variant in GameState.party:
+		var m := GameState.member(str(id))
+		m["level"] = 9
+		m["xp"] = 0
+	GameState.heal_party()
+	var fight := _fight({"enemies": ["limace_molle", "limace_molle"], "arena": "pre"}, 5)
+	check(str(fight.result) == "victory", "victoire contre deux limaces")
+	var loot: Dictionary = fight.commit()
+	var gained := int(loot["xp"])
+	check(gained > 0, "le combat rapporte de l'expérience (%d)" % gained)
+	check(int(GameState.member("merri")["xp"]) == gained and int(GameState.member("pepin")["xp"]) == gained, "les actifs gagnent toute l'expérience (%d)" % int(GameState.member("merri")["xp"]))
+	var share := int(ceil(float(gained) * GameState.RESERVE_XP))
+	check(int(GameState.member("aragrogne")["xp"]) == share and int(GameState.member("sam")["xp"]) == share and share < gained, "la réserve gagne les trois quarts (%d sur %d)" % [share, gained])
+	# la réserve peut changer de niveau, et le dit
+	GameState.member("sam")["xp"] = Rules.xp_to_next(9) - 1
+	var fight2 := _fight({"enemies": ["limace_molle"], "arena": "pre"}, 6)
+	var loot2: Dictionary = fight2.commit()
+	var named := false
+	for up: Dictionary in loot2["levelups"]:
+		if str(up.get("id", "")) == "sam":
+			named = true
+	check(int(GameState.member("sam")["level"]) == 10 and named, "un réserviste monte de niveau en regardant, et la victoire le signale")
+	# une autre composition de quatre tient aussi contre les Nazes (le choix du joueur compte)
+	for alt: Array in [["glandoulf", "sam", "aragrogne", "merri"], ["glandoulf", "pepin", "aragrogne", "froton"]]:
+		var rate := _c2_rate(alt, 9, _soft("nazes_nuit", 0.3), 0)
+		check(rate >= 0.5, "Nazes avec %s : %d %% de victoires (attendu : au moins 50 %%)" % [str(alt), int(rate * 100.0)])
+		print("  Nazes, %-45s %3d %% de victoires" % [str(alt), int(rate * 100.0)])
+	# ancienne sauvegarde à six : les quatre premiers sont actifs, les autres en réserve
+	GameState.new_game()
+	var old := {
+		"version": 3, "chapter": "chapitre_3", "map_id": "brie", "spawn_id": "route",
+		"party": ["glandoulf", "sam", "froton", "pepin", "aragrogne", "merri"],
+		"roster": {"glandoulf": {"level": 9, "xp": 0, "talents": [], "equip": {}}},
+		"flags": {}, "quests": {}, "money": 5, "inventory": {}, "bestiary": {}, "player_pos": [], "player_facing": "down", "playtime": 1.0,
+	}
+	check(GameState.from_dict(old), "une sauvegarde à six personnages se charge")
+	check(GameState.active_party() == ["glandoulf", "sam", "froton", "pepin"] and GameState.reserve_party() == ["aragrogne", "merri"], "sauvegarde à six : 4 actifs, 2 en réserve")
+	check(GameState.to_dict()["party"] == old["party"], "la sauvegarde réécrite garde le même ordre")
+	GameState.swap_members("pepin", "merri")
+	var again := GameState.to_dict()
+	GameState.new_game()
+	check(GameState.from_dict(again) and GameState.active_party() == ["glandoulf", "sam", "froton", "merri"], "l'échange survit à la sauvegarde")
+	check(GameState.party_summary().contains("En réserve : Aragrogne, Pépin"), "le menu de pause nomme la réserve (%s)" % GameState.party_summary().replace("\n", " / "))
+	# le menu Équipe : entrer dans l'équipe, passer en réserve, meneur protégé
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var menu: Control = GameMenu.new()
+	layer.add_child(menu)
+	await get_tree().process_frame
+	menu.open("team")
+	await get_tree().process_frame
+	var rows: Array = menu.entry_texts()
+	check(rows.size() == 6 and str(rows[4]).contains("réserve") and not str(rows[3]).contains("réserve"), "Équipe : six lignes, les deux dernières en réserve")
+	check(str(menu._title.text).contains("4 au combat") and str(menu._title.text).contains("2 en réserve"), "Équipe : le titre compte combattants et réserve (%s)" % str(menu._title.text))
+	menu.press(4)   # Aragrogne
+	await get_tree().process_frame
+	var sub: Array = menu.entry_texts()
+	check(sub.size() == 3 and str(sub[2]) == "Entrer dans l'équipe", "fiche d'un réserviste : Entrer dans l'équipe (%s)" % str(sub))
+	menu.press(2)
+	await get_tree().process_frame
+	check(str(menu._title.text).begins_with("Échanger Aragrogne") and menu.entry_texts().size() == 4, "choix de celui qui lui cède sa place")
+	menu.press(1)   # Sam
+	await get_tree().process_frame
+	check(GameState.is_active("aragrogne") and GameState.is_reserve("sam") and str(menu._title.text).begins_with("Équipe"), "échange fait depuis le menu")
+	menu.press(0)   # Glandoulf
+	await get_tree().process_frame
+	menu.press(2)
+	await get_tree().process_frame
+	menu.press(0)   # le premier réserviste
+	await get_tree().process_frame
+	check(GameState.party[0] == "glandoulf" and str(menu._message.text) != "", "le meneur reste en tête, avec un message")
+	menu.close()
+	layer.queue_free()
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	check(GameState.reserve_party().is_empty() and GameState.active_party().size() == 2, "à deux, personne n'est en réserve")
 	GameState.new_game()

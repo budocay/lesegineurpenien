@@ -56,7 +56,7 @@ func setup(p_encounter: Dictionary, p_seed: int = -1) -> void:
 		inventory = (inv as Dictionary).duplicate(true) if inv is Dictionary else {}
 	else:
 		guest = false
-		for id: Variant in GameState.party:
+		for id: Variant in GameState.active_party():
 			var m: Dictionary = GameState.member(str(id))
 			party.append(_make_member(str(id), int(m.get("level", 1)), int(m.get("hp", -1)), int(m.get("mp", -1)), true))
 		inventory = GameState.inventory.duplicate(true)
@@ -672,4 +672,9 @@ func commit() -> Dictionary:
 		var up := GameState.grant_xp(c.source, int(out["xp"]))
 		if not up.is_empty():
 			(out["levelups"] as Array).append(up)
+	# la réserve ne se bat pas mais apprend en regardant : une part réduite de l'expérience
+	for id: Variant in GameState.reserve_party():
+		var up_r := GameState.grant_xp(str(id), int(ceil(float(out["xp"]) * GameState.RESERVE_XP)))
+		if not up_r.is_empty():
+			(out["levelups"] as Array).append(up_r)
 	return out

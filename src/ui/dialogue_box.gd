@@ -194,8 +194,11 @@ func _advance() -> void:
 		if n.has("join"):
 			var recruit := str(n["join"])
 			if not GameState.party.has(recruit):
-				GameState.add_to_party(recruit, true)
-				notice.emit("%s rejoint l'équipe" % Database.get_character_name(recruit))
+				var place := GameState.add_to_party(recruit, true)
+				if place == "active":
+					notice.emit("%s rejoint l'équipe" % Database.get_character_name(recruit))
+				else:
+					notice.emit("%s rejoint le groupe, en réserve (quatre au combat : Échap, Équipe, pour l'échanger)" % Database.get_character_name(recruit))
 			continue
 		if n.has("take"):
 			var taken := str(n["take"])

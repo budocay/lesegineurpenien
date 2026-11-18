@@ -389,7 +389,7 @@ func _on_dialogue_battle(encounter_id: String) -> void:
 func _on_encounter(table_id: String) -> void:
 	if busy or dialogue.active or mode != Mode.PLAY or battle != null:
 		return
-	var enc := Database.roll_encounter(table_id, GameState.party.size())
+	var enc := Database.roll_encounter(table_id, GameState.active_party().size())
 	if enc.is_empty():
 		return
 	var outcome: String = await start_battle(enc)
