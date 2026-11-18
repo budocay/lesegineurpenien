@@ -497,7 +497,7 @@ static func icon_band_button(text: String, size: int = 22, help: String = "", ri
 	b.text = ""   # le texte est dessiné ici (en haut du bandeau, l'aide s'ouvre dessous)
 	b.set_meta("label", text)
 	b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var tx := 26.0 + (30.0 if icon != null else 0.0)   # le texte laisse la place à l'icône
+	var tx := 40.0 + (32.0 if icon != null else 0.0)   # le texte laisse la place à l'icône
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_override("font", font())
@@ -539,13 +539,13 @@ static func icon_band_button(text: String, size: int = 22, help: String = "", ri
 		var tint := Color.WHITE if not b.disabled else Color(1, 1, 1, 0.4)
 		if icon != null:
 			var ih := font().get_height(size)
-			b.draw_texture_rect(icon, Rect2(floorf(24.0), floorf(3.0 + (ih - 24.0) * 0.5), 24.0, 24.0), false, tint)
+			b.draw_texture_rect(icon, Rect2(40.0, floorf(3.0 + (ih - 24.0) * 0.5), 24.0, 24.0), false, tint)
 		b.draw_string(font(), Vector2(tx, 3.0 + font().get_ascent(size)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, ink)
 		if focused:
 			# la main qui désigne l'entrée, d'un léger va-et-vient
 			var hand := Sprites.icon("hand")
 			var bob := roundf(sin(float(Time.get_ticks_msec()) * 0.009) * 2.0)
-			b.draw_texture_rect(hand, Rect2(1.0 + bob, floorf(3.0 + (font().get_height(size) - 16.0) * 0.5), 16.0, 16.0), false)
+			b.draw_texture_rect(hand, Rect2(2.0 + bob, floorf(3.0 + (font().get_height(size) - 24.0) * 0.5), 34.0, 24.0), false)
 			if help != "":
 				b.draw_multiline_string(font(false, true), Vector2(tx, b.size.y - help_h - 1.0 + 15.0), help, HORIZONTAL_ALIGNMENT_LEFT, width - tx - 16.0, 15, -1, INK_DIM)
 		var rx := b.size.x - 16.0

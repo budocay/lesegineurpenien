@@ -1,14 +1,15 @@
 extends RefCounted
 ## Icônes de l'interface de combat, peintes par code : commandes du menu, éléments, genres d'arme,
 ## états, et quelques signes (main du curseur, écu, cœur, goutte, point d'interrogation).
-## Chaque icône tient dans 12 x 12 pixels (la main : 16 x 16), cernée d'un pixel sombre ; l'interface
+## Chaque icône tient dans 12 x 12 pixels (la main : 17 x 12), cernée d'un pixel sombre ; l'interface
 ## les affiche à l'échelle entière (x2) pour garder des pixels nets. Accès : Sprites.icon(nom).
 ## Un PNG de assets/sprites/icons/<nom>.png remplace la version peinte (voir sprite_library.gd).
 
 const PA = preload("res://src/gfx/pixel_art.gd")
 
 const SIZE := 12
-const HAND_SIZE := 16
+const HAND_W := 17
+const HAND_H := 12
 
 const COMMANDS := ["attack", "skills", "items", "defend", "flee", "elan"]
 const ELEMENTS := ["contondant", "tranchant", "feu", "foudre", "plante", "torpeur"]
@@ -393,20 +394,26 @@ static func _unknown(img: Image) -> void:
 				_p(img, x + 2, y + 2, G)
 
 
-## Gant pointé vers la droite : poignet doré à gauche, index tendu, autres doigts repliés.
+## Gant pointé vers la droite (17 x 12 px, affiché à l'échelle x2) : manchette dorée à gauche,
+## pouce levé, index tendu, autres doigts repliés. Le bout de l'index touche le bord droit.
 static func _hand() -> Image:
-	var img := PA.new_image(HAND_SIZE, HAND_SIZE)
-	_r(img, 1, 6, 2, 6, YEL)
-	_r(img, 1, 6, 1, 6, YEL_D)
-	_r(img, 3, 5, 7, 7, W)
-	_r(img, 10, 6, 5, 3, W)
-	_r(img, 5, 3, 4, 3, W)
-	_r(img, 3, 11, 7, 1, G)
-	_r(img, 10, 8, 5, 1, G)
-	_l(img, 6, 9, 9, 9, G)
-	_l(img, 6, 10, 9, 10, G)
-	_p(img, 10, 9, G)
-	_p(img, 4, 6, G)
-	_p(img, 9, 4, G)
-	PA.outline(img, Rect2i(0, 0, HAND_SIZE, HAND_SIZE), K)
+	var img := PA.new_image(HAND_W, HAND_H)
+	var rows := [
+		"....www........",
+		"....wwg........",
+		"yyywwwwwwwwwwww",
+		"ydywwwwwwwwwwwg",
+		"ydywwwwwgggggg.",
+		"ydywwwwwwwwwwg.",
+		"ydywwwwwwwwggg.",
+		"ydywwwwwwwwwg..",
+		"ydywwwgggggg...",
+		"yyygggggg......"]
+	var pal := {"w": W, "g": G, "y": YEL, "d": YEL_D}
+	for y in rows.size():
+		var row: String = rows[y]
+		for x in row.length():
+			if pal.has(row[x]):
+				_p(img, x + 1, y + 1, pal[row[x]])
+	PA.outline(img, Rect2i(0, 0, HAND_W, HAND_H), K)
 	return img

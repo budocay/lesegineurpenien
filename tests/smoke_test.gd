@@ -2758,6 +2758,29 @@ func _test_saves() -> void:
 			if not e["empty"] and e["kind"] == "auto":
 				n_after += 1
 		check(n_after == n_auto, "saves : pas de sauvegarde automatique avant un combat où l'on peut fuir")
+		# deux combats lancés à la suite dans deux arènes : jamais deux scènes de combat à la fois,
+		# et le second ne garde aucun nœud de décor du premier
+		GameState.heal_party()
+		main.start_battle({"enemies": ["limace_molle"], "arena": "taverne"})
+		main.start_battle({"enemies": ["limace_molle"], "arena": "col"})
+		var max_scenes := 0
+		var second_ok := false
+		var second_seen := false
+		for _i in 6000:
+			await get_tree().process_frame
+			var scenes: Array = []
+			for c: Node in main.get_children():
+				if c.get_script() != null and str(c.get_script().resource_path).ends_with("battle_scene.gd"):
+					scenes.append(c)
+			max_scenes = maxi(max_scenes, scenes.size())
+			if main.battle != null and str(main.battle._arena_id) == "col":
+				second_seen = true
+				second_ok = scenes.size() == 1 and scenes[0] == main.battle
+			if second_seen and main.battle == null and not main.busy:
+				break
+		check(max_scenes <= 1, "combats enchaînés : jamais deux scènes de combat ensemble (max %d)" % max_scenes)
+		check(second_seen and second_ok, "combats enchaînés : le second combat est seul dans l'arbre, sans décor du premier")
+		check(main.battle == null and main.world != null, "combats enchaînés : tout est refermé à la fin")
 		GameState.money = 1
 		main._pending_load = "m1"
 		main._leave_after_defeat("load")

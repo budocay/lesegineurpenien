@@ -294,6 +294,9 @@ func _refresh_world() -> void:
 
 # -------------------------------------------------------------------- combats
 
+var _battle_running := false   # un combat est en cours de lancement, de jeu ou de retrait
+
+
 ## Lance un combat et attend sa fin. Renvoie "victory", "fled" ou "title".
 ## La carte est mise de côté pendant le combat, puis remise en place.
 func start_battle(encounter: Dictionary) -> String:
@@ -301,6 +304,12 @@ func start_battle(encounter: Dictionary) -> String:
 	if not (list is Array) or (list as Array).is_empty():
 		push_warning("Rencontre vide ou inconnue.")
 		return "fled"
+	# Un seul combat à la fois : si le précédent finit encore de se retirer (fondu), on l'attend.
+	# Sans cela les deux coroutines se partageaient la variable `battle` et le décor du premier
+	# combat restait dans l'arbre sous le second.
+	while _battle_running:
+		await get_tree().process_frame
+	_battle_running = true
 	busy = true
 	hud.hide_prompt()
 	var points_before := GameState.party_talent_points()
@@ -328,22 +337,23 @@ func start_battle(encounter: Dictionary) -> String:
 	var outcome := "retry"
 	while outcome == "retry":
 		RenderingServer.global_shader_parameter_set("focus_world", Vector3(0.0, 0.0, 100000.0)); Music.play(Music.for_encounter(encounter), 0.4)
-		battle = BattleScene.new()
-		battle.name = "Battle"
-		add_child(battle)
-		move_child(battle, 0)
-		battle.auto = auto_battles
-		battle.fast = auto_battles
-		battle.setup(encounter, battle_ui)
-		battle.run()
+		var scene := BattleScene.new()
+		battle = scene
+		scene.name = "Battle"
+		add_child(scene)
+		move_child(scene, 0)
+		scene.auto = auto_battles
+		scene.fast = auto_battles
+		scene.setup(encounter, battle_ui)
+		scene.run()
 		await _fade_to(0.0, 0.4)
-		if str(battle.outcome) == "":
-			await battle.finished
-		outcome = str(battle.outcome)
+		if str(scene.outcome) == "":
+			await scene.finished
+		outcome = str(scene.outcome)
 		await _fade_to(1.0, 0.4)
 		battle_ui.close()
-		remove_child(battle)
-		battle.queue_free()
+		remove_child(scene)
+		scene.queue_free()
 		battle = null
 	battle_ui.before_battle_slot = ""
 	if outcome == "title" or outcome.begins_with("load:"):
@@ -351,6 +361,7 @@ func start_battle(encounter: Dictionary) -> String:
 			field.queue_free()
 			world = null
 		busy = false
+		_battle_running = false
 		if outcome.begins_with("load:"):
 			_pending_load = outcome.substr(5)
 			outcome = "load"
@@ -363,6 +374,7 @@ func start_battle(encounter: Dictionary) -> String:
 		hud.set_softness(Database.softness(field.map))
 	await _fade_to(0.0, 0.4)
 	busy = false
+	_battle_running = false
 	if GameState.party_talent_points() > points_before:
 		hud.toast("Points de talent à dépenser : Échap, puis « Talents »")
 	return outcome

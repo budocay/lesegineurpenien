@@ -57,6 +57,7 @@ var _root_pos := Vector2.ZERO
 var _list_pos := Vector2.ZERO
 
 var _timeline: HBoxContainer      # frise des tours : actif, cinq suivants, « Ensuite », cinq autres
+var _frieze_bg: Texture2D            # fond de la frise des tours
 var _tl_gap: Label                # étiquette de la seconde frise
 var _turn_tag: PanelContainer
 var _turn_label: Label
@@ -101,6 +102,14 @@ func _ready() -> void:
 	add_child(_overlay)
 
 	# frise de l'ordre des tours, en haut à gauche, sur un filet fin
+	var fg := Gradient.new()
+	fg.offsets = PackedFloat32Array([0.0, 0.72, 1.0])
+	fg.colors = PackedColorArray([Color(0.025, 0.03, 0.07, 0.8), Color(0.025, 0.03, 0.07, 0.7), Color(0.025, 0.03, 0.07, 0.0)])
+	var fgt := GradientTexture2D.new()
+	fgt.gradient = fg
+	fgt.width = 128
+	fgt.height = 4
+	_frieze_bg = fgt
 	_timeline = HBoxContainer.new()
 	_timeline.position = Vector2(22, 14)
 	_timeline.add_theme_constant_override("separation", 2)
@@ -221,8 +230,9 @@ func _ready() -> void:
 	_keys.offset_left = 24.0
 	_keys.offset_top = -40.0
 	_keys.offset_bottom = -14.0
-	_keys.modulate.a = 0.7
 	_keys.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_keys.draw.connect(func() -> void:   # bandeau discret sous les touches : lisibles sur le premier plan flou
+		_keys.draw_texture_rect(_frieze_bg, Rect2(-24.0, -4.0, _keys.size.x + 90.0, _keys.size.y + 8.0), false))
 	_keys.visible = false
 	add_child(_keys)
 
@@ -248,9 +258,9 @@ func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 		var hand := Sprite2D.new()
 		hand.texture = Sprites.icon("hand")
 		hand.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		hand.offset = Vector2(-8.0, 0.0)   # le bout du doigt est à l'origine
+		hand.offset = Vector2(-8.5, 0.0)   # le bout du doigt est à l'origine
 		hand.rotation = PI * 0.5
-		hand.scale = Vector2(3.0, 3.0)
+		hand.scale = Vector2(3.0, 3.0)   # 17 x 12 px peints : 51 x 36 à l'écran
 		hand.visible = false
 		_overlay.add_child(hand)
 		_cursors.append(hand)
@@ -803,6 +813,11 @@ func _draw_tile(t: Control, tex: Texture2D, tint: Color, active: bool, letter: S
 ## Filet fin sous la frise, interrompu par l'étiquette « Ensuite ».
 func _draw_frieze() -> void:
 	var kids := _timeline.get_children()
+	if kids.size() > 0:
+		# fond sombre estompé vers la droite : la frise reste lisible sur une arène claire
+		var last_k: Control = kids[kids.size() - 1]
+		var wide := last_k.position.x + last_k.size.x + 70.0
+		_timeline.draw_texture_rect(_frieze_bg, Rect2(-22.0, -12.0, wide + 22.0, _timeline.size.y + 24.0), false)
 	if kids.size() < 2:
 		return
 	var first: Control = kids[0]
@@ -957,7 +972,7 @@ func _obstacles(view: Vector2) -> Array[Rect2]:
 	for c: RefCounted in engine.all():
 		if c.side == "enemy" and not c.alive():
 			continue
-		out.append(scene.screen_rect(c, c == _actor).grow(6.0))
+		out.append(scene.screen_rect(c, c == _actor).grow_individual(14.0, 14.0, 14.0, 30.0))   # marge : les chapeaux et les bras dépassent du cadre calculé
 	for key: String in _plates:
 		var root: Control = (_plates[key] as Dictionary)["root"]
 		if root.visible:
@@ -1025,22 +1040,19 @@ func _place_menu() -> void:
 		var rw := _root_panel.size.x
 		var rh := _root_panel.size.y + 14.0   # marge : la ligne choisie s'ouvre sous son nom (une ou deux lignes d'aide)
 		var stepped: Rect2 = scene.screen_rect(_actor, true)
-		_root_pos = free_spot(Vector2(rw, rh), Vector2(stepped.position.x - 24.0 - rw, c.y - 96.0), obstacles, view)
+		# la barre d'élan reste collée sous le panneau qu'elle sert : on place le bloc entier (panneau + barre)
+		var bar0: Control = _elan_bars[0]["panel"]
+		bar0.reset_size()
+		var bar1: Control = _elan_bars[1]["panel"]
+		bar1.reset_size()
+		var bh0 := bar0.size.y + 4.0 if bar0.visible else 0.0
+		_root_pos = free_spot(Vector2(rw, rh + bh0), Vector2(stepped.position.x - 24.0 - rw, c.y - 96.0), obstacles, view)
+		_bar_pos[0] = Vector2(_root_pos.x, _root_pos.y + _root_panel.size.y + 4.0)
 		if _list_panel.visible:
 			var lw := _list_panel.size.x
-			var lh := _list_panel.size.y
+			var lh := _list_panel.size.y + bar1.size.y + 4.0
 			_list_pos = free_spot(Vector2(lw, lh), Vector2(_root_pos.x - 40.0, _root_pos.y + 44.0), obstacles, view)
-		# barre d'élan : la place libre la plus proche, sous le menu (ou sous la liste), sans le couvrir
-		var own_i := 1 if _list_panel.visible else 0
-		var anchor_rect := Rect2(_list_pos, _list_panel.size) if _list_panel.visible else Rect2(_root_pos, _root_panel.size)
-		var obs2: Array[Rect2] = []
-		obs2.append_array(obstacles)
-		obs2.append(Rect2(_root_pos, _root_panel.size).grow(2.0))
-		if _list_panel.visible:
-			obs2.append(anchor_rect.grow(2.0))
-		var bar: Control = _elan_bars[own_i]["panel"]
-		bar.reset_size()
-		_bar_pos[own_i] = free_spot(bar.size, Vector2(anchor_rect.position.x, anchor_rect.end.y + 4.0), obs2, view)
+			_bar_pos[1] = Vector2(_list_pos.x, _list_pos.y + _list_panel.size.y + 4.0)
 	_root_panel.position = _root_pos
 	if _list_panel.visible:
 		_list_panel.position = _list_pos
