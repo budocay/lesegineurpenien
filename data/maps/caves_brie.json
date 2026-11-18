@@ -8,6 +8,8 @@
 	],
 	"interior": true,
 	"wall_height": 3.0,
+	"wall_tile": "cave_pierre",
+	"wall_dress": "cave",
 	"ambiance": "cave_fromage",
 	"music": "marais",
 	"arena": "cave_fromage",

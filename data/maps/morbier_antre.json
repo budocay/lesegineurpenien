@@ -8,6 +8,7 @@
 	],
 	"interior": true,
 	"wall_height": 4.2,
+	"wall_dress": "mine",
 	"ambiance": "lac_noir",
 	"music": "morbier_lac",
 	"arena": "bord_du_lac",
