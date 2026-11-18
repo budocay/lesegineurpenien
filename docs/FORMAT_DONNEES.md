@@ -515,7 +515,7 @@ Un morceau par identifiant. Tout est calculé par `src/core/music.gd`, sans fich
 ```json
 "village": {
 	"name": "Bittebourg, où tout tient debout",
-	"tempo": 104, "echo": 0.2, "loop": true, "volume": 1.0,
+	"tempo": 104, "echo": 0.2, "reverb": 0.25, "loop": true, "volume": 1.0,
 	"voices": [
 		{"instrument": "flute", "volume": 0.5, "len": 2, "notes": ["d5 g5 b5:4 a5 g5 d5:4", "..."]},
 		{"instrument": "drums", "volume": 0.3, "len": 2, "notes": "k h s h k h s h"}
@@ -523,18 +523,34 @@ Un morceau par identifiant. Tout est calculé par `src/core/music.gd`, sans fich
 }
 ```
 
-- `tempo` : battements par minute. `echo` : force de l'écho (0 à 0.6). `loop` : faux pour
-  un morceau joué une seule fois (fanfare).
+- `tempo` : battements par minute. `echo` : force de l'écho (0 à 0.6). `reverb` (facultatif,
+  0 à 0.6) : petite salle, quatre reprises très rapprochées qui bouclent comme l'écho.
+  `loop` : faux pour un morceau joué une seule fois (fanfare).
 - `instrument` : `flute`, `reed`, `pluck`, `bell`, `strings`, `brass`, `bass`, `square`,
-  ou `drums`.
+  ou `drums`. Ajoutés par la refonte : `whistle` (flûte de bois, tin whistle), `fiddle`
+  (violon, vibrato qui s'installe), `harp` (harpe), `horn` (cor), `lowbrass` (trombones),
+  `choir` (nappe de chœur, attaque lente), `spic` (cordes piquées pour les ostinatos).
 - `notes` : une chaîne, ou une liste de chaînes (une par mesure, plus lisible). Les notes
   sont séparées par des espaces : `c4` (do, octave 4), `f#3`, `bb2` (si bémol), `r`
   (silence), `c4+e4+g4` (accord). L'octave est retenue d'une note à l'autre.
 - Durée : `:8` après la note, en pas (un pas = une double croche, seize par mesure à
   quatre temps). Sans cela, la durée est le `len` de la voix.
-- Batterie : `k` grosse caisse, `s` caisse claire, `h` charleston.
+- Nuance : `@1` à `@9` après la note (`c4:4@8`, `k:2@3`), 6 par défaut (= 1). Elle
+  s'applique à la note ou au coup de batterie, par-dessus le `volume` de la voix.
+- Batterie : `k` grosse caisse, `s` caisse claire, `h` charleston, et depuis la refonte
+  `t` timbale (grave, longue), `b` bodhrán (tambour irlandais), `c` cymbale (longue, en
+  crescendo). On peut jouer plusieurs coups ensemble : `t+c:4@9`.
+- Mesures asymétriques : le pas reste la double croche ; une mesure de 7/8 compte 14 pas
+  (4+4+6), une de 5/4 compte 20 pas, une de 6/8 ou de 3/4 compte 12 pas. Le `tempo` donne
+  la durée de quatre pas.
 - Une voix plus courte que le morceau se répète ; la durée du morceau doit être un
   multiple de celle de chaque voix.
+- Calcul : les notes identiques (même instrument, hauteur, durée) ne sont synthétisées
+  qu'une fois, ce qui rend les arpèges et les ostinatos presque gratuits ; un morceau de
+  cinquante secondes se calcule en environ une seconde, en tâche de fond.
+- Composition : les morceaux de la refonte sont originaux (aucun thème de film ou de
+  recueil n'est repris). Ils ont tous au moins deux parties, trois voix jouées et, hors
+  fanfare, quarante secondes. `tests/smoke_test.gd` (`_test_music_forms`) le vérifie.
 
 Où les morceaux sont utilisés :
 

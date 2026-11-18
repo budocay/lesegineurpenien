@@ -51,6 +51,7 @@ func _ready() -> void:
 	_test_animations()
 	print("== Musique ==")
 	_test_music()
+	_test_music_forms()
 	_test_rendering()
 	_test_relief()
 	_test_character_art()
@@ -2704,3 +2705,30 @@ func _test_saves() -> void:
 		await get_tree().process_frame
 	SaveManager.delete_save()
 	check(not FileAccess.file_exists(SaveManager.slot_path("m1")) and not SaveManager.has_save(), "saves : nettoyage complet")
+## Musique refondue : chaque morceau a une vraie forme (durée, voix, nuances) et se calcule.
+func _test_music_forms() -> void:
+	var parsed := Music.parse_voice({"len": 2, "notes": "c4:4@9 d4@3 r b3:2@6"})
+	check(int(parsed["length"]) == 10 and absf(float(parsed["events"][0][3]) - 1.5) < 0.01, "musique : nuance @9 lue")
+	check((Music.check_track({"tempo": 90, "voices": [{"instrument": "drums", "len": 2, "notes": "t b c k"}]}) as Array).is_empty(), "musique : timbale, bodhran, cymbale acceptés")
+	check(not (Music.check_track({"tempo": 90, "voices": [{"instrument": "flute", "len": 2, "notes": "c4@0"}]}) as Array).is_empty(), "musique : nuance hors 1 à 9 refusée")
+	for id: String in Database.music:
+		var track: Dictionary = Database.music[id]
+		var loop := bool(track.get("loop", true))
+		var step: float = 60.0 / float(track["tempo"]) / 4.0
+		var melodic := 0
+		var longest := 0
+		for v: Variant in track["voices"]:
+			var voice: Dictionary = v
+			longest = maxi(longest, int(Music.parse_voice(voice)["length"]))
+			if str(voice["instrument"]) != "drums":
+				melodic += 1
+		check(melodic >= 3, "musique %s : au moins trois voix jouées (%d)" % [id, melodic])
+		check(not loop or longest * step >= 40.0, "musique %s : 40 secondes ou plus (%.1f s)" % [id, longest * step])
+		check(float(track.get("reverb", 0.0)) <= 0.6 and float(track.get("echo", 0.0)) <= 0.6, "musique %s : écho et réverbération raisonnables" % id)
+	# un morceau tonal est rendu à la bonne taille, sans saturation
+	var bytes: PackedByteArray = Music.render(Database.music["village"])
+	var steps := 0
+	for v: Variant in Database.music["village"]["voices"]:
+		steps = maxi(steps, int(Music.parse_voice(v)["length"]))
+	var expected := int(round(steps * 60.0 / float(Database.music["village"]["tempo"]) / 4.0 * Music.RATE)) * 2
+	check(bytes.size() == expected, "musique : taille du rendu de Bittebourg (%d / %d octets)" % [bytes.size(), expected])

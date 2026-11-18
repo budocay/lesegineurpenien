@@ -7,12 +7,14 @@ extends Node
 ## « f#3 » = fa dièse, « bb2 » = si bémol, « r » = silence, « c4+e4+g4 » = accord.
 ## « :8 » fixe la durée en pas (un pas = une double croche) ; sans cela, la durée est le
 ## champ « len » de la voix. L'octave est retenue d'une note à la suivante.
-## Batterie (instrument « drums ») : k = grosse caisse, s = caisse claire, h = charleston.
+## « @5 » après une note règle sa nuance de 1 (très doux) à 9 (fort) ; 6 = normal.
+## Batterie (instrument « drums ») : k = grosse caisse, s = caisse claire, h = charleston,
+## t = timbale, b = bodhrán, c = cymbale (longue).
 
 const RATE := 22050
 const TABLE := 1024
 const MASK := TABLE - 1
-const VERSION := 1
+const VERSION := 2
 const VOLUME_DB := -9.0
 const SILENT_DB := -50.0
 const CACHE_DIR := "user://musique"
@@ -29,7 +31,15 @@ const INSTRUMENTS := {
 	"strings": {"harm": [1.0, 0.5, 0.33, 0.25, 0.2, 0.16, 0.12, 0.09, 0.06, 0.04], "attack": 0.12, "decay": 0.0, "sustain": 1.0, "release": 0.25, "chorus": 0.006},
 	"brass": {"harm": [1.0, 0.7, 0.5, 0.35, 0.22, 0.12, 0.06], "attack": 0.03, "decay": 2.0, "sustain": 0.7, "release": 0.08, "chorus": 0.003},
 	"bass": {"harm": [1.0, 0.5, 0.18, 0.1], "attack": 0.005, "decay": 2.5, "sustain": 0.45, "release": 0.06},
-	"square": {"harm": [1.0, 0.0, 0.33, 0.0, 0.2, 0.0, 0.14, 0.0, 0.11], "attack": 0.005, "decay": 1.5, "sustain": 0.6, "release": 0.05}
+	"square": {"harm": [1.0, 0.0, 0.33, 0.0, 0.2, 0.0, 0.14, 0.0, 0.11], "attack": 0.005, "decay": 1.5, "sustain": 0.6, "release": 0.05},
+	# ajoutés pour la refonte : flûte de bois, violon, harpe, cor, trombones, chœur, cordes piquées
+	"whistle": {"harm": [1.0, 0.16, 0.05, 0.02], "attack": 0.025, "decay": 0.0, "sustain": 1.0, "release": 0.09, "vibrato": 0.003},
+	"fiddle": {"harm": [1.0, 0.6, 0.45, 0.3, 0.22, 0.15, 0.1, 0.07, 0.04], "attack": 0.05, "decay": 0.0, "sustain": 1.0, "release": 0.1, "vibrato": 0.007, "chorus": 0.0025},
+	"harp": {"harm": [1.0, 0.4, 0.2, 0.1, 0.05, 0.03], "attack": 0.003, "decay": 2.4, "sustain": 0.0, "release": 0.3},
+	"horn": {"harm": [1.0, 0.55, 0.38, 0.22, 0.1, 0.05], "attack": 0.07, "decay": 1.0, "sustain": 0.8, "release": 0.14, "vibrato": 0.002, "chorus": 0.002},
+	"lowbrass": {"harm": [1.0, 0.8, 0.6, 0.45, 0.3, 0.18, 0.1, 0.05], "attack": 0.06, "decay": 1.2, "sustain": 0.85, "release": 0.12, "chorus": 0.0025},
+	"choir": {"harm": [1.0, 0.55, 0.22, 0.1, 0.05, 0.02], "attack": 0.45, "decay": 0.0, "sustain": 1.0, "release": 0.6, "vibrato": 0.003, "chorus": 0.005},
+	"spic": {"harm": [1.0, 0.5, 0.33, 0.25, 0.2, 0.16, 0.12, 0.09, 0.06, 0.04], "attack": 0.012, "decay": 7.0, "sustain": 0.2, "release": 0.05}
 }
 
 var current := ""               # identifiant du morceau demandé ("" = silence)
@@ -222,7 +232,17 @@ func parse_voice(voice: Dictionary, errors: Array = []) -> Dictionary:
 	var events: Array = []
 	var pos := 0
 	for token in text.split(" ", false):
-		var parts := token.split(":")
+		var vel := 1.0
+		var body := token
+		var at := body.find("@")
+		if at >= 0:
+			var level := body.substr(at + 1)
+			if not level.is_valid_int() or int(level) < 1 or int(level) > 9:
+				errors.append("nuance illisible : " + token)
+				continue
+			vel = float(int(level)) / 6.0
+			body = body.substr(0, at)
+		var parts := body.split(":")
 		var length := unit
 		if parts.size() > 1:
 			if not parts[1].is_valid_int() or int(parts[1]) < 1:
@@ -233,7 +253,7 @@ func parse_voice(voice: Dictionary, errors: Array = []) -> Dictionary:
 			var pitches: Array = []
 			for pn in parts[0].split("+"):
 				if drums:
-					if pn == "k" or pn == "s" or pn == "h":
+					if pn in ["k", "s", "h", "t", "b", "c"]:
 						pitches.append(pn)
 					else:
 						errors.append("percussion inconnue : " + token)
@@ -258,7 +278,7 @@ func parse_voice(voice: Dictionary, errors: Array = []) -> Dictionary:
 					octave = int(rest)
 				pitches.append(12 * (octave + 1) + int(SEMITONES[letter]) + accidental)
 			if not pitches.is_empty():
-				events.append([pos, length, pitches])
+				events.append([pos, length, pitches, vel])
 		pos += length
 	return {"events": events, "length": pos}
 
@@ -302,19 +322,25 @@ func render(track: Dictionary) -> PackedByteArray:
 	var loop := bool(track.get("loop", true))
 	var parsed: Array = []
 	var total := 0
+	var longest := 0
 	for v: Variant in voices:
 		var p := parse_voice(v as Dictionary)
 		parsed.append(p)
 		total = maxi(total, int(p["length"]))
+		for e: Array in p["events"]:
+			longest = maxi(longest, int(e[1]))
 	if total == 0:
 		return PackedByteArray()
 	var n := int(round(total * step)) + (0 if loop else int(RATE * 0.8))
+	# marge au-delà de la fin : la queue des dernières notes y est écrite, puis repliée au début
 	var buf := PackedFloat32Array()
-	buf.resize(n)
+	buf.resize(n + int(longest * step) + RATE * 2)
 	buf.fill(0.0)
 	var sine := _table([1.0])
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 20261118
+	var waves := {}   # notes déjà calculées (même instrument, hauteur, durée) : recopiées telles quelles
+	var envs := {}
 	for vi in voices.size():
 		var voice: Dictionary = voices[vi]
 		var p: Dictionary = parsed[vi]
@@ -332,27 +358,49 @@ func render(track: Dictionary) -> PackedByteArray:
 				var notes: Array = e[2]
 				if ins_name == "drums":
 					for d: String in notes:
-						_drum(buf, n, loop, start, d, amp, rng)
+						_drum(buf, start, d, amp * float(e[3]), rng)
 					continue
 				var dur := int(int(e[1]) * step)
-				var a := amp / sqrt(float(notes.size()))
+				var a := amp * float(e[3]) / sqrt(float(notes.size()))
 				for m: int in notes:
-					_note(buf, n, loop, start, dur, 440.0 * pow(2.0, (m - 69) / 12.0), a, ins, table, sine)
+					_note(buf, start, dur, m, a, ins_name, ins, table, sine, waves, envs)
+	if loop:
+		for i in range(n, buf.size()):
+			if buf[i] != 0.0:
+				buf[posmod(i, n)] += buf[i]
+	buf.resize(n)
 	var out := buf
 	var echo := clampf(float(track.get("echo", 0.25)), 0.0, 0.6)
-	if echo > 0.0:
+	var reverb := clampf(float(track.get("reverb", 0.0)), 0.0, 0.6)
+	if echo > 0.0 or reverb > 0.0:
+		# écho (deux reprises) puis petite salle (quelques reprises rapprochées), tout bouclé :
+		# la queue du début de boucle est lue depuis la fin du morceau
+		var taps: Array = []
+		if echo > 0.0:
+			taps.append([int(3.0 * step), echo])
+			taps.append([int(6.0 * step), echo * echo])
+		if reverb > 0.0:
+			var rd := [0.023, 0.041, 0.067, 0.113]
+			var rg := [0.55, 0.45, 0.35, 0.25]
+			for t in rd.size():
+				taps.append([int(float(rd[t]) * RATE), float(rg[t]) * reverb])
+		var maxd := 0
+		for t: Array in taps:
+			maxd = maxi(maxd, int(t[0]))
+		maxd = mini(maxd, n - 1)
+		var ext := PackedFloat32Array()
+		if loop:
+			ext = buf.slice(n - maxd, n)
+		else:
+			ext.resize(maxd)
+			ext.fill(0.0)
+		ext.append_array(buf)
 		out = buf.duplicate()
-		var delay := int(3.0 * step)
-		for i in n:
-			var a1 := i - delay
-			var a2 := i - 2 * delay
-			if loop:
-				a1 = posmod(a1, n)
-				a2 = posmod(a2, n)
-			if a1 >= 0:
-				out[i] += buf[a1] * echo
-			if a2 >= 0:
-				out[i] += buf[a2] * echo * echo
+		for t: Array in taps:
+			var off := maxd - mini(int(t[0]), maxd)
+			var g := float(t[1])
+			for i in n:
+				out[i] += ext[i + off] * g
 	var peak := 0.001
 	for i in n:
 		peak = maxf(peak, absf(out[i]))
@@ -380,45 +428,86 @@ func _table(harm: Array) -> PackedFloat32Array:
 	return t
 
 
-func _note(buf: PackedFloat32Array, n: int, loop: bool, start: int, dur: int, freq: float, amp: float, ins: Dictionary, table: PackedFloat32Array, sine: PackedFloat32Array) -> void:
+## Ajoute une note au tampon. Les notes identiques (instrument, hauteur, durée) ne sont
+## calculées qu'une fois : les arpèges et les ostinatos se recopient.
+func _note(buf: PackedFloat32Array, start: int, dur: int, midi: int, amp: float, ins_name: String, ins: Dictionary, table: PackedFloat32Array, sine: PackedFloat32Array, waves: Dictionary, envs: Dictionary) -> void:
+	var key := "%s|%d|%d" % [ins_name, midi, dur]
+	var w: PackedFloat32Array
+	if waves.has(key):
+		w = waves[key]
+	else:
+		w = _wave(440.0 * pow(2.0, (midi - 69) / 12.0), dur, ins_name, ins, table, sine, envs)
+		if dur < RATE * 12:
+			waves[key] = w
+	for i in w.size():
+		buf[start + i] += w[i] * amp
+
+
+func _envelope(ins_name: String, ins: Dictionary, dur: int, envs: Dictionary) -> PackedFloat32Array:
+	var key := "%s|%d" % [ins_name, dur]
+	if envs.has(key):
+		return envs[key]
 	var attack := maxi(1, int(float(ins.get("attack", 0.01)) * RATE))
 	var release := maxi(1, int(float(ins.get("release", 0.1)) * RATE))
 	var sustain := float(ins.get("sustain", 1.0))
 	var decay_k := exp(-float(ins.get("decay", 0.0)) / RATE)
-	var vib := float(ins.get("vibrato", 0.0))
-	var chorus := float(ins.get("chorus", 0.0))
-	var inc := freq / RATE
-	var inc2 := inc * (1.0 + chorus)
-	var vinc := 5.5 / RATE * TABLE
-	var ph := 0.0
-	var ph2 := 0.25
-	var d := 1.0
 	var total := dur + release
+	var env := PackedFloat32Array()
+	env.resize(total)
+	var d := 1.0
 	for i in total:
-		if vib > 0.0 and i > 2500:
-			ph += inc * (1.0 + vib * sine[int(i * vinc) & MASK])
-		else:
-			ph += inc
-		var v := table[int(ph * TABLE) & MASK]
-		if chorus > 0.0:
-			ph2 += inc2
-			v = (v + table[int(ph2 * TABLE) & MASK]) * 0.5
-		var env := sustain + (1.0 - sustain) * d
+		var e := sustain + (1.0 - sustain) * d
 		d *= decay_k
 		if i < attack:
-			env *= float(i) / attack
+			e *= float(i) / attack
 		if i >= dur:
-			env *= 1.0 - float(i - dur) / release
-		var j := start + i
-		if j >= n:
-			if not loop:
-				break
-			j %= n
-		buf[j] += v * env * amp
+			e *= 1.0 - float(i - dur) / release
+		env[i] = e
+	if dur < RATE * 12:
+		envs[key] = env
+	return env
 
 
-func _drum(buf: PackedFloat32Array, n: int, loop: bool, start: int, kind: String, amp: float, rng: RandomNumberGenerator) -> void:
-	var length := int(RATE * (0.16 if kind == "k" else (0.14 if kind == "s" else 0.04)))
+## Une note à amplitude 1 : oscillateur à table d'ondes (phase en virgule fixe), vibrato qui
+## s'installe après un instant, second oscillateur légèrement désaccordé (« chorus »).
+func _wave(freq: float, dur: int, ins_name: String, ins: Dictionary, table: PackedFloat32Array, sine: PackedFloat32Array, envs: Dictionary) -> PackedFloat32Array:
+	var env := _envelope(ins_name, ins, dur, envs)
+	var total := env.size()
+	var w := PackedFloat32Array()
+	w.resize(total)
+	var vib := float(ins.get("vibrato", 0.0))
+	var chorus := float(ins.get("chorus", 0.0))
+	var pinc := freq / RATE * TABLE * 65536.0
+	var inc := int(pinc)
+	var inc2 := int(pinc * (1.0 + chorus))
+	var ph := 0
+	var ph2 := 16777216
+	if vib > 0.0:
+		var vinc := 5.5 / RATE * TABLE
+		for i in total:
+			var v: float = table[(ph >> 16) & MASK]
+			if chorus > 0.0:
+				v = (v + table[(ph2 >> 16) & MASK]) * 0.5
+				ph2 += inc2
+			w[i] = v * env[i]
+			if i > 2000:
+				ph += int(pinc * (1.0 + vib * minf(1.0, (i - 2000) / 5000.0) * sine[int(i * vinc) & MASK]))
+			else:
+				ph += inc
+	elif chorus > 0.0:
+		for i in total:
+			w[i] = (table[(ph >> 16) & MASK] + table[(ph2 >> 16) & MASK]) * 0.5 * env[i]
+			ph += inc
+			ph2 += inc2
+	else:
+		for i in total:
+			w[i] = table[(ph >> 16) & MASK] * env[i]
+			ph += inc
+	return w
+
+
+func _drum(buf: PackedFloat32Array, start: int, kind: String, amp: float, rng: RandomNumberGenerator) -> void:
+	var length := int(RATE * {"k": 0.16, "s": 0.14, "h": 0.04, "t": 0.7, "b": 0.22, "c": 1.2}.get(kind, 0.04))
 	var ph := 0.0
 	var prev := 0.0
 	for i in length:
@@ -427,6 +516,16 @@ func _drum(buf: PackedFloat32Array, n: int, loop: bool, start: int, kind: String
 		if kind == "k":
 			ph += lerpf(150.0, 45.0, t) / RATE
 			v = sin(ph * TAU) * (1.0 - t) * (1.0 - t) * 1.3
+		elif kind == "t":
+			ph += (58.0 + 38.0 * exp(-t * 40.0)) / RATE
+			v = sin(ph * TAU) * exp(-t * 6.0) * 1.2 + rng.randf_range(-1.0, 1.0) * exp(-t * 90.0) * 0.25
+		elif kind == "b":
+			ph += lerpf(150.0, 98.0, minf(1.0, t * 4.0)) / RATE
+			v = sin(ph * TAU) * (1.0 - t) * (1.0 - t) * 1.0 + rng.randf_range(-1.0, 1.0) * pow(1.0 - t, 6.0) * 0.22
+		elif kind == "c":
+			var w2 := rng.randf_range(-1.0, 1.0)
+			v = (w2 - prev) * 0.3 * pow(1.0 - t, 2.0) * minf(1.0, float(i) / (RATE * 0.06))
+			prev = w2
 		elif kind == "s":
 			ph += 190.0 / RATE
 			v = rng.randf_range(-1.0, 1.0) * (1.0 - t) * (1.0 - t) * 0.7 + sin(ph * TAU) * 0.3 * pow(1.0 - t, 3.0)
@@ -434,9 +533,4 @@ func _drum(buf: PackedFloat32Array, n: int, loop: bool, start: int, kind: String
 			var w := rng.randf_range(-1.0, 1.0)
 			v = (w - prev) * 0.35 * (1.0 - t)
 			prev = w
-		var j := start + i
-		if j >= n:
-			if not loop:
-				break
-			j %= n
-		buf[j] += v * amp
+		buf[start + i] += v * amp
