@@ -126,7 +126,20 @@ des cavaliers dans `rider_painter.gd` et `rider_builder.gd`, groupe scindé par
 `Tutorial`), dépôt GitHub (`origin`), installation Windows (`installer_windows.bat`). Suite :
 relecture visuelle d'ensemble, relief jouable, chapitres 6 et 7.
 
+Soirée du 18 novembre (décisions 140 à 144) : construction par `./build.sh` ou `build.bat`,
+mise en scène des combats calculée (`BattleScene.layout()`), ambiance des arènes et boss
+imposants, seconde passe des personnages, repère de quête, raccords d'histoire. Restent
+faibles : monstres peints petits, boss accompagnés de sbires, rayons timides, toits (mousse,
+tuiles manquantes), aide des touches à la manette, intérieurs peu revus. Suite : relief
+jouable, chapitres 6 et 7.
+
 ## Pièges connus
+
+- Une faiblesse listée dans le rapport d'un agent devient une tâche : l'auteur veut qu'elles
+  soient corrigées, pas seulement notées.
+- Toute retouche de la taille des sprites ou de l'interface de combat se vérifie avec
+  `_test_battle_staging` (toutes les arènes, deux tailles d'écran).
+- Mesurer l'équilibre : `GLAN_ONLY_MEASURE=1 Godot --headless --path . res://tests/smoke_test.tscn`.
 
 - Un agent secondaire peut signer son commit d'un autre nom de modèle : vérifier la ligne
   `Co-Authored-By` avant chaque fusion.

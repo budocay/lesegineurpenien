@@ -814,6 +814,34 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      `installer_windows.bat` télécharge Godot 4.7.2 dans `tools/godot` et lance le jeu,
      `jouer.bat` le relance. Jamais essayé sur un vrai Windows.
 
+140. **Construction du jeu** : `./build.sh` (Mac, Linux) ou `build.bat` (Windows) produit les
+     trois versions dans `build/` à partir de `export_presets.cfg`. Les scripts Windows lancent
+     le programme principal de Godot et non sa variante « console », qui échoue (erreur 193)
+     quand le chemin contient une espace. Version Mac lancée et vérifiée ; Windows et Linux
+     jamais lancées.
+141. **Mise en scène des combats** (retour de l'auteur : cailloux devant l'écran, héros plus
+     hauts que les fiches) : `BattleScene.layout()` calcule la taille des héros et des monstres
+     d'après la place laissée par l'interface ; un premier plan reste dans un coin bas, sombre,
+     sous 6 % de l'écran, sinon il est réduit ou retiré. Vérifié pour toutes les arènes par
+     `_test_battle_staging`.
+142. **Ambiance des combats** : nappe de lumière sous les combattants, liseré, fond flou,
+     arènes sombres relevées et arènes claires assombries (champs `exposure`, `fill`, `lift`,
+     `rim`, `shafts`, `dim` de `stage`) ; un boss fait 1,7 à 3,4 fois un héros
+     (`BattleScene.find_boss`, champ `boss` des rencontres) ; monstres repeints à trois fois la
+     définition (`MonsterPainter.upscale`).
+143. **Corriger ce que les agents remontent** (demande de l'auteur) : chaque faiblesse listée
+     dans un rapport devient une tâche. Faits : profils, mains, pieds et expressions des
+     personnages (`look.face`) ; repère de quête (`target` des étapes), touche du journal (J,
+     Y) ; Garde-Manger éclairé, Cabécou habillé, pavillons de Fondue-Combe, lac de Maroilles,
+     maisons distinctes sur une même carte, Bittebourg enrichi, rien devant une porte
+     (`_test_door_clearance`) ; l'ombre du soleil sur un sprite est réduite aux deux tiers
+     (c'était la cause de « l'arbre à moitié brun »).
+144. **Raccords d'histoire** : Gobelardons partout (identifiants inchangés), « trois cents
+     ans », Bromure recousu entre les chapitres 4 et 5, jeux sur le titre renforcés aux
+     chapitres 1 à 3. Équilibre remesuré (`GLAN_ONLY_MEASURE=1` imprime le tableau) ; les
+     déroulés des chapitres 3 et 4 se jouent au niveau 30 pour ne plus dépendre du hasard.
+     Seuils du Gardien des Archives abaissés pour l'équipe sans soigneur (15 %) : à revoir.
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :
