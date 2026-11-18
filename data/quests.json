@@ -1,0 +1,128 @@
+{
+	"ramollissement": {
+		"name": "Ce qui ramollit le Comté",
+		"kind": "principale",
+		"giver": "Glandoulf",
+		"desc": "Les épis se couchent, les bittes penchent, les gens n'ont plus envie de rien. Glandoulf a déjà vu cela, il y a très longtemps. Il s'en occupera demain. Enfin, bientôt.",
+		"start": "intro_vue",
+		"steps": [
+			{"text": "Trouver des compagnons : Pépine, Sam et Fripon", "done": "party:pepine & party:sam & party:fripon"},
+			{"text": "Redresser le potager de Pépine : elle sait peut-être d'où vient le mal", "done": "potager_soigne"},
+			{"text": "Dormir à l'auberge jusqu'à la Fête des Amarres (parler à Berthe)", "done": "fete_commencee"},
+			{"text": "Monter à l'estrade, sur la place, pour ouvrir la cérémonie", "done": "naze_arrive"},
+			{"text": "Chasser les Morfales qui fouillent le village : le quai, le potager, l'auberge", "done": "morfales_chasses"},
+			{"text": "Affronter le Naze, au pied de la Grande Bitte", "done": "source_trouvee"},
+			{"text": "Prendre la route de Brie, par la barrière de l'ouest", "done": "chapitre_1_fini"}
+		],
+		"complete": "chapitre_1_fini",
+		"reward": {"xp": 100}
+	},
+	"potager": {
+		"name": "Le potager en deuil",
+		"kind": "principale",
+		"giver": "Pépine Bontabac",
+		"desc": "Les poireaux de Pépine ont perdu l'envie de se dresser. Il leur faudrait de la racine-qui-réveille bien fraîche : il en pousse au Pré Couché, par la route de l'est.",
+		"start": "pepine_vue",
+		"steps": [
+			{"text": "Proposer son aide à Pépine, devant son potager", "done": "party:pepine"},
+			{"text": "Dégager l'entrée de l'enclos, au bout du Pré Couché", "done": "baveuse_vaincue"},
+			{"text": "Cueillir la racine-qui-réveille au fond de l'enclos", "done": "racines_prises"},
+			{"text": "Revenir au potager de Pépine, à Bittebourg", "done": "potager_soigne"}
+		],
+		"complete": "potager_soigne",
+		"reward": {"xp": 30, "money": 15, "items": {"tuteur": 1}}
+	},
+	"poele": {
+		"name": "La poêle des Gamelle",
+		"kind": "principale",
+		"giver": "Sam Gamelle",
+		"desc": "On a volé la poêle de Sam la veille du concours de cuisine. Sans elle, il ne sait même plus avec quoi taper.",
+		"start": "sam_vu",
+		"steps": [
+			{"text": "Trouver qui a pris la poêle. Quelqu'un, sur la place, a les mains bien lestes", "done": "fripon_avoue"},
+			{"text": "Racheter la poêle à Ursule, sur le quai (40 écus)", "done": "poele_rachetee"},
+			{"text": "Rapporter la poêle à Sam, à l'auberge", "done": "party:sam"}
+		],
+		"complete": "party:sam",
+		"reward": {"xp": 30}
+	},
+	"pipe": {
+		"name": "Un héritage très récent",
+		"kind": "principale",
+		"giver": "Glandoulf",
+		"desc": "La pipe de Glandoulf a disparu à son arrivée. Fripon en fume une toute pareille, « héritage de famille depuis cet après-midi ».",
+		"start": "fripon_vu",
+		"steps": [
+			{"text": "Faire avouer Fripon. Il parlera plus volontiers si l'on connaît son autre larcin", "done": "fripon_avoue"},
+			{"text": "Revenir voir Fripon avec un témoin : Sam", "done": "party:fripon"}
+		],
+		"complete": "party:fripon",
+		"reward": {"xp": 30}
+	},
+	"bittes": {
+		"name": "Sauver les apparences",
+		"kind": "annexe",
+		"giver": "Maître Gédéon",
+		"desc": "Demain, tout le Comté viendra admirer les bittes de Bittebourg. Maître Gédéon ne peut pas les guérir, mais il a taillé des cales. Il ne peut pas être vu en train de les poser.",
+		"start": "cales_recues",
+		"steps": [
+			{"text": "Caler les trois bittes du quai", "done": "bitte_1 & bitte_2 & bitte_3"},
+			{"text": "Caler la bitte du bout du ponton", "done": "bitte_4"},
+			{"text": "Prévenir Maître Gédéon", "done": "bittes_payees"}
+		],
+		"complete": "bittes_payees",
+		"reward": {"money": 30, "items": {"noeud_cabestan": 1}}
+	},
+	"concours": {
+		"name": "L'omelette de la Saint-Cabestan",
+		"kind": "annexe",
+		"giver": "Sam Gamelle",
+		"desc": "Sam a retrouvé sa poêle, mais son garde-manger est vide et le concours de cuisine se tient pendant la Fête. Il lui faut des cèpes du Bois Penché, au nord du village, et des œufs de cane de la Roselière, au sud-est.",
+		"start": "sam_equipe",
+		"steps": [
+			{"text": "Cueillir des cèpes au pied du Chêne Penché, au fond du Bois Penché", "done": "cepes_pris"},
+			{"text": "Trouver des œufs de cane sur l'îlot de la Roselière", "done": "oeufs_pris"},
+			{"text": "Pendant la Fête, présenter Sam à Mémé Louchette, présidente du jury", "done": "concours_fait"}
+		],
+		"complete": "concours_fait",
+		"reward": {"xp": 60}
+	},
+	"fusees": {
+		"name": "Le bouquet promis",
+		"kind": "annexe",
+		"giver": "Titou",
+		"desc": "Les fusées de Glandoulf ont pris l'humidité : elles aussi ont molli. Un peu de soufre des marais leur rendrait du mordant. On en trouve à la Roselière, et les feux follets en laissent derrière eux.",
+		"start": "fusees_vues",
+		"steps": [
+			{"text": "Réunir trois mesures de soufre des marais, à la Roselière", "done": "item:soufre:3"},
+			{"text": "Retourner voir Titou sur la place", "done": "fusees_pretes"}
+		],
+		"complete": "fusees_pretes",
+		"reward": {"xp": 50}
+	},
+	"course": {
+		"name": "La course de barques",
+		"kind": "annexe",
+		"giver": "Nestor Boutdebois",
+		"desc": "Le barreur de Nestor a les bras en coton. Il lui faut quelqu'un pour tenir la barre contre les frères Godille. C'est le seul poste où l'on reste assis. Les gens du pays connaissent la rivière : mieux vaut les écouter avant de s'élancer.",
+		"start": "nestor_vu",
+		"steps": [
+			{"text": "Gagner la course contre les frères Godille (parler à Nestor, à l'est du quai)", "done": "course_gagnee"}
+		],
+		"complete": "course_gagnee",
+		"reward": {"money": 40, "xp": 40, "items": {"grelot_proue": 1}}
+	},
+	"battue": {
+		"name": "Avis de battue",
+		"kind": "annexe",
+		"giver": "Anselme",
+		"desc": "Un vieux sanglier s'est couché en travers du sentier du Bois Penché et charge quiconque le dérange. Anselme devrait s'en charger. Il a les bras en coton.",
+		"start": "battue_vue",
+		"steps": [
+			{"text": "Déloger le Vieux Solitaire, devant la clairière du Bois Penché", "done": "solitaire_vaincu"},
+			{"text": "Prévenir Anselme, à la barrière de l'ouest", "done": "battue_payee"}
+		],
+		"complete": "battue_payee",
+		"reward": {"money": 50, "xp": 40, "items": {"veste_matelassee": 1}}
+	}
+}

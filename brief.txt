@@ -1,0 +1,67 @@
+# Projet : RPG parodique HD-2D sous Godot 4
+
+## Contexte et façon de travailler
+
+Je veux créer un RPG parodique du Seigneur des Anneaux, en pixel art, avec Godot 4. Je ne suis pas développeur et je ne veux rien faire dans l'éditeur Godot : mon seul rôle est d'appuyer sur F5, de jouer, et de te dire ce qui me plaît ou ce qui bugge. Tout doit donc passer par des fichiers texte que tu écris toi-même (scripts GDScript, project.godot, fichiers de données). Construis les scènes par code plutôt que de compter sur des réglages faits à la main dans l'éditeur, et configure dans project.godot tout ce qui doit l'être (scène principale, autoloads, fenêtre, etc.).
+
+Le projet Godot existe déjà dans ce dossier (rendu Forward+, sur macOS). Regarde la version de Godot indiquée dans project.godot et écris du code compatible avec elle.
+
+Tu tournes en mode non interactif : tu ne peux pas me poser de questions en cours de route. Quand un choix se présente, tranche dans le sens de ce brief et note ta décision dans le fichier de suivi décrit plus bas.
+
+Comme je ne sais pas déboguer, une erreur au lancement me bloque complètement. Avant de finir, vérifie ton travail : si tu peux exécuter Godot en ligne de commande (sur Mac, le binaire se trouve en général dans Godot.app/Contents/MacOS/Godot), lance le projet en mode headless pour repérer les erreurs de script et corrige-les. Si tu ne peux pas l'exécuter, relis chaque script avec soin et dis-moi clairement dans ton compte rendu que rien n'a été exécuté.
+
+## Le jeu
+
+Glandoulf le Gris, magicien aussi puissant que flemmard, doit récupérer l'anneau pénien de Sauron avec l'aide des Grobittes, puis le jeter dans la Montagne du Festin pour le détruire.
+
+L'histoire complète est déjà écrite dans docs/HISTOIRE.md : lis ce fichier avant tout et suis-le fidèlement (noms, lore, personnages, chapitres, ton). Tu peux inventer ce qui manque dans le même esprit, sans le contredire : personnages secondaires, dialogues, noms d'attaques, quêtes annexes.
+
+Le ton est celui d'une parodie potache et grivoise, à base de jeux de mots et de sous-entendus. Mais l'histoire doit tenir debout au premier degré : de vrais enjeux, des personnages attachants, un lore cohérent (d'où vient l'anneau, pourquoi Sauron y tient tant, ce qu'il fait à celui qui le porte), des rebondissements. Le modèle, c'est Kaamelott ou les Monty Python : des personnages qui prennent très au sérieux une situation ridicule. L'humour vient des dialogues et des situations, pas d'une suite de blagues sans histoire.
+
+L'objectif final est un jeu de plusieurs heures, construit chapitre par chapitre sur de nombreuses sessions. Tous les textes du jeu sont en français.
+
+## Style visuel : HD-2D façon Octopath Traveler
+
+C'est le point auquel je tiens le plus. Le look recherché : des personnages en sprites pixel art 2D qui évoluent dans un décor 3D, avec une caméra légèrement plongeante, un flou de profondeur marqué à l'avant et à l'arrière-plan (effet maquette), des lumières dynamiques chaudes (lanternes, fenêtres, feux) avec des ombres portées, du halo lumineux (glow), un peu de brouillard et de particules d'ambiance. Les textures restent en pixels nets (filtrage nearest), jamais lissées.
+
+Je n'ai aucun fichier image. Génère tous les sprites et textures par code, en y mettant un vrai soin : palettes limitées et harmonieuses, ombrage, contour, animations de marche dans les quatre directions. Même simples, ils doivent être lisibles et avoir du charme, le rendu fera le reste.
+
+Je remplacerai plus tard ces sprites par un pack de pixel art acheté. Prévois-le dès maintenant : un point d'accès unique aux sprites, qui charge un fichier PNG s'il existe dans le dossier des assets et retombe sinon sur la version générée par code. Documente le format attendu (taille des cases, ordre des animations).
+
+## Combats (pour les étapes suivantes, à garder en tête pour l'architecture)
+
+Tour par tour façon Final Fantasy : équipe de plusieurs personnages, ordre des tours selon la vitesse, attaques, compétences coûtant du mana, objets, états (poison, sommeil, etc.), XP et niveaux. Chaque personnage a un rôle (Glandoulf en mage, les Grobittes en tank, voleur, soigneur) et choisit une spécialisation parmi des branches de talents. Tu peux t'inspirer du système de faiblesses d'Octopath si ça enrichit les combats.
+
+## Architecture
+
+Le jeu va grossir pendant longtemps, donc sépare le moteur du contenu. Les cartes, dialogues, quêtes, personnages, ennemis, compétences et objets doivent être décrits dans des fichiers de données, pour qu'ajouter un chapitre revienne à ajouter des données et non à réécrire du code. Prévois dès le départ un état de jeu central (progression de l'histoire, drapeaux de quêtes, équipe, inventaire) sur lequel la sauvegarde s'appuie.
+
+Commandes : clavier, avec les flèches et les touches physiques WASD (mon clavier est probablement en AZERTY, donc ZQSD), une touche d'interaction, une touche de menu. La manette est un plus.
+
+## Plan d'ensemble
+
+1. Socle : rendu HD-2D, déplacements, cartes, dialogues, sauvegarde
+2. Combats tour par tour
+3. Spécialisations et talents
+4. Quêtes, inventaire, boutiques
+5. Contenu, chapitre par chapitre : le village des Grobittes, le voyage, la Montagne du Festin
+
+## Ce que je te demande dans cette session : l'étape 1 uniquement
+
+Ne va pas plus loin que l'étape 1. Je veux valider le style visuel et les sensations avant de construire le reste, et je préfère une première étape soignée à cinq étapes bâclées.
+
+L'étape 1 est terminée quand :
+- F5 lance le jeu sans aucune erreur, sans que j'aie rien touché dans l'éditeur.
+- Un écran-titre propose Nouvelle partie et Continuer.
+- Je dirige Glandoulf, animé dans les quatre directions, dans un bout du village des Grobittes : quelques maisons, de la végétation, des lanternes, un chemin, avec des collisions et une caméra qui suit.
+- Le rendu HD-2D est là et se voit au premier coup d'œil : flou de profondeur, lumières, ombres, glow. Une ambiance de fin de journée ou de nuit mettrait les lumières en valeur.
+- Je peux parler à quelques Grobittes, avec une boîte de dialogue soignée (nom du personnage, texte qui s'affiche progressivement). Leurs répliques posent le ton et introduisent l'histoire.
+- Je peux entrer dans au moins un autre lieu (un intérieur ou une seconde zone), pour prouver que le passage d'une carte à l'autre fonctionne.
+- La sauvegarde et le chargement fonctionnent.
+
+## Mémoire du projet
+- docs/HISTOIRE.md existe déjà, c'est la référence : ne le réécris pas. Note ce que tu inventes dans une section « Ajouts » à la fin.
+
+## Compte rendu final
+
+Termine par un compte rendu complet en français, même si un réglage te pousse à faire court : ce que tu as construit, les commandes pour jouer, ce que tu as vérifié et comment, ce que tu n'as pas pu vérifier, les décisions importantes, et ce que tu proposes pour la suite.

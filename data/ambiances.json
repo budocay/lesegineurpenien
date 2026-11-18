@@ -1,0 +1,60 @@
+{
+	"crepuscule": {
+		"background": "#1c1a36",
+		"ambient": {"color": "#6f78c4", "energy": 0.6},
+		"sun": {"color": "#ff9a62", "energy": 0.9, "direction": [0.6, -0.42, -0.68], "fog_energy": 0.5},
+		"fog": {"color": "#4a3f6e", "density": 0.006},
+		"volumetric": {"density": 0.014, "albedo": "#cfc0ee", "emission": "#34305a", "emission_energy": 0.35, "length": 72},
+		"glow": {"intensity": 0.8, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.12,
+		"contrast": 1.05,
+		"particles": ["fireflies", "pollen"]
+	},
+	"grand_four": {
+		"background": "#1a0705",
+		"ambient": {"color": "#a88a84", "energy": 0.6},
+		"sun": {"color": "#ff8a5a", "energy": 0.5, "direction": [-0.35, -0.5, -0.8], "fog_energy": 0.8},
+		"fog": {"color": "#5a1c10", "density": 0.012},
+		"volumetric": {"density": 0.022, "albedo": "#ffb080", "emission": "#5a1408", "emission_energy": 0.7, "length": 60},
+		"glow": {"intensity": 0.95, "bloom": 0.08, "threshold": 1.0, "strength": 1.05},
+		"exposure": 1.05,
+		"saturation": 1.15,
+		"contrast": 1.08,
+		"particles": ["fireflies", "dust"]
+	},
+	"interieur_chaud": {
+		"background": "#07060b",
+		"ambient": {"color": "#6a5a78", "energy": 0.5},
+		"volumetric": {"density": 0.02, "albedo": "#e8c8a0", "emission": "#1a1410", "emission_energy": 0.2, "length": 40},
+		"glow": {"intensity": 0.8, "bloom": 0.05, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.0,
+		"saturation": 1.1,
+		"contrast": 1.05,
+		"particles": ["dust"]
+	},
+	"sous_bois": {
+		"background": "#141a2c",
+		"ambient": {"color": "#5f7aa8", "energy": 0.55},
+		"sun": {"color": "#ffa066", "energy": 0.75, "direction": [0.6, -0.42, -0.68], "fog_energy": 0.5},
+		"fog": {"color": "#35475a", "density": 0.008},
+		"volumetric": {"density": 0.018, "albedo": "#c0d8cc", "emission": "#263a40", "emission_energy": 0.35, "length": 72},
+		"glow": {"intensity": 0.8, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.12,
+		"contrast": 1.05,
+		"particles": ["fireflies", "pollen"]
+	},
+	"marais": {
+		"background": "#161c30",
+		"ambient": {"color": "#6a80b4", "energy": 0.58},
+		"sun": {"color": "#f0a078", "energy": 0.8, "direction": [0.6, -0.42, -0.68], "fog_energy": 0.5},
+		"fog": {"color": "#405468", "density": 0.009},
+		"volumetric": {"density": 0.02, "albedo": "#c8dcd8", "emission": "#2a3c4a", "emission_energy": 0.4, "length": 72},
+		"glow": {"intensity": 0.85, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.1,
+		"contrast": 1.05,
+		"particles": ["fireflies", "pollen"]
+	}
+}

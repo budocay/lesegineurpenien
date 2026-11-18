@@ -1,0 +1,27 @@
+{
+	"etal_ursule": {
+		"name": "L'étal d'Ursule",
+		"keeper": "ursule",
+		"sell_ratio": 0.5,
+		"greeting": "Tout pour le batelier, le voyageur et le distrait. Ursule rachète aussi, à moitié prix.",
+		"stock": [
+			{"item": "poele_gamelle", "price": 40, "if": "fripon_avoue", "once": "poele_rachetee"},
+			{"item": "tisane"},
+			{"item": "cidre"},
+			{"item": "decoction"},
+			{"item": "remontant"},
+			{"item": "baton_ferre"},
+			{"item": "serpette_affutee"},
+			{"item": "canif_batelier"},
+			{"item": "gilet_batelier"},
+			{"item": "cape_ciree"},
+			{"item": "noeud_cabestan"},
+			{"item": "tisane_corsee", "if": "fete_commencee"},
+			{"item": "fusee_poche", "if": "fusees_pretes"},
+			{"item": "baton_noueux", "if": "fete_commencee"},
+			{"item": "serpe_argent", "if": "fete_commencee"},
+			{"item": "lame_contrebande", "if": "fete_commencee"},
+			{"item": "veste_matelassee", "if": "fete_commencee"}
+		]
+	}
+}

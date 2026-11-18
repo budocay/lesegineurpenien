@@ -1,0 +1,388 @@
+extends RefCounted
+## Peint les textures répétables (sols, murs, toits) et les façades des maisons.
+## Densité : 24 pixels par unité monde. Les textures répétables font 48 px (2 unités).
+
+const PA = preload("res://src/gfx/pixel_art.gd")
+const T := 48
+const PPU := 24
+
+const ROOFS := {
+	"rouge": ["#a8523c", "#964634", "#b96247", "#5f2b28", "#cf7a56"],
+	"vert": ["#5f7d4c", "#536f44", "#6d8c56", "#2f4232", "#86a468"],
+	"ardoise": ["#5c6684", "#4f5874", "#6b7594", "#30364e", "#8690ad"],
+	"chaume": ["#c2a25a", "#b3924c", "#cfb06a", "#7c6234", "#e2c884"],
+}
+
+
+static func paint(kind: String) -> Image:
+	match kind:
+		"grass": return _grass()
+		"path": return _dirt()
+		"cobble": return _stones(["#8d8794", "#9a94a0", "#7f7a88", "#a39a8f"], Color("#4c4650"), 12, 8)
+		"planks": return _planks(Color("#8b6a48"), Color("#5e4631"), Color("#a5825a"))
+		"floor": return _planks(Color("#9a6b3e"), Color("#6a4528"), Color("#b5834e"))
+		"wood": return _planks(Color("#86562f"), Color("#5c3920"), Color("#a26d3d"))
+		"soil": return _soil()
+		"plaster": return _plaster(Color("#e2cfa6"))
+		"brick": return _stones(["#a85a44", "#9a4e3c", "#b56a50", "#a0604a"], Color("#6d5a50"), 12, 6)
+		"stone": return _stones(["#85828e", "#928f9a", "#777482", "#8d8880"], Color("#45414c"), 16, 12)
+		"iron": return _iron()
+		"interior_wall": return _interior_wall()
+	if kind.begins_with("roof_"):
+		return _roof(kind.trim_prefix("roof_"))
+	var img := PA.new_image(T, T)
+	img.fill(Color.MAGENTA)
+	return img
+
+
+static func _wrap_ellipse(img: Image, cx: float, cy: float, rx: float, ry: float, c: Color) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	for y in range(int(floor(cy - ry)), int(ceil(cy + ry)) + 1):
+		for x in range(int(floor(cx - rx)), int(ceil(cx + rx)) + 1):
+			var dx := (x + 0.5 - cx) / rx
+			var dy := (y + 0.5 - cy) / ry
+			if dx * dx + dy * dy <= 1.0:
+				img.set_pixel(posmod(x, w), posmod(y, h), c)
+
+
+static func _blotches(img: Image, sd: int, count: int, c: Color, rmin: float, rmax: float) -> void:
+	for i in count:
+		var cx := PA.rnd(i, 1, sd) * img.get_width()
+		var cy := PA.rnd(i, 2, sd) * img.get_height()
+		var r := lerpf(rmin, rmax, PA.rnd(i, 3, sd))
+		_wrap_ellipse(img, cx, cy, r, r * 0.7, c)
+
+
+static func _specks(img: Image, sd: int, count: int, c: Color) -> void:
+	for i in count:
+		var x := int(PA.rnd(i, 4, sd) * img.get_width())
+		var y := int(PA.rnd(i, 5, sd) * img.get_height())
+		img.set_pixel(x, y, c)
+
+
+static func _grass() -> Image:
+	var img := PA.new_image(T, T)
+	var base := Color("#3f7d43")
+	var dark := Color("#33683d")
+	var light := Color("#4f9148")
+	var tip := Color("#70ad52")
+	img.fill(base)
+	_blotches(img, 11, 14, dark, 4.0, 8.0)
+	_blotches(img, 12, 12, light, 3.0, 6.0)
+	_specks(img, 13, 70, dark)
+	for i in 46:
+		var x := int(PA.rnd(i, 1, 21) * T)
+		var y := int(PA.rnd(i, 2, 21) * T)
+		img.set_pixel(x, y, tip)
+		img.set_pixel(x, (y + 1) % T, light)
+	return img
+
+
+static func _dirt() -> Image:
+	var img := PA.new_image(T, T)
+	img.fill(Color("#b58d5c"))
+	_blotches(img, 31, 12, Color("#a37d50"), 4.0, 8.0)
+	_blotches(img, 32, 10, Color("#c7a372"), 3.0, 6.0)
+	_specks(img, 33, 60, Color("#96704a"))
+	for i in 9:
+		var x := int(PA.rnd(i, 1, 34) * (T - 3))
+		var y := int(PA.rnd(i, 2, 34) * (T - 3))
+		PA.rect(img, x, y, 2, 2, Color("#9a948a"))
+		PA.px(img, x, y, Color("#bdb7ab"))
+		PA.rect(img, x, y + 2, 2, 1, Color("#80603f"))
+	return img
+
+
+static func _stones(tones: Array, mortar: Color, sw: int, sh: int) -> Image:
+	var img := PA.new_image(T, T)
+	img.fill(mortar)
+	var rows := T / sh
+	var cols := T / sw
+	for r in rows:
+		var off := (sw / 2) if r % 2 == 1 else 0
+		for c in cols:
+			var base := Color.from_string(str(tones[int(PA.rnd(c, r, 41) * tones.size()) % tones.size()]), Color.GRAY)
+			var x0 := c * sw + off
+			var y0 := r * sh
+			for y in range(1, sh):
+				for x in range(1, sw):
+					var corner := (x == 1 or x == sw - 1) and (y == 1 or y == sh - 1)
+					if corner:
+						continue
+					var col := base
+					if y == 1:
+						col = PA.shade(base, 0.18)
+					elif y == sh - 1 or x == sw - 1:
+						col = PA.shade(base, -0.2)
+					elif PA.rnd(x0 + x, y0 + y, 42) < 0.08:
+						col = PA.shade(base, -0.1)
+					img.set_pixel(posmod(x0 + x, T), y0 + y, col)
+	return img
+
+
+static func _planks(base: Color, dark: Color, light: Color) -> Image:
+	var img := PA.new_image(T, T)
+	for r in 6:
+		var y0 := r * 8
+		var tone := base.lerp(dark, PA.rnd(r, 0, 51) * 0.3)
+		PA.rect(img, 0, y0, T, 8, tone)
+		PA.rect(img, 0, y0, T, 1, tone.lerp(light, 0.5))
+		PA.rect(img, 0, y0 + 7, T, 1, dark)
+		for i in 5:
+			var x := int(PA.rnd(i, r, 52) * T)
+			var y := y0 + 2 + int(PA.rnd(i, r, 53) * 4.0)
+			var n := 3 + int(PA.rnd(i, r, 54) * 5.0)
+			var c := tone.lerp(dark, 0.45) if i % 2 == 0 else tone.lerp(light, 0.35)
+			for k in n:
+				img.set_pixel((x + k) % T, y, c)
+		var jx := (r * 19 + 7) % T
+		PA.rect(img, jx, y0, 1, 7, dark)
+		PA.px(img, (jx + 2) % T, y0 + 2, dark)
+		PA.px(img, (jx + T - 2) % T, y0 + 5, dark)
+	return img
+
+
+static func _soil() -> Image:
+	var img := PA.new_image(T, T)
+	img.fill(Color("#5a4032"))
+	for r in 6:
+		var y0 := r * 8
+		PA.rect(img, 0, y0 + 1, T, 2, Color("#6f5140"))
+		PA.rect(img, 0, y0 + 3, T, 1, Color("#614636"))
+		PA.rect(img, 0, y0 + 6, T, 1, Color("#463024"))
+	_specks(img, 61, 70, Color("#7b5b47"))
+	_specks(img, 62, 60, Color("#402b21"))
+	return img
+
+
+static func _plaster(base: Color) -> Image:
+	var img := PA.new_image(T, T)
+	img.fill(base)
+	_blotches(img, 71, 9, PA.shade(base, -0.07), 4.0, 9.0)
+	_blotches(img, 72, 8, PA.shade(base, 0.12), 3.0, 7.0)
+	_specks(img, 73, 40, PA.shade(base, -0.14))
+	return img
+
+
+static func _iron() -> Image:
+	var img := PA.new_image(T, T)
+	img.fill(Color("#3b3a47"))
+	_blotches(img, 81, 8, Color("#33323e"), 4.0, 8.0)
+	for y in range(4, T, 12):
+		for x in range(4, T, 12):
+			PA.px(img, x, y, Color("#5b5a6b"))
+			PA.px(img, x, y + 1, Color("#25242e"))
+	return img
+
+
+static func _roof(kind: String) -> Image:
+	var pal: Array = ROOFS.get(kind, ROOFS["rouge"])
+	var tones: Array[Color] = []
+	for s: Variant in pal:
+		tones.append(Color.from_string(str(s), Color.GRAY))
+	var img := PA.new_image(T, T)
+	if kind == "chaume":
+		img.fill(tones[0])
+		for x in T:
+			var y := 0
+			while y < T:
+				var n := 3 + int(PA.rnd(x, y, 91) * 7.0)
+				var c: Color = tones[int(PA.rnd(x, y, 92) * 3.0) % 3]
+				for k in n:
+					if y + k < T:
+						img.set_pixel(x, y + k, c)
+				y += n
+		for y in range(11, T, 12):
+			PA.rect(img, 0, y, T, 1, tones[3])
+			PA.rect(img, 0, (y + 1) % T, T, 1, tones[4])
+		return img
+	for r in 6:
+		var y0 := r * 8
+		var off := 6 if r % 2 == 1 else 0
+		for c in 4:
+			var tone: Color = tones[int(PA.rnd(c, r, 93) * 3.0) % 3]
+			var x0 := c * 12 + off
+			for y in 8:
+				for x in 12:
+					var col := tone
+					if y == 0:
+						col = tones[4].lerp(tone, 0.4)
+					elif y == 7 or x == 11:
+						col = tones[3]
+					elif y == 6 and (x == 0 or x == 10):
+						col = tones[3]
+					img.set_pixel(posmod(x0 + x, T), y0 + y, col)
+	return img
+
+
+## Mur intérieur : 48 x 72 px, soit 2 unités de large sur 3 de haut.
+static func _interior_wall() -> Image:
+	var img := PA.new_image(T, 72)
+	var plaster := Color("#d6c095")
+	img.fill(plaster)
+	_blotches(img, 101, 8, PA.shade(plaster, -0.08), 4.0, 8.0)
+	_blotches(img, 102, 6, PA.shade(plaster, 0.1), 3.0, 6.0)
+	# poutre haute
+	PA.rect(img, 0, 0, T, 6, Color("#5a3d2b"))
+	PA.rect(img, 0, 0, T, 1, Color("#7a5639"))
+	PA.rect(img, 0, 5, T, 1, Color("#3d281c"))
+	# colombage vertical
+	PA.rect(img, 22, 6, 4, 38, Color("#5a3d2b"))
+	PA.rect(img, 22, 6, 1, 38, Color("#7a5639"))
+	# lambris
+	PA.rect(img, 0, 44, T, 3, Color("#6a472e"))
+	PA.rect(img, 0, 44, T, 1, Color("#8c623f"))
+	for b in 6:
+		var x0 := b * 8
+		var tone := Color("#7a5335").lerp(Color("#63412a"), PA.rnd(b, 0, 103) * 0.5)
+		PA.rect(img, x0, 47, 8, 25, tone)
+		PA.rect(img, x0, 47, 1, 25, Color("#94683f"))
+		PA.rect(img, x0 + 7, 47, 1, 25, Color("#4a301f"))
+	PA.rect(img, 0, 68, T, 4, Color("#4a301f"))
+	PA.rect(img, 0, 68, T, 1, Color("#6a472e"))
+	return img
+
+
+static func _fill_tiled(img: Image, tile: Image) -> void:
+	var tw := tile.get_width()
+	var th := tile.get_height()
+	for y in img.get_height():
+		for x in img.get_width():
+			img.set_pixel(x, y, tile.get_pixel(x % tw, y % th))
+
+
+static func _stone_base(img: Image, rows: int) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	var tones := [Color("#8a8690"), Color("#7a7682"), Color("#98939c")]
+	PA.rect(img, 0, h - rows, w, rows, Color("#4a4652"))
+	for x0 in range(0, w, 8):
+		var tone: Color = tones[int(PA.rnd(x0, 0, 111) * 3.0) % 3]
+		PA.rect(img, x0 + 1, h - rows + 1, 7, rows - 1, tone)
+		PA.rect(img, x0 + 1, h - rows + 1, 7, 1, PA.shade(tone, 0.18))
+		PA.rect(img, x0 + 1, h - 1, 7, 1, PA.shade(tone, -0.2))
+
+
+static func _timber_frame(img: Image, braces: bool) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	var wood := Color("#5d3f2c")
+	var wood_l := Color("#7d5a3d")
+	var wood_d := Color("#3c281c")
+	if braces:
+		for k in 2:
+			PA.line(img, 3 + k, h - 10, 13 + k, 5, wood)
+			PA.line(img, w - 4 - k, h - 10, w - 14 - k, 5, wood)
+	PA.rect(img, 0, 0, w, 4, wood)
+	PA.rect(img, 0, 0, w, 1, wood_l)
+	PA.rect(img, 0, 3, w, 1, wood_d)
+	for x0: int in [0, w - 3]:
+		PA.rect(img, x0, 0, 3, h - 7, wood)
+		PA.rect(img, x0, 0, 1, h - 7, wood_l)
+		PA.rect(img, x0 + 2, 4, 1, h - 11, wood_d)
+
+
+## Façade avant d'une maison. Renvoie {"albedo": Image, "emission": Image}.
+## door_x et windows sont en unités depuis le bord gauche ; door_x < 0 = pas de porte.
+static func house_front(w_units: float, h_units: float, door_x: float, windows: Array, door_color: Color, lit: bool = true) -> Dictionary:
+	var w := int(round(w_units * PPU))
+	var h := int(round(h_units * PPU))
+	var img := PA.new_image(w, h)
+	var emi := PA.new_image(w, h)
+	emi.fill(Color.BLACK)
+	_fill_tiled(img, paint("plaster"))
+	_stone_base(img, 8)
+	_timber_frame(img, w >= 96)
+	var frame := Color("#4a3122")
+	# fenêtres rondes
+	for wx_v: Variant in windows:
+		var wx := float(wx_v) * PPU
+		var wy := float(h) - 35.0
+		PA.ellipse(img, wx, wy, 10.0, 10.0, frame)
+		PA.ellipse(img, wx, wy, 9.0, 9.0, Color("#6e4c33"))
+		for y in range(int(wy) - 9, int(wy) + 9):
+			for x in range(int(wx) - 9, int(wx) + 9):
+				var dx := x + 0.5 - wx
+				var dy := y + 0.5 - wy
+				var dist := sqrt(dx * dx + dy * dy)
+				if dist > 7.5:
+					continue
+				var c := Color("#3a4666")
+				if lit:
+					c = Color("#ffe6a0").lerp(Color("#f0a44a"), clampf(dist / 7.5, 0.0, 1.0))
+					if dy < -2.0:
+						c = c.lerp(Color("#e88f3e"), 0.25)
+					PA.px(emi, x, y, c)
+				PA.px(img, x, y, c)
+		var ix := int(wx)
+		var iy := int(wy)
+		PA.rect(img, ix - 8, iy, 16, 1, frame)
+		PA.rect(img, ix, iy - 8, 1, 16, frame)
+		PA.rect(emi, ix - 8, iy, 16, 1, Color.BLACK)
+		PA.rect(emi, ix, iy - 8, 1, 16, Color.BLACK)
+		# jardinière
+		PA.rect(img, ix - 9, iy + 11, 18, 3, Color("#6e4c33"))
+		PA.rect(img, ix - 9, iy + 13, 18, 1, frame)
+		var blooms := [Color("#e86a7a"), Color("#f2d55c"), Color("#f4f0e2"), Color("#b98ae0")]
+		for k in 6:
+			PA.px(img, ix - 8 + k * 3, iy + 10, blooms[(k + int(wx)) % 4])
+			PA.px(img, ix - 7 + k * 3, iy + 10, Color("#4f9148"))
+	# porte ronde
+	if door_x >= 0.0:
+		var dx0 := door_x * PPU
+		var dy0 := float(h) - 15.0
+		PA.rect(img, int(dx0) - 14, h - 3, 28, 3, Color("#a8a3ac"))
+		PA.rect(img, int(dx0) - 14, h - 3, 28, 1, Color("#c4bfc6"))
+		PA.ellipse(img, dx0, dy0, 18.0, 18.0, frame)
+		PA.ellipse(img, dx0, dy0, 17.0, 17.0, Color("#7d5a3d"))
+		for y in range(int(dy0) - 16, h - 3):
+			for x in range(int(dx0) - 16, int(dx0) + 16):
+				var ddx := x + 0.5 - dx0
+				var ddy := y + 0.5 - dy0
+				if ddx * ddx + ddy * ddy > 15.0 * 15.0:
+					continue
+				var c := door_color
+				if posmod(x - int(dx0), 6) == 0:
+					c = PA.shade(door_color, -0.28)
+				elif ddx > 8.0:
+					c = PA.shade(door_color, -0.14)
+				elif ddx < -9.0 and ddy < 0.0:
+					c = PA.shade(door_color, 0.16)
+				PA.px(img, x, y, c)
+		# ferrures et poignée centrale
+		var idx := int(dx0)
+		var idy := int(dy0)
+		PA.rect(img, idx - 13, idy - 7, 9, 2, Color("#2f2c38"))
+		PA.rect(img, idx - 13, idy + 5, 9, 2, Color("#2f2c38"))
+		PA.rect(img, idx - 1, idy - 1, 3, 3, Color("#d9b04a"))
+		PA.px(img, idx - 1, idy - 1, Color("#fff0b0"))
+		PA.px(img, idx + 1, idy + 1, Color("#8e6a22"))
+	return {"albedo": img, "emission": emi}
+
+
+## Mur latéral ou arrière : crépi, soubassement de pierre, colombage.
+static func house_side(w_units: float, h_units: float) -> Image:
+	var img := PA.new_image(int(round(w_units * PPU)), int(round(h_units * PPU)))
+	_fill_tiled(img, paint("plaster"))
+	_stone_base(img, 8)
+	_timber_frame(img, false)
+	return img
+
+
+## Tapis à bordure, peint à la taille demandée.
+static func rug(w_units: float, d_units: float, main: Color, border: Color) -> Image:
+	var w := int(round(w_units * PPU))
+	var h := int(round(d_units * PPU))
+	var img := PA.new_image(w, h)
+	img.fill(border)
+	PA.rect(img, 2, 2, w - 4, h - 4, PA.shade(border, 0.25))
+	PA.rect(img, 4, 4, w - 8, h - 8, main)
+	for y in range(6, h - 6):
+		for x in range(6, w - 6):
+			if (x + y) % 8 == 0 or (x - y + 800) % 8 == 0:
+				img.set_pixel(x, y, PA.shade(main, -0.18))
+	for x in range(1, w - 1, 3):
+		PA.px(img, x, 0, PA.shade(border, 0.4))
+		PA.px(img, x, h - 1, PA.shade(border, 0.4))
+	return img

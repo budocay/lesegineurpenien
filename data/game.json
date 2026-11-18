@@ -1,0 +1,15 @@
+{
+	"title": "Glandoulf le Gris et l'Anneau pénien de Sauron",
+	"player": "glandoulf",
+	"title_map": "bittebourg",
+	"start": {
+		"chapter": "chapitre_1",
+		"prologue": "prologue",
+		"map": "bittebourg",
+		"spawn": "route_est",
+		"party": ["glandoulf"],
+		"money": 0,
+		"inventory": {"tisane": 2, "cidre": 1}
+	},
+	"progression": {"xp_base": 16, "xp_power": 1.5, "talent_points_per_level": 1}
+}

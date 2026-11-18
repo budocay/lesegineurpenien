@@ -1,0 +1,297 @@
+{
+	"arrivee_bois": [
+		{"text": "Le sentier s'enfonce sous des arbres qui penchent tous du même côté, comme des gens qui écoutent à une porte."},
+		{"who": "glandoulf", "text": "Le Bois Penché. Il porte ce nom depuis toujours, à cause d'un seul vieux chêne. Les autres viennent de s'y mettre."},
+		{"who": "glandoulf", "text": "Le sentier est sûr. Les fougères, moins. Et il faudra les traverser pour aller au fond."},
+		{"set": "bois_vu"}
+	],
+	"panneau_bois": [
+		{"name": "Panneau", "text": "BOIS PENCHÉ. Le Chêne Penché est au bout du sentier, passé les deux fougeraies. On est prié de ne pas s'y adosser."}
+	],
+	"vieux_solitaire": [
+		{"text": "Un sanglier gris, haut comme un Grobitte debout sur un autre, est couché en travers du passage. Il soupire. Les feuilles mortes s'envolent."},
+		{"who": "glandoulf", "text": "Il n'a pas l'air méchant. Il a l'air d'avoir renoncé, ce qui est différent, et parfois pire.",
+			"choice": [
+				{"text": "Le déloger", "then": [
+					{"who": "glandoulf", "text": "Mon vieux, je comprends. Vraiment. Mais vous êtes couché sur le sentier, et moi je ne fais pas le tour."},
+					{"battle": "vieux_solitaire"},
+					{"if": "combat_vieux_solitaire", "then": [
+						{"text": "Le Vieux Solitaire s'ébroue, renifle l'équipe une dernière fois et s'en va vers le fond du bois, d'un pas presque décidé."},
+						{"who": "glandoulf", "text": "Voilà. Il lui fallait une raison de se lever. Nous en avons tous besoin, hélas."},
+						{"set": "solitaire_vaincu"}
+					]}
+				]},
+				{"text": "Le laisser tranquille", "then": [
+					{"who": "glandoulf", "text": "Chacun son tour de garde. Le sien consiste à ne pas bouger, et il s'y tient."}
+				]}
+			]
+		}
+	],
+	"chene_penche": [
+		{"text": "Le Chêne Penché. Il penchait déjà quand Bittebourg n'était qu'un ponton. C'est dans ses branches basses qu'on a taillé la première bitte du Comté."},
+		{"who": "glandoulf", "text": "Lui, au moins, il penche par choix. Je respecte."}
+	],
+	"cepes": [
+		{"if": "cepes_pris",
+			"then": [{"text": "Il reste quelques petits cèpes. On les laisse grandir : c'est ainsi qu'on est sûr d'en retrouver."}],
+			"else": [
+				{"text": "Au pied du Chêne Penché, une ronde de cèpes bruns, fermes, serrés les uns contre les autres. Ils se tiennent très droits."},
+				{"if": "party:sam",
+					"then": [
+						{"who": "sam", "text": "Des cèpes du Chêne ! Regardez-moi ces pieds. Ça, monsieur Glandoulf, c'est un champignon qui a de la tenue."},
+						{"who": "sam", "text": "Avec des œufs de cane, je refais l'omelette de la Saint-Cabestan. Et cette fois, je ne la rate pas."}
+					],
+					"else": [
+						{"who": "glandoulf", "text": "Des champignons qui ne dorment pas et ne mordent pas. Un cuisinier saurait quoi en faire."}
+					]
+				},
+				{"give": "cepe"},
+				{"set": "cepes_pris"}
+			]
+		}
+	],
+	"coffre_clairiere": [
+		{"if": "coffre_clairiere_ouvert",
+			"then": [{"text": "La caisse est vide. Il y flotte une odeur de cire."}],
+			"else": [
+				{"text": "Une caisse de bûcheron oubliée sous les branches. Dedans, une cape soigneusement pliée et une bourse."},
+				{"give": "cape_ciree"},
+				{"money": 30},
+				{"set": "coffre_clairiere_ouvert"}
+			]
+		}
+	],
+	"coffre_bois": [
+		{"if": "coffre_bois_ouvert",
+			"then": [{"text": "La caisse est vide."}],
+			"else": [
+				{"text": "Une caisse à moitié enfouie dans les fougères. Quelqu'un y avait mis ses provisions à l'abri des sangliers."},
+				{"give": "tisane_corsee", "count": 2},
+				{"money": 20},
+				{"set": "coffre_bois_ouvert"}
+			]
+		}
+	],
+	"coffre_fougeres": [
+		{"if": "coffre_fougeres_ouvert",
+			"then": [{"text": "La caisse est vide."}],
+			"else": [
+				{"text": "Une caisse marquée « Bolgère ». Le vieux Bolgère ne viendra pas la chercher : il n'a pas quitté son fauteuil depuis mardi."},
+				{"give": "remontant"},
+				{"give": "decoction"},
+				{"set": "coffre_fougeres_ouvert"}
+			]
+		}
+	],
+
+	"arrivee_roseliere": [
+		{"text": "La rivière s'étale ici en bras morts et en étangs. Les roseaux, qui faisaient deux fois la taille d'un Grobitte, traînent dans l'eau."},
+		{"who": "glandoulf", "text": "La Roselière. On y venait pour la pêche et pour la paix. Il reste la pêche."},
+		{"who": "glandoulf", "text": "Ça luit, là-bas, dans les roseaux. Des feux follets. S'ils sont dans l'état du reste, ils éclairent à peine."},
+		{"set": "roseliere_vue"}
+	],
+	"panneau_roseliere": [
+		{"name": "Panneau", "text": "LA ROSELIÈRE. À l'est : la passerelle de l'îlot aux Canes. Monseigneur y a ses habitudes. Faites le tour. (Il n'y a pas de tour.)"}
+	],
+	"basile": [
+		{"if": "basile_vu",
+			"then": [
+				{"if": "naze_vaincu",
+					"then": [
+						{"who": "basile", "text": "On m'a dit, pour le registre. Trois cents ans qu'on tait ce nom, et il faut qu'un étranger sans visage vienne le lire tout haut."},
+						{"who": "basile", "text": "Si vous le croisez, là-bas, en amont... dites-lui que sa barque est toujours là. On ne l'a jamais donnée à personne."}
+					],
+					"else": [
+						{"who": "basile", "text": "La rivière ne passe pas où l'on croit, magicien. Au premier coude, la veine d'eau file rive gauche, sous les saules. À droite, on rame contre elle."},
+						{"who": "basile", "text": "Et pour le soufre, cherchez les pierres jaunes. Il y en a dans les roseaux du nord, dans ceux du sud, et sur l'îlot. Les feux follets en laissent aussi, quand on les mouche."}
+					]
+				}
+			],
+			"else": [
+				{"who": "basile", "text": "Doucement. Vous allez faire peur au poisson. Enfin... vous lui feriez peur, s'il avait encore le cœur à avoir peur."},
+				{"who": "basile", "text": "Basile Trempette. Je pêche ici depuis cinquante ans. Depuis trois jours, ça ne mord plus. Le poisson regarde l'hameçon et il passe son chemin."},
+				{"who": "glandoulf", "text": "Trempette. C'est un vieux nom de Bittebourg ?"},
+				{"who": "basile", "text": "Vieux, oui. Fier, non. Chez nous, on ne parle pas de l'ancêtre."},
+				{"who": "glandoulf", "text": "Quel ancêtre ?"},
+				{"who": "basile", "text": "Celui qui voulait quelque chose. Le seul Grobitte de mémoire de Grobitte à avoir eu une ambition : pêcher le plus gros poisson de la rivière."},
+				{"who": "basile", "text": "Un matin, il a remonté autre chose dans son filet. Une chose qui brillait. Il est parti vers l'amont le soir même, et on ne l'a jamais revu. On a rayé son nom à la Capitainerie."},
+				{"who": "glandoulf", "text": "[i](Une chose qui brillait. Dans la rivière. Il y a... non. Il y a des tas de choses qui brillent, dans une rivière.)[/i]"},
+				{"who": "basile", "text": "Voilà ce que ça donne, de vouloir. Moi, je ne veux rien, et regardez : je suis encore là."},
+				{"who": "basile", "text": "Si vous allez vers l'îlot, méfiez-vous de Monseigneur. Il s'est installé sur la passerelle, et les canes ont déserté le nid."},
+				{"set": "basile_vu"}
+			]
+		}
+	],
+	"crapaud_buffle": [
+		{"text": "Un crapaud large comme une table d'auberge occupe toute la passerelle. Il a l'air d'y siéger. De temps en temps, il gobe quelque chose sans ouvrir les yeux."},
+		{"who": "glandoulf", "text": "Monseigneur, je présume. Il a trouvé la seule planche du marais d'où l'on ne peut pas le contourner. C'est du grand art.",
+			"choice": [
+				{"text": "Lui demander de céder le passage", "then": [
+					{"who": "glandoulf", "text": "Monseigneur, avec tout le respect que je dois à votre immobilité : poussez-vous."},
+					{"battle": "crapaud_buffle"},
+					{"if": "combat_crapaud_buffle", "then": [
+						{"text": "Monseigneur gonfle les joues une dernière fois, bascule de la passerelle et s'enfonce dans l'étang avec la lenteur d'un coucher de soleil."},
+						{"who": "glandoulf", "text": "Il reviendra. Les gens qui tiennent à leur place reviennent toujours."},
+						{"set": "crapaud_vaincu"}
+					]}
+				]},
+				{"text": "Ne pas le déranger", "then": [
+					{"who": "glandoulf", "text": "On verra plus tard. Il ne s'en ira pas. C'est même tout le problème."}
+				]}
+			]
+		}
+	],
+	"nid": [
+		{"if": "oeufs_pris",
+			"then": [{"text": "Le nid est vide. Une cane tourne déjà au-dessus de l'îlot : elle revient s'installer."}],
+			"else": [
+				{"text": "Un grand nid de roseaux tressés. La cane l'a quitté quand Monseigneur est venu lui faire de l'ombre. Il reste une demi-douzaine d'œufs, froids depuis des jours."},
+				{"if": "party:sam",
+					"then": [
+						{"who": "sam", "text": "Des œufs de cane ! Ils ne donneront plus de canetons, les pauvres. Mais ils donneront une omelette dont on parlera encore à la prochaine Saint-Cabestan."}
+					],
+					"else": [
+						{"who": "glandoulf", "text": "Des œufs. Abandonnés. Je connais quelqu'un qui en ferait quelque chose de mieux qu'un regret."}
+					]
+				},
+				{"give": "oeufs_cane"},
+				{"set": "oeufs_pris"}
+			]
+		}
+	],
+	"coffre_ilot": [
+		{"if": "coffre_ilot_ouvert",
+			"then": [{"text": "La caisse est vide."}],
+			"else": [
+				{"text": "Une caisse de pêcheur, restée sur l'îlot depuis que la passerelle est occupée. Elle contient un gilet presque sec et de quoi relever un camarade."},
+				{"give": "gilet_batelier"},
+				{"give": "racine"},
+				{"set": "coffre_ilot_ouvert"}
+			]
+		}
+	],
+	"coffre_roseaux": [
+		{"if": "coffre_roseaux_ouvert",
+			"then": [{"text": "La caisse est vide."}],
+			"else": [
+				{"text": "Une caisse échouée dans les roseaux, tombée d'une barque. Le cidre a tenu bon."},
+				{"give": "cidre", "count": 2},
+				{"give": "tisane_corsee"},
+				{"set": "coffre_roseaux_ouvert"}
+			]
+		}
+	],
+	"soufre_nord": [
+		{"if": "soufre_nord_pris",
+			"then": [{"text": "La pierre a été grattée jusqu'au gris. Il n'y a plus de soufre ici."}],
+			"else": [
+				{"text": "Une pierre couverte d'une croûte jaune qui pique le nez. Du soufre des marais."},
+				{"give": "soufre"},
+				{"set": "soufre_nord_pris"}
+			]
+		}
+	],
+	"soufre_sud": [
+		{"if": "soufre_sud_pris",
+			"then": [{"text": "La pierre a été grattée jusqu'au gris. Il n'y a plus de soufre ici."}],
+			"else": [
+				{"text": "Encore une pierre jaune. Glandoulf la gratte du bout du bâton, en retenant sa respiration."},
+				{"give": "soufre"},
+				{"set": "soufre_sud_pris"}
+			]
+		}
+	],
+	"soufre_ilot": [
+		{"if": "soufre_ilot_pris",
+			"then": [{"text": "La pierre a été grattée jusqu'au gris. Il n'y a plus de soufre ici."}],
+			"else": [
+				{"text": "La plus belle pierre à soufre du marais, à l'abri sur l'îlot. Monseigneur ne s'en servait pas."},
+				{"give": "soufre"},
+				{"set": "soufre_ilot_pris"}
+			]
+		}
+	],
+
+	"arrivee_route": [
+		{"text": "La route de Brie quitte le Comté entre deux haies. Les débris de la barrière d'Anselme jonchent encore le bas-côté."},
+		{"who": "glandoulf", "text": "Trois jours de marche. Deux, si l'on ne s'arrête pas."},
+		{"who": "sam", "text": "On s'arrêtera, monsieur Glandoulf. J'ai pris la marmite."},
+		{"who": "fripon", "text": "Il y a du monde, plus loin. Ça sent le graillon jusqu'ici. Les mangeurs du cavalier ne sont pas tous repartis."},
+		{"set": "route_vue"}
+	],
+	"feu_de_camp": [
+		{"text": "Un feu de camp abandonné, encore chaud. Les pierres autour sont juste à la bonne hauteur pour s'asseoir.",
+			"choice": [
+				{"text": "Faire halte (soigne l'équipe et sauvegarde)", "then": [
+					{"text": "Sam sort la marmite. Glandoulf ferme les yeux avant même que l'eau frémisse."},
+					{"action": "rest"},
+					{"action": "save"},
+					{"who": "sam", "text": "Il a dormi pendant toute la soupe. Je lui ai gardé le fond, c'est le meilleur."}
+				]},
+				{"text": "Continuer", "then": [
+					{"who": "glandoulf", "text": "Je note l'endroit. C'est un bon endroit."}
+				]}
+			]
+		}
+	],
+	"peage_morfales": [
+		{"text": "Trois Morfales ont barré la route avec des tonneaux volés. Ils ont planté un écriteau : « PÉAGE. On paye en nature. »"},
+		{"who": "morfale_goinfre", "text": "Halte. Le Maître des Neuf a dit : personne ne remonte vers l'est, personne ne descend vers Brie. Et tout ce qui passe, on le goûte."},
+		{"who": "sam", "text": "C'est celui de l'auberge. Celui qui a dit « tiède ».",
+			"choice": [
+				{"text": "Forcer le passage", "then": [
+					{"who": "glandoulf", "text": "Messieurs, j'ai marché jusqu'ici. Vous n'imaginez pas ce que cela représente. Je ne ferai pas demi-tour."},
+					{"battle": "morfales_route"},
+					{"if": "combat_morfales_route", "then": [
+						{"text": "Les Morfales s'égaillent dans les champs. Leur écriteau reste planté de travers au milieu de la route."},
+						{"who": "sam", "text": "Tiède. Non mais."}
+					]}
+				]},
+				{"text": "Reculer", "then": [
+					{"who": "glandoulf", "text": "Il y avait un feu, un peu avant. On réfléchit mieux assis."}
+				]}
+			]
+		}
+	],
+	"coffre_route": [
+		{"if": "coffre_route_ouvert",
+			"then": [{"text": "La caisse est vide."}],
+			"else": [
+				{"text": "Le butin du péage, entassé dans une caisse : ce que les Morfales n'avaient pas encore eu le temps de manger."},
+				{"give": "tisane_corsee", "count": 2},
+				{"give": "remontant"},
+				{"money": 40},
+				{"set": "coffre_route_ouvert"}
+			]
+		}
+	],
+	"panneau_brie": [
+		{"name": "Panneau", "text": "Ici finit le Comté. BRIE : deux jours. « Auberge du Poney Flagada, lits pour toutes les tailles. »"},
+		{"text": "Le poteau est droit. C'est le premier depuis Bittebourg."}
+	],
+	"fin_chapitre_1": [
+		{"if": "chapitre_1_fini",
+			"then": [
+				{"who": "glandoulf", "text": "Brie est par là. Deux jours de marche. Rien ne presse : la route ne s'en ira pas."},
+				{"text": "(La suite du voyage arrivera avec le chapitre 2. En attendant, le Comté reste ouvert.)"}
+			],
+			"else": [
+				{"text": "La route monte en haut d'une dernière butte. Derrière, le Comté : les toits de Bittebourg, la rivière, et pas un épi debout."},
+				{"who": "sam", "text": "Je n'étais jamais allé plus loin que le Pré Couché."},
+				{"who": "fripon", "text": "Moi si. Une fois. J'avais fait demi-tour au panneau. ... Ne le répétez pas."},
+				{"who": "pepine", "text": "Regardez l'herbe, de ce côté. Elle se tient mieux. Le mal n'est pas encore arrivé jusqu'ici."},
+				{"who": "glandoulf", "text": "Il arrivera. Il suit la rivière, et les Nazes le suivent."},
+				{"who": "glandoulf", "text": "[i](Trois cents ans que je remets cette marche au lendemain. Vingt pas, à l'époque. Aujourd'hui, c'est la moitié du monde.)[/i]"},
+				{"who": "sam", "text": "Vous disiez, monsieur Glandoulf ?"},
+				{"who": "glandoulf", "text": "Je disais : en route. Et que personne ne marche trop vite."},
+				{"text": "Loin devant, au bout de la plaine, une lumière s'allume. Puis deux. Brie, et l'enseigne du Poney Flagada."},
+				{"set": "chapitre_1_fini"},
+				{"chapter": "chapitre_2"},
+				{"banner": "Fin du chapitre 1", "sub": "Bittebourg"},
+				{"action": "save"},
+				{"text": "FIN DU CHAPITRE 1. La partie est sauvegardée. Le voyage reprendra à Brie, au chapitre 2."},
+				{"text": "(En attendant, vous pouvez rebrousser chemin et terminer ce qui reste à faire dans le Comté.)"}
+			]
+		}
+	]
+}

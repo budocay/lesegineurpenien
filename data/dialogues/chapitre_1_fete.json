@@ -1,0 +1,236 @@
+{
+	"panneau_nord": [
+		{"name": "Panneau", "text": "Sentier du BOIS PENCHÉ. Cèpes, châtaignes, bois de taille. Les sangliers ont priorité."},
+		{"text": "Quelqu'un a ajouté à la craie : « Ils ne s'en servent plus. Méfiance quand même. »"}
+	],
+	"panneau_sud_est": [
+		{"name": "Panneau", "text": "LA ROSELIÈRE. Pêche autorisée. Baignade tolérée. Il est interdit de déranger Monseigneur."},
+		{"text": "Personne, au village, ne semble savoir qui a écrit la dernière ligne."}
+	],
+
+	"nestor": [
+		{"if": "course_gagnee",
+			"then": [
+				{"who": "nestor", "text": "Les Godille ne m'adressent plus la parole. C'est le plus beau jour de ma vie de batelier."},
+				{"who": "nestor", "text": "Si l'envie vous prend de refaire un tour, magicien, la barre est à vous. Vous la tenez comme personne : sans bouger."}
+			],
+			"else": [
+				{"if": "nestor_vu",
+					"then": [
+						{"who": "nestor", "text": "Alors, magicien ? Les frères Godille sont déjà à leurs rames. Vous prenez la barre ?",
+							"choice": [
+								{"text": "Prendre la barre", "then": [
+									{"text": "Glandoulf s'installe à l'arrière de la barque, cale son bâton entre ses genoux et pose la main sur la barre. C'est très confortable."},
+									{"who": "nestor", "text": "Au signal ! Les Godille partent toujours comme s'ils avaient le feu aux chausses. Qu'est-ce qu'on fait ?",
+										"choice": [
+											{"text": "Les laisser filer et garder son souffle", "then": [
+												{"text": "Les Godille s'arrachent du quai dans une gerbe d'eau. Nestor grogne, mais ses rameurs tirent long et calme."},
+												{"who": "nestor", "text": "Premier coude ! Rive gauche ou rive droite ?",
+													"choice": [
+														{"text": "Rive gauche, sous les saules", "then": [
+															{"text": "La veine d'eau file sous les saules. La barque s'y glisse comme dans un lit. À droite, les Godille rament contre le courant en s'insultant."},
+															{"who": "nestor", "text": "On est bord à bord ! La bitte du ponton nord ! On vire comment ?",
+																"choice": [
+																	{"text": "Serré, la gaffe sur la bitte", "then": [
+																		{"text": "Glandoulf tend son bâton sans se lever et crochète la bitte au passage. La barque pivote d'un bloc, pendant que les Godille décrivent un très grand cercle."},
+																		{"text": "La barque de Nestor touche le quai une bonne longueur devant. Bittebourg applaudit mollement, mais sincèrement."},
+																		{"who": "nestor", "text": "Gagné ! Contre les Godille ! Et vous n'avez même pas transpiré !"},
+																		{"who": "glandoulf", "text": "C'est le principe. J'envisage d'en faire une carrière."},
+																		{"who": "nestor", "text": "Tenez : la part du barreur, et le grelot de proue. Il vous revient."},
+																		{"set": "course_gagnee"}
+																	]},
+																	{"text": "Large, pour ne rien risquer", "then": [
+																		{"text": "La barque prend le virage large. Très large. Les Godille passent à la corde et touchent le quai les premiers."},
+																		{"who": "nestor", "text": "Perdu d'une longueur. Au ponton, il faut virer sur la bitte, tout le monde le sait ! Demandez à Odilon, c'est lui qui l'a taillée."},
+																		{"who": "nestor", "text": "On remet ça quand vous voulez. Les Godille ne refusent jamais de gagner deux fois."}
+																	]}
+																]
+															}
+														]},
+														{"text": "Rive droite, au plus court", "then": [
+															{"text": "La rive droite est plus courte. Elle est aussi à contre-courant. La barque fait du surplace pendant que les Godille s'éloignent."},
+															{"who": "nestor", "text": "Perdu. Le courant, magicien ! Un vieux de la Roselière vous l'aurait dit : la rivière ne passe pas où l'on croit."},
+															{"who": "nestor", "text": "On remet ça quand vous voulez."}
+														]}
+													]
+												}
+											]},
+											{"text": "Ramer à fond pour leur coller au train", "then": [
+												{"text": "Les rameurs de Nestor se jettent sur leurs avirons. Ils tiennent la cadence des Godille pendant dix longueurs, puis leurs bras se souviennent du Ramollissement."},
+												{"who": "nestor", "text": "Perdu. On est arrivés après la barque du pain. Personne ne suit les Godille au départ, même le petit Titou le sait !"},
+												{"who": "nestor", "text": "On remet ça quand vous voulez."}
+											]}
+										]
+									}
+								]},
+								{"text": "Plus tard", "then": [
+									{"who": "glandoulf", "text": "Plus tard. Je me renseigne d'abord. Une course se gagne assis, mais elle se prépare aussi assis."}
+								]}
+							]
+						}
+					],
+					"else": [
+						{"who": "nestor", "text": "Vous, là ! Le grand ! Vous savez tenir une barre ?"},
+						{"who": "glandoulf", "text": "Je sais tenir beaucoup de choses, pourvu qu'elles ne bougent pas."},
+						{"who": "nestor", "text": "Nestor Boutdebois. Ma barque court contre celle des frères Godille, comme chaque année à la veille de la Fête. Trois tours de rame, un coude, le ponton nord, et retour."},
+						{"who": "nestor", "text": "Mes rameurs, je les ai. Mais mon barreur a les bras en coton depuis hier. Il regarde sa barre et il soupire."},
+						{"who": "nestor", "text": "Le barreur ne rame pas. Il reste assis, il décide, et il crie de temps en temps."},
+						{"who": "glandoulf", "text": "Assis. Vous auriez dû commencer par là."},
+						{"who": "nestor", "text": "Mais attention : il faut connaître la rivière. Les gens d'ici savent des choses. Écoutez-les avant de monter à bord."},
+						{"set": "nestor_vu"}
+					]
+				}
+			]
+		}
+	],
+
+	"ceremonie": [
+		{"text": "Une estrade de planches, dressée au pied de la Grande Bitte. Tout Bittebourg attend sur la place, une chope à la main.",
+			"choice": [
+				{"text": "Ouvrir la cérémonie (l'histoire avance)", "then": [
+					{"who": "gedeon", "text": "Grobittes du Comté ! Comme chaque année depuis la fondation, nous allons nouer la Première Amarre au pied de la Grande Bitte."},
+					{"who": "gedeon", "text": "Et comme chaque année, nous avons parmi nous Glandoulf le Gris, qui a bien voulu rester éveillé."},
+					{"if": "fusees_pretes",
+						"then": [
+							{"text": "Glandoulf lève son bâton. Trois fusées montent dans le ciel du soir et s'ouvrent en gerbes d'or au-dessus de la rivière."},
+							{"who": "titou", "text": "ELLES SONT PARTIES ! Mémé, elles sont parties ! Il ne dormait pas !"},
+							{"who": "glandoulf", "text": "[i](Trois siècles que je promets ce bouquet. Ce n'est pas désagréable, finalement, de tenir parole.)[/i]"}
+						],
+						"else": [
+							{"text": "Glandoulf lève son bâton. Une fusée fait « pfff », tourne deux fois sur elle-même et se couche dans l'herbe."},
+							{"who": "titou", "text": "... C'est tout ?"},
+							{"who": "glandoulf", "text": "L'humidité. Les autres partiront demain."}
+						]
+					},
+					{"who": "gedeon", "text": "Qu'elle reste droite tant que coulera la rivière !"},
+					{"text": "Gédéon passe la boucle autour de la Grande Bitte et tire le nœud."},
+					{"text": "Un craquement. Long, grave, comme un arbre qu'on abat. La Grande Bitte s'incline d'un seul coup, jusqu'à toucher les lanternes."},
+					{"text": "Personne ne crie. Les Grobittes regardent leurs pieds. Les chopes ne moussent plus. Sur les tables, les flammes des bougies se couchent."},
+					{"who": "pepine", "text": "Il fait froid. Vous sentez ? Ce n'est pas le soir. C'est autre chose."},
+					{"text": "À l'ouest, la barrière de la route de Brie vole en éclats."},
+					{"text": "Un cavalier entre dans Bittebourg, sans hâte. Une grande cape noire, sans visage dessous. Derrière lui, une dizaine de créatures larges et voûtées, qui reniflent."},
+					{"who": "glandoulf", "text": "[i](Un Naze. Ici. Alors c'est vrai. Elle s'est réveillée.)[/i]"},
+					{"who": "naze", "name": "Le cavalier", "text": "Une chose est passée par ce village. Il y a longtemps. Elle n'appartient à aucun de vous."},
+					{"who": "naze", "name": "Le cavalier", "text": "Fouillez. Chaque maison, chaque barque, chaque poche. Et ce qui se mange, mangez-le : cela vous occupera."},
+					{"who": "gedeon", "text": "Aux abris ! Tout le monde chez soi, et les volets fermés ! C'est un ordre de la Capitainerie !"},
+					{"text": "Les Grobittes se dispersent. En un instant, il n'y a plus sur la place que quatre silhouettes, des chopes abandonnées et une bitte couchée."},
+					{"who": "fripon", "text": "Grand-père. C'est quoi, ça ?"},
+					{"who": "glandoulf", "text": "Des Morfales. Ils mangent tout ce qu'ils trouvent, et ils trouvent tout. Quant à leur maître... plus tard."},
+					{"who": "sam", "text": "Il y en a sur le quai, monsieur Glandoulf. D'autres dans le potager de mademoiselle Pépine. Et les derniers devant l'auberge. Devant le garde-manger."},
+					{"who": "glandoulf", "text": "Et lui entre à la Capitainerie. Il cherche quelque chose dans les registres. Tant qu'il lit, il ne nous regarde pas."},
+					{"who": "glandoulf", "text": "Trois bandes. On les sort du village une par une. Berthe nous ouvrira si l'on a besoin de souffler."},
+					{"who": "glandoulf", "text": "[i](Et moi qui comptais m'asseoir.)[/i]"},
+					{"set": "invasion"},
+					{"set": "naze_arrive"}
+				]},
+				{"text": "Pas encore", "then": [
+					{"who": "glandoulf", "text": "Pas encore. Une cérémonie, cela se prépare. Et il reste des tables que je n'ai pas visitées."}
+				]}
+			]
+		}
+	],
+
+	"morfales_quai": [
+		{"text": "Deux Morfales éventrent l'étal d'Ursule. L'un d'eux mâche une cape cirée avec application."},
+		{"who": "glandoulf", "text": "Messieurs. Cette cape n'est pas comestible."},
+		{"who": "morfale_eclaireur", "text": "Tout est comestible, vieillard. C'est une question de volonté."},
+		{"battle": "morfales_quai"},
+		{"if": "combat_morfales_quai", "then": [
+			{"text": "Les Morfales détalent vers la route de l'ouest en se tenant le ventre. L'un d'eux emporte quand même un gilet."},
+			{"who": "fripon", "text": "Ils fouillaient mal. Ils ont laissé le tiroir du fond. ... Je dis ça, je ne dis rien."},
+			{"if": "combat_morfales_potager & combat_morfales_auberge & !morfales_chasses", "then": [
+				{"text": "Le dernier Morfale a quitté Bittebourg. Un froid descend sur la place. La porte de la Capitainerie s'ouvre."},
+				{"who": "glandoulf", "text": "Il a fini de lire. Reposons-nous si nous en avons besoin, car lui ne se fatiguera pas."},
+				{"set": "morfales_chasses"}
+			]}
+		]}
+	],
+	"morfales_potager": [
+		{"text": "Un Morfale gros comme un tonneau est assis au milieu du potager. Il arrache les poireaux par poignées, ceux-là mêmes qui venaient de se redresser."},
+		{"who": "pepine", "text": "MES POIREAUX."},
+		{"who": "morfale_goinfre", "text": "Fades. Ça manque de gras. Mais on fouille, on fouille, et ça creuse."},
+		{"who": "pepine", "text": "Monsieur le magicien, je vous préviens : je ne vais pas être herboriste pendant quelques minutes."},
+		{"battle": "morfales_potager"},
+		{"if": "combat_morfales_potager", "then": [
+			{"text": "Les Morfales roulent hors du potager et s'enfuient par la route. Il reste trois poireaux debout. Pépine les compte deux fois."},
+			{"who": "pepine", "text": "Trois. On repart de trois. J'ai connu pire, mais pas cette semaine."},
+			{"if": "combat_morfales_quai & combat_morfales_auberge & !morfales_chasses", "then": [
+				{"text": "Le dernier Morfale a quitté Bittebourg. Un froid descend sur la place. La porte de la Capitainerie s'ouvre."},
+				{"who": "glandoulf", "text": "Il a fini de lire. Reposons-nous si nous en avons besoin, car lui ne se fatiguera pas."},
+				{"set": "morfales_chasses"}
+			]}
+		]}
+	],
+	"morfales_auberge": [
+		{"text": "Trois Morfales font rouler les tonneaux de Berthe hors de l'auberge. Le plus gros porte une toque trop petite, sans doute prise à quelqu'un."},
+		{"who": "sam", "text": "Ils ont touché au garde-manger."},
+		{"who": "glandoulf", "text": "Sam ?"},
+		{"who": "sam", "text": "Ils ont touché au garde-manger, monsieur Glandoulf. Il y a des choses qui ne se font pas."},
+		{"who": "morfale_goinfre", "text": "C'est toi, le cuisinier ? Ta soupe est tiède. Chez nous, le banquet ne refroidit jamais."},
+		{"battle": "morfales_auberge"},
+		{"if": "combat_morfales_auberge", "then": [
+			{"text": "Les Morfales abandonnent les tonneaux et filent vers l'ouest. Sam ramasse la toque, l'époussette, et la pose sur un banc avec beaucoup de dignité."},
+			{"who": "sam", "text": "Tiède. Il a dit tiède."},
+			{"if": "combat_morfales_quai & combat_morfales_potager & !morfales_chasses", "then": [
+				{"text": "Le dernier Morfale a quitté Bittebourg. Un froid descend sur la place. La porte de la Capitainerie s'ouvre."},
+				{"who": "glandoulf", "text": "Il a fini de lire. Reposons-nous si nous en avons besoin, car lui ne se fatiguera pas."},
+				{"set": "morfales_chasses"}
+			]}
+		]}
+	],
+
+	"naze": [
+		{"text": "Le Naze se tient devant la Grande Bitte couchée. Il tient à la main une page arrachée à un registre.",
+			"choice": [
+				{"text": "L'affronter", "then": [
+					{"who": "naze", "text": "Trois siècles de bateliers sans histoire. Des naissances, des noces, des bittes. Et un seul nom rayé."},
+					{"who": "naze", "text": "« Trempette. Parti vers l'amont avec une chose qui brillait dans son filet. N'est jamais revenu. » Voilà qui est fait."},
+					{"who": "glandoulf", "text": "Alors vous avez ce que vous cherchiez. La route est derrière vous. Elle est même grande ouverte, par vos soins."},
+					{"who": "naze", "text": "Pas tout. Il reste une odeur, sur cette place. Ancienne. Quelqu'un, ici, l'a tenue dans sa main."},
+					{"text": "La capuche se tourne lentement vers Glandoulf."},
+					{"who": "naze", "text": "Toi."},
+					{"who": "glandoulf", "text": "Vous confondez. Je sens la pipe et la sieste."},
+					{"who": "naze", "text": "Je connais cette voix. Tu étais là-haut, devant le Four, le jour où tout devait finir. Et cela n'a pas fini. Pourquoi cela n'a-t-il pas fini, magicien ?"},
+					{"who": "fripon", "text": "De quoi il parle, grand-père ?"},
+					{"who": "glandoulf", "text": "De rien. Les Nazes radotent. C'est l'âge."},
+					{"who": "naze", "text": "Neuf rois. Neuf petits anneaux, offerts de sa main. Trois cents ans qu'ils serrent. Tu n'imagines pas ce qu'on ferait pour que cela cesse."},
+					{"who": "naze", "text": "Le Maître reprendra le sien. Alors il desserrera les nôtres. Il l'a promis. Et lui tient toujours parole : il n'a que cela à faire."},
+					{"who": "sam", "text": "Monsieur Glandoulf. Il a cassé la barrière, lâché ses mangeurs dans le village et gâché la Fête. Est-ce qu'on tape ?"},
+					{"who": "glandoulf", "text": "On tape, Sam."},
+					{"battle": "naze"},
+					{"if": "combat_naze", "then": [
+						{"text": "Le Naze tombe à genoux. La cape s'affaisse sur elle-même comme une voile sans vent. Sur le pavé, un tout petit anneau tinte, puis se remet à serrer."},
+						{"who": "naze", "text": "Vous retardez l'heure. Vous ne l'arrêtez pas. Elle s'éveille, en amont, sous la montagne des nains. Mes frères y seront avant vous."},
+						{"text": "Un cheval hennit à l'ouest. La cape se relève, vide ou presque, et s'éloigne sur la route sans se retourner."},
+						{"text": "Le froid se retire. Les lanternes reprennent. La Grande Bitte, elle, reste couchée."},
+						{"who": "pepine", "text": "« Elle ». Il a dit « elle s'éveille ». C'est ça, la source ?"},
+						{"who": "glandoulf", "text": "Un anneau. L'anneau pénien de Sauron. Il aspire la vigueur de tout ce qui l'entoure pour la donner à celui qui le porte. Les épis, les bittes, les gens. Tout."},
+						{"who": "glandoulf", "text": "On le croyait détruit depuis trois cents ans."},
+						{"who": "fripon", "text": "Qui devait le détruire ?"},
+						{"who": "glandoulf", "text": "... Quelqu'un de confiance. Il a dû avoir un empêchement."},
+						{"who": "glandoulf", "text": "[i](Vingt pas. Il restait vingt pas.)[/i]"},
+						{"who": "sam", "text": "Et maintenant, il est où, cet anneau ?"},
+						{"who": "glandoulf", "text": "En amont. Un pêcheur d'ici l'a remonté dans son filet et l'a emporté vers Morbier, il y a très longtemps. Les Nazes le savent, à présent. La route passe par Brie."},
+						{"text": "Les volets s'ouvrent un à un. Maître Gédéon traverse la place et s'arrête devant la Grande Bitte. Il ne dit rien pendant un long moment."},
+						{"who": "gedeon", "text": "Celle-là, je ne la relèverai pas avec des cales."},
+						{"who": "gedeon", "text": "Vous savez ce qui lui fait ça, magicien. Je l'ai vu à votre tête. Alors allez-y. La route de Brie est ouverte : de toute façon, il n'y a plus de barrière."},
+						{"who": "gedeon", "text": "Et prenez ceci. La Première Amarre. On la noue au pied de la Grande Bitte depuis la fondation. Vous la renouerez quand elle tiendra debout."},
+						{"give": "premiere_amarre"},
+						{"who": "glandoulf", "text": "Nous partirons demain."},
+						{"who": "pepine", "text": "Ce soir."},
+						{"who": "glandoulf", "text": "... Ce soir. Après une chope."},
+						{"action": "rest"},
+						{"set": "invasion", "value": false},
+						{"set": "naze_vaincu"},
+						{"set": "route_ouverte"},
+						{"set": "source_trouvee"},
+						{"action": "save"}
+					]}
+				]},
+				{"text": "Reprendre son souffle d'abord", "then": [
+					{"who": "glandoulf", "text": "[i](Il ne bouge pas. Il attend. Autant en profiter pour passer chez Berthe.)[/i]"}
+				]}
+			]
+		}
+	]
+}

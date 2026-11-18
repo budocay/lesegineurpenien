@@ -1,0 +1,21 @@
+```
+Tu reprends un projet en cours : un RPG parodique HD-2D sous Godot 4, construit session après session. Commence par lire CLAUDE.md, docs/SUIVI.md, docs/HISTOIRE.md et brief.txt : ils décrivent le projet, mes contraintes, l'état actuel et l'histoire. Le chapitre 1 est jouable de bout en bout (étapes 1, 2, 4 et 5). L'étape 3 (talents) n'a jamais été construite.
+
+Je ne suis pas développeur : je ne touche pas à l'éditeur Godot, je lance le jeu avec F5 et je te dis ce que j'en pense. Je suis devant l'écran cette fois, mais je préfère que tu prennes les décisions toi-même et que tu les notes avec leur raison dans docs/SUIVI.md. Ne me pose une question que si un mauvais choix serait long à défaire.
+
+Outils : je t'autorise explicitement à lire et explorer le projet avec Read, Grep, Glob et Bash. Si les outils du plugin token-eco sont refusés, n'insiste pas et utilise ceux-là. Regarde toi-même les captures d'écran en ouvrant les fichiers PNG avec Read.
+
+Noms : la bible mélange deux séries de noms. Ceux-ci font foi partout : Sam Gamelle, Fripon Besace, Pépine Bontabac, Aragrogne, Légolasse, Gimlette. Remplace les variantes (Frodon SaLfait, Pépin, Albatard, Digoulasse, Grimlit, Grolas, Poilin) dans docs/HISTOIRE.md, docs/SUIVI.md et les données du jeu. La question est tranchée.
+
+J'ai joué le chapitre 1. Voici ce que je veux, par ordre de priorité :
+
+1. Étape 3, jamais construite : écran de talents et les deux branches de spécialisation de chaque personnage de la bible, avec des points de talent gagnés en montant de niveau, intégrés au chapitre 1 et avec un rééquilibrage des combats si nécessaire.
+
+2. Animations de combat : c'est ce qui manque le plus. Aujourd'hui les personnages bondissent vers la cible et tous les sorts sont la même gerbe de particules. Chaque attaque, chaque compétence et chaque objet doit avoir sa propre animation reconnaissable, pour les héros comme pour les ennemis : poses d'attaque, de lancement de sort, de coup reçu et de KO, effets visuels propres à chaque compétence selon son élément et son idée (la sieste de Glandoulf ne ressemble pas à un coup de poêle), secousses de caméra, flashs et sons assortis. Les animations se décrivent dans les données, pour que les futures compétences en reçoivent une facilement.
+
+3. Pixel art : les sprites sont trop simples et trop raides. Refais-les avec beaucoup plus de soin : personnages plus détaillés et expressifs, visages lisibles, au moins quatre poses de marche par direction, animation au repos, sprites dédiés pour les Morfales et le Naze au lieu de silhouettes humaines, monstres plus travaillés, portraits dans les dialogues et les menus, textures de décor plus riches. Compare les captures avant et après pour juger le résultat, et garde le point d'accès unique qui permettra de remplacer ces sprites par un pack.
+
+Travaille une étape à la fois, dans cet ordre. Fais un commit git avant de commencer (initialise le dépôt si besoin). Le jeu doit rester lançable avec F5 sans erreur, car une erreur me bloque complètement : à la fin de chaque étape, étends tests/smoke_test.tscn, vérifie qu'il finit par « RESULTAT : OK », refais les captures, mets à jour docs/SUIVI.md et CLAUDE.md, puis fais un commit. Termine chaque étape par un compte rendu complet en français, même si un réglage te pousse à faire court : ce que tu as construit, comment l'essayer en jouant, ce que tu n'as pas pu vérifier. Arrête-toi ensuite pour que je teste avant de passer à la suivante.
+
+Commence par l'étape 3.
+```

@@ -1,0 +1,436 @@
+{
+	"etincelle": {
+		"name": "Étincelle", "cost": 3, "target": "enemy",
+		"desc": "Une fusée de poche. Glandoulf en garde toujours une dans la manche.",
+		"effects": [{"type": "damage", "stat": "mag", "power": 120, "element": "feu"}]
+	},
+	"baillement": {
+		"name": "Bâillement contagieux", "cost": 4, "target": "enemy",
+		"desc": "Dégâts de torpeur. L'adversaire peut s'endormir.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 70, "element": "torpeur"},
+			{"type": "status", "id": "sommeil", "chance": 0.6, "turns": 2}
+		]
+	},
+	"petit_somme": {
+		"name": "Petit somme", "cost": 0, "target": "self",
+		"desc": "Rend des PV et du mana, mais Glandoulf dort jusqu'à son prochain tour.",
+		"effects": [
+			{"type": "heal", "percent": 0.3},
+			{"type": "mana", "power": 6},
+			{"type": "status", "id": "sommeil", "chance": 1.0, "turns": 1}
+		]
+	},
+	"tonnerre": {
+		"name": "Coup de tonnerre", "cost": 5, "target": "enemy",
+		"desc": "La foudre tombe où Glandoulf pointe son bâton. À peu près.",
+		"effects": [{"type": "damage", "stat": "mag", "power": 150, "element": "foudre"}]
+	},
+	"bouquet_final": {
+		"name": "Bouquet final", "cost": 9, "target": "all_enemies",
+		"desc": "Le clou du spectacle : du feu sur tous les adversaires.",
+		"effects": [{"type": "damage", "stat": "mag", "power": 110, "element": "feu"}]
+	},
+
+	"taille_royale": {
+		"name": "Taille royale", "cost": 4, "target": "enemy",
+		"desc": "Un grand coup d'épée, porté avec toute la dignité du Gouda.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 160, "element": "tranchant"}]
+	},
+	"ralliement": {
+		"name": "Ralliement", "cost": 5, "target": "all_allies",
+		"desc": "Galvanise toute l'équipe : attaque et magie augmentées.",
+		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
+	},
+
+	"cataplasme": {
+		"name": "Cataplasme", "cost": 3, "target": "ally",
+		"desc": "Rend des PV à un allié. Ça pique, donc ça marche.",
+		"effects": [{"type": "heal", "power": 22, "stat": "mag"}]
+	},
+	"purin_ortie": {
+		"name": "Purin d'ortie", "cost": 3, "target": "enemy",
+		"desc": "Dégâts de plante. Empoisonne souvent.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 90, "element": "plante"},
+			{"type": "status", "id": "poison", "chance": 0.7, "turns": 3}
+		]
+	},
+	"antidote_maison": {
+		"name": "Antidote maison", "cost": 2, "target": "ally",
+		"desc": "Dissipe poison, sommeil et autres misères d'un allié.",
+		"effects": [{"type": "cure"}]
+	},
+	"tisane_generale": {
+		"name": "Tisane générale", "cost": 7, "target": "all_allies",
+		"desc": "Une tournée pour tout le monde : rend des PV à l'équipe.",
+		"effects": [{"type": "heal", "power": 16, "stat": "mag"}]
+	},
+	"fumee_soporifique": {
+		"name": "Fumée soporifique", "cost": 5, "target": "all_enemies",
+		"desc": "Un nuage de pipe qui peut endormir tous les adversaires.",
+		"effects": [{"type": "status", "id": "sommeil", "chance": 0.45, "turns": 2}]
+	},
+
+	"coup_de_poele": {
+		"name": "Coup de poêle", "cost": 3, "target": "enemy",
+		"desc": "De la fonte, à pleine volée. Peut sonner l'adversaire.",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 150, "element": "contondant"},
+			{"type": "status", "id": "sonne", "chance": 0.3, "turns": 1}
+		]
+	},
+	"couvercle": {
+		"name": "Couvercle", "cost": 2, "target": "self",
+		"desc": "Sam se cale derrière son couvercle : défense augmentée.",
+		"effects": [{"type": "status", "id": "garde", "chance": 1.0, "turns": 3}]
+	},
+	"soupe_du_jour": {
+		"name": "Soupe du jour", "cost": 6, "target": "all_allies",
+		"desc": "Une louche chacun. Rend des PV à toute l'équipe.",
+		"effects": [{"type": "heal", "power": 18, "stat": "mag"}]
+	},
+
+	"coup_en_douce": {
+		"name": "Coup en douce", "cost": 3, "target": "enemy",
+		"desc": "Un coup porté quand l'autre regarde ailleurs. Souvent critique.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 130, "element": "tranchant", "crit": 0.5}]
+	},
+	"lame_trempee": {
+		"name": "Lame trempée", "cost": 3, "target": "enemy",
+		"desc": "Une lame passée dans on ne veut pas savoir quoi. Empoisonne.",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 90, "element": "tranchant"},
+			{"type": "status", "id": "poison", "chance": 0.8, "turns": 3}
+		]
+	},
+	"poudre_a_eternuer": {
+		"name": "Poudre à éternuer", "cost": 3, "target": "all_enemies",
+		"desc": "Ramollit les adversaires : leur attaque baisse.",
+		"effects": [{"type": "status", "id": "ramolli", "chance": 0.7, "turns": 3}]
+	},
+
+	"bave": {
+		"name": "Jet de bave", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 70, "element": "contondant"},
+			{"type": "status", "id": "englue", "chance": 0.5, "turns": 3}
+		]
+	},
+	"dard": {
+		"name": "Dard au cidre", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 80, "element": "tranchant"},
+			{"type": "status", "id": "poison", "chance": 0.4, "turns": 3}
+		]
+	},
+	"spores": {
+		"name": "Spores dormeuses", "target": "enemy",
+		"effects": [{"type": "status", "id": "sommeil", "chance": 0.5, "turns": 2}]
+	},
+	"etreinte_molle": {
+		"name": "Étreinte molle", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 70, "element": "contondant"},
+			{"type": "status", "id": "ramolli", "chance": 0.6, "turns": 3}
+		]
+	},
+	"raz_de_bave": {
+		"name": "Raz-de-bave", "target": "all_enemies",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 60, "element": "contondant"},
+			{"type": "status", "id": "englue", "chance": 0.5, "turns": 3}
+		]
+	},
+	"roule_boule": {
+		"name": "Roulé-boulé", "target": "enemy",
+		"effects": [{"type": "damage", "stat": "atk", "power": 140, "element": "contondant"}]
+	},
+	"heures_sup": {
+		"name": "Heures supplémentaires", "target": "all_enemies",
+		"effects": [{"type": "damage", "stat": "atk", "power": 70, "element": "feu"}]
+	},
+	"regard_insistant": {
+		"name": "Regard insistant", "target": "enemy",
+		"effects": [{"type": "status", "id": "ramolli", "chance": 1.0, "turns": 2}]
+	},
+	"grand_baillement": {
+		"name": "Grand bâillement", "cost": 8, "target": "all_enemies",
+		"desc": "Un bâillement à décrocher la mâchoire. Dégâts de torpeur sur tous les adversaires, qui peuvent s'endormir.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 85, "element": "torpeur"},
+			{"type": "status", "id": "sommeil", "chance": 0.35, "turns": 2}
+		]
+	},
+	"plat_de_resistance": {
+		"name": "Plat de résistance", "cost": 5, "target": "all_allies",
+		"desc": "Un ragoût qui tient au corps. Défense et résistance de toute l'équipe augmentées.",
+		"effects": [{"type": "status", "id": "garde", "chance": 1.0, "turns": 3}]
+	},
+	"croc_en_jambe": {
+		"name": "Croc-en-jambe", "cost": 4, "target": "enemy",
+		"desc": "Fripon passe entre les jambes de l'adversaire, qui a de bonnes chances de finir sonné.",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 110, "element": "contondant"},
+			{"type": "status", "id": "sonne", "chance": 0.5, "turns": 1}
+		]
+	},
+
+	"charge_molle": {
+		"name": "Charge sans conviction", "target": "enemy",
+		"effects": [{"type": "damage", "stat": "atk", "power": 135, "element": "contondant"}]
+	},
+	"pietinement": {
+		"name": "Piétinement", "target": "all_enemies",
+		"effects": [{"type": "damage", "stat": "atk", "power": 70, "element": "contondant"}]
+	},
+	"nuage_toxique": {
+		"name": "Nuage toxique", "target": "all_enemies",
+		"effects": [{"type": "status", "id": "poison", "chance": 0.4, "turns": 3}]
+	},
+	"coup_de_langue": {
+		"name": "Coup de langue", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 110, "element": "contondant"},
+			{"type": "status", "id": "englue", "chance": 0.4, "turns": 3}
+		]
+	},
+	"croassement": {
+		"name": "Croassement lugubre", "target": "all_enemies",
+		"effects": [{"type": "damage", "stat": "mag", "power": 65, "element": "torpeur"}]
+	},
+	"gobage": {
+		"name": "Gobage", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 120, "element": "contondant"},
+			{"type": "status", "id": "sonne", "chance": 0.35, "turns": 1}
+		]
+	},
+	"ponction": {
+		"name": "Ponction", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 85, "element": "tranchant"},
+			{"type": "status", "id": "poison", "chance": 0.5, "turns": 3}
+		]
+	},
+	"flammeche": {
+		"name": "Flammèche pâle", "target": "enemy",
+		"effects": [{"type": "damage", "stat": "mag", "power": 100, "element": "feu"}]
+	},
+	"coup_de_fourchette": {
+		"name": "Coup de fourchette", "target": "enemy",
+		"effects": [{"type": "damage", "stat": "atk", "power": 130, "element": "tranchant"}]
+	},
+	"renvoi": {
+		"name": "Renvoi", "target": "all_enemies",
+		"effects": [{"type": "status", "id": "ramolli", "chance": 0.35, "turns": 2}]
+	},
+	"louche_morfale": {
+		"name": "Coup de louche", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 145, "element": "contondant"},
+			{"type": "status", "id": "sonne", "chance": 0.2, "turns": 1}
+		]
+	},
+	"petit_creux": {
+		"name": "Petit creux", "target": "self",
+		"effects": [{"type": "heal", "percent": 0.12}]
+	},
+	"souffle_ramollissant": {
+		"name": "Souffle ramollissant", "target": "all_enemies",
+		"effects": [{"type": "status", "id": "ramolli", "chance": 0.6, "turns": 3}]
+	},
+	"cri_strident": {
+		"name": "Cri strident", "target": "all_enemies",
+		"effects": [{"type": "damage", "stat": "mag", "power": 62, "element": "torpeur"}]
+	},
+	"doigt_glace": {
+		"name": "Doigt glacé", "target": "enemy",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 150, "element": "torpeur"},
+			{"type": "status", "id": "sommeil", "chance": 0.3, "turns": 2}
+		]
+	},
+	"serrage": {
+		"name": "L'anneau serre", "target": "self",
+		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
+	},
+
+	"petarade": {
+		"name": "Pétarade", "cost": 5, "target": "all_enemies",
+		"desc": "Un chapelet de pétards : dégâts de feu sur tous les adversaires.",
+		"effects": [{"type": "damage", "stat": "mag", "power": 75, "element": "feu"}]
+	},
+	"chandelle_romaine": {
+		"name": "Chandelle romaine", "cost": 11, "target": "all_enemies",
+		"desc": "Gros dégâts de feu sur tous les adversaires, qui peuvent en rester sonnés.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 135, "element": "feu"},
+			{"type": "status", "id": "sonne", "chance": 0.2, "turns": 1}
+		]
+	},
+	"sieste_collective": {
+		"name": "Sieste collective", "cost": 9, "target": "all_enemies",
+		"desc": "Dégâts de torpeur sur tous les adversaires, qui s'endorment plus d'une fois sur deux.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 55, "element": "torpeur"},
+			{"type": "status", "id": "sommeil", "chance": 0.6, "turns": 2}
+		]
+	},
+	"viens_y_voir": {
+		"name": "Viens-y voir", "cost": 2, "target": "self",
+		"desc": "Sam provoque les adversaires : pendant trois tours, c'est lui qu'ils visent.",
+		"effects": [{"type": "status", "id": "provocation", "chance": 1.0, "turns": 3}]
+	},
+	"casse_croute": {
+		"name": "Casse-croûte", "cost": 3, "target": "ally",
+		"desc": "Rend à un allié près d'un tiers de ses PV.",
+		"effects": [{"type": "heal", "percent": 0.3}]
+	},
+	"ragout_tonique": {
+		"name": "Ragoût qui requinque", "cost": 6, "target": "all_allies",
+		"desc": "Galvanise toute l'équipe : attaque et magie augmentées, Ramollissement ignoré.",
+		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
+	},
+	"banquet": {
+		"name": "Banquet", "cost": 9, "target": "all_allies",
+		"desc": "Rend un bon tiers de ses PV à chacun et dissipe les états de toute l'équipe.",
+		"effects": [{"type": "heal", "percent": 0.35}, {"type": "cure"}]
+	},
+	"fauche": {
+		"name": "Fauche", "cost": 2, "target": "enemy",
+		"desc": "Un coup de canif, et une main dans la poche de l'adversaire : vole des écus (une fois par adversaire).",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 90, "element": "tranchant"},
+			{"type": "steal", "percent": 0.5}
+		]
+	},
+	"fiole_douteuse": {
+		"name": "Fiole douteuse", "cost": 5, "target": "all_enemies",
+		"desc": "Empoisonne presque à coup sûr tous les adversaires et les englue une fois sur deux.",
+		"effects": [
+			{"type": "status", "id": "poison", "chance": 0.8, "turns": 3},
+			{"type": "status", "id": "englue", "chance": 0.5, "turns": 3}
+		]
+	},
+	"embrouillamini": {
+		"name": "Grand embrouillamini", "cost": 6, "target": "enemy",
+		"desc": "Ramollit et démoralise un adversaire à coup sûr ; il a de bonnes chances de finir sonné.",
+		"effects": [
+			{"type": "status", "id": "ramolli", "chance": 1.0, "turns": 3},
+			{"type": "status", "id": "demoralise", "chance": 1.0, "turns": 3},
+			{"type": "status", "id": "sonne", "chance": 0.4, "turns": 1}
+		]
+	},
+	"baume_matin": {
+		"name": "Baume du matin", "cost": 4, "target": "ally",
+		"desc": "Rend des PV à un allié et dissipe ses états.",
+		"effects": [{"type": "heal", "power": 14, "stat": "mag"}, {"type": "cure"}]
+	},
+	"remede_de_cheval": {
+		"name": "Remède de cheval", "cost": 8, "target": "ally_ko",
+		"desc": "Relève un allié à terre avec la moitié de ses PV.",
+		"effects": [{"type": "revive", "percent": 0.5}]
+	},
+	"nuage_tonique": {
+		"name": "Nuage tonique", "cost": 3, "target": "ally",
+		"desc": "Galvanise un allié : attaque et magie augmentées.",
+		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
+	},
+	"nuage_acre": {
+		"name": "Nuage âcre", "cost": 6, "target": "all_enemies",
+		"desc": "Dégâts de plante sur tous les adversaires, qui en sortent souvent démoralisés.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 60, "element": "plante"},
+			{"type": "status", "id": "demoralise", "chance": 0.8, "turns": 3}
+		]
+	},
+	"brouillard_epais": {
+		"name": "Brouillard épais", "cost": 7, "target": "all_allies",
+		"desc": "Cache toute l'équipe dans la fumée : les coups physiques la ratent près d'une fois sur trois.",
+		"effects": [{"type": "status", "id": "enfume", "chance": 1.0, "turns": 3}]
+	},
+
+	"duel": {
+		"name": "Duel", "cost": 5, "target": "enemy",
+		"desc": "Une passe d'armes appuyée, souvent critique.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 170, "element": "tranchant", "crit": 0.3}]
+	},
+	"botte_secrete": {
+		"name": "Botte secrète", "cost": 8, "target": "enemy",
+		"desc": "Le coup qu'on ne voit pas venir. Très gros dégâts.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 220, "element": "tranchant"}]
+	},
+	"ordre_bref": {
+		"name": "Ordre bref", "cost": 3, "target": "ally",
+		"desc": "Galvanise un allié : attaque et magie augmentées.",
+		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
+	},
+	"par_decret": {
+		"name": "Par décret", "cost": 8, "target": "all_allies",
+		"desc": "Galvanise toute l'équipe et lui rend un peu de PV.",
+		"effects": [
+			{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3},
+			{"type": "heal", "percent": 0.15}
+		]
+	},
+	"tir_tendu": {
+		"name": "Tir tendu", "cost": 3, "target": "enemy",
+		"desc": "Une flèche décochée sans se presser, et sans rater.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 140, "element": "tranchant"}]
+	},
+	"fleche_percante": {
+		"name": "Flèche perçante", "cost": 4, "target": "enemy",
+		"desc": "Vise le défaut de l'armure. Souvent critique.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 150, "element": "tranchant", "crit": 0.4}]
+	},
+	"pluie_de_fleches": {
+		"name": "Pluie de flèches", "cost": 8, "target": "all_enemies",
+		"desc": "Une flèche pour chaque adversaire.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 100, "element": "tranchant"}]
+	},
+	"soupir": {
+		"name": "Soupir", "cost": 2, "target": "enemy",
+		"desc": "Démoralise un adversaire : défense et résistance réduites.",
+		"effects": [{"type": "status", "id": "demoralise", "chance": 1.0, "turns": 3}]
+	},
+	"remarque_blessante": {
+		"name": "Remarque blessante", "cost": 4, "target": "enemy",
+		"desc": "Dégâts de torpeur. L'adversaire en reste souvent ramolli.",
+		"effects": [
+			{"type": "damage", "stat": "mag", "power": 120, "element": "torpeur"},
+			{"type": "status", "id": "ramolli", "chance": 0.8, "turns": 3}
+		]
+	},
+	"mepris_souverain": {
+		"name": "Mépris souverain", "cost": 7, "target": "all_enemies",
+		"desc": "Démoralise et ramollit tous les adversaires.",
+		"effects": [
+			{"type": "status", "id": "demoralise", "chance": 0.8, "turns": 3},
+			{"type": "status", "id": "ramolli", "chance": 0.6, "turns": 3}
+		]
+	},
+	"coup_de_hache": {
+		"name": "Coup de hache", "cost": 3, "target": "enemy",
+		"desc": "De la hache, avec de l'élan et de la rancune.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 150, "element": "tranchant"}]
+	},
+	"moulinet": {
+		"name": "Moulinet", "cost": 5, "target": "all_enemies",
+		"desc": "Un grand tour de hache qui touche tous les adversaires.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 85, "element": "tranchant"}]
+	},
+	"coup_du_bucheron": {
+		"name": "Coup du bûcheron", "cost": 8, "target": "enemy",
+		"desc": "De haut en bas. Très gros dégâts.",
+		"effects": [{"type": "damage", "stat": "atk", "power": 230, "element": "tranchant"}]
+	},
+	"coup_de_boule": {
+		"name": "Coup de boule", "cost": 4, "target": "enemy",
+		"desc": "Sonne l'adversaire plus d'une fois sur deux.",
+		"effects": [
+			{"type": "damage", "stat": "atk", "power": 130, "element": "contondant"},
+			{"type": "status", "id": "sonne", "chance": 0.6, "turns": 1}
+		]
+	}
+}

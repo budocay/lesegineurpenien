@@ -1,0 +1,62 @@
+{
+	"id": "bois_penche",
+	"name": "Le Bois Penché",
+	"region": "Au nord de Bittebourg",
+	"size": [36, 28],
+	"ambiance": "sous_bois",
+	"ramollissement": 0.2,
+	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"ground": {
+		"default": "grass",
+		"fills": [
+			{"type": "path", "rect": [17, 22, 2, 6]},
+			{"type": "soil", "rect": [10, 16, 16, 6]},
+			{"type": "path", "rect": [12, 10, 2, 6]},
+			{"type": "soil", "rect": [4, 4, 12, 6]},
+			{"type": "path", "rect": [16, 6, 8, 2]},
+			{"type": "path", "rect": [24, 3, 9, 8]}
+		]
+	},
+	"spawns": {
+		"sud": {"pos": [17.5, 25.4], "facing": "up"}
+	},
+	"on_enter": [
+		{"dialogue": "arrivee_bois", "unless": "bois_vu"}
+	],
+	"objects": [
+		{"type": "warp", "rect": [17, 27.4, 2, 0.6], "to": {"map": "bittebourg", "spawn": "bois_porte"}},
+
+		{"type": "encounter_zone", "rect": [10, 16, 16, 6], "table": "bois_sud"},
+		{"type": "encounter_zone", "rect": [4, 4, 12, 6], "table": "bois_nord"},
+
+		{"type": "lantern", "pos": [15.9, 24.4]},
+		{"type": "lantern", "pos": [14.4, 12.6]},
+		{"type": "lantern", "pos": [20, 4.9]},
+		{"type": "lantern", "pos": [25.4, 9.5], "shadow": false},
+
+		{"type": "sign", "pos": [19.5, 24.6], "dialogue": "panneau_bois", "label": "Lire"},
+
+		{"type": "fence", "points": [[23.5, 5.4], [23.5, 2.4], [32.6, 2.4], [32.6, 10.6], [23.5, 10.6], [23.5, 7.6]], "lean": 12},
+		{"type": "monster", "id": "vieux_solitaire", "pos": [23.5, 6.5], "solid": 1.0, "reach": 2.6, "scale": 1.7,
+			"dialogue": "vieux_solitaire", "label": "Approcher", "unless": "solitaire_vaincu"},
+		{"type": "tree", "pos": [29.6, 4.3], "variant": 2, "lean": 16, "scale": 1.6, "dialogue": "chene_penche", "label": "Regarder", "reach": 1.8, "gated": true},
+		{"type": "flowers", "pos": [28.0, 6.0], "variant": 1, "dialogue": "cepes", "label": "Cueillir", "reach": 1.6, "gated": true},
+		{"type": "crate", "pos": [31.2, 9.2], "turn": 9, "dialogue": "coffre_clairiere", "label": "Ouvrir", "gated": true},
+
+		{"type": "crate", "pos": [5.0, 4.7], "turn": -12, "dialogue": "coffre_bois", "label": "Ouvrir"},
+		{"type": "crate", "pos": [24.4, 20.4], "turn": 20, "dialogue": "coffre_fougeres", "label": "Ouvrir"},
+		{"type": "rock", "pos": [13.6, 8.2], "variant": 0},
+		{"type": "rock", "pos": [11.2, 20.6], "variant": 1},
+
+		{"type": "scatter", "prop": "tree", "rect": [0, 0, 36, 28], "count": 130, "min_dist": 1.55, "seed": 41},
+		{"type": "scatter", "prop": "bush", "rect": [0, 0, 36, 28], "count": 18, "min_dist": 2.2, "seed": 42},
+		{"type": "scatter", "prop": "rock", "rect": [0, 0, 36, 28], "count": 5, "min_dist": 4.0, "seed": 43},
+		{"type": "scatter", "prop": "flowers", "rect": [0, 0, 36, 28], "count": 26, "min_dist": 0.9, "seed": 44},
+		{"type": "scatter", "prop": "grass", "rect": [0, 0, 36, 28], "count": 120, "min_dist": 0.55, "seed": 45},
+		{"type": "scatter", "prop": "grass", "rect": [10, 16, 16, 6], "count": 90, "min_dist": 0.5, "seed": 46, "on": ["soil"]},
+		{"type": "scatter", "prop": "wilted", "rect": [10, 16, 16, 6], "count": 20, "min_dist": 0.8, "seed": 47, "on": ["soil"]},
+		{"type": "scatter", "prop": "grass", "rect": [4, 4, 12, 6], "count": 70, "min_dist": 0.5, "seed": 48, "on": ["soil"]},
+		{"type": "scatter", "prop": "wilted", "rect": [4, 4, 12, 6], "count": 16, "min_dist": 0.8, "seed": 49, "on": ["soil"]},
+		{"type": "scatter", "prop": "flowers", "rect": [24, 3, 9, 8], "count": 12, "min_dist": 0.9, "seed": 50, "on": ["path"]}
+	]
+}

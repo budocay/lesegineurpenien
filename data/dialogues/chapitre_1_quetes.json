@@ -1,0 +1,300 @@
+{
+	"fripon": [
+		{"if": "fripon_avoue",
+			"then": [
+				{"if": "party:sam",
+					"then": [
+						{"who": "sam", "text": "Fripon. Tu as vendu la poêle de ma mère."},
+						{"who": "fripon", "text": "Je comptais la racheter ! Une fois riche et célèbre. Tu aurais eu une poêle en or, Sam."},
+						{"who": "sam", "text": "On ne cuisine pas dans l'or. Ça attache."},
+						{"text": "Un silence. Fripon regarde ses pieds, ce qui, pour un Grobitte, ne demande pas un grand effort."},
+						{"who": "fripon", "text": "Pardon, Sam. ... Et tenez, grand-père. Votre pipe. Elle tire mal, de toute façon."},
+						{"give": "pipe_bruyere"},
+						{"who": "glandoulf", "text": "Elle tire très bien. Il faut seulement ne pas être pressé."},
+						{"who": "glandoulf", "text": "Vous vouliez voir du pays. Quelque chose ramollit le Comté, et je vais devoir aller voir d'où cela vient. À mon grand regret."},
+						{"who": "glandoulf", "text": "Venez. Je préfère vous avoir devant moi que derrière mes poches."},
+						{"who": "fripon", "text": "Jusqu'à Minas Tartine ?"},
+						{"who": "glandoulf", "text": "Jusqu'au bout de la rue, pour commencer."},
+						{"join": "fripon"},
+						{"set": "fripon_equipe"}
+					],
+					"else": [
+						{"who": "fripon", "text": "Ursule tient son étal sur le quai, à côté des caisses. Elle ne vous fera pas de prix : elle n'en fait à personne."},
+						{"who": "glandoulf", "text": "Ne bougez pas d'ici. Je reviens avec le propriétaire de la poêle."},
+						{"who": "fripon", "text": "Je ne bouge jamais quand on me le demande aussi gentiment."}
+					]
+				}
+			],
+			"else": [
+				{"if": "fripon_vu",
+					"then": [
+						{"if": "sam_vu",
+							"then": [
+								{"who": "glandoulf", "text": "Une pipe disparaît l'après-midi. Une poêle en fonte disparaît la nuit. Je ne suis pas enquêteur, mais je sais compter jusqu'à deux."},
+								{"who": "fripon", "text": "Une poêle ? Qu'est-ce que je ferais d'une poêle ?"},
+								{"who": "glandoulf", "text": "C'est la question que je me pose. Y répondre me fatigue d'avance, alors répondez à ma place."},
+								{"who": "fripon", "text": "... Je l'ai vendue. À Ursule, sur le quai. Douze écus."},
+								{"who": "fripon", "text": "Il faut des sous pour aller jusqu'à Minas Tartine ! Vous croyez qu'on devient quelqu'un les poches vides ?"},
+								{"who": "glandoulf", "text": "On ne devient personne en vidant la cuisine d'un ami. Les douze écus."},
+								{"text": "Fripon compte les pièces une à une, avec la lenteur de quelqu'un qui espère un contrordre."},
+								{"money": 12},
+								{"who": "fripon", "text": "Elle en demandera plus du triple pour la rendre. Ursule a le sens des affaires. Moi, je n'ai que le sens des occasions."},
+								{"who": "glandoulf", "text": "Et ma pipe ?"},
+								{"who": "fripon", "text": "Quelle pipe ?"},
+								{"text": "Il tire une longue bouffée, très digne."},
+								{"who": "glandoulf", "text": "Nous en reparlerons. Devant témoin."},
+								{"set": "fripon_avoue"}
+							],
+							"else": [
+								{"who": "fripon", "text": "Vous me regardez bizarrement, grand-père. C'est la pipe ? Elle vous rappelle quelqu'un ?"},
+								{"who": "glandoulf", "text": "Je réglerai ça demain. Mais je le réglerai."}
+							]
+						}
+					],
+					"else": [
+						{"who": "fripon", "text": "Belle soirée, grand-père. Vous cherchez quelque chose ?"},
+						{"who": "glandoulf", "text": "Un fauteuil. Et accessoirement ma pipe. Je l'avais en arrivant, je ne l'ai plus."},
+						{"who": "fripon", "text": "Une pipe ? Quelle tristesse. On n'est plus en sécurité nulle part."},
+						{"text": "Il tire une longue bouffée d'une pipe en bruyère, grande comme son avant-bras."},
+						{"who": "glandoulf", "text": "Jolie pipe."},
+						{"who": "fripon", "text": "Héritage de famille. Très ancien. Depuis... cet après-midi."},
+						{"who": "glandoulf", "text": "..."},
+						{"who": "fripon", "text": "Je ne resterai pas ici toute ma vie, vous savez. À tailler du bois comme les autres. Un jour, on connaîtra mon nom jusqu'à Minas Tartine."},
+						{"who": "glandoulf", "text": "Un Grobitte avec de l'ambition. Voilà qui est rare. [i](Et inquiétant.)[/i]"},
+						{"who": "fripon", "text": "Frodon SaLfait. Retenez-le. Ici, tout le monde dit Fripon, mais ça changera."},
+						{"set": "fripon_vu"}
+					]
+				}
+			]
+		}
+	],
+
+	"sam": [
+		{"if": "item:poele_gamelle",
+			"then": [
+				{"text": "Glandoulf pose la poêle sur le comptoir. Elle sonne comme une cloche."},
+				{"who": "sam", "text": "... C'est elle. Le manche riveté. La bosse du jour où j'ai raté l'omelette de la Saint-Cabestan."},
+				{"who": "sam", "text": "Où était-elle ? Qui l'avait ?"},
+				{"who": "glandoulf", "text": "Sur un étal du quai. Le reste, vous l'apprendrez de la bouche du coupable. Il a des choses à vous dire, sur la place."},
+				{"who": "sam", "text": "Un Gamelle n'a qu'une parole, monsieur Glandoulf. Je vous suis. Où vous irez, il y aura de la soupe."},
+				{"who": "glandoulf", "text": "[i](De la soupe, et quelqu'un pour porter les sacs. Cette expédition prend tournure.)[/i]"},
+				{"who": "sam", "text": "Et le concours ! Il se tient pendant la Fête, et mon garde-manger est vide. Il me faudrait des cèpes du Bois Penché, au nord, et des œufs de cane de la Roselière, au sud-est."},
+				{"who": "sam", "text": "Avec ça, je refais l'omelette de la Saint-Cabestan. Celle que j'ai ratée. On passera les cueillir, dites ? C'est sur le chemin de tout."},
+				{"take": "poele_gamelle"},
+				{"join": "sam"},
+				{"set": "sam_equipe"}
+			],
+			"else": [
+				{"if": "sam_vu",
+					"then": [
+						{"if": "fripon_avoue",
+							"then": [
+								{"who": "sam", "text": "Chez Ursule ? Sur le quai ? Elle l'a mise en vente ? Avec les louches d'occasion ?"},
+								{"who": "sam", "text": "Je n'ai plus un écu, monsieur Glandoulf. Tout est parti dans le beurre du concours."},
+								{"who": "glandoulf", "text": "[i](Évidemment.)[/i] Je m'en occupe. Ne bougez pas."},
+								{"who": "sam", "text": "Je ne bouge pas. Je veille sur le crochet."}
+							],
+							"else": [
+								{"who": "sam", "text": "Si vous retrouvez ma poêle, je vous cuisine ce que vous voulez. Pour toujours. C'est un serment de Gamelle."},
+								{"who": "glandoulf", "text": "[i](« Pour toujours. » Ces gens-là ne plaisantent pas avec la fonte.)[/i]"}
+							]
+						}
+					],
+					"else": [
+						{"who": "sam", "text": "Ne regardez pas le crochet. S'il vous plaît. Je n'arrive pas à m'y faire."},
+						{"who": "glandoulf", "text": "Le crochet vide, au-dessus du fourneau ?"},
+						{"who": "sam", "text": "C'est là qu'elle dormait. Ma poêle. Fonte noire, manche riveté, trente ans de culottage."},
+						{"who": "sam", "text": "Ma mère me l'a transmise en disant : « Sam, un Gamelle sans poêle, c'est une marmite sans fond. »"},
+						{"who": "sam", "text": "On me l'a prise cette nuit. La veille du concours ! Qui vole une poêle, monsieur Glandoulf ? Quel genre de monstre ?"},
+						{"who": "glandoulf", "text": "Un monstre de petite taille, je dirais. On m'a pris ma pipe aujourd'hui même."},
+						{"who": "sam", "text": "Votre pipe aussi ? Alors c'est une vague de crimes ! Il faut agir ! Je vous suis !"},
+						{"who": "sam", "text": "Enfin... je vous suivrais. Sans ma poêle, je ne suis bon à rien. Je ne sais même plus avec quoi taper."},
+						{"who": "glandoulf", "text": "Taper ?"},
+						{"who": "sam", "text": "Ça sert à tout, une bonne poêle."},
+						{"who": "glandoulf", "text": "[i](Loyal, têtu, et armé d'ustensiles. Il pourrait être utile. Pour porter les affaires, notamment.)[/i]"},
+						{"set": "sam_vu"}
+					]
+				}
+			]
+		}
+	],
+
+	"gedeon": [
+		{"if": "naze_vaincu", "then": [
+			{"who": "gedeon", "text": "J'ai fait mettre une bâche sur la Grande Bitte. Par décence. On ne laisse pas une dame couchée sur la place."}
+		]},
+		{"if": "fete_commencee & !naze_arrive", "then": [
+			{"who": "gedeon", "text": "Tout le Comté est là, magicien. Quand vous serez prêt, montez à l'estrade, sur la place : je vous rejoins pour la cérémonie."},
+			{"who": "gedeon", "text": "Faites vos emplettes avant. Une fois la cérémonie lancée, plus personne ne tiendra boutique."}
+		]},
+		{"if": "bittes_payees",
+			"then": [
+				{"who": "gedeon", "text": "Elles tiennent. Je passe les voir toutes les heures, l'air de rien."},
+				{"who": "gedeon", "text": "Mais une cale, ce n'est pas une guérison. Si vous trouvez ce qui ramollit mes bittes, magicien, tout Bittebourg vous en sera reconnaissant."}
+			],
+			"else": [
+				{"if": "bitte_1 & bitte_2 & bitte_3 & bitte_4",
+					"then": [
+						{"who": "gedeon", "text": "Je les ai vues. Droites. Toutes les quatre."},
+						{"who": "gedeon", "text": "Ça ne les guérit pas. Mais demain, le Comté verra des bittes dressées, et c'est tout ce qu'on demande à une fête."},
+						{"who": "gedeon", "text": "Tenez. Quelques écus de la caisse des Amarres, et le nœud que mon grand-père portait à la ceinture. Il ne s'est jamais défait."},
+						{"who": "glandoulf", "text": "[i](Des cales. On en est à mettre des cales. Il va falloir que je m'occupe de cette histoire. Bientôt.)[/i]"},
+						{"set": "bittes_payees"}
+					],
+					"else": [
+						{"if": "cales_recues",
+							"then": [
+								{"who": "gedeon", "text": "Trois sur le quai, une au bout du ponton. Et discrètement ! Si quelqu'un demande, vous admirez l'ouvrage."},
+								{"who": "glandoulf", "text": "J'admire très bien. C'est une activité qui se pratique immobile."}
+							],
+							"else": [
+								{"if": "gedeon_vu",
+									"then": [
+										{"who": "gedeon", "text": "Vous revoilà. J'ai réfléchi. Je ne peux pas les guérir, mais je peux sauver les apparences."},
+										{"who": "gedeon", "text": "Des cales. En chêne, taillées de ma main. Une sous chaque bitte, et elles tiendront droit jusqu'à la fin de la Fête."},
+										{"who": "gedeon", "text": "Je les poserais bien moi-même. Mais si l'on voit le Maître des Amarres caler ses propres bittes, c'en est fini de la Capitainerie."},
+										{"who": "glandoulf", "text": "Alors que si c'est un vieillard de passage, personne ne se posera de question."},
+										{"who": "gedeon", "text": "Exactement ! Trois sur le quai, une au bout du ponton. Je vous revaudrai ça."},
+										{"give": "cale", "count": 4},
+										{"set": "cales_recues"}
+									],
+									"else": [
+										{"who": "gedeon", "text": "Halte ! On n'approche pas des bittes sans autoris... Ah. Glandoulf. Vous tombez mal."},
+										{"who": "gedeon", "text": "Regardez-moi ça. La numéro trois. Taillée par mon grand-père dans un chêne de deux cents ans. Elle tenait droite comme la justice."},
+										{"who": "gedeon", "text": "Ce matin, elle penchait. Ce soir, elle penche davantage. Et celle du ponton commence à suivre."},
+										{"who": "glandoulf", "text": "Le bois travaille, Gédéon. Ça arrive à tout le monde."},
+										{"who": "gedeon", "text": "Pas aux nôtres ! Nous taillons les plus grosses bittes du continent, et elles n'ont jamais molli. Jamais ! On vient de Brie pour les admirer."},
+										{"who": "gedeon", "text": "Les étrangers ricanent toujours un peu en les voyant, d'ailleurs. Je n'ai jamais compris pourquoi."},
+										{"who": "glandoulf", "text": "L'émotion, sans doute."},
+										{"who": "gedeon", "text": "Demain, c'est la Fête des Amarres. Si la Grande Bitte de la place s'affaisse devant tout le Comté, je n'y survivrai pas."},
+										{"who": "glandoulf", "text": "[i](Des épis couchés. Du bois qui plie. Des gens qui n'ont plus envie de rien. J'ai déjà vu ça. Il y a très longtemps.)[/i]"},
+										{"who": "glandoulf", "text": "[i](Non. Impossible. J'y penserai demain.)[/i]"},
+										{"set": "gedeon_vu"}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"bitte_quai_1": [
+		{"if": "bitte_1",
+			"then": [{"text": "Calée, la bitte se tient droite. De loin, on n'y voit que du feu."}],
+			"else": [
+				{"if": "item:cale",
+					"then": [
+						{"text": "Glandoulf glisse une cale sous la bitte, du bout du bâton, sans se baisser."},
+						{"take": "cale"},
+						{"set": "bitte_1"},
+						{"who": "glandoulf", "text": "Voilà. Droite comme la justice. Une justice un peu soutenue."}
+					],
+					"else": [{"text": "Une bitte d'amarrage en chêne massif, polie par des générations de cordages. Elle s'incline vers l'eau comme pour y regarder son reflet."}]
+				}
+			]
+		}
+	],
+	"bitte_quai_2": [
+		{"if": "bitte_2",
+			"then": [{"text": "La bitte ne penche plus. Elle a même l'air un peu fière, ce qui est beaucoup pour du chêne."}],
+			"else": [
+				{"if": "item:cale",
+					"then": [
+						{"text": "Celle-ci penche du mauvais côté. Glandoulf la pousse de l'épaule et coince la cale du talon."},
+						{"take": "cale"},
+						{"set": "bitte_2"},
+						{"who": "glandoulf", "text": "Deux efforts dans la même soirée. Je sens que je vais le payer."}
+					],
+					"else": [{"text": "Cette bitte-là penche vers la terre, à rebours de ses voisines. On dirait qu'elle cherche à quitter le quai."}]
+				}
+			]
+		}
+	],
+	"bitte_quai_3": [
+		{"if": "bitte_3",
+			"then": [{"text": "La numéro trois, taillée par le grand-père de Gédéon. Droite, grâce à un morceau de chêne dont personne ne parlera."}],
+			"else": [
+				{"if": "item:cale",
+					"then": [
+						{"text": "La fameuse numéro trois. Elle résiste, craque, puis se laisse redresser avec un soupir de vieux meuble."},
+						{"take": "cale"},
+						{"set": "bitte_3"},
+						{"who": "glandoulf", "text": "Deux cents ans de chêne, et il suffit d'une cale. Ne le répétez pas à Gédéon."}
+					],
+					"else": [{"text": "La numéro trois. Elle penche si fort que la corde de la barque voisine a glissé jusqu'à son sommet."}]
+				}
+			]
+		}
+	],
+	"bitte_ponton": [
+		{"if": "bitte_4",
+			"then": [{"text": "La bitte du ponton tient debout. La barque qu'elle retient a l'air soulagée."}],
+			"else": [
+				{"if": "item:cale",
+					"then": [
+						{"text": "La bitte du bout du ponton est presque couchée. Il faut s'y prendre à deux mains, ce que Glandoulf fait en soupirant à chacune."},
+						{"take": "cale"},
+						{"set": "bitte_4"},
+						{"who": "glandoulf", "text": "Du chêne. Plié comme une tige de blé. Il n'y a qu'une chose au monde qui fasse cela."},
+						{"who": "glandoulf", "text": "Deux, en comptant l'humidité. Mettons que ce soit l'humidité."}
+					],
+					"else": [
+						{"text": "La bitte du bout du ponton. Elle est presque couchée. La barque qu'elle retient n'a pas l'air rassurée."},
+						{"who": "glandoulf", "text": "Du chêne. Plié comme une tige de blé. Il n'y a qu'une chose au monde qui fasse cela."},
+						{"who": "glandoulf", "text": "Deux, en comptant l'humidité. Mettons que ce soit l'humidité."}
+					]
+				}
+			]
+		}
+	],
+
+	"potager": [
+		{"if": "potager_soigne",
+			"then": [{"text": "Les poireaux se tiennent au garde-à-vous. C'est le seul carré du village qui ait l'air de bonne humeur."}],
+			"else": [
+				{"if": "racines_prises & party:pepine",
+					"then": [
+						{"who": "pepine", "text": "De la fraîche, cette fois. J'en ai gardé un brin dans ma poche. Reculez : ça pique les yeux."},
+						{"text": "Pépine écrase la racine-qui-réveille dans l'arrosoir et arrose le carré, rang par rang."},
+						{"text": "Un poireau frémit. Puis un autre. En un instant, tout le potager se redresse."},
+						{"who": "pepine", "text": "Ha ! Debout, mes grands ! ... Mais ce n'est qu'un remède. Demain, il faudra recommencer, et la racine ne repoussera jamais assez vite pour tout le Comté."},
+						{"who": "pepine", "text": "Le mal vient d'ailleurs. Il faut le prendre à la source."},
+						{"who": "glandoulf", "text": "[i](À la source. C'est-à-dire loin. C'est toujours loin.)[/i]"},
+						{"who": "pepine", "text": "J'ai dit que je vous suivrais : je vous suis. Et prenez ce tuteur. Il a tenu droit mes plus beaux poireaux, il vous tiendra bien l'échine."},
+						{"set": "potager_soigne"}
+					],
+					"else": [{"text": "Le potager de Pépine. Les poireaux sont couchés dans la terre, comme après une mauvaise nouvelle."}]
+				}
+			]
+		}
+	],
+
+	"ursule": [
+		{"if": "ursule_vue",
+			"then": [
+				{"who": "ursule", "text": "Regardez, touchez, mais ne marchandez pas. Marchander me fatigue, et ces jours-ci tout me fatigue.",
+					"choice": [
+						{"text": "Voir l'étal", "then": [
+							{"shop": "etal_ursule"},
+							{"who": "ursule", "text": "Revenez quand vous voulez. Je ne bouge pas : je n'en ai pas le courage."}
+						]},
+						{"text": "Plus tard", "then": [
+							{"who": "glandoulf", "text": "Plus tard. J'ai horreur de compter debout."}
+						]}
+					]
+				}
+			],
+			"else": [
+				{"who": "ursule", "text": "Approchez, monsieur le magicien ! Ursule Bonpoids : tout pour le batelier, le voyageur et le distrait."},
+				{"who": "ursule", "text": "Tisanes, cidre, gilets, lames. Et de l'occasion, quand les gens du coin ont besoin d'écus."},
+				{"who": "glandoulf", "text": "De l'occasion."},
+				{"who": "ursule", "text": "Je ne demande jamais d'où ça vient. Demander, c'est déjà presque refuser."},
+				{"who": "ursule", "text": "Je rachète aussi, à moitié prix. C'est l'autre moitié qui me fait vivre."},
+				{"set": "ursule_vue"},
+				{"shop": "etal_ursule"}
+			]
+		}
+	]
+}

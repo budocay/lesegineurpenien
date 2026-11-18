@@ -1,0 +1,362 @@
+{
+	"arrivee_bittebourg": [
+		{"text": "Trois cents ans ont passé depuis la chute de Sauron. La Terre du Mi-Lieu a oublié jusqu'à son nom."},
+		{"text": "Dans le Comté, pays des Grobittes, on prépare la Fête des Amarres. C'est le soir. Un voyageur arrive par la route de l'est."},
+		{"who": "glandoulf", "text": "Trois jours de marche. On m'avait dit : « Bittebourg, c'est la porte à côté. »"},
+		{"who": "glandoulf", "text": "Les épis sont couchés. Les barrières penchent. Et il n'y a pas un souffle de vent..."},
+		{"who": "glandoulf", "text": "Non. Je m'inquiéterai demain. Ce soir : une chope, un fauteuil, et qu'on ne me demande rien."},
+		{"who": "glandoulf", "text": "[i](Trois siècles sans lancer un sort sérieux. J'ai dû perdre la main. Il faudra que je m'y remette. Demain.)[/i]"},
+		{"set": "intro_vue"}
+	],
+
+	"bord_est": [
+		{"who": "glandoulf", "text": "Repartir ? Trois jours de marche dans l'autre sens ?"},
+		{"who": "glandoulf", "text": "Je préfère encore affronter ce qui m'attend ici. Assis, si possible."}
+	],
+
+	"pepine": [
+		{"if": "pepine_vue",
+			"then": [
+				{"who": "pepine", "text": "Mes pauvres poireaux... Il leur faudrait de la racine-qui-réveille, et de la fraîche. Il en pousse au Pré Couché, par la route de l'est."},
+				{"who": "pepine", "text": "Seulement, depuis hier, le pré grouille de bêtes toutes molles, et pas commodes pour autant. Seule, je n'y mets pas les pieds.",
+					"choice": [
+						{"text": "Je vous accompagne", "then": [
+							{"who": "glandoulf", "text": "Je vous accompagne. Lentement, mais je vous accompagne."},
+							{"who": "pepine", "text": "Parfait ! Je prends ma serpette et mes tisanes. Si vous trouvez d'où vient ce mal, je vous suis au bout du monde."},
+							{"who": "pepine", "text": "Enfin, jusqu'au bout du Comté. On verra pour la suite."},
+							{"join": "pepine"},
+							{"give": "tisane", "count": 2},
+							{"set": "pepine_equipe"}
+						]},
+						{"text": "Plus tard", "then": [
+							{"who": "glandoulf", "text": "Plus tard. Une chope m'attend, et je ne voudrais pas la vexer."}
+						]}
+					]
+				}
+			],
+			"else": [
+				{"who": "pepine", "text": "Ne marchez pas sur mes... Oh, et puis marchez. Au point où ils en sont."},
+				{"who": "pepine", "text": "Hier, mes poireaux se tenaient au garde-à-vous. Regardez-les. On dirait qu'ils ont appris une mauvaise nouvelle."},
+				{"who": "glandoulf", "text": "Trop d'eau ?"},
+				{"who": "pepine", "text": "Je suis herboriste, monsieur le magicien. Je sais arroser un poireau."},
+				{"who": "pepine", "text": "J'ai tout essayé : purin d'ortie, décoction de racine-qui-réveille. Je leur ai même parlé fermement."},
+				{"who": "pepine", "text": "Rien n'y fait. Ce n'est pas une maladie. C'est comme si quelque chose leur avait retiré... l'envie."},
+				{"who": "glandoulf", "text": "L'envie."},
+				{"who": "pepine", "text": "L'envie de se dresser. Et il n'y a pas que le potager. Le vieux Bolgère n'a pas quitté son fauteuil depuis mardi. Lui qui taillait une bitte par semaine !"},
+				{"who": "glandoulf", "text": "[i](Je connais des gens très bien qui ne quittent jamais leur fauteuil.)[/i]"},
+				{"who": "pepine", "text": "Si vous voulez un remontant, j'ai une tisane. Elle guérit tout, sauf ce qu'elle provoque."},
+				{"set": "pepine_vue"}
+			]
+		}
+	],
+
+	"titou": [
+		{"if": "fusees_pretes",
+			"then": [
+				{"if": "naze_vaincu",
+					"then": [
+						{"who": "titou", "text": "J'ai tout vu par le trou du volet ! Vous avez tapé le monsieur sans figure ! Avec le feu !"},
+						{"who": "glandoulf", "text": "Ta grand-mère dira que je me suis endormi avant la fin."},
+						{"who": "titou", "text": "Non. Cette fois, elle a dit : « Tiens. Il s'est levé. »"}
+					],
+					"else": [
+						{"who": "titou", "text": "Elles vont partir, cette fois ? Toutes ? Vous le jurez ?"},
+						{"who": "glandoulf", "text": "Je ne jure jamais. Mais elles sont sèches, et moi je suis debout. C'est déjà beaucoup."}
+					]
+				}
+			],
+			"else": [
+				{"if": "fusees_vues",
+					"then": [
+						{"if": "item:soufre:3",
+							"then": [
+								{"who": "titou", "text": "Vous avez la poudre jaune ! Ça pue ! C'est bon signe ?"},
+								{"text": "Glandoulf ouvre les fusées une à une, y verse le soufre, tasse du pouce et referme. Il travaille assis, mais il travaille."},
+								{"take": "soufre", "count": 3},
+								{"who": "glandoulf", "text": "Voilà. Sèches comme un discours d'Elrond. J'en garde trois petites dans la manche, on ne sait jamais."},
+								{"give": "fusee_poche", "count": 3},
+								{"who": "titou", "text": "Mémé ! MÉMÉ ! Il l'a fait ! Il n'a pas dit demain !"},
+								{"set": "fusees_pretes"}
+							],
+							"else": [
+								{"who": "titou", "text": "Il vous faut trois mesures de poudre jaune, vous avez dit. Y en a à la Roselière, par la route du sud-est. Les feux follets en perdent quand on les mouche."},
+								{"who": "glandoulf", "text": "Je sais. C'est loin. Tout est loin."}
+							]
+						}
+					],
+					"else": [
+						{"if": "titou_vu",
+							"then": [
+								{"who": "titou", "text": "Vous les allumez quand, les fusées ?"},
+								{"who": "glandoulf", "text": "Demain."},
+								{"who": "titou", "text": "Mémé dit que vous dites toujours demain. Montrez-les, au moins !"},
+								{"text": "Glandoulf sort une fusée de sa manche. Elle pend au bout de ses doigts comme une chaussette mouillée."},
+								{"who": "glandoulf", "text": "... Elles ont molli. Elles aussi. La poudre a pris l'humidité, ou pire."},
+								{"who": "titou", "text": "Alors y aura pas de bouquet ?"},
+								{"who": "glandoulf", "text": "[i](Il a la tête de quelqu'un à qui l'on a déjà dit « demain » une fois de trop.)[/i]"},
+								{"who": "glandoulf", "text": "Il y en aura un. Il me faut du soufre des marais, trois bonnes mesures. Ça se trouve à la Roselière."},
+								{"who": "titou", "text": "Et les barques, vous y allez ? Les frères Godille partent toujours comme des fous, et après ils sont sur les genoux. Tout le monde le sait."},
+								{"set": "fusees_vues"}
+							],
+							"else": [
+								{"who": "titou", "text": "Vous êtes le magicien ! Celui des feux d'artifice !"},
+								{"who": "glandoulf", "text": "Il paraît."},
+								{"who": "titou", "text": "Mémé dit que la dernière fois, vous vous êtes endormi avant d'allumer la mèche."},
+								{"who": "glandoulf", "text": "Ta grand-mère confond. C'était une pause stratégique."},
+								{"who": "titou", "text": "Elle a duré jusqu'au lendemain midi."},
+								{"who": "glandoulf", "text": "Les meilleures stratégies prennent du temps, petit."},
+								{"set": "titou_vu"}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"meme_louchette": [
+		{"if": "concours_fait",
+			"then": [
+				{"who": "meme_louchette", "text": "Quarante ans que je préside ce jury. Le petit Gamelle a de la main. Dites-lui que je l'ai dit, mais pas devant moi."}
+			],
+			"else": [
+				{"if": "fete_commencee",
+					"then": [
+						{"if": "item:cepe & item:oeufs_cane",
+							"then": [
+								{"who": "meme_louchette", "text": "Concours de la Saint-Cabestan ! Candidat suivant : Gamelle, Sam. Qu'est-ce que tu nous fais, mon petit ?"},
+								{"who": "sam", "text": "J'ai des cèpes du Chêne Penché et des œufs de cane, madame Louchette. Et ma poêle.",
+									"choice": [
+										{"text": "L'omelette de la Saint-Cabestan", "then": [
+											{"who": "sam", "text": "L'omelette. Celle que j'ai ratée il y a trois ans. Je la refais."},
+											{"text": "Sam casse les œufs d'une main. Les cèpes chantent dans le beurre. Au moment de retourner l'omelette, tout Bittebourg retient son souffle."},
+											{"text": "Elle monte, tourne une fois dans l'air du soir, et retombe dans la poêle, dorée, bombée. Parfaitement droite."},
+											{"who": "meme_louchette", "text": "... Baveuse au cœur, ferme autour. Elle se tient. C'est la seule chose de ce village qui se tienne, cette semaine."},
+											{"who": "meme_louchette", "text": "Premier prix ! La Louche d'or ! Et mon châle, tiens, pour le grand, il a l'air d'avoir froid."},
+											{"give": "louche_or"},
+											{"give": "chale_meme"},
+											{"money": 40},
+											{"who": "sam", "text": "Maman disait : « un Gamelle sans poêle, c'est une marmite sans fond. » Elle n'a jamais dit ce que c'était, un Gamelle avec."},
+											{"take": "cepe"},
+											{"take": "oeufs_cane"},
+											{"set": "concours_fait"}
+										]},
+										{"text": "Une soupe aux cèpes, c'est plus sûr", "then": [
+											{"who": "sam", "text": "Une soupe. Je ne rate jamais une soupe."},
+											{"text": "La soupe est bonne. Chaude, parfumée, sans surprise. Mémé Louchette en reprend, ce qui ne l'empêche pas de juger."},
+											{"who": "meme_louchette", "text": "Très bien. Trop sage. On ne gagne pas la Saint-Cabestan en évitant de la rater. Deuxième prix, et mon châle pour le grand : il a l'air d'avoir froid."},
+											{"give": "chale_meme"},
+											{"give": "tisane_corsee", "count": 2},
+											{"money": 20},
+											{"who": "sam", "text": "[i](L'année prochaine, je fais l'omelette.)[/i]"},
+											{"take": "cepe"},
+											{"take": "oeufs_cane"},
+											{"set": "concours_fait"}
+										]},
+										{"text": "Pas tout de suite", "then": [
+											{"who": "meme_louchette", "text": "Le jury n'est pas pressé. Le jury a quatre-vingt-deux ans : il a l'habitude d'attendre."}
+										]}
+									]
+								}
+							],
+							"else": [
+								{"who": "meme_louchette", "text": "C'est moi qui préside le concours, cette année comme les quarante d'avant. Le petit Gamelle est inscrit, mais il n'a rien dans son panier."},
+								{"who": "meme_louchette", "text": "Des cèpes du Chêne Penché, au fond du bois du nord. Des œufs de cane, sur l'îlot de la Roselière. Voilà de quoi faire quelque chose de droit."}
+							]
+						}
+					],
+					"else": [
+						{"if": "meme_vue",
+							"then": [
+								{"who": "meme_louchette", "text": "C'est le Ramollissement, je vous le dis. Et personne n'écoute les vieilles."},
+								{"who": "glandoulf", "text": "[i](Si seulement.)[/i]"}
+							],
+							"else": [
+								{"who": "meme_louchette", "text": "Vous cherchez le petit Gamelle ? Il n'est pas chez lui. Il est à l'auberge, à pleurer sur ses fourneaux."},
+								{"who": "meme_louchette", "text": "On lui a volé sa poêle. La veille du concours de cuisine ! Une poêle en fonte qui lui venait de sa mère."},
+								{"who": "glandoulf", "text": "Une poêle, ça se remplace."},
+								{"who": "meme_louchette", "text": "Malheureux ! Ne lui dites jamais ça en face."},
+								{"who": "meme_louchette", "text": "Et il y a pire. Mon tricot. Regardez : mes aiguilles plient. Quarante ans que je tricote raide, et ce soir, tout pendouille."},
+								{"who": "meme_louchette", "text": "C'est le Ramollissement, je vous le dis. Ma grand-mère en parlait. Dans l'ancien temps, il y avait un anneau, et un magicien qui devait..."},
+								{"who": "glandoulf", "text": "Les grands-mères disent beaucoup de choses. Bonne soirée, madame."},
+								{"text": "Glandoulf met fin à la conversation avec une vivacité surprenante pour un homme aussi fatigué."},
+								{"set": "meme_vue"}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"anselme": [
+		{"if": "battue_vue & solitaire_vaincu & !battue_payee",
+			"then": [
+				{"who": "anselme", "text": "Le Vieux Solitaire s'est levé ? De lui-même ? Enfin... avec votre aide ?"},
+				{"who": "glandoulf", "text": "Nous avons eu une conversation. Il a fini par se ranger à mon avis."},
+				{"who": "anselme", "text": "La prime de battue, comme promis. Et ma veste de garde : je n'ai plus la force de la boutonner, autant qu'elle serve."},
+				{"set": "battue_payee"}
+			],
+			"else": [
+				{"if": "route_ouverte",
+					"then": [
+						{"who": "anselme", "text": "Il est passé à travers. Il n'a même pas ralenti. Trente ans que je garde cette barrière, et il en reste de quoi allumer un feu."},
+						{"who": "anselme", "text": "La route de Brie est ouverte, du coup. Bon voyage, magicien. Si vous retrouvez celui qui a fait ça, dites-lui qu'une barrière, ça se lève."}
+					],
+					"else": [
+						{"if": "anselme_vu",
+							"then": [
+								{"if": "battue_vue",
+									"then": [
+										{"who": "anselme", "text": "Le Vieux Solitaire est couché devant la clairière du Chêne, au fond du Bois Penché. Par le sentier du nord, derrière chez Pépine."},
+										{"who": "anselme", "text": "Ne venez pas seul. Il est flapi, mais il pèse son poids."}
+									],
+									"else": [
+										{"who": "anselme", "text": "Dites, vous qui avez un bâton. Il y a un avis de battue, et c'est moi qui devrais m'en charger."},
+										{"who": "anselme", "text": "Un vieux sanglier s'est couché en travers du sentier du Bois Penché. Il charge quiconque le dérange, mollement, mais il charge."},
+										{"who": "anselme", "text": "Cinquante écus de prime. Je vous les laisse volontiers. Rien que d'y penser, j'ai les jambes qui me rentrent dans le corps."},
+										{"who": "glandoulf", "text": "[i](Cinquante écus pour réveiller quelqu'un. C'est contre tous mes principes. C'est aussi cinquante écus.)[/i]"},
+										{"set": "battue_vue"}
+									]
+								}
+							],
+							"else": [
+								{"who": "anselme", "text": "La route de Brie est fermée jusqu'après la Fête. Ordre du Maître des Amarres."},
+								{"who": "anselme", "text": "Et de vous à moi, je n'aurais pas le courage de lever la barrière. Depuis ce matin, j'ai les bras en coton."},
+								{"who": "glandoulf", "text": "Je compatis. Sincèrement."},
+								{"set": "anselme_vu"}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+
+	"panneau_est": [
+		{"name": "Panneau", "text": "BITTEBOURG. Son port, ses amarres, ses bittes. « Ici, tout tient debout. »"},
+		{"text": "Le panneau penche nettement vers la gauche."}
+	],
+	"panneau_ouest": [
+		{"name": "Panneau", "text": "Route de Brie. Trois jours de marche. Deux, si l'on ne s'arrête pas (déconseillé)."}
+	],
+	"panneau_auberge": [
+		{"name": "Enseigne", "text": "AU BON MOUILLAGE. Bière, soupe du jour, lits à taille d'étranger (supplément)."}
+	],
+	"grande_bitte": [
+		{"if": "naze_arrive",
+			"then": [
+				{"name": "Plaque", "text": "LA GRANDE BITTE. Érigée par les fondateurs de Bittebourg. « Qu'elle reste droite tant que coulera la rivière. »"},
+				{"text": "Elle est couchée. La rivière coule toujours."},
+				{"who": "glandoulf", "text": "Ce n'est plus la perspective."}
+			],
+			"else": [
+				{"name": "Plaque", "text": "LA GRANDE BITTE. Érigée par les fondateurs de Bittebourg. « Qu'elle reste droite tant que coulera la rivière. »"},
+				{"text": "Elle penche. Légèrement. Mais elle penche."},
+				{"who": "glandoulf", "text": "Ce n'est rien. C'est la perspective."}
+			]
+		}
+	],
+	"porte_pepine": [
+		{"name": "Écriteau", "text": "Herboristerie Bontabac. Fermé pour cause de potager en deuil."}
+	],
+	"porte_sam": [
+		{"text": "Personne. Par la fenêtre, on devine un crochet vide au-dessus du fourneau, cerné d'une trace de suie en forme de poêle."}
+	],
+	"porte_capitainerie": [
+		{"if": "invasion & !morfales_chasses",
+			"then": [
+				{"text": "La porte est entrouverte. À l'intérieur, on entend des tiroirs tomber un à un, et des pages qu'on tourne sans hâte."},
+				{"who": "glandoulf", "text": "[i](Qu'il lise. Les Morfales d'abord.)[/i]"}
+			],
+			"else": [
+				{"name": "Écriteau", "text": "Capitainerie des Amarres. Toute réclamation sur la tenue des bittes doit être déposée debout."}
+			]
+		}
+	],
+
+	"entree_auberge": [
+		{"text": "Un choc sourd contre le linteau."},
+		{"who": "glandoulf", "text": "Les portes de ce pays sont une insulte à ma colonne vertébrale."},
+		{"set": "auberge_vue"}
+	],
+
+	"berthe": [
+		{"if": "berthe_vue & party:pepine & party:sam & party:fripon & potager_soigne & !fete_commencee",
+			"then": [
+				{"who": "berthe", "text": "Vous voilà quatre, à présent. Et le potager de Pépine s'est redressé : on ne parle que de ça au comptoir."},
+				{"who": "berthe", "text": "La Fête des Amarres, c'est demain soir. Si vous dormez comme vous en avez l'air, vous y serez tout juste.",
+					"choice": [
+						{"text": "Dormir jusqu'à la Fête (l'histoire avance)", "then": [
+							{"text": "Glandoulf ferme les yeux « cinq minutes ». La nuit passe. Le matin aussi. Sam cuisine, Pépine désherbe, Fripon compte l'argenterie de l'auberge."},
+							{"action": "rest"},
+							{"set": "fete_commencee"},
+							{"action": "save"},
+							{"who": "berthe", "text": "Debout ! Vous avez dormi un jour entier. Tout le Comté est sur la place, et Gédéon attend que vous montiez à l'estrade."},
+							{"who": "glandoulf", "text": "Un jour entier. Je me sens presque reposé. Ne me brusquez pas."},
+							{"who": "berthe", "text": "Il y a le concours de cuisine chez Mémé Louchette, la course de Nestor sur le quai, et Ursule a sorti ses plus belles pièces. Faites votre tour avant la cérémonie : après, on ne sait jamais."}
+						]},
+						{"text": "Se reposer un moment (soigne l'équipe et sauvegarde)", "then": [
+							{"text": "Glandoulf ferme les yeux « cinq minutes »."},
+							{"action": "rest"},
+							{"action": "save"},
+							{"who": "berthe", "text": "Ça fait une heure. Vous ronfliez en elfique."}
+						]},
+						{"text": "Plus tard", "then": [
+							{"who": "glandoulf", "text": "Plus tard. J'ai encore deux ou trois choses à remettre à plus tard."}
+						]}
+					]
+				}
+			],
+			"else": [
+				{"if": "berthe_vue",
+					"then": [
+						{"who": "berthe", "text": "Vous avez une mine de déterré, monsieur le magicien. Vous voulez vous reposer un moment ?",
+							"choice": [
+								{"text": "Se reposer (soigne l'équipe et sauvegarde)", "then": [
+									{"text": "Glandoulf ferme les yeux « cinq minutes »."},
+									{"action": "rest"},
+									{"action": "save"},
+									{"who": "berthe", "text": "Ça fait une heure. Vous ronfliez en elfique."}
+								]},
+								{"text": "Plus tard", "then": [
+									{"who": "glandoulf", "text": "Plus tard. Voilà une phrase que je prononce rarement à propos d'une sieste."}
+								]}
+							]
+						}
+					],
+					"else": [
+						{"who": "berthe", "text": "Bienvenue au Bon Mouillage ! Baissez la tête, le lustre est à hauteur de Grobitte."},
+						{"who": "glandoulf", "text": "Trop tard."},
+						{"who": "berthe", "text": "Une chambre ? J'ai celle des étrangers. Le lit fait presque votre taille, si vous dormez en chien de fusil."},
+						{"who": "glandoulf", "text": "Je dors dans toutes les positions, madame. C'est un don."},
+						{"who": "berthe", "text": "Tant mieux, parce que ce soir c'est calme. Trop calme. Pas un client qui chante, pas un qui se plaint de la bière. Même ma mousse ne tient plus."},
+						{"who": "berthe", "text": "Et mon cuisinier ne veut plus rien cuire. Parlez-lui, vous. Il paraît que vous êtes sage."},
+						{"who": "glandoulf", "text": "Il paraît beaucoup de choses."},
+						{"set": "berthe_vue"}
+					]
+				}
+			]
+		}
+	],
+
+	"odilon": [
+		{"who": "odilon", "text": "... Hmm ? Ah. Bonsoir."},
+		{"who": "odilon", "text": "D'habitude, à cette heure-ci, je raconte comment j'ai taillé la bitte du ponton nord. D'un seul bloc. Sans une pause."},
+		{"who": "odilon", "text": "Ce soir, je n'ai pas envie. Ni de raconter, ni de tailler. Ni de finir ma bière, tenez."},
+		{"who": "glandoulf", "text": "Ne pas finir sa bière... C'est donc grave."},
+		{"who": "odilon", "text": "Vous croyez ? Moi, je trouve ça reposant. C'est bien ce qui m'inquiète."},
+		{"if": "nestor_vu & !course_gagnee", "then": [
+			{"who": "odilon", "text": "La course ? Hmm. La bitte du ponton nord, c'est moi qui l'ai taillée. D'un seul bloc."},
+			{"who": "odilon", "text": "On peut y jeter la gaffe et virer dessus, serré. Elle ne bouge pas. Enfin, on l'a calée, à ce qu'il paraît. Ne virez pas large : au large, on perd une longueur."}
+		]}
+	],
+
+	"cheminee": [
+		{"text": "Un bon feu. Le fauteuil d'à côté vous regarde avec insistance."},
+		{"who": "glandoulf", "text": "Pas maintenant. ... Dix minutes. ... Non. Pas maintenant."}
+	],
+	"fourneau": [
+		{"text": "Le fourneau est tiède. Au-dessus, un crochet vide. Quelqu'un a posé dessous une petite fleur des champs."}
+	]
+}

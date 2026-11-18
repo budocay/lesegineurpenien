@@ -1,0 +1,69 @@
+{
+	"id": "pre_couche",
+	"name": "Le Pré Couché",
+	"region": "Route de l'est, aux portes de Bittebourg",
+	"size": [40, 22],
+	"ambiance": "crepuscule",
+	"ramollissement": 0.25,
+	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"ground": {
+		"default": "grass",
+		"fills": [
+			{"type": "path", "rect": [0, 10, 40, 2]},
+			{"type": "soil", "rect": [6, 2, 18, 6]},
+			{"type": "soil", "rect": [8, 14, 24, 6]},
+			{"type": "path", "rect": [32, 7, 2, 3]}
+		]
+	},
+	"spawns": {
+		"ouest": {"pos": [1.5, 10.5], "facing": "right"}
+	},
+	"on_enter": [
+		{"dialogue": "arrivee_pre_couche", "unless": "pre_couche_vu"}
+	],
+	"objects": [
+		{"type": "warp", "rect": [0, 9.5, 0.6, 3], "to": {"map": "bittebourg", "spawn": "route_est"}},
+		{"type": "trigger", "rect": [38.6, 9, 1.4, 4], "dialogue": "bord_est"},
+
+		{"type": "encounter_zone", "rect": [6, 2, 18, 6], "table": "pre_couche_nord"},
+		{"type": "encounter_zone", "rect": [8, 14, 24, 6], "table": "pre_couche_sud"},
+
+		{"type": "lantern", "pos": [3, 9]},
+		{"type": "lantern", "pos": [17, 12.2]},
+		{"type": "lantern", "pos": [30.5, 8.6]},
+		{"type": "lantern", "pos": [36, 12.2], "shadow": false},
+
+		{"type": "sign", "pos": [4.5, 12.3], "dialogue": "panneau_pre", "label": "Lire"},
+
+		{"type": "fence", "points": [[5.2, 8.3], [11, 8.3]], "lean": 14},
+		{"type": "fence", "points": [[15, 8.3], [24.2, 8.3]], "lean": 14},
+		{"type": "fence", "points": [[7.2, 12.9], [17, 12.9]], "lean": 14},
+		{"type": "fence", "points": [[21, 12.9], [32.2, 12.9]], "lean": 14},
+
+		{"type": "fence", "points": [[31.5, 7], [29.5, 7], [29.5, 2.5], [36, 2.5], [36, 7], [33.5, 7]], "lean": 6},
+		{"type": "monster", "id": "grande_baveuse", "pos": [32.5, 7.0], "solid": 1.0, "reach": 2.6,
+			"dialogue": "grande_baveuse", "label": "Approcher", "unless": "baveuse_vaincue"},
+		{"type": "bush", "pos": [32.5, 3.6], "variant": 1, "dialogue": "racines", "label": "Cueillir", "reach": 1.7, "gated": true},
+		{"type": "barrel", "pos": [34.8, 3.4]},
+		{"type": "crate", "pos": [30.8, 3.5], "turn": 14},
+
+		{"type": "tree", "pos": [27, 6.5], "variant": 2},
+		{"type": "tree", "pos": [3.5, 5], "variant": 0},
+		{"type": "tree", "pos": [36.5, 15.5], "variant": 3},
+		{"type": "tree", "pos": [4, 16.5], "variant": 1},
+		{"type": "rock", "pos": [26, 12.6], "variant": 0},
+
+		{"type": "scatter", "prop": "tree", "rect": [0, 0, 40, 1.8], "count": 26, "min_dist": 1.5, "seed": 21},
+		{"type": "scatter", "prop": "tree", "rect": [0, 20.4, 40, 1.6], "count": 22, "min_dist": 1.6, "seed": 22},
+		{"type": "scatter", "prop": "tree", "rect": [36.8, 0, 3.2, 8], "count": 4, "min_dist": 1.7, "seed": 23},
+		{"type": "scatter", "prop": "bush", "rect": [0, 2, 40, 7], "count": 7, "min_dist": 2.4, "seed": 24},
+		{"type": "scatter", "prop": "bush", "rect": [0, 12.6, 40, 8], "count": 7, "min_dist": 2.4, "seed": 25},
+		{"type": "scatter", "prop": "rock", "rect": [0, 2, 40, 18], "count": 5, "min_dist": 4.0, "seed": 26},
+		{"type": "scatter", "prop": "flowers", "rect": [0, 1, 40, 20], "count": 34, "min_dist": 0.9, "seed": 27},
+		{"type": "scatter", "prop": "grass", "rect": [0, 1, 40, 20], "count": 110, "min_dist": 0.55, "seed": 28},
+		{"type": "scatter", "prop": "wheat", "rect": [6, 2, 18, 6], "count": 120, "min_dist": 0.6, "seed": 29, "on": ["soil"]},
+		{"type": "scatter", "prop": "wilted", "rect": [6, 2, 18, 6], "count": 22, "min_dist": 0.8, "seed": 30, "on": ["soil"]},
+		{"type": "scatter", "prop": "wheat", "rect": [8, 14, 24, 6], "count": 150, "min_dist": 0.6, "seed": 31, "on": ["soil"]},
+		{"type": "scatter", "prop": "wilted", "rect": [8, 14, 24, 6], "count": 26, "min_dist": 0.8, "seed": 32, "on": ["soil"]}
+	]
+}

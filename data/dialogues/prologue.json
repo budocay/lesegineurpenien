@@ -1,0 +1,24 @@
+{
+	"prologue": [
+		{"text": "Il y a trois cents ans. La Montagne du Festin, au cœur du Mordgras."},
+		{"text": "L'Alliance des peuples libres a gravi quatre mille marches pour en finir avec Sauron, porteur de l'anneau pénien."},
+		{"text": "Au sommet, devant le Grand Four, il ne reste que deux combattants debout : Isidur, roi du Gouda, et un magicien gris qui aurait préféré venir le lendemain."},
+		{"who": "isidur", "text": "Magicien ! Les marches sont derrière nous. Il ne reste que lui."},
+		{"who": "glandoulf", "text": "Quatre mille, Majesté. J'ai compté. Je tenais à ce que quelqu'un le sache."},
+		{"who": "sauron", "text": "Glandoulf. Premier de la promotion sans jamais ouvrir un grimoire, et en retard à sa propre guerre."},
+		{"who": "sauron", "text": "Depuis que je porte l'anneau, je n'ai plus fermé l'œil. Pas une nuit. Tu n'imagines pas tout ce qu'on accomplit quand on ne s'arrête jamais."},
+		{"who": "glandoulf", "text": "Si, justement. Et rien que d'y penser, il faut que je m'assoie."},
+		{"who": "isidur", "text": "Assez parlé ! Pour le Gouda !"},
+		{"battle": "prologue_sauron"},
+		{"text": "Sauron vacille. D'un revers d'épée, Isidur fait sauter l'anneau, qui roule sur la pierre en tintant."},
+		{"who": "sauron", "text": "Non... Sans lui, il ne me reste... qu'à regarder..."},
+		{"text": "L'armure s'effondre, vide. Très haut au-dessus de la montagne, un œil immense s'ouvre. Il voit tout. Il ne peut plus rien."},
+		{"who": "isidur", "text": "C'est fini. Glandoulf, je ne garderai pas cette chose. Je ne l'ai qu'en main, et elle me serre déjà."},
+		{"who": "isidur", "text": "Toi seul n'as jamais rien désiré d'elle. Le Grand Four est là, à vingt pas. Jette-la, et qu'on n'en parle plus."},
+		{"text": "Isidur dépose l'anneau dans la paume du magicien. Il est tiède. Il pèse le poids d'une très longue journée."},
+		{"who": "glandoulf", "text": "Vingt pas."},
+		{"who": "glandoulf", "text": "Comptez sur moi, Majesté. Je m'en occupe."},
+		{"text": "..."},
+		{"set": "prologue_vu"}
+	]
+}

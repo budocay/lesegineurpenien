@@ -1,0 +1,142 @@
+{
+	"encounters": {
+		"prologue_sauron": {
+			"enemies": ["sauron_vigueur"],
+			"arena": "grand_four",
+			"flee": false,
+			"intro": "Sauron, en pleine Vigueur, barre l'accès au Grand Four.",
+			"party": [{"id": "glandoulf", "level": 20}, {"id": "isidur", "level": 20}],
+			"inventory": {"tisane": 3, "cidre": 2, "racine": 1},
+			"hints": [
+				"Chacun agit à son tour, selon sa vitesse : l'ordre est affiché en haut à gauche. Choisissez « Attaquer » avec Entrée, Espace ou E.",
+				"Les cases sous l'ennemi sont ses faiblesses, d'abord inconnues. Sauron craint le tranchant : l'épée d'Isidur fait mouche.",
+				"Chaque coup sur une faiblesse entame le bouclier (le chiffre). À zéro, l'ennemi est Ébranlé : il passe son tour et encaisse davantage.",
+				"Les compétences coûtent du mana (PM). Essayez « Bâillement contagieux » : Sauron ne dort jamais, la torpeur lui fait très mal.",
+				"« Objets » : une tisane rend des PV, une chope de cidre du mana. « Défendre » réduit les dégâts de moitié et rend un peu de mana.",
+				"Retour arrière ou X annule un choix. Quand la vie de Sauron tombe à zéro, c'est gagné."
+			]
+		},
+		"grande_baveuse": {
+			"enemies": ["grande_baveuse"],
+			"arena": "pre",
+			"flee": false,
+			"intro": "La Grande Baveuse se déplie. Cela prend un moment."
+		},
+		"vieux_solitaire": {
+			"enemies": ["vieux_solitaire"],
+			"arena": "bois",
+			"flee": false,
+			"intro": "Le Vieux Solitaire se lève. Il n'a pas l'air d'en avoir envie, ce qui le rend d'assez mauvaise humeur."
+		},
+		"crapaud_buffle": {
+			"enemies": ["crapaud_buffle"],
+			"arena": "marais",
+			"flee": false,
+			"intro": "Monseigneur ouvre un œil, puis l'autre. La passerelle gémit sous son poids."
+		},
+		"morfales_quai": {
+			"enemies": ["morfale_eclaireur", "morfale_eclaireur"],
+			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"intro": "Les Morfales lâchent l'étal. Ils ont encore faim."
+		},
+		"morfales_potager": {
+			"enemies": ["morfale_goinfre", "morfale_eclaireur"],
+			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"intro": "Le Morfale s'essuie la bouche avec un poireau."
+		},
+		"morfales_auberge": {
+			"enemies": ["morfale_goinfre", "morfale_eclaireur", "morfale_eclaireur"],
+			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"intro": "Trois Morfales, un tonneau. Ils ne comptent pas partager."
+		},
+		"naze": {
+			"enemies": ["naze_fouineur"],
+			"arena": "place", "flee": false, "ramollissement": 0.4,
+			"intro": "Le Naze tire une lame qui penche. Autour de lui, tout mollit : les coups portés à la main ne valent plus grand-chose."
+		},
+		"morfales_route": {
+			"enemies": ["morfale_goinfre", "morfale_eclaireur", "morfale_goinfre"],
+			"arena": "pre", "flee": false,
+			"intro": "Les traînards du Naze tiennent leur péage. Ils encaissent en nature."
+		}
+	},
+
+	"tables": {
+		"pre_couche_nord": {
+			"arena": "pre",
+			"min_distance": 7, "max_distance": 15,
+			"groups": [
+				{"enemies": ["limace_molle"], "weight": 3, "max_party": 1},
+				{"enemies": ["limace_molle", "limace_molle"], "weight": 3},
+				{"enemies": ["guepe_cidre", "guepe_cidre"], "weight": 2},
+				{"enemies": ["limace_molle", "guepe_cidre"], "weight": 2},
+				{"enemies": ["champignon_dormeur", "limace_molle"], "weight": 2, "min_party": 2},
+				{"enemies": ["guepe_cidre", "guepe_cidre", "guepe_cidre"], "weight": 1, "min_party": 2}
+			]
+		},
+		"pre_couche_sud": {
+			"arena": "pre",
+			"min_distance": 7, "max_distance": 15,
+			"groups": [
+				{"enemies": ["epouvantail_avachi"], "weight": 3},
+				{"enemies": ["champignon_dormeur"], "weight": 2, "max_party": 1},
+				{"enemies": ["champignon_dormeur", "champignon_dormeur"], "weight": 2, "min_party": 2},
+				{"enemies": ["epouvantail_avachi", "guepe_cidre"], "weight": 2, "min_party": 2},
+				{"enemies": ["epouvantail_avachi", "limace_molle", "limace_molle"], "weight": 1, "min_party": 2}
+			]
+		},
+		"bois_sud": {
+			"arena": "bois",
+			"min_distance": 8, "max_distance": 16,
+			"groups": [
+				{"enemies": ["frelon_bois", "frelon_bois"], "weight": 3},
+				{"enemies": ["sanglier_flapi"], "weight": 3, "max_party": 2},
+				{"enemies": ["sanglier_flapi", "frelon_bois"], "weight": 3, "min_party": 2},
+				{"enemies": ["amanite_molle", "frelon_bois"], "weight": 2, "min_party": 2},
+				{"enemies": ["frelon_bois", "frelon_bois", "frelon_bois"], "weight": 1, "min_party": 3}
+			]
+		},
+		"bois_nord": {
+			"arena": "bois",
+			"min_distance": 8, "max_distance": 16,
+			"groups": [
+				{"enemies": ["sanglier_flapi"], "weight": 2, "max_party": 2},
+				{"enemies": ["amanite_molle", "amanite_molle"], "weight": 2, "min_party": 2},
+				{"enemies": ["sanglier_flapi", "amanite_molle"], "weight": 3, "min_party": 2},
+				{"enemies": ["sanglier_flapi", "sanglier_flapi"], "weight": 2, "min_party": 3},
+				{"enemies": ["sanglier_flapi", "frelon_bois", "frelon_bois"], "weight": 2, "min_party": 3}
+			]
+		},
+		"roseliere_nord": {
+			"arena": "marais",
+			"min_distance": 8, "max_distance": 16,
+			"groups": [
+				{"enemies": ["grenouille_bouffie"], "weight": 2, "max_party": 2},
+				{"enemies": ["feu_follet", "feu_follet"], "weight": 3},
+				{"enemies": ["grenouille_bouffie", "sangsue_roseaux"], "weight": 3, "min_party": 2},
+				{"enemies": ["sangsue_roseaux", "sangsue_roseaux", "feu_follet"], "weight": 2, "min_party": 3}
+			]
+		},
+		"roseliere_sud": {
+			"arena": "marais",
+			"min_distance": 8, "max_distance": 16,
+			"groups": [
+				{"enemies": ["feu_follet"], "weight": 2, "max_party": 2},
+				{"enemies": ["grenouille_bouffie", "grenouille_bouffie"], "weight": 3, "min_party": 2},
+				{"enemies": ["feu_follet", "grenouille_bouffie"], "weight": 3, "min_party": 2},
+				{"enemies": ["feu_follet", "grenouille_bouffie", "sangsue_roseaux"], "weight": 2, "min_party": 3}
+			]
+		},
+		"route_brie": {
+			"arena": "pre",
+			"min_distance": 9, "max_distance": 18,
+			"groups": [
+				{"enemies": ["morfale_eclaireur"], "weight": 3, "max_party": 2},
+				{"enemies": ["morfale_eclaireur", "frelon_bois", "frelon_bois"], "weight": 3, "min_party": 2},
+				{"enemies": ["morfale_eclaireur", "morfale_eclaireur"], "weight": 3, "min_party": 3},
+				{"enemies": ["sanglier_flapi", "sanglier_flapi", "amanite_molle"], "weight": 2, "min_party": 3},
+				{"enemies": ["morfale_goinfre", "frelon_bois"], "weight": 2, "min_party": 3}
+			]
+		}
+	}
+}

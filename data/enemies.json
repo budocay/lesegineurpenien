@@ -1,0 +1,172 @@
+{
+	"limace_molle": {
+		"name": "Limace molle",
+		"sprite": {"monster": "limace"},
+		"stats": {"hp": 44, "atk": 6, "def": 2, "mag": 3, "res": 2, "spd": 5},
+		"element": "contondant", "attack_name": "Coup de tête mou",
+		"weak": ["feu", "tranchant"], "shield": 2,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "bave", "weight": 2}],
+		"xp": 6, "money": 2,
+		"drops": [{"item": "tisane", "chance": 0.15}]
+	},
+	"guepe_cidre": {
+		"name": "Guêpe à cidre",
+		"sprite": {"monster": "guepe", "hover": 0.95, "scale": 0.7},
+		"stats": {"hp": 20, "atk": 5, "def": 1, "mag": 2, "res": 1, "spd": 13},
+		"element": "tranchant", "attack_name": "Piqué",
+		"weak": ["contondant", "foudre"], "shield": 1,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "dard", "weight": 2}],
+		"xp": 5, "money": 3,
+		"drops": [{"item": "cidre", "chance": 0.2}]
+	},
+	"champignon_dormeur": {
+		"name": "Champignon dormeur",
+		"sprite": {"monster": "champignon"},
+		"stats": {"hp": 52, "atk": 5, "def": 3, "mag": 7, "res": 4, "spd": 6},
+		"element": "contondant", "attack_name": "Coup de chapeau",
+		"weak": ["feu", "tranchant"], "shield": 2, "immune": ["sommeil"],
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "spores", "weight": 2}],
+		"xp": 8, "money": 4,
+		"drops": [{"item": "decoction", "chance": 0.25}]
+	},
+	"epouvantail_avachi": {
+		"name": "Épouvantail avachi",
+		"sprite": {"monster": "epouvantail"},
+		"stats": {"hp": 84, "atk": 9, "def": 4, "mag": 3, "res": 3, "spd": 7},
+		"element": "contondant", "attack_name": "Gifle de paille",
+		"weak": ["feu", "tranchant"], "shield": 3,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "etreinte_molle", "weight": 2}],
+		"xp": 12, "money": 6,
+		"drops": [{"item": "tisane", "chance": 0.25}]
+	},
+	"grande_baveuse": {
+		"name": "La Grande Baveuse",
+		"sprite": {"monster": "baveuse", "scale": 2.4},
+		"stats": {"hp": 340, "atk": 13, "def": 5, "mag": 5, "res": 5, "spd": 6},
+		"element": "contondant", "attack_name": "Coup de tête mou",
+		"weak": ["feu", "foudre", "tranchant"], "shield": 4, "immune": ["sommeil", "sonne"],
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "raz_de_bave", "weight": 2}, {"skill": "roule_boule", "weight": 2}],
+		"xp": 60, "money": 40,
+		"drops": [{"item": "cidre", "chance": 1.0}]
+	},
+	"sauron_vigueur": {
+		"name": "Sauron",
+		"sprite": {"character": "sauron", "scale": 1.55, "glow": 0.7},
+		"stats": {"hp": 1050, "atk": 26, "def": 30, "mag": 30, "res": 30, "spd": 15},
+		"element": "contondant", "attack_name": "Coup de masse",
+		"weak": ["tranchant", "torpeur"], "shield": 4, "immune": ["sommeil", "sonne", "poison"],
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "heures_sup", "weight": 2}, {"skill": "regard_insistant", "weight": 1}],
+		"xp": 0, "money": 0
+	},
+	"frelon_bois": {
+		"name": "Frelon des bois",
+		"sprite": {"monster": "frelon", "hover": 0.95, "scale": 0.8},
+		"stats": {"hp": 36, "atk": 12, "def": 2, "mag": 2, "res": 2, "spd": 15},
+		"element": "tranchant", "attack_name": "Piqué",
+		"weak": ["contondant", "foudre"], "shield": 1,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "dard", "weight": 2}],
+		"xp": 10, "money": 5,
+		"drops": [{"item": "cidre", "chance": 0.2}]
+	},
+	"amanite_molle": {
+		"name": "Amanite molle",
+		"sprite": {"monster": "amanite", "scale": 1.1},
+		"stats": {"hp": 90, "atk": 8, "def": 4, "mag": 13, "res": 6, "spd": 6},
+		"element": "contondant", "attack_name": "Coup de chapeau",
+		"weak": ["feu", "tranchant"], "shield": 2, "immune": ["sommeil", "poison"],
+		"ai": [{"skill": "attack", "weight": 2}, {"skill": "spores", "weight": 2}, {"skill": "nuage_toxique", "weight": 2}],
+		"xp": 15, "money": 7,
+		"drops": [{"item": "decoction", "chance": 0.3}]
+	},
+	"sanglier_flapi": {
+		"name": "Sanglier flapi",
+		"sprite": {"monster": "sanglier", "scale": 1.1},
+		"stats": {"hp": 130, "atk": 16, "def": 6, "mag": 2, "res": 3, "spd": 8},
+		"element": "contondant", "attack_name": "Coup de boutoir",
+		"weak": ["tranchant", "torpeur"], "shield": 3,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "charge_molle", "weight": 2}],
+		"xp": 18, "money": 8,
+		"drops": [{"item": "tisane", "chance": 0.3}]
+	},
+	"vieux_solitaire": {
+		"name": "Le Vieux Solitaire",
+		"sprite": {"monster": "solitaire", "scale": 2.1},
+		"stats": {"hp": 950, "atk": 26, "def": 8, "mag": 4, "res": 6, "spd": 9},
+		"element": "contondant", "attack_name": "Coup de boutoir",
+		"weak": ["tranchant", "torpeur", "foudre"], "shield": 5, "immune": ["sonne"],
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "charge_molle", "weight": 2}, {"skill": "pietinement", "weight": 2}],
+		"xp": 110, "money": 45,
+		"drops": [{"item": "dent_solitaire", "chance": 1.0}]
+	},
+	"grenouille_bouffie": {
+		"name": "Grenouille bouffie",
+		"sprite": {"monster": "grenouille"},
+		"stats": {"hp": 105, "atk": 15, "def": 5, "mag": 11, "res": 5, "spd": 11},
+		"element": "contondant", "attack_name": "Coup de patte",
+		"weak": ["foudre", "tranchant"], "shield": 2,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "coup_de_langue", "weight": 2}, {"skill": "croassement", "weight": 1}],
+		"xp": 17, "money": 8,
+		"drops": [{"item": "tisane", "chance": 0.25}]
+	},
+	"sangsue_roseaux": {
+		"name": "Sangsue des roseaux",
+		"sprite": {"monster": "sangsue", "scale": 0.9},
+		"stats": {"hp": 84, "atk": 14, "def": 3, "mag": 3, "res": 4, "spd": 7},
+		"element": "tranchant", "attack_name": "Morsure molle",
+		"weak": ["feu", "contondant"], "shield": 2,
+		"ai": [{"skill": "attack", "weight": 2}, {"skill": "ponction", "weight": 3}],
+		"xp": 14, "money": 6,
+		"drops": [{"item": "decoction", "chance": 0.25}]
+	},
+	"feu_follet": {
+		"name": "Feu follet éteint",
+		"sprite": {"monster": "follet", "hover": 0.7, "glow": 0.8},
+		"stats": {"hp": 56, "atk": 4, "def": 2, "mag": 16, "res": 9, "spd": 14},
+		"element": "feu", "attack_name": "Frôlement tiède",
+		"weak": ["plante", "contondant"], "shield": 2, "immune": ["poison"],
+		"ai": [{"skill": "attack", "weight": 1}, {"skill": "flammeche", "weight": 4}],
+		"xp": 16, "money": 9,
+		"drops": [{"item": "soufre", "chance": 0.5}, {"item": "cidre", "chance": 0.2}]
+	},
+	"crapaud_buffle": {
+		"name": "Monseigneur",
+		"sprite": {"monster": "crapaud", "scale": 2.6},
+		"stats": {"hp": 1250, "atk": 25, "def": 7, "mag": 21, "res": 8, "spd": 8},
+		"element": "contondant", "attack_name": "Coup de patte",
+		"weak": ["foudre", "tranchant", "plante"], "shield": 5, "immune": ["sonne", "sommeil"],
+		"ai": [{"skill": "attack", "weight": 2}, {"skill": "coup_de_langue", "weight": 2}, {"skill": "gobage", "weight": 2}, {"skill": "croassement", "weight": 2}],
+		"xp": 120, "money": 50,
+		"drops": [{"item": "perle_vase", "chance": 1.0}]
+	},
+	"morfale_eclaireur": {
+		"name": "Morfale éclaireur",
+		"sprite": {"character": "morfale_eclaireur", "scale": 1.0},
+		"stats": {"hp": 150, "atk": 21, "def": 9, "mag": 5, "res": 6, "spd": 10},
+		"element": "tranchant", "attack_name": "Coup de couteau à pain",
+		"weak": ["feu", "torpeur"], "shield": 3,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "coup_de_fourchette", "weight": 2}, {"skill": "renvoi", "weight": 1}],
+		"xp": 34, "money": 14,
+		"drops": [{"item": "tisane_corsee", "chance": 0.25}]
+	},
+	"morfale_goinfre": {
+		"name": "Morfale goinfre",
+		"sprite": {"character": "morfale_goinfre", "scale": 1.15},
+		"stats": {"hp": 250, "atk": 25, "def": 11, "mag": 4, "res": 7, "spd": 6},
+		"element": "contondant", "attack_name": "Coup de marmite",
+		"weak": ["foudre", "torpeur"], "shield": 4,
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "louche_morfale", "weight": 2}, {"skill": "petit_creux", "weight": 1}],
+		"xp": 50, "money": 22,
+		"drops": [{"item": "remontant", "chance": 0.3}]
+	},
+	"naze_fouineur": {
+		"name": "Le Naze",
+		"sprite": {"character": "naze", "scale": 1.5, "glow": 0.25},
+		"stats": {"hp": 1350, "atk": 30, "def": 12, "mag": 21, "res": 12, "spd": 11},
+		"element": "tranchant", "attack_name": "Lame de l'ancien roi",
+		"weak": ["feu", "contondant", "foudre"], "shield": 6, "immune": ["sommeil", "sonne", "poison"],
+		"ai": [{"skill": "attack", "weight": 3}, {"skill": "souffle_ramollissant", "weight": 2}, {"skill": "cri_strident", "weight": 2}],
+		"low_at": 0.5,
+		"ai_low": [{"skill": "attack", "weight": 2}, {"skill": "cri_strident", "weight": 2}, {"skill": "doigt_glace", "weight": 2}, {"skill": "serrage", "weight": 1}],
+		"xp": 220, "money": 120
+	}
+}

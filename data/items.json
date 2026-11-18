@@ -1,0 +1,152 @@
+{
+	"tisane": {
+		"name": "Tisane de Pépine", "target": "ally", "price": 8,
+		"desc": "Rend des PV. Guérit tout, sauf ce qu'elle provoque.",
+		"effects": [{"type": "heal", "power": 30, "percent": 0.25}]
+	},
+	"cidre": {
+		"name": "Chope de cidre", "target": "ally", "price": 10,
+		"desc": "Rend du mana. Les idées reviennent, pas toujours les bonnes.",
+		"effects": [{"type": "mana", "power": 12}]
+	},
+	"decoction": {
+		"name": "Décoction amère", "target": "ally", "price": 12,
+		"desc": "Dissipe poison, sommeil et autres misères.",
+		"effects": [{"type": "cure"}]
+	},
+	"racine": {
+		"name": "Racine-qui-réveille", "target": "ally_ko", "price": 30,
+		"desc": "Relève un allié à terre avec la moitié de ses PV.",
+		"effects": [{"type": "revive", "percent": 0.5}]
+	},
+	"remontant": {
+		"name": "Petit remontant", "target": "ally", "price": 25,
+		"desc": "Une gorgée d'eau-de-vie de prune. Attaque et magie augmentées pendant trois tours, et le Ramollissement n'a plus prise sur les coups.",
+		"effects": [{"type": "status", "id": "galvanise", "turns": 3}]
+	},
+
+	"baton_ferre": {
+		"name": "Bâton ferré", "kind": "equipment", "slot": "weapon", "for": ["glandoulf"], "price": 45,
+		"desc": "Un bâton de marche cerclé de fer. On s'y appuie mieux et, accessoirement, on frappe plus fort.",
+		"mods": {"atk": 2, "mag": 3}
+	},
+	"serpette_affutee": {
+		"name": "Serpette affûtée", "kind": "equipment", "slot": "weapon", "for": ["pepine"], "price": 35,
+		"desc": "Elle taille l'ortie, le chardon et tout ce qui s'approche trop du potager.",
+		"mods": {"atk": 3, "mag": 1}
+	},
+	"canif_batelier": {
+		"name": "Canif de batelier", "kind": "equipment", "slot": "weapon", "for": ["fripon"], "price": 35,
+		"desc": "Fait pour trancher les cordages. Tranche aussi le reste, sans faire de manières.",
+		"mods": {"atk": 3, "spd": 1}
+	},
+	"poele_gamelle": {
+		"name": "Poêle des Gamelle", "kind": "equipment", "slot": "weapon", "for": ["sam"],
+		"desc": "Fonte noire, manche riveté, trente ans de culottage. Ça sert à tout, une bonne poêle.",
+		"mods": {"atk": 3, "def": 2}
+	},
+	"gilet_batelier": {
+		"name": "Gilet de batelier", "kind": "equipment", "slot": "armor", "price": 30,
+		"desc": "Du cuir épais, ciré contre les embruns. Il amortit les coups de gaffe et les autres.",
+		"mods": {"def": 2, "hp": 8}
+	},
+	"cape_ciree": {
+		"name": "Cape cirée", "kind": "equipment", "slot": "armor", "price": 30,
+		"desc": "La pluie glisse dessus. Les mauvais sorts aussi, dans une certaine mesure.",
+		"mods": {"res": 3, "hp": 4}
+	},
+	"noeud_cabestan": {
+		"name": "Nœud de cabestan", "kind": "equipment", "slot": "trinket", "price": 20,
+		"desc": "Un nœud de marin porté à la ceinture. Il ne s'est jamais défait, lui.",
+		"mods": {"def": 1, "res": 1, "spd": 1}
+	},
+	"pipe_bruyere": {
+		"name": "Pipe en bruyère", "kind": "equipment", "slot": "trinket", "for": ["glandoulf"],
+		"desc": "Grande comme un avant-bras de Grobitte. Elle tire très bien, à condition de ne pas être pressé.",
+		"mods": {"mp": 8, "mag": 2}
+	},
+	"tuteur": {
+		"name": "Tuteur en noisetier", "kind": "equipment", "slot": "trinket", "firm": true,
+		"desc": "Il a tenu droit les plus beaux poireaux de Pépine. Glissé dans le dos, il tient l'échine : le Ramollissement n'a plus prise sur les coups de son porteur.",
+		"mods": {"def": 1}
+	},
+
+	"cale": {
+		"name": "Cale en chêne", "kind": "key",
+		"desc": "Taillée par Maître Gédéon. Glissée sous une bitte qui penche, elle sauve les apparences."
+	},
+	"tisane_corsee": {
+		"name": "Tisane corsée", "target": "ally", "price": 22,
+		"desc": "La recette de Pépine, infusée deux fois. Rend beaucoup de PV et laisse un souvenir durable.",
+		"effects": [{"type": "heal", "power": 60, "percent": 0.4}]
+	},
+	"fusee_poche": {
+		"name": "Fusée de poche", "target": "all_enemies", "price": 40,
+		"desc": "Une fusée de Glandoulf, bien sèche. Du feu sur tous les adversaires, quel que soit celui qui l'allume.",
+		"effects": [{"type": "damage", "stat": "mag", "power": 20, "flat": 48, "element": "feu"}]
+	},
+
+	"baton_noueux": {
+		"name": "Bâton de vieux chêne", "kind": "equipment", "slot": "weapon", "for": ["glandoulf"], "price": 110,
+		"desc": "Taillé dans une chute de bitte d'amarrage. Lourd, droit, et pas commode à plier.",
+		"mods": {"atk": 3, "mag": 6}
+	},
+	"serpe_argent": {
+		"name": "Serpe à lame claire", "kind": "equipment", "slot": "weapon", "for": ["pepine"], "price": 95,
+		"desc": "Elle cueille plus net, ce qui garde aux herbes toute leur force. Aux adversaires, moins.",
+		"mods": {"atk": 4, "mag": 4}
+	},
+	"lame_contrebande": {
+		"name": "Lame de contrebande", "kind": "equipment", "slot": "weapon", "for": ["fripon"], "price": 95,
+		"desc": "Ursule ne dit pas d'où elle vient. Fripon ne demande pas. Tout le monde est content.",
+		"mods": {"atk": 6, "spd": 2}
+	},
+	"veste_matelassee": {
+		"name": "Veste matelassée", "kind": "equipment", "slot": "armor", "price": 80,
+		"desc": "Rembourrée de laine de brebis du Roquefort. On y encaisse comme dans un édredon.",
+		"mods": {"def": 4, "hp": 14}
+	},
+	"chale_meme": {
+		"name": "Châle de Mémé Louchette", "kind": "equipment", "slot": "armor",
+		"desc": "Tricoté raide, du temps où les aiguilles tenaient. Rien de mauvais ne passe au travers, pas même un courant d'air.",
+		"mods": {"res": 5, "def": 1, "hp": 8}
+	},
+	"louche_or": {
+		"name": "Louche d'or", "kind": "equipment", "slot": "trinket",
+		"desc": "Premier prix du concours de la Saint-Cabestan. Elle ne sert à rien en cuisine, mais elle donne du cœur à l'ouvrage.",
+		"mods": {"hp": 12, "mp": 6, "mag": 3}
+	},
+	"grelot_proue": {
+		"name": "Grelot de proue", "kind": "equipment", "slot": "trinket",
+		"desc": "Le grelot de la barque gagnante. Qui le porte a toujours l'impression d'être en retard d'une longueur.",
+		"mods": {"spd": 3}
+	},
+	"dent_solitaire": {
+		"name": "Défense du Vieux Solitaire", "kind": "equipment", "slot": "trinket", "price": 60,
+		"desc": "Longue comme une main de Grobitte. Portée en sautoir, elle donne envie de foncer.",
+		"mods": {"atk": 4}
+	},
+	"perle_vase": {
+		"name": "Perle de vase", "kind": "equipment", "slot": "trinket", "price": 60,
+		"desc": "Trouvée là où Monseigneur avait ses habitudes. Elle est tiède et sent un peu l'étang.",
+		"mods": {"mag": 3, "mp": 6, "res": 2}
+	},
+	"premiere_amarre": {
+		"name": "La Première Amarre", "kind": "equipment", "slot": "trinket",
+		"desc": "Le cordage de cérémonie de Bittebourg, qu'on noue chaque année au pied de la Grande Bitte. Gédéon l'a confié à qui la redressera.",
+		"mods": {"def": 2, "res": 2, "hp": 10}
+	},
+
+	"cepe": {
+		"name": "Cèpes du Chêne Penché", "kind": "key",
+		"desc": "Fermes, bruns, parfumés. Les seuls champignons du bois qui ne dorment pas et ne mordent pas."
+	},
+	"oeufs_cane": {
+		"name": "Œufs de cane", "kind": "key",
+		"desc": "Une demi-douzaine, encore tièdes. La cane avait quitté le nid : Monseigneur lui faisait de l'ombre."
+	},
+	"soufre": {
+		"name": "Soufre des marais", "kind": "key",
+		"desc": "Une poudre jaune qui pique le nez. Bien sèche, elle rendrait leur mordant à des fusées ramollies."
+	}
+}

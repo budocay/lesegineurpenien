@@ -1,0 +1,361 @@
+# Format des fichiers de contenu
+
+Tout le contenu du jeu est dans `data/`, en JSON. Le moteur (`src/`) ne contient ni carte,
+ni réplique, ni personnage. Ajouter un fichier dans `data/maps/` ou `data/dialogues/`
+suffit : il est chargé au démarrage.
+
+Après toute modification, lancer le test automatique décrit dans `docs/SUIVI.md` : il
+signale un dialogue manquant, un passage vers une carte inexistante ou un personnage
+enfermé.
+
+## `data/game.json`
+
+Titre, sous-titre et point de départ d'une nouvelle partie (`start` : carte, point
+d'arrivée, équipe de départ).
+
+## `data/characters.json`
+
+Un objet par personnage, rangé par identifiant.
+
+- `name` : nom affiché dans les dialogues. `full_name` : nom complet (facultatif).
+- `role`, `branches` : rôle et noms des deux branches de talents (le détail des talents
+  est dans `data/talents.json`, voir plus bas).
+- `look` : description utilisée pour dessiner le personnage.
+  - `build` : `petit` (Grobitte), `enfant`, `grand`.
+  - `outfit` : `tunique`, `robe`, `jupe`, `tablier`.
+  - `skin`, `top`, `bottom`, `belt`, `hair`, `boots` : couleurs (`"#rrggbb"`).
+  - `hair_style` : `court`, `long`, `boucles`, `chignon`, `chauve`.
+  - `beard` : `none`, `longue`, `moustache`, `courte` ; `beard_color`.
+  - `hat` : `none`, `magicien`, `toque`, `casquette`, `capuche`, `chapeau_paille`,
+    `foulard` ; `hat_color`, `band`.
+  - `item` : `baton`, `pipe`.
+
+## `data/ambiances.json`
+
+Une ambiance règle la lumière d'un lieu : couleur de fond, lumière ambiante, soleil
+(couleur, force, direction), brume, brume volumétrique, halo, exposition, saturation,
+contraste, et particules (`fireflies`, `pollen`, `dust`).
+
+## Cartes — `data/maps/<identifiant>.json`
+
+Repère : une case vaut une unité. `x` va vers la droite, `y` vers le bas de la carte, donc
+vers la caméra. Deux façons de donner un emplacement :
+
+- `"pos": [x, y]` désigne une case ; l'objet est posé **au centre** de cette case (les
+  décimales sont permises) ;
+- `"rect": [x, y, largeur, hauteur]` est un rectangle en coordonnées brutes.
+
+Champs principaux :
+
+- `id` (identique au nom du fichier), `name`, `region` (affichés à l'arrivée) ;
+- `size` : `[largeur, hauteur]` en cases ;
+- `interior` : `true` pour un intérieur (les murs du fond et des côtés sont posés tout
+  seuls là où le plancher touche le vide), `wall_height` ;
+- `ambiance` : identifiant dans `ambiances.json` ;
+- `ramollissement` : nombre entre 0 et 0,9 (absent : 0). C'est la part des dégâts
+  physiques perdue par tout le monde dans les combats lancés depuis cette carte ; un
+  témoin s'affiche en haut à gauche ;
+- `camera` : `distance`, `pitch` (inclinaison en degrés), `fov`, `dof` (force du flou),
+  `bounds` facultatif ;
+- `ground` : `default` (sol par défaut) puis `fills`, une liste de rectangles peints dans
+  l'ordre. Sols : `grass`, `path`, `cobble`, `planks`, `soil`, `floor`, `water`
+  (infranchissable), `void` (vide, infranchissable) ;
+- `spawns` : points d'arrivée nommés, `{"pos": [x, y], "facing": "down"}` ;
+- `on_enter` : dialogues joués à l'arrivée, `{"dialogue": "...", "unless": "drapeau"}` ;
+- `objects` : la liste des objets.
+
+Objets (champ `type`) :
+
+| Type | Rôle | Champs utiles |
+|---|---|---|
+| `house` | maison | `rect`, `height`, `roof_height`, `roof` (`rouge`, `vert`, `ardoise`, `chaume`), `door` (position de la porte depuis le bord gauche), `windows`, `door_color`, `lit`, puis `to` (porte qui mène ailleurs) ou `dialogue` (porte fermée) |
+| `npc` | personnage | `id`, `pos`, `facing`, `dialogue` (par défaut : son identifiant), `wander` (rayon de promenade), `reach` |
+| `warp` | passage | `rect`, `to: {"map", "spawn"}` |
+| `trigger` | zone qui lance un dialogue | `rect`, `dialogue` |
+| `lantern` | lanterne | `pos`, `shadow` |
+| `light` | lumière seule | `pos`, `height`, `color`, `energy`, `range` |
+| `fence` | clôture | `points` (ligne brisée), `lean` |
+| `scatter` | semis aléatoire | `prop`, `rect`, `count`, `min_dist`, `seed`, `on` (sols autorisés) |
+| `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate` | mobilier | `pos` ou `rect` |
+| `tree`, `bush`, `rock`, `barrel`, `sign`, `bollard`, `monument`, `boat`, `shelf`, `window`… | décor | `pos`, `variant`, `lean`, `height` |
+
+Tout objet qui porte un champ `dialogue` devient examinable ; `label` change le texte de
+l'invite (« Parler », « Lire », « Examiner »…) et `reach` la distance d'interaction.
+
+## Dialogues — `data/dialogues/*.json`
+
+Chaque fichier contient plusieurs dialogues rangés par identifiant. Un dialogue est une
+liste d'instructions lues dans l'ordre :
+
+```json
+"exemple": [
+	{"text": "Une ligne de narration, sans nom."},
+	{"who": "pepine", "text": "Une réplique de Pépine."},
+	{"who": "pepine", "name": "Une voix", "text": "Même portrait, autre nom affiché."},
+	{"if": "drapeau_deja_pose", "then": [ ... ], "else": [ ... ]},
+	{"set": "drapeau_deja_pose"},
+	{"choice": [
+		{"text": "Oui", "then": [ ... ]},
+		{"text": "Non", "then": [ ... ]}
+	]},
+	{"action": "save"}
+]
+```
+
+- `who` est un identifiant de `characters.json`.
+- `if` accepte une **condition** (voir plus bas) : un drapeau, mais aussi `"item:cale"`,
+  `"party:sam"`, ou plusieurs tests reliés par `&`.
+- `{"take": "objet", "count": 1}` retire des objets du sac.
+- `{"money": 12}` donne des écus (un nombre négatif en reprend).
+- `{"shop": "identifiant"}` ouvre une boutique de `shops.json` ; le dialogue reprend
+  quand le joueur la referme.
+- `set` pose un drapeau dans l'état de la partie ; `if` le teste. C'est ainsi qu'un
+  personnage dit autre chose la seconde fois.
+- `action` demande quelque chose au jeu : `save` (sauvegarder) ou `rest` (repos : toute
+  l'équipe retrouve PV et mana).
+- `{"battle": "identifiant"}` lance une rencontre de `encounters.json`. Le dialogue
+  reprend après le combat ; en cas de victoire le drapeau `combat_<identifiant>` est posé,
+  ce qui permet d'enchaîner avec `{"if": "combat_<identifiant>", "then": [...]}`.
+- `{"give": "objet", "count": 3}` ajoute des objets à l'inventaire (`count` vaut 1 par défaut).
+- `{"join": "personnage"}` fait entrer un personnage dans l'équipe (il lui faut un bloc
+  `battle` dans `characters.json`). Il arrive un niveau sous le meneur, avec l'équipement
+  de son bloc `equip`.
+- `{"set": "drapeau", "value": false}` retire un drapeau (par exemple à la fin d'une
+  invasion).
+- `{"chapter": "chapitre_2"}` change le chapitre courant de la partie.
+- `{"banner": "Titre", "sub": "Sous-titre"}` affiche le grand bandeau à l'écran (celui
+  des arrivées dans un lieu), sans interrompre le dialogue.
+
+### Conditions
+
+Partout où le contenu pose une condition (`if` d'un dialogue, `start` / `complete` /
+`done` d'une quête, `if` d'un article de boutique) :
+
+| Écriture | Vrai quand |
+|---|---|
+| `"drapeau"` | le drapeau est posé |
+| `"!drapeau"` | il ne l'est pas (le `!` marche devant tous les tests) |
+| `"item:cale"`, `"item:cale:3"` | le sac contient au moins un, au moins trois exemplaires |
+| `"party:sam"` | Sam est dans l'équipe |
+| `"money:40"` | l'équipe a au moins 40 écus |
+| `"quest:poele"`, `"quest_done:poele"` | la quête est en cours, est terminée |
+| `"a & b & c"` | tous les tests sont vrais |
+
+Attention : le `if` et le `unless` des **objets d'une carte** n'acceptent qu'un drapeau
+chacun. Un objet peut porter les deux à la fois : il n'est alors présent que si le drapeau
+`if` est posé et que le drapeau `unless` ne l'est pas (les Morfales pendant l'invasion).
+Une caisse (`crate`) qui porte un `dialogue` devient un objet à examiner (l'estrade de la
+Fête) ; `size` règle sa taille.
+
+## Quêtes — `data/quests.json`
+
+```json
+"bittes": {
+	"name": "Sauver les apparences", "kind": "annexe", "giver": "Maître Gédéon",
+	"desc": "Texte du journal.",
+	"start": "cales_recues",
+	"steps": [
+		{"text": "Caler les trois bittes du quai", "done": "bitte_1 & bitte_2 & bitte_3"},
+		{"text": "Prévenir Maître Gédéon", "done": "bittes_payees"}
+	],
+	"complete": "bittes_payees",
+	"reward": {"money": 30, "xp": 20, "items": {"noeud_cabestan": 1}}
+}
+```
+
+- `kind` : `principale` ou `annexe`. L'ordre du fichier est l'ordre du journal.
+- La quête **démarre toute seule** dès que `start` est vrai et **s'achève toute seule**
+  dès que `complete` l'est ; la récompense est alors donnée (une seule fois) et annoncée.
+  Les dialogues n'ont qu'à poser des drapeaux. Sans `complete`, la quête reste ouverte.
+- `steps` : les étapes affichées, cochées quand leur `done` est vrai. Le journal s'arrête
+  à la première étape non faite.
+- `reward` : `money`, `xp` (donnée à chaque membre de l'équipe), `items`.
+
+## Boutiques — `data/shops.json`
+
+```json
+"etal_ursule": {
+	"name": "L'étal d'Ursule", "keeper": "ursule", "sell_ratio": 0.5,
+	"greeting": "Phrase affichée à l'entrée.",
+	"stock": [
+		{"item": "tisane"},
+		{"item": "poele_gamelle", "price": 40, "if": "fripon_avoue", "once": "poele_rachetee"}
+	]
+}
+```
+
+Un article prend le `price` de `items.json`, sauf s'il en donne un. `if` le réserve à une
+condition ; `once` le rend unique : le drapeau est posé à l'achat et l'article disparaît.
+`sell_ratio` est la part du prix rendue au joueur quand il vend. Un objet sans `price`
+ne se vend pas.
+
+## Combat
+
+Toutes les règles sont dans `src/battle/battle_engine.gd` ; les chiffres sont ici.
+
+### `data/characters.json`, bloc `battle`
+
+```json
+"battle": {
+	"element": "contondant", "attack_name": "Coup de bâton",
+	"base":   {"hp": 38, "mp": 20, "atk": 6, "def": 4, "mag": 11, "res": 7, "spd": 8},
+	"growth": {"hp": 6, "mp": 3, "atk": 0.8, "def": 0.8, "mag": 1.8, "res": 1.2, "spd": 0.5},
+	"learn":  {"1": ["etincelle", "baillement"], "2": ["petit_somme"]}
+}
+```
+
+Statistique au niveau N = `base` + `growth` × (N − 1). `learn` donne les compétences
+apprises à chaque niveau. Un bloc facultatif `"equip": {"weapon": "poele_gamelle"}`
+donne l'équipement avec lequel le personnage rejoint l'équipe. L'expérience nécessaire pour passer du niveau N au suivant est
+`xp_base × N ^ xp_power` (réglés dans `game.json`, bloc `progression`).
+
+### `data/elements.json` et `data/statuses.json`
+
+Un élément a un `name`, un nom court `short` (affiché dans les cases de faiblesse) et une
+couleur. Un état a un `name`, une couleur, une durée `turns`, et selon le cas : `dot`
+(part des PV perdue à chaque tour), `skip` (fait passer le tour) avec `skip_text`,
+`wake_on_hit` (un coup le dissipe), `mods` (multiplicateurs de statistiques, par exemple
+`{"atk": 0.7}`), `negative` (dissipé par les soins d'état).
+
+### `data/skills.json` et `data/items.json`
+
+```json
+"baillement": {
+	"name": "Bâillement contagieux", "cost": 4, "target": "enemy",
+	"desc": "Texte affiché dans le menu.",
+	"effects": [
+		{"type": "damage", "stat": "mag", "power": 70, "element": "torpeur"},
+		{"type": "status", "id": "sommeil", "chance": 0.6, "turns": 2}
+	]
+}
+```
+
+- `target` : `enemy`, `all_enemies`, `ally`, `all_allies`, `self`, `ally_ko` (allié à terre).
+- Effets : `damage` (`stat` = `atk` contre la défense ou `mag` contre la résistance,
+  `power` en pourcentage, `element`), `heal` (`power` fixe, `percent` des PV max, `stat`
+  qui s'ajoute), `mana`, `status` (`id`, `chance`, `turns`), `cure` (dissipe les états
+  négatifs), `revive` (`percent` des PV rendus).
+- Dégâts = statistique × 2 × `power` / 100 − défense, à ±10 %, ×1,5 sur une faiblesse,
+  ×1,5 en coup critique, ×1,5 sur un ennemi ébranlé, ×0,5 si la cible se défend.
+- Un effet `damage` peut porter `"flat": 48` : des dégâts fixes ajoutés avant la défense
+  (les fusées de poche, qui frappent aussi fort quel que soit le lanceur).
+- Un objet consommable s'écrit comme une compétence, sans `cost`, avec un `price`.
+  Hors combat, seuls ceux qui rendent des PV ou du mana à un allié s'utilisent du sac.
+- Un **équipement** : `"kind": "equipment"`, `slot` (`weapon` arme, `armor` tenue,
+  `trinket` babiole), `mods` (bonus ajoutés aux statistiques, par exemple
+  `{"atk": 3, "hp": 8}`), `for` (liste des personnages qui peuvent le porter ; absent :
+  tout le monde), `firm: true` (son porteur ignore le Ramollissement), `price`.
+- Un **objet de quête** : `"kind": "key"`, un nom et une description, rien d'autre.
+- Dans `statuses.json`, `"firm": true` rend un état protecteur contre le Ramollissement
+  (c'est le cas de « Galvanisé »).
+- Ramollissement : un coup fondé sur `atk` perd la part indiquée par la carte, sauf si
+  celui qui frappe porte un objet `firm` ou subit un état `firm`.
+- Effet `steal` (réservé à l'équipe) : vole à l'adversaire la part `percent` de ses écus,
+  une seule fois par adversaire ; la somme s'ajoute au butin.
+- Dans `statuses.json`, `"taunt": true` fait de celui qui porte l'état la cible de tous
+  les coups ennemis à cible unique, et `"evade": 0.3` fait rater 30 % des coups physiques
+  qui le visent.
+
+### `data/talents.json`
+
+Un objet par personnage jouable, avec ses deux branches dans l'ordre de `characters.json` :
+
+```json
+"glandoulf": {
+	"branches": [
+		{
+			"id": "pyrotechnicien", "name": "Pyrotechnicien", "desc": "Texte de la branche.",
+			"talents": [
+				{"id": "meche_courte", "name": "Mèche courte", "cost": 1, "desc": "Texte affiché.",
+					"passives": {"element_boost": {"feu": 0.15}}},
+				{"id": "poudre_seche", "name": "Poudre sèche", "cost": 2, "desc": "...",
+					"mods": {"mag": 3}, "skills": ["petarade"], "passives": {"crit": 0.08}}
+			]
+		}
+	]
+}
+```
+
+- Dans une branche, les talents s'apprennent **dans l'ordre de la liste**. `cost` est le
+  prix en points de talent. On gagne `talent_points_per_level` point(s) par niveau
+  (`game.json`, bloc `progression`) ; rien au niveau 1.
+- Un talent peut apporter, au choix ou ensemble : `mods` (bonus de statistiques, comme un
+  équipement), `skills` (compétences de `skills.json` ajoutées au menu de combat),
+  `passives` (effets permanents en combat).
+- Effets permanents reconnus par le moteur (les valeurs de plusieurs talents s'ajoutent) :
+  - `crit` : chances de coup critique en plus (0.1 = 10 %) ;
+  - `element_boost` : `{"feu": 0.15}`, dégâts de cet élément augmentés ;
+  - `status_chance` : `{"sommeil": 0.35}` ou `{"all": 0.25}`, chances d'infliger un état
+    à un adversaire multipliées par 1 + valeur ;
+  - `heal_boost` : soins donnés augmentés ; `guard` : part des dégâts reçus en moins ;
+  - `counter` : chance de rendre aussitôt un coup physique reçu (attaque de base) ;
+  - `regen_hp` (part des PV max) et `regen_mp` (points) rendus au début de chaque tour ;
+  - `initiative` : part de l'attente du premier tour en moins (0.5 = joue deux fois plus tôt) ;
+  - `money_bonus` : écus de victoire en plus ; `vs_afflicted` : dégâts en plus contre un
+    adversaire qui subit un état négatif ; `fury` : dégâts en plus quand les PV baissent
+    (valeur atteinte à 0 PV) ; `immune` : liste d'états qui n'ont pas prise.
+- Le texte `desc` d'un talent doit dire en clair ce que font ses `passives` : l'écran de
+  talents n'affiche tout seul que les `mods` et les compétences.
+- Ajouter un personnage jouable : sa fiche dans `characters.json` et ses deux branches ici.
+
+### `data/enemies.json`
+
+```json
+"limace_molle": {
+	"name": "Limace molle",
+	"sprite": {"monster": "limace", "scale": 1.0},
+	"stats": {"hp": 44, "atk": 6, "def": 2, "mag": 3, "res": 2, "spd": 5},
+	"element": "contondant", "weak": ["feu", "tranchant"], "shield": 2, "immune": [],
+	"ai": [{"skill": "attack", "weight": 3}, {"skill": "bave", "weight": 2}],
+	"xp": 6, "money": [1, 3], "drops": [{"item": "tisane", "chance": 0.15}]
+}
+```
+
+`sprite` désigne soit un monstre dessiné (`monster`), soit un personnage de
+`characters.json` (`character`) ; `scale`, `hover` (hauteur de vol) et `glow` sont
+facultatifs. `ai` est un tirage pondéré entre l'attaque de base et des compétences.
+Un boss peut changer de tactique quand il faiblit : `"low_at": 0.5` (part des PV, 0,5 par
+défaut) et `"ai_low": [...]`, une seconde liste utilisée sous ce seuil.
+Monstres dessinés disponibles : `limace`, `baveuse`, `guepe`, `frelon`, `champignon`, `amanite`,
+`epouvantail`, `sanglier`, `solitaire`, `grenouille`, `crapaud`, `sangsue`, `follet`
+(la liste exacte est dans `src/gfx/monster_painter.gd`, table `SIZES`).
+
+### `data/encounters.json`
+
+- `encounters` : rencontres nommées, lancées par un dialogue. `enemies` (liste), `arena`,
+  `flee` (faux pour un boss), `intro` (phrase d'ouverture), et pour un combat scénarisé :
+  `party` (équipe imposée, avec niveaux ; rien n'est alors conservé après le combat),
+  `inventory` (objets prêtés), `hints` (conseils affichés tour après tour).
+  `ramollissement` impose une valeur ; sinon c'est celle de la carte d'où part le combat.
+- `tables` : rencontres aléatoires d'une zone. `arena`, `min_distance` / `max_distance`
+  (distance à parcourir dans la zone avant un combat), `groups` (chacun avec `enemies`,
+  `weight`, et au besoin `min_party` / `max_party` selon la taille de l'équipe).
+
+### `data/arenas.json`
+
+Le décor d'un combat : `ground` (texture du sol), `ambiance` (de `ambiances.json`),
+`props` (décors semés par `zone` : `back` derrière les combattants, `mid` autour, `front`
+devant, flous), `lights`.
+
+### Dans les cartes
+
+- `{"type": "encounter_zone", "rect": [...], "table": "..."}` : marcher dans ce rectangle
+  finit par déclencher une rencontre de la table.
+- `{"type": "monster", "id": "ennemi", "pos": [...], "dialogue": "...", "solid": 1.0}` : un
+  monstre visible, qui bloque le passage et à qui l'on « parle ».
+- Tout objet accepte `"unless": "drapeau"` (absent dès que le drapeau est posé) et
+  `"if": "drapeau"` (présent seulement s'il est posé). La carte se reconstruit toute seule
+  quand un dialogue change un de ces drapeaux.
+- `"gated": true` signale au test automatique qu'un objet n'est atteignable qu'une fois
+  un obstacle scénarisé levé.
+
+## Sauvegarde
+
+Une seule partie, dans `user://sauvegarde.json` (sur Mac :
+`~/Library/Application Support/Godot/app_userdata/Glandoulf le Gris/`). Le fichier contient
+l'état de la partie tel que le décrit `src/core/game_state.gd` : chapitre, drapeaux,
+quêtes (en cours ou terminées), équipe (niveau, expérience, PV, mana, équipement et
+talents appris de chacun), inventaire, argent, faiblesses
+découvertes, carte, position, orientation, temps de jeu. Une sauvegarde de l'étape 1 reste
+lisible, de même qu'une sauvegarde de l'étape 2 : ce qui lui manque est complété, et le
+journal de quêtes est reconstitué d'après les drapeaux.

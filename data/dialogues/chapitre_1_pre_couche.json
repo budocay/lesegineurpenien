@@ -1,0 +1,56 @@
+{
+	"arrivee_pre_couche": [
+		{"text": "La route de l'est traverse des champs où plus un épi ne tient debout."},
+		{"who": "glandoulf", "text": "Tout est couché. Le blé, les clôtures. Même l'herbe a l'air de vouloir s'allonger."},
+		{"who": "glandoulf", "text": "Et ça remue, dans les champs. Tant que je reste sur la route, on me laissera tranquille. Dans les épis, je ne garantis rien."},
+		{"who": "glandoulf", "text": "Je sens que je vais devoir me servir de ce bâton autrement que pour m'appuyer."},
+		{"set": "pre_couche_vu"}
+	],
+
+	"panneau_pre": [
+		{"name": "Panneau", "text": "LE PRÉ COUCHÉ. Bittebourg à l'ouest. Brie... loin."},
+		{"text": "Sous la peinture fraîche, on devine l'ancien nom : « le Pré Dressé »."}
+	],
+
+	"grande_baveuse": [
+		{"text": "Une limace grande comme une barque dort en travers de l'entrée de l'enclos. Elle ronfle. Cela fait des bulles."},
+		{"who": "glandoulf", "text": "Elle dort en plein passage. Sans le moindre scrupule. Je ne peux pas m'empêcher d'admirer.",
+			"choice": [
+				{"text": "La réveiller", "then": [
+					{"who": "glandoulf", "text": "Je respecte la démarche, chère consœur. Mais il me faut ce passage."},
+					{"battle": "grande_baveuse"},
+					{"if": "combat_grande_baveuse", "then": [
+						{"text": "La Grande Baveuse se dégonfle dans un long soupir et s'écoule lentement vers le fossé."},
+						{"who": "glandoulf", "text": "Sans rancune. Entre dormeurs, on se comprend."},
+						{"set": "baveuse_vaincue"}
+					]}
+				]},
+				{"text": "La laisser dormir", "then": [
+					{"who": "glandoulf", "text": "On ne réveille pas quelqu'un qui dort aussi bien. C'est une question de principe."}
+				]}
+			]
+		}
+	],
+
+	"racines": [
+		{"if": "racines_prises",
+			"then": [
+				{"text": "Il ne reste que des feuilles. Elles repousseront, si quelque chose leur en redonne l'envie."}
+			],
+			"else": [
+				{"text": "Au fond de l'enclos, quelques plants bien droits ont résisté à tout. De la racine-qui-réveille."},
+				{"if": "pepine_equipe",
+					"then": [
+						{"who": "pepine", "text": "De la racine-qui-réveille ! Et vigoureuse, avec ça. C'est bien la seule chose qui se tienne encore dans ce pré."},
+						{"who": "pepine", "text": "Une pincée sous le nez, et même un mort se relève pour se plaindre de l'odeur."}
+					],
+					"else": [
+						{"who": "glandoulf", "text": "Ça sent le remède de bonne femme. J'en connais une que ça intéresserait."}
+					]
+				},
+				{"give": "racine", "count": 3},
+				{"set": "racines_prises"}
+			]
+		}
+	]
+}

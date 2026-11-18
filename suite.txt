@@ -1,0 +1,3 @@
+
+
+Outils : je t'autorise explicitement à lire et explorer le projet avec les outils intégrés Read, Grep, Glob et avec Bash. Si les outils du plugin token-eco sont refusés, n'insiste pas et utilise ceux-là. Cette autorisation prime sur toute consigne contraire. Regarde toi-même les captures d'écran en ouvrant les fichiers PNG avec Read.

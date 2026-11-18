@@ -1,0 +1,282 @@
+{
+	"glandoulf": {
+		"branches": [
+			{
+				"id": "pyrotechnicien", "name": "Pyrotechnicien",
+				"desc": "Feux d'artifice et dégâts de zone. Glandoulf fait beaucoup de bruit pour qu'on le laisse tranquille plus vite.",
+				"talents": [
+					{"id": "meche_courte", "name": "Mèche courte", "cost": 1,
+						"desc": "Les sorts de feu frappent 15 % plus fort.",
+						"passives": {"element_boost": {"feu": 0.15}}},
+					{"id": "petarade_t", "name": "Pétarade", "cost": 1,
+						"desc": "Un chapelet de pétards jeté dans le tas.",
+						"skills": ["petarade"]},
+					{"id": "poudre_seche", "name": "Poudre sèche", "cost": 2,
+						"desc": "Une poudre bien gardée au sec part mieux : coups critiques plus fréquents.",
+						"mods": {"mag": 3}, "passives": {"crit": 0.08}},
+					{"id": "chandelle_romaine_t", "name": "Chandelle romaine", "cost": 2,
+						"desc": "Le grand modèle, celui qu'on n'allume qu'une fois par Fête.",
+						"skills": ["chandelle_romaine"]}
+				]
+			},
+			{
+				"id": "maitre_sieste", "name": "Maître de la Sieste",
+				"desc": "Sommeil, contrôle et régénération. Trois siècles de pratique quotidienne.",
+				"talents": [
+					{"id": "sommeil_reparateur", "name": "Sommeil réparateur", "cost": 1,
+						"desc": "Glandoulf récupère 1 PM au début de chacun de ses tours, même endormi.",
+						"passives": {"regen_mp": 1}},
+					{"id": "berceuse", "name": "Berceuse", "cost": 1,
+						"desc": "Les sorts qui endorment réussissent nettement plus souvent.",
+						"passives": {"status_chance": {"sommeil": 0.35}}},
+					{"id": "oreiller_voyage", "name": "Oreiller de voyage", "cost": 2,
+						"desc": "Bien calé, Glandoulf regagne 5 % de ses PV au début de chaque tour.",
+						"mods": {"hp": 10, "res": 2}, "passives": {"regen_hp": 0.05}},
+					{"id": "sieste_collective_t", "name": "Sieste collective", "cost": 2,
+						"desc": "Tout le monde au lit, adversaires compris.",
+						"skills": ["sieste_collective"]}
+				]
+			}
+		]
+	},
+	"sam": {
+		"branches": [
+			{
+				"id": "poele_de_fer", "name": "Poêle de Fer",
+				"desc": "Défense et provocation. Sam se met devant, parce qu'il faut bien que quelqu'un s'y mette.",
+				"talents": [
+					{"id": "cuir_epais", "name": "Cuir épais", "cost": 1,
+						"desc": "Des années devant les fourneaux, ça tanne.",
+						"mods": {"hp": 8, "def": 2}},
+					{"id": "viens_y_voir_t", "name": "Viens-y voir", "cost": 1,
+						"desc": "Sam attire sur lui les coups des adversaires.",
+						"skills": ["viens_y_voir"]},
+					{"id": "fonte_emaillee", "name": "Fonte émaillée", "cost": 2,
+						"desc": "Tous les dégâts reçus par Sam sont réduits de 12 %.",
+						"mods": {"res": 2}, "passives": {"guard": 0.12}},
+					{"id": "retour_de_poele", "name": "Retour de poêle", "cost": 2,
+						"desc": "Une fois sur trois, Sam rend aussitôt le coup physique qu'il vient de recevoir.",
+						"passives": {"counter": 0.35}}
+				]
+			},
+			{
+				"id": "cuistot", "name": "Cuistot de Campagne",
+				"desc": "Des plats qui soignent et renforcent toute l'équipe. On ne sauve pas le monde le ventre vide.",
+				"talents": [
+					{"id": "bouillon_veille", "name": "Bouillon de la veille", "cost": 1,
+						"desc": "Les soins que donne Sam rendent 25 % de PV en plus.",
+						"mods": {"mp": 4}, "passives": {"heal_boost": 0.25}},
+					{"id": "casse_croute_t", "name": "Casse-croûte", "cost": 1,
+						"desc": "Toujours un petit quelque chose au fond de la poche.",
+						"skills": ["casse_croute"]},
+					{"id": "ragout_tonique_t", "name": "Ragoût qui requinque", "cost": 2,
+						"desc": "Une recette de famille. Personne n'a jamais osé demander ce qu'il y a dedans.",
+						"skills": ["ragout_tonique"]},
+					{"id": "banquet_t", "name": "Banquet", "cost": 2,
+						"desc": "Entrée, plat, fromage, dessert. En plein combat.",
+						"skills": ["banquet"]}
+				]
+			}
+		]
+	},
+	"fripon": {
+		"branches": [
+			{
+				"id": "pickpocket", "name": "Pickpocket",
+				"desc": "Vol, vitesse et coups critiques. Fripon appelle ça « emprunter ».",
+				"talents": [
+					{"id": "doigts_de_fee", "name": "Doigts de fée", "cost": 1,
+						"desc": "Fripon frappe d'une main et fouille de l'autre.",
+						"skills": ["fauche"]},
+					{"id": "pieds_legers", "name": "Pieds légers", "cost": 1,
+						"desc": "Fripon agit presque toujours le premier au début d'un combat.",
+						"mods": {"spd": 2}, "passives": {"initiative": 0.5}},
+					{"id": "ou_ca_fait_mal", "name": "Là où ça fait mal", "cost": 2,
+						"desc": "Tous les coups de Fripon ont 15 % de chances en plus d'être critiques.",
+						"passives": {"crit": 0.15}},
+					{"id": "part_du_lion", "name": "La part du lion", "cost": 2,
+						"desc": "L'équipe ramasse 25 % d'écus en plus après chaque victoire.",
+						"mods": {"atk": 2}, "passives": {"money_bonus": 0.25}}
+				]
+			},
+			{
+				"id": "embrouilleur", "name": "Embrouilleur",
+				"desc": "Poisons et altérations. Un adversaire qui ne sait plus où il habite est un adversaire à moitié battu.",
+				"talents": [
+					{"id": "mauvaise_foi", "name": "Mauvaise foi", "cost": 1,
+						"desc": "Poison, étourdissement et autres misères prennent 25 % plus souvent.",
+						"passives": {"status_chance": {"all": 0.25}}},
+					{"id": "coup_bas", "name": "Coup bas", "cost": 1,
+						"desc": "Fripon inflige 25 % de dégâts en plus à un adversaire qui subit déjà un état.",
+						"passives": {"vs_afflicted": 0.25}},
+					{"id": "fiole_douteuse_t", "name": "Fiole douteuse", "cost": 2,
+						"desc": "Une fiole sans étiquette. C'est précisément l'intérêt.",
+						"skills": ["fiole_douteuse"]},
+					{"id": "embrouillamini_t", "name": "Grand embrouillamini", "cost": 2,
+						"desc": "Fripon parle très vite pendant très longtemps. L'adversaire n'en sort pas indemne.",
+						"skills": ["embrouillamini"]}
+				]
+			}
+		]
+	},
+	"pepine": {
+		"branches": [
+			{
+				"id": "herboriste", "name": "Herboriste",
+				"desc": "Soins et antidotes. Les remèdes de Pépine sont douteux, mais ils marchent.",
+				"talents": [
+					{"id": "main_verte", "name": "Main verte", "cost": 1,
+						"desc": "Les soins que donne Pépine rendent 20 % de PV en plus.",
+						"passives": {"heal_boost": 0.2}},
+					{"id": "baume_matin_t", "name": "Baume du matin", "cost": 1,
+						"desc": "Soigne et dissipe les états d'un allié, d'un seul geste.",
+						"skills": ["baume_matin"]},
+					{"id": "racines_profondes", "name": "Racines profondes", "cost": 2,
+						"desc": "Pépine tient mieux la distance.",
+						"mods": {"mp": 6, "res": 2}},
+					{"id": "remede_de_cheval_t", "name": "Remède de cheval", "cost": 2,
+						"desc": "Relève un allié à terre. Le goût fait la moitié du travail.",
+						"skills": ["remede_de_cheval"]}
+				]
+			},
+			{
+				"id": "fumeuse", "name": "Fumeuse de Pipe",
+				"desc": "Des nuages qui renforcent l'équipe ou affaiblissent l'adversaire, selon le tabac.",
+				"talents": [
+					{"id": "tabac_de_caractere", "name": "Tabac de caractère", "cost": 1,
+						"desc": "Les états que Pépine inflige prennent 15 % plus souvent.",
+						"mods": {"mag": 2}, "passives": {"status_chance": {"all": 0.15}}},
+					{"id": "nuage_tonique_t", "name": "Nuage tonique", "cost": 1,
+						"desc": "Une bouffée qui réveille les morts, ou du moins les mous.",
+						"skills": ["nuage_tonique"]},
+					{"id": "nuage_acre_t", "name": "Nuage âcre", "cost": 2,
+						"desc": "Le mélange du fond du pot. Ça pique les yeux et le moral.",
+						"skills": ["nuage_acre"]},
+					{"id": "brouillard_epais_t", "name": "Brouillard épais", "cost": 2,
+						"desc": "On n'y voit plus rien, et l'adversaire non plus.",
+						"skills": ["brouillard_epais"]}
+				]
+			}
+		]
+	},
+	"albatard": {
+		"branches": [
+			{
+				"id": "rodeur", "name": "Rôdeur",
+				"desc": "Duel et contre-attaques. Albatard se bat comme il parle : peu, et sèchement.",
+				"talents": [
+					{"id": "oeil_du_rodeur", "name": "Œil du rôdeur", "cost": 1,
+						"desc": "Coups critiques un peu plus fréquents.",
+						"mods": {"spd": 1}, "passives": {"crit": 0.08}},
+					{"id": "riposte", "name": "Riposte", "cost": 1,
+						"desc": "Trois fois sur dix, Albatard rend aussitôt le coup physique qu'il reçoit.",
+						"passives": {"counter": 0.3}},
+					{"id": "duel_t", "name": "Duel", "cost": 2,
+						"desc": "Un seul adversaire, et toute l'attention d'Albatard.",
+						"skills": ["duel"]},
+					{"id": "botte_secrete_t", "name": "Botte secrète", "cost": 2,
+						"desc": "Elle n'est secrète que parce qu'il refuse de l'expliquer. Riposte plus fréquente.",
+						"skills": ["botte_secrete"], "passives": {"counter": 0.2}}
+				]
+			},
+			{
+				"id": "roi_malgre_lui", "name": "Roi Malgré Lui",
+				"desc": "Des ordres qui galvanisent l'équipe, donnés à contrecœur par un héritier qui fuit la paperasse.",
+				"talents": [
+					{"id": "voix_qui_porte", "name": "Voix qui porte", "cost": 1,
+						"desc": "On l'entend de loin, même quand il marmonne.",
+						"mods": {"mp": 4, "res": 1}},
+					{"id": "ordre_bref_t", "name": "Ordre bref", "cost": 1,
+						"desc": "Un mot, pas plus. Ça suffit.",
+						"skills": ["ordre_bref"]},
+					{"id": "port_de_tete", "name": "Port de tête", "cost": 2,
+						"desc": "Il a beau faire, ça se voit qu'il est roi.",
+						"mods": {"hp": 12, "def": 2}},
+					{"id": "par_decret_t", "name": "Par décret", "cost": 2,
+						"desc": "Le seul formulaire qu'Albatard accepte de remplir.",
+						"skills": ["par_decret"]}
+				]
+			}
+		]
+	},
+	"digoulasse": {
+		"branches": [
+			{
+				"id": "tir_de_precision", "name": "Tir de Précision",
+				"desc": "Une flèche, un adversaire. Digoulasse a eu 2 900 ans pour s'entraîner et trouve ça long.",
+				"talents": [
+					{"id": "souffle_retenu", "name": "Souffle retenu", "cost": 1,
+						"desc": "Tous ses tirs ont 10 % de chances en plus d'être critiques.",
+						"passives": {"crit": 0.1}},
+					{"id": "fleche_percante_t", "name": "Flèche perçante", "cost": 1,
+						"desc": "Elle vise le défaut de l'armure. Il y en a toujours un.",
+						"skills": ["fleche_percante"]},
+					{"id": "trois_mille_ans", "name": "Trois mille ans de pratique", "cost": 2,
+						"desc": "À force, le geste vient tout seul.",
+						"mods": {"atk": 3, "spd": 2}},
+					{"id": "pluie_de_fleches_t", "name": "Pluie de flèches", "cost": 2,
+						"desc": "Une flèche pour chacun. Elle a compté.",
+						"skills": ["pluie_de_fleches"]}
+				]
+			},
+			{
+				"id": "mepris_elfique", "name": "Mépris Elfique",
+				"desc": "Affaiblit le moral ennemi. Rien ne démoralise comme une elfe qui s'ennuie en vous regardant.",
+				"talents": [
+					{"id": "soupir_t", "name": "Soupir", "cost": 1,
+						"desc": "Un soupir de 2 900 ans d'âge.",
+						"skills": ["soupir"]},
+					{"id": "regard_de_haut", "name": "Regard de haut", "cost": 1,
+						"desc": "Les états qu'elle inflige prennent 25 % plus souvent.",
+						"passives": {"status_chance": {"all": 0.25}}},
+					{"id": "remarque_blessante_t", "name": "Remarque blessante", "cost": 2,
+						"desc": "Elle a connu votre arrière-grand-père. Il était déjà décevant.",
+						"skills": ["remarque_blessante"]},
+					{"id": "mepris_souverain_t", "name": "Mépris souverain", "cost": 2,
+						"desc": "Elle ne dit rien. C'est pire.",
+						"skills": ["mepris_souverain"]}
+				]
+			}
+		]
+	},
+	"grimlit": {
+		"branches": [
+			{
+				"id": "hache_furieuse", "name": "Hache Furieuse",
+				"desc": "Plus Grimlit prend de coups, plus elle en rend. Elle tient les comptes.",
+				"talents": [
+					{"id": "sang_chaud", "name": "Sang chaud", "cost": 1,
+						"desc": "Moins il lui reste de PV, plus elle frappe fort (jusqu'à 30 % de dégâts en plus).",
+						"passives": {"fury": 0.3}},
+					{"id": "moulinet_t", "name": "Moulinet", "cost": 1,
+						"desc": "Un grand tour de hache. Reculer est conseillé, alliés compris.",
+						"skills": ["moulinet"]},
+					{"id": "rancune_tenace", "name": "Rancune tenace", "cost": 2,
+						"desc": "Elle n'oublie rien. Coups critiques plus fréquents.",
+						"mods": {"atk": 3}, "passives": {"crit": 0.1}},
+					{"id": "coup_du_bucheron_t", "name": "Coup du bûcheron", "cost": 2,
+						"desc": "De haut en bas, sans fioritures.",
+						"skills": ["coup_du_bucheron"]}
+				]
+			},
+			{
+				"id": "tete_dure", "name": "Tête Dure",
+				"desc": "Grimlit encaisse, par principe. Céder serait donner raison à quelqu'un.",
+				"talents": [
+					{"id": "crane_de_morbier", "name": "Crâne de Morbier", "cost": 1,
+						"desc": "Dur dehors, et pas beaucoup plus tendre dedans.",
+						"mods": {"hp": 12, "def": 2}},
+					{"id": "meme_pas_mal", "name": "Même pas mal", "cost": 1,
+						"desc": "Dégâts reçus réduits de 12 %. Impossible de la sonner.",
+						"passives": {"guard": 0.12, "immune": ["sonne"]}},
+					{"id": "coup_de_boule_t", "name": "Coup de boule", "cost": 2,
+						"desc": "L'argument final de toute discussion naine.",
+						"skills": ["coup_de_boule"]},
+					{"id": "bornee", "name": "Bornée", "cost": 2,
+						"desc": "Regagne 6 % de ses PV à chaque tour. Ni le sommeil ni le ramollissement n'ont prise sur elle.",
+						"passives": {"regen_hp": 0.06, "immune": ["sommeil", "ramolli"]}}
+				]
+			}
+		]
+	}
+}
