@@ -181,9 +181,11 @@ static func _side_forest(b, spec: Dictionary) -> void:
 
 ## Cascade : quad vertical animé par shader, bassin d'écume au pied, embruns.
 ## `base` : point au pied de la chute (face de la paroi), `height` : hauteur de la chute.
-static func _waterfall(b, base: Vector3, height: float, width: float, pool: bool) -> void:
+static func _waterfall(b, base: Vector3, height: float, width: float, pool: bool, colors: Dictionary = {}) -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = FALL_SHADER
+	for k: String in colors:
+		mat.set_shader_parameter(k, colors[k])   # body, deep, foam : la cascade prend la teinte du liquide
 	mat.set_shader_parameter("size", Vector2(width, height))
 	var quad := QuadMesh.new()
 	quad.size = Vector2(width, height)

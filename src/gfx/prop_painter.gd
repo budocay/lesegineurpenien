@@ -51,6 +51,9 @@ static func paint(kind: String, variant: int = 0) -> Image:
 	var rider: GDScript = load("res://src/gfx/rider_painter.gd")
 	if rider.has_prop(kind):
 		return rider.paint_prop(kind, variant)
+	var decor: GDScript = load("res://src/gfx/decor_painter.gd")
+	if decor.has_prop(kind):
+		return decor.paint_prop(kind, variant)
 	var img := PA.new_image(16, 16)
 	img.fill(Color.MAGENTA)
 	return img

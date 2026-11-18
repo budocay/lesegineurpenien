@@ -52,6 +52,10 @@ le héros porte une lanterne (lumière ponctuelle sans ombre), un halo doux le s
 liseré clair souligne sa silhouette ; les autres personnages n'ont que le halo et le liseré,
 plus discrets. Absent : aucun effet. Posé sur les ambiances des Mines de Morbier,
 du lac noir, des monts de Morbier et des portes de l'Est.
+Règle (vérifiée par le test) : toute ambiance sans soleil dont la lumière ambiante est inférieure
+à 0,55 a sa lanterne, sauf `interieur_chaud` (éclairée par les foyers). Posé aussi sur le
+Garde-Manager, l'étage du Poney de nuit et les caves de Persillé. Une clé en double dans
+`ambiances.json` masque la première sans bruit : le test les refuse.
 
 Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les talus du
 nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
@@ -542,7 +546,20 @@ Un accessoire qui porte un `dialogue` devient une interaction, comme les autres.
 - `cav_halle` : grande halle de bois doré (Cabécou, Bergerie). `rect`, `height`, `door` (côté).
 - `cav_palissade` : palissade de pieux dorés. `points` (comme `elf_rail`), `height`.
 - `isen_flamme` : flamme de four, avec sa lumière. `pos`, `color`, `energy`, `range`.
-- `chu_cascade` : chute d'eau en volume qui moutonne en bas. `rect`, `height`.
+- `chu_cascade` : chute d'eau en volume qui moutonne en bas. `pos`, `height`, `width`. Elle prend la
+  teinte du champ `water` de la carte (corps, creux et écume tirés de `shallow`, `deep`, `glint` :
+  jaune de gratin aux Chutes), s'adosse à une paroi de roche sombre plus large qu'elle et pose au
+  pied une nappe d'écume qui miroite (`waterfall_foam.gdshader`). `pos` peut se poser sur l'eau,
+  hors de portée : elle ne gêne aucun passage.
+
+### Accessoires d'habillage (`src/gfx/decor_painter.gd`)
+
+Utilisables par toute carte, par `prop` d'un `scatter` ou comme objet (`{"type": "vil_banc", "pos": [x, y]}`).
+Tous ont un petit obstacle (voir `PROPS` dans `map_builder.gd`) : ne pas les poser au milieu d'un
+chemin d'une case, le test vérifie que tout reste atteignable. Village : `vil_puits`, `vil_banc`,
+`vil_brouette`, `vil_potager` (3 variantes), `vil_linge` (2), `vil_boite` (boîte aux lettres),
+`vil_butte` (2 : fleurs ou pierrier, sans obstacle). Écurie des cavaliers : `cav_ratelier`,
+`cav_abreuvoir`, `cav_cheval_bois`, `cav_brasero` (poser un objet `light` chaud au même point).
 
 ### Arènes et panneaux d'arène
 

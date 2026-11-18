@@ -5116,6 +5116,27 @@ func _test_lanternes_mines() -> void:
 			var amb: Dictionary = Database.get_ambiance(str(Database.get_map(id).get("ambiance", "")))
 			var lan: Variant = amb.get("lantern")
 			check(lan is Dictionary and float((lan as Dictionary).get("energy", 0.0)) > 0.0, "lanterne : la carte « %s » a une lumière propre pour le héros" % id)
+	# règle générale : tout lieu sans soleil dont la lumière ambiante est faible a sa lanterne
+	# (seule exception : l'ambiance « interieur_chaud », éclairée par les foyers de la pièce)
+	var seen_amb := {}
+	for id: String in Database.list_maps():
+		var aid := str(Database.get_map(id).get("ambiance", ""))
+		if seen_amb.has(aid) or aid == "interieur_chaud":
+			continue
+		seen_amb[aid] = true
+		var amb2: Dictionary = Database.get_ambiance(aid)
+		var dark := not amb2.has("sun") and float((amb2.get("ambient", {}) as Dictionary).get("energy", 1.0)) < 0.55
+		check(not dark or amb2.get("lantern") is Dictionary, "lanterne : l'ambiance sombre « %s » (carte « %s ») a sa lanterne" % [aid, id])
+	# une clé en double dans ambiances.json masque la première : la dernière gagne sans bruit
+	var raw := FileAccess.get_file_as_string("res://data/ambiances.json")
+	var keys := RegEx.create_from_string("(?m)^\\t\"([a-z_0-9]+)\": \\{").search_all(raw)
+	var names := {}
+	var dup := 0
+	for m: RegExMatch in keys:
+		if names.has(m.get_string(1)):
+			dup += 1
+		names[m.get_string(1)] = true
+	check(keys.size() > 20 and dup == 0, "ambiances : aucune clé en double dans ambiances.json (%d doublon(s))" % dup)
 
 
 ## Maisons du style par défaut : volumes, variété stable, jouabilité inchangée (emprise, porte, estompage).

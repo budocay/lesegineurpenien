@@ -15,6 +15,7 @@ const PA = preload("res://src/gfx/pixel_art.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const ElvenBuilder = preload("res://src/world/elven_builder.gd")
+const FOAM_SHADER = preload("res://src/gfx/shaders/waterfall_foam.gdshader")
 
 const OBJECTS: Array[String] = ["cav_halle", "cav_palissade", "isen_flamme", "chu_cascade"]
 
@@ -222,6 +223,37 @@ static func _flame(b, o: Dictionary) -> void:
 
 
 ## Cascade contre la paroi nord : `pos` (pied), `height` (4), `width` (2,4), `pool` (vrai).
+## Elle prend la teinte du liquide de la carte (champ `water`), s'adosse à une paroi de roche
+## sombre qui la détache du fond, et pose à son pied une nappe d'écume et un reflet qui miroite.
 static func _cascade(b, o: Dictionary) -> void:
 	var p: Vector3 = b._p(o)
-	ElvenBuilder._waterfall(b, p, float(o.get("height", 4.0)), float(o.get("width", 2.4)), bool(o.get("pool", true)))
+	var hgt := float(o.get("height", 4.0))
+	var wd := float(o.get("width", 2.4))
+	var spec: Dictionary = b.map.get("water", {})
+	var colors := {}
+	if spec.has("shallow"):
+		colors["body"] = Color(str(spec["shallow"])).lightened(0.25)
+		colors["deep"] = Color(str(spec.get("deep", spec["shallow"]))).lerp(Color(str(spec["shallow"])), 0.45)
+		colors["foam"] = Color(str(spec.get("glint", "#ffffff"))).lerp(Color.WHITE, 0.4)
+	ElvenBuilder._waterfall(b, p, hgt, wd, bool(o.get("pool", true)), colors)
+	var parent := Node3D.new()
+	parent.name = "CascadeDecor"
+	b.world.add_child(parent)
+	# paroi de roche derrière l'eau, plus large et plus haute qu'elle
+	var rock := MeshKit.pixel_material(Sprites.tile_texture("chu_roche"))
+	rock.uv1_scale = Vector3((wd + 4.0) / 2.0, (hgt + 1.0) / 2.0, 1.0)
+	rock.albedo_color = Color(0.62, 0.66, 0.72)
+	_box_in(parent, p + Vector3(0.0, (hgt + 1.0) * 0.5, -0.32), Vector3(wd + 4.0, hgt + 1.0, 0.5), rock)
+	# nappe d'écume et reflet au pied de la chute
+	var foam := ShaderMaterial.new()
+	foam.shader = FOAM_SHADER
+	foam.set_shader_parameter("tint", Color(colors.get("foam", Color.WHITE)))
+	var quad := QuadMesh.new()
+	quad.size = Vector2(wd * 1.3, 2.0)
+	var mi := MeshInstance3D.new()
+	mi.mesh = quad
+	mi.material_override = foam
+	mi.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	mi.position = p + Vector3(0.0, 0.07, 1.0)
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)

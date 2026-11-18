@@ -125,6 +125,10 @@ const PROPS := {
 	"isen_tour": {},
 	"chu_pierre": {"variants": 2, "solid": 0.6},
 	"chu_ecume": {},
+	# habillage des villages et des écuries (src/gfx/decor_painter.gd) : presque sans obstacle
+	"vil_puits": {"solid": 0.55}, "vil_banc": {"solid": 0.3}, "vil_brouette": {"solid": 0.25}, "vil_potager": {"variants": 3, "solid": 0.3},
+	"vil_linge": {"variants": 2, "solid": 0.2}, "vil_boite": {"solid": 0.12}, "vil_butte": {"variants": 2},
+	"cav_ratelier": {"solid": 0.3}, "cav_abreuvoir": {"solid": 0.3}, "cav_cheval_bois": {"solid": 0.35}, "cav_brasero": {"solid": 0.25, "glow": 0.4},
 }
 
 var world: Node3D
