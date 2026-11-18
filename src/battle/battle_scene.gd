@@ -32,11 +32,14 @@ var outcome := ""
 var fx: Node3D                # animations de combat (data/animations.json)
 
 var _rng := RandomNumberGenerator.new()
-var _cam_home := Vector3(0.0, 3.3, 12.4)
-var _cam_look := Vector3(0.0, 0.8, 0.0)
+# Caméra façon Octopath : basse, de loin (téléobjectif étroit), légère plongée d'environ 14 degrés.
+# Les héros mesurent à peu près un sixième de la hauteur de l'image, un gros monstre un tiers.
+var _cam_home := Vector3(0.0, 4.7, 13.6)
+var _cam_look := Vector3(0.0, 1.3, 0.0)
 var _taken: Array[Vector3] = []     # places des combattants : aucun décor haut ne s'y adosse
 var _decor: RefCounted             # paroi et lointain (arena_decor.gd)
 var _shake := 0.0
+var foreground_props: Array[Vector3] = []   # premier plan flou (hors zone de jeu, au bord bas de l'image)
 var placed_props: Array[Vector3] = []   # décors posés (x, hauteur, z) : le test vérifie la zone de jeu
 
 
@@ -82,6 +85,7 @@ func _build_arena(arena: Dictionary) -> void:
 	for l: Variant in arena.get("lights", []):
 		if l is Dictionary:
 			_light(l)
+	_foreground(arena.get("foreground", []))
 	_stage_light(stage)
 	_stage_vignette(float(stage.get("vignette", 0.45)))
 	var amb := _stage_ambiance(Database.get_ambiance(str(arena.get("ambiance", "crepuscule"))), arena)
@@ -165,31 +169,65 @@ func _step_height(x: float, z: float) -> float:
 
 
 const FLAT_PROPS := ["grass", "flowers", "wheat", "fern", "wilted", "reeds", "mushrooms"]   # trop bas pour cacher qui que ce soit
-const FORM_SPAN := 4.9    # largeur maximale (en x) d'une file de combattants
-const HALF_VIEW := 6.0    # demi-largeur visible de l'arène au niveau des combattants
-const FORM_DEPTH := 0.55  # profondeur de la file, par rapport à sa largeur
+const FORM_SPAN := 3.8    # largeur maximale (en x) d'une file de combattants
+const FORM_X := 3.35       # écart au centre du milieu de la file : le vide entre les deux camps
+const CAM_FOV := 28.0     # champ de vision vertical : étroit, comme un téléobjectif
+const ENEMY_SPAN := 4.4   # les ennemis (jusqu'à cinq, souvent larges) ont une file plus étalée
+const ENEMY_X := 3.5
+const HALF_VIEW := 5.7    # demi-largeur visible de l'arène au niveau des combattants
+const FORM_DEPTH := 0.85  # profondeur de la file, par rapport à sa largeur (la diagonale se voit)
+const FOREGROUND_Z := [4.7, 5.5]   # profondeur du premier plan flou (arènes : champ « foreground »)
 
 
-## Place des combattants d'un camp, en diagonale : le premier plan est le plus près du
-## centre. L'écart tient compte de la taille de chacun, pour que personne ne soit caché.
+## Place des combattants d'un camp, en diagonale : chacun un peu plus bas (plus près de la
+## caméra) et plus à l'extérieur que le précédent ; le premier est le plus haut et le plus
+## proche du centre. L'écart tient compte de la taille de chacun, pour que personne ne soit caché.
 ## « scales » : la taille de chaque combattant ; renvoie une position par combattant
-## (côté droit ; le camp d'en face prend l'opposé en x).
+## (côté droit ; le camp d'en face prend l'opposé en x, la même profondeur : la file des
+## ennemis descend donc vers la gauche, celle des héros vers la droite).
 ## « spread » élargit les écarts (les monstres sont plus larges que les personnages).
-static func formation(scales: Array, spread: float = 1.0) -> Array[Vector3]:
+static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPAN, x0: float = FORM_X) -> Array[Vector3]:
 	var n := scales.size()
 	var offsets: Array[float] = [0.0]
 	var total := 0.0
 	for i in range(1, n):
 		total += (0.5 + 0.45 * (float(scales[i - 1]) + float(scales[i]))) * spread
 		offsets.append(total)
-	var k := minf(1.0, FORM_SPAN / total) if total > 0.0 else 1.0
+	var k := minf(1.0, span / total) if total > 0.0 else 1.0
 	var out: Array[Vector3] = []
 	for i in n:
 		var along := (offsets[i] - total * 0.5) * k
 		# l'écart en x fait l'écart à l'écran ; la profondeur, plus faible, ne sert qu'à
 		# étager les rangs : une diagonale à 45 degrés ramène les voisins l'un sur l'autre
-		out.append(Vector3(3.5 - along + 0.55 * (float(scales[i]) - 1.0), 0.0, along * FORM_DEPTH))
+		out.append(Vector3(x0 + along + 0.55 * (float(scales[i]) - 1.0), 0.0, along * FORM_DEPTH))
 	return out
+
+
+## Premier plan flou : rochers, herbes, souches posés tout en bas de l'image, entre la
+## caméra et la zone de jeu. Ils encadrent la scène sans rien cacher (champ « foreground »
+## de l'arène : [{"prop", "count", "scale", "x": [min, max]}]).
+func _foreground(list: Array) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash("fg" + str(encounter.get("arena", "pre")))
+	for entry: Variant in list:
+		if not (entry is Dictionary):
+			continue
+		var kind := str(entry.get("prop", "rock"))
+		var def: Dictionary = MapBuilder.PROPS.get(kind, {})
+		var variants := int(def.get("variants", 1))
+		var xr: Array = entry.get("x", [-10.0, 10.0])
+		var count := int(entry.get("count", 3))
+		for i in count:
+			var s := float(entry.get("scale", 1.5)) * rng.randf_range(0.8, 1.25)
+			var node := Sprites.make_sprite(Sprites.prop(kind, rng.randi() % variants), float(def.get("sway", 0.0)) * 0.5, float(def.get("glow", 0.0)))
+			var flip := rng.randf() < 0.5
+			node.scale = Vector3(-s if flip else s, s, s)
+			var t := (float(i) + rng.randf_range(0.15, 0.85)) / float(count)
+			var z: float = rng.randf_range(float(FOREGROUND_Z[0]), float(FOREGROUND_Z[1]))
+			node.position = Vector3(lerpf(float(xr[0]), float(xr[1]), t), 0.0, z)
+			foreground_props.append(node.position)
+			add_child(node)
+			(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", rng.randf() * TAU)
 
 
 func _zone_point(zone: String) -> Vector2:
@@ -272,7 +310,7 @@ func _light(l: Dictionary) -> void:
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
-	camera.fov = 30.0
+	camera.fov = CAM_FOV
 	camera.near = 0.5
 	camera.far = 200.0
 	add_child(camera)
@@ -283,8 +321,8 @@ func _build_camera() -> void:
 	attr.dof_blur_far_distance = dist + 2.6
 	attr.dof_blur_far_transition = 11.0
 	attr.dof_blur_near_enabled = true
-	attr.dof_blur_near_distance = dist - 3.0
-	attr.dof_blur_near_transition = 3.0
+	attr.dof_blur_near_distance = dist - 2.5
+	attr.dof_blur_near_transition = 2.5
 	attr.dof_blur_amount = 0.095
 	camera.attributes = attr
 	camera.make_current()
@@ -297,9 +335,9 @@ func _spots(list: Array, side: float) -> Array[Vector3]:
 		scales.append(float((c.sprite as Dictionary).get("scale", 1.0)))
 	var out: Array[Vector3] = []
 	var i := 0
-	for sp: Vector3 in formation(scales, 1.3 if side < 0.0 else 1.0):
+	for sp: Vector3 in (formation(scales, 1.3, ENEMY_SPAN, ENEMY_X) if side < 0.0 else formation(scales)):
 		# un grand monstre ne doit pas déborder de l'écran : on ramène son centre vers le milieu
-		var limit := maxf(1.5, HALF_VIEW - _half_width(list[i]))
+		var limit := maxf(1.5, tan(deg_to_rad(CAM_FOV * 0.5)) * (16.0 / 9.0) * (_cam_home.z - sp.z) - 0.15 - _half_width(list[i]))
 		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z))
 		i += 1
 	return out
@@ -337,7 +375,7 @@ func screen_point(c: RefCounted, where: String = "center") -> Vector2:
 		return Vector2.ZERO
 	var p := camera.unproject_position(a.anchor(where))
 	if where == "top":
-		p.y = maxf(p.y, 150.0)   # jamais par-dessus la file des tours
+		p.y = maxf(p.y, 132.0)   # jamais par-dessus la file des tours
 	return p
 
 
@@ -400,7 +438,7 @@ func run() -> void:
 		var a: Node3D = actors[actor.key]
 		for o: Node3D in actors.values():
 			o.fast = fast
-		ui.set_timeline([actor] + engine.preview(7, actor))
+		ui.set_timeline([actor] + engine.preview(10, actor))
 		ui.set_active(actor)
 		await _play(engine.start_turn(actor))
 		if engine.result == "" and engine.can_act:
@@ -503,9 +541,9 @@ func _play(events: Array) -> void:
 					fx.screen_flash(Color.WHITE, 0.18, 0.15)
 				ui.popup(screen_point(target, "top"), str(int(e.get("amount", 0))), color, 40 if (weak or bool(e.get("crit", false))) else 32)
 				if weak:
-					ui.popup(screen_point(target, "top") + Vector2(0, -34), "Faiblesse !", Color("#ffd27a"), 22)
+					ui.popup(screen_point(target, "top") + Vector2(0, -52), "Faiblesse !", Color("#ffd27a"), 22)
 				elif bool(e.get("crit", false)):
-					ui.popup(screen_point(target, "top") + Vector2(0, -34), "Critique !", Color("#ffb060"), 22)
+					ui.popup(screen_point(target, "top") + Vector2(0, -52), "Critique !", Color("#ffb060"), 22)
 				ui.refresh()
 				await _wait(0.42)
 			"break":

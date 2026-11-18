@@ -7,14 +7,26 @@ extends Control
 signal action_chosen(action: Dictionary)
 signal _closed(value: String)
 
+
 const UI = preload("res://src/ui/ui_kit.gd")
 
 enum S { IDLE, ROOT, LIST, TARGET, END }
 
 const ENEMY_RED := Color("#d8665c")
+const ALLY_BLUE := Color("#9cc8f0")
 const HP_GREEN := Color("#7ad06a")
 const HP_LOW := Color("#e8785a")
 const MP_BLUE := Color("#6aa0e8")
+const TILE_BIG := 86.0     # vignette du combattant actif (frise des tours)
+const TILE_SMALL := 42.0
+const FRIEZE_LEN := 5      # vignettes par frise
+const ROOT_HELP := {
+	"Attaquer": "Frapper un ennemi avec l'arme.",
+	"Compétences": "Techniques de combat, payées en PM.",
+	"Objets": "Utiliser un objet de la besace.",
+	"Défendre": "Se mettre en garde jusqu'au prochain tour.",
+	"Fuir": "Tenter de quitter le combat.",
+}
 
 var scene: Node3D = null
 var engine: RefCounted = null
@@ -34,7 +46,10 @@ var _last_enemy := ""
 var _target_frame := -1
 var _time := 0.0
 
-var _timeline: HBoxContainer
+var _timeline: HBoxContainer      # frise des tours : actif, cinq suivants, « Ensuite », cinq autres
+var _tl_gap: Label                # étiquette de la seconde frise
+var _turn_tag: PanelContainer
+var _turn_label: Label
 var _top: VBoxContainer
 var _ribbon: PanelContainer
 var _ribbon_label: Label
@@ -43,8 +58,8 @@ var _hint: PanelContainer
 var _hint_label: Label
 var _party_panel: PanelContainer
 var _party_rows: VBoxContainer
-var _rows: Dictionary = {}   # clé -> {name, level, hp, hp_text, mp, mp_text, status}
-var _menu_box: HBoxContainer
+var _rows: Dictionary = {}   # clé -> {card, name, hp, hp_text, mp, mp_text, status, info}
+var _menu_box: Control       # menus ancrés au personnage qui joue
 var _root_panel: PanelContainer
 var _root_title: Label
 var _root_list: VBoxContainer
@@ -55,6 +70,7 @@ var _list_desc: Label
 var _overlay: Control
 var _plates: Dictionary = {}  # clé -> {root, chips, name, bar}
 var _cursors: Array[Polygon2D] = []
+var _keys: Control            # rappels de touches, en bas à gauche
 var _end_layer: Control
 var before_battle_slot := ""        # posé par main.gd : sauvegarde automatique juste avant ce combat
 var save_screen: Control = null   # posé par main.gd : liste des sauvegardes (défaite)
@@ -70,35 +86,51 @@ func _ready() -> void:
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_overlay)
 
-	# file des tours, en haut à gauche
+	# frise de l'ordre des tours, en haut à gauche, sur un filet fin
 	_timeline = HBoxContainer.new()
-	_timeline.position = Vector2(28, 22)
-	_timeline.add_theme_constant_override("separation", 6)
-	_timeline.alignment = BoxContainer.ALIGNMENT_BEGIN
+	_timeline.position = Vector2(22, 14)
+	_timeline.add_theme_constant_override("separation", 2)
 	_timeline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_timeline.draw.connect(_draw_frieze)
 	add_child(_timeline)
+	_turn_tag = PanelContainer.new()
+	var ts := UI.panel_style(Color(0.03, 0.035, 0.08, 0.8), UI.GOLD_LINE, 0, 1)
+	ts.shadow_size = 0
+	ts.content_margin_left = 16
+	ts.content_margin_right = 16
+	ts.content_margin_top = 1
+	ts.content_margin_bottom = 2
+	_turn_tag.add_theme_stylebox_override("panel", ts)
+	_turn_tag.position = Vector2(26, 106)
+	_turn_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_label = UI.caps("Tour 1", 14, UI.INK)
+	_turn_tag.add_child(_turn_label)
+	add_child(_turn_tag)
 
-	# bandeau d'annonce et conseils, en haut au centre
+	# cartouche du nom de l'action et conseils, en haut au centre
 	_top = VBoxContainer.new()
 	_top.anchor_left = 0.0
 	_top.anchor_right = 1.0
-	_top.offset_top = 84.0
+	_top.offset_top = 92.0
 	_top.add_theme_constant_override("separation", 10)
 	_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_top)
 	_ribbon = PanelContainer.new()
-	var rs := UI.soft_style(0.78, 22)
-	rs.content_margin_top = 8
-	rs.content_margin_bottom = 9
+	var rs := UI.panel_style(Color(0.025, 0.03, 0.07, 0.86), Color(UI.GOLD, 0.4), 0, 1)
+	rs.shadow_size = 0
+	rs.content_margin_left = 26
+	rs.content_margin_right = 26
+	rs.content_margin_top = 5
+	rs.content_margin_bottom = 7
 	_ribbon.add_theme_stylebox_override("panel", rs)
 	_ribbon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_ribbon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ribbon.modulate.a = 0.0
 	_top.add_child(_ribbon)
-	_ribbon_label = UI.label("", 25, UI.INK)
+	_ribbon_label = UI.label("", 22, UI.INK)
 	_ribbon.add_child(_ribbon_label)
 	_hint = PanelContainer.new()
-	_hint.add_theme_stylebox_override("panel", UI.soft_style(0.82, 22))
+	_hint.add_theme_stylebox_override("panel", UI.soft_style(0.78, 18))
 	_hint.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint.visible = false
@@ -106,76 +138,76 @@ func _ready() -> void:
 	var hint_row := HBoxContainer.new()
 	hint_row.add_theme_constant_override("separation", 12)
 	_hint.add_child(hint_row)
-	var hint_tag := UI.caps("Conseil", 14, UI.GOLD)
-	hint_tag.custom_minimum_size = Vector2(0, 26)
+	var hint_tag := UI.caps("Conseil", 13, UI.GOLD)
+	hint_tag.custom_minimum_size = Vector2(0, 24)
 	hint_tag.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	hint_row.add_child(hint_tag)
-	_hint_label = UI.label("", 20, UI.INK)
+	_hint_label = UI.label("", 18, UI.INK)
 	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint_label.custom_minimum_size = Vector2(620, 0)
+	_hint_label.custom_minimum_size = Vector2(520, 0)
 	hint_row.add_child(_hint_label)
 
-	# équipe, en bas à droite
+	# fiches de l'équipe, empilées en haut à droite, sans cadre
 	_party_panel = PanelContainer.new()
-	_party_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
+	_party_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_party_panel.anchor_left = 1.0
 	_party_panel.anchor_right = 1.0
-	_party_panel.anchor_top = 1.0
-	_party_panel.anchor_bottom = 1.0
-	_party_panel.offset_left = -6.0
-	_party_panel.offset_right = -6.0
-	_party_panel.offset_top = -4.0
-	_party_panel.offset_bottom = -4.0
+	_party_panel.offset_left = -12.0
+	_party_panel.offset_right = -12.0
+	_party_panel.offset_top = 14.0
 	_party_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_party_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_party_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_party_panel)
 	_party_rows = VBoxContainer.new()
-	_party_rows.add_theme_constant_override("separation", 7)
+	_party_rows.add_theme_constant_override("separation", 3)
 	_party_panel.add_child(_party_rows)
 
-	# menus, en bas à gauche
-	_menu_box = HBoxContainer.new()
-	_menu_box.anchor_top = 1.0
-	_menu_box.anchor_bottom = 1.0
-	_menu_box.offset_left = -6.0
-	_menu_box.offset_top = -4.0
-	_menu_box.offset_bottom = -4.0
-	_menu_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_menu_box.add_theme_constant_override("separation", 10)
+	# menus : posés à côté du personnage qui joue (voir _place_menu)
+	_menu_box = Control.new()
+	UI.full_rect(_menu_box)
+	_menu_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box.visible = false
 	add_child(_menu_box)
 	_root_panel = PanelContainer.new()
-	_root_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
-	_root_panel.size_flags_vertical = Control.SIZE_SHRINK_END
+	_root_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_menu_box.add_child(_root_panel)
 	var root_box := VBoxContainer.new()
-	root_box.add_theme_constant_override("separation", 0)
+	root_box.add_theme_constant_override("separation", 2)
 	_root_panel.add_child(root_box)
 	_root_title = UI.label("", 22, UI.GOLD)
+	_root_title.visible = false
 	root_box.add_child(_root_title)
-	root_box.add_child(UI.rule(0.0, "out"))
 	_root_list = VBoxContainer.new()
-	_root_list.add_theme_constant_override("separation", 0)
+	_root_list.add_theme_constant_override("separation", 2)
 	root_box.add_child(_root_list)
 	_list_panel = PanelContainer.new()
-	_list_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
-	_list_panel.size_flags_vertical = Control.SIZE_SHRINK_END
+	_list_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_list_panel.visible = false
 	_menu_box.add_child(_list_panel)
 	var list_box := VBoxContainer.new()
 	list_box.add_theme_constant_override("separation", 2)
 	_list_panel.add_child(list_box)
-	_list_title = UI.label("", 22, UI.GOLD)
+	_list_title = UI.caps("", 13, UI.GOLD)
+	_list_title.visible = false
 	list_box.add_child(_list_title)
-	list_box.add_child(UI.rule(0.0, "out"))
 	_list_items = VBoxContainer.new()
-	_list_items.add_theme_constant_override("separation", 0)
+	_list_items.add_theme_constant_override("separation", 2)
 	list_box.add_child(_list_items)
-	_list_desc = UI.label("", 17, UI.INK_DIM, false, true)
-	_list_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_list_desc.custom_minimum_size = Vector2(350, 46)
+	_list_desc = UI.label("", 17, UI.INK_DIM, false, true)   # l'aide s'affiche sous l'entrée choisie
+	_list_desc.visible = false
 	list_box.add_child(_list_desc)
+
+	# rappels de touches, discrets, en bas à gauche
+	_keys = VBoxContainer.new()
+	_keys.anchor_top = 1.0
+	_keys.anchor_bottom = 1.0
+	_keys.offset_left = 24.0
+	_keys.offset_top = -40.0
+	_keys.offset_bottom = -14.0
+	_keys.modulate.a = 0.7
+	_keys.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_keys.visible = false
+	add_child(_keys)
 
 	_end_layer = Control.new()
 	UI.full_rect(_end_layer)
@@ -195,9 +227,15 @@ func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 	for c: RefCounted in engine.enemies:
 		_plates[c.key] = _make_plate(c)
 	for _i in 8:
+		# curseur net : chevron doré cerné de sombre, pointé sur la cible
 		var arrow := Polygon2D.new()
-		arrow.polygon = PackedVector2Array([Vector2(-11, -14), Vector2(11, -14), Vector2(0, 2)])
+		arrow.polygon = PackedVector2Array([Vector2(-12, -16), Vector2(12, -16), Vector2(0, 2)])
 		arrow.color = UI.GOLD
+		var edge := Polygon2D.new()
+		edge.polygon = PackedVector2Array([Vector2(-16, -21), Vector2(16, -21), Vector2(0, 8)])
+		edge.color = Color(0.03, 0.025, 0.06, 0.95)
+		edge.show_behind_parent = true
+		arrow.add_child(edge)
 		arrow.visible = false
 		_overlay.add_child(arrow)
 		_cursors.append(arrow)
@@ -212,6 +250,7 @@ func close() -> void:
 	_active = null
 	visible = false
 	_menu_box.visible = false
+	_keys.visible = false
 	_hint.visible = false
 	_ribbon.modulate.a = 0.0
 	_end_layer.visible = false
@@ -221,6 +260,7 @@ func close() -> void:
 		c.queue_free()
 	for c in _timeline.get_children():
 		c.queue_free()
+	_tl_gap = null
 	for c in _overlay.get_children():
 		c.queue_free()
 	_rows = {}
@@ -230,8 +270,10 @@ func close() -> void:
 
 # ------------------------------------------------------------------ éléments
 
-func _bar(color: Color, width: float) -> ProgressBar:
-	return UI.gauge(color, width, 7.0)
+func _bar(color: Color, height: float = 4.0) -> ProgressBar:
+	var b := UI.gauge(color, 40.0, height)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return b
 
 
 func _set_bar_color(bar: ProgressBar, color: Color) -> void:
@@ -240,35 +282,62 @@ func _set_bar_color(bar: ProgressBar, color: Color) -> void:
 		fill.bg_color = color
 
 
+## Fiche d'un allié : nom, niveau, états ; PV et PM en chiffres, une jauge fine sous chacun.
 func _make_row(c: RefCounted) -> Dictionary:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	_party_rows.add_child(row)
-	var name_label := UI.label(str(c.name), 21, UI.INK)
-	name_label.custom_minimum_size = Vector2(170, 0)
-	row.add_child(name_label)
-	var level := UI.label("Nv %d" % int(c.level), 16, UI.INK_DIM)
-	level.custom_minimum_size = Vector2(46, 0)
-	row.add_child(level)
-	row.add_child(UI.caps("PV", 12, UI.GOLD_DIM))
-	var hp := _bar(HP_GREEN, 104)
-	row.add_child(hp)
-	var hp_text := UI.label("", 17, UI.INK)
-	hp_text.custom_minimum_size = Vector2(76, 0)
-	hp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.add_child(hp_text)
-	row.add_child(UI.caps("PM", 12, UI.GOLD_DIM))
-	var mp := _bar(MP_BLUE, 64)
-	row.add_child(mp)
-	var mp_text := UI.label("", 17, UI.INK)
-	mp_text.custom_minimum_size = Vector2(56, 0)
-	mp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.add_child(mp_text)
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(300, 0)
+	card.add_theme_stylebox_override("panel", _card_style(false))
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_party_rows.add_child(card)
+	var info := {"on": false}
+	card.draw.connect(func() -> void:
+		if bool(info["on"]):
+			card.draw_colored_polygon(UI.diamond_points(Vector2(11.0, 20.0), 4.5), UI.GOLD)
+			card.draw_line(Vector2(card.size.x - 1.5, 3.0), Vector2(card.size.x - 1.5, card.size.y - 3.0), Color(UI.GOLD, 0.8), 2.0))
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 0)
+	card.add_child(col)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	col.add_child(head)
+	var name_label := UI.label(str(c.name), 18, UI.INK)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.clip_text = true
+	head.add_child(name_label)
 	var status := HBoxContainer.new()
-	status.add_theme_constant_override("separation", 6)
-	status.custom_minimum_size = Vector2(90, 0)
-	row.add_child(status)
-	return {"name": name_label, "hp": hp, "hp_text": hp_text, "mp": mp, "mp_text": mp_text, "status": status}
+	status.add_theme_constant_override("separation", 3)
+	head.add_child(status)
+	var level := UI.label("Nv %d" % int(c.level), 14, UI.INK_DIM)
+	head.add_child(level)
+	var hp_row := HBoxContainer.new()
+	col.add_child(hp_row)
+	var hp_tag := UI.caps("PV", 11, UI.GOLD_DIM)
+	hp_tag.size_flags_vertical = Control.SIZE_SHRINK_END
+	hp_row.add_child(hp_tag)
+	var hp_text := UI.label("", 19, UI.INK)
+	hp_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hp_row.add_child(hp_text)
+	var hp := _bar(HP_GREEN, 4.0)
+	col.add_child(hp)
+	var mp_row := HBoxContainer.new()
+	col.add_child(mp_row)
+	var mp_tag := UI.caps("PM", 11, UI.GOLD_DIM)
+	mp_tag.size_flags_vertical = Control.SIZE_SHRINK_END
+	mp_row.add_child(mp_tag)
+	var mp_text := UI.label("", 15, UI.INK)
+	mp_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	mp_row.add_child(mp_text)
+	var mp := _bar(MP_BLUE, 3.0)
+	col.add_child(mp)
+	return {"card": card, "info": info, "name": name_label, "hp": hp, "hp_text": hp_text, "mp": mp, "mp_text": mp_text, "status": status}
+
+
+func _card_style(active: bool) -> StyleBoxTexture:
+	if active:
+		return UI.fade_style(Color(0.2, 0.15, 0.05), 0.78)
+	return UI.fade_style(Color(0.02, 0.025, 0.06), 0.6)
 
 
 func _chip(text: String, color: Color, size: int = 14) -> PanelContainer:
@@ -288,31 +357,48 @@ func _chip(text: String, color: Color, size: int = 14) -> PanelContainer:
 	return chip
 
 
+## Sous l'ennemi : états et faiblesses connues, son nom, et (en visant) sa jauge de PV.
 func _make_plate(c: RefCounted) -> Dictionary:
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 3)
+	root.add_theme_constant_override("separation", 2)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlay.add_child(root)
 	var chips := HBoxContainer.new()
 	chips.add_theme_constant_override("separation", 3)
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(chips)
-	var name_label := UI.label(str(c.name), 18, UI.INK, true)
+	var name_label := UI.label(str(c.name), 17, UI.INK, true)
+	name_label.add_theme_constant_override("outline_size", 4)
+	name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.07, 0.9))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.visible = false
+	name_label.modulate.a = 0.8
 	root.add_child(name_label)
-	var bar := _bar(ENEMY_RED, 120)
+	var bar := UI.gauge(ENEMY_RED, 110.0, 4.0)
 	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	bar.visible = false
 	root.add_child(bar)
 	return {"root": root, "chips": chips, "name": name_label, "bar": bar, "sig": ""}
 
 
+## Petites icônes d'états : carré sombre au liseré de la couleur de l'état, deux lettres.
 func _status_chips(box: HBoxContainer, c: RefCounted) -> void:
 	for id: String in c.statuses:
 		var st: Dictionary = Database.get_status(id)
-		var chip := UI.label(str(st.get("name", id)), 15, Database.color(st.get("color", "#ffffff"), UI.INK), true)
-		box.add_child(chip)
+		var color := Database.color(st.get("color", "#ffffff"), UI.INK)
+		var icon := PanelContainer.new()
+		var s := StyleBoxFlat.new()
+		s.bg_color = Color(0.04, 0.04, 0.09, 0.92)
+		s.border_color = color
+		s.set_border_width_all(1)
+		s.set_corner_radius_all(2)
+		s.content_margin_left = 3
+		s.content_margin_right = 3
+		s.content_margin_top = 0
+		s.content_margin_bottom = 0
+		icon.add_theme_stylebox_override("panel", s)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.add_child(UI.label(str(st.get("name", id)).left(2), 12, color, true))
+		box.add_child(icon)
 
 
 ## Remet à jour jauges, états, boucliers et faiblesses.
@@ -339,13 +425,21 @@ func refresh() -> void:
 		elif c == _active:
 			color = UI.GOLD
 		name_label.add_theme_color_override("font_color", color)
+		var info: Dictionary = row["info"]
+		var on: bool = c == _active and c.alive()
+		if bool(info["on"]) != on:
+			info["on"] = on
+			(row["card"] as PanelContainer).add_theme_stylebox_override("panel", _card_style(on))
+			(row["card"] as PanelContainer).queue_redraw()
 		var status: HBoxContainer = row["status"]
 		for n in status.get_children():
+			status.remove_child(n)
 			n.queue_free()
 		if not c.alive():
-			status.add_child(UI.label("À terre", 15, Color(0.75, 0.5, 0.5), true))
+			status.add_child(UI.label("À terre", 14, Color(0.75, 0.5, 0.5), true))
 		else:
 			_status_chips(status, c)
+		(row["card"] as PanelContainer).modulate.a = 1.0 if c.alive() else 0.7
 	for c: RefCounted in engine.enemies:
 		var plate: Dictionary = _plates.get(c.key, {})
 		if plate.is_empty():
@@ -360,6 +454,7 @@ func refresh() -> void:
 			plate["sig"] = sig
 			var chips: HBoxContainer = plate["chips"]
 			for n in chips.get_children():
+				chips.remove_child(n)
 				n.queue_free()
 			if c.has_status("ebranle"):
 				chips.add_child(_chip("Ébranlé", Color("#ff8a6a")))
@@ -386,44 +481,92 @@ func set_active(c: RefCounted) -> void:
 	refresh()
 
 
-## File des tours : le premier est celui qui joue.
+## Frise des tours. order[0] est celui qui joue (grande vignette) ; les cinq suivants forment
+## la première frise, les cinq d'après la seconde (« Ensuite »). Le moteur n'a pas de manches
+## : les deux frises sont l'ordre prévu des actions, calculé par engine.preview.
 func set_timeline(order: Array) -> void:
 	for n in _timeline.get_children():
+		_timeline.remove_child(n)
 		n.queue_free()
-	var tag := UI.caps("Tours", 13, UI.GOLD_DIM)
-	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_timeline.add_child(tag)
-	for i in order.size():
-		var c: RefCounted = order[i]
-		var side := 52.0 if i == 0 else 38.0
-		var frame := Panel.new()
-		var s := StyleBoxFlat.new()
-		s.bg_color = Color(0.04, 0.04, 0.09, 0.85)
-		var tint: Color = UI.GOLD if c.side == "party" else ENEMY_RED
-		s.border_color = tint if i == 0 else Color(tint, 0.6)
-		s.set_border_width_all(2 if i == 0 else 1)
-		s.set_corner_radius_all(2)
-		frame.add_theme_stylebox_override("panel", s)
-		frame.custom_minimum_size = Vector2(side, side)
-		frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		frame.clip_contents = true
-		_timeline.add_child(frame)
-		var icon := TextureRect.new()
-		icon.texture = Sprites.battler_icon(c.sprite)
-		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.position = Vector2(3, 3)
-		icon.size = Vector2(side - 6, side - 6)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		if i > 0:
-			icon.modulate = Color(1, 1, 1, 0.82)
-		frame.add_child(icon)
-		if c.side == "enemy" and str(c.name) != str((c.data as Dictionary).get("name", "")):
-			var letter := UI.label(str(c.name).right(1), 15, Color.WHITE, true)
-			letter.position = Vector2(side - 15, side - 22)
-			frame.add_child(letter)
+	_tl_gap = null
+	if order.is_empty():
+		return
+	_timeline.add_child(_tile(order[0], TILE_BIG, true))
+	for i in range(1, mini(order.size(), 1 + FRIEZE_LEN)):
+		_timeline.add_child(_tile(order[i], TILE_SMALL, false))
+	if order.size() > 1 + FRIEZE_LEN:
+		_tl_gap = UI.caps("Ensuite", 12, UI.INK_DIM)
+		_tl_gap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_tl_gap.custom_minimum_size = Vector2(86, 0)
+		_tl_gap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_timeline.add_child(_tl_gap)
+		for i in range(1 + FRIEZE_LEN, mini(order.size(), 1 + 2 * FRIEZE_LEN)):
+			_timeline.add_child(_tile(order[i], TILE_SMALL, false))
+	_timeline.queue_redraw()
+	var living := 0
+	if engine != null:
+		for c: RefCounted in engine.all():
+			if c.alive():
+				living += 1
+		_turn_label.text = "TOUR %d" % (int(engine.turn_count) / maxi(1, living) + 1)
+
+
+## Vignette en losange d'un combattant (portrait rogné dans le losange).
+func _tile(c: RefCounted, side: float, active: bool) -> Control:
+	var t := Control.new()
+	t.custom_minimum_size = Vector2(side, side)
+	t.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	t.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var letter := ""
+	if c.side == "enemy" and str(c.name) != str((c.data as Dictionary).get("name", "")):
+		letter = str(c.name).right(1)
+	t.draw.connect(_draw_tile.bind(t, Sprites.battler_icon(c.sprite), ALLY_BLUE if c.side == "party" else ENEMY_RED, active, letter))
+	return t
+
+
+func _draw_tile(t: Control, tex: Texture2D, tint: Color, active: bool, letter: String) -> void:
+	var s := t.size.x
+	var h := s * 0.5
+	var edge := UI.diamond_points(Vector2(h, h), h - 1.0)
+	var inner := UI.diamond_points(Vector2(h, h), h - (6.0 if active else 2.5))
+	t.draw_colored_polygon(inner, Color(0.04, 0.04, 0.09, 0.92))
+	if tex != null:
+		var uv := PackedVector2Array()
+		var white := PackedColorArray()
+		for p: Vector2 in inner:
+			uv.append(Vector2(0.06, 0.04) + p / s * Vector2(0.88, 0.88))
+			white.append(Color.WHITE if active else Color(1, 1, 1, 0.88))
+		t.draw_polygon(inner, white, uv, tex)
+	var line := PackedVector2Array(inner)
+	line.append(inner[0])
+	t.draw_polyline(line, UI.GOLD if active else Color(tint, 0.9), 2.0 if active else 1.5, true)
+	if active:
+		var ring := PackedVector2Array(edge)
+		ring.append(edge[0])
+		t.draw_polyline(ring, Color(tint, 0.65), 1.5, true)
+	if letter != "":
+		t.draw_string_outline(UI.font(true), Vector2(s * 0.56, s * 0.8), letter, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.9))
+		t.draw_string(UI.font(true), Vector2(s * 0.56, s * 0.8), letter, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
+
+
+## Filet fin sous la frise, interrompu par l'étiquette « Ensuite ».
+func _draw_frieze() -> void:
+	var kids := _timeline.get_children()
+	if kids.size() < 2:
+		return
+	var first: Control = kids[0]
+	var last: Control = kids[kids.size() - 1]
+	var y := floorf(_timeline.size.y * 0.5) + 0.5
+	var x0 := first.position.x + first.size.x - 8.0
+	var x1 := last.position.x + last.size.x + 36.0
+	var col := Color(UI.GOLD, 0.5)
+	if _tl_gap != null and _tl_gap.get_parent() == _timeline:
+		_timeline.draw_line(Vector2(x0, y), Vector2(_tl_gap.position.x + 4.0, y), col, 1.0)
+		_timeline.draw_line(Vector2(_tl_gap.position.x + _tl_gap.size.x - 4.0, y), Vector2(x1, y), col, 1.0)
+	else:
+		_timeline.draw_line(Vector2(x0, y), Vector2(x1, y), col, 1.0)
+	_timeline.draw_colored_polygon(UI.diamond_points(Vector2(x1 + 3.0, y), 3.0), col)
 
 
 func announce(text: String, duration: float = 1.4) -> void:
@@ -448,8 +591,8 @@ func popup(at: Vector2, text: String, color: Color = Color.WHITE, size: int = 30
 	if scene == null or scene.fast:
 		return
 	var l := UI.label(text, size, color, true)
-	l.add_theme_constant_override("outline_size", 7)
-	l.add_theme_color_override("font_outline_color", Color(0.06, 0.04, 0.1))
+	l.add_theme_constant_override("outline_size", 8)
+	l.add_theme_color_override("font_outline_color", Color(0.05, 0.035, 0.09))
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlay.add_child(l)
 	l.reset_size()
@@ -468,6 +611,18 @@ func popup(at: Vector2, text: String, color: Color = Color.WHITE, size: int = 30
 	tw.chain().tween_callback(l.queue_free)
 
 
+## Rappels de touches (bas gauche) selon l'étape du menu.
+func _update_keys() -> void:
+	for n in _keys.get_children():
+		_keys.remove_child(n)
+		n.queue_free()
+	if _state == S.ROOT:
+		_keys.add_child(UI.hints([["Flèches", "choisir"], ["Entrée", "valider"]], 14))
+	elif _state == S.LIST or _state == S.TARGET:
+		_keys.add_child(UI.hints(UI.KEYS_MENU, 14))
+	_keys.visible = _state in [S.ROOT, S.LIST, S.TARGET]
+
+
 # ------------------------------------------------------------------- menus
 
 ## Demande son action au joueur. Renvoie {"type", "id", "target"}.
@@ -478,6 +633,7 @@ func ask_action(actor: RefCounted) -> Dictionary:
 	var action: Dictionary = await action_chosen
 	_state = S.IDLE
 	_menu_box.visible = false
+	_update_keys()
 	_hide_cursors()
 	return action
 
@@ -493,6 +649,44 @@ func _has_usable_item() -> bool:
 		if Database.is_consumable(id):
 			return true
 	return false
+
+
+## Le menu s'ouvre à côté du personnage qui joue, sans sortir de l'image ; la liste
+## (compétences, objets) se décale en cascade vers le bas et la gauche.
+func _place_menu() -> void:
+	if not _menu_box.visible or _actor == null or scene == null:
+		return
+	var view := size if size.x > 0.0 else Vector2(1280, 720)
+	_root_panel.reset_size()
+	_list_panel.reset_size()
+	var c: Vector2 = scene.screen_point(_actor, "center")
+	var rw := _root_panel.size.x
+	var rh := _root_panel.size.y
+	var top := clampf(c.y - 96.0, 120.0, view.y - rh - 18.0)
+	var edge := c.x - 64.0
+	for o: RefCounted in engine.party:
+		if o != _actor and o.alive():
+			var q: Vector2 = scene.screen_point(o, "center")
+			if q.x < c.x and q.y > top - 60.0 and q.y < top + rh + 20.0:
+				edge = minf(edge, q.x - 56.0)   # le menu se range à gauche des alliés qu'il couvrirait...
+	var min_left := 10.0
+	for e: RefCounted in engine.enemies:
+		if e.alive():
+			min_left = maxf(min_left, (scene.screen_point(e, "center") as Vector2).x + 70.0)   # ...sans jamais couvrir un ennemi
+	var x := minf(maxf(edge - rw, min_left), c.x - 40.0 - rw)
+	var root_pos := Vector2(clampf(x, 10.0, view.x - rw - 10.0), top)
+	_root_panel.position = root_pos
+	if _list_panel.visible:
+		var lw := _list_panel.size.x
+		var lh := _list_panel.size.y
+		_list_panel.position = Vector2(clampf(root_pos.x - 40.0, 10.0, view.x - lw - 10.0), clampf(root_pos.y + 44.0, 120.0, view.y - lh - 18.0))
+
+
+func _set_root_live(live: bool) -> void:
+	_root_panel.modulate.a = 1.0 if live else 0.3
+	for b in _root_list.get_children():
+		(b as Button).focus_mode = Control.FOCUS_ALL if live else Control.FOCUS_NONE
+		(b as Button).mouse_filter = Control.MOUSE_FILTER_STOP if live else Control.MOUSE_FILTER_IGNORE
 
 
 func _show_root() -> void:
@@ -513,12 +707,14 @@ func _show_root() -> void:
 	]
 	for i in entries.size():
 		var e: Array = entries[i]
-		var b := UI.menu_button(str(e[0]), 24)
-		b.custom_minimum_size = Vector2(200, 0)
+		var b := UI.band_button(str(e[0]), 22, str(ROOT_HELP.get(str(e[0]), "")), "", 224)
 		b.disabled = not bool(e[1])
 		b.pressed.connect(_on_root.bind(i))
 		_root_list.add_child(b)
+	_set_root_live(true)
 	_focus(_root_list, _last_root)
+	_update_keys()
+	_place_menu()
 
 
 func _on_root(index: int) -> void:
@@ -548,9 +744,10 @@ func _show_list(kind: String) -> void:
 	_list_kind = kind
 	_hide_cursors()
 	_menu_box.modulate.a = 1.0
-	_root_panel.visible = false   # la liste prend la place du menu : rien ne déborde sur l'équipe
+	_root_panel.visible = true    # le menu reste visible, estompé, sous la liste en cascade
+	_set_root_live(false)
 	_list_panel.visible = true
-	_list_title.text = "Compétences" if kind == "skill" else "Objets"
+	_list_title.text = "COMPÉTENCES" if kind == "skill" else "OBJETS"
 	_list_desc.text = ""
 	_clear(_list_items)
 	var ids: Array = []
@@ -565,28 +762,24 @@ func _show_list(kind: String) -> void:
 		var id := str(ids[i])
 		var def: Dictionary = Database.get_skill(id) if kind == "skill" else Database.get_item(id)
 		var text := str(def.get("name", id))
+		var right := ""
 		var usable := true
 		if kind == "skill":
-			text = "%s   ·   %d PM" % [text, int(def.get("cost", 0))]
+			right = "%d PM" % int(def.get("cost", 0))
 			usable = engine.can_use_skill(_actor, id)
 		else:
-			text = "%s   ×%d" % [text, int(engine.inventory.get(id, 0))]
+			right = "×%d" % int(engine.inventory.get(id, 0))
 		if (engine.candidates(_actor, str(def.get("target", "enemy"))) as Array).is_empty():
 			usable = false
-		var b := UI.menu_button(text, 22)
-		b.custom_minimum_size = Vector2(360, 0)
+		var b := UI.band_button(text, 21, str(def.get("desc", "")), right, 380)
 		b.disabled = not usable
-		var desc := str(def.get("desc", ""))
-		b.focus_entered.connect(_on_list_focus.bind(desc))
 		b.pressed.connect(_on_list.bind(kind, id, str(def.get("target", "enemy"))))
 		_list_items.add_child(b)
 		if str(_last_list.get(kind, "")) == id:
 			focus_index = i
 	_focus(_list_items, focus_index)
-
-
-func _on_list_focus(desc: String) -> void:
-	_list_desc.text = desc
+	_update_keys()
+	_place_menu()
 
 
 func _on_list(kind: String, id: String, target_kind: String) -> void:
@@ -622,9 +815,10 @@ func _begin_target(action: Dictionary, kind: String, from: S) -> void:
 		_index = maxi(0, pool.find(_actor))
 	_state = S.TARGET
 	_target_frame = Engine.get_process_frames()
-	_menu_box.modulate.a = 0.55
+	_menu_box.visible = false   # pendant le choix de la cible, la scène reste dégagée
 	get_viewport().gui_release_focus()
 	_update_cursors()
+	_update_keys()
 
 
 func _confirm_target() -> void:
@@ -652,7 +846,7 @@ func _hide_cursors() -> void:
 		a.visible = false
 	for key: String in _plates:
 		var plate: Dictionary = _plates[key]
-		(plate["name"] as Control).visible = false
+		(plate["name"] as Control).modulate.a = 0.8
 		(plate["bar"] as Control).visible = false
 
 
@@ -668,7 +862,7 @@ func _update_cursors() -> void:
 			_cursors[i].visible = true
 		var plate: Dictionary = _plates.get(c.key, {})
 		if not plate.is_empty():
-			(plate["name"] as Control).visible = true
+			(plate["name"] as Control).modulate.a = 1.0
 			(plate["bar"] as Control).visible = true
 			(plate["root"] as Control).reset_size()
 
@@ -690,7 +884,9 @@ func _process(delta: float) -> void:
 			if i >= _cursors.size() or not _cursors[i].visible:
 				continue
 			var p: Vector2 = scene.screen_point(_cands[i], "top")
-			_cursors[i].position = p + Vector2(0.0, -6.0 + sin(_time * 7.0) * 4.0)
+			_cursors[i].position = p + Vector2(0.0, -34.0 + sin(_time * 7.0) * 4.0)
+	_place_menu()
+
 
 
 func _input(event: InputEvent) -> void:
@@ -749,6 +945,7 @@ func _input(event: InputEvent) -> void:
 func _end_panel(title: String, color: Color) -> VBoxContainer:
 	_state = S.END
 	_menu_box.visible = false
+	_keys.visible = false
 	_hide_cursors()
 	for c in _end_layer.get_children():
 		c.queue_free()

@@ -76,6 +76,8 @@ func _ready() -> void:
 	await _test_battle_scene()
 	print("== Animations de combat : jouées une à une ==")
 	await _test_animation_play()
+	print("== Combat : composition façon Octopath ==")
+	await _test_battle_layout()
 	print("== Cartes ==")
 	for id in Database.list_maps():
 		await _test_map(id)
@@ -192,7 +194,7 @@ func _test_rendering() -> void:
 				check(spots[i].x > 1.0 and spots[i].x < 6.6, "formation à %d : place %d dans le cadre" % [n, i])
 				if i > 0:
 					var gap := absf(spots[i].x - spots[i - 1].x)
-					check(gap >= (1.3 if n <= 4 else 0.75), "formation à %d : écart %.2f entre voisins" % [n, gap])
+					check(gap >= (1.0 if n <= 4 else 0.5), "formation à %d : écart %.2f entre voisins" % [n, gap])
 	# le relief peint ne touche ni les contours ni la transparence
 	var flat := Image.create(8, 8, false, Image.FORMAT_RGBA8)
 	flat.fill_rect(Rect2i(2, 2, 4, 4), Color("#4f7d5a"))
@@ -3470,3 +3472,62 @@ func _test_retouches_2() -> void:
 		if o is Dictionary and o.get("prop", "") == "tree" and o.has("avoid"):
 			avoid_ok = true
 	check(avoid_ok, "Bois Penché : zones sans arbres autour de la rampe")
+
+
+## Composition du combat : camps de chaque côté, tout le monde dans le cadre, interface dans la fenêtre.
+func _test_battle_layout() -> void:
+	var cases := [
+		{"allies": ["pepin"], "enemies": ["limace_molle"], "arena": "pre"},
+		{"allies": ["pepin", "sam", "froton"], "enemies": ["limace_molle", "guepe_cidre", "limace_molle", "guepe_cidre", "limace_molle"], "arena": "bois"},
+	]
+	for cs: Dictionary in cases:
+		GameState.new_game()
+		for who: String in cs["allies"]:
+			GameState.add_to_party(who)
+		var layer := CanvasLayer.new()
+		add_child(layer)
+		var ui: Control = BattleUI.new()
+		layer.add_child(ui)
+		await get_tree().process_frame
+		var scene: Node3D = BattleScene.new()
+		add_child(scene)
+		scene.fast = true
+		scene.setup({"enemies": cs["enemies"], "arena": cs["arena"]}, ui, 5)
+		scene.run()
+		for _i in 600:
+			await get_tree().process_frame
+			if ui._state == ui.S.ROOT:
+				break
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var view: Rect2 = ui.get_viewport_rect()
+		var tag: String = "%s (%d ennemis)" % [cs["arena"], cs["enemies"].size()]
+		check(scene.engine.party.size() <= 4, "%s : au plus quatre alliés" % tag)
+		check(scene.engine.enemies.size() >= 1 and scene.engine.enemies.size() <= 5, "%s : un à cinq ennemis" % tag)
+		for a: RefCounted in scene.engine.party:
+			check(_in_frame(scene, a), "%s : allié dans le cadre" % tag)
+			check(scene.actors[a.key].anchor("center").x > 0.0, "%s : alliés à droite" % tag)
+		for e: RefCounted in scene.engine.enemies:
+			check(_in_frame(scene, e), "%s : ennemi dans le cadre" % tag)
+			check(scene.actors[e.key].anchor("center").x < 0.0, "%s : ennemis à gauche" % tag)
+		check(ui._state == ui.S.ROOT, "%s : menu de commande ouvert" % tag)
+		var mr: Rect2 = ui._root_panel.get_global_rect()
+		check(mr.size.x > 0.0 and view.encloses(mr), "%s : menu dans la fenêtre" % tag)
+		check(ui._rows.size() == scene.engine.party.size(), "%s : une fiche par allié" % tag)
+		for k: Variant in ui._rows:
+			var card: Control = ui._rows[k]["card"]
+			check(view.encloses(card.get_global_rect()), "%s : fiche alliée dans la fenêtre" % tag)
+		var fr: Rect2 = ui._timeline.get_global_rect()
+		check(ui._timeline.get_child_count() > 2 and view.encloses(fr), "%s : frise des tours dans la fenêtre" % tag)
+		ui.close()
+		remove_child(scene)
+		scene.queue_free()
+		layer.queue_free()
+
+
+## Vrai si le combattant tient dans un écran 16/9 (calcul en espace monde : la fenêtre sans écran n'a pas le bon format).
+func _in_frame(scene: Node3D, c: RefCounted) -> bool:
+	var p: Vector3 = scene.actors[c.key].anchor("center")
+	var cam: Camera3D = scene.camera
+	var half_w := tan(deg_to_rad(cam.fov * 0.5)) * (16.0 / 9.0) * (cam.global_position.z - p.z)
+	return absf(p.x) < half_w - 0.3

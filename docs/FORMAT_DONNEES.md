@@ -90,6 +90,17 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
   `grain` : amplitude du grain fin ; `desat` : désaturation du sol (0 à 1).
 - `vignette` : force de l'assombrissement des coins de l'écran (0,45 par défaut).
 
+Champ facultatif `foreground` (liste, vide par défaut) : accessoires posés au tout premier
+plan, entre la caméra et les combattants, que le flou de profondeur rend flous (cadrage à la
+Octopath). Chaque entrée : `{"prop": "rock", "count": 4, "scale": 1.15, "x": [-8, 8]}`.
+`prop` est un accessoire connu de `Sprites`, `count` leur nombre, `scale` leur taille, `x` la
+bande horizontale où ils tombent (facultatif). Placement déterministe (graine = arène). Ces
+accessoires ne comptent pas dans les accessoires de scène vérifiés par le test.
+
+Vue de combat : caméra basse (hauteur 4,7, recul 13,6, champ 28) qui plonge légèrement ; les
+ennemis à gauche, les héros à droite en colonne décalée (chacun un peu plus bas et plus à
+droite), les deux files de la frise des tours viennent de `engine.preview(10, acteur)`.
+
 Champ facultatif `particles` (liste, vide par défaut) : particules d'ambiance du combat
 (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`, `smoke`). Elle remplace celle
 de l'ambiance : en combat, les lucioles flottant devant les combattants et les rayons de

@@ -231,6 +231,7 @@
 				"range": 12
 			}
 		],
+		"foreground": [{"prop": "rock", "count": 4, "scale": 1.15}, {"prop": "grass", "count": 9, "scale": 1.9}, {"prop": "fern", "count": 4, "scale": 1.7}],
 		"stage": {
 			"light": "#ffd08a",
 			"boost": 1.1,
@@ -442,6 +443,7 @@
 				"energy": 0.9
 			}
 		],
+		"foreground": [{"prop": "rock", "count": 5, "scale": 1.15}, {"prop": "boulder", "count": 2, "scale": 0.9}],
 		"stage": {
 			"light": "#ff9a60",
 			"boost": 1.3,
@@ -639,6 +641,7 @@
 				"range": 12
 			}
 		],
+		"foreground": [{"prop": "fern", "count": 6, "scale": 1.7}, {"prop": "stump", "count": 2, "scale": 0.8}, {"prop": "rock", "count": 3, "scale": 1.15}, {"prop": "grass", "count": 6, "scale": 1.9}],
 		"stage": {
 			"light": "#e8e0a0",
 			"boost": 1.5,
@@ -878,6 +881,7 @@
 				"bank": "#241e18"
 			}
 		],
+		"foreground": [{"prop": "reeds", "count": 8, "scale": 0.9}, {"prop": "rock", "count": 3, "scale": 1.15}],
 		"stage": {
 			"light": "#c0e8c0",
 			"boost": 1.5,
@@ -1126,6 +1130,7 @@
 				]
 			}
 		],
+		"foreground": [{"prop": "rock", "count": 3, "scale": 1.15}, {"prop": "barrel", "count": 2, "scale": 1.0}, {"prop": "grass", "count": 6, "scale": 1.9}],
 		"stage": {
 			"light": "#ffd2a0",
 			"boost": 1.3,

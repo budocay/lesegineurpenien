@@ -12,6 +12,7 @@ uniform float see_through = 1.0;   // 1 : décor qui s'ajoure devant le héros ;
 instance uniform vec4 frame_rect = vec4(0.0, 0.0, 1.0, 1.0);
 instance uniform float sway_phase = 0.0;
 instance uniform float flash = 0.0;   // éclair blanc quand un combattant est touché
+instance uniform float rim = 0.0;     // liseré clair de contre-jour (combat seulement ; 0 = aucun effet)
 // Point à ne jamais cacher (le héros) : un sprite placé devant lui s'ajoure autour de lui.
 global uniform vec3 focus_world;
 
@@ -47,8 +48,18 @@ void fragment() {
 	}
 	// léger dégradé vers le sol : le pied du sprite s'ancre dans le décor
 	vec3 grounded = c.rgb * mix(1.04, 0.9, UV.y * UV.y);
+	vec3 rim_light = vec3(0.0);
+	if (rim > 0.0) {
+		// pixel du bord haut (et, plus faiblement, des côtés) de la silhouette : il prend la lumière du fond
+		vec2 ts = 1.0 / vec2(textureSize(sheet, 0));
+		vec2 at = frame_rect.xy + UV * frame_rect.zw;
+		float gap_up = 1.0 - step(0.5, texture(sheet, at + vec2(0.0, -ts.y)).a);
+		float gap_l = 1.0 - step(0.5, texture(sheet, at + vec2(-ts.x, 0.0)).a);
+		float gap_r = 1.0 - step(0.5, texture(sheet, at + vec2(ts.x, 0.0)).a);
+		rim_light = vec3(1.0, 0.93, 0.78) * max(gap_up, 0.45 * max(gap_l, gap_r)) * rim;
+	}
 	ALBEDO = mix(grounded, vec3(1.0), flash * 0.5);
-	EMISSION = c.rgb * glow * (1.0 - flash) + vec3(flash * 0.25);
+	EMISSION = c.rgb * glow * (1.0 - flash) + vec3(flash * 0.25) + rim_light * 0.5;
 	ROUGHNESS = 1.0;
 }
 
