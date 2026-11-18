@@ -696,6 +696,19 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      à « jardinier » ; ce champ ne sert qu'à l'affichage. Il garde sa poêle, ses compétences
      de cuisine et son nom : il cuisine ce qu'il fait pousser. Berthe dit « mon jardinier »
      et précise qu'il tient ses fourneaux. `repriste.txt` porte la nouvelle liste de noms.
+## Demandes de l'auteur à faire (18 novembre 2026, soir)
+
+- **Quatre combattants au plus.** Une équipe ne dépasse jamais quatre personnages en
+  combat (« sinon c'est trop craqué »). Les autres sont en réserve. À faire avec le
+  chapitre 3 (équipe active choisie dans l'écran Équipe, réserve qui gagne l'expérience) ;
+  les combats du chapitre 2, réglés pour cinq ou six, sont à rééquilibrer pour quatre.
+- **Interface façon Octopath Traveler** (pas urgent) : menus, dialogues, combat, titres de
+  lieu plus fins et plus aérés. La relecture des captures note l'interface 4,5 sur 10.
+- **Écran de paramètres** (pas urgent) : plein écran, niveau de détail, échelle de rendu,
+  mise à l'échelle (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier),
+  volumes. Réglages gardés d'une session à l'autre.
+- **Amélioration graphique** : chantier permanent, à poursuivre après chaque relecture.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
