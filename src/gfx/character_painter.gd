@@ -681,9 +681,18 @@ static func _side(look: Dictionary) -> void:
 				var by2 := minf(_hip + _lh * 0.28, _foot - 9.0)
 				var fxa := tx - hs - belly
 				# bavette collée au buste, jupon qui s'évase et ondule avec le pas ; nœud dans le dos
-				_trap(ny + 6.0, belt_y, fxa + 0.4, fxa + 3.6, fxa - 0.6, fxa + 4.4, ap, 0.0, [], true)
-				_trap(belt_y - 0.5, by2, fxa - 0.6, fxa + 4.4, fxa - 3.6 - sway * 0.4, fxa + 4.8 + sway * 0.2, ap, -0.05,
+				_trap(ny + 6.0, belt_y, fxa + 0.4, fxa + 4.6, fxa - 0.6, fxa + 5.6, ap, -0.2, [], true)
+				_trap(belt_y - 0.5, by2, fxa - 0.6, fxa + 5.6, fxa - 3.6 - sway * 0.4, fxa + 6.2 + sway * 0.2, ap, -0.3,
 					[Vector2(0.45, 0.25)], true, sway * 0.5)
+				# le tablier ne doit pas se lire comme une bande pâle : flanc dans l'ombre (il épouse la hanche),
+				# pli, poche et ourlet de la couleur du haut
+				_trap(ny + 7.0, belt_y, fxa + 2.4, fxa + 6.4, fxa + 2.4, fxa + 7.0, _dim(ap), 0.0, [], false)
+				_trap(belt_y + 0.5, by2 - 0.5, fxa + 2.2, fxa + 7.0, fxa + 1.0, fxa + 7.6 + sway * 0.2, _dim(ap), 0.0, [], false)
+				_line(fxa + 1.4, belt_y + 3.0, fxa + 0.6, by2 - 2.0, ap[1])
+				_line(fxa + 7.0, belt_y - 1.0, fxa + 7.6 + sway * 0.2, by2 - 1.0, ap[0])
+				_rect(fxa - 0.6, belt_y + 5.5, 3.6, 3.2, ap[1])
+				_rect(fxa - 0.6, belt_y + 5.5, 3.6, 0.8, ap[3])
+				_line(fxa - 3.2 - sway * 0.4, by2 - 1.0, fxa + 6.0 + sway * 0.2, by2 - 1.0, top[2])
 				_line(fxa - 2.0, belt_y + 4.5, fxa + 2.5, belt_y + 4.5, ap[1])
 				_line(fxa - 1.0, belt_y + 4.5, fxa - 1.0, belt_y + 9.0, ap[1])
 				_rect(tx + hs - 3.0, belt_y - 1.0, 3.0, 2.0, ap[2])
@@ -823,6 +832,7 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 	var mood := str(_p["eyes"])
 	var old := _elder(look)
 	_fk = str(look.get("face", ""))
+	_lift = float(look.get("hair_lift", 0.0))
 	var heavy := _fk in ["las", "hautain", "sournois", "renfrogne", "bourru"]
 	if hat == "capuche":
 		_hood_back(hx, hcy, rx, ry, 1)

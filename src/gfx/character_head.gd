@@ -22,6 +22,7 @@ static func _head_front(look: Dictionary, cx: float, back: bool, item: String) -
 	var hat := str(look.get("hat", "none"))
 	var hair_style := str(look.get("hair_style", "court"))
 	_fk = str(look.get("face", ""))
+	_lift = float(look.get("hair_lift", 0.0))
 	if hat == "capuche":
 		_hood_back(cx, hcy, rx, ry, 0)
 	if hair_style == "boucles" or hair_style == "chignon":
@@ -283,7 +284,17 @@ static func _mouth(cx: float, my: float, mode: String, hidden: bool) -> void:
 # ---------------------------------------------------------------- cheveux
 
 ## Limite basse des cheveux (coordonnée y) à la distance dx du centre de la tête.
+static var _lift := 0.0   # champ « hair_lift » du look : remonte la frange (cheveux épais qui mangent le visage)
+
+
 static func _fringe(style: String, dx: float, hcy: float, rx: float, ry: float, view: int) -> float:
+	var lim := _fringe_base(style, dx, hcy, rx, ry, view)
+	if _lift > 0.0 and view != 2 and lim < hcy + ry * 0.5:
+		lim -= _lift
+	return lim
+
+
+static func _fringe_base(style: String, dx: float, hcy: float, rx: float, ry: float, view: int) -> float:
 	var base := hcy - ry * 0.32
 	var adx := absf(dx)
 	if view == 2:
