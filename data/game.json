@@ -2,6 +2,7 @@
 	"title": "Glandoulf le Gris et l'Anneau pénien de Sauron",
 	"player": "glandoulf",
 	"title_map": "bittebourg",
+	"music": {"title": "titre", "battle": "combat", "victory": "victoire"},
 	"start": {
 		"chapter": "chapitre_1",
 		"prologue": "prologue",

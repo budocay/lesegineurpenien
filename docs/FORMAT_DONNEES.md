@@ -417,6 +417,44 @@ devant, flous), `lights`.
 - `"gated": true` signale au test automatique qu'un objet n'est atteignable qu'une fois
   un obstacle scénarisé levé.
 
+## Musique — `data/music.json`
+
+Un morceau par identifiant. Tout est calculé par `src/core/music.gd`, sans fichier audio.
+
+```json
+"village": {
+	"name": "Bittebourg, où tout tient debout",
+	"tempo": 104, "echo": 0.2, "loop": true, "volume": 1.0,
+	"voices": [
+		{"instrument": "flute", "volume": 0.5, "len": 2, "notes": ["d5 g5 b5:4 a5 g5 d5:4", "..."]},
+		{"instrument": "drums", "volume": 0.3, "len": 2, "notes": "k h s h k h s h"}
+	]
+}
+```
+
+- `tempo` : battements par minute. `echo` : force de l'écho (0 à 0.6). `loop` : faux pour
+  un morceau joué une seule fois (fanfare).
+- `instrument` : `flute`, `reed`, `pluck`, `bell`, `strings`, `brass`, `bass`, `square`,
+  ou `drums`.
+- `notes` : une chaîne, ou une liste de chaînes (une par mesure, plus lisible). Les notes
+  sont séparées par des espaces : `c4` (do, octave 4), `f#3`, `bb2` (si bémol), `r`
+  (silence), `c4+e4+g4` (accord). L'octave est retenue d'une note à l'autre.
+- Durée : `:8` après la note, en pas (un pas = une double croche, seize par mesure à
+  quatre temps). Sans cela, la durée est le `len` de la voix.
+- Batterie : `k` grosse caisse, `s` caisse claire, `h` charleston.
+- Une voix plus courte que le morceau se répète ; la durée du morceau doit être un
+  multiple de celle de chaque voix.
+
+Où les morceaux sont utilisés :
+
+- `data/game.json`, `"music": {"title": ..., "battle": ..., "victory": ...}` : écran-titre,
+  combat ordinaire, victoire.
+- Carte : `"music": "village"`, et en option `"music_states": [{"if": "condition",
+  "music": "fete"}]` (la première condition vraie l'emporte ; mêmes conditions que les
+  dialogues).
+- Rencontre (`data/encounters.json`) : `"music": "boss"`.
+- Dialogue : `{"music": "menace"}` change la musique en cours de scène (`""` = silence).
+
 ## Sauvegarde
 
 Une seule partie, dans `user://sauvegarde.json` (sur Mac :

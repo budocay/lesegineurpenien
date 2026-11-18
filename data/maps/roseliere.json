@@ -4,6 +4,7 @@
 	"region": "Les berges, au sud-est de Bittebourg",
 	"size": [40, 24],
 	"ambiance": "marais",
+	"music": "marais",
 	"ramollissement": 0.2,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {

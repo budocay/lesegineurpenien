@@ -4,6 +4,13 @@
 	"region": "Le Comté, pays des Grobittes",
 	"size": [46, 32],
 	"ambiance": "crepuscule",
+	"music": "village",
+	"music_states": [
+		{"if": "combat_naze", "music": "campagne"},
+		{"if": "naze_arrive", "music": "menace"},
+		{"if": "invasion", "music": "menace"},
+		{"if": "fete_commencee", "music": "fete"}
+	],
 	"ramollissement": 0.1,
 	"title_focus": [23, 14],
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},

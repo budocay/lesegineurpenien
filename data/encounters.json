@@ -3,6 +3,7 @@
 		"prologue_sauron": {
 			"enemies": ["sauron_vigueur"],
 			"arena": "grand_four",
+			"music": "boss",
 			"flee": false,
 			"intro": "Sauron, en pleine Vigueur, barre l'accès au Grand Four.",
 			"party": [{"id": "glandoulf", "level": 20}, {"id": "isidur", "level": 20}],
@@ -19,18 +20,21 @@
 		"grande_baveuse": {
 			"enemies": ["grande_baveuse"],
 			"arena": "pre",
+			"music": "boss",
 			"flee": false,
 			"intro": "La Grande Baveuse se déplie. Cela prend un moment."
 		},
 		"vieux_solitaire": {
 			"enemies": ["vieux_solitaire"],
 			"arena": "bois",
+			"music": "boss",
 			"flee": false,
 			"intro": "Le Vieux Solitaire se lève. Il n'a pas l'air d'en avoir envie, ce qui le rend d'assez mauvaise humeur."
 		},
 		"crapaud_buffle": {
 			"enemies": ["crapaud_buffle"],
 			"arena": "marais",
+			"music": "boss",
 			"flee": false,
 			"intro": "Monseigneur ouvre un œil, puis l'autre. La passerelle gémit sous son poids."
 		},
@@ -51,6 +55,7 @@
 		},
 		"naze": {
 			"enemies": ["naze_fouineur"],
+			"music": "boss",
 			"arena": "place", "flee": false, "ramollissement": 0.4,
 			"intro": "Le Naze tire une lame qui penche. Autour de lui, tout mollit : les coups portés à la main ne valent plus grand-chose."
 		},

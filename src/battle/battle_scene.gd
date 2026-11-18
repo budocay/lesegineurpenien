@@ -278,6 +278,7 @@ func _finish() -> void:
 		"victory":
 			await _wait(0.5)
 			Sfx.play("victory")
+			Music.play(Music.default("victory"), 0.3)
 			var rewards: Dictionary = engine.commit()
 			if fast:
 				await _wait(0.2)

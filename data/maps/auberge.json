@@ -6,6 +6,7 @@
 	"interior": true,
 	"wall_height": 3.0,
 	"ambiance": "interieur_chaud",
+	"music": "auberge",
 	"camera": {"distance": 19, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [8, 5.2, 8, 6.6]},
 	"ground": {
 		"default": "void",

@@ -109,6 +109,7 @@ func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, a
 	add_child(world)
 	move_child(world, 0)
 	world.setup(map_id, spawn_id, pos, facing, attract)
+	Music.play(Music.default("title") if attract else Music.for_map(world.map))
 	world.warp_requested.connect(change_map)
 	world.interact_requested.connect(_on_interact)
 	world.trigger_fired.connect(_on_trigger)
@@ -276,11 +277,13 @@ func start_battle(encounter: Dictionary) -> String:
 			encounter["ramollissement"] = Database.softness(field.map)
 	hud.set_softness(0.0)
 	Sfx.play("encounter")
+	var music_before := Music.current
 	await _fade_to(1.0, 0.35)
 	if field != null and field.get_parent() == self:
 		remove_child(field)
 	var outcome := "retry"
 	while outcome == "retry":
+		Music.play(Music.for_encounter(encounter), 0.4)
 		battle = BattleScene.new()
 		battle.name = "Battle"
 		add_child(battle)
@@ -304,6 +307,7 @@ func start_battle(encounter: Dictionary) -> String:
 			world = null
 		busy = false
 		return outcome
+	Music.play(music_before)
 	if field != null:
 		add_child(field)
 		move_child(field, 0)

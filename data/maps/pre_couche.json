@@ -4,6 +4,7 @@
 	"region": "Route de l'est, aux portes de Bittebourg",
 	"size": [40, 22],
 	"ambiance": "crepuscule",
+	"music": "campagne",
 	"ramollissement": 0.25,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {

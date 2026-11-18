@@ -206,6 +206,9 @@ func _advance() -> void:
 			GameState.add_money(sum)
 			notice.emit("%s%d écus" % ["+" if sum >= 0 else "−", absi(sum)])
 			continue
+		if n.has("music"):
+			Music.play(str(n["music"]))
+			continue
 		if n.has("chapter"):
 			GameState.chapter = str(n["chapter"])
 			continue

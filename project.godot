@@ -24,6 +24,7 @@ GameState="*res://src/core/game_state.gd"
 SaveManager="*res://src/core/save_manager.gd"
 Sprites="*res://src/gfx/sprite_library.gd"
 Sfx="*res://src/core/sfx.gd"
+Music="*res://src/core/music.gd"
 
 [display]
 

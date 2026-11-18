@@ -4,6 +4,7 @@
 	"region": "Aux confins du Comté",
 	"size": [52, 18],
 	"ambiance": "crepuscule",
+	"music": "campagne",
 	"ramollissement": 0.15,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {

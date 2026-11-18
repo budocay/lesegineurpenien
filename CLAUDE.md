@@ -46,7 +46,7 @@ construit, comment l'essayer en jouant, ce qui n'a pas pu être vérifié.
 ## Où est quoi
 
 - `src/core/` : commandes, base de données (`Database`), état de la partie (`GameState`),
-  sauvegarde, sons générés.
+  sauvegarde, sons générés (`sfx.gd`), musique générée (`music.gd`).
 - `src/gfx/` : peinture des sprites et textures par code, `sprite_library.gd`.
 - `src/world/` : construction des cartes, joueur, personnages, caméra, ambiance.
 - `src/battle/` : `battle_engine.gd` (toutes les règles, sans affichage : c'est lui que
@@ -78,7 +78,19 @@ Histoire reprise à la demande de l'auteur : Isidur garde l'anneau (prologue ré
 Glandoulf a laissé faire puis menti ; la section « Reprise de l'histoire » de la bible
 comble les trous des chapitres 2 à 7, pas encore construits et à valider par l'auteur.
 
+Musique faite : onze morceaux synthétisés par `src/core/music.gd` (autoload `Music`) à
+partir de `data/music.json` ; champ `music` des cartes et des rencontres.
+
+Demande en attente de l'auteur : rapprocher le rendu d'Octopath Traveler (sprites, décors,
+lumière, animations).
+
 ## Pièges connus
+
+- Toute carte doit avoir un champ `music` connu de `data/music.json` (le test le vérifie).
+  Écouter les morceaux sans lancer le jeu : `Godot --headless --path . -s
+  tests/_dump_music.gd -- <dossier>` écrit un .wav par morceau.
+- Les voix d'un morceau doivent tomber juste : la durée du morceau est un multiple de la
+  durée de chaque voix (une voix courte se répète).
 
 - Planches de personnages : colonnes 0-2 repos, 3-6 marche, 7-10 attaque, sort, coup reçu,
   KO. Tout dessin doit rester à un pixel au moins des bords de sa case (le test le vérifie).

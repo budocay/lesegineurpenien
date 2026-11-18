@@ -48,6 +48,8 @@ func _ready() -> void:
 	_test_talents()
 	print("== Animations de combat : données ==")
 	_test_animations()
+	print("== Musique ==")
+	_test_music()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -93,7 +95,7 @@ func _walk_dialogue(id: String, nodes: Array) -> void:
 			continue
 		var d: Dictionary = n
 		var known := false
-		for key: String in ["text", "if", "set", "choice", "action", "battle", "give", "join", "take", "money", "shop", "chapter", "banner"]:
+		for key: String in ["text", "if", "set", "choice", "action", "battle", "give", "join", "take", "money", "shop", "chapter", "banner", "music"]:
 			if d.has(key):
 				known = true
 		if d.has("battle"):
@@ -121,6 +123,54 @@ func _walk_dialogue(id: String, nodes: Array) -> void:
 					check(opt is Dictionary and (opt as Dictionary).has("text"), "dialogue %s : choix sans texte" % id)
 					if opt is Dictionary and (opt as Dictionary).get("then") is Array:
 						_walk_dialogue(id, opt["then"])
+
+
+func _music_nodes(node: Variant, found: Array) -> void:
+	if node is Array:
+		for child: Variant in node:
+			_music_nodes(child, found)
+	elif node is Dictionary:
+		if node.has("music"):
+			found.append(str(node["music"]))
+		for key: Variant in node:
+			_music_nodes(node[key], found)
+
+
+func _test_music() -> void:
+	check(Database.music.size() >= 10, "music.json chargé")
+	for id: String in Database.music:
+		var errors: Array = Music.check_track(Database.music[id])
+		check(errors.is_empty(), "musique %s : %s" % [id, ", ".join(PackedStringArray(errors))])
+	for kind: String in ["title", "battle", "victory"]:
+		check(Database.music.has(Music.default(kind)), "musique par défaut : " + kind)
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		check(Database.music.has(str(map.get("music", ""))), "carte %s : musique connue" % id)
+		for s: Variant in map.get("music_states", []):
+			check(s is Dictionary and Database.music.has(str(s.get("music", ""))), "carte %s : musique d'état connue" % id)
+	for id: String in Database.encounters:
+		check(Database.music.has(Music.for_encounter(Database.encounters[id])), "rencontre %s : musique connue" % id)
+	var in_dialogues: Array = []
+	_music_nodes(Database.dialogues, in_dialogues)
+	for id: String in in_dialogues:
+		check(Database.music.has(id), "dialogue : musique %s connue" % id)
+	check(in_dialogues.has("menace"), "le prologue lance sa musique")
+	# un morceau est réellement calculé : il a la bonne durée et il s'entend
+	var track: Dictionary = Database.music[Music.default("victory")]
+	var bytes: PackedByteArray = Music.render(track)
+	var peak := 0
+	for i in range(0, bytes.size() - 1, 200):
+		peak = maxi(peak, absi(bytes.decode_s16(i)))
+	check(bytes.size() > Music.RATE * 2 * 6 and peak > 8000, "musique : la fanfare de victoire s'entend (%d octets, crête %d)" % [bytes.size(), peak])
+	var parsed: Dictionary = Music.parse_voice({"len": 2, "notes": "c4 bb3:4 r f#5+a5"})
+	check(int(parsed["length"]) == 10 and (parsed["events"] as Array).size() == 3, "musique : lecture d'une voix")
+	check(int(parsed["events"][1][2][0]) == 58 and int(parsed["events"][2][2][0]) == 78, "musique : hauteur des notes")
+	GameState.new_game()
+	check(Music.for_map(Database.get_map("bittebourg")) == "village", "Bittebourg : musique du village au début")
+	Music.play("village")
+	check(Music.current == "village", "musique : morceau demandé retenu")
+	Music.play("")
+	print("  %d morceaux" % Database.music.size())
 
 
 func _test_data() -> void:

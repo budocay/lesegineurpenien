@@ -183,6 +183,20 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
   qui comble les trous des chapitres à venir (Bromure, Dame Galadrielle, Barbe-Molle,
   l'Arachnée, le retour à Bittebourg). Ces chapitres ne sont pas encore construits.
 
+**Musique (demande de l'auteur, 18 novembre 2026) : faite.**
+
+- Onze morceaux, tous **fabriqués par le code** à partir de partitions écrites dans
+  `data/music.json` (aucun fichier audio) : écran-titre, Bittebourg, Fête des Amarres,
+  auberge, campagne (Pré Couché, route de Brie), Bois Penché, Roselière, combat, combat
+  de boss, menace (invasion, Naze, prologue), fanfare de victoire.
+- Chaque carte a sa musique (`music`), qui peut changer selon l'histoire
+  (`music_states`) : à Bittebourg, village, puis fête, puis menace à l'arrivée du Naze.
+- Les combats ont la leur (les boss une autre), la victoire sa fanfare, puis la musique
+  du lieu reprend. Fondu enchaîné entre deux morceaux.
+- Un dialogue peut changer la musique : `{"music": "menace"}`.
+- Les morceaux sont calculés en tâche de fond au premier lancement (moins d'une seconde
+  chacun) puis gardés sur le disque.
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -538,6 +552,23 @@ dossier du projet.
 87. **Noms inventés** : Gué des Poireaux, Bromure du Gouda, Lothlorraine, Dame Galadrielle,
     Barbe-Molle, l'Arachnée. À valider par l'auteur.
 
+### Décisions de la musique (18 novembre 2026)
+
+88. **Musique synthétisée par code**, comme les sons. Raison : aucun fichier audio dans le
+    projet, rien à télécharger ni à importer dans l'éditeur, et pas de question de droits.
+    Contrepartie : un son de synthétiseur simple, loin d'un orchestre.
+89. **Partitions dans `data/music.json`**, en notation texte (« c4 e4 g4:8 »). Raison :
+    moteur et contenu séparés ; ajouter un morceau ne demande pas de code.
+90. **Calcul en tâche de fond et copie sur le disque** (`user://musique`). Raison : F5 ne
+    doit pas attendre ; au tout premier lancement la musique arrive une à deux secondes
+    après l'image.
+91. **Pas de calcul sans fenêtre** (tests) : le test vérifie les partitions et calcule un
+    seul morceau. Raison : garder le test rapide.
+92. **Une musique par lieu plutôt que par ambiance lumineuse**, avec des états. Raison :
+    Bittebourg doit changer de musique entre le village, la fête et l'invasion sans
+    changer de carte.
+93. **Pas de réglage du volume** pour l'instant : niveau fixe, sous les sons du jeu.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
@@ -566,7 +597,9 @@ dossier du projet.
   combat qui le couche. La marche de face reste discrète (pieds et bras bougent de deux
   à trois pixels). Glandoulf de dos est une colonne de robe assez raide.
 - En combat les héros se chevauchent quand l'un d'eux passe devant les autres pour frapper.
-- Pas de musique, pas d'options (volume, touches).
+- La musique n'a jamais été écoutée par l'assistant, qui ne peut pas entendre : les
+  partitions sont vérifiées (durées, notes, niveau sonore), pas leur beauté. Le son est
+  celui d'un synthétiseur simple. Pas d'options (volume, touches).
 - Combat : les poses d'attaque, de sort, de coup reçu et de KO sont des mouvements du
   sprite entier (penché, bond, aplatissement), pas des dessins dédiés : les bras ne
   bougent pas, l'arme est un sprite à part. (Depuis le pixel art, un dessin de pose
@@ -620,5 +653,6 @@ dossier du projet.
 3. Essayer les talents en jouant : vérifier que les deux voies de chacun font envie, que
    l'écran se lit bien, et retoucher les chiffres (`data/talents.json`).
 4. Chapitre 2 : Brie, le Poney Flagada, la rencontre d'Aragrogne.
-5. Musique et ambiance sonore, en particulier une musique de combat et une de fête.
+5. Retoucher les musiques que l'auteur n'aimera pas (`data/music.json`), réglage du
+   volume, bruits d'ambiance (rivière, vent, foule de la fête).
 6. Vraies poses dessinées pour les monstres (corps qui bouge, pas seulement le visage).

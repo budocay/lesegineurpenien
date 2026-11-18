@@ -4,6 +4,7 @@
 	"region": "Au nord de Bittebourg",
 	"size": [36, 28],
 	"ambiance": "sous_bois",
+	"music": "bois",
 	"ramollissement": 0.2,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {
