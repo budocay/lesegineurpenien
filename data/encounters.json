@@ -1,5 +1,15 @@
 {
 	"encounters": {
+		"vacherin": {"enemies": ["vacherin"], "arena": "bois", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
+		"chantecler": {"enemies": ["chantecler"], "arena": "pre", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
+		"nazes_nuit": {"enemies": ["naze_aine", "naze_cadet"], "arena": "place", "music": "boss", "flee": false, "ramollissement": 0.3, "intro": "Deux Nazes, côte à côte, dans un couloir trop étroit. L'un frappe, l'autre souffle. Ils ne se sont pas parlé depuis cent ans, mais ils se complètent."},
+		"duel_gaston": {"enemies": ["gaston_grosbras"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 2}, "intro": "Le bras de fer commence. Il va durer, comme tout ce qui se fait mollement.", "hints": ["Ici, tout coup physique porte moins fort, pour les deux camps : il faudra de la patience. Sam peut se défendre pour souffler, ou boire une tisane."]},
+		"duel_veuve": {"enemies": ["veuve_poignet"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 3}, "intro": "La Veuve Poignet serre la main de Sam. Elle ne serre pas fort. Elle serre longtemps."},
+		"vacherin": {"enemies": ["vacherin"], "arena": "bois", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
+		"chantecler": {"enemies": ["chantecler"], "arena": "pre", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
+		"nazes_nuit": {"enemies": ["naze_aine", "naze_cadet"], "arena": "place", "music": "boss", "flee": false, "ramollissement": 0.3, "intro": "Deux Nazes, côte à côte, dans un couloir trop étroit. L'un frappe, l'autre souffle. Ils ne se sont pas parlé depuis cent ans, mais ils se complètent."},
+		"duel_gaston": {"enemies": ["gaston_grosbras"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 2}, "intro": "Le bras de fer commence. Il va durer, comme tout ce qui se fait mollement.", "hints": ["Ici, tout coup physique porte moins fort, pour les deux camps : il faudra de la patience. Sam peut se défendre pour souffler, ou boire une tisane."]},
+		"duel_veuve": {"enemies": ["veuve_poignet"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 3}, "intro": "La Veuve Poignet serre la main de Sam. Elle ne serre pas fort. Elle serre longtemps."},
 		"prologue_sauron": {
 			"enemies": ["sauron_vigueur"],
 			"arena": "grand_four",
@@ -67,6 +77,10 @@
 	},
 
 	"tables": {
+		"caves_brie": {"arena": "bois", "min_distance": 6, "max_distance": 13, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["ver_fromage"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave", "mouche_cave"], "weight": 2}, {"enemies": ["moisi_bleu", "rat_cave"], "weight": 3, "min_party": 3}, {"enemies": ["ver_fromage", "moisi_bleu"], "weight": 2, "min_party": 4}, {"enemies": ["rat_cave", "ver_fromage", "mouche_cave"], "weight": 2, "min_party": 4}]},
+		"ferme_brie": {"arena": "pre", "min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave"], "weight": 3}, {"enemies": ["ver_fromage", "mouche_cave"], "weight": 3}, {"enemies": ["rat_cave", "ver_fromage", "ver_fromage"], "weight": 2, "min_party": 4}, {"enemies": ["moisi_bleu", "mouche_cave", "mouche_cave"], "weight": 2, "min_party": 4}]},
+		"caves_brie": {"arena": "bois", "min_distance": 6, "max_distance": 13, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["ver_fromage"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave", "mouche_cave"], "weight": 2}, {"enemies": ["moisi_bleu", "rat_cave"], "weight": 3, "min_party": 3}, {"enemies": ["ver_fromage", "moisi_bleu"], "weight": 2, "min_party": 4}, {"enemies": ["rat_cave", "ver_fromage", "mouche_cave"], "weight": 2, "min_party": 4}]},
+		"ferme_brie": {"arena": "pre", "min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave"], "weight": 3}, {"enemies": ["ver_fromage", "mouche_cave"], "weight": 3}, {"enemies": ["rat_cave", "ver_fromage", "ver_fromage"], "weight": 2, "min_party": 4}, {"enemies": ["moisi_bleu", "mouche_cave", "mouche_cave"], "weight": 2, "min_party": 4}]},
 		"pre_couche_nord": {
 			"arena": "pre",
 			"min_distance": 7, "max_distance": 15,

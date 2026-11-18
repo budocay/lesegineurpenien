@@ -1,4 +1,14 @@
 {
+	"grignote": {"name": "Grignotage", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 75, "element": "tranchant"}, {"type": "status", "id": "poison", "chance": 0.3, "turns": 3}]},
+	"puanteur": {"name": "Remugle", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.55, "turns": 3}]},
+	"coulee": {"name": "Coulée", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 60, "element": "contondant"}, {"type": "status", "id": "englue", "chance": 0.4, "turns": 3}]},
+	"cocorico": {"name": "Cocorico", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 58, "element": "foudre"}, {"type": "status", "id": "sonne", "chance": 0.2, "turns": 1}]},
+	"poigne_de_fer": {"name": "Poigne de fer", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 125, "element": "contondant"}, {"type": "status", "id": "sonne", "chance": 0.25, "turns": 1}]},
+	"grignote": {"name": "Grignotage", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 75, "element": "tranchant"}, {"type": "status", "id": "poison", "chance": 0.3, "turns": 3}]},
+	"puanteur": {"name": "Remugle", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.55, "turns": 3}]},
+	"coulee": {"name": "Coulée", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 60, "element": "contondant"}, {"type": "status", "id": "englue", "chance": 0.4, "turns": 3}]},
+	"cocorico": {"name": "Cocorico", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 58, "element": "foudre"}, {"type": "status", "id": "sonne", "chance": 0.2, "turns": 1}]},
+	"poigne_de_fer": {"name": "Poigne de fer", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 125, "element": "contondant"}, {"type": "status", "id": "sonne", "chance": 0.25, "turns": 1}]},
 	"etincelle": {
 		"name": "Étincelle", "cost": 3, "target": "enemy",
 		"desc": "Une fusée de poche. Glandoulf en garde toujours une dans la manche.",

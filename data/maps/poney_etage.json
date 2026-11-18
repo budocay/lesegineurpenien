@@ -1,0 +1,175 @@
+{
+	"id": "poney_etage",
+	"name": "L'étage du Poney",
+	"region": "Les chambres, de nuit",
+	"size": [
+		20,
+		10
+	],
+	"interior": true,
+	"wall_height": 3.0,
+	"ambiance": "auberge_nuit",
+	"music": "menace",
+	"camera": {
+		"distance": 19,
+		"pitch": 34,
+		"fov": 24,
+		"dof": 0.09,
+		"bounds": [
+			10,
+			5.2,
+			8,
+			6.0
+		]
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "floor",
+				"rect": [
+					1,
+					2,
+					18,
+					6
+				]
+			}
+		]
+	},
+	"spawns": {
+		"escalier": {
+			"pos": [
+				4.5,
+				5.6
+			],
+			"facing": "right"
+		}
+	},
+	"objects": [
+		{
+			"type": "rug",
+			"rect": [
+				3.0,
+				3.6,
+				14.0,
+				1.8
+			],
+			"color": "#3a2a3c",
+			"border": "#6a5a4a"
+		},
+		{
+			"type": "window",
+			"pos": [
+				5.0,
+				1.56
+			],
+			"height": 1.3,
+			"shadow": false
+		},
+		{
+			"type": "window",
+			"pos": [
+				10.0,
+				1.56
+			],
+			"height": 1.3,
+			"shadow": false
+		},
+		{
+			"type": "window",
+			"pos": [
+				15.0,
+				1.56
+			],
+			"height": 1.3,
+			"shadow": false
+		},
+		{
+			"type": "crate",
+			"pos": [
+				17.8,
+				3.0
+			],
+			"turn": 8
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				17.9,
+				7.1
+			]
+		},
+		{
+			"type": "table",
+			"pos": [
+				8.0,
+				6.9
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				10.0,
+				4.8
+			],
+			"height": 2.5,
+			"color": "#8aa0e0",
+			"energy": 0.9,
+			"range": 11.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				3.0,
+				3.0
+			],
+			"height": 1.8,
+			"color": "#ffb060",
+			"energy": 0.8,
+			"range": 5.0
+		},
+		{
+			"type": "npc",
+			"id": "naze_aine",
+			"pos": [
+				13.6,
+				4.4
+			],
+			"facing": "left",
+			"dialogue": "nazes_attente",
+			"unless": "nazes_vaincu",
+			"reach": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "naze_cadet",
+			"pos": [
+				15.2,
+				5.8
+			],
+			"facing": "left",
+			"dialogue": "nazes_attente",
+			"unless": "nazes_vaincu",
+			"reach": 1.8
+		},
+		{
+			"type": "warp",
+			"rect": [
+				1.2,
+				5.0,
+				1.2,
+				2.2
+			],
+			"to": {
+				"map": "poney_flagada",
+				"spawn": "escalier"
+			}
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "nuit_nazes",
+			"unless": "nazes_vaincu"
+		}
+	]
+}

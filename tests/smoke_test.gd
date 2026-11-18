@@ -51,6 +51,7 @@ func _ready() -> void:
 	print("== Musique ==")
 	_test_music()
 	_test_rendering()
+	_test_chapter_2_data()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -80,6 +81,7 @@ func _ready() -> void:
 	await _test_talent_screen()
 	print("== Déroulé complet ==")
 	await _test_flow()
+	await _test_chapter_2()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -1307,6 +1309,11 @@ func _test_battle_scene() -> void:
 		add_child(s)
 		s.fast = true
 		s.auto = true
+		if id == "nazes_nuit":
+			GameState.add_to_party("aragrogne")
+			for who: String in GameState.party:
+				GameState.member(who)["level"] = 10
+			GameState.heal_party()
 		s.setup(Database.get_encounter(id), ui)
 		s.run()
 		for _i in 6000:
@@ -2055,5 +2062,178 @@ func _test_flow() -> void:
 	check(GameState.quest_state("ramollissement") == "done", "la quête principale du chapitre est accomplie")
 	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre")
 	check(main.world != null and main.world.input_enabled, "le joueur garde la main après la fin du chapitre")
+	main.queue_free()
+	await get_tree().process_frame
+
+
+# ------------------------------------------------------------------ chapitre 2
+
+const TEAM5 := ["glandoulf", "sam", "fripon", "pepine", "aragrogne"]
+
+
+## Taux de victoire d'une rencontre du chapitre 2 (jeu automatique, 40 combats).
+func _c2_rate(ids: Array, level: int, enc: Dictionary, talents: int) -> float:
+	var wins := 0
+	var runs := 40
+	for s in runs:
+		GameState.new_game()
+		GameState.party = []
+		for id: String in ids:
+			GameState.add_to_party(id)
+			GameState.member(id)["level"] = level
+			if talents >= 0:
+				_spend(id, talents)
+		GameState.heal_party()
+		var e := _fight(enc, 100 + s)
+		if str(e.result) == "victory":
+			wins += 1
+	return float(wins) / runs
+
+
+func _test_chapter_2_data() -> void:
+	print("== Chapitre 2 : données et équilibre ==")
+	for id: String in ["brie", "poney_flagada", "poney_etage", "fromagerie", "caves_brie", "ferme_pinard"]:
+		check(Database.get_map(id).has("music") and Database.get_map(id).has("spawns"), "carte %s : musique et points d'arrivée" % id)
+	check(Database.get_item("plume_chantecler").get("firm", false) == true, "la plume de Chantecler rend ferme")
+	check(not Database.get_character("aragrogne").is_empty(), "Aragrogne existe")
+	var cases := [
+		["Nazes, cinq niv. 9, talents A", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.6, 0],
+		["Nazes, cinq niv. 9, sans talents", TEAM5, 9, _soft("nazes_nuit", 0.3), 0.25, -1],
+		["Chantecler, quatre niv. 8", TEAM, 8, _soft("chantecler", 0.2), 0.7, 0],
+		["Vacherin, quatre niv. 8", TEAM, 8, _soft("vacherin", 0.2), 0.7, 0],
+		["Gaston, Sam seul", ["sam"], 9, Database.get_encounter("duel_gaston"), 0.7, -1],
+		["Veuve, Sam seul", ["sam"], 9, Database.get_encounter("duel_veuve"), 0.7, -1],
+		["rats et mouches, quatre niv. 8", TEAM, 8, {"enemies": ["rat_cave", "rat_cave", "mouche_cave"], "ramollissement": 0.2}, 0.9, -1],
+		["moisissure et ver, quatre niv. 8", TEAM, 8, {"enemies": ["ver_fromage", "moisi_bleu", "rat_cave"], "ramollissement": 0.2}, 0.9, -1],
+	]
+	for case: Array in cases:
+		var rate := _c2_rate(case[1], int(case[2]), case[3], int(case[5]))
+		check(rate >= float(case[4]), "%s : %d %% de victoires (attendu : au moins %d %%)" % [str(case[0]), int(rate * 100.0), int(float(case[4]) * 100.0)])
+		print("  %-40s %3d %% de victoires" % [str(case[0]), int(rate * 100.0)])
+	GameState.new_game()
+
+
+## Déroulé du chapitre 2, à la suite du chapitre 1 (la sauvegarde de fin de chapitre 1 existe).
+func _test_chapter_2() -> void:
+	print("== Chapitre 2 : déroulé complet ==")
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	GameState.map_id = "route_brie"
+	GameState.spawn_id = "est"
+	GameState.player_pos = []
+	SaveManager.save_game()
+	main.continue_game()
+	await _wait_idle(main)
+	check(GameState.has_flag("chapitre_1_fini"), "reprise après le chapitre 1")
+	check(main.world.map_id == "route_brie", "la partie reprend sur la route de Brie (%s)" % main.world.map_id)
+	var to_brie := false
+	for wp: Dictionary in main.world.warps:
+		if str(wp["map"]) == "brie":
+			to_brie = true
+	check(to_brie, "la route de Brie mène à Brie une fois le chapitre 1 fini")
+
+	main.change_map("brie", "route")
+	await _wait_idle(main)
+	check(main.world.map_id == "brie" and GameState.has_flag("brie_vue"), "arrivée à Brie")
+	check(GameState.chapter == "chapitre_2" or GameState.quest_state("brie") != "", "la quête de Brie est lancée")
+	for who: String in ["sam", "fripon", "pepine"]:
+		if not GameState.party.has(who):
+			GameState.add_to_party(who)
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 9
+	GameState.heal_party()
+	main.run_dialogue("sidonie")
+	await _wait_idle(main)
+	check(GameState.has_flag("sidonie_vue"), "Sidonie, marchande de la place")
+
+	main.change_map("poney_flagada", "entree")
+	await _wait_idle(main)
+	check(main.world.map_id == "poney_flagada" and GameState.has_flag("poney_vu"), "le Poney Flagada")
+	main.run_dialogue("aragrogne")
+	await _wait_idle(main)
+	check(GameState.party.has("aragrogne") and GameState.has_flag("aragrogne_equipe"), "Aragrogne rejoint l'équipe")
+	GameState.member("aragrogne")["level"] = 9
+	GameState.heal_party()
+
+	# le concours de bras de fer : Sam seul
+	main.run_dialogue("affiche_concours")
+	await _wait_idle(main)
+	check(GameState.has_flag("concours_inscrit"), "inscription au concours")
+	var team_before: Array = GameState.party.duplicate()
+	main.run_dialogue("gaston")
+	await _wait_idle(main, 90.0)
+	check(GameState.has_flag("combat_duel_gaston"), "demi-finale gagnée")
+	main.run_dialogue("veuve")
+	await _wait_idle(main, 90.0)
+	check(GameState.has_flag("concours_gagne") and GameState.item_count("ceinture_champion") == 1, "finale gagnée : la ceinture est dans le sac (%s, %d)" % [str(GameState.has_flag("concours_gagne")), GameState.item_count("ceinture_champion")])
+	check(GameState.party == team_before, "l'équipe est retrouvée après les duels")
+	GameState.heal_party()
+
+	# le poney qui ne se lève pas
+	main.run_dialogue("barnabe")
+	await _wait_idle(main)
+	check(GameState.has_flag("poney_couche_vu"), "le poney couché")
+	GameState.add_item("racine", 1)
+	main.run_dialogue("ecurie")
+	await _wait_idle(main)
+	check(GameState.has_flag("poney_leve") and GameState.quest_state("poney") == "done", "le poney se relève")
+
+	# la cave du fromager
+	main.change_map("fromagerie", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("persille")
+	await _wait_idle(main)
+	check(GameState.has_flag("cave_ouverte"), "la trappe de la cave est ouverte")
+	main.change_map("caves_brie", "trappe")
+	await _wait_idle(main)
+	check(main.world.map_id == "caves_brie" and GameState.has_flag("cave_vue"), "dans la cave (%s, vue %s)" % [main.world.map_id, str(GameState.has_flag("cave_vue"))])
+	main.run_dialogue("vacherin")
+	await _wait_idle(main, 150.0)
+	check(GameState.has_flag("vacherin_vaincu"), "le Vacherin est vaincu")
+	GameState.heal_party()
+	main.change_map("fromagerie", "trappe")
+	await _wait_idle(main)
+	main.run_dialogue("persille")
+	await _wait_idle(main)
+	check(GameState.has_flag("persille_paye") and GameState.quest_state("fromager") == "done", "le fromager est payé")
+
+	# la ferme et Chantecler
+	main.change_map("ferme_pinard", "nord")
+	await _wait_idle(main)
+	check(main.world.map_id == "ferme_pinard" and GameState.has_flag("ferme_vue"), "à la ferme Pinard (%s, vue %s)" % [main.world.map_id, str(GameState.has_flag("ferme_vue"))])
+	main.run_dialogue("chantecler")
+	await _wait_idle(main, 150.0)
+	check(GameState.has_flag("chantecler_vaincu") and GameState.item_count("plume_chantecler") == 1, "Chantecler vaincu, sa plume est dans le sac")
+	GameState.heal_party()
+
+	# la nuit au Poney Flagada
+	main.change_map("poney_flagada", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("barnabe")
+	await _wait_idle(main)
+	check(GameState.has_flag("chambre_prise"), "les chambres sont prises")
+	var stairs := false
+	for wp: Dictionary in main.world.warps:
+		if str(wp["map"]) == "poney_etage":
+			stairs = true
+	check(stairs, "l'escalier mène à l'étage")
+	main.change_map("poney_etage", "escalier")
+	await _wait_idle(main, 240.0)
+	check(GameState.has_flag("nazes_vaincu"), "les deux Nazes sont vaincus")
+	check(main.world != null and main.world.input_enabled, "le joueur a la main après la nuit")
+	main.change_map("poney_flagada", "escalier")
+	await _wait_idle(main)
+	main.run_dialogue("barnabe")
+	await _wait_idle(main)
+	check(GameState.item_count("convocation_elrond") == 1, "la convocation du Conseil est dans le sac")
+	main.change_map("brie", "route")
+	await _wait_idle(main)
+	main.run_dialogue("fin_chapitre_2")
+	await _wait_idle(main)
+	check(GameState.has_flag("chapitre_2_fini") and GameState.chapter == "chapitre_3", "le chapitre 2 se termine (%s)" % GameState.chapter)
+	check(GameState.quest_state("brie") == "done", "la quête principale de Brie est accomplie")
+	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 2")
 	main.queue_free()
 	await get_tree().process_frame

@@ -332,7 +332,7 @@ facultatifs. `ai` est un tirage pondéré entre l'attaque de base et des compét
 Un boss peut changer de tactique quand il faiblit : `"low_at": 0.5` (part des PV, 0,5 par
 défaut) et `"ai_low": [...]`, une seconde liste utilisée sous ce seuil.
 Monstres dessinés disponibles : `limace`, `baveuse`, `guepe`, `frelon`, `champignon`, `amanite`,
-`epouvantail`, `sanglier`, `solitaire`, `grenouille`, `crapaud`, `sangsue`, `follet`
+`epouvantail`, `sanglier`, `solitaire`, `grenouille`, `crapaud`, `sangsue`, `follet`, `rat`, `coq`, `asticot`, `vacherin`, `mouche`, `moisi`
 (la liste exacte est dans `src/gfx/monster_painter.gd`, table `SIZES`).
 
 ### Animations de combat — `data/animations.json`

@@ -1,0 +1,529 @@
+{
+	"id": "ferme_pinard",
+	"name": "La ferme Pinard",
+	"region": "Aux portes de Brie",
+	"size": [
+		44,
+		30
+	],
+	"ambiance": "crepuscule",
+	"music": "campagne",
+	"ramollissement": 0.2,
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "grass",
+		"fills": [
+			{
+				"type": "path",
+				"rect": [
+					21,
+					0,
+					2,
+					26
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					21,
+					24,
+					20,
+					2
+				]
+			},
+			{
+				"type": "soil",
+				"rect": [
+					3,
+					15,
+					16,
+					9
+				]
+			},
+			{
+				"type": "soil",
+				"rect": [
+					24,
+					14,
+					14,
+					8
+				]
+			},
+			{
+				"type": "path",
+				"rect": [
+					8,
+					10,
+					1,
+					4
+				]
+			}
+		]
+	},
+	"spawns": {
+		"nord": {
+			"pos": [
+				22.0,
+				2.6
+			],
+			"facing": "down"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "arrivee_ferme",
+			"unless": "ferme_vue"
+		}
+	],
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				20.5,
+				0,
+				3,
+				0.7
+			],
+			"to": {
+				"map": "brie",
+				"spawn": "sud"
+			}
+		},
+		{
+			"type": "house",
+			"rect": [
+				4,
+				5,
+				8,
+				5
+			],
+			"roof": "chaume",
+			"door": 4,
+			"windows": [
+				1.2,
+				6.2
+			],
+			"door_color": "#8a5a3a",
+			"lit": false,
+			"dialogue": "porte_ferme"
+		},
+		{
+			"type": "house",
+			"rect": [
+				30,
+				4,
+				9,
+				6
+			],
+			"height": 3.0,
+			"roof_height": 2.4,
+			"roof": "ardoise",
+			"door": 4.5,
+			"windows": [
+				1.4,
+				7.0
+			],
+			"door_color": "#5a3a2a",
+			"dialogue": "porte_grange"
+		},
+		{
+			"type": "npc",
+			"id": "pinard",
+			"pos": [
+				17.5,
+				11.4
+			],
+			"facing": "right",
+			"reach": 1.8
+		},
+		{
+			"type": "rock",
+			"pos": [
+				20.0,
+				13.6
+			],
+			"variant": 0,
+			"dialogue": "traces_ferme",
+			"label": "Examiner les traces",
+			"reach": 1.8
+		},
+		{
+			"type": "bush",
+			"pos": [
+				25.4,
+				12.4
+			],
+			"variant": 1,
+			"dialogue": "plume_ferme",
+			"label": "Examiner",
+			"reach": 1.8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				12.4,
+				13.2
+			],
+			"turn": 10,
+			"dialogue": "poulailler",
+			"label": "Regarder le poulailler",
+			"reach": 1.8
+		},
+		{
+			"type": "fence",
+			"points": [
+				[
+					13.5,
+					12.2
+				],
+				[
+					13.5,
+					14.6
+				],
+				[
+					10.4,
+					14.6
+				]
+			],
+			"lean": 12
+		},
+		{
+			"type": "fence",
+			"points": [
+				[
+					39.0,
+					22.2
+				],
+				[
+					39.0,
+					26.8
+				],
+				[
+					23.5,
+					26.8
+				]
+			],
+			"lean": 8
+		},
+		{
+			"type": "fence",
+			"points": [
+				[
+					1.5,
+					12.0
+				],
+				[
+					1.5,
+					24.5
+				]
+			],
+			"lean": 10
+		},
+		{
+			"type": "monster",
+			"id": "chantecler",
+			"pos": [
+				37.2,
+				24.9
+			],
+			"solid": 1.0,
+			"reach": 2.8,
+			"dialogue": "chantecler",
+			"label": "Approcher",
+			"unless": "chantecler_vaincu"
+		},
+		{
+			"type": "crate",
+			"pos": [
+				39.6,
+				25.8
+			],
+			"turn": 14
+		},
+		{
+			"type": "crate",
+			"pos": [
+				39.8,
+				24.2
+			],
+			"turn": -9
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				31.0,
+				10.8
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				37.6,
+				10.9
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				14.0,
+				10.8
+			],
+			"turn": 6
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				20,
+				3.5
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				24,
+				10
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				20,
+				22
+			],
+			"shadow": false
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				34.4,
+				10.6
+			]
+		},
+		{
+			"type": "lantern",
+			"pos": [
+				8,
+				10.8
+			],
+			"shadow": false
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				3,
+				15,
+				16,
+				9
+			],
+			"table": "ferme_brie"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				24,
+				14,
+				14,
+				8
+			],
+			"table": "ferme_brie"
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				0,
+				44,
+				3.4
+			],
+			"count": 30,
+			"min_dist": 1.6,
+			"seed": 31,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				26,
+				44,
+				4
+			],
+			"count": 20,
+			"min_dist": 1.8,
+			"seed": 32,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				40,
+				3,
+				4,
+				25
+			],
+			"count": 12,
+			"min_dist": 1.8,
+			"seed": 33,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "tree",
+			"rect": [
+				0,
+				3,
+				3,
+				25
+			],
+			"count": 8,
+			"min_dist": 1.8,
+			"seed": 34,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "bush",
+			"rect": [
+				0,
+				3,
+				44,
+				26
+			],
+			"count": 16,
+			"min_dist": 2.2,
+			"seed": 35,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				0,
+				3,
+				44,
+				26
+			],
+			"count": 4,
+			"min_dist": 4.0,
+			"seed": 36,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "flowers",
+			"rect": [
+				0,
+				3,
+				44,
+				26
+			],
+			"count": 34,
+			"min_dist": 0.9,
+			"seed": 37,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "grass",
+			"rect": [
+				0,
+				3,
+				44,
+				26
+			],
+			"count": 100,
+			"min_dist": 0.55,
+			"seed": 38,
+			"on": [
+				"grass"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "wheat",
+			"rect": [
+				3,
+				15,
+				16,
+				9
+			],
+			"count": 110,
+			"min_dist": 0.6,
+			"seed": 39,
+			"on": [
+				"soil"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "wilted",
+			"rect": [
+				3,
+				15,
+				16,
+				9
+			],
+			"count": 16,
+			"min_dist": 0.8,
+			"seed": 40,
+			"on": [
+				"soil"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "wheat",
+			"rect": [
+				24,
+				14,
+				14,
+				8
+			],
+			"count": 80,
+			"min_dist": 0.6,
+			"seed": 41,
+			"on": [
+				"soil"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "wilted",
+			"rect": [
+				24,
+				14,
+				14,
+				8
+			],
+			"count": 14,
+			"min_dist": 0.8,
+			"seed": 42,
+			"on": [
+				"soil"
+			]
+		}
+	]
+}
