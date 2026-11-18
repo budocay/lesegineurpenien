@@ -27,7 +27,7 @@ const GROUND := {
 	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
 	# style nain (voir docs/FORMAT_DONNEES.md)
 	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
-	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true}, "nain_roche_humide": {"hard": true}, "nain_galets": {"hard": true},
+	"nain_pont": {"hard": true}, "nain_marbre": {"hard": true}, "nain_pate": {"hard": true}, "nain_roche_humide": {"hard": true, "puddles": true}, "nain_galets": {"hard": true},
 	"nain_abime": {"hard": true, "solid": true}, "nain_neige": {}, "nain_sentier": {},
 	# styles du chapitre 5 : cavalier, fongorn, isengarde, chutes (voir docs/FORMAT_DONNEES.md)
 	"cav_herbe": {}, "cav_chemin": {}, "cav_planches": {"hard": true}, "cav_botte_sol": {},
@@ -464,7 +464,58 @@ func _paint_ground() -> ImageTexture:
 						elif use == "grass" and (_cell_at_pixel(wx, wy + 2.0) != "grass" or _cell_at_pixel(wx + 2.0, wy) != "grass"):
 							c = PA.shade(c, -0.14)
 					img.set_pixel(gx, gy, c)
+	_scatter_puddles(img)
 	return PA.texture(img)
+
+
+## Flaques semées sur les sols qui portent le flag `puddles` (roche mouillée des lacs souterrains). Positions,
+## tailles et formes viennent d'un bruit lent et d'un tirage par case de 13 pixels, jamais d'une grille :
+## des amas de flaques, de grands vides, quelques longues flaques plates. Chaque flaque tient entièrement sur
+## des cases à flaques (quatre points de son contour sont vérifiés).
+func _scatter_puddles(img: Image) -> void:
+	var any := false
+	for t: String in cells:
+		if _flag(t, "puddles"):
+			any = true
+			break
+	if not any:
+		return
+	var hp := preload("res://src/gfx/house_painter.gd")
+	# mouillé par grandes plaques : la roche s'assombrit ou s'éclaircit lentement, ce qui casse le
+	# motif de la tuile (répété toutes les deux cases) sans trait net
+	var nm: PackedFloat32Array = hp.noise_map(w * PPU, h * PPU, 927, 38.0)
+	var nm2: PackedFloat32Array = hp.noise_map(w * PPU, h * PPU, 928, 11.0)
+	for y in h * PPU:
+		for x in w * PPU:
+			if _flag(_cell_at_pixel(float(x), float(y)), "puddles"):
+				var k := (nm[y * w * PPU + x] - 0.5) * 0.34 + (nm2[y * w * PPU + x] - 0.5) * 0.12
+				img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), k))
+	var cs := 13
+	for gy in range(0, h * PPU, cs):
+		for gx in range(0, w * PPU, cs):
+			var ix := gx / cs
+			var iy := gy / cs
+			var zone := hp.vnoise(float(gx), float(gy), 931, 90.0)
+			var zone2 := hp.vnoise(float(gx), float(gy), 932, 34.0)
+			var p := clampf((zone - 0.38) * 1.7, 0.0, 0.7) * (0.35 + zone2)
+			if PA.rnd(ix, iy, 933) >= p:
+				continue
+			var cx := float(gx) + PA.rnd(ix, iy, 934) * float(cs)
+			var cy := float(gy) + PA.rnd(ix, iy, 935) * float(cs)
+			var big := PA.rnd(ix, iy, 936)
+			var rx := 3.0 + 11.0 * big * big * big + zone2 * 2.0
+			var ry := rx * (0.32 + 0.3 * PA.rnd(ix, iy, 937))
+			var ok := true
+			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry), Vector2(0, 0)]:
+				if not _flag(_cell_at_pixel(cx + q.x - 1.0, cy + q.y - 1.0), "puddles") or not _flag(_cell_at_pixel(cx + q.x + 1.0, cy + q.y + 1.0), "puddles"):
+					ok = false
+			if not ok:
+				continue
+			PA.ellipse(img, cx, cy, rx, ry, Color("#1c2c46"))
+			PA.ellipse(img, cx - 0.5, cy - 0.7, rx * 0.82, ry * 0.7, Color("#2a4a6e"))
+			if rx > 5.5:
+				PA.ellipse(img, cx - 0.5, cy - 1.0, rx * 0.74, ry * 0.42, Color("#3e6a92"))
+				PA.ellipse(img, cx - rx * 0.3, cy - ry * 0.4, rx * 0.26, 0.9, Color("#a8d4f4"))
 
 
 func _build_ground() -> void:
