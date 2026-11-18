@@ -267,7 +267,7 @@
 	],
 	"panneau_galeries": [
 		{
-			"text": "Un panneau de bois noirci, peint à la main : « → GRANDE SALLE DES FORGES. ↓ CAMP DES GOBELINS (NE PAS SE PENCHER). » La seconde flèche a été rajoutée à la craie, par quelqu'un de très pressé."
+			"text": "Un panneau de bois noirci, peint à la main : « → GRANDE SALLE DES FORGES. ↓ CAMP DES GOBELARDONS (NE PAS SE PENCHER). » La seconde flèche a été rajoutée à la craie, par quelqu'un de très pressé."
 		}
 	],
 	"squelette_galeries": [
@@ -353,7 +353,7 @@
 			],
 			"else": [
 				{
-					"text": "Le coffre du camp des gobelins. Il sent la graisse, le fumet de cuisine et, très fort, le vol."
+					"text": "Le coffre du camp des Gobelardons. Il sent la graisse, le fumet de cuisine et, très fort, le vol."
 				},
 				{
 					"give": "meule_morbier"
@@ -373,7 +373,7 @@
 	],
 	"camp_gobelins": [
 		{
-			"text": "Un Gobe-Gras surveille un chaudron où mijote quelque chose qui a, de loin, l'allure d'un ragoût. De près, il a l'allure d'un ragoût qui vous regarde."
+			"text": "Un Gros Gobelardon surveille un chaudron où mijote quelque chose qui a, de loin, l'allure d'un ragoût. De près, il a l'allure d'un ragoût qui vous regarde."
 		},
 		{
 			"text": "« On goûte ! On goûte ! » crie le contremaître, qui n'a de la cuisine que le vocabulaire."
@@ -393,7 +393,7 @@
 			"if": "combat_gobelins_du_camp",
 			"then": [
 				{
-					"text": "Le Gobe-Gras renverse son chaudron en battant en retraite. Le ragoût s'enfuit de son côté, ce qui est plus sage."
+					"text": "Le Gros Gobelardon renverse son chaudron en battant en retraite. Le ragoût s'enfuit de son côté, ce qui est plus sage."
 				},
 				{
 					"set": "camp_vaincu"
@@ -471,7 +471,7 @@
 							"action": "rest"
 						},
 						{
-							"text": "L'équipe s'étend près des braises. Personne ne rêve de gobelins. C'est la preuve que l'endroit est sûr, ou que l'on est très fatigué."
+							"text": "L'équipe s'étend près des braises. Personne ne rêve de Gobelardons. C'est la preuve que l'endroit est sûr, ou que l'on est très fatigué."
 						},
 						{
 							"action": "save"
@@ -527,7 +527,7 @@
 				},
 				{
 					"who": "rondin",
-					"text": "Rondin Piochard, forgeron, puis marchand, puis seul. Les gobelins ont pris la galerie du bas, la clientèle a pris la route de l'est, et moi j'ai pris mon temps."
+					"text": "Rondin Piochard, forgeron, puis marchand, puis seul. Les Gobelardons ont pris la galerie du bas, la clientèle a pris la route de l'est, et moi j'ai pris mon temps."
 				},
 				{
 					"who": "grimli",
@@ -595,7 +595,7 @@
 											"else": [
 												{
 													"who": "rondin",
-													"text": "J'ai perdu ma pioche en fuyant les gobelins. Je ne la réclame pas : je la regarde dans le vide, à l'endroit où elle manque."
+													"text": "J'ai perdu ma pioche en fuyant les Gobelardons. Je ne la réclame pas : je la regarde dans le vide, à l'endroit où elle manque."
 												},
 												{
 													"who": "rondin",
@@ -644,13 +644,13 @@
 											"then": [
 												{
 													"who": "rondin",
-													"text": "Les gobelins gardent la meule dans le coffre de leur camp, côté sud. Ils ne la mangent pas. Ils la regardent, et ça me rend fou."
+													"text": "Les Gobelardons gardent la meule dans le coffre de leur camp, côté sud. Ils ne la mangent pas. Ils la regardent, et ça me rend fou."
 												}
 											],
 											"else": [
 												{
 													"who": "rondin",
-													"text": "Je n'ai plus goûté de morbier depuis l'arrivée des gobelins. Ils en ont une meule, là-bas, dans leur camp."
+													"text": "Je n'ai plus goûté de morbier depuis l'arrivée des Gobelardons. Ils en ont une meule, là-bas, dans leur camp."
 												},
 												{
 													"who": "rondin",
@@ -1411,6 +1411,14 @@
 		{
 			"who": "merri",
 			"text": "C'est ce qu'on dit aux gens qui l'ont lâchée."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Et Bromure ? Il tenait le bout du pont, de l'autre côté. Je ne l'ai pas vu sortir."
+		},
+		{
+			"who": "sam",
+			"text": "Il tient. C'est ce qu'il sait faire. Il trouvera bien une porte, ou elle le trouvera."
 		},
 		{
 			"who": "sam",

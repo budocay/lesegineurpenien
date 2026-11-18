@@ -70,7 +70,7 @@
 		},
 		"gardien_archives": {"enemies": ["gardien_archives", "parchemin_vivant", "parchemin_vivant"], "arena": "archives", "music": "boss", "flee": false, "intro": "Le Gardien des Archives referme son registre. Les rayonnages, autour, se redressent pour mieux écouter."},
 		"guetteur_du_lac": {"enemies": ["guetteur_lac", "tentacule_lac", "tentacule_lac"], "arena": "bord_du_lac", "music": "boss", "flee": false, "intro": "L'eau se creuse devant la porte. Quelque chose, dessous, a entendu qu'on avait la réponse."},
-		"gobelins_du_camp": {"enemies": ["gobe_gras", "gobe_gras", "gobe_pic", "gobe_pic"], "arena": "galerie_mine", "music": "boss", "flee": false, "intro": "Le Gobe-Gras repose sa louche. On n'interrompt pas un contremaître qui goûte."},
+		"gobelins_du_camp": {"enemies": ["gobe_gras", "gobe_gras", "gobe_pic", "gobe_pic"], "arena": "galerie_mine", "music": "boss", "flee": false, "intro": "Le Gros Gobelardon repose sa louche. On n'interrompt pas un contremaître qui goûte."},
 		"gros_bleu": {"enemies": ["gros_bleu", "gobe_lard", "gobe_lard"], "arena": "halle_piliers", "music": "boss", "flee": false, "intro": "Le Gros Bleu se détache de la paroi. Il avait la couleur du mur, ce qui expliquait la moisissure."},
 		"goulum": {"enemies": ["goulum"], "arena": "bord_du_lac", "music": "boss", "flee": false, "intro": "Goulûm lâche son poisson. C'est mauvais signe : il n'a jamais rien lâché."},
 		"balourd": {"enemies": ["balourd"], "arena": "pont_abime", "music": "morbier_pont", "flee": false, "intro": "Le Balourd se redresse, et le plafond change d'avis sur sa hauteur."},

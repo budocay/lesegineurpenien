@@ -35,7 +35,7 @@
 	],
 	"panneau_archives_2": [
 		{
-			"text": "« RAYON INTERDIT : tout ce qui est au fond. Rayon réservé : le reste. Rayon facultatif : celui-ci. »"
+			"text": "« RAYON INTERDIT : tout ce qui est au fond. Rayon réservé : le reste. Rayon facultatif : celui-ci. Rayon des anneaux, bagues et alliances : tout en haut, sur la pointe des pieds. »"
 		}
 	],
 	"coffre_archives_1": [
@@ -170,7 +170,7 @@
 				},
 				{
 					"who": "gardien_archives",
-					"text": "Prenez-le. Le procès-verbal d'origine de l'Alliance du Dernier Gouda. Je le garde depuis trois mille ans. Je n'ai jamais osé le relire."
+					"text": "Prenez-le. Le procès-verbal d'origine de l'Alliance du Dernier Gouda. Je le garde depuis trois cents ans. Je n'ai jamais osé le relire."
 				},
 				{
 					"give": "proces_verbal"
