@@ -5235,7 +5235,7 @@ func _test_tutorials() -> void:
 	var sources := ""
 	for f: String in ["res://src/main.gd", "res://src/core/game_state.gd", "res://src/battle/battle_scene.gd", "res://src/core/tutorial.gd"]:
 		sources += FileAccess.get_file_as_string(f)
-	var known_actions := ["move", "interact", "cancel", "menu", "elan", "choose"]
+	var known_actions := ["move", "interact", "cancel", "menu", "journal", "elan", "choose"]
 	for tip: Dictionary in Tutorial.tips:
 		var id := str(tip["id"])
 		check(TUTORIAL_EVENTS.has(str(tip.get("trigger", ""))), "conseil %s : déclencheur connu (%s)" % [id, str(tip.get("trigger", ""))])
@@ -5259,6 +5259,32 @@ func _test_tutorials() -> void:
 			for r: Dictionary in view["rows"]:
 				check(not (r["caps"] as Array).is_empty() and not (r["caps"] as Array).has(""), "conseil %s : pictogrammes présents (%s)" % [id, "manette" if pad_mode else "clavier"])
 	Tutorial.pad = false
+	# touche du journal : clavier et manette, repère de quête réglable, cibles de quêtes valides
+	var jkey := false
+	var jpad := false
+	for ev: InputEvent in InputMap.action_get_events("journal"):
+		jkey = jkey or ev is InputEventKey
+		jpad = jpad or ev is InputEventJoypadButton
+	check(InputMap.has_action("journal") and jkey and jpad, "journal : une touche directe au clavier et à la manette")
+	var QT: GDScript = load("res://src/core/quest_target.gd")
+	var n_targets := 0
+	var bad_targets: Array = []
+	for qid: String in Database.quests:
+		var steps: Array = Database.get_quest(qid).get("steps", [])
+		for si in steps.size():
+			for tg: Dictionary in QT.targets_of_step(qid, si):
+				n_targets += 1
+				var prob: String = QT.problem(tg)
+				if prob != "":
+					bad_targets.append("%s/%d : %s" % [qid, si, prob])
+	check(n_targets >= 40 and bad_targets.is_empty(), "quêtes : %d cibles, toutes valides %s" % [n_targets, str(bad_targets)])
+	var has_repere := false
+	for row: Dictionary in Settings.ROWS:
+		has_repere = has_repere or str(row.get("id", "")) == "repere"
+	check(has_repere and Settings.DEFAULTS.has("repere"), "paramètres : « Repère de quête » réglable")
+	for pid: String in ["glandoulf", "sam", "froton", "pepin", "merri", "aragrogne", "digoulasse", "grimli"]:
+		var pt: Texture2D = Sprites.portrait(pid)
+		check(pt != null and pt.get_width() == pt.get_height(), "portrait de %s : carré, jamais étiré" % pid)
 	check(Tutorial.caps_for("interact").size() >= 1 and Tutorial.caps_for("move").has("Flèches"), "conseils : touches lues dans les réglages de contrôles")
 	check(Tutorial.when_ok("elan & turn>=2", {"elan": true, "turn": 2}) and not Tutorial.when_ok("elan & turn>=2", {"elan": true, "turn": 1}) and not Tutorial.when_ok("boss", {}), "conseils : conditions « when »")
 

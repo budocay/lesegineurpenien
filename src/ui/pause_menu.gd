@@ -23,7 +23,7 @@ var _opened_at := 0
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "Pause", Vector2(900, 0), 0.55)
+	var frame := UI.screen(self, "Pause")
 	_panel = frame["panel"]
 	var body: VBoxContainer = frame["body"]
 	var row := HBoxContainer.new()

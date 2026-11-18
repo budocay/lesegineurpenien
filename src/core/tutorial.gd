@@ -15,6 +15,7 @@ extends Node
 
 const TipPanel = preload("res://src/ui/tutorial_panel.gd")
 const HelpScreen = preload("res://src/ui/help_screen.gd")
+const BattleUI = preload("res://src/battle/battle_ui.gd")   # lecture seule : places libres de l'écran de combat
 const FILE := "res://data/tutorials.json"
 const NOTE_SECONDS := 8.0       # durée d'un conseil de passage (plus la lecture)
 const NOTE_GAP := 0.8           # pause entre deux conseils de passage
@@ -333,9 +334,25 @@ func _place(modal: bool) -> void:
 	var view := get_viewport().get_visible_rect().size
 	_panel.size = _panel.get_combined_minimum_size()
 	if modal:
-		_panel.position = Vector2((view.x - _panel.size.x) * 0.5, view.y * 0.19).round()   # sous la frise, au-dessus des combattants
+		_panel.position = _battle_spot(view)
 	else:
 		_panel.position = (view - _panel.size - Vector2(26.0, 26.0)).round()
+
+
+## Place d'un conseil de combat : la plus proche du haut de l'écran, sous la frise, parmi celles qui
+## ne couvrent ni combattant, ni plaque, ni fiche d'équipe, ni frise (BattleUI.free_spot). Hors
+## combat (boutique), sous la frise, au centre.
+func _battle_spot(view: Vector2) -> Vector2:
+	var prefer := Vector2((view.x - _panel.size.x) * 0.5, BattleUI.TOP_BAND_H + 4.0)
+	var ui: Variant = host.get("battle_ui") if host != null and is_instance_valid(host) else null
+	if host == null or host.get("battle") == null or ui == null or not (ui as Object).has_method("_obstacles"):
+		return Vector2(prefer.x, view.y * 0.19).round()
+	var obstacles: Array[Rect2] = []
+	for o: Rect2 in (ui as Object).call("_obstacles", view):
+		if not (o.position == Vector2.ZERO and o.size.x >= view.x - 1.0):   # les bandes pleine largeur (haut, bas) : remplacées ci-dessous
+			obstacles.append(o)
+	obstacles.append(BattleUI.top_band(view))
+	return BattleUI.free_spot(_panel.size, prefer, obstacles, view).round()
 
 
 func _input(event: InputEvent) -> void:
@@ -381,7 +398,7 @@ func resolve(tip: Dictionary) -> Dictionary:
 ## Remplace {interact}, {menu}... par le nom de la touche (clavier ou manette).
 func expand(text: String) -> String:
 	var out := text
-	for name: String in ["move", "interact", "cancel", "menu", "elan", "choose"]:
+	for name: String in ["move", "interact", "cancel", "menu", "journal", "elan", "choose"]:
 		if out.contains("{" + name + "}"):
 			var caps := caps_for(name)
 			out = out.replace("{" + name + "}", str(caps[0]) if not caps.is_empty() else name)

@@ -31,12 +31,13 @@ var _last_focus: Control = null
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "Charger", Vector2(980, 0), 0.82)
+	var frame := UI.screen(self, "Charger")
 	_panel = frame["panel"]
 	_title = frame["title"]
 	var body: VBoxContainer = frame["body"]
 	_scroll = ScrollContainer.new()
-	_scroll.custom_minimum_size = Vector2(920, 430)
+	_scroll.custom_minimum_size = Vector2(0, 430)
+	UI.style_scroll(_scroll)
 	_scroll.follow_focus = true
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	body.add_child(_scroll)

@@ -15,8 +15,8 @@
 		{
 			"id": "journal", "trigger": "quest_started", "who": "glandoulf",
 			"title": "Le journal de quêtes",
-			"text": "Une quête : voilà qui est fâcheux. J'ai tout noté pour n'avoir pas à m'en souvenir. L'étape en cours reste affichée en haut à gauche ; le détail est dans le menu, à la ligne « Quêtes ».",
-			"keys": [["menu", "ouvrir le menu"]]
+			"text": "Une quête : voilà qui est fâcheux. J'ai tout noté pour n'avoir pas à m'en souvenir. L'étape en cours reste affichée en haut à gauche ; le détail est dans le journal, que {journal} ouvre à tout moment (ou le menu, ligne « Quêtes »).",
+			"keys": [["journal", "ouvrir le journal"], ["menu", "ouvrir le menu"]]
 		},
 		{
 			"id": "equipement", "trigger": "equip_item", "who": ["sam", "glandoulf"],

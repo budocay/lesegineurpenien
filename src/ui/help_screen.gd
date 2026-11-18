@@ -22,14 +22,15 @@ var _remember := ""
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "Aide", Vector2(980, 0), 0.82)
+	var frame := UI.screen(self, "Aide")
 	_panel = frame["panel"]
 	var body: VBoxContainer = frame["body"]
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 26)
 	body.add_child(row)
 	_scroll = ScrollContainer.new()
-	_scroll.custom_minimum_size = Vector2(380, 360)
+	_scroll.custom_minimum_size = Vector2(380, 430)
+	UI.style_scroll(_scroll)
 	_scroll.follow_focus = true
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	row.add_child(_scroll)

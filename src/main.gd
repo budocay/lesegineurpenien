@@ -515,6 +515,17 @@ func _unhandled_input(event: InputEvent) -> void:
 	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and not settings_screen.visible and not Tutorial.help_open() and event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		_open_pause()
+	elif mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and not settings_screen.visible and not Tutorial.help_open() and event.is_action_pressed("journal"):
+		get_viewport().set_input_as_handled()
+		_open_journal()
+
+
+## Touche « journal » : le journal de quêtes s'ouvre directement, et rend la main au jeu en se fermant.
+func _open_journal() -> void:
+	world.set_input(false)
+	hud.hide_prompt()
+	_menus_from = "journal"
+	menus.open("quests")
 
 
 func _open_pause() -> void:
@@ -571,6 +582,8 @@ func _on_menus_closed() -> void:
 		dialogue.resume()
 	elif from == "pause" and mode == Mode.PLAY and world != null and not busy:
 		_open_pause()
+	elif from == "journal" and mode == Mode.PLAY and world != null and not busy and not dialogue.active:
+		world.set_input(true)
 
 
 func _on_quest_started(id: String) -> void:

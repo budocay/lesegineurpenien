@@ -31,7 +31,7 @@ var _opened_at := 0
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "Talents", Vector2(1120, 0), 0.9)
+	var frame := UI.screen(self, "Talents")
 	_panel = frame["panel"]
 	_points = frame["right"]
 	_points.add_theme_color_override("font_color", OPEN)
@@ -55,7 +55,7 @@ func _ready() -> void:
 	body.add_child(side)
 	_detail = UI.label("", 18, UI.INK)
 	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail.custom_minimum_size = Vector2(340, 250)
+	_detail.custom_minimum_size = Vector2(330, 250)
 	_detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_detail.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var side_box := VBoxContainer.new()
@@ -64,7 +64,7 @@ func _ready() -> void:
 	side_box.add_child(_detail)
 	_status = UI.label("", 18, OPEN, true)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.custom_minimum_size = Vector2(340, 56)
+	_status.custom_minimum_size = Vector2(330, 56)
 	side_box.add_child(_status)
 
 	var footer := HBoxContainer.new()
@@ -146,7 +146,8 @@ func _build_tabs() -> void:
 		if Rules.branches(member_id).is_empty():
 			continue
 		var b := UI.menu_button("", 19)
-		b.custom_minimum_size = Vector2(250, 58)
+		b.custom_minimum_size = Vector2(0, 58)
+		b.clip_text = true
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.icon = Sprites.portrait(member_id)
 		b.expand_icon = true
@@ -165,9 +166,9 @@ func _refresh_tabs() -> void:
 	for member_id: String in _tab_buttons:
 		var b: Button = _tab_buttons[member_id]
 		var points := GameState.talent_points(member_id)
-		var text := "%s\nNiveau %d" % [Database.get_character_name(member_id), int(GameState.member(member_id)["level"])]
+		var text := "%s\nNv %d" % [Database.get_character_name(member_id).get_slice(" ", 0), int(GameState.member(member_id)["level"])]
 		if points > 0:
-			text += "   ·   %s" % _pts(points)
+			text += "  ·  %d pt%s" % [points, "s" if points > 1 else ""]
 		b.text = text
 		var chosen := member_id == who
 		var style := StyleBoxFlat.new()
@@ -263,7 +264,7 @@ func _rebuild() -> void:
 		head.add_child(UI.label("%d / %d" % [known, talents.size()], 18, UI.GOLD if known > 0 else UI.INK_DIM))
 		var desc := UI.label(str(b.get("desc", "")), 15, UI.INK_DIM, false, true)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.custom_minimum_size = Vector2(320, 70)
+		desc.custom_minimum_size = Vector2(286, 70)
 		desc.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 		v.add_child(desc)
 		var buttons: Array = []
@@ -282,7 +283,7 @@ func _rebuild() -> void:
 			node.text = str(t.get("name", ""))
 			node.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			node.focus_mode = Control.FOCUS_ALL
-			node.custom_minimum_size = Vector2(320, 0)
+			node.custom_minimum_size = Vector2(286, 0)
 			node.add_theme_font_override("font", UI.font(state == "learned"))
 			node.add_theme_font_size_override("font_size", 20)
 			var ink := UI.INK if state in ["learned", "available"] else UI.INK_DIM

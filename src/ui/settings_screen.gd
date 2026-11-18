@@ -24,12 +24,13 @@ var _remember: Control = null
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var frame := UI.screen(self, "Paramètres", Vector2(980, 0), 0.82)
+	var frame := UI.screen(self, "Paramètres")
 	_panel = frame["panel"]
 	_panel.add_theme_stylebox_override("panel", UI.soft_style(0.97, 26))   # presque opaque : l'écran dessous ne doit pas transparaître
 	var body: VBoxContainer = frame["body"]
 	_scroll = ScrollContainer.new()
-	_scroll.custom_minimum_size = Vector2(920, 380)
+	_scroll.custom_minimum_size = Vector2(0, 380)
+	UI.style_scroll(_scroll)
 	_scroll.follow_focus = true
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	body.add_child(_scroll)
@@ -39,7 +40,7 @@ func _ready() -> void:
 	_scroll.add_child(_list)
 	_help = UI.label("", 17, UI.INK_DIM, false, true)
 	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_help.custom_minimum_size = Vector2(920, 48)
+	_help.custom_minimum_size = Vector2(0, 48)
 	body.add_child(_help)
 	(frame["foot"] as HBoxContainer).add_child(UI.hints([["Haut / bas", "ligne"], ["Gauche / droite", "valeur"], ["Entrée", "changer"], ["Échap", "retour"]]))
 	_build()
