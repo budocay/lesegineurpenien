@@ -303,9 +303,11 @@ static func _abyss() -> Image:
 static func _snow() -> Image:
 	var img := PA.new_image(T, T)
 	img.fill(Color("#e4ecf8"))
-	TP._blotches(img, 841, 9, SN, 6.0, 12.0)
-	TP._blotches(img, 842, 8, Color("#d2deef"), 5.0, 10.0)
-	TP._blotches(img, 843, 4, SN_S, 3.0, 6.0)
+	# grandes ondulations douces, peu contrastées (de petites taches rapprochées dessinaient des « pattes »
+	# répétées toutes les deux cases) ; le relief vient du semis de plaques teintées de la carte
+	TP._blotches(img, 841, 7, SN, 8.0, 15.0)
+	TP._blotches(img, 842, 6, Color("#dde7f4"), 7.0, 13.0)
+	TP._blotches(img, 843, 3, Color("#d2deef"), 6.0, 10.0)
 	_specks_in(img, 844, 40, Color("#ffffff"))
 	_specks_in(img, 845, 26, Color("#c0cfe6"))
 	for i in 5:
@@ -319,9 +321,14 @@ static func _snow() -> Image:
 static func _trodden() -> Image:
 	var img := PA.new_image(T, T)
 	img.fill(Color("#b4adab"))
-	TP._blotches(img, 851, 12, Color("#a29b9b"), 4.0, 8.0)
-	TP._blotches(img, 852, 9, Color("#c9c3c2"), 3.0, 7.0)
-	TP._blotches(img, 853, 5, Color("#e2e8f2"), 3.0, 6.0)
+	# pas de taches rondes (elles dessinaient une grille de ronds) : grain fin, la plaque de teinte vient de la carte
+	for y in T:
+		for x in T:
+			var g := PA.rnd(x, y, 851)
+			if g < 0.22:
+				img.set_pixel(x, y, Color("#a8a1a1"))
+			elif g > 0.82:
+				img.set_pixel(x, y, Color("#c2bcbb"))
 	_specks_in(img, 854, 60, Color("#8a8386"))
 	_specks_in(img, 855, 30, Color("#f0f4fa"))
 	return img

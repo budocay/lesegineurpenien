@@ -37,6 +37,17 @@ const GROUND := {
 	"chu_roche": {"hard": true}, "chu_gravier": {},
 }
 
+## Sols dont les grandes plaques sont teintées (voir `_mottle`) : [sombre, clair, force, clarté].
+const MOTTLE := {
+	"cav_herbe": ["#6f9a3c", "#d0aa50", 0.62, 0.14],
+	"cav_chemin": ["#8a6c40", "#d8bc82", 0.5, 0.1],
+	"nain_neige": ["#9db2d8", "#f4f2ee", 0.5, 0.08],
+	"nain_sentier": ["#8a8590", "#d4cec8", 0.5, 0.1],
+	"nain_roche_humide": ["#223048", "#4e6684", 0.42, 0.14],
+	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
+	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
+}
+
 ## Accessoires affichés comme des sprites debout.
 const PROPS := {
 	"tree": {"variants": 4, "solid": 0.42, "sway": 0.05, "flip": true, "jitter": 0.18},
@@ -464,8 +475,55 @@ func _paint_ground() -> ImageTexture:
 						elif use == "grass" and (_cell_at_pixel(wx, wy + 2.0) != "grass" or _cell_at_pixel(wx + 2.0, wy) != "grass"):
 							c = PA.shade(c, -0.14)
 					img.set_pixel(gx, gy, c)
+	_mottle(img)
 	_scatter_puddles(img)
 	return PA.texture(img)
+
+
+## Teintes de grandes plaques, par type de sol (table MOTTLE) : `[teinte sombre, teinte claire, force,
+## variation de clarté]`. Un bruit lent (plaques de 38 pixels, puis de 12) mélange le sol vers l'une ou
+## l'autre teinte : la tuile, répétée toutes les deux cases, ne dessine plus de grille, et une plaine
+## n'est plus d'une seule couleur. Calculé sur une grille au quart de la définition (rapide).
+func _mottle(img: Image) -> void:
+	var any := false
+	for t: String in cells:
+		if MOTTLE.has(t):
+			any = true
+			break
+	if not any:
+		return
+	var hp := preload("res://src/gfx/house_painter.gd")
+	var lw := w * PPU / 4 + 3
+	var lh := h * PPU / 4 + 3
+	var nl: PackedFloat32Array = hp.noise_map(lw, lh, 927, 9.5)
+	var ns: PackedFloat32Array = hp.noise_map(lw, lh, 928, 3.0)
+	var parsed := {}
+	for ty in h:
+		for tx in w:
+			var t := cells[ty * w + tx]
+			if not MOTTLE.has(t):
+				continue
+			if not parsed.has(t):
+				var m: Array = MOTTLE[t]
+				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3])]
+			var pm: Array = parsed[t]
+			for py in PPU:
+				for px in PPU:
+					var gx := tx * PPU + px
+					var gy := ty * PPU + py
+					# échantillonnage bilinéaire de la grille au quart de définition (pas de carrés visibles)
+					var fx := float(gx & 3) * 0.25
+					var fy := float(gy & 3) * 0.25
+					var i := (gy >> 2) * lw + (gx >> 2)
+					var vl := lerpf(lerpf(nl[i], nl[i + 1], fx), lerpf(nl[i + lw], nl[i + lw + 1], fx), fy)
+					var vs := lerpf(lerpf(ns[i], ns[i + 1], fx), lerpf(ns[i + lw], ns[i + lw + 1], fx), fy)
+					var k := (vl - 0.5) * 2.0 + (vs - 0.5) * 0.7   # environ -1 à 1
+					var c := img.get_pixel(gx, gy)
+					if k < -0.12:
+						c = c.lerp(pm[0], minf(1.0, (-k - 0.12) * 1.3) * float(pm[2]))
+					elif k > 0.12:
+						c = c.lerp(pm[1], minf(1.0, (k - 0.12) * 1.3) * float(pm[2]))
+					img.set_pixel(gx, gy, PA.shade(c, (vs - 0.5) * float(pm[3])))
 
 
 ## Flaques semées sur les sols qui portent le flag `puddles` (roche mouillée des lacs souterrains). Positions,
@@ -481,15 +539,6 @@ func _scatter_puddles(img: Image) -> void:
 	if not any:
 		return
 	var hp := preload("res://src/gfx/house_painter.gd")
-	# mouillé par grandes plaques : la roche s'assombrit ou s'éclaircit lentement, ce qui casse le
-	# motif de la tuile (répété toutes les deux cases) sans trait net
-	var nm: PackedFloat32Array = hp.noise_map(w * PPU, h * PPU, 927, 38.0)
-	var nm2: PackedFloat32Array = hp.noise_map(w * PPU, h * PPU, 928, 11.0)
-	for y in h * PPU:
-		for x in w * PPU:
-			if _flag(_cell_at_pixel(float(x), float(y)), "puddles"):
-				var k := (nm[y * w * PPU + x] - 0.5) * 0.34 + (nm2[y * w * PPU + x] - 0.5) * 0.12
-				img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), k))
 	var cs := 13
 	for gy in range(0, h * PPU, cs):
 		for gx in range(0, w * PPU, cs):
