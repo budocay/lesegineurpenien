@@ -23,13 +23,22 @@ const FACES := {
 	"follet": {"eyes": [[8, 16, 3, 3], [14, 16, 3, 3]], "mouth": [10, 21, 4, 3]},
 	"rat": {"eyes": [[30, 12, 3, 3]], "mouth": [33, 18, 5, 2]},
 	"coq": {"eyes": [[30, 8, 3, 3]], "mouth": [33, 12, 4, 2]},
+	"asticot": {"eyes": [[30, 10, 3, 3]], "mouth": [33, 14, 3, 2]},
+	"vacherin": {"eyes": [[11, 12, 3, 3], [23, 12, 3, 3]], "mouth": [15, 16, 8, 3]},
+	"mouche": {"eyes": [[25, 13, 3, 3]], "mouth": [26, 17, 3, 2]},
+	"moisi": {"eyes": [[11, 21, 3, 3], [18, 21, 3, 3]], "mouth": [14, 26, 4, 2]},
 	"chamois": {"eyes": [[34, 12, 3, 3]], "mouth": [37, 18, 4, 2]},
 	"parchemin": {"eyes": [[9, 14, 3, 3], [16, 14, 3, 3]], "mouth": [11, 20, 6, 3]},
 	"tampon": {"eyes": [[10, 9, 3, 3], [15, 9, 3, 3]], "mouth": [11, 14, 6, 2]},
 }
 const FAMILY := {"baveuse": "limace", "sangsue": "limace", "frelon": "guepe", "amanite": "champignon",
-	"solitaire": "sanglier", "crapaud": "grenouille",
-	"asticot": "limace", "vacherin": "limace", "mouche": "guepe", "moisi": "champignon"}
+	"solitaire": "sanglier", "crapaud": "grenouille"}
+
+## Espèces peintes en volumes (rampes de cinq tons, contour coloré). Les autres espèces
+## passent par la vieille passe `_volume`.
+const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon", "amanite", "sanglier",
+	"solitaire", "grenouille", "crapaud", "follet", "epouvantail", "rat", "coq", "asticot", "vacherin",
+	"mouche", "moisi"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -88,19 +97,20 @@ static func paint(kind: String) -> Image:
 			"epouvantail": _scarecrow(img, ox, f)
 			"rat": _rat(img, ox, f)
 			"coq": _rooster(img, ox, f)
-			"asticot": _slug(img, ox, f, ["#b9a67a", "#e0d2a6", "#f4ecd0", "#fffaf0"], "#2b1b2e")
-			"vacherin": _slug(img, ox, f, ["#c9a24a", "#e8cc7a", "#f6e6ac", "#fff6d8"], "#7a3030")
-			"mouche": _wasp(img, ox, f, ["#4a5a3a", "#8aa05a", "#1e261a", "#dfeef4", "#a8c4d4"])
-			"moisi": _mushroom(img, ox, f, ["#4a7a9a", "#2c4e6e", "#7cb0d0", "#e4f2f8"])
+			"asticot": _maggot(img, ox, f)
+			"vacherin": _cheese(img, ox, f)
+			"mouche": _fly(img, ox, f)
+			"moisi": _mold(img, ox, f)
 			"chamois": _chamois(img, ox, f)
 			"parchemin": _scroll(img, ox, f)
 			"tampon": _stamp(img, ox, f)
 			_:
 				PA.rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
-		_volume(img, Rect2i(ox, 0, size.x, size.y))
+		if not PAINTED.has(kind):
+			_volume(img, Rect2i(ox, 0, size.x, size.y))
 		if col >= 2:
 			_mood(img, ox, kind, col == 2)
-		PA.outline(img, Rect2i(ox, 0, size.x, size.y))
+		_outline(img, Rect2i(ox, 0, size.x, size.y))
 	return img
 
 
@@ -169,286 +179,446 @@ static func _c(hex: String) -> Color:
 	return Color.from_string(hex, Color.MAGENTA)
 
 
-## Limace : corps bas et luisant, deux yeux au bout de leurs tiges, mine abattue.
+# ------------------------------------------------------------------ outils de volume
+# Même méthode que character_painter.gd : chaque forme est un volume éclairé par le haut
+# gauche, peint avec une rampe de cinq tons (ombres violacées, lumières chaudes), puis un
+# contour de la couleur de la forme voisine, assombrie.
+
+static func _ramp(hex: String) -> Array:
+	var c := _c(hex)
+	return [PA.shade(c, -0.5), PA.shade(c, -0.26), c, PA.shade(c, 0.17), PA.shade(c, 0.36)]
+
+
+## Une rampe en retrait : pièce à l'arrière-plan (pattes de derrière).
+static func _dim(ramp: Array) -> Array:
+	return [ramp[0], ramp[0], ramp[1], ramp[2], ramp[3]]
+
+
+static func _tone(nx: float, ny: float, bias: float = 0.0) -> int:
+	var nz := sqrt(maxf(0.0, 1.0 - nx * nx - ny * ny))
+	var l := -0.5 * nx - ny * 0.5 + nz * 0.7 + bias
+	if l < -0.25:
+		return 0
+	if l < 0.28:
+		return 1
+	if l < 0.78:
+		return 2
+	if l < 0.94:
+		return 3
+	return 4
+
+
+## Ellipsoïde éclairé. ymax / ymin coupent la forme.
+static func _ell(img: Image, cx: float, cy: float, rx: float, ry: float, ramp: Array, bias: float = 0.0,
+		ymax: float = 1000.0, ymin: float = -1000.0) -> void:
+	for y in range(int(floor(cy - ry)), int(ceil(cy + ry)) + 1):
+		if y + 0.5 > ymax or y + 0.5 < ymin:
+			continue
+		for x in range(int(floor(cx - rx)), int(ceil(cx + rx)) + 1):
+			var nx := (x + 0.5 - cx) / rx
+			var ny := (y + 0.5 - cy) / ry
+			if nx * nx + ny * ny > 1.0:
+				continue
+			PA.px(img, x, y, ramp[_tone(nx, ny, bias)])
+
+
+## Capsule éclairée d'un point à un autre (pattes, tiges, antennes).
+static func _cap(img: Image, x0: float, y0: float, x1: float, y1: float, r0: float, r1: float, ramp: Array,
+		bias: float = 0.0) -> void:
+	var a := Vector2(x0, y0)
+	var d := Vector2(x1 - x0, y1 - y0)
+	var l2 := maxf(d.length_squared(), 0.0001)
+	var rm := maxf(r0, r1)
+	for y in range(int(floor(minf(y0, y1) - rm)), int(ceil(maxf(y0, y1) + rm)) + 1):
+		for x in range(int(floor(minf(x0, x1) - rm)), int(ceil(maxf(x0, x1) + rm)) + 1):
+			var pnt := Vector2(x + 0.5, y + 0.5)
+			var t := clampf((pnt - a).dot(d) / l2, 0.0, 1.0)
+			var r := lerpf(r0, r1, t)
+			var off := pnt - (a + d * t)
+			if off.length() > r:
+				continue
+			PA.px(img, x, y, ramp[_tone(off.x / r, off.y / r, bias)])
+
+
+## Trapèze lisse comme un tube : étoffes, corps.
+static func _trap(img: Image, y0: int, y1: int, xl0: float, xr0: float, xl1: float, xr1: float, ramp: Array,
+		bias: float = 0.0) -> void:
+	var h := float(y1 - y0)
+	if h <= 0.0:
+		return
+	for y in range(y0, y1):
+		var t := (y + 0.5 - y0) / h
+		var xl := lerpf(xl0, xl1, t)
+		var xr := lerpf(xr0, xr1, t)
+		var w := xr - xl
+		if w <= 0.01:
+			continue
+		for x in range(int(round(xl)), maxi(int(round(xr)), int(round(xl)) + 1)):
+			var u := clampf(((x + 0.5 - xl) / w) * 2.0 - 1.0, -0.99, 0.99)
+			PA.px(img, x, y, ramp[_tone(u, (t * 2.0 - 1.0) * 0.35, bias)])
+
+
+## Œil : blanc, regard sombre en bas à droite, un éclat en haut à gauche.
+static func _eye(img: Image, x: int, y: int, w: int, h: int, iris: Color = Color("#2b1b2e")) -> void:
+	PA.rect(img, x, y, w, h, Color.WHITE)
+	PA.px(img, x + w - 1, y + h - 1, iris)
+	if h >= 3:
+		PA.px(img, x + w - 1, y + h - 2, iris)
+	if w >= 3:
+		PA.px(img, x + w - 2, y + h - 1, iris)
+
+
+## Contour de la couleur de la pièce voisine, assombrie et un peu violette.
+static func _outline(img: Image, region: Rect2i) -> void:
+	var src := img.get_region(region)
+	var w := region.size.x
+	var h := region.size.y
+	for y in h:
+		for x in w:
+			if src.get_pixel(x, y).a >= 0.5:
+				continue
+			var sum := Color(0, 0, 0, 0)
+			var n := 0
+			for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var nx := x + d.x
+				var ny := y + d.y
+				if nx < 0 or ny < 0 or nx >= w or ny >= h:
+					continue
+				var nc := src.get_pixel(nx, ny)
+				if nc.a >= 0.5:
+					sum += nc
+					n += 1
+			if n == 0:
+				continue
+			var out := (sum / float(n)).darkened(0.7).lerp(PA.OUTLINE, 0.4)
+			out.a = 1.0
+			img.set_pixel(region.position.x + x, region.position.y + y, out)
+
+
+## Limace : corps bas et luisant, pied clair, manteau sombre, deux yeux au bout de leurs tiges.
 static func _slug(img: Image, ox: int, f: int, pal: Array, eye_hex: String) -> void:
-	var dark := _c(pal[0])
-	var mid := _c(pal[1])
-	var light := _c(pal[2])
+	var back := _ramp(pal[0])
+	var mid := _ramp(pal[1])
+	var belly := _ramp(pal[2])
 	var shine := _c(pal[3])
-	var squash := f   # la seconde pose s'étale un peu
-	var by := 17.5 + squash * 0.5
+	var dark := _c("#2b1b2e")
+	var sq := f   # la seconde pose s'étale un peu
+	var by := 17.0 + sq * 0.5
 	# traînée de bave derrière elle
-	PA.rect(img, ox + 2, 23, 7, 1, shine)
-	PA.px(img, ox + 1, 23, light)
-	# queue effilée, corps, tête dressée
-	PA.ellipse(img, ox + 9.0, by + 2.5, 6.0, 2.6, mid)
-	PA.ellipse(img, ox + 17.0 - squash * 0.5, by, 11.0 + squash, 5.6 - squash * 0.6, mid)
-	PA.ellipse(img, ox + 28.0 + squash, by - 3.0 + squash, 5.2, 6.2 - squash * 0.5, mid)
-	# ventre clair, dos sombre
-	PA.ellipse(img, ox + 17.0, by + 4.0, 12.0 + squash, 1.7, light)
-	PA.ellipse(img, ox + 14.0, by - 2.6, 6.5, 1.6, dark)
-	PA.ellipse(img, ox + 13.0, by - 3.2, 3.5, 0.9, light)
-	PA.px(img, ox + 11, int(by) - 4, shine)
-	PA.px(img, ox + 12, int(by) - 4, shine)
-	# taches
-	for p: Vector2i in [Vector2i(8, 0), Vector2i(19, 1), Vector2i(23, -1)]:
-		PA.px(img, ox + p.x, int(by) + p.y, dark)
-		PA.px(img, ox + p.x + 1, int(by) + p.y, dark)
+	PA.rect(img, ox + 2, 23, 8, 1, belly[3])
+	PA.px(img, ox + 1, 23, belly[2])
+	PA.rect(img, ox + 5, 24, 3, 1, belly[3])
+	# queue effilée, corps, tête dressée, pied clair
+	_ell(img, ox + 8.0, by + 2.2, 6.5, 3.0, mid)
+	_ell(img, ox + 17.0 - sq * 0.5, by, 11.5 + sq, 5.8 - sq * 0.6, mid)
+	_ell(img, ox + 28.0 + sq, by - 2.5 + sq, 5.4, 6.0 - sq * 0.5, mid)
+	_ell(img, ox + 17.5, by + 4.4, 13.5 + sq, 2.0, belly, 0.1)
+	# manteau sombre sur le dos, taches
+	_ell(img, ox + 14.0, by - 2.6, 7.5, 3.4, back, -0.05)
+	for p: Vector2i in [Vector2i(10, -2), Vector2i(15, -3), Vector2i(18, -1), Vector2i(12, 0)]:
+		PA.px(img, ox + p.x, int(by) + p.y, back[0])
+		PA.px(img, ox + p.x + 1, int(by) + p.y, back[0])
+	# éclats de bave luisante
+	PA.rect(img, ox + 10, int(by) - 5, 3, 1, shine)
+	PA.px(img, ox + 9, int(by) - 4, shine)
+	PA.px(img, ox + 25 + sq, int(by) - 4 + sq, shine)
 	# tiges et yeux
-	var hy := int(by) - 8 + squash
-	PA.line(img, ox + 27 + squash, hy + 1, ox + 27 + squash, hy - 4, dark)
-	PA.line(img, ox + 31 + squash, hy + 1, ox + 32 + squash, hy - 3, dark)
-	PA.rect(img, ox + 26 + squash, hy - 6, 3, 3, Color.WHITE)
-	PA.rect(img, ox + 31 + squash, hy - 5, 3, 3, Color.WHITE)
-	PA.px(img, ox + 28 + squash, hy - 5, _c(eye_hex))
-	PA.px(img, ox + 33 + squash, hy - 4, _c(eye_hex))
+	var hy := int(by) - 8 + sq
+	_cap(img, ox + 27.5 + sq, hy + 3.0, ox + 27.5 + sq, hy - 2.0, 0.9, 0.8, mid)
+	_cap(img, ox + 32.0 + sq, hy + 3.0, ox + 32.5 + sq, hy - 1.0, 0.9, 0.8, mid)
+	_eye(img, ox + 26 + sq, hy - 6, 3, 3, _c(eye_hex))
+	_eye(img, ox + 31 + sq, hy - 5, 3, 3, _c(eye_hex))
 	# bouche tombante
-	PA.px(img, ox + 30 + squash, int(by) - 1 + squash, dark)
-	PA.px(img, ox + 31 + squash, int(by) - 2 + squash, dark)
-	PA.px(img, ox + 32 + squash, int(by) - 1 + squash, dark)
+	PA.px(img, ox + 30 + sq, int(by) - 1 + sq, dark)
+	PA.px(img, ox + 31 + sq, int(by) - 2 + sq, dark)
+	PA.px(img, ox + 32 + sq, int(by) - 1 + sq, dark)
 
 
 ## Guêpe à cidre : ventre rayé, ailes qui battent, dard généreux.
 static func _wasp(img: Image, ox: int, f: int, pal: Array) -> void:
-	var yellow := _c(pal[0])
-	var yellow_l := _c(pal[1])
-	var brown := _c(pal[2])
-	var wing := _c(pal[3])
-	var wing_d := _c(pal[4])
+	var yellow := _ramp(pal[0])
+	var brown := _ramp(pal[2])
+	var wing := _ramp(pal[3])
+	var wing_d := _ramp(pal[4])
 	var dy := f
 	# ailes (derrière)
 	if f == 0:
-		PA.ellipse(img, ox + 15.0, 7.0 + dy, 6.5, 4.0, wing)
-		PA.ellipse(img, ox + 9.0, 9.0 + dy, 4.5, 2.6, wing_d)
+		_ell(img, ox + 15.0, 7.0 + dy, 6.5, 4.0, wing)
+		_ell(img, ox + 9.0, 9.0 + dy, 4.5, 2.6, wing_d)
 	else:
-		PA.ellipse(img, ox + 15.0, 11.0 + dy, 7.5, 2.0, wing)
-		PA.ellipse(img, ox + 9.0, 12.0 + dy, 5.0, 1.5, wing_d)
+		_ell(img, ox + 15.0, 11.0 + dy, 7.5, 2.0, wing)
+		_ell(img, ox + 9.0, 12.0 + dy, 5.0, 1.5, wing_d)
+	# dard
+	_cap(img, ox + 4.0, 20.0 + dy, ox + 0.8, 23.0 + dy, 1.2, 0.5, brown)
 	# abdomen rayé
 	var cx := ox + 10.0
 	var cy := 18.0 + dy
-	PA.ellipse(img, cx, cy, 7.0, 5.0, yellow)
 	for y in range(int(cy) - 6, int(cy) + 7):
 		for x in range(ox + 2, ox + 18):
 			var ddx := (x + 0.5 - cx) / 7.0
 			var ddy := (y + 0.5 - cy) / 5.0
 			if ddx * ddx + ddy * ddy > 1.0:
 				continue
+			var t := _tone(ddx, ddy)
 			if (x - ox) % 5 < 2:
-				PA.px(img, x, y, brown)
-			elif ddy < -0.45:
-				PA.px(img, x, y, yellow_l)
-	# dard
-	PA.line(img, ox + 3, int(cy) + 1, ox + 0, int(cy) + 3, brown)
-	PA.px(img, ox + 1, int(cy) + 3, brown)
-	# thorax et tête
-	PA.ellipse(img, ox + 19.0, 16.0 + dy, 4.2, 4.2, brown)
-	PA.ellipse(img, ox + 24.5, 15.0 + dy, 4.0, 4.0, yellow)
-	PA.rect(img, ox + 25, 13 + dy, 3, 3, brown)
-	PA.px(img, ox + 26, 13 + dy, Color.WHITE)
-	PA.px(img, ox + 28, 17 + dy, brown)
-	# antennes et pattes
-	PA.line(img, ox + 25, 11 + dy, ox + 28, 8 + dy, brown)
-	PA.line(img, ox + 23, 11 + dy, ox + 24, 7 + dy, brown)
-	PA.line(img, ox + 17, 20 + dy, ox + 16, 23 + dy, brown)
-	PA.line(img, ox + 20, 20 + dy, ox + 21, 23 + dy, brown)
+				PA.px(img, x, y, brown[t])
+			else:
+				PA.px(img, x, y, yellow[t])
+	# pattes
+	_cap(img, ox + 17.0, 21.0 + dy, ox + 15.5, 25.0 + dy, 0.7, 0.5, brown)
+	_cap(img, ox + 20.0, 21.0 + dy, ox + 21.5, 25.0 + dy, 0.7, 0.5, brown)
+	# thorax velu et tête
+	_ell(img, ox + 19.0, 16.0 + dy, 4.4, 4.4, brown, 0.05)
+	_ell(img, ox + 24.5, 15.0 + dy, 4.3, 4.3, yellow)
+	_ell(img, ox + 26.5, 14.5 + dy, 1.9, 2.0, brown, -0.2)
+	PA.px(img, ox + 25, 13 + dy, Color.WHITE)
+	PA.px(img, ox + 28, 17 + dy, brown[0])
+	PA.px(img, ox + 28, 18 + dy, brown[0])
+	# antennes
+	_cap(img, ox + 25.0, 11.0 + dy, ox + 28.0, 7.5 + dy, 0.6, 0.6, brown)
+	_cap(img, ox + 23.0, 11.0 + dy, ox + 24.0, 7.0 + dy, 0.6, 0.6, brown)
 
 
-## Champignon dormeur : gros chapeau violet, paupières closes, petits pieds.
+## Mouche de cave : noire, luisante, gros yeux rouges, ailes qui vibrent.
+static func _fly(img: Image, ox: int, f: int) -> void:
+	var body := _ramp("#34414f")
+	var sheen := _ramp("#3f7a6c")
+	var red := _ramp("#c8302c")
+	var wing := _ramp("#d6e6f2")
+	var wing_d := _ramp("#a8c0d6")
+	var dy := f
+	if f == 0:
+		_ell(img, ox + 16.0, 7.0 + dy, 7.0, 3.8, wing)
+		_ell(img, ox + 9.0, 9.5 + dy, 5.0, 2.4, wing_d)
+	else:
+		_ell(img, ox + 16.0, 11.0 + dy, 8.0, 2.0, wing)
+		_ell(img, ox + 9.0, 12.5 + dy, 5.5, 1.5, wing_d)
+	for x: int in [14, 18, 21]:
+		_cap(img, ox + x, 20.0 + dy, ox + x + 1.5, 25.0 + dy, 0.7, 0.5, body)
+	_ell(img, ox + 10.0, 18.0 + dy, 7.2, 5.0, body)
+	_ell(img, ox + 8.0, 19.5 + dy, 3.0, 2.0, sheen, 0.1)
+	_ell(img, ox + 19.0, 16.0 + dy, 4.6, 4.6, body, 0.05)
+	_ell(img, ox + 24.5, 15.5 + dy, 4.2, 4.2, body)
+	_ell(img, ox + 26.0, 14.5 + dy, 2.7, 2.9, red)
+	PA.px(img, ox + 25, 13 + dy, Color.WHITE)
+	_cap(img, ox + 27.0, 18.0 + dy, ox + 30.0, 20.0 + dy, 0.8, 0.5, body)
+	_cap(img, ox + 25.0, 11.5 + dy, ox + 27.0, 8.5 + dy, 0.5, 0.5, body)
+
+
+## Champignon dormeur : gros chapeau, paupières closes, petits pieds.
 static func _mushroom(img: Image, ox: int, f: int, pal: Array) -> void:
-	var cap := _c(pal[0])
-	var cap_d := _c(pal[1])
-	var cap_l := _c(pal[2])
-	var dot := _c(pal[3])
-	var stem := _c("#eadfc6")
-	var stem_d := _c("#c2b294")
+	var cap := _ramp(pal[0])
+	var spot := _ramp(pal[3])
+	var stem := _ramp("#eadfc6")
 	var dark := _c("#2b1b2e")
 	var dy := f
-	# pieds
-	PA.ellipse(img, ox + 12.0, 30.5, 3.0, 1.6, stem_d)
-	PA.ellipse(img, ox + 20.0, 30.5, 3.0, 1.6, stem_d)
-	# pied du champignon
-	PA.rect(img, ox + 11, 18 + dy, 10, 12 - dy, stem)
-	PA.rect(img, ox + 18, 18 + dy, 3, 12 - dy, stem_d)
-	PA.ellipse(img, ox + 16.0, 29.0, 5.6, 2.0, stem)
-	# chapeau : demi-ellipse à bord plat
+	# pieds, pied du champignon
+	_ell(img, ox + 12.0, 30.4, 3.2, 1.8, stem, -0.1)
+	_ell(img, ox + 20.0, 30.4, 3.2, 1.8, stem, -0.1)
+	_ell(img, ox + 16.0, 24.5 + dy * 0.5, 5.6, 6.6 - dy * 0.5, stem, 0.05)
+	# chapeau : demi-ellipsoïde à bord plat, lamelles sombres dessous
 	var cy := 15.0 + dy
-	for y in range(2, int(cy) + 4):
-		for x in range(ox + 1, ox + 31):
-			var ddx := (x + 0.5 - (ox + 16.0)) / 13.5
-			var ddy := (y + 0.5 - cy) / (10.5 - dy)
-			if ddx * ddx + ddy * ddy <= 1.0 and y <= int(cy) + 2:
-				var c := cap
-				if ddx > 0.45 or y >= int(cy) + 1:
-					c = cap_d
-				elif ddy < -0.6 and ddx < 0.1:
-					c = cap_l
-				PA.px(img, x, y, c)
-	PA.ellipse(img, ox + 9.5, cy - 4.0, 2.4, 2.0, dot)
-	PA.ellipse(img, ox + 18.0, cy - 7.0, 2.8, 2.2, dot)
-	PA.ellipse(img, ox + 24.0, cy - 2.5, 1.8, 1.5, dot)
-	# paupières closes et bouche ronde
+	_ell(img, ox + 16.0, cy, 14.0, 11.0 - dy, cap, 0.0, cy + 2.5)
+	for y in range(int(cy) + 1, int(cy) + 3):
+		for x in range(ox, ox + 32):
+			if img.get_pixel(x, y).a >= 0.5:
+				PA.px(img, x, y, cap[0] if y == int(cy) + 1 else cap[1])
+	_ell(img, ox + 9.5, cy - 4.0, 2.6, 2.2, spot)
+	_ell(img, ox + 18.0, cy - 7.0, 3.0, 2.4, spot)
+	_ell(img, ox + 24.0, cy - 2.5, 2.0, 1.6, spot)
+	# paupières closes, joues, bouche ronde
 	PA.rect(img, ox + 12, 22 + dy, 3, 1, dark)
 	PA.rect(img, ox + 17, 22 + dy, 3, 1, dark)
+	PA.px(img, ox + 11, 24 + dy, _c("#e4a2a6"))
+	PA.px(img, ox + 20, 24 + dy, _c("#e4a2a6"))
 	PA.px(img, ox + 15, 25 + dy, dark)
 	PA.px(img, ox + 16, 25 + dy, dark)
 	if f == 1:
 		PA.px(img, ox + 16, 26, dark)
 
 
+## Moisissure bleue : tas duveteux, givré de blanc, qui coule de partout.
+static func _mold(img: Image, ox: int, f: int) -> void:
+	var blue := _ramp("#4a6ec0")
+	var frost := _ramp("#bcd8f0")
+	var deep := _ramp("#2c3c82")
+	var dark := _c("#2b1b2e")
+	var dy := f
+	for x: int in [9, 15, 21]:
+		_ell(img, ox + x + 1.0, 30.0, 3.0, 1.8, deep)
+	_ell(img, ox + 16.0, 23.0 + dy, 11.5, 8.0 - dy, blue)
+	_ell(img, ox + 10.0, 17.5 + dy, 6.5, 6.0, blue, 0.05)
+	_ell(img, ox + 22.0, 17.0 + dy, 6.5, 6.5, blue, 0.0)
+	_ell(img, ox + 16.0, 12.0 + dy, 7.5, 5.5, blue, 0.1)
+	# givre et duvet
+	_ell(img, ox + 14.0, 10.0 + dy, 4.5, 2.6, frost)
+	_ell(img, ox + 24.0, 14.0 + dy, 2.8, 2.0, frost)
+	_ell(img, ox + 8.0, 21.0 + dy, 2.2, 1.6, frost)
+	for i in 26:
+		var fx := 4 + int(PA.rnd(i, 3, 11) * 24.0)
+		var fy := 6 + int(PA.rnd(i, 7, 5) * 20.0) + dy
+		if img.get_pixel(ox + fx, fy).a >= 0.5:
+			PA.px(img, ox + fx, fy, frost[2] if (i % 3) != 0 else frost[3])
+	# yeux en bille et bouche tombante
+	_eye(img, ox + 11, 21 + dy, 3, 3, _c("#2a7a3a"))
+	_eye(img, ox + 18, 21 + dy, 3, 3, _c("#2a7a3a"))
+	PA.px(img, ox + 14, 26 + dy, dark)
+	PA.px(img, ox + 15, 27 + dy, dark)
+	PA.px(img, ox + 16, 27 + dy, dark)
+	PA.px(img, ox + 17, 26 + dy, dark)
+
+
 ## Épouvantail avachi : traverse de travers, manches qui pendent, tête qui tombe.
 static func _scarecrow(img: Image, ox: int, f: int) -> void:
-	var wood := _c("#7a5230")
-	var wood_d := _c("#553621")
-	var shirt := _c("#a8683c")
-	var shirt_d := _c("#7a4630")
-	var patch := _c("#5f8a52")
-	var sack := _c("#d9c08a")
-	var sack_d := _c("#b09a66")
-	var straw := _c("#f0d060")
-	var hat := _c("#5a4630")
-	var hat_d := _c("#3c2e20")
+	var wood := _ramp("#7a5230")
+	var shirt := _ramp("#a8683c")
+	var patch := _ramp("#5f8a52")
+	var sack := _ramp("#d9c08a")
+	var straw := _ramp("#f0d060")
+	var hat := _ramp("#5a4630")
+	var band := _ramp("#b0483c")
 	var dark := _c("#2b1b2e")
 	var sx := f   # la seconde pose penche d'un pixel de plus
-	# piquet
-	PA.rect(img, ox + 19, 30, 2, 24, wood)
-	PA.rect(img, ox + 20, 30, 1, 24, wood_d)
-	PA.rect(img, ox + 16, 53, 8, 1, wood_d)
+	# piquet et pied
+	_cap(img, ox + 20.0, 30.0, ox + 20.0, 53.5, 1.4, 1.4, wood)
+	_ell(img, ox + 20.0, 53.0, 4.5, 1.3, wood, -0.1)
 	# traverse de travers
-	for t in 2:
-		PA.line(img, ox + 4 + sx, 22 + t, ox + 35 + sx, 27 + t, wood if t == 0 else wood_d)
+	_cap(img, ox + 4.5 + sx, 22.5, ox + 35.5 + sx, 28.0, 1.3, 1.3, wood)
 	# chemise en toile, rapiécée
-	PA.rect(img, ox + 12 + sx, 21, 15, 17, shirt)
-	PA.rect(img, ox + 23 + sx, 21, 4, 17, shirt_d)
-	PA.rect(img, ox + 14 + sx, 29, 4, 4, patch)
+	_trap(img, 21, 38, ox + 12.5 + sx, ox + 27.5 + sx, ox + 11.0 + sx, ox + 28.5 + sx, shirt)
+	_ell(img, ox + 16.0 + sx, 31.0, 2.6, 2.4, patch)
+	PA.px(img, ox + 13 + sx, 31, dark)
+	PA.px(img, ox + 19 + sx, 31, dark)
 	PA.px(img, ox + 19 + sx, 25, dark)
 	PA.px(img, ox + 19 + sx, 28, dark)
 	# paille qui dépasse sous la chemise
-	for i in 7:
-		PA.rect(img, ox + 12 + sx + i * 2, 38, 1, 2 + (i % 2), straw)
+	for i in 8:
+		PA.rect(img, ox + 12 + sx + i * 2, 38, 1, 2 + (i % 2), straw[2 + (i % 2)])
 	# manches pendantes et mains de paille
-	PA.rect(img, ox + 4 + sx, 23, 5, 11, shirt)
-	PA.rect(img, ox + 7 + sx, 23, 2, 11, shirt_d)
-	PA.rect(img, ox + 30 + sx, 27, 5, 11, shirt)
-	PA.rect(img, ox + 33 + sx, 27, 2, 11, shirt_d)
+	_cap(img, ox + 6.5 + sx, 23.5, ox + 6.0 + sx, 33.0, 2.6, 2.3, shirt)
+	_cap(img, ox + 32.5 + sx, 27.5, ox + 33.0 + sx, 37.0, 2.6, 2.3, shirt)
 	for i in 3:
-		PA.rect(img, ox + 4 + sx + i * 2, 34, 1, 3, straw)
-		PA.rect(img, ox + 30 + sx + i * 2, 38, 1, 3, straw)
+		PA.rect(img, ox + 4 + sx + i * 2, 34, 1, 3, straw[2 + (i % 2)])
+		PA.rect(img, ox + 31 + sx + i * 2, 38, 1, 3, straw[2 + (i % 2)])
 	# tête en sac, qui tombe sur l'épaule
 	var hx := ox + 21.0 + sx * 1.5
 	var hy := 14.0 + sx
-	PA.ellipse(img, hx, hy, 6.5, 6.5, sack)
-	PA.ellipse(img, hx + 3.0, hy + 1.0, 3.0, 4.5, sack_d)
-	PA.rect(img, int(hx) - 4, int(hy) + 5, 8, 2, sack_d)
+	_ell(img, hx, hy, 6.6, 6.8, sack)
+	_trap(img, int(hy) + 5, int(hy) + 8, hx - 4.5, hx + 4.5, hx - 3.5, hx + 3.5, sack, -0.35)
 	# yeux cousus en croix, bouche en zigzag
 	for e: int in [-3, 2]:
 		PA.px(img, int(hx) + e, int(hy) - 2, dark)
 		PA.px(img, int(hx) + e + 1, int(hy) - 1, dark)
-		PA.px(img, int(hx) + e + 1, int(hy) - 2, sack_d)
+		PA.px(img, int(hx) + e + 1, int(hy) - 2, sack[1])
 		PA.px(img, int(hx) + e, int(hy) - 1, dark)
 	for i in 5:
 		PA.px(img, int(hx) - 3 + i, int(hy) + 2 + (i % 2), dark)
 	# chapeau cabossé
-	PA.rect(img, int(hx) - 9, int(hy) - 6, 18, 2, hat)
-	PA.rect(img, int(hx) - 9, int(hy) - 5, 18, 1, hat_d)
-	PA.rect(img, int(hx) - 5, int(hy) - 11, 9, 5, hat)
-	PA.rect(img, int(hx) + 2, int(hy) - 11, 2, 5, hat_d)
-	PA.px(img, int(hx) - 5, int(hy) - 11, Color(0, 0, 0, 0))
-	PA.rect(img, int(hx) - 5, int(hy) - 7, 9, 1, _c("#b0483c"))
+	_trap(img, int(hy) - 12, int(hy) - 6, hx - 4.0, hx + 4.5, hx - 5.5, hx + 6.0, hat, 0.05)
+	_ell(img, hx, hy - 5.5, 10.0, 2.4, hat, 0.1)
+	_trap(img, int(hy) - 8, int(hy) - 6, hx - 5.0, hx + 5.5, hx - 5.5, hx + 6.0, band)
 
 
 ## Sanglier flapi : gros dos rond, hure basse, défenses, pattes courtes. Il traîne la patte.
 static func _boar(img: Image, ox: int, f: int, pal: Array) -> void:
-	var dark := _c(pal[0])
-	var mid := _c(pal[1])
-	var light := _c(pal[2])
-	var deep := _c(pal[3])
+	var dark := _ramp(pal[0])
+	var mid := _ramp(pal[1])
+	var light := _ramp(pal[2])
+	var deep := _ramp(pal[3])
 	var dy := f   # la seconde pose s'affaisse d'un pixel
-	# pattes (derrière le corps)
+	# pattes (celles de derrière dans l'ombre)
 	for x: int in [9, 15, 26, 31]:
-		PA.rect(img, ox + x, 23 + dy, 3, 8 - dy, deep)
+		var r := _dim(deep) if x < 20 else deep
+		_cap(img, ox + x + 1.5, 22.0 + dy, ox + x + 1.5, 29.5, 1.9, 1.6, r)
 		PA.rect(img, ox + x, 30, 3, 1, _c("#1c1418"))
-	# corps, garrot, hure
-	PA.ellipse(img, ox + 19.0, 16.0 + dy, 14.0, 8.5, mid)
-	PA.ellipse(img, ox + 24.0, 13.0 + dy, 8.0, 6.0, mid)
-	PA.ellipse(img, ox + 35.0, 18.0 + dy, 7.0, 6.0, mid)
-	# ventre clair, dos sombre et soies hérissées
-	PA.ellipse(img, ox + 18.0, 21.5 + dy, 11.0, 2.4, light)
-	PA.ellipse(img, ox + 19.0, 10.5 + dy, 11.0, 2.6, dark)
-	for i in 7:
-		PA.px(img, ox + 9 + i * 3, 7 + dy + (i % 2), deep)
 	# queue en tire-bouchon, détendue
-	PA.px(img, ox + 4, 14 + dy, dark)
-	PA.px(img, ox + 3, 15 + dy, dark)
-	PA.px(img, ox + 3, 16 + dy, dark)
-	PA.px(img, ox + 4, 17 + dy, dark)
+	for p: Vector2i in [Vector2i(4, 14), Vector2i(3, 15), Vector2i(3, 16), Vector2i(4, 17), Vector2i(5, 17)]:
+		PA.px(img, ox + p.x, p.y + dy, dark[1])
+	# corps, garrot, hure
+	_ell(img, ox + 19.0, 16.0 + dy, 14.5, 8.8, mid)
+	_ell(img, ox + 25.0, 13.0 + dy, 8.0, 6.5, mid, 0.05)
+	_ell(img, ox + 34.5, 18.0 + dy, 7.9, 6.9, dark, -0.2)
+	_ell(img, ox + 35.0, 18.0 + dy, 7.0, 6.0, mid, 0.05)
+	# ventre clair, dos sombre et soies hérissées
+	_ell(img, ox + 18.0, 21.5 + dy, 11.0, 2.4, light, 0.0)
+	_ell(img, ox + 17.0, 9.5 + dy, 10.0, 2.6, dark, -0.1)
+	for i in 8:
+		var bx := ox + 8 + i * 3
+		var top := 6 + dy + (i % 2)
+		PA.rect(img, bx, top, 1, 3, deep[1])
+		PA.px(img, bx, top, deep[0])
 	# oreille tombante
-	PA.rect(img, ox + 30, 11 + dy, 3, 4, dark)
-	PA.px(img, ox + 31, 15 + dy, dark)
+	_cap(img, ox + 31.5, 11.0 + dy, ox + 32.5, 15.0 + dy, 1.8, 1.0, dark)
 	# groin, défenses, œil mi-clos
-	PA.rect(img, ox + 40, 18 + dy, 4, 5, light)
-	PA.px(img, ox + 43, 20 + dy, deep)
-	PA.px(img, ox + 43, 22 + dy, deep)
+	_ell(img, ox + 41.0, 20.5 + dy, 3.4, 3.2, light, 0.1)
+	PA.px(img, ox + 43, 20 + dy, deep[0])
+	PA.px(img, ox + 43, 22 + dy, deep[0])
 	PA.px(img, ox + 39, 23 + dy, Color.WHITE)
 	PA.px(img, ox + 40, 24 + dy, Color.WHITE)
 	PA.px(img, ox + 40, 23 + dy, Color.WHITE)
-	PA.rect(img, ox + 35, 15 + dy, 3, 1, deep)
+	PA.rect(img, ox + 35, 15 + dy, 3, 1, deep[0])
+	PA.px(img, ox + 35, 16 + dy, Color.WHITE)
 	PA.px(img, ox + 36, 16 + dy, Color.WHITE)
+	PA.px(img, ox + 37, 16 + dy, _c("#2b1b2e"))
 
 
 ## Grenouille bouffie : accroupie, gros yeux, gorge qui se gonfle à la seconde pose.
 static func _frog(img: Image, ox: int, f: int, pal: Array, eye_hex: String) -> void:
-	var dark := _c(pal[0])
-	var mid := _c(pal[1])
-	var light := _c(pal[2])
-	var deep := _c(pal[3])
+	var dark := _ramp(pal[0])
+	var mid := _ramp(pal[1])
+	var light := _ramp(pal[2])
+	var deep := _ramp(pal[3])
 	# cuisse repliée et pied arrière
-	PA.ellipse(img, ox + 9.0, 20.0, 7.0, 5.0, dark)
-	PA.rect(img, ox + 4, 25, 10, 2, dark)
-	PA.px(img, ox + 3, 26, dark)
+	_ell(img, ox + 9.0, 20.0, 7.0, 5.0, dark, 0.1)
+	_cap(img, ox + 4.0, 25.5, ox + 13.0, 25.5, 1.3, 1.1, dark)
 	# corps et tête
-	PA.ellipse(img, ox + 16.0, 17.0, 11.0, 7.5, mid)
-	PA.ellipse(img, ox + 25.0, 13.0, 8.0, 6.5, mid)
+	_ell(img, ox + 16.0, 17.0, 11.0, 7.5, mid)
+	_ell(img, ox + 25.0, 13.0, 8.0, 6.5, mid, 0.05)
 	# dos sombre et verrues
-	PA.ellipse(img, ox + 14.0, 11.5, 7.0, 2.2, dark)
+	_ell(img, ox + 14.0, 11.5, 7.0, 2.2, dark, -0.05)
 	for p: Vector2i in [Vector2i(10, 15), Vector2i(15, 13), Vector2i(19, 16), Vector2i(13, 19)]:
-		PA.px(img, ox + p.x, p.y, deep)
+		_ell(img, ox + p.x + 0.5, p.y + 0.5, 1.4, 1.2, dark, 0.15)
 	# ventre et gorge (gonflée en respirant)
-	PA.ellipse(img, ox + 17.0, 22.5, 8.5, 2.6, light)
-	PA.ellipse(img, ox + 27.0, 19.0 + f * 0.5, 4.5 + f * 1.5, 3.0 + f * 1.5, light)
+	_ell(img, ox + 17.0, 22.5, 8.5, 2.6, light)
+	_ell(img, ox + 27.0, 19.0 + f * 0.5, 4.5 + f * 1.5, 3.0 + f * 1.5, light, 0.05)
 	# patte avant
-	PA.rect(img, ox + 21, 22, 3, 4, mid)
-	PA.rect(img, ox + 20, 26, 6, 1, dark)
+	_cap(img, ox + 22.5, 21.0, ox + 22.5, 25.0, 1.6, 1.4, mid)
+	_cap(img, ox + 20.5, 26.0, ox + 25.5, 26.0, 1.0, 1.0, dark)
 	# yeux globuleux
-	PA.ellipse(img, ox + 23.0, 7.0, 3.0, 3.0, mid)
-	PA.ellipse(img, ox + 29.0, 8.0, 3.0, 3.0, mid)
+	_ell(img, ox + 23.5, 7.5, 3.4, 3.4, mid)
+	_ell(img, ox + 29.5, 8.5, 3.4, 3.4, mid)
 	PA.rect(img, ox + 22, 6, 3, 3, _c(eye_hex))
 	PA.rect(img, ox + 28, 7, 3, 3, _c(eye_hex))
-	PA.px(img, ox + 24, 7, deep)
-	PA.px(img, ox + 30, 8, deep)
+	PA.px(img, ox + 24, 7, deep[0])
+	PA.px(img, ox + 24, 8, deep[0])
+	PA.px(img, ox + 30, 8, deep[0])
+	PA.px(img, ox + 30, 9, deep[0])
+	PA.px(img, ox + 22, 6, Color.WHITE)
+	PA.px(img, ox + 28, 7, Color.WHITE)
 	# bouche large et lasse
-	PA.line(img, ox + 22, 15, ox + 32, 14, deep)
-	PA.px(img, ox + 21, 16, deep)
+	PA.line(img, ox + 22, 15, ox + 32, 14, deep[0])
+	PA.px(img, ox + 21, 16, deep[0])
 
 
 ## Feu follet : flamme pâle qui flotte, deux yeux fatigués. Il éclaire à peine.
 static func _wisp(img: Image, ox: int, f: int) -> void:
-	var outer := _c("#3fa8a0")
-	var mid := _c("#7fe0c8")
-	var core := _c("#e8fff0")
+	var outer := _ramp("#3fa8a0")
+	var mid := _ramp("#7fe0c8")
+	var core := _ramp("#e8fff0")
 	var dark := _c("#1c4a50")
 	var sway := f
 	# pointe de la flamme, qui danse
-	PA.ellipse(img, ox + 12.0 + sway, 6.0, 2.5, 4.5, outer)
-	PA.ellipse(img, ox + 12.0 + sway * 0.5, 9.0, 4.0, 5.0, outer)
-	PA.px(img, ox + 12 + sway * 2, 1, mid)
+	_ell(img, ox + 12.0 + sway, 6.0, 2.5, 4.5, outer, 0.1)
+	_ell(img, ox + 12.0 + sway * 0.5, 9.0, 4.0, 5.0, outer, 0.1)
+	PA.px(img, ox + 12 + sway * 2, 1, mid[2])
 	# corps
-	PA.ellipse(img, ox + 12.0, 18.0, 8.5, 9.0, outer)
-	PA.ellipse(img, ox + 12.0, 19.0, 6.0, 7.0, mid)
-	PA.ellipse(img, ox + 12.0, 21.0, 3.5, 4.0, core)
-	PA.ellipse(img, ox + 12.0 + sway * 0.5, 11.0, 2.0, 3.0, mid)
+	_ell(img, ox + 12.0, 18.0, 8.5, 9.0, outer, 0.1)
+	_ell(img, ox + 12.0, 19.0, 6.0, 7.0, mid, 0.15)
+	_ell(img, ox + 12.0, 21.0, 3.5, 4.0, core, 0.2)
+	_ell(img, ox + 12.0 + sway * 0.5, 11.0, 2.0, 3.0, mid, 0.1)
 	# étincelles qui retombent
-	PA.px(img, ox + 3, 27 + sway, mid)
-	PA.px(img, ox + 20, 29 - sway, mid)
+	PA.px(img, ox + 3, 27 + sway, mid[2])
+	PA.px(img, ox + 20, 29 - sway, mid[2])
 	# yeux mi-clos, bouche tombante
 	PA.rect(img, ox + 8, 17, 3, 1, dark)
 	PA.rect(img, ox + 14, 17, 3, 1, dark)
@@ -459,77 +629,141 @@ static func _wisp(img: Image, ox: int, f: int) -> void:
 	PA.px(img, ox + 13, 22, dark)
 
 
+## Ver de fromage : gras, segmenté, mandibules en avant. Il se tortille en tas.
+static func _maggot(img: Image, ox: int, f: int) -> void:
+	var body := _ramp("#e6d9a4")
+	var head := _ramp("#d2a85a")
+	var rind := _ramp("#e8a63c")
+	var dark := _c("#3a2418")
+	var lift := f   # la seconde pose se redresse d'un pixel
+	for i in 7:
+		var t := float(i) / 6.0
+		var cx := ox + 5.0 + t * 22.0
+		var cy := 20.5 - 8.5 * pow(t, 1.5) - lift * t
+		var r := 3.2 + 2.2 * t
+		_ell(img, cx, cy, r * 0.95, r, body, 0.05)
+		PA.px(img, int(cx), int(cy + r * 0.45), dark)
+	# miettes de croûte collées sur le dos
+	for p: Vector2i in [Vector2i(10, 15), Vector2i(17, 14), Vector2i(23, 10)]:
+		PA.rect(img, ox + p.x, p.y, 2, 1, rind[3])
+		PA.px(img, ox + p.x, p.y + 1, rind[1])
+	_ell(img, ox + 31.0, 12.0 - lift, 5.0, 4.8, head)
+	_eye(img, ox + 30, 10 - lift, 3, 3, _c("#3a2418"))
+	PA.px(img, ox + 36, 13 - lift, dark)
+	PA.px(img, ox + 36, 14 - lift, dark)
+	PA.px(img, ox + 35, 15 - lift, dark)
+	PA.px(img, ox + 33, 15 - lift, dark)
+
+
+## Le Vacherin : meule de fromage coulant, ceinturée d'épicéa, qui déborde de partout.
+static func _cheese(img: Image, ox: int, f: int) -> void:
+	var rind := _ramp("#e6bc58")
+	var cream := _ramp("#fff0b4")
+	var band := _ramp("#7a4a22")
+	var dark := _c("#2b1b2e")
+	var sag := f   # la seconde pose s'affaisse
+	# flanc, tranche de la meule
+	_ell(img, ox + 19.0, 16.0 + sag, 15.0, 8.0 - sag * 0.5, rind, 0.12, 99.0, 8.0)
+	# ceinture d'épicéa
+	for y in range(19 + sag, 21 + sag):
+		for x in range(ox, ox + 38):
+			if img.get_pixel(x, y).a >= 0.5:
+				var u := clampf((float(x - ox) - 19.0) / 15.0, -0.99, 0.99)
+				PA.px(img, x, y, band[_tone(u, 0.2)])
+	# dessus coulant
+	_ell(img, ox + 19.0, 6.8 + sag, 15.0, 4.6, cream, 0.1)
+	_ell(img, ox + 14.0, 5.2 + sag, 5.0, 1.4, cream, 0.5)
+	# coulures qui descendent le long du flanc
+	_cap(img, ox + 6.5, 9.0 + sag, ox + 6.5, 15.0, 1.6, 1.4, cream, 0.1)
+	_cap(img, ox + 30.0, 9.0 + sag, ox + 30.0, 14.0, 1.7, 1.5, cream, 0.1)
+	_cap(img, ox + 19.0, 9.0 + sag, ox + 19.5, 11.0 + sag * 0.5, 1.2, 1.1, cream, 0.1)
+	# trous
+	for p: Vector2i in [Vector2i(12, 5), Vector2i(24, 6), Vector2i(4, 17), Vector2i(31, 17)]:
+		PA.rect(img, ox + p.x, p.y + sag, 2, 2, rind[0] if p.y > 12 else cream[1])
+		PA.px(img, ox + p.x + 1, p.y + sag + 1, rind[3] if p.y > 12 else cream[3])
+	# visage : yeux ronds, bouche en fer à cheval renversé
+	_eye(img, ox + 11, 12 + sag, 3, 3)
+	_eye(img, ox + 23, 12 + sag, 3, 3)
+	PA.rect(img, ox + 11, 11 + sag, 3, 1, rind[0])
+	PA.rect(img, ox + 23, 11 + sag, 3, 1, rind[0])
+	PA.line(img, ox + 15, 17 + sag, ox + 17, 16 + sag, dark)
+	PA.rect(img, ox + 17, 16 + sag, 4, 1, dark)
+	PA.line(img, ox + 21, 16 + sag, ox + 23, 17 + sag, dark)
+
+
 ## Rat de cave : long, gris, les dents en avant, la queue qui traîne.
 static func _rat(img: Image, ox: int, f: int) -> void:
-	var dark := _c("#4a4650")
-	var mid := _c("#7c7886")
-	var light := _c("#aaa6b4")
-	var pink := _c("#e0a0a8")
+	var mid := _ramp("#7c7886")
+	var light := _ramp("#aaa6b4")
+	var pink := _ramp("#e0a0a8")
+	var dark := _ramp("#4a4650")
 	var dy := f
+	# queue en point d'interrogation
+	_cap(img, ox + 8.0, 17.5 + dy, ox + 3.5, 18.5 + dy, 0.8, 0.7, pink)
+	_cap(img, ox + 3.5, 18.5 + dy, ox + 1.8, 14.0 + dy, 0.7, 0.6, pink)
 	# pattes
 	for x: int in [12, 15, 23, 26]:
-		PA.rect(img, ox + x, 20 + dy, 2, 5 - dy, dark)
-	# queue en point d'interrogation
-	PA.line(img, ox + 8, 17 + dy, ox + 3, 18 + dy, pink)
-	PA.line(img, ox + 3, 18 + dy, ox + 1, 14 + dy, pink)
-	PA.px(img, ox + 1, 13 + dy, pink)
-	# corps, ventre clair, tête, museau
-	PA.ellipse(img, ox + 18.0, 16.0 + dy, 11.0, 6.0, mid)
-	PA.ellipse(img, ox + 18.0, 19.5 + dy, 8.0, 2.4, light)
-	PA.ellipse(img, ox + 29.0, 15.0 + dy, 6.0, 5.0, mid)
-	PA.ellipse(img, ox + 35.0, 16.5 + dy, 3.5, 2.5, light)
+		var r := _dim(dark) if x < 20 else dark
+		_cap(img, ox + x + 1.0, 21.0 + dy, ox + x + 1.0, 24.0, 1.0, 1.0, r)
+		PA.px(img, ox + x + 2, 24, pink[2])
+	# corps, croupe, ventre clair, tête, museau
+	_ell(img, ox + 18.0, 16.0 + dy, 11.0, 6.0, mid)
+	_ell(img, ox + 12.0, 16.5 + dy, 6.0, 5.2, mid, 0.1)
+	_ell(img, ox + 18.0, 19.8 + dy, 8.0, 2.4, light)
+	_ell(img, ox + 29.0, 15.0 + dy, 6.0, 5.0, mid, 0.05)
+	_ell(img, ox + 35.0, 16.5 + dy, 3.8, 2.7, light, 0.05)
 	# oreille ronde, œil, nez, dents
-	PA.ellipse(img, ox + 26.5, 9.5 + dy, 3.0, 3.0, mid)
-	PA.ellipse(img, ox + 26.5, 9.5 + dy, 1.6, 1.6, pink)
-	PA.rect(img, ox + 30, 12 + dy, 3, 3, Color.WHITE)
-	PA.px(img, ox + 32, 13 + dy, dark)
-	PA.px(img, ox + 38, 16 + dy, pink)
+	_ell(img, ox + 26.5, 9.5 + dy, 3.2, 3.2, mid, 0.1)
+	_ell(img, ox + 26.5, 9.8 + dy, 1.7, 1.7, pink)
+	_eye(img, ox + 30, 12 + dy, 3, 3)
+	PA.px(img, ox + 38, 16 + dy, pink[1])
+	PA.px(img, ox + 38, 17 + dy, pink[1])
 	PA.rect(img, ox + 35, 19 + dy, 2, 2, Color.WHITE)
+	PA.px(img, ox + 36, 20 + dy, light[1])
 	# moustaches
-	PA.line(img, ox + 36, 17 + dy, ox + 39, 15 + dy, light)
-	PA.line(img, ox + 36, 18 + dy, ox + 39, 19 + dy, light)
+	PA.line(img, ox + 36, 17 + dy, ox + 39, 15 + dy, light[3])
+	PA.line(img, ox + 36, 18 + dy, ox + 39, 19 + dy, light[3])
 
 
 ## Coq : droit comme un i, crête haute, queue en panache. Rien ne le ramollit.
 static func _rooster(img: Image, ox: int, f: int) -> void:
-	var rust := _c("#b4562c")
-	var rust_l := _c("#e08a48")
-	var gold := _c("#e8b84a")
-	var red := _c("#d8302c")
-	var green := _c("#2e8a6a")
-	var blue := _c("#2a5aa0")
-	var beak := _c("#f0c040")
+	var rust := _ramp("#b4562c")
+	var rust_l := _ramp("#e08a48")
+	var gold := _ramp("#e8b84a")
+	var red := _ramp("#d8302c")
+	var green := _ramp("#2e8a6a")
+	var blue := _ramp("#2a5aa0")
+	var beak := _ramp("#f0c040")
+	var wing := _ramp("#8a3a20")
 	var dark := _c("#2b1b2e")
 	var puff := f   # la poitrine se gonfle à la seconde pose
 	# queue en panache, derrière le corps
-	PA.line(img, ox + 9, 24, ox + 2, 8, green)
-	PA.line(img, ox + 10, 23, ox + 5, 6, blue)
-	PA.line(img, ox + 11, 24, ox + 9, 5, green)
-	PA.line(img, ox + 8, 26, ox + 1, 14, blue)
-	PA.line(img, ox + 3, 8, ox + 5, 7, green)
+	_cap(img, ox + 9.0, 24.0, ox + 3.0, 8.0, 1.6, 0.8, green)
+	_cap(img, ox + 10.0, 23.0, ox + 6.0, 6.0, 1.6, 0.8, blue)
+	_cap(img, ox + 11.0, 24.0, ox + 10.0, 5.0, 1.5, 0.8, green)
+	_cap(img, ox + 8.0, 26.0, ox + 2.0, 14.0, 1.6, 0.8, blue)
 	# pattes et éperons
-	PA.rect(img, ox + 15, 32, 2, 6, beak)
-	PA.rect(img, ox + 22, 32, 2, 6, beak)
-	PA.rect(img, ox + 13, 37, 5, 1, beak)
-	PA.rect(img, ox + 20, 37, 5, 1, beak)
+	_cap(img, ox + 16.0, 32.0, ox + 16.0, 37.0, 1.0, 1.0, beak)
+	_cap(img, ox + 23.0, 32.0, ox + 23.0, 37.0, 1.0, 1.0, beak)
+	PA.rect(img, ox + 13, 37, 5, 1, beak[3])
+	PA.rect(img, ox + 20, 37, 5, 1, beak[3])
 	# corps, poitrine, aile
-	PA.ellipse(img, ox + 17.0, 25.0, 11.0, 8.5, rust)
-	PA.ellipse(img, ox + 24.0, 25.0, 7.0 + puff, 7.0 + puff, rust_l)
-	PA.ellipse(img, ox + 15.0, 25.0, 7.0, 4.5, _c("#8a3a20"))
+	_ell(img, ox + 17.0, 25.0, 11.0, 8.5, rust)
+	_ell(img, ox + 24.0, 25.0, 7.0 + puff, 7.0 + puff, rust_l, 0.1)
+	_ell(img, ox + 15.0, 25.0, 7.0, 4.5, wing, 0.1)
 	# cou et collerette dorée, tête
-	PA.ellipse(img, ox + 26.0, 16.0, 4.5, 7.0, gold)
-	PA.ellipse(img, ox + 29.0, 10.0, 4.5, 4.5, rust_l)
+	_ell(img, ox + 26.0, 16.0, 4.5, 7.0, gold)
+	_ell(img, ox + 29.0, 10.0, 4.5, 4.5, rust_l, 0.1)
 	# crête, barbillon, bec
-	PA.ellipse(img, ox + 27.0, 4.5, 1.8, 2.2, red)
-	PA.ellipse(img, ox + 29.5, 4.0, 1.8, 2.4, red)
-	PA.ellipse(img, ox + 32.0, 5.0, 1.6, 2.0, red)
-	PA.ellipse(img, ox + 33.0, 14.5, 1.4, 2.6, red)
-	PA.rect(img, ox + 33, 9, 5, 2, beak)
-	PA.px(img, ox + 37, 10, beak)
-	PA.rect(img, ox + 33, 11, 4, 1, _c("#c89a2c"))
+	_ell(img, ox + 27.0, 4.5, 1.8, 2.2, red, 0.1)
+	_ell(img, ox + 29.5, 4.0, 1.8, 2.4, red, 0.1)
+	_ell(img, ox + 32.0, 5.0, 1.6, 2.0, red, 0.1)
+	_ell(img, ox + 33.0, 14.5, 1.4, 2.6, red, 0.1)
+	_ell(img, ox + 35.0, 10.0, 2.9, 1.3, beak, 0.2)
+	PA.px(img, ox + 37, 10, beak[2])
+	PA.rect(img, ox + 33, 11, 4, 1, beak[1])
 	# œil rond et sourcil sévère
-	PA.rect(img, ox + 30, 8, 3, 3, Color.WHITE)
-	PA.px(img, ox + 31, 9, dark)
+	_eye(img, ox + 30, 8, 3, 3)
 	PA.rect(img, ox + 30, 7, 4, 1, dark)
 
 

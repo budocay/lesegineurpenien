@@ -166,6 +166,7 @@ func _step_height(x: float, z: float) -> float:
 
 const FLAT_PROPS := ["grass", "flowers", "wheat", "fern", "wilted", "reeds", "mushrooms"]   # trop bas pour cacher qui que ce soit
 const FORM_SPAN := 4.9    # largeur maximale (en x) d'une file de combattants
+const HALF_VIEW := 6.0    # demi-largeur visible de l'arène au niveau des combattants
 const FORM_DEPTH := 0.55  # profondeur de la file, par rapport à sa largeur
 
 
@@ -295,9 +296,23 @@ func _spots(list: Array, side: float) -> Array[Vector3]:
 	for c: RefCounted in list:
 		scales.append(float((c.sprite as Dictionary).get("scale", 1.0)))
 	var out: Array[Vector3] = []
+	var i := 0
 	for sp: Vector3 in formation(scales, 1.3 if side < 0.0 else 1.0):
-		out.append(Vector3(sp.x * side, 0.0, sp.z))
+		# un grand monstre ne doit pas déborder de l'écran : on ramène son centre vers le milieu
+		var limit := maxf(1.5, HALF_VIEW - _half_width(list[i]))
+		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z))
+		i += 1
 	return out
+
+
+## Demi-largeur (en x) occupée à l'écran par un combattant.
+func _half_width(c: RefCounted) -> float:
+	var sp: Dictionary = c.sprite
+	var s := float(sp.get("scale", 1.0))
+	if sp.has("monster"):
+		var sheet := Sprites.monster(str(sp["monster"]))
+		return float(sheet["frame_w"]) / float(sheet["ppu"]) * s * 0.45
+	return 0.4 * s
 
 
 func _place(list: Array, side: float) -> void:

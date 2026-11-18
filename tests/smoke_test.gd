@@ -67,6 +67,7 @@ func _ready() -> void:
 	_test_retouches()
 	await _test_active_party()
 	await _test_arenas()
+	_test_retouches_2()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -3447,3 +3448,25 @@ func _test_arenas() -> void:
 			check(too_close == 0, "arène %s (%d ennemis) : aucun décor près d'un combattant (%d)" % [id, n, too_close])
 			scene.free()
 			layer.free()
+
+
+## Retouches 2 : monstres repeints, échelle des monstres, zones dégagées du Bois Penché.
+func _test_retouches_2() -> void:
+	print("== Retouches 2 ==")
+	var MP: GDScript = load("res://src/gfx/monster_painter.gd")
+	for kind: String in MP.PAINTED:
+		var img: Image = MP.paint(kind)
+		var magenta := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5 and c.r > 0.9 and c.b > 0.9 and c.g < 0.2:
+					magenta += 1
+		check(magenta == 0, "monstre %s : espèce peinte (pas de magenta)" % kind)
+	check(Sprites.MONSTER_PPU > 24.0 and Sprites.MONSTER_PPU < 40.0, "monstres un cran plus petits que les personnages")
+	var bp: Dictionary = Database.get_map("bois_penche")
+	var avoid_ok := false
+	for o: Variant in bp.get("objects", bp.get("scatter", [])):
+		if o is Dictionary and o.get("prop", "") == "tree" and o.has("avoid"):
+			avoid_ok = true
+	check(avoid_ok, "Bois Penché : zones sans arbres autour de la rampe")
