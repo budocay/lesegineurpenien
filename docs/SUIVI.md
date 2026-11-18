@@ -768,42 +768,42 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      Anneaux », Sauron endormi, Bromure meurt de façon nulle et drôle, Goulûm trahit puis
      se sacrifie, les Éveillés, le Raidissement, Merri Écuyer Tranchant.
 
-## Demandes de l'auteur (18 novembre 2026, soir)
+129. **Une arène de combat par lieu.** La carte déclare son arène (champ `arena`), une
+     rencontre peut la remplacer, repli sur le Pré (`BattleScene.resolve`). Onze arènes pour
+     les chapitres 1 à 3 (taverne, étage d'auberge, ruelle de nuit, cave à fromage, ferme,
+     route, col, cité elfique, salle du Conseil, archives, quai), quatre pour les Mines.
+130. **Chapitre 4, les Mines de Morbier** : huit cartes en style « nain »
+     (`dwarven_painter.gd`, `dwarven_builder.gd`), porte à énigme, Guetteur du lac Noir,
+     Gobe-Lards, le Gros Bleu des caves, Goulûm dit Trempette, le Balourd au
+     Pont-l'Évêque. Glandoulf tombe : action de dialogue `quitte:<id>:<nouveau meneur>`,
+     Sam mène ensuite. La partie passe à `chapitre_5`. Bromure y tient encore le pont : sa
+     mort « nulle et drôle » voulue par l'auteur reste à écrire (début du chapitre 5).
+131. **Points d'élan** (accord de l'auteur) : 1 point au départ, 1 par tour, 5 au plus ; on
+     en engage 0 à 3 avec gauche / droite ; une attaque frappe 1 + N fois, une compétence
+     voit sa puissance multipliée (1,5 / 2 / 2,5), un soin 1,3 / 1,6 / 1,9 ; pas de gain au
+     tour qui suit un engagement. Les boss des chapitres 1 à 4 ont reçu environ 40 % de PV
+     en plus pour garder les taux de victoire visés ; boucliers inchangés.
+132. **Détails d'interface de combat** : 37 icônes peintes par code (`icon_painter.gd`,
+     `Sprites.icon`), bouclier chiffré et faiblesses sous chaque ennemi, moment « Brisé »,
+     main qui pointe, portraits et pastilles d'élan sur les fiches, écran de victoire refait.
 
-Faites : réserve sans expérience (116), quatre combattants (115), interface (114), cité
-elfique (118), combat façon Octopath (119, 120).
+## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
-Restent :
-
-- **Sol des arènes et chevauchements en combat.** L'auteur trouve que le sol fait « terre »
-  et voit des éléments qui se gênent : passe en cours.
-- **Petits détails d'interface de combat façon Octopath** (demande de l'auteur) : bouclier
-  chiffré et faiblesses en icônes sous chaque ennemi, moment « Brisé », icônes des commandes
-  et des éléments, vrais portraits dans la frise, main qui pointe, entrée de combat.
-- **Points d'élan** (accord de l'auteur) : un point gagné par tour, à dépenser pour frapper
-  plusieurs fois ou renforcer un sort, pastilles sous chaque héros. Oblige à régler de
-  nouveau tous les combats ; à faire après la fusion de l'équipement (même moteur).
-- **Une ambiance de combat par lieu** (demande de l'auteur). Aujourd'hui cinq arènes
-  seulement (pré, bois, marais, place, Grand Four) servent aux 26 rencontres : la cave de
-  Brie, le col des Biscottes, Fondue-Combe et les archives se battent sur « place » ou
-  « pré ». Il faut une arène par type de lieu (taverne, cave, ruelle de nuit, col enneigé,
-  cité elfique, archives, puis mines, plaine, marais des morts, Mordgras), avec son sol, son
-  fond, sa lumière, ses particules et sa musique, choisie par la carte où l'on se trouve.
-- **Bestiaire fidèle au récit d'origine, par région et par moment de l'histoire** (demande
-  de l'auteur) : orques, grands orques d'élite, gobelins des mines, loups montés, trolls,
-  le démon des profondeurs, l'araignée géante, les spectres, etc., chacun à l'endroit où
-  le récit le place, et toujours avec un nom drôle dans le ton du jeu (les orques sont déjà
-  les Morfales, les spectres de l'anneau les Nazes). Noms à inventer et à noter dans la
-  bible, section « Ajouts », avant chaque chapitre.
-- **Écran de paramètres** : plein écran, niveau de détail, échelle de rendu, mise à l'échelle
-  (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier), volumes. Réglages
-  gardés d'une session à l'autre.
-- **Amélioration graphique** : chantier permanent. L'auteur veut vraiment la patte
-  d'Octopath Traveler ; les écarts les plus visibles sont les personnages (petits, peu
-  détaillés), les maisons et le relief jouable.
-- **Chapitres 4 à 7**, un à la fois, avec un jeu de décors par peuple (Nains, Mordgras).
-- Défauts connus : chapeau tronqué dans la vignette de l'écran Équipe, arbre à moitié brun
-  dans la roselière, bande noire en bas de l'auberge, façades de Brie non revues.
+- **Relecture visuelle complète** par un agent qui voit les images, puis corrections :
+  arènes trop pâles (col, cité elfique, salle du Conseil) ou trop sombres (étage d'auberge),
+  premiers plans flous trop gros, main-curseur petite, barre d'élan parfois loin du menu,
+  titre long sur l'écran d'accueil, chapeau tronqué dans la vignette Équipe.
+- **Mort de Bromure** au début du chapitre 5, puis **chapitres 5 à 7** (scénario détaillé
+  dans la bible, à relire : sa fin a été écrite vite), un à la fois, avec les décors de
+  chaque peuple, le bestiaire de `docs/BESTIAIRE.md` et les arènes de
+  `docs/AMBIANCES_COMBAT.md`.
+- **Graphismes** : l'auteur veut vraiment la patte d'Octopath Traveler ; les écarts les plus
+  visibles restent les personnages (petits, peu détaillés), les maisons et le relief jouable.
+- **Jamais vérifié par l'auteur** : musiques (dont les six morceaux des Mines), équilibre
+  ressenti à la main avec l'élan et le nouvel équipement, prix des boutiques, navigation au
+  clavier dans les nouveaux menus.
+- Export pour faire tester (application Mac, ou version navigateur dégradée) : demandé puis
+  mis de côté ; il faut télécharger les modèles d'export de Godot (environ 1 Go).
 
 ## Préparé pour la suite, mais pas fait
 

@@ -111,7 +111,21 @@ données (`"style": "elfe"`), arènes dégagées et combat mis en page façon Oc
 `stage`, champ `foreground`, `battle_ui.gd`). Restent : écran de paramètres, chapitres 4 à
 7 avec un jeu de décors par peuple, personnages plus grands et plus détaillés.
 
+Nuit du 18 novembre (décisions 124 à 132) : nouveau titre, équipement à cinq emplacements
+(précision, esquive, critique), écran de paramètres (autoload `Settings`), une arène par
+lieu (champ `arena` des cartes), chapitre 4 (Mines de Morbier, style « nain », Glandoulf
+quitte l'équipe et Sam mène), points d'élan et icônes de combat (`Sprites.icon`).
+Références : `docs/BESTIAIRE.md` (créatures et réponses de l'auteur), `docs/AMBIANCES_COMBAT.md`
+(arènes prévues), bible (scénario des chapitres 5 à 7). Suite : relecture visuelle, mort de
+Bromure, chapitre 5.
+
 ## Pièges connus
+
+- Toute carte où l'on peut se battre déclare son `arena` et figure dans la table `expected`
+  de `_test_arena_by_place` ; le sol d'une arène garde `flatten` ≤ 0,35 et `desat` ≤ 0,2.
+- Tout nouveau boss se règle avec l'élan compris (les combats simulés s'en servent).
+- Après une fusion, vérifier que le test affiche bien son total de vérifications : une
+  erreur de syntaxe dans `tests/smoke_test.gd` le fait tourner à vide sans rien dire.
 
 - Chantiers en parallèle : un worktree par agent, chemins absolus dans son brief, fusion par
   l'agent principal ; le conflit dans `tests/smoke_test.gd` se résout en gardant les deux côtés.
