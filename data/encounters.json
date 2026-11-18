@@ -1,7 +1,7 @@
 {
 	"encounters": {
-		"vacherin": {"enemies": ["vacherin"], "arena": "cave_fromage", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
-		"chantecler": {"enemies": ["chantecler"], "arena": "ferme", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
+		"vacherin": {"enemies": ["vacherin", "ver_fromage", "ver_fromage"], "arena": "cave_fromage", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
+		"chantecler": {"enemies": ["chantecler", "poussin_chantecler", "poussin_chantecler"], "arena": "ferme", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
 		"nazes_nuit": {"enemies": ["naze_aine", "naze_cadet"], "arena": "etage_auberge", "music": "boss", "flee": false, "ramollissement": 0.3, "intro": "Deux Nazes, côte à côte, dans un couloir trop étroit. L'un frappe, l'autre souffle. Ils ne se sont pas parlé depuis cent ans, mais ils se complètent."},
 		"duel_gaston": {"enemies": ["gaston_grosbras"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 2}, "intro": "Le bras de fer commence. Il va durer, comme tout ce qui se fait mollement.", "hints": ["Ici, tout coup physique porte moins fort, pour les deux camps : il faudra de la patience. Sam peut se défendre pour souffler, ou boire une tisane."]},
 		"duel_veuve": {"enemies": ["veuve_poignet"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 3}, "intro": "La Veuve Poignet serre la main de Sam. Elle ne serre pas fort. Elle serre longtemps."},
@@ -78,7 +78,7 @@
 		"grimace": {"enemies": ["grimace", "corbeau_controleur", "corbeau_controleur"], "arena": "plaine_roquefort", "music": "boss", "flee": false, "intro": "Grimace ajuste sa toque. « Avant toute chose, rappelons le cadre. » Ce sera long."},
 		"uglouk_garde": {"enemies": ["ouroukouille_ligne", "ouroukouille_brocheur", "paton"], "arena": "garde_manger", "music": "boss", "flee": false, "intro": "La ronde du Garde-Manger vous trouve hors de sa cage, ce qui n'est pas prévu à l'inventaire."},
 		"froton_anneaute": {"enemies": ["froton_anneaute"], "arena": "garde_manger", "music": "boss", "flee": false, "intro": "Froton se redresse. Ses yeux ne sont plus tout à fait les siens : ils appartiennent à quelqu'un d'autre, qui a pris son temps pour s'installer."},
-		"breche": {"enemies": ["ouroukouille_ligne", "ouroukouille_ligne", "ouroukouille_brocheur", "ouroukouille_petrisseur"], "arena": "petrins", "music": "boss", "flee": false, "intro": "Les fours rugissent. La brigade de nuit se met en rang, et la brigade de jour fait pareil, par politesse."},
+		"breche": {"enemies": ["ouroukouille_ligne", "ouroukouille_brocheur", "ouroukouille_petrisseur", "ouroukouille_petrisseur"], "arena": "petrins", "music": "boss", "flee": false, "intro": "Les fours rugissent. La brigade de nuit se met en rang, et la brigade de jour fait pareil, par politesse."},
 		"sarumale": {"enemies": ["sarumale"], "arena": "terrasse_office", "music": "boss", "flee": false, "intro": "Sarumâle repose son stylo. « Bien. Reprenons le point un : vous. »"}
 	},
 
