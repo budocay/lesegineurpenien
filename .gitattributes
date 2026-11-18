@@ -1,2 +1,6 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# scripts Windows : fins de ligne Windows, quels que soient les réglages de git
+*.bat -text
+*.ps1 -text

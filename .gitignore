@@ -5,3 +5,6 @@
 # musiques personnelles du joueur (jamais distribuées)
 assets/music/*
 !assets/music/LISEZMOI.md
+
+# Godot téléchargé par installer_windows.bat
+tools/godot/
