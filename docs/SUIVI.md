@@ -691,6 +691,11 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      personnages sans Merri 90 % avec talents et 60 % sans ; six avec Merri 97 % et 90 %.
      Chantecler et le Vacherin sont déjà gagnés à 97-100 % à quatre : laissés tels quels.
 
+111. **Sam Gamelle est jardinier de métier** (demande de l'auteur, fidèle au récit d'origine).
+     Le champ `role` de sa fiche, affiché dans les écrans Équipe et Talents, passe de « tank »
+     à « jardinier » ; ce champ ne sert qu'à l'affichage. Il garde sa poêle, ses compétences
+     de cuisine et son nom : il cuisine ce qu'il fait pousser. Berthe dit « mon jardinier »
+     et précise qu'il tient ses fourneaux. `repriste.txt` porte la nouvelle liste de noms.
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point

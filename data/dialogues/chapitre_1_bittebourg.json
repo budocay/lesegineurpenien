@@ -331,7 +331,7 @@
 						{"who": "berthe", "text": "Une chambre ? J'ai celle des étrangers. Le lit fait presque votre taille, si vous dormez en chien de fusil."},
 						{"who": "glandoulf", "text": "Je dors dans toutes les positions, madame. C'est un don."},
 						{"who": "berthe", "text": "Tant mieux, parce que ce soir c'est calme. Trop calme. Pas un client qui chante, pas un qui se plaint de la bière. Même ma mousse ne tient plus."},
-						{"who": "berthe", "text": "Et mon cuisinier ne veut plus rien cuire. Parlez-lui, vous. Il paraît que vous êtes sage."},
+						{"who": "berthe", "text": "Et mon jardinier ne veut plus rien cuire. C'est lui qui tient mes fourneaux. Parlez-lui, vous. Il paraît que vous êtes sage."},
 						{"who": "glandoulf", "text": "Il paraît beaucoup de choses."},
 						{"set": "berthe_vue"}
 					]

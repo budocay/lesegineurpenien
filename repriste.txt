@@ -5,7 +5,7 @@ Je ne suis pas développeur : je ne touche pas à l'éditeur Godot, je lance le 
 
 Outils : je t'autorise explicitement à lire et explorer le projet avec Read, Grep, Glob et Bash. Si les outils du plugin token-eco sont refusés, n'insiste pas et utilise ceux-là. Regarde toi-même les captures d'écran en ouvrant les fichiers PNG avec Read.
 
-Noms : la bible mélange deux séries de noms. Ceux-ci font foi partout : Sam Gamelle, Fripon Besace, Pépine Bontabac, Aragrogne, Légolasse, Gimlette. Remplace les variantes (Frodon SaLfait, Pépin, Albatard, Digoulasse, Grimlit, Grolas, Poilin) dans docs/HISTOIRE.md, docs/SUIVI.md et les données du jeu. La question est tranchée.
+Noms : liste corrigée par l'auteur le 18 novembre 2026, elle fait foi partout : Sam Gamelle (jardinier de métier), Froton Salfait, Pépin Bontabac (un homme), Merri Brandemou (cousin de Pépin), Aragrogne, Digoulasse, Grimli, Isidur, Bromure du Gouda (le Boromir de l'histoire). Les variantes Fripon Besace, Pépine, Légolasse et Gimlette ne doivent plus apparaître dans docs/HISTOIRE.md ni dans les données du jeu.
 
 J'ai joué le chapitre 1. Voici ce que je veux, par ordre de priorité :
 

@@ -43,7 +43,7 @@
 	},
 	"sam": {
 		"name": "Sam Gamelle",
-		"role": "tank",
+		"role": "jardinier",
 		"branches": ["Poêle de Fer", "Cuistot de Campagne"],
 		"battle": {
 			"element": "contondant", "attack_name": "Coup de louche", "attack_anim": "coup_de_louche_sam",

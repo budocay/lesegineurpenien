@@ -42,7 +42,7 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 ## L'équipe
 
 - Glandoulf le Gris (mage) : puissant, flemmard, rongé par un secret. Branches : Pyrotechnicien (feux d'artifice, dégâts de zone) ou Maître de la Sieste (sommeil, contrôle, régénération).
-- Sam Gamelle (tank) : cuisinier grobitte, se bat à la poêle, loyal jusqu'à l'absurde. Branches : Poêle de Fer (défense, provocation) ou Cuistot de Campagne (plats qui renforcent l'équipe).
+- Sam Gamelle (tank) : jardinier grobitte (c'est son métier, comme dans le récit d'origine ; il cuisine ce qu'il fait pousser), se bat à la poêle, loyal jusqu'à l'absurde. Branches : Poêle de Fer (défense, provocation) ou Cuistot de Campagne (plats qui renforcent l'équipe).
 - Froton Salfait (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
 - Pépin Bontabac (soigneur) : jeune Grobitte téméraire et herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeur de Pipe (nuages qui renforcent ou affaiblissent).
 - Merri Brandemou (stratège) : cousin de Pépin, Grobitte organisé qui a un plan pour tout, y compris pour les plans qui échouent. Branches : Stratège de Table (initiative, mana, protections de groupe) ou Estoc de Poche (dague, riposte, coups dans le dos).
