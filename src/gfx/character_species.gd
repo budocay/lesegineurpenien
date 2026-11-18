@@ -89,7 +89,7 @@ static func _morfale(look: Dictionary, view: int) -> void:
 	var hcy := sh - 6.0
 	var hrx := 16.0 if not side else 14.5
 	var hry := 14.0
-	var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "pain" or str(_p["eyes"]) == "ko"
+	var shut := str(_p["eyes"]) in ["closed", "pain", "ko", "focus"]
 	var hat := str(look.get("hat", "none"))
 	if hat == "capuche":
 		_hood_back(hx, hcy, hrx, hry, 1 if side else 0)
@@ -112,6 +112,12 @@ static func _morfale(look: Dictionary, view: int) -> void:
 				_rect(ex + 2.0, hcy - 1.0, 2.0, 3.0, Color("#1b1425"))
 				_put(ex, int(hcy) - 2, WHITE)
 				_rect(ex, hcy - 3.0, 5.0, 1.0, skin[0])
+				# paupière lourde, sourcil en biais : l'air buté (plus dur quand elle attaque)
+				var inner := ex + 4 if s < 0 else ex
+				_put(inner, int(hcy) - 2, skin[0])
+				_put(inner + (-1 if s < 0 else 1), int(hcy) - 3, skin[0])
+				if str(_p["eyes"]) == "angry":
+					_rect(ex, hcy - 2.0, 5.0, 1.0, skin[0])
 		_rect(hx - 2.0, hcy + 3.0, 1.0, 2.0, skin[0])
 		_rect(hx + 1.0, hcy + 3.0, 1.0, 2.0, skin[0])
 		_rect(hx - 9.0, hcy + 7.0, 18.0, 5.0, maw)
@@ -119,9 +125,21 @@ static func _morfale(look: Dictionary, view: int) -> void:
 		for s: int in [-1, 1]:
 			var tx := hx + float(s) * 7.0
 			_trap(hcy + 3.0, hcy + 12.0, tx - 1.8, tx + 1.8, tx - 1.0, tx + 1.0, tusk)
-		if str(_p["mouth"]) == "open":
+		var mm := str(_p["mouth"])
+		if mm == "open" or mm == "o":
 			_rect(hx - 5.0, hcy + 9.0, 10.0, 3.0, maw)
 			_rect(hx - 3.0, hcy + 11.0, 6.0, 1.0, RED)
+		elif mm == "grit":
+			for i in 9:
+				_put(int(hx) - 4 + i, int(hcy) + 8, SCLERA if i % 2 == 0 else maw)
+				_put(int(hx) - 4 + i, int(hcy) + 10, SCLERA if i % 2 == 1 else maw)
+		elif mm == "slack":
+			_rect(hx - 3.0, hcy + 11.0, 6.0, 4.0, RED)
+			_rect(hx - 1.0, hcy + 12.0, 1.0, 3.0, Color("#b03050"))
+		# filet de bave : ces brutes ont toujours faim
+		_put(int(hx) + 8, int(hcy) + 12, Color("#dcecc8"))
+		_put(int(hx) + 8, int(hcy) + 13, Color("#dcecc8"))
+		_put(int(hx) + 8, int(hcy) + 15, Color("#c8dcb4"))
 	elif view == 1:
 		_rect(hx - hrx + 3.0, hcy - 4.0, 12.0, 2.0, skin[0])
 		var ex := int(hx - hrx * 0.5) - 2
@@ -133,19 +151,46 @@ static func _morfale(look: Dictionary, view: int) -> void:
 		_ell(hx - hrx - 0.5, hcy + 5.0, 3.6, 3.2, skin)
 		_rect(hx - hrx + 2.0, hcy + 7.0, 14.0, 5.0, maw)
 		_trap(hcy + 3.0, hcy + 12.0, hx - hrx + 3.0, hx - hrx + 6.5, hx - hrx + 3.5, hx - hrx + 6.0, tusk)
+		var ms := str(_p["mouth"])
+		if ms == "open" or ms == "o":
+			_rect(hx - hrx + 4.0, hcy + 10.0, 11.0, 4.0, maw)
+			_rect(hx - hrx + 5.0, hcy + 13.0, 6.0, 1.0, RED)
+		elif ms == "grit":
+			for i in 8:
+				_put(int(hx - hrx) + 4 + i, int(hcy) + 8, SCLERA if i % 2 == 0 else maw)
+		elif ms == "slack":
+			_rect(hx - hrx + 4.0, hcy + 11.0, 5.0, 4.0, RED)
+		_put(int(hx - hrx) + 5, int(hcy) + 15, Color("#dcecc8"))
+		_put(int(hx - hrx) + 5, int(hcy) + 16, Color("#c8dcb4"))
 	if hat != "none" and hat != "capuche":
 		_hat(look, hx, hcy, hrx, hry, hat, 0 if view != 1 else 1)
 	elif hat == "capuche":
 		_hood_front(hx, hcy, hrx, hry, view)
 	# bras proches (peints après la tête pour les poses levées)
+	var held := str(look.get("held", ""))
+	var hmode := _hmode()
+	var near_hand := Vector2.ZERO
 	if side:
-		_morfale_arm(cx - 1.0 + dx, sh + 6.0, arms, 1, top, skin, false)
+		near_hand = _morfale_arm(cx - 1.0 + dx, sh + 6.0, arms, 1, top, skin, false)
 	else:
 		for s: int in [-1, 1]:
-			_morfale_arm(cx + dx + float(s) * (bw + 1.0), sh + 6.0, arms, s, top, skin, false)
+			var hnd := _morfale_arm(cx + dx + float(s) * (bw + 1.0), sh + 6.0, arms, s, top, skin, false)
+			if s > 0:
+				near_hand = hnd
+	if held != "":
+		_foot = foot
+		# une brute garde toujours son arme en main : au repos elle pend au bout du bras
+		var hm := "walk" if hmode == "rest" else hmode
+		if hm == "slump":
+			_drop(held, near_hand)
+		else:
+			_obj(held, near_hand, -112.0 if (hm == "flail" and view != 1) else _held_angle(held, view, hm), false, Vector2.ZERO, hm == "up")
+			_ell(near_hand.x, near_hand.y, 6.6, 6.2, skin)
+			_put(int(near_hand.x) - 2, int(near_hand.y) + 3, skin[0])
+			_put(int(near_hand.x) + 1, int(near_hand.y) + 3, skin[0])
 
 
-static func _morfale_arm(sx: float, sy: float, arms: String, s: int, sleeve: Array, skin: Array, far: bool) -> void:
+static func _morfale_arm(sx: float, sy: float, arms: String, s: int, sleeve: Array, skin: Array, far: bool) -> Vector2:
 	var swing := float(_p["an"]) * float(s) if s > 0 else float(_p["af"])
 	var hx := sx + float(s) * 5.0
 	var hy := sy + 31.0 - swing * 1.0
@@ -170,7 +215,9 @@ static func _morfale_arm(sx: float, sy: float, arms: String, s: int, sleeve: Arr
 			ey = sy + 7.0
 		"slump":
 			hy = sy + 33.0
-	hx = clampf(hx, 9.0, 79.0)
+	hx = clampf(hx, 9.0, 76.0)
+	ex = clampf(ex, 9.0, 74.0)
+	hy = minf(hy, float(FRAME_H - 1 - FOOT_MARGIN) - 6.0)
 	var sl: Array = sleeve
 	_cap(sx, sy, ex, ey, 7.6, 6.8, sl)
 	_cap(ex, ey, hx, hy - 3.0, 6.8, 6.4, skin)
@@ -179,18 +226,19 @@ static func _morfale_arm(sx: float, sy: float, arms: String, s: int, sleeve: Arr
 	_put(int(round(hx)) - 2, int(round(hy)) + 3, skin[0])
 	_put(int(round(hx)) + 1, int(round(hy)) + 3, skin[0])
 	_put(int(round(hx)) - 3, int(round(hy)) - 2, skin[4])
+	return Vector2(hx, hy)
 
 
 # ------------------------------------------------------------------------ Naze
 
-static func _naze(view: int) -> void:
+static func _naze(look: Dictionary, view: int) -> void:
 	var cx := 44.0
 	var bob := float(_p["bob"])
 	var lean := float(_p["lean"]) if view == 1 else 0.0
 	var arms := str(_p["arms"])
 	var robe: Array = _c["top"]
 	var iron: Array = _c["iron"]
-	var glow := Color("#b8f0ff")
+	var glow := Color(str(look.get("glow", "#b8f0ff")))
 	var void_c := Color("#07060c")
 	var foot := float(FRAME_H - 1 - FOOT_MARGIN)
 	var top_y := foot - 94.0 + bob
@@ -229,6 +277,13 @@ static func _naze(view: int) -> void:
 						_im.set_pixel(_flip - px, yb, Color(0, 0, 0, 0))
 					else:
 						_im.set_pixel(px, yb, Color(0, 0, 0, 0))
+	# deux pantoufles à pompon qui dépassent du manteau : un spectre terrifiant, mais frileux
+	if view != 2:
+		var pink := _ramp(Color("#e87aa8"))
+		for s: int in ([-1, 1] if view == 0 else [1]):
+			var px := cx + float(s) * 8.0 - lean * 0.3 - (4.0 if view == 1 else 0.0)
+			_ell(px, foot - 2.0, 7.0, 3.6, pink)
+			_ell(px + float(s) * 2.0, foot - 4.6, 2.2, 2.2, [Color("#fff4f8"), Color("#fff4f8"), Color("#fff4f8"), Color("#f0d0dc"), Color("#fff4f8")])
 	# ceinture de fer
 	_trap(top_y + 50.0, top_y + 54.0, cx - 15.0 - lean * 0.5, cx + 15.0 - lean * 0.5, cx - 16.0 - lean * 0.5, cx + 16.0 - lean * 0.5, iron)
 	_rect(cx - 15.0 - lean * 0.5, top_y + 50.0, 30.0, 1.0, iron[4])
@@ -243,24 +298,13 @@ static func _naze(view: int) -> void:
 		[Vector2(0.3, 0.0), Vector2(0.7, 0.0)])
 	if view == 0:
 		_ell(hx, hcy + 2.0, 11.0, 13.0, [void_c, void_c, void_c, void_c, void_c])
-		var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "ko"
 		for s: int in [-1, 1]:
-			var ex := int(hx) + (-8 if s < 0 else 3)
-			if shut:
-				_rect(ex, hcy, 5.0, 1.5, glow)
-			else:
-				_rect(ex, hcy - 2.0, 5.0, 5.0, glow)
-				_put(ex, int(hcy) - 2, WHITE)
-				_put(ex + 1, int(hcy) - 2, WHITE)
-		if str(_p["mouth"]) != "smile":
-			_rect(hx - 4.0, hcy + 8.0, 8.0, 1.5, glow)
+			_naze_eye(int(hx) + (-8 if s < 0 else 3), hcy, s, glow, void_c, iron)
+		_naze_mouth(hx - 4.0, hcy + 8.0, glow, void_c, false)
 	elif view == 1:
 		_ell(hx - 5.0, hcy + 2.0, 8.5, 12.0, [void_c, void_c, void_c, void_c, void_c])
-		var shut := str(_p["eyes"]) == "closed" or str(_p["eyes"]) == "ko"
-		_rect(hx - 11.0, hcy - 1.0, 5.0, 1.5 if shut else 5.0, glow)
-		_put(int(hx) - 11, int(hcy) - 1, WHITE)
-		if str(_p["mouth"]) != "smile":
-			_rect(hx - 11.0, hcy + 8.0, 5.0, 1.5, glow)
+		_naze_eye(int(hx) - 11, hcy + 1.0, -1, glow, void_c, iron)
+		_naze_mouth(hx - 11.0, hcy + 8.0, glow, void_c, true)
 	else:
 		_rect(hx - 0.5, hcy - 16.0, 1.0, 32.0, robe[1])
 		_line(hx - 8.0, hcy - 10.0, hx - 6.0, hcy + 14.0, robe[1])
@@ -308,6 +352,54 @@ static func _naze(view: int) -> void:
 			_ell(hx2, hy2, 4.6, 4.6, hand)
 			if s > 0 and view == 0:
 				_blade(hx2, hy2, arms, glow, iron)
+
+
+## Œil d'un Naze : deux lueurs dans le vide. Attaque : en biseau, méchant ; sort : fente large ;
+## coup reçu : lueur qui vacille ; KO : lueur éteinte (un trait de fer).
+static func _naze_eye(ex: int, hcy: float, s: int, glow: Color, void_c: Color, iron: Array) -> void:
+	match str(_p["eyes"]):
+		"ko":
+			_rect(ex, hcy + 1.0, 5.0, 1.0, iron[2])
+		"focus":
+			_rect(ex - 1, hcy, 7.0, 1.5, glow)
+			_put(ex + 2, int(hcy), WHITE)
+		"closed":
+			_rect(ex, hcy, 5.0, 1.5, glow)
+		"pain":
+			_rect(ex + 1, hcy - 1.0, 3.0, 3.0, glow.darkened(0.35))
+			_put(ex + 1, int(hcy) - 1, glow)
+		"angry":
+			_rect(ex, hcy - 1.0, 5.0, 4.0, glow)
+			var inner := ex + 4 if s < 0 else ex
+			_put(inner, int(hcy) - 1, void_c)
+			_put(inner + (-1 if s < 0 else 1), int(hcy) - 1, void_c)
+			_put(inner, int(hcy), void_c)
+			_put(ex + (0 if s < 0 else 4), int(hcy) + 2, WHITE)
+		_:
+			_rect(ex, hcy - 2.0, 5.0, 5.0, glow)
+			_put(ex, int(hcy) - 2, WHITE)
+			_put(ex + 1, int(hcy) - 2, WHITE)
+
+
+## Bouche d'un Naze : fente lumineuse au repos, gueule dentée quand il attaque, rond quand il psalmodie.
+static func _naze_mouth(mx: float, my: float, glow: Color, void_c: Color, side: bool) -> void:
+	var w := 5.0 if side else 8.0
+	match str(_p["mouth"]):
+		"open":
+			_rect(mx - 1.0, my - 1.0, w + 2.0, 4.0, glow)
+			for i in int(w / 2.0) + 1:
+				_put(int(mx) + i * 2, int(my), void_c)
+				_put(int(mx) + 1 + i * 2, int(my) + 2, void_c)
+		"o":
+			_rect(mx + w * 0.5 - 1.5, my - 1.0, 3.0, 4.0, glow)
+			_put(int(mx + w * 0.5), int(my) + 1, void_c)
+		"grit":
+			for i in int(w) + 1:
+				_put(int(mx) + i, int(my) + (i % 2), glow)
+		"slack":
+			pass
+		_:
+			_rect(mx, my, w, 1.5, glow)
 
 
 static func _blade(hx: float, hy: float, arms: String, glow: Color, iron: Array) -> void:

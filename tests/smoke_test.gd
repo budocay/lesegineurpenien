@@ -2464,6 +2464,27 @@ func _test_character_art() -> void:
 		check(f != "", "%s : expression au repos définie" % hero)
 		faces[f] = true
 	check(faces.size() == 8, "les huit héros ont chacun une expression différente")
+	# objets tenus : visibles à l'attaque, sans élargir la silhouette au repos ; visages de combat distincts
+	for who: String in ["sam", "aragrogne", "digoulasse", "grimli", "froton", "pepin", "merri", "morfale_goinfre", "morfale_eclaireur", "pinard", "lambert"]:
+		var look: Dictionary = Database.characters[who]["look"]
+		check(str(look.get("held", "")) != "", "%s : objet tenu défini" % who)
+		var bare_look := look.duplicate()
+		bare_look["held"] = ""
+		var with_img: Image = Sprites.character(who)["image"]
+		var bare_img: Image = CP.paint_sheet(bare_look)
+		for row in [0, 1]:
+			var shown := with_img.get_region(Rect2i(7 * 88, row * 132, 88, 132))
+			check(shown.get_data() != bare_img.get_region(Rect2i(7 * 88, row * 132, 88, 132)).get_data(), "%s : l'objet tenu se voit à l'attaque (ligne %d)" % [who, row])
+		var w_with := Sprites.PA.opaque_bounds(with_img, Rect2i(0, 0, 88, 132)).size.x
+		var w_bare := Sprites.PA.opaque_bounds(bare_img, Rect2i(0, 0, 88, 132)).size.x
+		check(w_with <= w_bare + 2 or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
+	for who: String in ["sam", "aragrogne", "grimli", "morfale_eclaireur", "naze", "naze_aine"]:
+		var lk: Dictionary = Database.characters[who]["look"]
+		var heads := {}
+		for col in [0, 7, 8, 9, 10]:
+			heads[(CP.paint_portrait(lk, col) as Image).get_data()] = true
+		check(heads.size() == 5, "%s : visages de repos, d'effort, de concentration, de douleur et de KO distincts" % who)
+	check(str(Database.characters["naze_aine"]["look"].get("glow", "")) != str(Database.characters["naze_cadet"]["look"].get("glow", "")), "les Nazes de l'Est et de l'Ouest n'ont pas la même lueur")
 
 
 ## Décors, façades et arènes : paroi irrégulière, éléments connus, rien de magenta.
