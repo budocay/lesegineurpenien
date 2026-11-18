@@ -99,6 +99,8 @@ func _ready() -> void:
 	await _test_flow()
 	await _test_chapter_2()
 	await _test_chapter_3()
+	print("== Décors elfiques (style de Fondue-Combe) ==")
+	await _test_elven_scenery()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -2467,6 +2469,10 @@ func _test_chapter_2() -> void:
 	await _wait_idle(main)
 	check(GameState.has_flag("concours_inscrit"), "inscription au concours")
 	var team_before: Array = GameState.party.duplicate()
+	# Les duels imposent Sam au niveau 9 (équilibre mesuré ailleurs : environ 85 % de
+	# victoires en jeu automatique). Ici on suit le déroulé : Sam est monté le temps du test.
+	for duel: String in ["duel_gaston", "duel_veuve"]:
+		((Database.encounters[duel] as Dictionary)["party"] as Array)[0]["level"] = 14
 	main.run_dialogue("gaston")
 	await _wait_idle(main, 90.0)
 	check(GameState.has_flag("combat_duel_gaston"), "demi-finale gagnée")
@@ -2474,6 +2480,8 @@ func _test_chapter_2() -> void:
 	await _wait_idle(main, 90.0)
 	check(GameState.has_flag("concours_gagne") and GameState.item_count("ceinture_champion") == 1, "finale gagnée : la ceinture est dans le sac (%s, %d)" % [str(GameState.has_flag("concours_gagne")), GameState.item_count("ceinture_champion")])
 	check(GameState.party == team_before, "l'équipe est retrouvée après les duels")
+	for duel: String in ["duel_gaston", "duel_veuve"]:
+		((Database.encounters[duel] as Dictionary)["party"] as Array)[0]["level"] = 9
 	GameState.heal_party()
 
 	# le poney qui ne se lève pas
@@ -3268,7 +3276,7 @@ func _test_chapter_3() -> void:
 	check(GameState.has_flag("chapitre_2_fini") and GameState.chapter == "chapitre_3", "reprise à la fin du chapitre 2")
 	check(GameState.party.has("merri") and GameState.party.size() == 6, "six compagnons au départ (%d)" % GameState.party.size())
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 10
+		GameState.member(who)["level"] = 14   # déroulé, pas équilibre : au-dessus du niveau attendu
 	GameState.heal_party()
 	var to_col := false
 	for wp: Dictionary in main.world.warps:
@@ -3365,7 +3373,7 @@ func _test_chapter_3() -> void:
 	await _wait_idle(main)
 	check(GameState.item_count("tampon_officiel") == 4, "quatrième tampon, aux Archives")
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 12
+		GameState.member(who)["level"] = 16
 	GameState.heal_party()
 	main.run_dialogue("gardien_archives")
 	await _wait_idle(main, 200.0)
@@ -3470,3 +3478,86 @@ func _test_retouches_2() -> void:
 		if o is Dictionary and o.get("prop", "") == "tree" and o.has("avoid"):
 			avoid_ok = true
 	check(avoid_ok, "Bois Penché : zones sans arbres autour de la rampe")
+# ------------------------------------------------------------- décors elfiques
+
+func _test_elven_scenery() -> void:
+	var Elven: GDScript = load("res://src/gfx/elven_painter.gd")
+	var ElvenBuilder: GDScript = load("res://src/world/elven_builder.gd")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	# textures et sprites : tous peints, jamais le magenta de secours
+	for kind: String in Elven.TILES:
+		var img: Image = Sprites.tile_image(kind)
+		check(img != null and img.get_width() >= 48, "style elfe : la tuile %s est peinte" % kind)
+		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style elfe : la tuile %s n'est pas le magenta de secours" % kind)
+		check(docs.contains(kind), "style elfe : la tuile %s est documentée" % kind)
+	for kind: String in Elven.PROP_VARIANTS:
+		check(MapBuilder.PROPS.has(kind), "style elfe : %s est un accessoire déclaré" % kind)
+		check(docs.contains(kind), "style elfe : %s est documenté" % kind)
+		for v in int(Elven.PROP_VARIANTS[kind]):
+			var tex: Texture2D = Sprites.prop(kind, v)
+			check(tex != null and tex.get_width() > 4 and tex.get_height() > 4, "style elfe : %s variante %d peint" % [kind, v])
+	for kind: String in ["elf_rail", "elf_lantern", "elf_column3d", "elf_arcade", "elf_gate", "elf_waterfall", "elf_counter", "elf_medallion", "elf_pool"]:
+		check(ElvenBuilder.OBJECTS.has(kind) and docs.contains(kind), "style elfe : l'objet %s est connu et documenté" % kind)
+	for kind: String in ["embruns", "feuilles_dorees", "lueurs"]:
+		check(load("res://src/world/atmosphere.gd").PARTICLES.has(kind) and docs.contains(kind), "style elfe : particules %s" % kind)
+	var fac: Dictionary = Elven.facade(8.0, 3.6, 4.0, [1.5, 6.5], true, true, false)
+	check(fac["albedo"] is Image and fac["emission"] is Image, "style elfe : la façade se peint")
+
+	# les six cartes du chapitre 3 : style choisi par les données, tout est connu
+	var maps: Array[String] = ["col_biscottes", "fondue_combe", "salle_conseil", "chancellerie", "auberge_elfique", "archives"]
+	for id: String in maps:
+		var map := Database.get_map(id)
+		check(str(map.get("style", "")) == "elfe", "carte %s : style elfe" % id)
+		for f: Dictionary in (map.get("ground", {}) as Dictionary).get("fills", []):
+			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
+		for o: Dictionary in map.get("objects", []):
+			var t := str(o.get("type", ""))
+			var known: bool = t in ["monster", "encounter_zone", "house", "lantern", "fence", "npc", "light", "warp", "trigger", "table", "stool", "counter",
+					"fireplace", "stove", "rug", "crate", "scatter"] or MapBuilder.PROPS.has(t) or ElvenBuilder.OBJECTS.has(t)
+			check(known, "carte %s : objet « %s » connu" % [id, t])
+			if t == "scatter":
+				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
+		check(docs.contains(str(map.get("wall_tile", "elf_wall"))), "carte %s : tuile de mur documentée" % id)
+
+	# construction : pavillons, vallée et cascades à l'extérieur, parois pâles à l'intérieur
+	for id: String in ["fondue_combe", "col_biscottes", "salle_conseil", "archives"]:
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await get_tree().process_frame
+		var interior := bool(Database.get_map(id).get("interior", false))
+		if interior:
+			check(world.get_node_or_null("Walls") != null, "carte %s : murs elfiques construits" % id)
+		else:
+			check(world.get_node_or_null("ValleyRock") != null and world.get_node_or_null("ValleyTops") != null, "carte %s : la vallée est bâtie" % id)
+			check(world.get_node_or_null("Cliffs") == null or not (world.get_node("Cliffs") as Node3D).visible, "carte %s : plus de talus rustique" % id)
+		var houses := 0
+		var falls := 0
+		for n: Node in world.get_children():
+			if n.has_meta("elven") and n.get_meta("elven") == "house":
+				houses += 1
+			if n.has_meta("elven") and n.get_meta("elven") == "waterfall":
+				falls += 1
+		if id == "fondue_combe":
+			check(houses >= 6, "Fondue-Combe : au moins six pavillons elfiques (%d)" % houses)
+			check(falls >= 2, "Fondue-Combe : des cascades (%d)" % falls)
+			check(world.get_node_or_null("Water") != null, "Fondue-Combe : le torrent coule")
+		world.queue_free()
+		await get_tree().process_frame
+
+	# les cartes des chapitres 1 et 2 gardent leur style de village
+	GameState.new_game()
+	var village: Node3D = World.new()
+	add_child(village)
+	village.setup("brie", str(Database.get_map("brie")["spawns"].keys()[0]))
+	await get_tree().process_frame
+	var any_elf := false
+	for n: Node in village.get_children():
+		if n.has_meta("elven") or n.name == "ValleyRock":
+			any_elf = true
+	check(not any_elf, "Brie : aucun décor elfique (le style se choisit par les données)")
+	check(str(Database.get_map("brie").get("style", "")) == "", "Brie : pas de champ style")
+	village.queue_free()
+	await get_tree().process_frame

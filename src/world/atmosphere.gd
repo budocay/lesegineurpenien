@@ -5,7 +5,7 @@ extends RefCounted
 const Flicker = preload("res://src/world/light_flicker.gd")
 const RAYS_SHADER = preload("res://src/gfx/shaders/rays.gdshader")
 ## Particules qu'une ambiance peut demander (le test automatique vérifie les données).
-const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke"]
+const PARTICLES: Array = ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke", "embruns", "feuilles_dorees", "lueurs"]
 
 
 static func _c(d: Dictionary, key: String, fallback: String) -> Color:
@@ -271,6 +271,55 @@ static func make_particles(kind: String) -> CPUParticles3D:
 			p.scale_amount_max = 1.6
 			p.scale_amount_curve = _curve(0.5, 2.2)
 			p.color_ramp = _gradient([Color(1, 1, 1, 0), Color(1, 1, 1, 0.4), Color(1, 1, 1, 0)], [0.0, 0.2, 1.0])
+		"embruns":
+			quad.size = Vector2(0.16, 0.16)
+			quad.material = _particle_material(Color(0.85, 0.95, 1.1), false)
+			p.amount = 22
+			p.lifetime = 2.6
+			p.preprocess = 2.6
+			p.emission_box_extents = Vector3(0.9, 0.1, 0.3)
+			p.direction = Vector3(0, 1, 0.5)
+			p.spread = 30.0
+			p.gravity = Vector3(0, 0.1, 0)
+			p.initial_velocity_min = 0.2
+			p.initial_velocity_max = 0.5
+			p.scale_amount_min = 0.6
+			p.scale_amount_max = 1.6
+			p.scale_amount_curve = _curve(0.6, 1.8)
+			p.color_ramp = _gradient([Color(1, 1, 1, 0), Color(1, 1, 1, 0.35), Color(1, 1, 1, 0)], [0.0, 0.25, 1.0])
+		"feuilles_dorees":
+			quad.size = Vector2(0.12, 0.09)
+			quad.material = _particle_material(Color(1.5, 1.05, 0.35), false)
+			p.amount = 38
+			p.lifetime = 9.0
+			p.preprocess = 9.0
+			p.emission_box_extents = Vector3(14.0, 2.8, 9.0)
+			p.direction = Vector3(1, -0.5, 0.2)
+			p.spread = 35.0
+			p.gravity = Vector3(0.1, -0.2, 0)
+			p.initial_velocity_min = 0.2
+			p.initial_velocity_max = 0.55
+			p.angle_max = 360.0
+			p.angular_velocity_min = -90.0
+			p.angular_velocity_max = 90.0
+			p.scale_amount_min = 0.6
+			p.scale_amount_max = 1.4
+			p.color_ramp = fade_in_out
+		"lueurs":
+			quad.size = Vector2(0.1, 0.1)
+			quad.material = _particle_material(Color(0.8, 1.3, 2.2), true)
+			p.amount = 40
+			p.lifetime = 7.0
+			p.preprocess = 7.0
+			p.emission_box_extents = Vector3(13.0, 1.2, 9.0)
+			p.direction = Vector3(0, 1, 0)
+			p.spread = 180.0
+			p.gravity = Vector3(0, 0.02, 0)
+			p.initial_velocity_min = 0.05
+			p.initial_velocity_max = 0.25
+			p.scale_amount_min = 0.5
+			p.scale_amount_max = 1.2
+			p.color_ramp = fade_in_out
 		_:
 			return null
 	p.mesh = quad

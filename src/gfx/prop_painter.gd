@@ -38,6 +38,10 @@ static func paint(kind: String, variant: int = 0) -> Image:
 		"window": return night_window()
 		"blob_shadow": return blob_shadow()
 		"dot": return soft_dot()
+	# styles d'architecture ajoutés (elfe) : chargés à l'usage pour éviter une référence circulaire
+	var elven: GDScript = load("res://src/gfx/elven_painter.gd")
+	if elven.has_prop(kind):
+		return elven.paint_prop(kind, variant)
 	var img := PA.new_image(16, 16)
 	img.fill(Color.MAGENTA)
 	return img

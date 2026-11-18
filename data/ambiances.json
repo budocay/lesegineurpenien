@@ -88,5 +88,28 @@
 		"contrast": 1.05,
 		"rays": {"density": 0.006, "color": "#ffc88a", "strength": 0.032},
 		"particles": ["fireflies", "pollen"]
+	},
+	"fondue_combe": {
+		"background": "#2a3350",
+		"ambient": {"color": "#9fb0d8", "energy": 0.62},
+		"sun": {"color": "#ffcf8a", "energy": 1.05, "direction": [0.55, -0.38, -0.7], "fog_energy": 0.6},
+		"fog": {"color": "#8ea4c8", "density": 0.0055},
+		"volumetric": {"density": 0.012, "albedo": "#dce4f4", "emission": "#4a5a80", "emission_energy": 0.35, "length": 72},
+		"glow": {"intensity": 0.85, "bloom": 0.07, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.08,
+		"saturation": 1.1,
+		"contrast": 1.05,
+		"rays": {"density": 0.005, "color": "#ffd890", "strength": 0.06},
+		"particles": ["feuilles_dorees", "lueurs", "pollen"]
+	},
+	"fondue_combe_interieur": {
+		"background": "#0c0e18",
+		"ambient": {"color": "#a8b4d4", "energy": 0.62},
+		"volumetric": {"density": 0.012, "albedo": "#e8e4d8", "emission": "#2a3048", "emission_energy": 0.25, "length": 40},
+		"glow": {"intensity": 0.85, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.05,
+		"contrast": 1.05,
+		"particles": ["lueurs", "dust"]
 	}
 }

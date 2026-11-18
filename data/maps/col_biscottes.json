@@ -2,292 +2,52 @@
 	"id": "col_biscottes",
 	"name": "Le col des Biscottes",
 	"region": "Entre Brie et Fondue-Combe",
-	"size": [
-		56,
-		24
-	],
-	"ambiance": "crepuscule",
+	"size": [56, 24],
+	"ambiance": "fondue_combe",
 	"music": "campagne",
-	"camera": {
-		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
-		"dof": 0.1
-	},
-	"ground": {
-		"default": "grass",
-		"fills": [
-			{
-				"type": "path",
-				"rect": [
-					0,
-					10,
-					56,
-					3
-				]
-			},
-			{
-				"type": "path",
-				"rect": [
-					36,
-					7,
-					2,
-					3
-				]
-			}
-		]
-	},
-	"heights": [
-		{
-			"rect": [
-				30,
-				2,
-				14,
-				5
-			],
-			"h": 1.2
-		}
-	],
-	"stairs": [
-		{
-			"rect": [
-				36,
-				7,
-				2,
-				2
-			],
-			"dir": "up",
-			"from": 0.0,
-			"to": 1.2
-		}
-	],
-	"spawns": {
-		"est": {
-			"pos": [
-				53.5,
-				11.4
-			],
-			"facing": "left"
-		},
-		"ouest": {
-			"pos": [
-				2.5,
-				11.4
-			],
-			"facing": "right"
-		}
-	},
-	"on_enter": [
-		{
-			"dialogue": "arrivee_col",
-			"unless": "col_vu"
-		}
-	],
+	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"ground": {"default": "elf_lawn", "fills": [{"type": "elf_path", "rect": [0, 10, 56, 3]}, {"type": "elf_path", "rect": [36, 7, 2, 3]}, {"type": "elf_flag", "rect": [30, 2, 14, 5]}]},
+	"heights": [{"rect": [30, 2, 14, 5], "h": 1.2}],
+	"stairs": [{"rect": [36, 7, 2, 2], "dir": "up", "from": 0.0, "to": 1.2}],
+	"spawns": {"est": {"pos": [53.5, 11.4], "facing": "left"}, "ouest": {"pos": [2.5, 11.4], "facing": "right"}},
+	"on_enter": [{"dialogue": "arrivee_col", "unless": "col_vu"}],
+	"style": "elfe",
+	"water": {"deep": "#2a7f9a", "shallow": "#7fd0cc", "ripple": "#f0fffa", "glint": "#fff6d0"},
+	"valley": {"trees": 18, "pine_ratio": 0.8, "falls": [{"x": 18.0, "from": 2, "to": 0}, {"x": 47.0, "from": 1, "to": 0}]},
 	"objects": [
-		{
-			"type": "sign",
-			"pos": [
-				50.2,
-				9.4
-			],
-			"dialogue": "panneau_col",
-			"label": "Lire"
-		},
-		{
-			"type": "sign",
-			"pos": [
-				33.2,
-				3.9
-			],
-			"dialogue": "belvedere_col",
-			"label": "Lire"
-		},
-		{
-			"type": "crate",
-			"pos": [
-				40.5,
-				3.6
-			],
-			"dialogue": "coffre_col",
-			"label": "Ouvrir",
-			"turn": 12
-		},
-		{
-			"type": "rock",
-			"pos": [
-				14,
-				8.2
-			],
-			"variant": 1,
-			"dialogue": "rocher_col",
-			"label": "S'asseoir",
-			"reach": 1.8
-		},
-		{
-			"type": "rock",
-			"pos": [
-				22,
-				14.6
-			],
-			"variant": 2
-		},
-		{
-			"type": "rock",
-			"pos": [
-				44.6,
-				6.2
-			],
-			"variant": 0
-		},
-		{
-			"type": "lantern",
-			"pos": [
-				3,
-				9.3
-			]
-		},
-		{
-			"type": "lantern",
-			"pos": [
-				53,
-				9.3
-			]
-		},
-		{
-			"type": "lantern",
-			"pos": [
-				27,
-				13.6
-			],
-			"shadow": false
-		},
-		{
-			"type": "light",
-			"pos": [
-				27,
-				12.2
-			],
-			"height": 2.2,
-			"color": "#ffb060",
-			"energy": 1.0,
-			"range": 8.0,
-			"flicker": 0.15
-		},
-		{
-			"type": "encounter_zone",
-			"rect": [
-				4,
-				3,
-				48,
-				17
-			],
-			"table": "col_biscottes"
-		},
-		{
-			"type": "scatter",
-			"prop": "tree",
-			"rect": [
-				0,
-				0,
-				56,
-				2
-			],
-			"count": 26,
-			"min_dist": 1.6,
-			"seed": 31,
-			"on": [
-				"grass"
-			]
-		},
-		{
-			"type": "scatter",
-			"prop": "tree",
-			"rect": [
-				0,
-				2,
-				28,
-				7
-			],
-			"count": 14,
-			"min_dist": 2.0,
-			"seed": 32,
-			"on": [
-				"grass"
-			]
-		},
-		{
-			"type": "scatter",
-			"prop": "tree",
-			"rect": [
-				46,
-				2,
-				10,
-				7
-			],
-			"count": 6,
-			"min_dist": 2.0,
-			"seed": 33,
-			"on": [
-				"grass"
-			]
-		},
-		{
-			"type": "scatter",
-			"prop": "tree",
-			"rect": [
-				0,
-				17,
-				56,
-				7
-			],
-			"count": 22,
-			"min_dist": 2.2,
-			"seed": 34,
-			"on": [
-				"grass"
-			]
-		},
-		{
-			"type": "scatter",
-			"prop": "bush",
-			"rect": [
-				0,
-				9,
-				56,
-				6
-			],
-			"count": 10,
-			"min_dist": 2.5,
-			"seed": 35,
-			"on": [
-				"grass"
-			]
-		},
-		{
-			"type": "warp",
-			"rect": [
-				55.3,
-				10,
-				0.7,
-				3
-			],
-			"to": {
-				"map": "brie",
-				"spawn": "ouest"
-			}
-		},
-		{
-			"type": "warp",
-			"rect": [
-				0,
-				10,
-				0.7,
-				3
-			],
-			"to": {
-				"map": "fondue_combe",
-				"spawn": "est"
-			}
-		}
+		{"type": "elf_banner", "pos": [50.2, 9.4], "dialogue": "panneau_col", "label": "Lire", "variant": 0},
+		{"type": "elf_banner", "pos": [33.2, 3.9], "dialogue": "belvedere_col", "label": "Lire", "variant": 1},
+		{"type": "crate", "pos": [40.5, 3.6], "dialogue": "coffre_col", "label": "Ouvrir", "turn": 12},
+		{"type": "rock", "pos": [14, 8.2], "variant": 1, "dialogue": "rocher_col", "label": "S'asseoir", "reach": 1.8},
+		{"type": "rock", "pos": [22, 14.6], "variant": 2},
+		{"type": "rock", "pos": [44.6, 8.2], "variant": 0},
+		{"type": "boulder", "pos": [26, 6.0], "variant": 0},
+		{"type": "boulder", "pos": [8, 16.4], "variant": 1},
+		{"type": "elf_gate", "pos": [4, 12.9], "variant": 1},
+		{"type": "elf_lantern", "pos": [3, 9.3]},
+		{"type": "elf_lantern", "pos": [53, 9.3]},
+		{"type": "elf_lantern", "pos": [27, 13.6], "shadow": false},
+		{"type": "light", "pos": [27, 12.2], "height": 2.2, "color": "#ffd890", "energy": 1.0, "range": 8.0, "flicker": 0.15},
+		{"type": "elf_rail", "points": [[30.15, 2.2], [30.15, 6.85], [35.85, 6.85]], "exact": true},
+		{"type": "elf_rail", "points": [[38.15, 6.85], [43.85, 6.85], [43.85, 2.2]], "exact": true},
+		{"type": "elf_statue", "pos": [33.0, 5.2], "variant": 0},
+		{"type": "elf_urn", "pos": [41.5, 5.4], "variant": 1},
+		{"type": "elf_flowers", "pos": [32, 4.6]},
+		{"type": "elf_flowers", "pos": [42, 3.0]},
+		{"type": "elf_flowers", "pos": [12, 9.2]},
+		{"type": "elf_flowers", "pos": [48, 13.8]},
+		{"type": "elf_flowers", "pos": [30, 13.8]},
+		{"type": "encounter_zone", "rect": [4, 3, 48, 17], "table": "col_biscottes"},
+		{"type": "scatter", "prop": "elf_pine", "rect": [0, 0, 56, 2], "count": 24, "min_dist": 1.6, "seed": 31, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_pine", "rect": [0, 2, 28, 7], "count": 12, "min_dist": 2.0, "seed": 32, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_tree", "rect": [0, 2, 28, 7], "count": 4, "min_dist": 2.5, "seed": 36, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_pine", "rect": [46, 2, 10, 7], "count": 6, "min_dist": 2.0, "seed": 33, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_pine", "rect": [0, 17, 56, 7], "count": 16, "min_dist": 2.2, "seed": 34, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_tree", "rect": [0, 17, 56, 7], "count": 6, "min_dist": 2.6, "seed": 37, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "elf_leaves", "rect": [0, 0, 56, 24], "count": 30, "min_dist": 1.0, "seed": 38, "on": ["elf_lawn", "elf_path"]},
+		{"type": "scatter", "prop": "fern", "rect": [0, 0, 56, 24], "count": 24, "min_dist": 1.2, "seed": 39, "on": ["elf_lawn"]},
+		{"type": "scatter", "prop": "rock", "rect": [0, 3, 56, 18], "count": 8, "min_dist": 3.0, "seed": 40, "on": ["elf_lawn"]},
+		{"type": "warp", "rect": [55.3, 10, 0.7, 3], "to": {"map": "brie", "spawn": "ouest"}},
+		{"type": "warp", "rect": [0, 10, 0.7, 3], "to": {"map": "fondue_combe", "spawn": "est"}}
 	]
 }

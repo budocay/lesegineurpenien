@@ -40,6 +40,10 @@ static func paint(kind: String) -> Image:
 		"rock_face_ashlar": return _ashlar()
 	if kind.begins_with("roof_"):
 		return _roof(kind.trim_prefix("roof_"))
+	# styles d'architecture ajoutés (elfe) : chargés à l'usage pour éviter une référence circulaire
+	var elven: GDScript = load("res://src/gfx/elven_painter.gd")
+	if elven.has_tile(kind):
+		return elven.paint_tile(kind)
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img
