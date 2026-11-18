@@ -66,6 +66,35 @@ par `src/battle/arena_decor.gd`.
 - `far` : le lointain peint derrière la paroi, `hills`, `forest`, `marsh`, `town` ou
   `cavern` (`src/gfx/horizon_painter.gd`) ; `sky` : `[haut, bas]` du dégradé de ciel.
 
+Une arène est une scène vide et dégagée, comme une piste éclairée : les combattants se
+tiennent sur un sol nu, uni, à grain fin ; une nappe de lumière chaude éclaire le centre et
+le sol s'assombrit vers les bords ; le décor est repoussé au fond (plus sombre, moins
+saturé, légèrement brumeux). Règle générale, appliquée par le code et vérifiée par le
+test : aucun décor (semé, posé avec `at` ou poteau de lanterne) ne se trouve à moins de
+z = -9,5 du centre de la scène sur |x| < 12 (`BattleScene.STAGE_BACK`, `STAGE_SIDE`) ;
+les décors qui y tomberaient sont écartés. Les décors vivent donc au fond (z < -9,5) et
+sur les côtés extrêmes. Champs de `backdrop` en plus : `dim` (0,6 par défaut : le fond est
+assombri), `desat` (0,35 : désaturation), `haze` (0,2 : brume de distance, couleur tirée
+du bas du ciel), tous trois entre 0 et 1.
+
+Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif) :
+`{"light": "#ffd08a", "boost": 1.1, "key": 2.6, "edge": 0.12, "flatten": 0.62,
+"grain": 0.05, "desat": 0.3, "vignette": 0.65, "radius": [12, 7.5], "center": [0, -0.5]}`
+
+- `light` : couleur de la nappe de lumière du sol et de la lumière d'appoint ; `boost` :
+  éclat ajouté au centre du sol ; `key` : énergie de la lumière d'appoint (large et douce,
+  sans ombre, au-dessus de la scène : elle détache les combattants).
+- `edge` : luminosité du sol aux bords (1 = aucune vignette de sol, 0,1 = presque noir) ;
+  `radius` : demi-largeur et demi-profondeur de la nappe ; `center` : son centre `[x, z]`.
+- `flatten` : 0 laisse la texture du sol intacte, 1 la remplace par sa couleur moyenne ;
+  `grain` : amplitude du grain fin ; `desat` : désaturation du sol (0 à 1).
+- `vignette` : force de l'assombrissement des coins de l'écran (0,45 par défaut).
+
+Champ facultatif `particles` (liste, vide par défaut) : particules d'ambiance du combat
+(`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`, `smoke`). Elle remplace celle
+de l'ambiance : en combat, les lucioles flottant devant les combattants et les rayons de
+lumière obliques sont retirés pour ne rien masquer, et la brume est allégée.
+
 Champ facultatif `features` (liste) : éléments au sol ou en toile de fond.
 
 - `{"kind": "pool", "pos": [x, z], "size": [largeur, profondeur], "material": "water"}` :

@@ -12,6 +12,14 @@ const Atmosphere = preload("res://src/world/atmosphere.gd")
 const MapBuilder = preload("res://src/world/map_builder.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const ArenaDecor = preload("res://src/battle/arena_decor.gd")
+const ARENA_GROUND_SHADER = preload("res://src/gfx/shaders/arena_ground.gdshader")
+
+## Zone de jeu : aucun décor (ni arbre, ni brin d'herbe, ni lanterne) n'y est posé. Elle
+## couvre tout le sol devant z = STAGE_BACK, sur |x| < STAGE_SIDE : les combattants se
+## tiennent sur un sol nu et rien ne coupe une silhouette. Le décor vit au fond et sur
+## les côtés extrêmes, hors cadre utile.
+const STAGE_BACK := -9.5
+const STAGE_SIDE := 12.0
 
 var engine: RefCounted
 var ui: Control
@@ -29,6 +37,7 @@ var _cam_look := Vector3(0.0, 0.8, 0.0)
 var _taken: Array[Vector3] = []     # places des combattants : aucun décor haut ne s'y adosse
 var _decor: RefCounted             # paroi et lointain (arena_decor.gd)
 var _shake := 0.0
+var placed_props: Array[Vector3] = []   # décors posés (x, hauteur, z) : le test vérifie la zone de jeu
 
 
 func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
@@ -54,14 +63,12 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 # ---------------------------------------------------------------------- décor
 
 func _build_arena(arena: Dictionary) -> void:
+	var stage: Dictionary = arena.get("stage", {})
 	var ground := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(72.0, 44.0)
 	ground.mesh = plane
-	var ground_tile := str(arena.get("ground", "grass"))
-	var mat := MeshKit.ground_material(Sprites.tile_texture(ground_tile), 0.04)
-	mat.set_shader_parameter("uv_scale", plane.size / MeshKit.TEX_UNITS)
-	ground.material_override = mat
+	ground.material_override = _ground_material(str(arena.get("ground", "grass")), plane.size, stage)
 	ground.position = Vector3(0.0, 0.0, -6.0)
 	add_child(ground)
 
@@ -75,8 +82,81 @@ func _build_arena(arena: Dictionary) -> void:
 	for l: Variant in arena.get("lights", []):
 		if l is Dictionary:
 			_light(l)
-	var amb := Database.get_ambiance(str(arena.get("ambiance", "crepuscule")))
+	_stage_light(stage)
+	_stage_vignette(float(stage.get("vignette", 0.45)))
+	var amb := _stage_ambiance(Database.get_ambiance(str(arena.get("ambiance", "crepuscule"))), arena)
 	Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
+
+
+## Sol uni à grain fin, nappe de lumière au centre, bords assombris (arena_ground.gdshader).
+## Champ « stage » de l'arène : voir docs/FORMAT_DONNEES.md.
+func _ground_material(tile: String, size: Vector2, stage: Dictionary) -> ShaderMaterial:
+	var img: Image = Sprites.tile_image(tile)
+	var avg := Color(0, 0, 0)
+	for i in 64:
+		avg += img.get_pixel((i * 7) % img.get_width(), (i * 13) % img.get_height())
+	avg = avg / 64.0
+	var m := ShaderMaterial.new()
+	m.shader = ARENA_GROUND_SHADER
+	m.set_shader_parameter("tex", Sprites.tile_texture(tile))
+	m.set_shader_parameter("uv_scale", size / MeshKit.TEX_UNITS)
+	m.set_shader_parameter("base", Color(avg.r, avg.g, avg.b))
+	m.set_shader_parameter("flatten", float(stage.get("flatten", 0.6)))
+	m.set_shader_parameter("grain", float(stage.get("grain", 0.05)))
+	m.set_shader_parameter("pool_color", Database.color(stage.get("light", "#ffd9a0"), Color("#ffd9a0")))
+	m.set_shader_parameter("pool_boost", float(stage.get("boost", 0.5)))
+	m.set_shader_parameter("edge", float(stage.get("edge", 0.2)))
+	m.set_shader_parameter("desat", float(stage.get("desat", 0.0)))
+	var r: Array = stage.get("radius", [12.0, 7.5])
+	m.set_shader_parameter("pool_radius", Vector2(float(r[0]), float(r[1])))
+	var c: Array = stage.get("center", [0.0, -0.5])
+	m.set_shader_parameter("pool_center", Vector2(float(c[0]), float(c[1])))
+	return m
+
+
+## Coins de l'image assombris par-dessus le monde, sous l'interface : l'œil va au centre.
+func _stage_vignette(strength: float) -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 0
+	layer.name = "StageVignette"
+	var rect := ColorRect.new()
+	rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat := ShaderMaterial.new()
+	mat.shader = preload("res://src/gfx/shaders/vignette.gdshader")
+	mat.set_shader_parameter("strength", strength)
+	rect.material = mat
+	layer.add_child(rect)
+	add_child(layer)
+
+
+## Lumière d'appoint, large et douce, au-dessus de la scène : elle détache les combattants
+## du sol et du fond. Sans ombre, pour ne rien creuser sur le sol.
+func _stage_light(stage: Dictionary) -> void:
+	var l := Atmosphere.make_light(Database.color(stage.get("light", "#ffd9a0"), Color("#ffd9a0")),
+			float(stage.get("key", 1.6)), 17.0, false)
+	l.omni_attenuation = 0.9
+	l.light_volumetric_fog_energy = 0.0
+	l.position = Vector3(0.0, 6.0, 4.0)
+	l.name = "StageLight"
+	add_child(l)
+
+
+## Ambiance de combat : on garde le ton du lieu mais on retire ce qui encombre la scène
+## (lucioles et feuilles flottant devant les combattants, rayons obliques) et on allège
+## la brume. Le champ « particles » de l'arène remplace la liste de l'ambiance.
+func _stage_ambiance(amb: Dictionary, arena: Dictionary) -> Dictionary:
+	var out: Dictionary = amb.duplicate(true)
+	out.erase("rays")
+	out["particles"] = arena.get("particles", [])
+	if out.has("volumetric"):
+		(out["volumetric"] as Dictionary)["density"] = float((out["volumetric"] as Dictionary).get("density", 0.01)) * 0.55
+	return out
+
+
+## Vrai si ce point du sol est dans la zone de jeu (voir STAGE_BACK).
+static func in_stage(x: float, z: float) -> bool:
+	return z > STAGE_BACK and absf(x) < STAGE_SIDE
 
 
 ## Hauteur du sol de l'arène en ce point (paroi du fond).
@@ -129,8 +209,12 @@ func _scatter(p: Dictionary) -> void:
 	var placed: Array[Vector2] = []
 	var tries := 0
 	var count := int(p.get("count", 4))
+	var spots: Array = []
 	if p.has("at"):
-		count = (p["at"] as Array).size()
+		for sp: Variant in p["at"]:
+			if not in_stage(float(sp[0]), float(sp[1])):   # jamais de décor dans la zone de jeu
+				spots.append(sp)
+		count = spots.size()
 		min_dist = 0.0
 	while placed.size() < count and tries < count * 30:
 		tries += 1
@@ -139,10 +223,9 @@ func _scatter(p: Dictionary) -> void:
 			var ar: Array = p["area"]
 			pt = Vector2(_rng.randf_range(float(ar[0]), float(ar[2])), _rng.randf_range(float(ar[1]), float(ar[3])))
 		elif p.has("at"):
-			var spots: Array = p["at"]
 			var sp: Array = spots[placed.size() % spots.size()]
 			pt = Vector2(float(sp[0]), float(sp[1]))
-		var ok := true
+		var ok := not in_stage(pt.x, pt.y)
 		for q in placed:
 			if q.distance_to(pt) < min_dist:
 				ok = false
@@ -155,6 +238,7 @@ func _scatter(p: Dictionary) -> void:
 		var flip := bool(def.get("flip", false)) and _rng.randf() < 0.5
 		node.scale = Vector3(-s if flip else s, s, s)
 		node.position = Vector3(pt.x, _step_height(pt.x, pt.y), pt.y)
+		placed_props.append(node.position)
 		add_child(node)
 		(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", _rng.randf() * TAU)
 
@@ -167,7 +251,7 @@ func _light(l: Dictionary) -> void:
 			bool(l.get("shadow", false)), float(l.get("flicker", 0.12 if bool(l.get("lantern", false)) else 0.0)))
 	light.position = pos
 	add_child(light)
-	if bool(l.get("lantern", false)):
+	if bool(l.get("lantern", false)) and not in_stage(pos.x, pos.z - 0.25):
 		var post := MeshInstance3D.new()
 		var box := BoxMesh.new()
 		box.size = Vector3(0.14, pos.y - 0.25, 0.14)

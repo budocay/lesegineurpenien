@@ -11,6 +11,7 @@ const HorizonPainter = preload("res://src/gfx/horizon_painter.gd")
 const ROCK_SHADER = preload("res://src/gfx/shaders/rock.gdshader")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 const LAVA_SHADER = preload("res://src/gfx/shaders/lava.gdshader")
+const ARENA_GROUND_SHADER = preload("res://src/gfx/shaders/arena_ground.gdshader")
 
 const HALF := 40.0     # demi-largeur de la paroi
 const DEPTH := 15.0    # épaisseur des blocs (on ne voit jamais l'arrière)
@@ -18,6 +19,10 @@ const DEPTH := 15.0    # épaisseur des blocs (on ne voit jamais l'arrière)
 var segments: Array[Dictionary] = []   # {x0, x1, zf, h} : un bloc de paroi
 var _rng := RandomNumberGenerator.new()
 var _shadow_tex: Texture2D
+var _dim := 0.6          # le fond est repoussé : plus sombre,
+var _desat := 0.35       # moins saturé
+var _haze := 0.2         # et légèrement estompé par la brume
+var _haze_color := Color("#3a3450")
 
 
 func _init(seed_value: int = 1) -> void:
@@ -38,6 +43,11 @@ func build(parent: Node3D, arena: Dictionary) -> void:
 	if not (back is Dictionary) or (back as Dictionary).is_empty():
 		return
 	var bd: Dictionary = back
+	_dim = float(bd.get("dim", 0.6))
+	_desat = float(bd.get("desat", 0.35))
+	_haze = float(bd.get("haze", 0.2))
+	var sky: Array = bd.get("sky", ["#1c1a36", "#4a3f6e"])
+	_haze_color = Color.from_string(str(sky[sky.size() - 1]), Color("#4a3f6e")).darkened(0.45)
 	_horizon(parent, bd)
 	_wall(parent, bd, str(arena.get("ground", "grass")))
 	for f: Variant in arena.get("features", []):
@@ -58,6 +68,7 @@ func _horizon(parent: Node3D, bd: Dictionary) -> void:
 	var tex := ImageTexture.create_from_image(img)
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = tex
+	m.albedo_color = Color(_dim, _dim, _dim)
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
 	var q := MeshInstance3D.new()
@@ -175,14 +186,28 @@ func _wall(parent: Node3D, bd: Dictionary, ground_tile: String) -> void:
 	var wall_mat := ShaderMaterial.new()
 	wall_mat.shader = ROCK_SHADER
 	wall_mat.set_shader_parameter("tex", Sprites.tile_texture(face_tile))
+	wall_mat.set_shader_parameter("dim", _dim)
+	wall_mat.set_shader_parameter("desat", _desat)
+	wall_mat.set_shader_parameter("haze", _haze)
+	wall_mat.set_shader_parameter("haze_color", _haze_color)
 	var wall := MeshKit.finish(faces, wall_mat, true)
 	wall.name = "Backdrop"
 	parent.add_child(wall)
-	var top_mat := MeshKit.ground_material(Sprites.tile_texture(top_tile))
+	var top_mat := ShaderMaterial.new()
+	top_mat.shader = ARENA_GROUND_SHADER
+	top_mat.set_shader_parameter("tex", Sprites.tile_texture(top_tile))
+	top_mat.set_shader_parameter("uv_scale", Vector2.ONE)
+	top_mat.set_shader_parameter("base", avg)
+	top_mat.set_shader_parameter("flatten", 0.5)
+	top_mat.set_shader_parameter("edge", 1.0)
+	top_mat.set_shader_parameter("pool_boost", 0.0)
+	top_mat.set_shader_parameter("pool_color", Color.WHITE)
+	top_mat.set_shader_parameter("dim", _dim)
+	top_mat.set_shader_parameter("desat", _desat)
 	var top := MeshKit.finish(tops, top_mat, true)
 	top.name = "BackdropTop"
 	parent.add_child(top)
-	var lip := MeshKit.finish(lips, MeshKit.flat_material(lip_col), false)
+	var lip := MeshKit.finish(lips, MeshKit.flat_material(lip_col.lerp(Color(lip_col.get_luminance(), lip_col.get_luminance(), lip_col.get_luminance()), _desat) * _dim), false)
 	lip.name = "BackdropLip"
 	parent.add_child(lip)
 	var drip_col := Color.from_string(str(bd.get("shadow", "#3a3340")), Color("#3a3340"))
@@ -300,18 +325,18 @@ func _houses(parent: Node3D, f: Dictionary) -> void:
 		var fr: Dictionary = TilePainter.house_front(hw, wh, door, windows, door_col, true)
 		var st := MeshKit.begin()
 		MeshKit.quad(st, Vector3(x0, wh, z1), Vector3(x1, wh, z1), Vector3(x1, 0, z1), Vector3(x0, 0, z1))
-		node.add_child(MeshKit.finish(st, MeshKit.pixel_material(PA.texture(fr["albedo"]), PA.texture(fr["emission"]), 2.2)))
+		node.add_child(MeshKit.finish(st, _far_material(PA.texture(fr["albedo"]), PA.texture(fr["emission"]), 2.2)))
 		var side_tex := PA.texture(TilePainter.house_side(hd, wh))
 		st = MeshKit.begin()
 		MeshKit.quad(st, Vector3(x0, wh, z0), Vector3(x0, wh, z1), Vector3(x0, 0, z1), Vector3(x0, 0, z0))
 		MeshKit.quad(st, Vector3(x1, wh, z1), Vector3(x1, wh, z0), Vector3(x1, 0, z0), Vector3(x1, 0, z1))
-		node.add_child(MeshKit.finish(st, MeshKit.pixel_material(side_tex)))
+		node.add_child(MeshKit.finish(st, _far_material(side_tex)))
 		var zm := (z0 + z1) * 0.5
 		var top := wh + rh
 		st = MeshKit.begin()
 		MeshKit.tri(st, Vector3(x0, wh, z0), Vector3(x0, top, zm), Vector3(x0, wh, z1), Vector2(0, rh / 2.0), Vector2(hd / 4.0, 0), Vector2(hd / 2.0, rh / 2.0))
 		MeshKit.tri(st, Vector3(x1, wh, z1), Vector3(x1, top, zm), Vector3(x1, wh, z0), Vector2(0, rh / 2.0), Vector2(hd / 4.0, 0), Vector2(hd / 2.0, rh / 2.0))
-		node.add_child(MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("plaster"))))
+		node.add_child(MeshKit.finish(st, _far_material(Sprites.tile_texture("plaster"))))
 		var ov := 0.4
 		var os := 0.3
 		var slope := rh / (hd * 0.5)
@@ -321,9 +346,17 @@ func _houses(parent: Node3D, f: Dictionary) -> void:
 		st = MeshKit.begin()
 		MeshKit.quad(st, Vector3(x0 - os, top, zm), Vector3(x1 + os, top, zm), Vector3(x1 + os, ye, z1 + ov), Vector3(x0 - os, ye, z1 + ov), Vector2.ZERO, uv1)
 		MeshKit.quad(st, Vector3(x1 + os, top, zm), Vector3(x0 - os, top, zm), Vector3(x0 - os, ye, z0 - ov), Vector3(x1 + os, ye, z0 - ov), Vector2.ZERO, uv1)
-		node.add_child(MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("roof_" + roof))))
+		node.add_child(MeshKit.finish(st, _far_material(Sprites.tile_texture("roof_" + roof))))
 		# cheminée
 		if bool(h.get("chimney", true)):
 			st = MeshKit.begin()
 			MeshKit.box(st, Vector3(x0 + hw * 0.72, top - 0.2, zm - 0.3), Vector3(0.6, 1.4, 0.6))
-			node.add_child(MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("brick"))))
+			node.add_child(MeshKit.finish(st, _far_material(Sprites.tile_texture("brick"))))
+
+
+## Matériau d'un décor lointain (façades) : assombri comme la paroi.
+func _far_material(tex: Texture2D, emission_tex: Texture2D = null, emission_energy: float = 2.0) -> StandardMaterial3D:
+	var m := MeshKit.pixel_material(tex, emission_tex, emission_energy)
+	var k := lerpf(1.0, _dim, 0.9)
+	m.albedo_color = Color(k, k, k)
+	return m
