@@ -6,6 +6,7 @@ shader_type spatial;
 uniform sampler2D tex : source_color, filter_nearest, repeat_enable;
 uniform float variation = 0.07;
 uniform float texels_per_unit = 24.0;
+uniform vec2 uv_scale = vec2(1.0, 1.0);
 
 varying vec3 wpos;
 
@@ -26,7 +27,7 @@ void vertex() {
 }
 
 void fragment() {
-	vec4 c = texture(tex, UV);
+	vec4 c = texture(tex, UV * uv_scale);
 	if (c.a < 0.5) {
 		discard;
 	}

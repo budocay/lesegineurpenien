@@ -25,6 +25,7 @@ var fx: Node3D                # animations de combat (data/animations.json)
 var _rng := RandomNumberGenerator.new()
 var _cam_home := Vector3(0.0, 3.3, 12.4)
 var _cam_look := Vector3(0.0, 0.8, 0.0)
+var _steps: Array[Vector2] = []   # gradins du fond : (z du bord, hauteur)
 var _shake := 0.0
 
 
@@ -54,11 +55,38 @@ func _build_arena(arena: Dictionary) -> void:
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(72.0, 44.0)
 	ground.mesh = plane
-	var mat := MeshKit.pixel_material(Sprites.tile_texture(str(arena.get("ground", "grass"))))
-	mat.uv1_scale = Vector3(plane.size.x / MeshKit.TEX_UNITS, plane.size.y / MeshKit.TEX_UNITS, 1.0)
+	var ground_tile := str(arena.get("ground", "grass"))
+	var mat := MeshKit.ground_material(Sprites.tile_texture(ground_tile), 0.04)
+	mat.set_shader_parameter("uv_scale", plane.size / MeshKit.TEX_UNITS)
 	ground.material_override = mat
 	ground.position = Vector3(0.0, 0.0, -6.0)
 	add_child(ground)
+
+	# Fond en gradins : des parois au fond de l'arène, le décor du fond posé dessus.
+	_steps.clear()
+	var back: Variant = arena.get("backdrop", {})
+	if back is Dictionary and not (back as Dictionary).is_empty():
+		var st := MeshKit.begin()
+		var top_tile := str(back.get("top", ground_tile))
+		for s: Variant in back.get("steps", [[-9.0, 1.5], [-13.0, 3.2]]):
+			if not (s is Array) or (s as Array).size() < 2:
+				continue
+			var edge := float(s[0])
+			var hgt := float(s[1])
+			_steps.append(Vector2(edge, hgt))
+			MeshKit.box(st, Vector3(0.0, hgt * 0.5, edge - 15.0), Vector3(72.0, hgt, 30.0))
+			var top := MeshInstance3D.new()
+			var top_plane := PlaneMesh.new()
+			top_plane.size = Vector2(72.0, 30.0)
+			top.mesh = top_plane
+			var top_mat := MeshKit.ground_material(Sprites.tile_texture(top_tile))
+			top_mat.set_shader_parameter("uv_scale", top_plane.size / MeshKit.TEX_UNITS)
+			top.material_override = top_mat
+			top.position = Vector3(0.0, hgt + 0.03, edge - 15.0)
+			add_child(top)
+		var wall := MeshKit.finish(st, MeshKit.ground_material(Sprites.tile_texture(str(back.get("tile", "cliff"))), 0.12), true)
+		wall.name = "Backdrop"
+		add_child(wall)
 
 	for p: Variant in arena.get("props", []):
 		if p is Dictionary:
@@ -70,10 +98,39 @@ func _build_arena(arena: Dictionary) -> void:
 	Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
 
 
+## Hauteur du sol de l'arène à cette profondeur (gradins du fond).
+func _step_height(z: float) -> float:
+	var y := 0.0
+	for s: Vector2 in _steps:
+		if z < s.x:
+			y = maxf(y, s.y)
+	return y
+
+
+## Place des combattants d'un camp, en diagonale : le premier plan est le plus près du
+## centre. L'écart tient compte de la taille de chacun, pour que personne ne soit caché.
+## « scales » : la taille de chaque combattant ; renvoie une position par combattant
+## (côté droit ; le camp d'en face prend l'opposé en x).
+## « spread » élargit les écarts (les monstres sont plus larges que les personnages).
+static func formation(scales: Array, spread: float = 1.0) -> Array[Vector3]:
+	var n := scales.size()
+	var offsets: Array[float] = [0.0]
+	var total := 0.0
+	for i in range(1, n):
+		total += (0.5 + 0.45 * (float(scales[i - 1]) + float(scales[i]))) * spread
+		offsets.append(total)
+	var k := minf(1.0, 4.2 / total) if total > 0.0 else 1.0
+	var out: Array[Vector3] = []
+	for i in n:
+		var z := (offsets[i] - total * 0.5) * k
+		out.append(Vector3(3.5 - z + 0.55 * (float(scales[i]) - 1.0), 0.0, z))
+	return out
+
+
 func _zone_point(zone: String) -> Vector2:
 	match zone:
 		"back":
-			return Vector2(_rng.randf_range(-14.0, 14.0), _rng.randf_range(-12.0, -3.6))
+			return Vector2(_rng.randf_range(-15.0, 15.0), _rng.randf_range(-15.5, -3.6))
 		"front":
 			var x := _rng.randf_range(5.4, 10.5) * (1.0 if _rng.randf() < 0.5 else -1.0)
 			return Vector2(x, _rng.randf_range(3.6, 6.2))
@@ -103,7 +160,7 @@ func _scatter(p: Dictionary) -> void:
 		var s := float(p.get("scale", 1.0)) * (1.0 + _rng.randf_range(-0.15, 0.15))
 		var flip := bool(def.get("flip", false)) and _rng.randf() < 0.5
 		node.scale = Vector3(-s if flip else s, s, s)
-		node.position = Vector3(pt.x, 0.0, pt.y)
+		node.position = Vector3(pt.x, _step_height(pt.y), pt.y)
 		add_child(node)
 		(node.get_child(0) as MeshInstance3D).set_instance_shader_parameter("sway_phase", _rng.randf() * TAU)
 
@@ -155,19 +212,16 @@ func _build_camera() -> void:
 
 
 func _place(list: Array, side: float) -> void:
-	var n := list.size()
-	# en diagonale : celui du premier plan est le plus près du centre, ce qui évite que
-	# les sprites se cachent les uns les autres et dégage le coin du menu
-	var step := 0.0 if n <= 1 else minf(1.7, 3.9 / float(n - 1))
-	for i in n:
+	var scales: Array = []
+	for c: RefCounted in list:
+		scales.append(float((c.sprite as Dictionary).get("scale", 1.0)))
+	var spots := formation(scales, 1.3 if side < 0.0 else 1.0)
+	for i in list.size():
 		var c: RefCounted = list[i]
-		var scale_k := float((c.sprite as Dictionary).get("scale", 1.0))
-		var z := (float(i) - float(n - 1) * 0.5) * step
-		var x := 3.7 - 1.0 * z + 0.55 * (scale_k - 1.0)
 		var actor := Actor.new()
 		actor.name = "Actor_" + str(c.key).replace("#", "_")
 		add_child(actor)
-		actor.setup(c, Vector3(x * side, 0.0, z))
+		actor.setup(c, Vector3(spots[i].x * side, 0.0, spots[i].z))
 		actors[c.key] = actor
 
 

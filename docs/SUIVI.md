@@ -610,6 +610,35 @@ ombre à bord net ; en combat à quatre, Pépine reste en partie cachée par ses
 talus (pierre éclaircie) et le dernier écartement des alliés ont été retouchés après cette
 relecture et n'ont pas été revus par un œil.
 
+### Seconde passe HD-2D (18 novembre 2026, à la demande de l'auteur)
+
+L'auteur trouve le rendu encore loin d'Octopath, « même sur les personnages ».
+
+100. **Volume peint automatiquement** sur personnages et monstres (`PA.relief` : lumière en
+     haut à gauche, ombre en bas à droite, appliqué après le miroir des vues de profil) et
+     pied des sprites légèrement assombri par le shader. Raison : un seul endroit à régler,
+     valable pour tous les dessins présents et futurs.
+101. **Blé repeint** en gerbes de 36 x 34 px à deux rangs de tiges et épis à grains.
+102. **Arènes** : sol nuancé, champ `backdrop` (fond en gradins : parois + décor posé
+     dessus), plus de végétation.
+103. **Placement de combat calculé** (`BattleScene.formation`) : écart selon la taille de
+     chacun, plus large pour les monstres ; le test vérifie l'écart minimal et le cadre.
+104. **Pas de pack d'images** : l'auteur ne veut pas payer. Recherche faite (résumés de
+     pages seulement, licences non relues sur place) : aucun pack gratuit n'approche
+     Octopath ; le plus complet, le générateur LPC (CC-BY-SA / GPL, crédits obligatoires),
+     est noté 4 sur 10 pour le style et jurerait avec le reste. On garde le dessin par
+     code, et l'auteur a validé sa refonte en plus grand et plus détaillé (à faire).
+
+Relecture des captures de cette passe (avant les dernières retouches, non revues depuis) :
+personnages 3 puis 4 sur 10, décors 5 puis 6, arènes 4 puis 5. Défauts relevés et non
+corrigés : la paroi du fond des arènes se lit comme une bande plate et non comme de la
+roche ; arbres d'arène trop grands pour les combattants ; le bras clair du Naze. Corrigés
+après coup, sans nouvelle relecture : points clairs isolés sur Glandoulf, ennemis qui se
+chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop marquées.
+
+À faire ensuite, dans l'ordre : refonte des personnages par code (plus grands, visages et
+vêtements détaillés), vrai relief jouable, maisons et murs, parois d'arène irrégulières.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point

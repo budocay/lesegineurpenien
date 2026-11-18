@@ -46,6 +46,11 @@ Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les 
 nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
 automatiquement sur les cartes d'extérieur.
 
+Arènes (`data/arenas.json`) : champ facultatif `backdrop`, le fond en gradins.
+`{"tile": "cliff", "top": "grass", "steps": [[-9.5, 1.3], [-13.5, 2.9]]}` : `tile` est la
+texture des parois, `top` celle du dessus (par défaut le sol de l'arène), chaque gradin
+est `[profondeur du bord, hauteur]`. Les décors de la zone `back` se posent dessus.
+
 ## Cartes — `data/maps/<identifiant>.json`
 
 Repère : une case vaut une unité. `x` va vers la droite, `y` vers le bas de la carte, donc

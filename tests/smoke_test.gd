@@ -161,6 +161,31 @@ func _test_rendering() -> void:
 	for v in 3:
 		var img: Image = painter.fern(v)
 		check(img != null and not img.get_used_rect().size == Vector2i.ZERO, "fougère %d peinte" % v)
+	# combat : personne ne se cache derrière son voisin, tout le monde tient à l'écran
+	for n in range(1, 7):
+		for big: float in [1.0, 1.6]:
+			var scales: Array = []
+			for i in n:
+				scales.append(big if i == 0 else 1.0)
+			var spots: Array[Vector3] = BattleScene.formation(scales)
+			check(spots.size() == n, "formation à %d : une place par combattant" % n)
+			for i in n:
+				check(spots[i].x > 1.0 and spots[i].x < 6.6, "formation à %d : place %d dans le cadre" % [n, i])
+				if i > 0:
+					var gap := absf(spots[i].x - spots[i - 1].x)
+					check(gap >= (1.3 if n <= 4 else 0.75), "formation à %d : écart %.2f entre voisins" % [n, gap])
+	# le relief peint ne touche ni les contours ni la transparence
+	var flat := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	flat.fill_rect(Rect2i(2, 2, 4, 4), Color("#4f7d5a"))
+	var pa = preload("res://src/gfx/pixel_art.gd")
+	pa.relief(flat)
+	check(flat.get_pixel(0, 0).a < 0.5, "relief : le vide reste vide")
+	check(flat.get_pixel(2, 2).get_luminance() > flat.get_pixel(5, 5).get_luminance(), "relief : lumière en haut à gauche, ombre en bas à droite")
+	for id: String in Database.arenas if "arenas" in Database else {}:
+		var back: Variant = (Database.arenas[id] as Dictionary).get("backdrop", {})
+		check(back is Dictionary, "arène %s : backdrop est un dictionnaire" % id)
+		if back is Dictionary and back.has("tile"):
+			check(Sprites.tile_texture(str(back["tile"])) != null, "arène %s : texture de fond" % id)
 	var world_script = preload("res://src/world/world.gd")
 	check(world_script.ZOOM > 0.7 and world_script.ZOOM <= 1.0, "caméra : rapprochement raisonnable")
 

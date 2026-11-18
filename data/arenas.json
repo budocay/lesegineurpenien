@@ -2,11 +2,13 @@
 	"pre": {
 		"ground": "grass",
 		"ambiance": "crepuscule",
+		"backdrop": {"tile": "cliff", "steps": [[-9.5, 1.3], [-13.5, 2.9]]},
 		"props": [
-			{"prop": "tree", "count": 12, "zone": "back", "min_dist": 1.9},
-			{"prop": "bush", "count": 6, "zone": "back", "min_dist": 1.6},
-			{"prop": "rock", "count": 2, "zone": "back", "min_dist": 2.0},
-			{"prop": "wheat", "count": 46, "zone": "back", "min_dist": 0.5},
+			{"prop": "tree", "count": 16, "zone": "back", "min_dist": 1.9},
+			{"prop": "bush", "count": 8, "zone": "back", "min_dist": 1.6},
+			{"prop": "rock", "count": 5, "zone": "back", "min_dist": 2.0},
+			{"prop": "fern", "count": 16, "zone": "back", "min_dist": 0.9},
+			{"prop": "wheat", "count": 60, "zone": "back", "min_dist": 0.55},
 			{"prop": "grass", "count": 70, "zone": "mid", "min_dist": 0.45},
 			{"prop": "flowers", "count": 14, "zone": "mid", "min_dist": 0.8},
 			{"prop": "bush", "count": 3, "zone": "front", "min_dist": 2.5},
@@ -21,8 +23,10 @@
 	"grand_four": {
 		"ground": "stone",
 		"ambiance": "grand_four",
+		"backdrop": {"tile": "stone", "steps": [[-8.5, 2.2], [-12.5, 5.0]]},
 		"props": [
-			{"prop": "rock", "count": 16, "zone": "back", "min_dist": 1.4, "scale": 1.8},
+			{"prop": "rock", "count": 22, "zone": "back", "min_dist": 1.4, "scale": 1.8},
+			{"prop": "rock", "count": 10, "zone": "mid", "min_dist": 2.2, "scale": 0.6},
 			{"prop": "rock", "count": 4, "zone": "front", "min_dist": 2.5, "scale": 1.5}
 		],
 		"lights": [
@@ -35,8 +39,11 @@
 	"bois": {
 		"ground": "grass",
 		"ambiance": "sous_bois",
+		"backdrop": {"tile": "cliff", "steps": [[-9.0, 1.6], [-13.0, 3.4]]},
 		"props": [
-			{"prop": "tree", "count": 22, "zone": "back", "min_dist": 1.5},
+			{"prop": "tree", "count": 30, "zone": "back", "min_dist": 1.5},
+			{"prop": "fern", "count": 34, "zone": "back", "min_dist": 0.7},
+			{"prop": "fern", "count": 12, "zone": "mid", "min_dist": 1.2},
 			{"prop": "bush", "count": 9, "zone": "back", "min_dist": 1.5},
 			{"prop": "rock", "count": 3, "zone": "back", "min_dist": 2.0},
 			{"prop": "grass", "count": 80, "zone": "mid", "min_dist": 0.45},
@@ -53,8 +60,11 @@
 	"marais": {
 		"ground": "soil",
 		"ambiance": "marais",
+		"backdrop": {"tile": "cliff", "steps": [[-10.5, 1.1], [-14.0, 2.4]]},
 		"props": [
-			{"prop": "wheat", "count": 70, "zone": "back", "min_dist": 0.45},
+			{"prop": "wheat", "count": 80, "zone": "back", "min_dist": 0.55},
+			{"prop": "fern", "count": 18, "zone": "back", "min_dist": 0.9},
+			{"prop": "rock", "count": 5, "zone": "back", "min_dist": 2.0},
 			{"prop": "tree", "count": 6, "zone": "back", "min_dist": 2.4},
 			{"prop": "bush", "count": 5, "zone": "back", "min_dist": 1.8},
 			{"prop": "grass", "count": 70, "zone": "mid", "min_dist": 0.45},
@@ -70,8 +80,9 @@
 	"place": {
 		"ground": "cobble",
 		"ambiance": "crepuscule",
+		"backdrop": {"tile": "stone", "top": "grass", "steps": [[-9.5, 1.7], [-13.5, 3.2]]},
 		"props": [
-			{"prop": "tree", "count": 8, "zone": "back", "min_dist": 2.2},
+			{"prop": "tree", "count": 12, "zone": "back", "min_dist": 2.2},
 			{"prop": "barrel", "count": 5, "zone": "back", "min_dist": 1.6},
 			{"prop": "bollard", "count": 3, "zone": "back", "min_dist": 3.0},
 			{"prop": "bush", "count": 4, "zone": "back", "min_dist": 2.0},

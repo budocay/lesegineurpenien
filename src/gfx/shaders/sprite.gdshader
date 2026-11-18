@@ -24,7 +24,9 @@ void fragment() {
 	if (c.a < 0.5) {
 		discard;
 	}
-	ALBEDO = mix(c.rgb, vec3(1.0), flash * 0.5);
+	// léger dégradé vers le sol : le pied du sprite s'ancre dans le décor
+	vec3 grounded = c.rgb * mix(1.04, 0.9, UV.y * UV.y);
+	ALBEDO = mix(grounded, vec3(1.0), flash * 0.5);
 	EMISSION = c.rgb * glow * (1.0 - flash) + vec3(flash * 0.25);
 	ROUGHNESS = 1.0;
 }

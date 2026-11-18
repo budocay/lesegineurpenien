@@ -154,6 +154,7 @@ func monster(kind: String) -> Dictionary:
 		sheet["fps"] = float(meta.get("fps", 2.2))
 	else:
 		img = MonsterPainter.paint(kind)
+		PA.relief(img)
 	sheet["image"] = img
 	sheet["texture"] = PA.texture(img)
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])

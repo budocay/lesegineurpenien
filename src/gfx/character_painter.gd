@@ -52,6 +52,8 @@ static func paint_sheet(look: Dictionary) -> Image:
 		var left := img.get_region(Rect2i(ox, FRAME_H, FRAME_W, FRAME_H))
 		left.flip_x()
 		img.blit_rect(left, Rect2i(0, 0, FRAME_W, FRAME_H), Vector2i(ox, FRAME_H * 2))
+	# volume : après le miroir, pour que la lumière vienne du même côté dans les quatre vues
+	PA.relief(img)
 	return img
 
 

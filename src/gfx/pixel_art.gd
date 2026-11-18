@@ -74,6 +74,54 @@ static func outline(img: Image, region: Rect2i, c: Color = OUTLINE) -> void:
 				img.set_pixel(region.position.x + x, region.position.y + y, c)
 
 
+static func _void(src: Image, x: int, y: int) -> bool:
+	if x < 0 or y < 0 or x >= src.get_width() or y >= src.get_height():
+		return true
+	var c := src.get_pixel(x, y)
+	return c.a < 0.5 or c.is_equal_approx(OUTLINE)
+
+
+## Donne du volume à un dessin à plat : la lumière vient d'en haut à gauche. Le bord
+## gauche et le dessus de chaque forme s'éclaircissent, le bord droit et le dessous
+## s'assombrissent sur deux pixels. Les contours, les yeux et les blancs sont laissés.
+static func relief(img: Image) -> void:
+	var src := img.duplicate() as Image
+	for y in src.get_height():
+		for x in src.get_width():
+			var c := src.get_pixel(x, y)
+			if c.a < 0.5 or c.is_equal_approx(OUTLINE):
+				continue
+			var lum := c.get_luminance()
+			if lum < 0.16 or lum > 0.93:
+				continue
+			var k := 0.0
+			if _void(src, x + 1, y):
+				k -= 0.22
+			elif _void(src, x + 2, y):
+				k -= 0.1
+			if _void(src, x, y + 1):
+				k -= 0.14
+			if _void(src, x - 1, y):
+				k += 0.15
+			if _void(src, x, y - 1):
+				k += 0.16
+			# pas de point clair isolé : un éclat demande un voisin de la même teinte
+			if k > 0.0:
+				var same := false
+				for d: Vector2i in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(0, -1)]:
+					var nx := x + d.x
+					var ny := y + d.y
+					if nx >= 0 and ny >= 0 and nx < src.get_width() and ny < src.get_height() and src.get_pixel(nx, ny).is_equal_approx(c):
+						same = true
+						break
+				if not same:
+					continue
+				if lum > 0.55:
+					k *= 0.4   # une teinte déjà claire ne doit pas virer au blanc
+			if absf(k) > 0.01:
+				img.set_pixel(x, y, shade(c, clampf(k, -0.32, 0.26)))
+
+
 ## k < 0 : plus sombre et plus froid (ombres violacées) ; k > 0 : plus clair et plus chaud.
 static func shade(c: Color, k: float) -> Color:
 	var out: Color

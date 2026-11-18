@@ -86,6 +86,13 @@ Rendu façon Octopath Traveler : première passe faite (caméra rapprochée `ZOO
 talus d'arrière-plan, fougères). Reste, par ordre d'effet : vrai relief jouable, murs
 d'intérieur texturés, fonds d'arène plus riches, reflets dans l'eau.
 
+Seconde passe faite : volume automatique des sprites (`PA.relief`), blé repeint, arènes en
+gradins (champ `backdrop` de `data/arenas.json`), placement de combat calculé
+(`BattleScene.formation`). L'auteur juge le rendu encore loin d'Octopath et ne veut pas
+payer de pack : prochaine étape, refonte des personnages par code (plus grands, plus
+détaillés), puis relief jouable, maisons, parois d'arène. Voir la fin des décisions de
+`docs/SUIVI.md`.
+
 ## Pièges connus
 
 - Toute carte doit avoir un champ `music` connu de `data/music.json` (le test le vérifie).

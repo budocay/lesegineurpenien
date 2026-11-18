@@ -160,25 +160,64 @@ static func grass_tuft(v: int) -> Image:
 
 
 ## Blé « ramolli » : les tiges retombent, l'épi pend vers le sol.
+## Une gerbe : un rang de tiges sombres derrière, un rang clair devant, des feuilles, et
+## au bout de chaque tige un épi lourd, à grains, qui pend.
 static func wheat(v: int) -> Image:
-	var img := PA.new_image(26, 26)
-	var stalk := Color("#b3923f")
-	var gold := Color("#d9b84e")
-	for i in 6:
-		var x0 := 4 + i * 3 + int(PA.rnd(i, 1, 270 + v) * 2.0)
-		var dir := 1 if PA.rnd(i, 2, 270 + v) < 0.5 else -1
-		var up := 9 + int(PA.rnd(i, 3, 270 + v) * 6.0)
-		PA.rect(img, x0, 26 - up, 1, up, stalk)
-		var x := x0
-		var y := 26 - up
-		for k in 5:
-			x += dir
-			if k >= 2:
-				y += 1
-			PA.px(img, x, y, stalk)
-		PA.rect(img, x, y + 1, 2, 4, gold)
-		PA.px(img, x, y + 1, PA.shade(gold, 0.35))
-		PA.px(img, x + 1, y + 4, PA.shade(gold, -0.3))
+	var w := 36
+	var h := 34
+	var img := PA.new_image(w, h)
+	var sd := 270 + v
+	var stalk := Color("#b8963f")
+	var stalk_d := Color("#86672c")
+	var gold := Color("#e2bd4c")
+	var gold_l := Color("#f6e08a")
+	var gold_d := Color("#a87a2a")
+	var leaf := Color("#93a044")
+	var leaf_d := Color("#66762f")
+	for layer in 2:
+		var dim := -0.2 if layer == 0 else 0.0
+		for i in 5:
+			var n := layer * 5 + i
+			var x0 := 8 + i * 4 + int(PA.rnd(n, 1, sd) * 3.0) + layer * 2
+			var dir := 1 if PA.rnd(n, 2, sd) < 0.5 else -1
+			var up := (16 if layer == 0 else 12) + int(PA.rnd(n, 3, sd) * 7.0)
+			var x := x0
+			var y := h - 1
+			for k in up:
+				y = h - 1 - k
+				if k > up / 2 and k % 4 == 0:
+					x += dir
+				var body := stalk_d if (layer == 0 or k < 3) else stalk
+				PA.px(img, x, y, body)
+			# une feuille qui s'écarte de la tige
+			var ly := h - 2 - up / 3
+			var lc := leaf_d if layer == 0 else leaf
+			PA.px(img, x0 - dir, ly, lc)
+			PA.px(img, x0 - dir * 2, ly - 1, lc)
+			PA.px(img, x0 - dir * 3, ly - 1, lc)
+			PA.px(img, x0 - dir * 4, ly, leaf_d)
+			# le col plie sous le poids
+			for k in 3:
+				x += dir
+				if k >= 1:
+					y += 1
+				PA.px(img, x, y, stalk_d if layer == 0 else stalk)
+			# l'épi : trois pixels de large, grains clairs à gauche, sombres à droite
+			for g in 7:
+				var wide := 1 if (g == 0 or g == 6) else 3
+				for e in wide:
+					var col := gold
+					if wide == 3 and e == 0:
+						col = gold_l
+					elif wide == 3 and e == 2:
+						col = gold_d
+					elif g % 2 == 0 and wide == 3:
+						col = gold_d.lerp(gold, 0.45)
+					PA.px(img, x - wide / 2 + e, y + 1 + g, PA.shade(col, dim) if dim < 0.0 else col)
+			# barbes au bout de l'épi
+			PA.px(img, x - 2, y + 8, gold_d)
+			PA.px(img, x + 2, y + 8, gold_d)
+			PA.px(img, x, y + 8, gold_l if layer == 1 else gold)
 	return img
 
 
