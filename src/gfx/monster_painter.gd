@@ -150,6 +150,46 @@ static func paint(kind: String) -> Image:
 	return img
 
 
+## Version agrandie d'une planche de monstre (chaque pose séparément, pour qu'aucune ne
+## déborde sur sa voisine) : les héros sont dessinés en cases de 88 x 132 px, les monstres sur
+## de petites cases agrandies bien plus fort à l'écran (un boss : dix pixels d'écran par pixel
+## dessiné). On les repeint donc plus fin : couleurs lissées, contour de la silhouette arrondi
+## (les marches d'escalier des diagonales disparaissent), sans toucher à la planche d'origine ni
+## à la taille du monstre dans le monde (la texture change de définition, pas de dimensions).
+## Les couleurs sont d'abord étalées sous la transparence voisine : pas de liseré sombre au bord.
+const UPSCALE := 3
+
+
+static func upscale(img: Image, columns: int, k: int = UPSCALE) -> Image:
+	var fw := img.get_width() / columns
+	var fh := img.get_height()
+	var out := PA.new_image(fw * k * columns, fh * k)
+	for col in columns:
+		var cell := img.get_region(Rect2i(col * fw, 0, fw, fh))
+		var src := cell.duplicate() as Image
+		for _pass in 2:   # étale la couleur des bords sous les pixels transparents voisins
+			var prev := src.duplicate() as Image
+			for y in fh:
+				for x in fw:
+					if prev.get_pixel(x, y).a >= 0.5:
+						continue
+					var sum := Color(0, 0, 0, 0)
+					var n := 0
+					for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+						var nx := x + d.x
+						var ny := y + d.y
+						if nx >= 0 and ny >= 0 and nx < fw and ny < fh:
+							var c := prev.get_pixel(nx, ny)
+							if c.a >= 0.5:
+								sum += c
+								n += 1
+					if n > 0:
+						src.set_pixel(x, y, Color(sum.r / n, sum.g / n, sum.b / n, 0.0))
+		src.resize(fw * k, fh * k, Image.INTERPOLATE_BILINEAR)
+		out.blit_rect(src, Rect2i(0, 0, fw * k, fh * k), Vector2i(col * fw * k, 0))
+	return out
+
+
 ## Donne du volume : lumière sur les bords tournés vers le haut gauche, ombre sur les
 ## bords tournés vers le bas droit.
 static func _volume(img: Image, region: Rect2i) -> void:

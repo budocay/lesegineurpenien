@@ -170,6 +170,7 @@ func monster(kind: String) -> Dictionary:
 	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": MONSTER_PPU, "foot": 1, "fps": 2.2,
 		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.POSES}
 	var img := _load_override("monsters/%s.png" % kind)
+	var overridden: Image = img
 	if img != null:
 		var meta := _load_meta("monsters/%s.json" % kind)
 		sheet["columns"] = maxi(1, int(meta.get("columns", 2)))
@@ -182,7 +183,9 @@ func monster(kind: String) -> Dictionary:
 		img = MonsterPainter.paint(kind)
 		PA.relief(img)
 	sheet["image"] = img
-	sheet["texture"] = PA.texture(img)
+	# la planche peinte par code est affichée repeinte plus fin (voir MonsterPainter.upscale) ;
+	# image, frame_w et frame_h restent ceux du dessin d'origine (taille dans le monde, vignettes)
+	sheet["texture"] = PA.texture(MonsterPainter.upscale(img, int(sheet["columns"])) if overridden == null else img)
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])
 	sheet["frame_h"] = img.get_height()
 	_cache[key] = sheet
