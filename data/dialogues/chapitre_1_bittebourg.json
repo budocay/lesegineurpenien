@@ -178,7 +178,7 @@
 								{"who": "glandoulf", "text": "Une poêle, ça se remplace."},
 								{"who": "meme_louchette", "text": "Malheureux ! Ne lui dites jamais ça en face."},
 								{"who": "meme_louchette", "text": "Et il y a pire. Mon tricot. Regardez : mes aiguilles plient. Quarante ans que je tricote raide, et ce soir, tout pendouille."},
-								{"who": "meme_louchette", "text": "C'est le Ramollissement, je vous le dis. Ma grand-mère en parlait. Dans l'ancien temps, il y avait un anneau, et un magicien qui devait..."},
+								{"who": "meme_louchette", "text": "C'est le Ramollissement, je vous le dis. Ma grand-mère en parlait. Dans l'ancien temps, il y avait un anneau de volonté, disent les érudits, mais personne ne leur a jamais demandé où cela se porte, et un magicien qui devait..."},
 								{"who": "glandoulf", "text": "Les grands-mères disent beaucoup de choses. Bonne soirée, madame."},
 								{"text": "Glandoulf met fin à la conversation avec une vivacité surprenante pour un homme aussi fatigué."},
 								{"set": "meme_vue"}
@@ -235,7 +235,7 @@
 	],
 
 	"panneau_est": [
-		{"name": "Panneau", "text": "BITTEBOURG. Son port, ses amarres, ses bittes. « Ici, tout tient debout. »"},
+		{"name": "Panneau", "text": "BITTEBOURG. Son port, ses amarres, ses bittes. « Ici, tout tient debout. » Les visiteurs sont priés de ne rien toucher sans y avoir été invités."},
 		{"text": "Le panneau penche nettement vers la gauche."}
 	],
 	"panneau_ouest": [
@@ -271,7 +271,7 @@
 				{"who": "glandoulf", "text": "[i](Qu'il lise. Les Morfales d'abord.)[/i]"}
 			],
 			"else": [
-				{"name": "Écriteau", "text": "Capitainerie des Amarres. Toute réclamation sur la tenue des bittes doit être déposée debout."}
+				{"name": "Écriteau", "text": "Capitainerie des Amarres. Toute réclamation sur la tenue des bittes doit être déposée debout. Les réclamations déposées couchées sont classées sans suite, et sans entrain."}
 			]
 		}
 	],
@@ -343,7 +343,7 @@
 
 	"odilon": [
 		{"who": "odilon", "text": "... Hmm ? Ah. Bonsoir."},
-		{"who": "odilon", "text": "D'habitude, à cette heure-ci, je raconte comment j'ai taillé la bitte du ponton nord. D'un seul bloc. Sans une pause."},
+		{"who": "odilon", "text": "D'habitude, à cette heure-ci, je raconte comment j'ai taillé la bitte du ponton nord. D'un seul bloc. Sans une pause. Il y a ceux qui taillent gros et ceux qui taillent bien. Moi, j'ai toujours fait les deux, et personne ne s'est jamais plaint de mes dimensions."},
 		{"who": "odilon", "text": "Ce soir, je n'ai pas envie. Ni de raconter, ni de tailler. Ni de finir ma bière, tenez."},
 		{"who": "glandoulf", "text": "Ne pas finir sa bière... C'est donc grave."},
 		{"who": "odilon", "text": "Vous croyez ? Moi, je trouve ça reposant. C'est bien ce qui m'inquiète."},

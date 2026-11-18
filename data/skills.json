@@ -11,7 +11,7 @@
 	"poigne_de_fer": {"name": "Poigne de fer", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 125, "element": "contondant"}, {"type": "status", "id": "sonne", "chance": 0.25, "turns": 1}]},
 	"etincelle": {
 		"name": "Étincelle", "cost": 3, "target": "enemy",
-		"desc": "Une fusée de poche. Glandoulf en garde toujours une dans la manche.",
+		"desc": "Une fusée de poche. Glandoulf en garde toujours une en réserve : elle a tendance à mollir quand il y pense trop.",
 		"effects": [{"type": "damage", "stat": "mag", "power": 120, "element": "feu"}]
 	},
 	"baillement": {
@@ -33,7 +33,7 @@
 	},
 	"tonnerre": {
 		"name": "Coup de tonnerre", "cost": 5, "target": "enemy",
-		"desc": "La foudre tombe où Glandoulf pointe son bâton. À peu près.",
+		"desc": "Glandoulf dresse son bâton, ce qui est son seul effort de la journée : la foudre fait le reste, à peu près où il faut.",
 		"effects": [{"type": "damage", "stat": "mag", "power": 150, "element": "foudre"}]
 	},
 	"bouquet_final": {
@@ -44,7 +44,7 @@
 
 	"taille_royale": {
 		"name": "Taille royale", "cost": 4, "target": "enemy",
-		"desc": "Un grand coup d'épée, porté avec toute la dignité du Gouda.",
+		"desc": "Un grand coup d'épée, porté avec toute la dignité du Gouda et toute la longueur de la lignée d'Isidur.",
 		"effects": [{"type": "damage", "stat": "atk", "power": 160, "element": "tranchant"}]
 	},
 	"ralliement": {
@@ -273,7 +273,7 @@
 	},
 	"chandelle_romaine": {
 		"name": "Chandelle romaine", "cost": 11, "target": "all_enemies",
-		"desc": "Gros dégâts de feu sur tous les adversaires, qui peuvent en rester sonnés.",
+		"desc": "Une longue fusée qui se dresse, éclate et laisse l'assistance sans voix. Gros dégâts de feu sur tous les adversaires, qui peuvent en rester sonnés.",
 		"effects": [
 			{"type": "damage", "stat": "mag", "power": 135, "element": "feu"},
 			{"type": "status", "id": "sonne", "chance": 0.2, "turns": 1}
@@ -368,12 +368,12 @@
 	},
 	"botte_secrete": {
 		"name": "Botte secrète", "cost": 8, "target": "enemy",
-		"desc": "Le coup qu'on ne voit pas venir. Très gros dégâts.",
+		"desc": "Le coup qu'on ne voit pas venir, et qu'on sent longtemps. Très gros dégâts.",
 		"effects": [{"type": "damage", "stat": "atk", "power": 220, "element": "tranchant"}]
 	},
 	"ordre_bref": {
 		"name": "Ordre bref", "cost": 3, "target": "ally",
-		"desc": "Galvanise un allié : attaque et magie augmentées.",
+		"desc": "Bref mais efficace : on n'a jamais vu personne s'en plaindre. Galvanise un allié : attaque et magie augmentées.",
 		"effects": [{"type": "status", "id": "galvanise", "chance": 1.0, "turns": 3}]
 	},
 	"par_decret": {
@@ -401,7 +401,7 @@
 	},
 	"soupir": {
 		"name": "Soupir", "cost": 2, "target": "enemy",
-		"desc": "Démoralise un adversaire : défense et résistance réduites.",
+		"desc": "Un soupir d'elfe de 2 900 ans : l'adversaire se sent soudain bien petit. Démoralise un adversaire : défense et résistance réduites.",
 		"effects": [{"type": "status", "id": "demoralise", "chance": 1.0, "turns": 3}]
 	},
 	"remarque_blessante": {
@@ -427,7 +427,7 @@
 	},
 	"moulinet": {
 		"name": "Moulinet", "cost": 5, "target": "all_enemies",
-		"desc": "Un grand tour de hache qui touche tous les adversaires.",
+		"desc": "Un grand tour de hache qui touche tous les adversaires. Grimli jure que tout est dans le poignet.",
 		"effects": [{"type": "damage", "stat": "atk", "power": 85, "element": "tranchant"}]
 	},
 	"coup_du_bucheron": {
