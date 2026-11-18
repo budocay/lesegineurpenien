@@ -61,6 +61,7 @@ func _ready() -> void:
 	_streams["bell"] = _tone(880.0, 870.0, 0.6, 0.1, false)
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
+		p.bus = Settings.BUS_EFFECTS
 		add_child(p)
 		_players.append(p)
 

@@ -80,8 +80,7 @@ func add_entry(text: String, action: Callable, before_exit: bool = true) -> Butt
 
 
 static func toggle_fullscreen() -> void:
-	var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
+	Settings.toggle_fullscreen()
 
 
 func open(info: String) -> void:

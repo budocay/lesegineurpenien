@@ -344,6 +344,7 @@ func _build_camera() -> void:
 	attr.dof_blur_near_transition = 2.5
 	attr.dof_blur_amount = 0.095
 	camera.attributes = attr
+	Settings.apply_camera(attr)
 	camera.make_current()
 
 
@@ -695,7 +696,7 @@ func _play(events: Array) -> void:
 			"miss":
 				Sfx.play("swoosh", 1.3)
 				fx.puff("dust", ta, "burst", 3)
-				ui.popup(screen_point(target, "top"), "Raté !", Color("#b9b2a6"), 26)
+				ui.popup(screen_point(target, "top"), "Esquive !" if e.get("dodge", false) else "Raté !", Color("#b9b2a6"), 26)
 				await _wait(0.4)
 			"counter":
 				var riposter: RefCounted = e["actor"]

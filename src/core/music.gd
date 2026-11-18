@@ -56,6 +56,7 @@ func _ready() -> void:
 	_enabled = DisplayServer.get_name() != "headless"
 	for i in 2:
 		var p := AudioStreamPlayer.new()
+		p.bus = Settings.BUS_MUSIC
 		p.volume_db = SILENT_DB
 		add_child(p)
 		_players.append(p)

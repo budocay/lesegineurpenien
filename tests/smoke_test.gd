@@ -69,6 +69,7 @@ func _ready() -> void:
 	await _test_arenas()
 	_test_retouches_2()
 	_test_equipment()
+	await _test_settings()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -3902,4 +3903,219 @@ func _test_equipment() -> void:
 		for key: String in Rules.EXTRA:
 			check(st.has(key), "%s : la caractéristique %s existe après chargement" % [who, key])
 	SaveManager.delete_save()
-	return absf(p.x) + scene.actors[c.key].half_width() < half_w - 0.05
+
+
+# ----------------------------------------------------------------- paramètres
+
+func _ui_action(action: String) -> void:
+	for pressed: bool in [true, false]:
+		var e := InputEventAction.new()
+		e.action = action
+		e.pressed = pressed
+		Input.parse_input_event(e)
+		await get_tree().process_frame
+		await get_tree().process_frame
+
+
+func _test_settings() -> void:
+	print("== Paramètres ==")
+	var S: Node = Settings
+	var Atmo = preload("res://src/world/atmosphere.gd")
+	var root := get_tree().root
+	var old_path: String = S.path
+	var old_persist: bool = S.persist
+	check(S.testing and not S.persist, "réglages : les tests ne lisent ni n'écrivent le fichier de l'auteur")
+	S.reset_defaults()
+
+	# les défauts redonnent le rendu d'origine
+	check(root.msaa_3d == Viewport.MSAA_2X and root.screen_space_aa == Viewport.SCREEN_SPACE_AA_DISABLED and not root.use_taa, "réglages : anticrénelage par défaut = MSAA x2 comme avant")
+	check(root.scaling_3d_mode == Viewport.SCALING_3D_MODE_BILINEAR and is_equal_approx(root.scaling_3d_scale, 1.0), "réglages : échelle 100 % bilinéaire par défaut")
+	check(Engine.max_fps == 0, "réglages : pas de limite d'images par défaut")
+	for bus: String in ["Master", S.BUS_MUSIC, S.BUS_EFFECTS]:
+		var i := AudioServer.get_bus_index(bus)
+		check(i >= 0 and is_zero_approx(AudioServer.get_bus_volume_db(i)) and not AudioServer.is_bus_mute(i), "réglages : bus audio %s créé, à pleine puissance" % bus)
+	check(root.positional_shadow_atlas_size == 4096, "réglages : atlas d'ombres par défaut inchangé")
+	for k: String in S.DEFAULTS:
+		check(S._valid(k, S.default_of(k)), "réglages : le défaut de %s est une option valide" % k)
+	for row: Dictionary in S.ROWS:
+		if row.has("id"):
+			check(S.DEFAULTS.has(row["id"]) and S.HELP.has(row["id"]) and not (S.choices(row["id"]) as Array).is_empty(), "réglages : %s a une valeur, une aide et des options" % row["id"])
+	check(S.PRESETS["moyenne"].keys().all(func(k: String) -> bool: return S.default_of(k) == S.PRESETS["moyenne"][k]), "réglages : « Moyenne » = les défauts (rendu d'origine)")
+
+	# enregistrement, relecture, fichier abîmé, valeurs inconnues
+	var test_file := "user://test_settings_%d.cfg" % OS.get_process_id()
+	S.path = test_file
+	S.persist = true
+	S.set_value("echelle", 70)
+	S.set_value("ombres", 3)
+	S.set_value("musique", 40)
+	S.set_value("mise_echelle", "fsr1")
+	check(S.save() and FileAccess.file_exists(test_file), "réglages : enregistrement dans le fichier")
+	S.reset_values()
+	check(S.load_file() and S.get_value("echelle") == 70 and S.get_value("ombres") == 3 and S.get_value("musique") == 40 and S.get_value("mise_echelle") == "fsr1" and S.get_value("qualite") == "perso", "réglages : relecture à l'identique")
+	var f := FileAccess.open(test_file, FileAccess.WRITE)
+	f.store_string("[[[ pas un fichier \u0000 de réglages = = \n{{{")
+	f.close()
+	check(not S.load_file() and S.get_value("echelle") == 100 and S.get_value("ombres") == 2, "réglages : fichier abîmé toléré, retour aux défauts")
+	f = FileAccess.open(test_file, FileAccess.WRITE)
+	f.store_string("[rendu]\nechelle=77\nmise_echelle=\"dlss\"\nanticrenelage=\"taa\"\n[details]\nombres=\"beaucoup\"\nhalo=false\n[son]\ngeneral=50\n")
+	f.close()
+	check(S.load_file() and S.get_value("echelle") == 100 and S.get_value("mise_echelle") == "bilineaire" and S.get_value("ombres") == 2, "réglages : valeurs inconnues remplacées par le défaut")
+	check(S.get_value("anticrenelage") == "taa" and S.get_value("halo") == false and S.get_value("general") == 50, "réglages : valeurs connues gardées malgré les inconnues")
+	check(not S.set_value("echelle", 77) and not S.set_value("nimporte", 1) and S.get_value("echelle") == 100, "réglages : valeur ou clé inconnue refusée")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_file))
+	check(not S.load_file() and S.get_value("ombres") == 2, "réglages : fichier absent = défauts")
+	S.path = old_path
+	S.persist = old_persist
+	S.reset_defaults()
+
+	# chaque réglage s'applique, chaque option se règle sans erreur
+	var count := 0
+	for k: String in S.DEFAULTS:
+		for c: Array in S.choices(k):
+			S.reset_defaults()
+			check(S.set_value(k, c[0]) and S.get_value(k) == c[0], "réglages : %s = %s" % [k, str(c[1])])
+			count += 1
+	check(count > 60, "réglages : %d options essayées" % count)
+	S.reset_defaults()
+	S.set_value("echelle", 60)
+	S.set_value("mise_echelle", "plus_proche")
+	check(is_equal_approx(root.scaling_3d_scale, 0.6) and root.scaling_3d_mode == Viewport.SCALING_3D_MODE_NEAREST, "réglages : échelle et méthode transmises à la fenêtre")
+	S.set_value("mise_echelle", "fsr2")
+	check(root.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2 and root.msaa_3d == Viewport.MSAA_DISABLED, "réglages : FSR 2 lisse seul (pas de MSAA en plus)")
+	S.set_value("mise_echelle", "bilineaire")
+	S.set_value("anticrenelage", "msaa4")
+	check(root.msaa_3d == Viewport.MSAA_4X, "réglages : MSAA x4")
+	S.set_value("anticrenelage", "taa")
+	check(root.use_taa and root.msaa_3d == Viewport.MSAA_DISABLED, "réglages : TAA")
+	S.set_value("anticrenelage", "fxaa")
+	check(root.screen_space_aa == Viewport.SCREEN_SPACE_AA_FXAA and not root.use_taa, "réglages : FXAA")
+	S.set_value("anticrenelage", "smaa")
+	check(root.screen_space_aa == Viewport.SCREEN_SPACE_AA_SMAA, "réglages : SMAA")
+	S.set_value("fps_max", 30)
+	check(Engine.max_fps == 30, "réglages : limite à 30 images par seconde")
+	S.set_value("musique", 50)
+	var mi := AudioServer.get_bus_index(S.BUS_MUSIC)
+	check(absf(AudioServer.get_bus_volume_db(mi) - linear_to_db(0.5)) < 0.01, "réglages : volume de la musique sur son bus")
+	S.set_value("effets", 0)
+	check(AudioServer.is_bus_mute(AudioServer.get_bus_index(S.BUS_EFFECTS)), "réglages : effets à 0 = bus muet")
+	S.reset_defaults()
+	check(Engine.max_fps == 0 and root.msaa_3d == Viewport.MSAA_2X and not AudioServer.is_bus_mute(AudioServer.get_bus_index(S.BUS_EFFECTS)), "réglages : retour aux défauts appliqué")
+
+	# les objets réglés à la création suivent les changements
+	var holder := Node3D.new()
+	add_child(holder)
+	var amb := {"fog": {"density": 0.01}, "volumetric": {"density": 0.01}, "ssao": 1.6, "sun": {"energy": 0.8}, "particles": ["fireflies"], "rays": {"density": 0.05}}
+	var followers: Array = Atmo.build(holder, amb, Rect2(0.0, 0.0, 20.0, 20.0))
+	var we: WorldEnvironment = null
+	var sun: DirectionalLight3D = null
+	var rays: Array[MeshInstance3D] = []
+	for n in holder.get_children():
+		if n is WorldEnvironment:
+			we = n
+		elif n is DirectionalLight3D:
+			sun = n
+		elif n is MeshInstance3D:
+			rays.append(n)
+	check(we != null and sun != null and followers.size() == 1 and not rays.is_empty(), "réglages : ambiance construite (environnement, soleil, particules, rayons)")
+	var env := we.environment
+	var fireflies: CPUParticles3D = followers[0]
+	var base_amount := fireflies.amount
+	check(env.glow_enabled and env.fog_enabled and env.volumetric_fog_enabled and env.ssao_enabled and sun.shadow_enabled and fireflies.visible and rays[0].visible, "réglages : par défaut, l'ambiance est intacte")
+	S.set_value("qualite", "basse")
+	check(not env.glow_enabled and env.fog_enabled and not env.volumetric_fog_enabled and not env.ssao_enabled, "réglages : Basse coupe halo, brume volumétrique et occlusion")
+	check(sun.shadow_enabled and sun.directional_shadow_mode == DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS and root.positional_shadow_atlas_size == 2048, "réglages : Basse allège les ombres")
+	check(fireflies.amount < base_amount and fireflies.visible and not rays[0].visible, "réglages : Basse réduit les particules et coupe les rayons")
+	S.set_value("ombres", 0)
+	check(not sun.shadow_enabled and S.get_value("qualite") == "perso", "réglages : ombres coupées, qualité Personnalisée")
+	S.set_value("particules", 0)
+	check(not fireflies.visible, "réglages : particules coupées")
+	S.set_value("qualite", "haute")
+	check(S.get_value("ombres") == 3 and root.positional_shadow_atlas_size == 8192 and sun.shadow_enabled and env.glow_enabled and env.volumetric_fog_enabled, "réglages : Haute")
+	S.set_value("qualite", "moyenne")
+	check(fireflies.amount == base_amount and fireflies.visible and rays[0].visible and sun.directional_shadow_mode == DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS, "réglages : retour à Moyenne = ambiance d'origine")
+	var attr := CameraAttributesPractical.new()
+	attr.dof_blur_far_enabled = true
+	attr.dof_blur_near_enabled = true
+	S.apply_camera(attr)
+	S.set_value("flou", 0)
+	check(not attr.dof_blur_far_enabled and not attr.dof_blur_near_enabled, "réglages : flou de profondeur coupé")
+	S.set_value("flou", 3)
+	check(attr.dof_blur_far_enabled and attr.dof_blur_near_enabled, "réglages : flou de profondeur rétabli")
+	S.set_value("compteur", true)
+	check(S._counter_layer != null and S._counter_layer.visible, "réglages : compteur d'images affiché")
+	S.set_value("compteur", false)
+	check(not S._counter_layer.visible, "réglages : compteur d'images masqué")
+	holder.queue_free()
+	S.reset_defaults()
+
+	# l'écran : depuis le titre et depuis la pause, au clavier
+	var main: Node = MAIN.instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var scr: Control = main.settings_screen
+	check(scr != null and not scr.visible, "réglages : écran créé, fermé au départ")
+	var title_entry: Button = null
+	for b in main.title._menu.get_children():
+		if b is Button and b.text == "Paramètres":
+			title_entry = b
+	check(title_entry != null, "réglages : entrée « Paramètres » de l'écran-titre")
+	title_entry.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(scr.visible and scr.context == "title", "réglages : l'écran s'ouvre depuis le titre")
+	var first := scr.get_viewport().gui_get_focus_owner()
+	check(first is Button and str(first.get_meta("id", "")) == "mode", "réglages : le curseur est sur la première ligne")
+	await _ui_action("ui_right")
+	check(S.get_value("mode") == "plein_ecran", "réglages : droite change la valeur")
+	await _ui_action("ui_left")
+	check(S.get_value("mode") == "fenetre", "réglages : gauche revient")
+	await _ui_action("ui_down")
+	var second := scr.get_viewport().gui_get_focus_owner()
+	check(second != first and str(second.get_meta("id", "")) == "taille", "réglages : bas descend d'une ligne")
+	await _ui_action("ui_down")
+	await _ui_action("ui_accept")
+	check(S.get_value("vsync") == false, "réglages : valider change la valeur")
+	S.reset_defaults()
+	# tout le tour des lignes, au clavier
+	var seen: Array = []
+	(scr._ordered[0] as Button).grab_focus()
+	await get_tree().process_frame
+	for i in 30:
+		var fo := scr.get_viewport().gui_get_focus_owner()
+		if fo != null and fo.has_meta("id"):
+			seen.append(str(fo.get_meta("id")))
+		await _ui_action("ui_down")
+	for row: Dictionary in S.ROWS:
+		if row.has("id"):
+			check(seen.has(row["id"]), "réglages : la ligne %s est atteignable au clavier" % row["id"])
+	var last := scr.get_viewport().gui_get_focus_owner()
+	check(last is Button and (last as Button).text in ["Valeurs par défaut", "Retour"], "réglages : le parcours finit sur les boutons du bas")
+	S.set_value("echelle", 50)
+	S.set_value("ombres", 0)
+	S.set_value("musique", 20)
+	var reset_btn: Button = scr._reset
+	reset_btn.grab_focus()
+	await get_tree().process_frame
+	await _ui_action("ui_accept")
+	check(S.get_value("echelle") == 100 and S.get_value("ombres") == 2 and S.get_value("musique") == 100 and S.get_value("qualite") == "moyenne", "réglages : « Valeurs par défaut » remet tout")
+	await _ui_action("ui_cancel")
+	check(not scr.visible, "réglages : Échap referme l'écran")
+	check(main.title.visible, "réglages : retour sur l'écran-titre")
+	# depuis la pause
+	main.pause.open("test")
+	var pause_entry: Button = null
+	for b in main.pause._list.get_children():
+		if b is Button and b.text == "Paramètres":
+			pause_entry = b
+	check(pause_entry != null, "réglages : entrée « Paramètres » du menu de pause")
+	pause_entry.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(scr.visible and scr.context == "pause" and not main.pause.visible, "réglages : l'écran s'ouvre depuis la pause")
+	await _ui_action("ui_cancel")
+	check(not scr.visible, "réglages : refermé, retour à la pause")
+	main.queue_free()
+	await get_tree().process_frame
+	S.reset_defaults()

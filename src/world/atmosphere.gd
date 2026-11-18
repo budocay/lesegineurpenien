@@ -71,6 +71,7 @@ static func build(world: Node3D, amb: Dictionary, area: Rect2 = Rect2()) -> Arra
 	env.adjustment_saturation = float(amb.get("saturation", 1.1))
 	env.adjustment_contrast = float(amb.get("contrast", 1.05))
 
+	Settings.apply_environment(env)
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
@@ -85,6 +86,7 @@ static func build(world: Node3D, amb: Dictionary, area: Rect2 = Rect2()) -> Arra
 		light.shadow_blur = 1.3
 		light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 		light.directional_shadow_max_distance = 75.0
+		Settings.apply_light(light)
 		world.add_child(light)
 		var dir_a: Variant = sun.get("direction", [0.55, -0.45, -0.7])
 		var dir := Vector3(0.55, -0.45, -0.7)
@@ -124,6 +126,7 @@ static func make_rays(world: Node3D, area: Rect2, spec: Dictionary) -> void:
 		ray.material_override = mat
 		ray.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var foot := Vector2(rng.randf_range(area.position.x, area.end.x), rng.randf_range(area.position.y, area.end.y))
+		Settings.apply_rays(ray)
 		ray.rotation.z = tilt
 		ray.position = Vector3(foot.x - sin(tilt) * height * 0.5, cos(tilt) * height * 0.5 - 0.3, foot.y)
 		world.add_child(ray)
@@ -323,6 +326,7 @@ static func make_particles(kind: String) -> CPUParticles3D:
 		_:
 			return null
 	p.mesh = quad
+	Settings.apply_particles(p)
 	return p
 
 
@@ -339,4 +343,5 @@ static func make_light(color: Color, energy: float, light_range: float, shadow: 
 	l.shadow_enabled = shadow
 	l.shadow_blur = 1.5
 	l.light_volumetric_fog_energy = 1.4
+	Settings.apply_light(l)
 	return l

@@ -798,3 +798,41 @@ talents appris de chacun ; équipement par emplacement), inventaire, argent, fai
 découvertes, carte, position, orientation, temps de jeu. Une sauvegarde de l'étape 1 reste
 lisible, de même qu'une sauvegarde de l'étape 2 : ce qui lui manque est complété, et le
 journal de quêtes est reconstitué d'après les drapeaux.
+
+## Réglages du joueur (`user://settings.cfg`)
+
+Écrits par l'écran « Paramètres » (titre ou pause), lus au lancement par l'autoload
+`Settings` (`src/core/settings.gd`), appliqués tout de suite. Fichier `ConfigFile`
+(texte, rubriques entre crochets), **séparé des sauvegardes**. Sans fichier, ou avec une
+valeur inconnue ou un fichier illisible, chaque réglage prend son défaut, qui redonne
+exactement le rendu d'origine. Les tests et les captures (`res://tests/...`) ignorent ce
+fichier : ils tournent avec les défauts et n'écrivent rien.
+
+| Rubrique | Clé | Valeurs (défaut en gras) |
+|---|---|---|
+| `[affichage]` | `mode` | **`fenetre`**, `plein_ecran`, `sans_bord` |
+| | `taille` | `1280x720`, **`1600x900`**, `1920x1080`, `2560x1440` (mode fenêtre) |
+| | `vsync` | **`true`**, `false` |
+| | `fps_max` | 30, 60, 120, **0** (sans limite) |
+| `[rendu]` | `echelle` | 50, 60, 70, 80, 90, **100** (% de l'échelle de rendu 3D ; l'interface reste nette) |
+| | `mise_echelle` | **`bilineaire`**, `plus_proche`, `fsr1`, `fsr2`, `metalfx_spatial`, `metalfx_temporel` (les deux derniers seulement si le Mac les gère) |
+| | `nettete` | 0 à 10, défaut **9** (FSR 1 seulement ; 10 = plus net) |
+| | `anticrenelage` | `aucun`, `fxaa`, `smaa`, `taa`, **`msaa2`**, `msaa4` (sans effet avec `fsr2` et `metalfx_temporel`, qui lissent eux-mêmes) |
+| `[details]` | `qualite` | `basse`, **`moyenne`**, `haute`, `perso` (pilote les clés ci-dessous ; calculée si elles ne correspondent à aucun préréglage) |
+| | `ombres` | 0 aucune, 1 basses, **2 moyennes**, 3 hautes (atlas 2048 / 4096 / 8192, finesse du filtre, 2 ou 4 zones pour le soleil) |
+| | `flou` | 0 aucun, 1 basse, **2 moyenne**, 3 haute (flou de profondeur) |
+| | `halo` | **`true`**, `false` (glow) |
+| | `brume` | 0 aucune, 1 légère (brouillard simple), **2 normale** (avec brume volumétrique), 3 fine (volume plus détaillé) |
+| | `occlusion` | 0 aucune, 1 basse, **2 moyenne**, 3 haute (SSAO) |
+| | `particules` | 0 aucune, 1 réduites (40 %), **2 normales** |
+| | `rayons` | **`true`**, `false` (rayons de lumière obliques) |
+| `[son]` | `general`, `musique`, `effets` | 0 à 100 par pas de 10, défaut **100** (bus `Master`, `Musique`, `Effets`, créés par code) |
+| `[divers]` | `compteur` | `true`, **`false`** (compteur d'images par seconde dans un coin) |
+
+Préréglages de qualité (`Settings.PRESETS`) : *Basse* = ombres 1, flou 1, sans halo, brume 1,
+sans occlusion, particules 1, sans rayons ; *Moyenne* = les défauts ; *Haute* = ombres 3,
+flou 3, brume 3, occlusion 3.
+
+Pour qu'une scène suive ces réglages, l'objet créé passe par `Settings.apply_environment(env)`,
+`apply_camera(attributs)`, `apply_light(lumière)`, `apply_particles(émetteur)` ou
+`apply_rays(nœud)` : il est réglé tout de suite, puis suit les changements faits ensuite.
