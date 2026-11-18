@@ -8,3 +8,6 @@ assets/music/*
 
 # Godot téléchargé par installer_windows.bat
 tools/godot/
+
+# jeux construits par build.sh / build.bat
+/build/
