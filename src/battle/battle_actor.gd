@@ -9,6 +9,7 @@ var home := Vector3.ZERO
 var height := 1.6          # hauteur du sprite, en unités monde
 var fast := false          # tests : aucune animation
 var down := false
+var step := 0.7            # longueur du pas en avant quand il joue (la scène la réduit si un voisin gênerait)
 
 var _dir := -1.0           # sens « vers l'adversaire » sur l'axe x
 var _body: Node3D          # pivot du sprite (posé aux pieds)
@@ -141,12 +142,24 @@ func _tween() -> Tween:
 	return _move
 
 
+## Demi-largeur (unités monde) de son sprite, d'après le dessin lui-même.
+func half_width() -> float:
+	if _quad != null and _quad.mesh is QuadMesh:
+		return (_quad.mesh as QuadMesh).size.x * absf(_body.scale.x) * 0.5 * 0.7   # le dessin visible tient dans la case, avec une marge transparente
+	return 0.4
+
+
+## Où il se tient quand il joue : un pas vers l'adversaire.
+func stepped_home() -> Vector3:
+	return home + Vector3(_dir * step, 0.0, 0.0)
+
+
 ## Celui qui joue fait un pas vers l'adversaire.
 func set_active(active: bool) -> void:
 	if _active == active or down:
 		return
 	_active = active
-	var target := home + Vector3(_dir * 0.7, 0.0, 0.0) if active else home
+	var target := stepped_home() if active else home
 	if fast:
 		position = target
 		return

@@ -89,6 +89,19 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
 - `flatten` : 0 laisse la texture du sol intacte, 1 la remplace par sa couleur moyenne ;
   `grain` : amplitude du grain fin ; `desat` : désaturation du sol (0 à 1).
 - `vignette` : force de l'assombrissement des coins de l'écran (0,45 par défaut).
+- Valeurs par défaut du sol : `flatten` 0,15, `grain` 0,04, `boost` 0,45, `edge` 0,45,
+  `light` `#ffe9c8`. La nappe de lumière éclaircit sans changer la teinte du sol.
+- `variation` : amplitude des plaques de teinte du sol (0,09 par défaut) ; `tint` : couleur
+  qui multiplie tout le sol (teinte du lieu, `#ffffff` par défaut).
+- `patches` : `{"tile": "grass", "amount": 0.3, "tint": "#ffffff"}`, seconde matière par
+  taches sur le sol de base (herbe dans l'humus, vase dans l'herbe) ; `tile` est une tuile
+  de `Sprites`, `amount` la part couverte (0 à 1), `tint` sa teinte.
+- `puddles` : `{"amount": 0.14, "color": "#3f6a68"}`, flaques plates (`amount` au plus 0,4).
+- `fleck` : `{"density": 0.05, "colors": ["#ffffff", "#f2d040"], "tuft": "#7dbd58"}`, semis
+  de fleurs (pétales, coeur) et de touffes peints à plat sur le sol, rien qui dépasse ;
+  `density` par case de 4 pixels (au plus 0,2).
+- Le sol de chaque arène doit être celui de son lieu (pas de terre nue : `ground` ne vaut
+  jamais `soil`) et garder sa texture (`flatten` au plus 0,35, `desat` au plus 0,2).
 
 Champ facultatif `foreground` (liste, vide par défaut) : accessoires posés au tout premier
 plan, entre la caméra et les combattants, que le flou de profondeur rend flous (cadrage à la
@@ -100,6 +113,11 @@ accessoires ne comptent pas dans les accessoires de scène vérifiés par le tes
 Vue de combat : caméra basse (hauteur 4,7, recul 13,6, champ 28) qui plonge légèrement ; les
 ennemis à gauche, les héros à droite en colonne décalée (chacun un peu plus bas et plus à
 droite), les deux files de la frise des tours viennent de `engine.preview(10, acteur)`.
+Placement de l'interface de combat (calculé, aucune valeur par arène) : le pas en avant de
+chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
+ennemis se placent sous leur sprite visible puis s'écartent entre elles et des sprites
+voisins ; le menu et la liste du héros qui joue cherchent la place libre la plus proche de
+leur position préférée, hors combattants, plaques, fiches, frise, bandeau et aide.
 
 Champ facultatif `particles` (liste, vide par défaut) : particules d'ambiance du combat
 (`fireflies`, `pollen`, `leaves`, `dust`, `fire`, `embers`, `smoke`). Elle remplace celle

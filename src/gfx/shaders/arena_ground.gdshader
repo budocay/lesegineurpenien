@@ -1,21 +1,35 @@
 shader_type spatial;
-// Sol d'une arène de combat : une scène dégagée, comme une piste éclairée.
-// La texture est aplatie vers sa couleur moyenne (sol uni, grain fin), puis une nappe de
-// lumière chaude éclaire le centre, là où se tiennent les combattants, et le sol
-// s'assombrit nettement vers les bords et le premier plan.
+// Sol d'une arène de combat : le sol de son lieu (herbe, sous-bois, vase, pavés, dalles),
+// dégagé et éclairé. La texture reste visible : elle est nuancée par plaques (comme
+// ground.gdshader), une seconde texture peut la recouvrir par taches (herbe dans l'humus,
+// vase dans l'herbe), des flaques et un semis ras de fleurs et de touffes à plat sont peints
+// directement sur le sol (rien qui dépasse, rien qui cache un combattant). Une nappe de
+// lumière éclaircit le centre sans changer la teinte, les bords et le premier plan
+// s'assombrissent doucement.
 // Sert aussi, avec pool_boost = 0, de dessus de paroi (assombri, désaturé).
 
 uniform sampler2D tex : source_color, filter_nearest, repeat_enable;
+uniform sampler2D tex2 : source_color, filter_nearest, repeat_enable;
 uniform vec2 uv_scale = vec2(1.0, 1.0);
 uniform vec3 base : source_color = vec3(0.5, 0.45, 0.35);   // couleur moyenne de la texture
-uniform float flatten = 0.6;        // 0 : texture intacte, 1 : couleur unie
-uniform float grain = 0.05;         // grain fin, pixel par pixel
+uniform float flatten = 0.15;       // 0 : texture intacte, 1 : couleur unie
+uniform float variation = 0.09;     // nuances par plaques (clair, sombre)
+uniform float grain = 0.04;         // grain fin, pixel par pixel
 uniform float texels_per_unit = 24.0;
+uniform vec3 tint : source_color = vec3(1.0, 1.0, 1.0);   // teinte du lieu (multiplie le sol)
+uniform vec3 patch_tint : source_color = vec3(1.0, 1.0, 1.0);   // teinte de la seconde texture
+uniform float patch_amount = 0.0;   // part du sol couverte par la seconde texture (0 à 1)
+uniform float puddle_amount = 0.0;  // part du sol couverte de flaques (0 à 0,4)
+uniform vec3 puddle_color : source_color = vec3(0.24, 0.38, 0.38);
+uniform float fleck_density = 0.0;  // fleurs et touffes à plat, par case de 4 pixels
+uniform vec3 fleck_a : source_color = vec3(0.96, 0.94, 0.88);   // pétales
+uniform vec3 fleck_b : source_color = vec3(0.95, 0.80, 0.25);   // coeur
+uniform vec3 tuft_color : source_color = vec3(0.45, 0.72, 0.32);
 uniform vec2 pool_center = vec2(0.0, 0.0);
 uniform vec2 pool_radius = vec2(12.0, 7.5);   // demi-largeur et demi-profondeur de la nappe
-uniform vec3 pool_color : source_color = vec3(1.0, 0.86, 0.62);
-uniform float pool_boost = 0.55;    // éclat ajouté au centre
-uniform float edge = 0.22;          // luminosité aux bords (1 = aucune vignette)
+uniform vec3 pool_color : source_color = vec3(1.0, 0.92, 0.78);
+uniform float pool_boost = 0.45;    // éclat ajouté au centre
+uniform float edge = 0.45;          // luminosité aux bords (1 = aucune vignette)
 uniform float dim = 1.0;            // assombrissement général
 uniform float desat = 0.0;          // 0 : couleurs pleines, 1 : gris
 
@@ -42,15 +56,71 @@ void fragment() {
 	if (c.a < 0.5) {
 		discard;
 	}
-	vec2 q = floor(wpos.xz * texels_per_unit) / texels_per_unit;
-	float g = (hash(q * texels_per_unit) - 0.5) * 2.0 * grain;
-	float plate = (vnoise(q * 0.35) - 0.5) * 0.06;
-	vec3 col = mix(c.rgb, base, flatten) * (1.0 + g + plate);
+	vec2 px = floor(wpos.xz * texels_per_unit);
+	vec2 q = px / texels_per_unit;
+	vec3 col = mix(c.rgb, base, flatten);
+
+	// seconde matière par taches : bord grignoté pixel par pixel
+	if (patch_amount > 0.0) {
+		float m = vnoise(q * 0.17 + 7.0) * 0.6 + vnoise(q * 0.46 + 3.0) * 0.4;
+		m += (hash(px + 5.0) - 0.5) * 0.07;
+		if (m > mix(0.74, 0.34, clamp(patch_amount, 0.0, 1.0))) {
+			col = texture(tex2, UV * uv_scale).rgb * patch_tint;
+		}
+	}
+
+	// plaques de teinte, calculées sur la grille des pixels, tournées par rapport au monde
+	vec2 r = vec2(q.x * 0.8 - q.y * 0.6, q.x * 0.6 + q.y * 0.8);
+	float n = vnoise(r * 0.31) * 0.5 + vnoise(r * 0.83 + 17.0) * 0.3 + vnoise(r * 2.1 + 41.0) * 0.2;
+	n += (hash(px + 9.0) - 0.5) * 0.2;
+	n = floor(clamp(n, 0.0, 0.999) * 5.0) / 4.0;
+	col *= 1.0 + (n - 0.5) * 2.0 * variation;
+	col *= 1.0 + (hash(px) - 0.5) * 2.0 * grain;
+
+	// flaques : taches plates, plus larges que hautes, liseré de vase
+	if (puddle_amount > 0.0) {
+		float p = vnoise(vec2(q.x * 0.30, q.y * 0.55) + 21.0) * 0.65 + vnoise(vec2(q.x * 0.9, q.y * 1.6) + 5.0) * 0.35;
+		float thr = 0.88 - clamp(puddle_amount, 0.0, 0.4) * 0.9;
+		if (p > thr + 0.025) {
+			col = puddle_color * (0.92 + 0.16 * vnoise(vec2(q.x * 1.3, q.y * 3.0)));
+		} else if (p > thr) {
+			col = col * 0.62;
+		}
+	}
+
+	// fleurs et touffes à plat : une case de 4 pixels sur 1/density, un petit motif de 3 x 3
+	if (fleck_density > 0.0) {
+		vec2 cell = floor(px / 4.0);
+		float h = hash(cell + 31.0);
+		if (h < fleck_density) {
+			vec2 off = floor(vec2(hash(cell + 1.7), hash(cell + 2.9)) * 2.0);
+			vec2 lp = px - cell * 4.0 - off;
+			bool flower = hash(cell + 4.1) < 0.5;
+			if (lp.x >= 0.0 && lp.x < 3.0 && lp.y >= 0.0 && lp.y < 3.0) {
+				if (flower) {
+					vec3 petal = hash(cell + 6.3) < 0.5 ? fleck_a : fleck_a * vec3(1.0, 0.82, 0.9);
+					if (lp == vec2(1.0, 1.0)) {
+						col = fleck_b;
+					} else if (abs(lp.x - 1.0) + abs(lp.y - 1.0) == 1.0) {
+						col = petal;
+					}
+				} else {
+					if (lp == vec2(1.0, 1.0) || lp == vec2(0.0, 0.0) || lp == vec2(2.0, 0.0)) {
+						col = tuft_color;
+					} else if (lp == vec2(1.0, 2.0)) {
+						col = tuft_color * 0.6;
+					}
+				}
+			}
+		}
+	}
+
+	col *= tint;
 	float d = length((wpos.xz - pool_center) / pool_radius);
 	float lit = 1.0 - smoothstep(0.3, 1.25, d);
 	lit = lit * lit * (3.0 - 2.0 * lit);
 	col *= mix(edge, 1.0, lit);
-	col *= mix(vec3(1.0), pool_color, lit * 0.85);
+	col *= mix(vec3(1.0), pool_color, lit * 0.3);   // la nappe éclaircit, elle ne change presque pas la teinte
 	col *= 1.0 + pool_boost * lit * lit;
 	float l = dot(col, vec3(0.299, 0.587, 0.114));
 	col = mix(col, vec3(l), desat) * dim;
