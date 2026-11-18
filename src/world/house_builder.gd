@@ -15,13 +15,61 @@ const WARM := Color("#ffb45e")
 const TINTS := ["#e2cfa6", "#d9b98a", "#e6c6b0", "#c9d1b0", "#cfd4d8", "#eadfc8", "#dcae8c"]
 const SHUTTERS := ["#3f6a8a", "#4f7a52", "#8a4a3c", "#6a5a8a", "#a8843c", "#5a7a8a"]
 const WALLS := ["crepi", "colombage", "pierre", "planches"]
+const DOORS := ["#3f7a52", "#a8483c", "#3f6ea0", "#d9a23a", "#6a4a8a", "#2f2c38", "#c8782a"]
 const ROOF_OV := 0.4      # débord de l'avant-toit, côtés façade et dos
 const ROOF_OS := 0.3      # débord du toit sur les pignons
-const JETTY := 0.26       # encorbellement de l'étage
+const JETTY := 0.42       # encorbellement de l'étage
 
 
 ## Tirage stable pour la maison `o` de la carte `map`. Pur : aucune lecture du monde.
 static func spec(map: Dictionary, o: Dictionary) -> Dictionary:
+	var sp := _base_spec(map, o)
+	# deux bâtiments d'une même carte ne partagent jamais mur + toit + porte : on varie, dans l'ordre
+	# des cartes, ce que le JSON n'impose pas (mur, puis toit, puis couleur de porte)
+	var done: Array[Dictionary] = []
+	for h: Variant in map.get("objects", []):
+		if not (h is Dictionary) or str((h as Dictionary).get("type", "")) != "house":
+			continue
+		if (h as Dictionary).get("rect") == o.get("rect"):
+			break
+		done.append(_dedupe(_base_spec(map, h as Dictionary), done, h as Dictionary))
+	return _dedupe(sp, done, o)
+
+
+static func _same_door(a: Color, b: Color) -> bool:
+	return absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) < 0.45
+
+
+static func _clash(sp: Dictionary, done: Array[Dictionary]) -> bool:
+	for d: Dictionary in done:
+		if str(d["wall"]) == str(sp["wall"]) and str(d["roof"]) == str(sp["roof"]) and _same_door(d["door_color"], sp["door_color"]):
+			return true
+	return false
+
+
+static func _dedupe(sp: Dictionary, done: Array[Dictionary], o: Dictionary) -> Dictionary:
+	if not _clash(sp, done):
+		return sp
+	var grobitte := str(sp["style"]) == "grobitte"
+	if not o.has("wall") and not grobitte:
+		for w: String in WALLS:
+			sp["wall"] = w
+			if not _clash(sp, done):
+				return sp
+	if not o.has("roof") and not grobitte:
+		for rf: String in ["rouge", "ardoise", "chaume"]:
+			sp["roof"] = rf
+			if not _clash(sp, done):
+				return sp
+	if not o.has("door_color"):
+		for dc: String in DOORS:
+			sp["door_color"] = Color.from_string(dc, Color("#3f7a52"))
+			if not _clash(sp, done):
+				return sp
+	return sp
+
+
+static func _base_spec(map: Dictionary, o: Dictionary) -> Dictionary:
 	var r: Array = o.get("rect", [0, 0, 5, 4])
 	var h: int = ("%s|%s" % [str(map.get("id", "")), str(r)]).hash()
 	var sd := int(h & 0x7fffffff) % 9973
@@ -73,6 +121,12 @@ static func spec(map: Dictionary, o: Dictionary) -> Dictionary:
 			sign_kind = "forge"
 		elif who.contains("ecurie"):
 			sign_kind = "cheval"
+		elif who.contains("mairie"):
+			sign_kind = "horloge"
+		elif who.contains("capitain") or who.contains("garde"):
+			sign_kind = "blason"
+		elif who.contains("cure"):
+			sign_kind = "herbes"
 	var extras := ["", "barrel", "crates", "flowers", ""]
 	return {
 		"seed": sd, "style": "grobitte" if grobitte else "", "roof": roof, "wall": wall, "tint": tint,
@@ -84,6 +138,7 @@ static func spec(map: Dictionary, o: Dictionary) -> Dictionary:
 		"extra": str(o.get("extra", extras[int(PA.rnd(sd, 13, 17) * 5.0) % 5])),
 		"extra_left": PA.rnd(sd, 14, 17) < 0.5,
 		"awning": bool(o.get("awning", true)) and wh >= 2.9,
+		"door_color": Database.color(o.get("door_color", "#3f7a52"), Color("#3f7a52")),
 	}
 
 
@@ -136,7 +191,7 @@ static func house(b, o: Dictionary) -> void:
 	var rh: float = sp["rh"]
 	var door_x := float(o.get("door", hw * 0.5))
 	var windows: Array = o.get("windows", [])
-	var door_color := Database.color(o.get("door_color", "#3f7a52"), Color("#3f7a52"))
+	var door_color: Color = sp["door_color"]
 	var lit := bool(o.get("lit", true))
 	var grobitte: bool = sp["style"] == "grobitte"
 	var glow := glow_factor(map)
@@ -173,7 +228,7 @@ static func house(b, o: Dictionary) -> void:
 		var top_f := wh - slope * JETTY
 		var vt := (wh - top_f) / wh
 		MeshKit.quad(st, Vector3(x0, top_f, z1 + JETTY), Vector3(x1, top_f, z1 + JETTY), Vector3(x1, yf, z1 + JETTY), Vector3(x0, yf, z1 + JETTY), Vector2(0, vt), Vector2(1, vf))
-		_tb(trim, "#4a3122", Vector3(xm, yf - 0.05, z1 + JETTY * 0.5), Vector3(hw, 0.14, JETTY + 0.04))
+		_tb(trim, "#4a3122", Vector3(xm, yf - 0.05, z1 + JETTY * 0.5), Vector3(hw, 0.2, JETTY + 0.04))
 		_tb(trim, "#4a3122", Vector3(x0 + 0.02, (yf + top_f) * 0.5, z1 + JETTY * 0.5), Vector3(0.08, top_f - yf, JETTY))
 		_tb(trim, "#4a3122", Vector3(x1 - 0.02, (yf + top_f) * 0.5, z1 + JETTY * 0.5), Vector3(0.08, top_f - yf, JETTY))
 		var n_br := maxi(2, int(hw / 2.6))

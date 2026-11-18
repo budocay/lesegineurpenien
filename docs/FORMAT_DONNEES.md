@@ -52,6 +52,10 @@ le héros porte une lanterne (lumière ponctuelle sans ombre), un halo doux le s
 liseré clair souligne sa silhouette ; les autres personnages n'ont que le halo et le liseré,
 plus discrets. Absent : aucun effet. Posé sur les ambiances des Mines de Morbier,
 du lac noir, des monts de Morbier et des portes de l'Est.
+Règle (vérifiée par le test) : toute ambiance sans soleil dont la lumière ambiante est inférieure
+à 0,55 a sa lanterne, sauf `interieur_chaud` (éclairée par les foyers). Posé aussi sur le
+Garde-Manager, l'étage du Poney de nuit et les caves de Persillé. Une clé en double dans
+`ambiances.json` masque la première sans bruit : le test les refuse.
 
 Décor `fern` (fougère) utilisable dans les cartes comme `bush` ou `rock`. Les talus du
 nord, le sous-bois au pied des arbres et les plaques de teinte du sol sont posés
@@ -313,9 +317,17 @@ Champs facultatifs, tous ignorés quand ils manquent :
   encorbellement (`jetty` : `false` le supprime) et la façade porte deux rangées de fenêtres.
 - `dormers` : nombre de lucarnes sur le pan avant (0 à 2 ; par défaut tiré pour les toits hauts
   et larges, jamais sur une maison à deux niveaux ni une maison grobitte).
-- `sign` : enseigne suspendue (`"auberge"`, `"fromage"`, `"forge"`, `"cheval"`, `"herbes"`). Sans
-  ce champ, elle se déduit du nom de la carte visée par `to` ou du `dialogue` de la porte
-  (`auberge`, `poney`, `fromag`, `forge`, `ecurie`). Pas d'enseigne sur une façade de moins de 6.
+- `sign` : enseigne suspendue (`"auberge"`, `"fromage"`, `"forge"`, `"cheval"`, `"herbes"`,
+  `"horloge"` pour la mairie, `"blason"` pour la capitainerie). Sans ce champ, elle se déduit du
+  nom de la carte visée par `to` ou du `dialogue` de la porte (`auberge`, `poney`, `fromag`,
+  `forge`, `ecurie`, `mairie`, `capitain` ou `garde`, `cure`). Pas d'enseigne sur une façade de
+  moins de 6.
+- Unicité : deux bâtiments d'une même carte ne partagent jamais mur + toit + couleur de porte
+  (le test le vérifie). Dans l'ordre du fichier, ce que le JSON n'impose pas (`wall`, puis
+  `roof`, puis `door_color`) est modifié pour lever le conflit. Les toits de tuiles, d'ardoises
+  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, mousse vers
+  l'avant-toit, quelques tuiles manquantes, ombre des lucarnes ; le toit d'herbe des Grobittes
+  est plus clair, avec une crête lumineuse et des raies de gazon qui suivent la courbe.
 - `extra` : accessoire contre le mur, loin de la porte (`"barrel"`, `"crates"`, `"flowers"`,
   `""` pour aucun) ; tiré au hasard sinon.
 
@@ -372,6 +384,13 @@ Mêmes champs que la maison de village (`rect`, `height`, `roof_height`, `door`,
 (étirement en hauteur des murs et du toit, 1.22 par défaut : l'emprise ne change pas ; 1.0 rend
 les anciennes proportions). `door_color`,
 `awning` et `chimney` sont ignorés.
+La façade se complète toute seule : un bandeau doré à denticules à mi-hauteur et, dans chaque
+travée nue entre deux ouvertures (44 pixels de large au moins, 1,8 case), une baie aveugle
+(ogive creuse et vase de pierre) ou une treille chargée de raisin, en alternance ; les
+pilastres cèdent la place à ces ornements. Règle des portes (test `_test_door_clearance`, toutes
+les cartes) : aucun objet (lampadaire de carte, bannière, statue, haie...) ne se dresse dans la
+bande d'une porte de maison (0,9 de part et d'autre, de 0,3 en arrière à 1,6 devant) ni sur
+ses deux lampadaires (à 1,25 de la porte), pour ne jamais les cacher.
 
 ### Accessoires (sprites debout, comme `tree` ou `bush`)
 
@@ -485,6 +504,7 @@ or, braise des forges, et la raie sombre du fromage dans les murs.
 `nain_dalle` (dalles sombres), `nain_veine` (dalle à veine d'or), `nain_voie` et `nain_voie_v`
 (rail de wagonnet, horizontal et vertical), `nain_pont` (tablier de pont, franchissable sur
 un abîme), `nain_marbre` (marbre de la Grande Salle, motif de forge), `nain_pate` (croûte du
+(Sols `nain_roche_humide` : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
 fromage), `nain_abime` (vide solide), `nain_neige`, `nain_sentier`, `nain_roc`,
 `nain_marches`, `nain_pierre`, et les murs `nain_mur`, `nain_mur_morbier`, `nain_mur_forge`.
 
@@ -571,7 +591,24 @@ Un accessoire qui porte un `dialogue` devient une interaction, comme les autres.
 - `cav_halle` : grande halle de bois doré (Cabécou, Bergerie). `rect`, `height`, `door` (côté).
 - `cav_palissade` : palissade de pieux dorés. `points` (comme `elf_rail`), `height`.
 - `isen_flamme` : flamme de four, avec sa lumière. `pos`, `color`, `energy`, `range`.
-- `chu_cascade` : chute d'eau en volume qui moutonne en bas. `rect`, `height`.
+- `chu_cascade` : chute d'eau en volume qui moutonne en bas. `pos`, `height`, `width`. Elle prend la
+  teinte du champ `water` de la carte (corps, creux et écume tirés de `shallow`, `deep`, `glint` :
+  jaune de gratin aux Chutes), s'adosse à une paroi de roche sombre plus large qu'elle et pose au
+  pied une nappe d'écume qui miroite (`waterfall_foam.gdshader`). `pos` peut se poser sur l'eau,
+  hors de portée : elle ne gêne aucun passage.
+
+### Accessoires d'habillage (`src/gfx/decor_painter.gd`)
+
+Utilisables par toute carte, par `prop` d'un `scatter` ou comme objet (`{"type": "vil_banc", "pos": [x, y]}`).
+Tous ont un petit obstacle (voir `PROPS` dans `map_builder.gd`) : ne pas les poser au milieu d'un
+chemin d'une case, le test vérifie que tout reste atteignable. Village : `vil_puits`, `vil_banc`,
+`vil_brouette`, `vil_potager` (3 variantes), `vil_linge` (2), `vil_boite` (boîte aux lettres),
+`vil_butte` (2 : fleurs ou pierrier, sans obstacle). Écurie des cavaliers : `cav_ratelier`,
+`cav_abreuvoir`, `cav_cheval_bois`, `cav_brasero` (poser un objet `light` chaud au même point).
+
+Ombre sur les sprites : la lumière du soleil n'assombrit un sprite (arbre, personnage) que d'un
+tiers de ce qu'elle assombrit le sol (shader `sprite.gdshader`) : l'ombre d'un arbre voisin ne
+coupe plus un feuillage en deux moitiés.
 
 ### Arènes et panneaux d'arène
 

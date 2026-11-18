@@ -18,7 +18,7 @@ const ROOF_PAL := {
 	"vert": ["#5f7d4c", "#536f44", "#6d8c56", "#2f4232", "#86a468"],
 	"ardoise": ["#5c6684", "#4f5874", "#6b7594", "#30364e", "#8690ad"],
 	"chaume": ["#c2a25a", "#b3924c", "#cfb06a", "#7c6234", "#e2c884"],
-	"herbe": ["#5d8f45", "#4f7f3c", "#6fa050", "#2f5230", "#8cc060"],
+	"herbe": ["#8aae4c", "#7a9e42", "#9ec25a", "#46682f", "#bcd878"],
 }
 
 
@@ -522,6 +522,10 @@ static func roof(spec: Dictionary, w_units: float, len_units: float) -> Image:
 			_turf(img, tones, sd)
 		_:
 			_tiles(img, tones, kind == "ardoise", sd)
+	if kind == "herbe":
+		_turf_curve(img)
+	else:
+		_weather(img, spec, w_units, sd)
 	# ombre franche sous l'avant-toit (bas) et éclat du faîtage (haut)
 	for i in 5:
 		for x in w:
@@ -529,6 +533,78 @@ static func roof(spec: Dictionary, w_units: float, len_units: float) -> Image:
 	for x in w:
 		img.set_pixel(x, 0, PA.shade(img.get_pixel(x, 0), 0.12))
 	return img
+
+
+## Toit en tonneau des Grobittes : l'herbe s'éclaircit vers la crête (le milieu de la texture),
+## s'assombrit vers les avant-toits (haut et bas), et des raies de gazon suivent la courbe.
+static func _turf_curve(img: Image) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	for y in h:
+		var v := float(y) / float(maxi(h - 1, 1))
+		var k := 1.0 - absf(v - 0.5) * 2.0          # 0 aux avant-toits, 1 à la crête
+		var d := -0.04 + 0.3 * k * k + 0.12 * k
+		for x in w:
+			img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), d))
+	# raies de gazon, plus serrées près des bords (la courbe fuit)
+	for i in range(1, 9):
+		var y := int(round(float(h - 1) * (0.5 - 0.5 * cos(PI * float(i) / 9.0))))
+		for x in w:
+			img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.14))
+			if y + 1 < h:
+				img.set_pixel(x, y + 1, PA.shade(img.get_pixel(x, y + 1), 0.07))
+
+
+## Vieillissement d'un toit de tuiles, d'ardoises ou de chaume vu de face : la teinte dérive d'une
+## assise à l'autre, de la mousse s'installe vers l'avant-toit, quelques tuiles manquent, et les
+## lucarnes jettent leur ombre sur le pan.
+static func _weather(img: Image, spec: Dictionary, w_units: float, sd: int) -> void:
+	var w := img.get_width()
+	var h := img.get_height()
+	# 1. dérive de teinte et de clarté par assise
+	var band := 7
+	for y in h:
+		var b := y / band
+		var dh := (PA.rnd(b, 1, sd + 40) - 0.5) * 0.045
+		var dv := (PA.rnd(b, 2, sd + 40) - 0.5) * 0.12
+		for x in w:
+			var c := img.get_pixel(x, y)
+			c.h = fposmod(c.h + dh, 1.0)
+			img.set_pixel(x, y, PA.shade(c, dv))
+	# 2. mousse : taches lentes, surtout dans la moitié basse
+	for y in h:
+		var vy := float(y) / float(h)
+		for x in w:
+			var m := vnoise(float(x), float(y), sd + 50, 7.0)
+			if m > 0.8 - 0.06 * vy and vy > 0.4:
+				var c := img.get_pixel(x, y)
+				var moss := Color("#5e8a3c").lerp(Color("#82a850"), PA.rnd(x, y, sd + 51))
+				img.set_pixel(x, y, c.lerp(moss, 0.4))
+	# 3. tuiles manquantes : le liteau sombre apparaît
+	var n_miss := 2 + int(PA.rnd(1, 3, sd + 60) * 3.0)
+	for i in n_miss:
+		var mx := int(PA.rnd(i, 1, sd + 61) * float(w - 14)) + 2
+		var my := int(PA.rnd(i, 2, sd + 61) * float(h - 18)) + 6
+		PA.rect(img, mx, my, 9, 6, Color("#2a1e1a"))
+		PA.rect(img, mx, my + 3, 9, 1, Color("#4a3426"))
+		PA.rect(img, mx, my, 9, 1, Color("#1a1210"))
+	# 4. ombre des lucarnes (lumière venue du haut et de la gauche : l'ombre tombe en bas à droite)
+	var dn := int(spec.get("dormers", 0))
+	if dn > 0:
+		var hw := w_units - 0.6
+		for i in dn:
+			var frac := 0.5 if dn == 1 else (0.27 if i == 0 else 0.73)
+			if dn == 1:
+				frac = 0.3 if not bool(spec.get("chimney_left", false)) else 0.7
+				frac = 1.0 - frac if hw < 7.0 else frac
+			var cx := (hw * frac + 0.3) / w_units * float(w)
+			var cy := float(h) * 0.5
+			for y in range(int(cy) - 4, int(cy) + 24):
+				for x in range(int(cx) - 12, int(cx) + 26):
+					var dx := (float(x) - (cx + 7.0)) / 17.0
+					var dy := (float(y) - (cy + 10.0)) / 15.0
+					if dx * dx + dy * dy < 1.0 and x >= 0 and x < w and y >= 0 and y < h:
+						img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.2))
 
 
 static func _tiles(img: Image, tones: Array[Color], slate: bool, sd: int) -> void:
@@ -736,6 +812,19 @@ static func sign_board(kind: String) -> Image:
 				PA.rect(img, 14 + int(cos(rad) * 6.0), 14 - int(sin(rad) * 6.0) + 1, 3, 3, Color("#c4c2d0"))
 			PA.rect(img, 8, 19, 3, 2, Color("#c4c2d0"))
 			PA.rect(img, 19, 19, 3, 2, Color("#c4c2d0"))
+		"horloge":   # cadran de la mairie
+			PA.ellipse(img, 14.0, 14.0, 7.0, 7.0, Color("#d8b44a"))
+			PA.ellipse(img, 14.0, 14.0, 5.5, 5.5, Color("#f4f0e2"))
+			PA.line(img, 14, 14, 14, 10, Color("#2f2c38"))
+			PA.line(img, 14, 14, 17, 15, Color("#2f2c38"))
+			for t in [Vector2i(14, 8), Vector2i(14, 20), Vector2i(8, 14), Vector2i(20, 14)]:
+				PA.px(img, t.x, t.y, Color("#8a5a20"))
+		"blason":   # écu parti rouge et or
+			PA.rect(img, 8, 8, 12, 8, Color("#b43a3a"))
+			PA.rect(img, 14, 8, 6, 8, Color("#e0b048"))
+			for k in 5:
+				PA.rect(img, 8 + k, 16 + k, 12 - 2 * k, 1, Color("#b43a3a") if k < 3 else Color("#e0b048"))
+			PA.rect(img, 8, 8, 12, 1, Color("#2f2c38"))
 		"herbes":   # feuille
 			PA.ellipse(img, 14.0, 14.0, 6.0, 4.0, Color("#4f9148"))
 			PA.ellipse(img, 13.0, 13.0, 3.0, 2.0, Color("#78bc5c"))

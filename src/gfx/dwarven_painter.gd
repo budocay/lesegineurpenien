@@ -39,7 +39,7 @@ const WOOD_D := Color("#4e3620")
 
 const TILES: Array[String] = ["nain_dalle", "nain_veine", "nain_voie", "nain_voie_v", "nain_pont", "nain_marbre", "nain_pate",
 		"nain_abime", "nain_neige", "nain_sentier", "nain_roc", "nain_marches", "nain_mur", "nain_mur_morbier", "nain_mur_forge",
-		"nain_pierre"]
+		"nain_pierre", "nain_roche_humide", "nain_galets"]
 
 ## Décors-sprites : nom -> nombre de variantes.
 const PROP_VARIANTS := {
@@ -69,6 +69,8 @@ static func paint_tile(kind: String) -> Image:
 		"nain_pont": return _slabs(["#8c8798", "#81808f", "#9690a0", "#7c7a8a"], Color("#4e4a5c"), 802, 16, 12, true)
 		"nain_marbre": return _marble()
 		"nain_pate": return _cheese_floor()
+		"nain_roche_humide": return _wet_rock(false)
+		"nain_galets": return _wet_rock(true)
 		"nain_abime": return _abyss()
 		"nain_neige": return _snow()
 		"nain_sentier": return _trodden()
@@ -238,6 +240,50 @@ static func _cheese_floor() -> Image:
 		var cy := PA.rnd(i, 2, 825) * T
 		TP._wrap_ellipse(img, cx, cy, 2.6 + PA.rnd(i, 3, 825) * 2.0, 1.8 + PA.rnd(i, 4, 825) * 1.4, CH_D)
 		TP._wrap_ellipse(img, cx, cy + 0.6, 1.8, 1.0, Color("#6a5a30"))
+	return img
+
+
+## Roche humide du bord d'un lac souterrain : ardoise bleutée, taches mouillées plus sombres,
+## flaques qui reflètent le plafond, fines fissures ; `pebbles` : le bord de l'eau, couvert de galets.
+static func _wet_rock(pebbles: bool) -> Image:
+	var img := PA.new_image(T, T)
+	var sd := 861 if pebbles else 851
+	img.fill(Color("#3a4a5e"))
+	TP._blotches(img, sd, 9, Color("#2e3c50"), 5.0, 11.0)
+	TP._blotches(img, sd + 1, 8, Color("#4a5e76"), 3.5, 8.0)
+	TP._blotches(img, sd + 2, 5, Color("#26324a"), 4.0, 7.0)
+	_specks_in(img, sd + 3, 70, Color("#566c86"))
+	_specks_in(img, sd + 4, 34, Color("#22304a"))
+	if not pebbles:
+		# fissures sombres, courtes et sinueuses
+		for i in 5:
+			var x := PA.rnd(i, 1, sd + 5) * T
+			var y := PA.rnd(i, 2, sd + 5) * T
+			var dir := PA.rnd(i, 3, sd + 5) * TAU
+			for k in 14:
+				_wrap_px(img, int(x), int(y), Color("#1b2438"))
+				x += cos(dir) * 1.1
+				y += sin(dir) * 1.1
+				dir += (PA.rnd(k, i, sd + 6) - 0.5) * 0.9
+	# flaques : ovale sombre, reflet bleu clair en haut, point de brillance
+	for i in (3 if not pebbles else 2):
+		var cx := PA.rnd(i, 1, sd + 7) * T
+		var cy := PA.rnd(i, 2, sd + 7) * T
+		var rx := 4.5 + PA.rnd(i, 3, sd + 7) * 3.5
+		TP._wrap_ellipse(img, cx, cy, rx, rx * 0.5, Color("#1c2c46"))
+		TP._wrap_ellipse(img, cx - 0.5, cy - 0.7, rx * 0.8, rx * 0.3, Color("#3e6a92"))
+		TP._wrap_ellipse(img, cx - rx * 0.3, cy - rx * 0.22, rx * 0.3, 0.9, Color("#a8d4f4"))
+	if pebbles:
+		var tones := [Color("#8a94a0"), Color("#6e7a8a"), Color("#a4a090"), Color("#5c6c80"), Color("#7a8c88")]
+		for i in 30:
+			var cx := PA.rnd(i, 1, sd + 8) * T
+			var cy := PA.rnd(i, 2, sd + 8) * T
+			var r := 1.6 + PA.rnd(i, 3, sd + 8) * 2.2
+			var c: Color = tones[i % tones.size()]
+			TP._wrap_ellipse(img, cx, cy + 0.7, r + 0.4, r * 0.7 + 0.4, Color("#1c2638"))
+			TP._wrap_ellipse(img, cx, cy, r, r * 0.7, PA.shade(c, -0.12))
+			TP._wrap_ellipse(img, cx - r * 0.25, cy - r * 0.2, r * 0.6, r * 0.4, c)
+			_wrap_px(img, int(cx - r * 0.35), int(cy - r * 0.3), Color("#e6f0fa"))
 	return img
 
 

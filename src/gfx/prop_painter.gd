@@ -51,6 +51,9 @@ static func paint(kind: String, variant: int = 0) -> Image:
 	var rider: GDScript = load("res://src/gfx/rider_painter.gd")
 	if rider.has_prop(kind):
 		return rider.paint_prop(kind, variant)
+	var decor: GDScript = load("res://src/gfx/decor_painter.gd")
+	if decor.has_prop(kind):
+		return decor.paint_prop(kind, variant)
 	var img := PA.new_image(16, 16)
 	img.fill(Color.MAGENTA)
 	return img
@@ -266,7 +269,7 @@ static func sign_post() -> Image:
 const GREENS5 := ["#11282b", "#1d4b38", "#2c7140", "#4e9f4a", "#8ccb5e"]
 const BIRCH5 := ["#1f3d2c", "#35703c", "#58a046", "#86c85a", "#c4e888"]
 const PINE5 := ["#0f2529", "#1a463b", "#2c6b49", "#4c9455", "#86c26a"]
-const AUTUMN5 := ["#7a2c32", "#b24a28", "#d8702c", "#f0a23a", "#f8d56a"]
+const AUTUMN5 := ["#a8442c", "#c85e2a", "#e0802e", "#f4ae40", "#fadc78"]
 
 
 ## Remplit un polygone (centres de pixels, règle pair-impair).

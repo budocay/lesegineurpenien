@@ -106,6 +106,7 @@ func _ready() -> void:
 	await _test_settings()
 	await _test_houses()
 	_test_arena_mood()
+	_test_door_clearance()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -5215,6 +5216,60 @@ func _test_lanternes_mines() -> void:
 			var amb: Dictionary = Database.get_ambiance(str(Database.get_map(id).get("ambiance", "")))
 			var lan: Variant = amb.get("lantern")
 			check(lan is Dictionary and float((lan as Dictionary).get("energy", 0.0)) > 0.0, "lanterne : la carte « %s » a une lumière propre pour le héros" % id)
+	# règle générale : tout lieu sans soleil dont la lumière ambiante est faible a sa lanterne
+	# (seule exception : l'ambiance « interieur_chaud », éclairée par les foyers de la pièce)
+	var seen_amb := {}
+	for id: String in Database.list_maps():
+		var aid := str(Database.get_map(id).get("ambiance", ""))
+		if seen_amb.has(aid) or aid == "interieur_chaud":
+			continue
+		seen_amb[aid] = true
+		var amb2: Dictionary = Database.get_ambiance(aid)
+		var dark := not amb2.has("sun") and float((amb2.get("ambient", {}) as Dictionary).get("energy", 1.0)) < 0.55
+		check(not dark or amb2.get("lantern") is Dictionary, "lanterne : l'ambiance sombre « %s » (carte « %s ») a sa lanterne" % [aid, id])
+	# une clé en double dans ambiances.json masque la première : la dernière gagne sans bruit
+	var raw := FileAccess.get_file_as_string("res://data/ambiances.json")
+	var keys := RegEx.create_from_string("(?m)^\\t\"([a-z_0-9]+)\": \\{").search_all(raw)
+	var names := {}
+	var dup := 0
+	for m: RegExMatch in keys:
+		if names.has(m.get_string(1)):
+			dup += 1
+		names[m.get_string(1)] = true
+	check(keys.size() > 20 and dup == 0, "ambiances : aucune clé en double dans ambiances.json (%d doublon(s))" % dup)
+
+
+## Règle : rien ne se dresse devant une porte de maison (ni lampadaire, ni bannière, ni statue...) :
+## ni dans la bande de la porte, ni sur ses deux lampadaires. Données seules, aucune carte construite.
+func _test_door_clearance() -> void:
+	print("== Abords des portes ==")
+	var skip := ["house", "npc", "warp", "trigger", "light", "encounter_zone", "scatter", "elf_rail", "cav_palissade", "fence", "elf_medallion",
+		"elf_bridge_face", "rug", "isen_flamme", "elf_fountain", "elf_flowers", "elf_pergola", "monster", "sign"]
+	var bad := 0
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		var objs: Array = map.get("objects", [])
+		for h: Variant in objs:
+			if not (h is Dictionary) or str((h as Dictionary).get("type", "")) != "house" or not (h as Dictionary).has("door"):
+				continue
+			var r: Array = (h as Dictionary).get("rect", [0, 0, 5, 4])
+			var xd := float(r[0]) + float((h as Dictionary)["door"])
+			var z1 := float(r[1]) + float(r[3])
+			for o: Variant in objs:
+				if not (o is Dictionary) or skip.has(str((o as Dictionary).get("type", ""))) or not (o as Dictionary).has("pos"):
+					continue
+				var p: Array = (o as Dictionary)["pos"]
+				if p.size() < 2:
+					continue
+				var dx := absf(float(p[0]) - xd)
+				var dz := float(p[1]) - z1
+				var tall := ["elf_lantern", "lantern"].has(str((o as Dictionary).get("type", "")))
+				var in_strip := dx < 0.9 and dz > -0.3 and dz < (3.6 if tall else 1.6)
+				var on_lamp := absf(dx - 1.25) < 0.55 and dz > -0.3 and dz < 0.9 and not ["elf_lantern", "lantern"].has(str((o as Dictionary).get("type", "")))
+				if in_strip or on_lamp:
+					bad += 1
+					check(false, "portes : « %s » (%s en %s) gêne la porte de la maison %s" % [str((o as Dictionary).get("type", "")), id, str(p), str(r)])
+	check(bad == 0, "portes : aucun objet devant une porte de maison")
 
 
 ## Maisons du style par défaut : volumes, variété stable, jouabilité inchangée (emprise, porte, estompage).
@@ -5266,6 +5321,11 @@ func _test_houses() -> void:
 			var sp: Dictionary = HB.spec(map, o)
 			check(str(HB.spec(map, o)) == str(sp), "maisons %s : le tirage de la maison %s est stable" % [id, str(r)])
 			seen_kinds[str(sp["wall"])] = true
+			# jamais deux bâtiments de la carte avec le même mur, le même toit et la même porte
+			for k2 in k:
+				var sp2b: Dictionary = HB.spec(map, list[k2] as Dictionary)
+				var same: bool = str(sp2b["wall"]) == str(sp["wall"]) and str(sp2b["roof"]) == str(sp["roof"]) and HB._same_door(sp2b["door_color"], sp["door_color"])
+				check(not same, "maisons %s : les bâtiments %s et %s diffèrent (mur, toit ou porte)" % [id, str(list[k2]["rect"]), str(r)])
 			check(HP.ROOF_PAL.has(str(sp["roof"])), "maisons %s : matière de toit connue (%s)" % [id, str(sp["roof"])])
 			if str(o.get("style", "")) == "grobitte":
 				check(sp["roof"] == "herbe" and sp["window"] == "rond", "maisons %s : la maison grobitte %s a son toit d'herbe et ses hublots" % [id, str(r)])
