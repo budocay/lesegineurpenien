@@ -117,7 +117,7 @@ static var _painter_stamp := ""
 func _painted_sheet(look: Dictionary) -> Image:
 	if _painter_stamp == "":
 		var src := ""
-		for f in ["char_kit", "character_head", "character_painter", "character_species", "pixel_art"]:
+		for f in ["char_kit", "character_items", "character_head", "character_painter", "character_species", "pixel_art"]:
 			src += FileAccess.get_file_as_string("res://src/gfx/%s.gd" % f)
 		_painter_stamp = src.md5_text()
 	var path := "user://cache_persos/%s.png" % (_painter_stamp + JSON.stringify(look, "", true)).md5_text()

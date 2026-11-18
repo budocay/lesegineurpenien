@@ -1,4 +1,4 @@
-extends "res://src/gfx/char_kit.gd"
+extends "res://src/gfx/character_items.gd"
 ## Têtes des personnages : visage, cheveux, barbes, chapeaux, capuches.
 ## Vues : 0 face, 1 profil (regard vers la gauche), 2 dos.
 ## Tout est en pixels réels de la planche (voir char_kit.gd).

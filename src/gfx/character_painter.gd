@@ -67,10 +67,11 @@ static func _paint_cell(look: Dictionary, c: Dictionary, col: int, row: int) -> 
 
 ## Portrait 64 x 64 : tête et épaules de face, à la résolution de la planche (le chapeau
 ## entier, pas de lissage).
-static func paint_portrait(look: Dictionary) -> Image:
+static func paint_portrait(look: Dictionary, col: int = 0) -> Image:
 	var bare := look.duplicate()
 	bare["item"] = "none"          # pas de bâton ni de pipe en travers du portrait
-	var cell := _paint_cell(bare, _colors(bare), 0, 0)
+	bare["held"] = ""              # ni d'arme
+	var cell := _paint_cell(bare, _colors(bare), col, 0)
 	var side := 64
 	var b := PA.opaque_bounds(cell, Rect2i(0, 0, FRAME_W, FRAME_H))
 	var x := (FRAME_W - side) / 2
@@ -98,6 +99,11 @@ static func _colors(look: Dictionary) -> Dictionary:
 		"gold": _ramp(Color("#e2b43c")),
 		"iron": _ramp(Color("#8a8aa0")),
 		"crystal": _ramp(Color("#6fd8ee")),
+		"steel": _ramp(Color("#c4cce0")),
+		"castiron": _ramp(Color("#4a4a58")),
+		"straw": _ramp(Color("#d2b868")),
+		"meat": _ramp(Color("#b0583a")),
+		"bone": _ramp(Color("#efe6cc")),
 		"boots": boots,
 		"iris": _ramp(_col(look, "eye", "#3a2848")),
 		"skin_c": skin,
@@ -112,7 +118,8 @@ static func _colors(look: Dictionary) -> Dictionary:
 ##   an / af : balancement du bras proche / éloigné, sway : la cape et les cheveux qui suivent.
 static func _pose(col: int) -> Dictionary:
 	var p := {"bob": 0.0, "fn": 2.0, "ff": -2.0, "ln": 0.0, "lf": 0.0, "an": 0.0, "af": 0.0,
-		"arms": "down", "eyes": "open", "mouth": "smile", "lean": 0.0, "sway": 0.0}
+		"arms": "down", "eyes": "open", "mouth": "smile", "lean": 0.0, "sway": 0.0, "col": col,
+		"walk": col >= 3 and col <= 6}
 	match col:
 		1:
 			p["bob"] = 1.0
@@ -222,6 +229,12 @@ static func _layout(look: Dictionary) -> void:
 	_cx = 44.0
 
 
+## Largeur de la fente d'une cape ou d'une robe vue de dos : elle s'ouvre quand les pieds se lèvent.
+static func _walk_slit() -> float:
+	var l := maxf(float(_p["lf"]), float(_p["ln"]))
+	return 0.0 if l < 0.5 else 3.0 + l * 0.7
+
+
 ## Longueur du bras (épaule au coude, coude au poignet).
 static func _alen() -> float:
 	return _th * 0.4
@@ -237,6 +250,11 @@ static func _front(look: Dictionary, back: bool) -> void:
 	var th := _th
 	var outfit := str(look.get("outfit", "tunique"))
 	var item := str(look.get("item", "none"))
+	var held := str(look.get("held", ""))
+	var pole := held in POLES
+	var hmode := _hmode()
+	var holding := held != "" and not pole and hmode != "rest"
+	var gripped := item == "baton" or pole
 	var arms := str(_p["arms"])
 	var bulge := _bulge
 	var belt_y := ny + th * 0.8
@@ -300,10 +318,15 @@ static func _front(look: Dictionary, back: bool) -> void:
 				_ell(cx, belt_y + 1.0, 2.4, 2.0, _c["gold"])
 		"robe":
 			var hem := _foot - 6.0
-			_trap(ny, hem, cx - hs + 1.0, cx + hs - 1.0, cx - hs - 10.0, cx + hs + 10.0, top, 0.0,
-				[Vector2(0.14, 0.3), Vector2(0.3, 0.1), Vector2(0.46, 0.25), Vector2(0.62, 0.1), Vector2(0.78, 0.3), Vector2(0.9, 0.15)], true, sway * 0.7)
-			# ourlet orné
-			_trap(hem - 3.0, hem, cx - hs - 9.0 + sway * 0.45, cx + hs + 9.0 + sway * 0.45, cx - hs - 10.0 + sway * 0.5, cx + hs + 10.0 + sway * 0.5, belt, -0.1)
+			var folds_r: Array = [Vector2(0.14, 0.3), Vector2(0.3, 0.1), Vector2(0.46, 0.25), Vector2(0.62, 0.1), Vector2(0.78, 0.3), Vector2(0.9, 0.15)]
+			if back:
+				# de dos : l'ourlet ondule et s'ouvre en marchant, les talons dépassent
+				_drape(ny, _foot - 7.0, cx - hs + 1.0, cx + hs - 1.0, cx - hs - 10.0, cx + hs + 10.0, top, 0.0, folds_r, sway * 0.7,
+					2.2, _walk_slit(), float(_p["lf"]), float(_p["ln"]), float(_p["col"]) * 0.9)
+			else:
+				_trap(ny, hem, cx - hs + 1.0, cx + hs - 1.0, cx - hs - 10.0, cx + hs + 10.0, top, 0.0, folds_r, true, sway * 0.7)
+				# ourlet orné
+				_trap(hem - 3.0, hem, cx - hs - 9.0 + sway * 0.45, cx + hs + 9.0 + sway * 0.45, cx - hs - 10.0 + sway * 0.5, cx + hs + 10.0 + sway * 0.5, belt, -0.1)
 			_trap(belt_y - 2.0, belt_y + 2.5, cx - hs - bulge, cx + hs + bulge, cx - hs - bulge, cx + hs + bulge, belt)
 			_rect(cx - hs - bulge, belt_y - 2.0, (hs + bulge) * 2.0, 1.0, belt[4])
 			if not back:
@@ -317,8 +340,9 @@ static func _front(look: Dictionary, back: bool) -> void:
 			_torso_tunic(cx, belt_y, bulge, top, belt, back, 5.0)
 	# cape de dos : elle recouvre tout le dos
 	if has_cape and back:
-		_trap(ny + 1.0, _foot - 4.0, cx - hs - 1.5, cx + hs + 1.5, cx - hs - 13.0, cx + hs + 13.0, cape, 0.0,
-			[Vector2(0.2, 0.0), Vector2(0.4, 0.2), Vector2(0.6, 0.0), Vector2(0.8, 0.2)], true, sway * 1.5)
+		_drape(ny + 1.0, _foot - 8.0, cx - hs - 1.5, cx + hs + 1.5, cx - hs - 13.0, cx + hs + 13.0, cape, 0.0,
+			[Vector2(0.2, 0.0), Vector2(0.4, 0.2), Vector2(0.6, 0.0), Vector2(0.8, 0.2)], sway * 1.5,
+			2.6, _walk_slit(), float(_p["lf"]), float(_p["ln"]), float(_p["col"]) * 0.9)
 	if back and hair_style == "long":
 		_hair_back(cx, _hcy, _rx, _ry, 2, sway)
 	# épaules arrondies (et col de la cape)
@@ -345,8 +369,16 @@ static func _front(look: Dictionary, back: bool) -> void:
 	# ombre portée du menton sur le torse
 	_cast(cx, _hcy + _ry + 0.5, _rx - 2.0, 4.6, -0.24)
 
+	# objet rangé (hanche ou dos), sous les bras
+	if held != "" and not pole and hmode == "rest":
+		if back:
+			_stow_back(held, cx, ny, belt_y)
+		else:
+			_stow_front(held, cx, belt_y)
+
 	# bras
 	var hand_r := Vector2(0, 0)
+	var hand_l := Vector2(0, 0)
 	var al := _alen()
 	for s: int in [-1, 1]:
 		var wide := outfit == "robe"
@@ -382,16 +414,34 @@ static func _front(look: Dictionary, back: bool) -> void:
 				ey = ny + th * 0.5
 				hx = cx + float(s) * (hs + 3.0)
 				hy = ny + th + 3.0
-		if s > 0 and item == "baton" and arms == "down":
+		if held == "arc" and arms == "strike":
+			# arc bandé : bras droit tendu, bras gauche qui tire la corde en travers du torse
+			if s > 0:
+				ex = cx + hs + 6.0
+				ey = ny + 4.0
+				hx = cx + hs + 11.0
+				hy = ny + 4.0
+			else:
+				ex = cx - hs - 3.0
+				ey = ny + 5.0
+				hx = cx + 1.0
+				hy = ny + 4.0
+		if s > 0 and gripped and arms == "down":
 			hx += 2.0
 			ex += 1.0
-		_arm(sx, sy, ex, ey, hx, hy, top, wide, al, 2 if (s > 0 and item == "baton") else 0, s)
+		_arm(sx, sy, ex, ey, hx, hy, top, wide, al, 2 if (s > 0 and (gripped or (holding and arms != "slump"))) else 0, s)
 		if s > 0:
 			hand_r = Vector2(hx, hy)
+		else:
+			hand_l = Vector2(hx, hy)
 
 	# objet tenu (main droite de l'écran)
-	if item == "baton":
+	if pole:
+		_pole(held, hand_r.x, hand_r.y, arms)
+	elif item == "baton":
 		_staff(hand_r.x, hand_r.y, arms, back)
+	elif holding:
+		_hold(held, 2 if back else 0, hand_r, hmode, hand_l)
 	_head_front(look, cx, back, item)
 
 
@@ -497,43 +547,6 @@ static func _arm(sx: float, sy: float, ex: float, ey: float, hx: float, hy: floa
 	_hand(hx, hy, hand, hs)
 
 
-## Main. mode 0 : pendante (face, dos), pouce côté corps (hs : côté de l'écran du bras) ;
-## mode 1 : poing de profil, doigts vers l'avant ; mode 2 : poing fermé sur un manche.
-static func _hand(hx: float, hy: float, mode: int, hs: int) -> void:
-	var skin: Array = _c["skin"]
-	var x := int(round(hx))
-	var y := int(round(hy))
-	match mode:
-		1:
-			_ell(hx - 0.3, hy + 0.3, 3.7, 3.5, skin)
-			_put(x - 3, y - 1, skin[1])
-			_put(x - 2, y - 1, skin[1])
-			_put(x - 3, y + 1, skin[1])
-			_put(x - 2, y + 1, skin[1])
-			_put(x - 3, y + 2, skin[0])
-			_cap(hx - 2.6, hy - 2.7, hx - 0.6, hy - 3.0, 1.1, 1.1, skin, 0.25)
-			_put(x + 1, y + 2, skin[1])
-		2:
-			_ell(hx, hy, 3.7, 3.4, skin)
-			for i in 7:
-				_put(x - 3 + i, y, skin[1])
-				_put(x - 3 + i, y + 2, skin[0] if i % 2 == 0 else skin[1])
-			_put(x - 1, y - 1, skin[4])
-			_put(x + 1, y - 1, skin[3])
-			_cap(hx - 0.8, hy - 3.2, hx + 0.8, hy - 1.0, 1.2, 1.1, skin, 0.25)
-		_:
-			_ell(hx, hy + 0.6, 3.3, 4.0, skin)
-			_cap(hx - float(hs) * 2.5, hy - 1.8, hx - float(hs) * 2.1, hy + 1.4, 1.2, 1.0, skin, 0.25)
-			_put(x - 1, y + 1, skin[1])
-			_put(x - 1, y + 2, skin[1])
-			_put(x + 1, y + 1, skin[1])
-			_put(x + 1, y + 2, skin[1])
-			_put(x - 2, y + 3, skin[1])
-			_put(x, y + 3, skin[1])
-			_put(x + 2, y + 3, skin[1])
-			_put(x, y - 2, skin[4])
-
-
 static func _staff(hx: float, hy: float, arms: String, back: bool) -> void:
 	var wood: Array = _c["wood"]
 	var top := hy - 46.0
@@ -590,6 +603,11 @@ static func _side(look: Dictionary) -> void:
 	var th := _th
 	var outfit := str(look.get("outfit", "tunique"))
 	var item := str(look.get("item", "none"))
+	var held := str(look.get("held", ""))
+	var pole := held in POLES
+	var hmode := _hmode()
+	var holding := held != "" and not pole and hmode != "rest"
+	var gripped := item == "baton" or pole
 	var arms := str(_p["arms"])
 	var lean := float(_p["lean"])
 	var hs := _hs - 2.5
@@ -624,6 +642,9 @@ static func _side(look: Dictionary) -> void:
 		"slump":
 			far_hand = Vector2(tx, ny + th + 3.0)
 			far_el = Vector2(tx, ny + th * 0.5)
+	if held == "arc" and arms == "strike":
+		far_hand = Vector2(tx - 20.0, ny + 3.0)
+		far_el = Vector2(tx - 9.0, ny + 4.0)
 	_arm(tx + 1.0, ny + 5.0, far_el.x, far_el.y, far_hand.x, far_hand.y, _dim(top), outfit == "robe", al, 1)
 
 	# jambes : la jambe proche est celle de droite dans les poses de marche
@@ -666,6 +687,8 @@ static func _side(look: Dictionary) -> void:
 				_cap(tx - 0.5, ny + 2.5, fxa + 1.5, ny + 7.5, 1.4, 1.2, ap)
 	_ell(tx - 0.5, ny + 4.6, 5.4, 4.6, top if not has_cape else _c["cape"])
 	_cast(tx - 1.0, _hcy + _ry + 0.5, _rx - 2.0, 4.6, -0.24)
+	if held != "" and not pole and hmode == "rest":
+		_stow_side(held, tx, belt_y, hs)
 
 	# bras proche
 	var swing_n := float(_p["an"]) * 1.4
@@ -684,10 +707,28 @@ static func _side(look: Dictionary) -> void:
 		"slump":
 			ne = Vector2(tx + 2.0, ny + th * 0.5)
 			nh = Vector2(tx + 2.0, ny + th + 4.0)
-	_arm(tx - 0.5, ny + 5.0, ne.x, ne.y, nh.x, nh.y, top, outfit == "robe", al, 2 if item == "baton" else 1)
-	if item == "baton":
-		_staff(nh.x, nh.y, arms, false)
+	if held == "arc" and arms == "strike":
+		ne = Vector2(tx + 5.0, ny + 5.0)
+		nh = Vector2(tx - 6.0, ny + 3.0)
+	var near_arm := func() -> void:
+		_arm(tx - 0.5, ny + 5.0, ne.x, ne.y, nh.x, nh.y, top, outfit == "robe", al, 2 if (gripped or (holding and arms != "slump")) else 1)
+		if pole:
+			_pole(held, nh.x, nh.y, arms)
+		elif item == "baton":
+			_staff(nh.x, nh.y, arms, false)
+		elif holding:
+			if held == "arc" and arms == "strike":
+				_obj("arc", far_hand, 180.0, false, nh)
+				_hand(far_hand.x, far_hand.y, 2, 1)
+			else:
+				_hold(held, 1, nh, hmode)
+	# bras levé (sort) : la main passe devant le visage, donc après la tête
+	var late := arms == "up"
+	if not late:
+		near_arm.call()
 	_head_side(look, tx - 1.0, item)
+	if late:
+		near_arm.call()
 
 
 ## Cape de profil : elle part de la nuque, tombe derrière le dos et s'évase en plis, l'ourlet suit le pas.
