@@ -8,6 +8,7 @@
 	],
 	"ambiance": "crepuscule",
 	"music": "campagne",
+	"arena": "ferme",
 	"ramollissement": 0.2,
 	"camera": {
 		"distance": 24,

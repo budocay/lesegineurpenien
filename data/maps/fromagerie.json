@@ -10,6 +10,7 @@
 	"wall_height": 3.0,
 	"ambiance": "interieur_chaud",
 	"music": "auberge",
+	"arena": "cave_fromage",
 	"camera": {
 		"distance": 18,
 		"pitch": 34,

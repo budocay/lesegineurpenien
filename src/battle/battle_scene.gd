@@ -31,6 +31,7 @@ var fast := false             # aucune attente ni animation (tests)
 var outcome := ""
 var fx: Node3D                # animations de combat (data/animations.json)
 
+var _arena_id := "pre"           # arène choisie (voir resolve)
 var _rng := RandomNumberGenerator.new()
 # Caméra façon Octopath : basse, de loin (téléobjectif étroit), légère plongée d'environ 14 degrés.
 # Les héros mesurent à peu près un sixième de la hauteur de l'image, un gros monstre un tiers.
@@ -48,9 +49,9 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	ui = p_ui
 	engine = Engine_.new()
 	engine.setup(encounter, p_seed)
-	var arena_id := str(encounter.get("arena", "pre"))
-	var arena := Database.get_arena(arena_id)
-	_rng.seed = hash(arena_id)
+	_arena_id = str(resolve(encounter).get("arena", "pre"))
+	var arena := Database.get_arena(_arena_id)
+	_rng.seed = hash(_arena_id)
 	_taken = _spots(engine.party, 1.0) + _spots(engine.enemies, -1.0)
 	_build_arena(arena)
 	_build_camera()
@@ -66,6 +67,24 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 
 # ---------------------------------------------------------------------- décor
 
+## Arène d'une rencontre : son champ « arena » s'il en a un (c'est elle qui décide) ; sinon
+## celle de la carte où le combat se déclenche (champ « arena » du fichier de la carte) ;
+## sinon le Pré. Une arène inconnue retombe aussi sur le Pré. Le morceau de l'arène
+## (champ « music ») sert si la rencontre n'en donne pas. Renvoie une copie.
+static func resolve(enc: Dictionary, map: Dictionary = {}) -> Dictionary:
+	var out := enc.duplicate()
+	var id := str(out.get("arena", ""))
+	if id == "":
+		id = str(map.get("arena", ""))
+	if not Database.arenas.has(id):
+		id = "pre"
+	out["arena"] = id
+	var song := str(Database.get_arena(id).get("music", ""))
+	if not out.has("music") and song != "":
+		out["music"] = song
+	return out
+
+
 func _build_arena(arena: Dictionary) -> void:
 	var stage: Dictionary = arena.get("stage", {})
 	var ground := MeshInstance3D.new()
@@ -77,7 +96,7 @@ func _build_arena(arena: Dictionary) -> void:
 	add_child(ground)
 
 	# Fond : paroi de roche irrégulière, lointain peint, mares, façades (arena_decor.gd).
-	_decor = ArenaDecor.new(hash(str(encounter.get("arena", "pre"))))
+	_decor = ArenaDecor.new(hash(_arena_id))
 	_decor.build(self, arena)
 
 	for p: Variant in arena.get("props", []):
@@ -227,7 +246,7 @@ static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPA
 ## de l'arène : [{"prop", "count", "scale", "x": [min, max]}]).
 func _foreground(list: Array) -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("fg" + str(encounter.get("arena", "pre")))
+	rng.seed = hash("fg" + _arena_id)
 	for entry: Variant in list:
 		if not (entry is Dictionary):
 			continue

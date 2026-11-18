@@ -5,6 +5,7 @@
 	"size": [40, 22],
 	"ambiance": "crepuscule",
 	"music": "campagne",
+	"arena": "pre",
 	"ramollissement": 0.25,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {

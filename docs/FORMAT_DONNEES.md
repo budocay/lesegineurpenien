@@ -690,11 +690,31 @@ moteur (`src/battle/battle_fx.gd`) ne connaît aucune compétence : il lit ce fi
   `party` (équipe imposée, avec niveaux ; rien n'est alors conservé après le combat),
   `inventory` (objets prêtés), `hints` (conseils affichés tour après tour).
   `ramollissement` impose une valeur ; sinon c'est celle de la carte d'où part le combat.
-- `tables` : rencontres aléatoires d'une zone. `arena`, `min_distance` / `max_distance`
+- Choix de l'arène (`BattleScene.resolve`, appelé par `main.start_battle`) : le champ `arena` de
+  la rencontre l'emporte ; sinon celui de la carte d'où part le combat (champ `arena` de
+  `data/maps/<carte>.json`, à côté de `music`) ; sinon (ou si l'arène est inconnue) le Pré.
+  Si la rencontre n'a pas de `music`, c'est celle de l'arène (champ facultatif `music`).
+  Les tables n'ont donc plus d'`arena` : la carte décide.
+- `tables` : rencontres aléatoires d'une zone. `min_distance` / `max_distance`
   (distance à parcourir dans la zone avant un combat), `groups` (chacun avec `enemies`,
   `weight`, et au besoin `min_party` / `max_party` selon la taille de l'équipe).
 
 ### `data/arenas.json`
+
+Arènes de lieu (chapitres 1 à 3) : `taverne`, `etage_auberge`, `ruelle_nuit`, `cave_fromage`,
+`ferme`, `route`, `col`, `cite_elfique`, `salle_conseil`, `archives`, `quai`. Nouveautés de
+format utilisées par elles :
+- `backdrop.panels` : liste de panneaux peints par code (`src/gfx/arena_panels.gd`, `kind` parmi
+  taverne, etage, ruelle, cave, ferme, route, col, cite, conseil, archives, quai), chacun
+  `{kind, z (-11,4), w (36), h (6), x, y, dim}` : la lumière est cuite dans l'image, découpe franche.
+- `backdrop.steps: []` supprime la paroi en gradins : c'est un intérieur, le mur est un panneau.
+- `backdrop.far_w`, `far_y` : largeur et hauteur du panneau lointain (plus étroit = relief plus gros).
+- `backdrop.far` accepte aussi `peaks`, `valley`, `hills_church`.
+- Sols (`src/gfx/arena_painter.gd`) : `plank_worn`, `plank_dark`, `plank_wet`, `cobble_wet`,
+  `cellar_stone`, `farmyard`, `gravel_road`, `snow_rock`, `parquet_paper`. Accessoires de premier
+  plan flou : `tankard`, `chair_back`, `bucket`, `cheese_cut`, `paper_stack`, `quill_pot`,
+  `milestone`, `thistle`, `candlestick`, `snow_rock`, `marker_pole`, `bedpost`, `coil_rope`, `life_buoy`.
+- `particles` : en plus, `snow`, `mist`, `spores`, `paper`. Ambiances ajoutées : `aube`, `col_neige`.
 
 Le décor d'un combat : `ground` (texture du sol), `ambiance` (de `ambiances.json`),
 `backdrop` et `features` (voir plus haut), `props` (décors semés par `zone` : `back` derrière les combattants, `mid` autour, `front`

@@ -1,8 +1,8 @@
 {
 	"encounters": {
-		"vacherin": {"enemies": ["vacherin"], "arena": "bois", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
-		"chantecler": {"enemies": ["chantecler"], "arena": "pre", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
-		"nazes_nuit": {"enemies": ["naze_aine", "naze_cadet"], "arena": "place", "music": "boss", "flee": false, "ramollissement": 0.3, "intro": "Deux Nazes, côte à côte, dans un couloir trop étroit. L'un frappe, l'autre souffle. Ils ne se sont pas parlé depuis cent ans, mais ils se complètent."},
+		"vacherin": {"enemies": ["vacherin"], "arena": "cave_fromage", "music": "boss", "flee": false, "intro": "Le Vacherin se déplie. Le plancher de la cave en profite pour se mettre à luire."},
+		"chantecler": {"enemies": ["chantecler"], "arena": "ferme", "music": "boss", "flee": false, "intro": "Chantecler dresse la crête. Autour de lui, plus rien ne tient debout, sauf lui."},
+		"nazes_nuit": {"enemies": ["naze_aine", "naze_cadet"], "arena": "etage_auberge", "music": "boss", "flee": false, "ramollissement": 0.3, "intro": "Deux Nazes, côte à côte, dans un couloir trop étroit. L'un frappe, l'autre souffle. Ils ne se sont pas parlé depuis cent ans, mais ils se complètent."},
 		"duel_gaston": {"enemies": ["gaston_grosbras"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 2}, "intro": "Le bras de fer commence. Il va durer, comme tout ce qui se fait mollement.", "hints": ["Ici, tout coup physique porte moins fort, pour les deux camps : il faudra de la patience. Sam peut se défendre pour souffler, ou boire une tisane."]},
 		"duel_veuve": {"enemies": ["veuve_poignet"], "arena": "place", "flee": false, "ramollissement": 0.5, "party": [{"id": "sam", "level": 9}], "inventory": {"tisane": 3}, "intro": "La Veuve Poignet serre la main de Sam. Elle ne serre pas fort. Elle serre longtemps."},
 		"prologue_sauron": {
@@ -45,38 +45,36 @@
 		},
 		"morfales_quai": {
 			"enemies": ["morfale_eclaireur", "morfale_eclaireur"],
-			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"arena": "quai", "flee": false, "ramollissement": 0.3,
 			"intro": "Les Morfales lâchent l'étal. Ils ont encore faim."
 		},
 		"morfales_potager": {
 			"enemies": ["morfale_goinfre", "morfale_eclaireur"],
-			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"arena": "ferme", "flee": false, "ramollissement": 0.3,
 			"intro": "Le Morfale s'essuie la bouche avec un poireau."
 		},
 		"morfales_auberge": {
 			"enemies": ["morfale_goinfre", "morfale_eclaireur", "morfale_eclaireur"],
-			"arena": "place", "flee": false, "ramollissement": 0.3,
+			"arena": "taverne", "flee": false, "ramollissement": 0.3,
 			"intro": "Trois Morfales, un tonneau. Ils ne comptent pas partager."
 		},
 		"naze": {
 			"enemies": ["naze_fouineur"],
-			"music": "boss",
-			"arena": "place", "flee": false, "ramollissement": 0.4,
+			"music": "boss", "flee": false, "ramollissement": 0.4,
 			"intro": "Le Naze tire une lame qui penche. Autour de lui, tout mollit : les coups portés à la main ne valent plus grand-chose."
 		},
 		"morfales_route": {
 			"enemies": ["morfale_goinfre", "morfale_eclaireur", "morfale_goinfre"],
-			"arena": "pre", "flee": false,
+			"arena": "route", "flee": false,
 			"intro": "Les traînards du Naze tiennent leur péage. Ils encaissent en nature."
 		},
-		"gardien_archives": {"enemies": ["gardien_archives", "parchemin_vivant", "parchemin_vivant"], "arena": "place", "music": "boss", "flee": false, "intro": "Le Gardien des Archives referme son registre. Les rayonnages, autour, se redressent pour mieux écouter."}
+		"gardien_archives": {"enemies": ["gardien_archives", "parchemin_vivant", "parchemin_vivant"], "arena": "archives", "music": "boss", "flee": false, "intro": "Le Gardien des Archives referme son registre. Les rayonnages, autour, se redressent pour mieux écouter."}
 	},
 
 	"tables": {
-		"caves_brie": {"arena": "bois", "min_distance": 6, "max_distance": 13, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["ver_fromage"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave", "mouche_cave"], "weight": 2}, {"enemies": ["moisi_bleu", "rat_cave"], "weight": 3, "min_party": 3}, {"enemies": ["ver_fromage", "moisi_bleu"], "weight": 2, "min_party": 4}, {"enemies": ["rat_cave", "ver_fromage", "mouche_cave"], "weight": 2, "min_party": 4}]},
-		"ferme_brie": {"arena": "pre", "min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave"], "weight": 3}, {"enemies": ["ver_fromage", "mouche_cave"], "weight": 3}, {"enemies": ["rat_cave", "ver_fromage", "ver_fromage"], "weight": 2, "min_party": 4}, {"enemies": ["moisi_bleu", "mouche_cave", "mouche_cave"], "weight": 2, "min_party": 4}]},
+		"caves_brie": {"min_distance": 6, "max_distance": 13, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["ver_fromage"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave", "mouche_cave"], "weight": 2}, {"enemies": ["moisi_bleu", "rat_cave"], "weight": 3, "min_party": 3}, {"enemies": ["ver_fromage", "moisi_bleu"], "weight": 2, "min_party": 4}, {"enemies": ["rat_cave", "ver_fromage", "mouche_cave"], "weight": 2, "min_party": 4}]},
+		"ferme_brie": {"min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["rat_cave", "rat_cave"], "weight": 3}, {"enemies": ["mouche_cave", "mouche_cave"], "weight": 3}, {"enemies": ["ver_fromage", "mouche_cave"], "weight": 3}, {"enemies": ["rat_cave", "ver_fromage", "ver_fromage"], "weight": 2, "min_party": 4}, {"enemies": ["moisi_bleu", "mouche_cave", "mouche_cave"], "weight": 2, "min_party": 4}]},
 		"pre_couche_nord": {
-			"arena": "pre",
 			"min_distance": 7, "max_distance": 15,
 			"groups": [
 				{"enemies": ["limace_molle"], "weight": 3, "max_party": 1},
@@ -88,7 +86,6 @@
 			]
 		},
 		"pre_couche_sud": {
-			"arena": "pre",
 			"min_distance": 7, "max_distance": 15,
 			"groups": [
 				{"enemies": ["epouvantail_avachi"], "weight": 3},
@@ -99,7 +96,6 @@
 			]
 		},
 		"bois_sud": {
-			"arena": "bois",
 			"min_distance": 8, "max_distance": 16,
 			"groups": [
 				{"enemies": ["frelon_bois", "frelon_bois"], "weight": 3},
@@ -110,7 +106,6 @@
 			]
 		},
 		"bois_nord": {
-			"arena": "bois",
 			"min_distance": 8, "max_distance": 16,
 			"groups": [
 				{"enemies": ["sanglier_flapi"], "weight": 2, "max_party": 2},
@@ -121,7 +116,6 @@
 			]
 		},
 		"roseliere_nord": {
-			"arena": "marais",
 			"min_distance": 8, "max_distance": 16,
 			"groups": [
 				{"enemies": ["grenouille_bouffie"], "weight": 2, "max_party": 2},
@@ -131,7 +125,6 @@
 			]
 		},
 		"roseliere_sud": {
-			"arena": "marais",
 			"min_distance": 8, "max_distance": 16,
 			"groups": [
 				{"enemies": ["feu_follet"], "weight": 2, "max_party": 2},
@@ -141,7 +134,6 @@
 			]
 		},
 		"route_brie": {
-			"arena": "pre",
 			"min_distance": 9, "max_distance": 18,
 			"groups": [
 				{"enemies": ["morfale_eclaireur"], "weight": 3, "max_party": 2},
@@ -151,7 +143,7 @@
 				{"enemies": ["morfale_goinfre", "frelon_bois"], "weight": 2, "min_party": 3}
 			]
 		},
-		"col_biscottes": {"arena": "pre", "min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["chamois_blase", "chamois_blase"], "weight": 3}, {"enemies": ["marmotte_cols", "marmotte_cols"], "weight": 3}, {"enemies": ["taon_cols", "taon_cols", "taon_cols"], "weight": 2}, {"enemies": ["chamois_blase", "marmotte_cols"], "weight": 3, "min_party": 2}, {"enemies": ["chamois_blase", "taon_cols", "taon_cols"], "weight": 2, "min_party": 3}, {"enemies": ["marmotte_cols", "marmotte_cols", "chamois_blase"], "weight": 2, "min_party": 4}]},
-		"archives": {"arena": "place", "min_distance": 7, "max_distance": 14, "groups": [{"enemies": ["parchemin_vivant", "parchemin_vivant"], "weight": 3}, {"enemies": ["tampon_zele"], "weight": 3}, {"enemies": ["mite_rayonnage", "mite_rayonnage", "mite_rayonnage"], "weight": 2}, {"enemies": ["moisissure_rayonnage", "parchemin_vivant"], "weight": 3, "min_party": 2}, {"enemies": ["tampon_zele", "mite_rayonnage", "mite_rayonnage"], "weight": 2, "min_party": 3}, {"enemies": ["parchemin_vivant", "tampon_zele", "moisissure_rayonnage"], "weight": 2, "min_party": 4}]}
+		"col_biscottes": {"min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["chamois_blase", "chamois_blase"], "weight": 3}, {"enemies": ["marmotte_cols", "marmotte_cols"], "weight": 3}, {"enemies": ["taon_cols", "taon_cols", "taon_cols"], "weight": 2}, {"enemies": ["chamois_blase", "marmotte_cols"], "weight": 3, "min_party": 2}, {"enemies": ["chamois_blase", "taon_cols", "taon_cols"], "weight": 2, "min_party": 3}, {"enemies": ["marmotte_cols", "marmotte_cols", "chamois_blase"], "weight": 2, "min_party": 4}]},
+		"archives": {"min_distance": 7, "max_distance": 14, "groups": [{"enemies": ["parchemin_vivant", "parchemin_vivant"], "weight": 3}, {"enemies": ["tampon_zele"], "weight": 3}, {"enemies": ["mite_rayonnage", "mite_rayonnage", "mite_rayonnage"], "weight": 2}, {"enemies": ["moisissure_rayonnage", "parchemin_vivant"], "weight": 3, "min_party": 2}, {"enemies": ["tampon_zele", "mite_rayonnage", "mite_rayonnage"], "weight": 2, "min_party": 3}, {"enemies": ["parchemin_vivant", "tampon_zele", "moisissure_rayonnage"], "weight": 2, "min_party": 4}]}
 	}
 }

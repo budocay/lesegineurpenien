@@ -23,6 +23,13 @@ static func paint(kind: String, top: Color, bottom: Color, sd: int) -> Image:
 			_town(img, top, bottom, sd)
 		"cavern":
 			_cavern(img, top, bottom, sd)
+		"peaks":
+			_peaks(img, top, bottom, sd)
+		"valley":
+			_valley(img, top, bottom, sd)
+		"hills_church":
+			_hills(img, top, bottom, sd)
+			_church(img, top, bottom, sd)
 	return img
 
 
@@ -189,3 +196,78 @@ static func _cavern(img: Image, top: Color, bottom: Color, sd: int) -> void:
 		var y := 100 + int(sin(float(x) * 0.09) * 2.0 + PA.rnd(x / 2, 3, sd) * 2.0)
 		for yy in range(y, H):
 			img.set_pixel(x, yy, Color("#ff9a30").lerp(rim, PA.rnd(x, yy, sd)))
+
+
+## Sommets enneigés : trois rangées de crêtes pointues, neige en haut, brume bleue au pied.
+static func _peaks(img: Image, top: Color, bottom: Color, sd: int) -> void:
+	var snow := Color("#e4edf7")
+	for layer in 3:
+		var base := 62.0 + float(layer) * 14.0
+		var amp := 30.0 - float(layer) * 7.0
+		var rock := _mix(bottom, top, 0.35 - float(layer) * 0.1).darkened(0.2 + float(layer) * 0.12)
+		for x in W:
+			var fx := float(x) / float(W) * TAU
+			var k := absf(sin(fx * 3.0 + float(sd + layer * 3))) * 0.7 + absf(sin(fx * 7.0 + float(layer) * 2.0)) * 0.3
+			var y := base - k * amp
+			var yi := int(y)
+			for yy in range(yi, H):
+				var c := rock
+				if layer < 2 and float(yy) - y < (amp * 0.32) * k:   # neige sur les hauteurs
+					c = snow.darkened(0.08 * float(layer))
+				elif (x + yy) % 9 == 0:
+					c = rock.lightened(0.06)
+				img.set_pixel(x, yy, c)
+	var mist := _mix(bottom, Color.WHITE, 0.45)
+	for y in range(90, H):
+		var a := float(y - 90) / float(H - 90) * 0.55
+		for x in W:
+			img.set_pixel(x, y, img.get_pixel(x, y).lerp(mist, a))
+
+
+## Vallée elfique : montagnes bleutées, une cascade qui tombe d'une falaise, tours effilées, brume.
+static func _valley(img: Image, top: Color, bottom: Color, sd: int) -> void:
+	var far := _mix(bottom, top, 0.4).darkened(0.1)
+	var mid := _mix(bottom, top, 0.25).darkened(0.25)
+	var near := Color("#4f7a5a").lerp(bottom, 0.25).darkened(0.1)
+	_ridge(img, 56.0, 12.0, sd, far, far.lightened(0.1))
+	# falaise et cascade
+	var fx0 := 250
+	for x in range(fx0, fx0 + 50):
+		var top_y := 40 + int(PA.rnd(x / 3, 1, sd) * 6.0)
+		for y in range(top_y, H):
+			img.set_pixel(x, y, mid.lightened(0.05 * float((x - fx0) % 5 == 0)))
+	for x in range(fx0 + 20, fx0 + 28):
+		for y in range(42, 100):
+			var w := 0.75 + 0.2 * sin(float(y) * 0.5 + float(x))
+			img.set_pixel(x, y, Color("#eaf6ff").lerp(Color("#a8d0f0"), 1.0 - w))
+	for i in 12:   # tours et pavillons effilés
+		var tx := 20 + i * 30 + int(PA.rnd(i, 1, sd) * 14.0)
+		if tx > fx0 - 8 and tx < fx0 + 56:
+			continue
+		var th := 22 + int(PA.rnd(i, 2, sd) * 22.0)
+		var base := 88
+		PA.rect(img, tx, base - th, 4, th, Color("#cfd2dc").lerp(bottom, 0.45))
+		for k in 10:
+			PA.rect(img, tx + 2 - (10 - k) / 5, base - th - 10 + k, ((10 - k) / 5) * 2 + 1, 1, Color("#7f98a8").lerp(bottom, 0.3))
+		PA.rect(img, tx + 1, base - th + 6, 2, 3, Color("#ffd890"))
+	_ridge(img, 90.0, 6.0, sd + 4, near, near.lightened(0.1))
+	for i in 40:
+		_round_tree(img, int(PA.rnd(i, 3, sd) * W), 96 + int(PA.rnd(i, 4, sd) * 6.0), 3 + int(PA.rnd(i, 5, sd) * 3.0), near.darkened(0.2), near)
+	var mist := _mix(bottom, Color.WHITE, 0.5)
+	for k in 4:
+		var y := 62 + k * 10
+		for x in W:
+			var a := 0.12 + 0.06 * sin(float(x) * 0.04 + float(k) * 2.0)
+			for dy in 4:
+				img.set_pixel(x, y + dy, img.get_pixel(x, y + dy).lerp(mist, a))
+
+
+## Un clocher à flèche sur une colline lointaine (la route de Brie).
+static func _church(img: Image, top: Color, bottom: Color, sd: int) -> void:
+	var col := _mix(bottom, top, 0.25).darkened(0.35)
+	var cx := 120 + int(PA.rnd(2, 2, sd) * 120.0)
+	PA.rect(img, cx - 14, 66, 26, 18, col)
+	PA.rect(img, cx, 44, 8, 40, col)
+	for k in 14:
+		PA.rect(img, cx + 4 - (14 - k) / 4, 30 + k, ((14 - k) / 4) * 2 + 1, 1, col.darkened(0.08))
+	PA.rect(img, cx + 3, 50, 2, 4, Color("#ffcf7a"))

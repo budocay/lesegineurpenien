@@ -10,6 +10,7 @@
 	"wall_height": 3.0,
 	"ambiance": "interieur_chaud",
 	"music": "auberge",
+	"arena": "taverne",
 	"camera": {
 		"distance": 21,
 		"pitch": 34,

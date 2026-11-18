@@ -5,6 +5,7 @@
 	"size": [46, 32],
 	"ambiance": "crepuscule",
 	"music": "village",
+	"arena": "quai",
 	"music_states": [
 		{"if": "combat_naze", "music": "campagne"},
 		{"if": "naze_arrive", "music": "menace"},

@@ -111,5 +111,85 @@
 		"saturation": 1.05,
 		"contrast": 1.05,
 		"particles": ["lueurs", "dust"]
+	},
+	"aube": {
+		"background": "#3a3a5a",
+		"ambient": {
+			"color": "#b8bce0",
+			"energy": 0.7
+		},
+		"sun": {
+			"color": "#ffd890",
+			"energy": 1.3,
+			"direction": [
+				0.6,
+				-0.42,
+				-0.68
+			],
+			"fog_energy": 0.35
+		},
+		"fog": {
+			"color": "#c8c0c0",
+			"density": 0.003
+		},
+		"volumetric": {
+			"density": 0.007,
+			"albedo": "#c8bce6",
+			"emission": "#25224a",
+			"emission_energy": 0.25,
+			"length": 72
+		},
+		"glow": {
+			"intensity": 0.8,
+			"bloom": 0.06,
+			"threshold": 1.0,
+			"strength": 1.0
+		},
+		"exposure": 1.0,
+		"saturation": 1.2,
+		"contrast": 1.14,
+		"particles": [
+			"pollen"
+		]
+	},
+	"col_neige": {
+		"background": "#8aa8d0",
+		"ambient": {
+			"color": "#b8c8e8",
+			"energy": 0.75
+		},
+		"sun": {
+			"color": "#fff4e0",
+			"energy": 1.2,
+			"direction": [
+				0.55,
+				-0.38,
+				-0.7
+			],
+			"fog_energy": 0.6
+		},
+		"fog": {
+			"color": "#c8d8ee",
+			"density": 0.004
+		},
+		"volumetric": {
+			"density": 0.012,
+			"albedo": "#dce4f4",
+			"emission": "#4a5a80",
+			"emission_energy": 0.35,
+			"length": 72
+		},
+		"glow": {
+			"intensity": 0.85,
+			"bloom": 0.07,
+			"threshold": 1.0,
+			"strength": 1.0
+		},
+		"exposure": 1.08,
+		"saturation": 1.1,
+		"contrast": 1.05,
+		"particles": [
+			"snow"
+		]
 	}
 }

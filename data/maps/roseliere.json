@@ -5,6 +5,7 @@
 	"size": [40, 24],
 	"ambiance": "marais",
 	"music": "marais",
+	"arena": "marais",
 	"ramollissement": 0.2,
 	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {
