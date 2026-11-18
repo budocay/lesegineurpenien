@@ -98,6 +98,17 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
 - `vignette` : force de l'assombrissement des coins de l'écran (0,45 par défaut).
 - Valeurs par défaut du sol : `flatten` 0,15, `grain` 0,04, `boost` 0,45, `edge` 0,45,
   `light` `#ffe9c8`. La nappe de lumière éclaircit sans changer la teinte du sol.
+- Lisibilité (champs ajoutés ; la lumière d'une arène se règle pour que les combattants se
+  détachent toujours, voir plus bas « Lisibilité garantie ») : `dim` (1 par défaut) assombrit le
+  sol seul ; `exposure` (multiplie l'exposition de l'ambiance, 1 par défaut ; sombre : jusqu'à
+  1,6) ; `saturation` et `contrast` (remplacent ceux de l'ambiance) ; `fill` (0 par défaut) :
+  énergie d'une lumière d'appoint chaude, plus basse et devant les combattants, sans ombre,
+  `fill_color` sa teinte ; `lift` (0,1 par défaut) : part de leur couleur que les combattants
+  rendent en lumière propre (ils restent lisibles dans le noir sans qu'on éclaire le décor) ;
+  `rim` (1 par défaut) : force du liseré clair de leur silhouette (uniform `rim` de
+  `sprite.gdshader`) ; `shafts` : `{"color": "#ffe6b0", "strength": 0.08, "slant": 0.55}`,
+  larges rayons de lumière obliques posés sur l'image, sous l'interface (`shafts.gdshader`,
+  force 0,12 au plus).
 - `variation` : amplitude des plaques de teinte du sol (0,09 par défaut) ; `tint` : couleur
   qui multiplie tout le sol (teinte du lieu, `#ffffff` par défaut).
 - `patches` : `{"tile": "grass", "amount": 0.3, "tint": "#ffffff"}`, seconde matière par
@@ -109,6 +120,19 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
   `density` par case de 4 pixels (au plus 0,2).
 - Le sol de chaque arène doit être celui de son lieu (pas de terre nue : `ground` ne vaut
   jamais `soil`) et garder sa texture (`flatten` au plus 0,35, `desat` au plus 0,2).
+
+Lisibilité garantie. Mesure (capture 1280 x 720, luminance moyenne de l'image sans interface, puis
+sans combattants pour la luminance du fond, et des seuls pixels des combattants contre ce qu'ils
+cachent) : fond de 0,20 à 0,50, contraste combattants / sol derrière eux d'au moins 0,09 (mesuré :
+0,09 à 0,33). Règles générales : la nappe de lumière du sol est resserrée sur le combat (`radius`
+de 8 à 11 sur 5 à 7,5) et le sol tombe dans l'ombre autour (`edge` 0,34 au plus sauf arène
+sombre) ; la vignette est d'au moins 0,5 ; le fond est flou (profondeur de champ) et plus sombre
+que le sol ; les combattants ont un liseré clair (`rim`) et un peu de lumière propre (`lift`) ;
+une arène sombre est relevée (`exposure`, `fill`, `lift`), une arène claire est assombrie (`dim`
+du sol, teinte, `backdrop.dim`). Le test `_test_arena_mood` fait respecter ces fourchettes
+(chaque champ ci-dessus a la sienne) ; les ombres de contact sont franches sous chaque
+combattant ; l'occlusion ambiante est coupée en combat (des sprites plats y gagnent des carrés
+sombres) et la brume de grandes particules est lissée.
 
 Champ facultatif `foreground` (liste, vide par défaut) : accessoires posés au tout premier
 plan, entre la caméra et les combattants, que le flou de profondeur rend flous (cadrage à la
@@ -139,7 +163,12 @@ lancé : `Actor.pose_reach`), ils ne touchent ni les fiches, ni la frise, ni le 
 au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la plus grande taille
 (au plus `FOE_K_MAX`) qui tient entre la frise, le bas de l'écran (leur plaque comprise) et les
 héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
-large se réduit donc tout seul s'il le faut. `scale` d'un ennemi (`data/enemies.json`) reste sa
+large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique est `boss` ou la fuite impossible, l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
+la place qui reste, jusqu'à `BOSS_RATIO_MAX` (3,4) fois la hauteur d'un héros (plancher vérifié
+par le test : 1,7), en descendant au besoin vers la caméra ; il penche et bondit moins qu'un
+petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres peints par code sont affichés
+repeints plus fin (`MonsterPainter.upscale`, trois fois la définition, contours des diagonales
+arrondis) : un boss agrandi n'a plus des pixels dix fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
 taille relative aux autres monstres.
 Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
@@ -927,7 +956,8 @@ moteur (`src/battle/battle_fx.gd`) ne connaît aucune compétence : il lit ce fi
 ### `data/encounters.json`
 
 - `encounters` : rencontres nommées, lancées par un dialogue. `enemies` (liste), `arena`,
-  `flee` (faux pour un boss), `intro` (phrase d'ouverture), et pour un combat scénarisé :
+  `flee` (faux pour un boss), `boss` (identifiant d'un ennemi de la liste qui domine la scène ;
+  `false` : aucun boss), `intro` (phrase d'ouverture), et pour un combat scénarisé :
   `party` (équipe imposée, avec niveaux ; rien n'est alors conservé après le combat),
   `inventory` (objets prêtés), `hints` (conseils affichés tour après tour).
   `ramollissement` impose une valeur ; sinon c'est celle de la carte d'où part le combat.

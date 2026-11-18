@@ -52,6 +52,8 @@ var hero_k := 1.0               # taille d'affichage des héros, choisie par lay
 var foe_k := 1.0                # taille d'affichage des monstres
 var hero_shift := Vector2.ZERO  # décalage (x, z) de la colonne des héros, choisi par layout()
 var foe_shift := Vector2.ZERO
+var boss: RefCounted = null     # le boss de la rencontre, s'il y en a un (voir find_boss) : il domine la scène
+var boss_mul := 1.0             # sa taille, en plus de celle des monstres (choisie par layout())
 
 
 func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
@@ -66,6 +68,7 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	_build_camera()
 	_place(engine.party)
 	_place(engine.enemies)
+	_light_actors(arena.get("stage", {}))
 	layout()
 	_foreground(arena.get("foreground", []))
 	_fit_steps()
@@ -117,9 +120,14 @@ func _build_arena(arena: Dictionary) -> void:
 		if l is Dictionary:
 			_light(l)
 	_stage_light(stage)
-	_stage_vignette(float(stage.get("vignette", 0.45)))
+	_stage_vignette(float(stage.get("vignette", 0.45)), stage)
 	var amb := _stage_ambiance(Database.get_ambiance(str(arena.get("ambiance", "crepuscule"))), arena)
-	Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
+	var followers := Atmosphere.build(self, amb, Rect2(-12.0, -11.0, 24.0, 9.0))
+	for p: Variant in followers:   # une grande particule (brume) en pixels nets ferait des carrés : on l'adoucit
+		if p is CPUParticles3D and (p as CPUParticles3D).mesh is QuadMesh:
+			var q := (p as CPUParticles3D).mesh as QuadMesh
+			if q.size.x > 1.0 and q.material is BaseMaterial3D:
+				(q.material as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
 
 
 ## Sol uni à grain fin, nappe de lumière au centre, bords assombris (arena_ground.gdshader).
@@ -159,6 +167,7 @@ func _ground_material(tile: String, size: Vector2, stage: Dictionary) -> ShaderM
 		m.set_shader_parameter("fleck_b", Database.color(cols[cols.size() - 1], Color("#f2d24a")))
 		m.set_shader_parameter("tuft_color", Database.color(fleck.get("tuft", "#73b150"), Color("#73b150")))
 	m.set_shader_parameter("desat", float(stage.get("desat", 0.0)))
+	m.set_shader_parameter("dim", float(stage.get("dim", 1.0)))
 	var r: Array = stage.get("radius", [12.0, 7.5])
 	m.set_shader_parameter("pool_radius", Vector2(float(r[0]), float(r[1])))
 	var c: Array = stage.get("center", [0.0, -0.5])
@@ -167,7 +176,7 @@ func _ground_material(tile: String, size: Vector2, stage: Dictionary) -> ShaderM
 
 
 ## Coins de l'image assombris par-dessus le monde, sous l'interface : l'œil va au centre.
-func _stage_vignette(strength: float) -> void:
+func _stage_vignette(strength: float, stage: Dictionary = {}) -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 0
 	layer.name = "StageVignette"
@@ -179,6 +188,19 @@ func _stage_vignette(strength: float) -> void:
 	mat.set_shader_parameter("strength", strength)
 	rect.material = mat
 	layer.add_child(rect)
+	var shafts: Dictionary = stage.get("shafts", {})
+	if float(shafts.get("strength", 0.0)) > 0.0:   # rayons obliques sur l'image (shafts.gdshader)
+		var sr := ColorRect.new()
+		sr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		sr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var sm := ShaderMaterial.new()
+		sm.shader = preload("res://src/gfx/shaders/shafts.gdshader")
+		sm.set_shader_parameter("strength", float(shafts.get("strength", 0.1)))
+		sm.set_shader_parameter("tint", Database.color(shafts.get("color", "#ffe6b0"), Color("#ffe6b0")))
+		sm.set_shader_parameter("slant", float(shafts.get("slant", 0.55)))
+		sr.material = sm
+		layer.add_child(sr)
+		layer.move_child(sr, 0)   # sous la vignette : les coins l'assombrissent aussi
 	add_child(layer)
 
 
@@ -192,6 +214,16 @@ func _stage_light(stage: Dictionary) -> void:
 	l.position = Vector3(0.0, 6.0, 4.0)
 	l.name = "StageLight"
 	add_child(l)
+	# lumière d'appoint chaude, plus basse et devant les combattants : elle dessine leurs visages et
+	# le sol des arènes sombres (sans ombre, champ « fill » : énergie, « fill_color » : teinte)
+	var fill := float(stage.get("fill", 0.0))
+	if fill > 0.0:
+		var f := Atmosphere.make_light(Database.color(stage.get("fill_color", "#ffb878"), Color("#ffb878")), fill, 12.0, false)
+		f.omni_attenuation = 0.8
+		f.light_volumetric_fog_energy = 0.0
+		f.position = Vector3(-1.0, 2.2, 3.0)
+		f.name = "StageFill"
+		add_child(f)
 
 
 ## Ambiance de combat : on garde le ton du lieu mais on retire ce qui encombre la scène
@@ -200,6 +232,12 @@ func _stage_light(stage: Dictionary) -> void:
 func _stage_ambiance(amb: Dictionary, arena: Dictionary) -> Dictionary:
 	var out: Dictionary = amb.duplicate(true)
 	out.erase("rays")
+	out["ssao"] = 0.0   # des sprites plats : l'occlusion ambiante ne ferait que dessiner des carrés sombres autour d'eux
+	var st: Dictionary = arena.get("stage", {})
+	out["exposure"] = float(out.get("exposure", 1.0)) * float(st.get("exposure", 1.0))
+	for key: String in ["saturation", "contrast"]:
+		if st.has(key):
+			out[key] = float(st[key])
 	out["particles"] = arena.get("particles", [])
 	if out.has("volumetric"):
 		(out["volumetric"] as Dictionary)["density"] = float((out["volumetric"] as Dictionary).get("density", 0.01)) * 0.55
@@ -232,6 +270,12 @@ const HERO_K_MAX := 0.62  # taille d'affichage maximale d'un héros (1 = taille 
 const HERO_K_MIN := 0.3
 const FOE_K_MAX := 1.2    # idem pour un monstre : un peu plus gros que les héros
 const FOE_K_MIN := 0.4
+const DEFAULT_LIFT := 0.1   # lumière propre des combattants, par défaut (champ « lift » de stage)
+const DEFAULT_RIM := 1.0    # liseré de contre-jour par défaut (champ « rim » de stage)
+const BOSS_MUL_MAX := 3.2    # un boss peut grossir jusqu'à tant de fois la taille des monstres...
+const BOSS_RATIO_MAX := 3.4  # ...sans dépasser tant de fois la hauteur d'un héros
+const BOSS_RATIO_FLOOR := 1.7  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
+const BOSS_HEAVY := 0.4      # un boss penche beaucoup moins qu'un petit monstre (Actor.heavy)
 const FOOT_MARGIN := 76.0  # place laissée sous les pieds d'un héros (ombre, bord de l'écran)
 const PLATE_H := 66.0      # plaque d'un ennemi sous ses pieds (états, nom)
 const PLATE_W := 190.0
@@ -469,6 +513,13 @@ func _light(l: Dictionary) -> void:
 		add_child(lamp)
 
 
+## Réglages de lisibilité des combattants (champs « lift » et « rim » de « stage » : voir
+## docs/FORMAT_DONNEES.md) : de la lumière propre en plus, et le liseré clair de contre-jour.
+func _light_actors(stage: Dictionary) -> void:
+	for k: String in actors:
+		(actors[k] as Node3D).set_light(float(stage.get("lift", DEFAULT_LIFT)), float(stage.get("rim", DEFAULT_RIM)))
+
+
 func _build_camera() -> void:
 	camera = Camera3D.new()
 	camera.fov = CAM_FOV
@@ -480,11 +531,11 @@ func _build_camera() -> void:
 	var attr := CameraAttributesPractical.new()
 	attr.dof_blur_far_enabled = true
 	attr.dof_blur_far_distance = dist + 2.6
-	attr.dof_blur_far_transition = 11.0
+	attr.dof_blur_far_transition = 8.0
 	attr.dof_blur_near_enabled = true
 	attr.dof_blur_near_distance = dist - 2.5
 	attr.dof_blur_near_transition = 2.5
-	attr.dof_blur_amount = 0.095
+	attr.dof_blur_amount = 0.115
 	camera.attributes = attr
 	Settings.apply_camera(attr)
 	camera.make_current()
@@ -493,9 +544,37 @@ func _build_camera() -> void:
 ## Taille d'affichage d'un combattant : les héros et les ennemis dessinés comme des personnages
 ## prennent celle des héros, les monstres celle des monstres.
 func _view_k(c: RefCounted) -> float:
+	var k := foe_k
 	if c.side == "party" or (c.sprite as Dictionary).has("character"):
-		return hero_k
-	return foe_k
+		k = hero_k
+	return k * boss_mul if c == boss else k
+
+
+## Le boss de la rencontre : l'ennemi nommé par son champ « boss » (identifiant d'ennemi ; faux : aucun
+## boss), sinon, pour un combat qu'on ne peut pas fuir ou dont la musique est « boss », l'ennemi seul
+## ou celui qui a au moins une fois et demie les PV du suivant. Un combat ordinaire n'a pas de boss.
+func find_boss() -> RefCounted:
+	var list: Array = engine.enemies
+	var named: Variant = encounter.get("boss", null)
+	if named is bool and not named:
+		return null
+	if named is String and str(named) != "":
+		for c: RefCounted in list:
+			if c.source == named:
+				return c
+		return null
+	if list.is_empty() or not (str(encounter.get("music", "")) == "boss" or encounter.get("flee", true) == false):
+		return null
+	var best: RefCounted = null
+	var second := 0
+	for c: RefCounted in list:
+		if best == null or c.max_hp() > best.max_hp():
+			if best != null:
+				second = best.max_hp()
+			best = c
+		else:
+			second = maxi(second, c.max_hp())
+	return best if best.max_hp() >= 1.5 * second else null
 
 
 ## Places (monde) des combattants d'un camp, d'après leur taille d'affichage et le décalage de
@@ -549,6 +628,7 @@ func _apply_foes(k: float, shift: Vector2) -> void:
 	foe_shift = shift
 	for c: RefCounted in engine.enemies:
 		(actors[c.key] as Node3D).set_view_scale(_view_k(c))
+		(actors[c.key] as Node3D).heavy = BOSS_HEAVY if c == boss else 1.0
 	var spots := _spots(engine.enemies, -1.0, shift)
 	for i in engine.enemies.size():
 		(actors[engine.enemies[i].key] as Node3D).set_home(spots[i])
@@ -583,6 +663,8 @@ func layout() -> void:
 			k -= 0.02
 	if not found:
 		_apply_party(HERO_K_MIN, Vector2.ZERO)
+	boss = null
+	boss_mul = 1.0
 	found = false
 	k = FOE_K_MAX
 	while k >= FOE_K_MIN - 0.001 and not found:
@@ -595,6 +677,28 @@ func layout() -> void:
 			k -= 0.05
 	if not found:
 		_apply_foes(FOE_K_MIN, Vector2.ZERO)
+	# un boss prend ensuite toute la place qui reste, jusqu'à BOSS_RATIO_MAX hauteurs de héros
+	boss = find_boss()
+	boss_mul = 1.0
+	if boss != null:
+		var base_k := foe_k
+		var base_shift := foe_shift
+		var hero_h: float = (actors[engine.party[0].key] as Node3D).height
+		var m := BOSS_MUL_MAX
+		found = false
+		while m >= 1.0 - 0.001 and not found:
+			boss_mul = m
+			var tall := (actors[boss.key] as Node3D)
+			for dz in 20:   # il peut descendre vers la caméra : plus bas, donc plus de place sous la frise
+				_apply_foes(base_k, Vector2(0.0, float(dz) * 0.25))
+				if (tall.height <= BOSS_RATIO_MAX * hero_h or m <= 1.0 + 0.001) and _foes_fit(view):
+					found = true
+					break
+			if not found:
+				m -= 0.05
+		if not found:
+			boss_mul = 1.0
+			_apply_foes(base_k, base_shift)
 
 
 func _party_fits(view: Vector2, zones: Array[Rect2]) -> bool:

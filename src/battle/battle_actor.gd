@@ -33,6 +33,7 @@ var _scale0 := Vector3.ONE   # échelle, hover et hauteur à la taille de base (
 var _height0 := 1.6
 var _hover0 := 0.0
 var _shadow: MeshInstance3D = null
+var heavy := 1.0             # 1 : penche et bondit à pleine amplitude ; un boss, bien plus massif, bouge moins (voir BattleScene.BOSS_HEAVY)
 
 
 func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
@@ -76,7 +77,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		# un monstre placé du côté de l'équipe (jamais le cas pour l'instant) serait retourné
 		if combatant.side == "party":
 			_body.scale.x = -1.0
-	_quad.set_instance_shader_parameter("rim", 0.7)   # liseré de contre-jour (voir sprite.gdshader)
+	set_light(0.0, 0.7)
 	_body.scale *= scale_k
 	_base_scale = _body.scale
 	_scale0 = _body.scale
@@ -84,6 +85,12 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 	_hover0 = _hover
 	_body.position.y = _hover
 	_animate(0.0)
+
+
+## Lumière propre (« lift ») et liseré de contre-jour (« rim ») du sprite : voir sprite.gdshader.
+func set_light(lift: float, rim: float) -> void:
+	_quad.set_instance_shader_parameter("lift", lift)
+	_quad.set_instance_shader_parameter("rim", rim)
 
 
 ## Taille d'affichage en combat : multiplie le sprite, son ombre, sa hauteur et son vol. La scène
@@ -110,7 +117,7 @@ func set_home(p: Vector3) -> void:
 ## Débattement (monde) du sprite pendant ses poses : de côté (penché, bond) et vers le haut
 ## (sort lancé, coup reçu). Sert à vérifier qu'aucune pose ne touche l'interface.
 func pose_reach() -> Vector2:
-	return Vector2(0.28 * height, 0.3 + 0.12 * height)
+	return Vector2(0.28 * height * heavy, 0.3 + 0.12 * height * (0.5 + 0.5 * heavy))
 
 
 static var _shadow_tex: Texture2D = null
@@ -289,7 +296,7 @@ func play_pose(pose: String, toward: Vector3, impact: float) -> void:
 		_move.kill()
 	if _char != null:
 		_char.moving = false
-	var lean := -_dir   # signe d'une rotation qui penche vers l'adversaire
+	var lean := -_dir * heavy   # signe d'une rotation qui penche vers l'adversaire (moins ample pour un boss)
 	var s := _base_scale
 	var by := _hover
 	var from := position

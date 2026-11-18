@@ -101,6 +101,7 @@ func _ready() -> void:
 	_test_equipment()
 	await _test_settings()
 	await _test_houses()
+	_test_arena_mood()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -4046,7 +4047,7 @@ func _test_arenas() -> void:
 		var arena: Dictionary = Database.arenas[id]
 		var stage: Dictionary = arena.get("stage", {})
 		for key: String in stage:
-			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck"].has(key), "arène %s : champ stage.%s connu" % [id, key])
+			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck", "dim", "exposure", "saturation", "contrast", "fill", "fill_color", "lift", "rim", "shafts"].has(key), "arène %s : champ stage.%s connu" % [id, key])
 		check(float(stage.get("edge", 0.2)) >= 0.0 and float(stage.get("edge", 0.2)) <= 1.0, "arène %s : bords assombris dans [0, 1]" % id)
 		check(float(stage.get("flatten", 0.6)) >= 0.0 and float(stage.get("flatten", 0.6)) <= 1.0, "arène %s : aplat du sol dans [0, 1]" % id)
 		check(float(stage.get("boost", 0.5)) >= 0.0 and float(stage.get("key", 1.6)) >= 0.0, "arène %s : lumière positive" % id)
@@ -5463,12 +5464,15 @@ func _test_battle_staging() -> void:
 	var foes5 := ["limace_molle", "guepe_cidre", "champignon_dormeur", "limace_molle", "guepe_cidre"]
 	var cases := [
 		{"name": "4 héros, 5 ennemis", "allies": ["sam", "froton", "pepin"], "enemies": foes5},
-		{"name": "4 héros, boss", "allies": ["sam", "froton", "pepin"], "enemies": ["crapaud_buffle"]},
+		{"name": "4 héros, boss", "allies": ["sam", "froton", "pepin"], "enemies": ["crapaud_buffle"], "boss": true},
 	]
 	var extra := [
 		{"name": "2 héros, 1 ennemi", "allies": ["sam"], "enemies": ["limace_molle"]},
 		{"name": "3 héros, 3 ennemis", "allies": ["sam", "froton"], "enemies": ["vacherin", "guepe_cidre", "champignon_dormeur"]},
 		{"name": "4 héros, 5 grands", "allies": ["sam", "froton", "pepin"], "enemies": ["vacherin", "crapaud_buffle", "vacherin", "crapaud_buffle", "vacherin"]},
+		{"name": "4 héros, boss et deux sbires", "allies": ["sam", "froton", "pepin"], "enemies": ["gros_bleu", "gobe_lard", "gobe_lard"], "boss": true},
+		{"name": "4 héros, boss large", "allies": ["sam", "froton", "pepin"], "enemies": ["vacherin"], "boss": true},
+		{"name": "4 héros, boss à sprite de personnage", "allies": ["sam", "froton", "pepin"], "enemies": ["sarumale"], "boss": true},
 	]
 	var win := get_window()
 	var old_size := win.size
@@ -5491,7 +5495,8 @@ func _test_battle_staging() -> void:
 				var scene: Node3D = BattleScene.new()
 				add_child(scene)
 				scene.fast = true
-				scene.setup({"enemies": cs["enemies"], "arena": id}, ui, 5)
+				var boss_fight: bool = bool(cs.get("boss", false))
+				scene.setup({"enemies": cs["enemies"], "arena": id, "music": "boss" if boss_fight else "", "flee": not boss_fight}, ui, 5)
 				scene.run()
 				for _i in 600:
 					await get_tree().process_frame
@@ -5509,6 +5514,17 @@ func _test_battle_staging() -> void:
 
 func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 	var view: Rect2 = ui.get_viewport_rect()
+	# un boss domine la scène : nettement plus haut qu'un héros et que ses sbires, jamais au-delà de la borne
+	var is_boss_fight: bool = str(scene.encounter.get("music", "")) == "boss"
+	check((scene.boss != null) == is_boss_fight, "%s : le boss n'existe que dans un combat de boss" % tag)
+	if scene.boss != null:
+		var hero_h: float = (scene.actors[scene.engine.party[0].key] as Node3D).height
+		var boss_h: float = (scene.actors[scene.boss.key] as Node3D).height
+		var ratio := boss_h / hero_h
+		check(ratio >= scene.BOSS_RATIO_FLOOR and ratio <= scene.BOSS_RATIO_MAX + 0.02, "%s : le boss fait %.2f fois un héros (entre %.1f et %.1f)" % [tag, ratio, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_MAX])
+		for c: RefCounted in scene.engine.enemies:
+			if c != scene.boss:
+				check(boss_h >= 1.25 * (scene.actors[c.key] as Node3D).height, "%s : le boss domine %s" % [tag, str(c.name)])
 	var ui_rects: Array[Rect2] = []
 	for k: Variant in ui._rows:
 		ui_rects.append((ui._rows[k]["card"] as Control).get_global_rect())
@@ -5580,3 +5596,51 @@ func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 			if node.position.z > a.home.z - 0.2:
 				hidden = maxf(hidden, _overlap(nr, scene.screen_rect(c, false, true)))
 	check(hidden < 1.0, "%s : aucun décor posé devant un combattant (%.0f px²)" % [tag, hidden])
+
+
+## Ambiance des arènes, sans rendu : chaque arène reste dans les fourchettes qui garantissent la
+## lisibilité des combattants (mesurées à l'image, voir docs/FORMAT_DONNEES.md « lisibilité ») :
+## lumière de scène (key), exposition, bords du sol (edge), vignette, lumière propre (lift) et
+## liseré (rim) des combattants, lumière d'appoint (fill), rayons (shafts), nappe de lumière
+## (radius), fond (backdrop.dim) ; un sol sombre est compensé (exposition, appoint ou lift),
+## un sol clair est assombri ; le sol garde sa texture (flatten, desat). Puis un boss de la
+## scène : voir _check_staging (taille du boss, repérage).
+func _test_arena_mood() -> void:
+	print("== Ambiance des arènes : lisibilité ==")
+	for id: String in Database.arenas:
+		var a: Dictionary = Database.get_arena(id)
+		var st: Dictionary = a.get("stage", {})
+		var t := "arène %s" % id
+		var key := float(st.get("key", 1.6))
+		var expo := float(st.get("exposure", 1.0))
+		var lift := float(st.get("lift", 0.1))
+		var fill := float(st.get("fill", 0.0))
+		var edge := float(st.get("edge", 0.45))
+		var dim := float(st.get("dim", 1.0))
+		check(key >= 1.6 and key <= 4.2, "%s : lumière de scène key %.1f entre 1,6 et 4,2" % [t, key])
+		check(expo >= 0.9 and expo <= 1.7, "%s : exposition %.2f entre 0,9 et 1,7" % [t, expo])
+		check(edge >= 0.1 and edge <= 0.5, "%s : bords du sol (edge %.2f) entre 0,1 et 0,5" % [t, edge])
+		check(float(st.get("vignette", 0.45)) >= 0.5 and float(st.get("vignette", 0.45)) <= 0.75, "%s : vignette entre 0,5 et 0,75" % t)
+		check(lift >= 0.0 and lift <= 0.3, "%s : lumière propre (lift %.2f) entre 0 et 0,3" % [t, lift])
+		check(float(st.get("rim", 1.0)) >= 0.6 and float(st.get("rim", 1.0)) <= 1.6, "%s : liseré (rim) entre 0,6 et 1,6" % t)
+		check(fill >= 0.0 and fill <= 2.0, "%s : lumière d'appoint (fill %.1f) entre 0 et 2" % [t, fill])
+		check(dim >= 0.55 and dim <= 1.0, "%s : sol (dim %.2f) entre 0,55 et 1" % [t, dim])
+		var radius: Array = st.get("radius", [12.0, 7.5])
+		check(float(radius[0]) >= 8.0 and float(radius[0]) <= 11.0 and float(radius[1]) >= 5.0 and float(radius[1]) <= 7.5, "%s : nappe de lumière (radius) resserrée sur le combat" % t)
+		check(float(st.get("flatten", 0.15)) <= 0.35 and float(st.get("desat", 0.0)) <= 0.2, "%s : le sol garde sa texture et ses couleurs" % t)
+		var shafts: Dictionary = st.get("shafts", {})
+		check(float(shafts.get("strength", 0.0)) <= 0.12, "%s : rayons discrets (shafts)" % t)
+		var bd: Dictionary = a.get("backdrop", {})
+		check(float(bd.get("dim", 0.6)) >= 0.35 and float(bd.get("dim", 0.6)) <= 1.0, "%s : fond (backdrop dim) entre 0,35 et 1" % t)
+		# luminance estimée du sol (couleur moyenne de la tuile, teinte du lieu) : sombre, on compense ; clair, on assombrit
+		var img: Image = Sprites.tile_image(str(a.get("ground", "grass")))
+		var avg := Color(0, 0, 0)
+		for i in 64:
+			avg += img.get_pixel((i * 7) % img.get_width(), (i * 13) % img.get_height())
+		avg = avg / 64.0
+		var tint := Database.color(st.get("tint", "#ffffff"), Color.WHITE)
+		var floor_lum := Color(avg.r * tint.r, avg.g * tint.g, avg.b * tint.b).get_luminance()
+		if floor_lum < 0.3:
+			check(expo >= 1.1 and (fill >= 0.5 or lift >= 0.15), "%s : sol sombre (%.2f) relevé (exposition %.2f, appoint %.1f, lift %.2f)" % [t, floor_lum, expo, fill, lift])
+		check(floor_lum * dim <= 0.46, "%s : sol clair assombri (%.2f)" % [t, floor_lum * dim])
+		check(lift >= 0.15 or fill >= 0.5 or floor_lum * dim <= 0.4, "%s : combattants détachés d'un sol moyen (lift ou appoint)" % t)
