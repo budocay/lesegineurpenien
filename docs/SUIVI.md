@@ -696,30 +696,70 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      à « jardinier » ; ce champ ne sert qu'à l'affichage. Il garde sa poêle, ses compétences
      de cuisine et son nom : il cuisine ce qu'il fait pousser. Berthe dit « mon jardinier »
      et précise qu'il tient ses fourneaux. `repriste.txt` porte la nouvelle liste de noms.
-## Demandes de l'auteur à faire (18 novembre 2026, soir)
 
-- **La réserve ne gagne pas l'expérience des combats** (règle de l'auteur, fait :
-  `GameState.RESERVE_XP` à 0). L'expérience des quêtes va à tous. Conséquence à surveiller :
-  un réserviste laissé longtemps de côté décroche ; les combats se règlent sur quatre
-  personnages au niveau attendu, pas sur toute la troupe.
-- **Quatre combattants au plus.** Une équipe ne dépasse jamais quatre personnages en
-  combat (« sinon c'est trop craqué »). Les autres sont en réserve. À faire avec le
-  chapitre 3 (équipe active choisie dans l'écran Équipe, réserve qui gagne l'expérience) ;
-  les combats du chapitre 2, réglés pour cinq ou six, sont à rééquilibrer pour quatre.
-- **Interface façon Octopath Traveler** (pas urgent) : menus, dialogues, combat, titres de
-  lieu plus fins et plus aérés. La relecture des captures note l'interface 4,5 sur 10.
-- **Écran de paramètres** (pas urgent) : plein écran, niveau de détail, échelle de rendu,
-  mise à l'échelle (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier),
-  volumes. Réglages gardés d'une session à l'autre.
-- **Amélioration graphique** : chantier permanent, à poursuivre après chaque relecture.
-- **Respecter les environnements du récit d'origine.** Chaque région doit ressembler à son
-  modèle : Fondue-Combe est une cité elfique (vallée encaissée, cascades, ponts fins,
-  arcades et colonnes élancées de pierre claire, toits en pavillon, arbres d'or), pas un
-  village à colombages. Il faut donc un jeu de décors propre à chaque peuple (Grobittes :
-  collines et portes rondes ; Brie : bourg d'hommes ; Elfes ; Nains des Mines ; Mordgras),
-  à peindre dans `tile_painter.gd` / `prop_painter.gd` et à brancher dans `map_builder.gd`.
-  À faire dès que le chapitre 3 est fusionné (son agent n'avait pas le droit de toucher
-  aux décors : sa cité sera bâtie avec les maisons existantes en attendant).
+### Décisions de la soirée du 18 novembre 2026 (chantiers menés en parallèle)
+
+112. **Sauvegardes multiples.** Huit emplacements manuels et trois sauvegardes automatiques
+     tournantes (`save_manager.gd`, écran `save_screen.gd`). Après une défaite : Recommencer,
+     Revenir avant le combat, Charger une sauvegarde, Retour à l'écran-titre. Raison : demande
+     de l'auteur (pouvoir revenir à un point antérieur) ; l'ancien fichier unique est repris.
+113. **Musique recomposée.** Onze morceaux réécrits par `tools/compose_music.py`, nouveaux
+     instruments (flûte, violon, harpe, cor, cuivres graves, chœur), nuances et réverbération.
+     Compositions originales dans l'esprit d'une grande fresque, sans reprise d'un thème
+     existant. Le morceau `brie` est resté dans l'ancien style.
+114. **Interface refaite** (`ui_kit.gd`) : panneaux fondus sans cadre lourd, filets fins,
+     curseur en losange, sur tous les écrans. Le titre et la pause ont un `add_entry` pour
+     accueillir l'entrée « Paramètres » le moment venu.
+115. **Quatre combattants au plus** (règle de l'auteur). `GameState.party` garde tous les
+     recrutés ; les quatre premiers se battent (`active_party`), les autres sont en réserve
+     (`reserve_party`). L'écran Équipe échange un actif et un réserviste ; le meneur ne sort
+     pas. Les combats du chapitre 2 ont été réglés de nouveau pour quatre.
+116. **La réserve ne gagne pas l'expérience des combats** (règle de l'auteur :
+     `GameState.RESERVE_XP` à 0). L'expérience des quêtes va à tous. À surveiller : un
+     réserviste laissé longtemps de côté décroche.
+117. **Chapitre 3 (Fondue-Combe)** : col des Biscottes, cité, salle du Conseil, chancellerie,
+     auberge, archives ; Digoulasse et Grimli rejoignent l'équipe ; Bromure du Gouda est un
+     invité qui ne se bat pas ; boss : le Gardien des archives. La partie passe ensuite à
+     `chapitre_4`. Contenu inventé noté dans la bible, section « Ajouts », à valider.
+118. **Styles d'architecture par les données.** Champ `"style": "elfe"` sur une carte ou une
+     maison (`elven_painter.gd`, `elven_builder.gd`) : pierre claire, arcs brisés, toits
+     bleus ou vert-de-gris, cascades, pont, arbres d'or. Raison : l'auteur veut que chaque
+     région ressemble à son modèle ; le nom de Fondue-Combe ne change pas, seul son aspect.
+     Même méthode à suivre pour les Nains et le Mordgras.
+119. **Arènes dégagées.** Aucun décor dans la zone de jeu, nappe de lumière au centre, fond
+     assombri (bloc `stage` de `data/arenas.json`). Raison : l'auteur les trouvait illisibles.
+120. **Combat mis en page comme dans Octopath Traveler** (inspiration de cadrage et
+     d'ergonomie, rien n'est copié) : caméra basse, ennemis grands à gauche, héros en colonne
+     diagonale à droite, premier plan flou (champ `foreground`), frise des tours en losanges
+     en haut à gauche avec le tour suivant, fiches PV/PM en haut à droite, menu ouvert près
+     du héros qui joue, bas de l'image libre.
+121. **La trame d'ajourage ne touche plus les personnages** (`see_through` du shader de
+     sprite) : seuls les décors s'estompent devant le héros.
+122. **Monstres repeints** dans le style des personnages (volumes à cinq tons, contour
+     coloré), y compris ceux du chapitre 2 qui sortaient en magenta. Option `avoid` du semis
+     d'arbres : le Bois Penché laisse voir sa rampe et son plateau.
+123. **Les tests de déroulé ne dépendent plus du hasard.** Les chapitres 2 et 3 s'y jouent
+     au-dessus du niveau attendu (et Sam au niveau 14 dans ses duels, le temps du test) ;
+     l'équilibre reste mesuré à part, sur des dizaines de combats au niveau prévu.
+
+## Demandes de l'auteur (18 novembre 2026, soir)
+
+Faites : réserve sans expérience (116), quatre combattants (115), interface (114), cité
+elfique (118), combat façon Octopath (119, 120).
+
+Restent :
+
+- **Sol des arènes et chevauchements en combat.** L'auteur trouve que le sol fait « terre »
+  et voit des éléments qui se gênent : passe en cours.
+- **Écran de paramètres** : plein écran, niveau de détail, échelle de rendu, mise à l'échelle
+  (FSR ; le DLSS n'existe pas dans Godot sur Mac, MetalFX à vérifier), volumes. Réglages
+  gardés d'une session à l'autre.
+- **Amélioration graphique** : chantier permanent. L'auteur veut vraiment la patte
+  d'Octopath Traveler ; les écarts les plus visibles sont les personnages (petits, peu
+  détaillés), les maisons et le relief jouable.
+- **Chapitres 4 à 7**, un à la fois, avec un jeu de décors par peuple (Nains, Mordgras).
+- Défauts connus : chapeau tronqué dans la vignette de l'écran Équipe, arbre à moitié brun
+  dans la roselière, bande noire en bas de l'auberge, façades de Brie non revues.
 
 ## Préparé pour la suite, mais pas fait
 

@@ -100,7 +100,19 @@ payer de pack : prochaine étape, refonte des personnages par code (plus grands,
 détaillés), puis relief jouable, maisons, parois d'arène. Voir la fin des décisions de
 `docs/SUIVI.md`.
 
+Soirée du 18 novembre (décisions 112 à 123 du suivi) : sauvegardes multiples, musique
+recomposée, interface refaite (`ui_kit.gd`), équipe de quatre au plus avec réserve sans
+expérience de combat, chapitre 3 (Fondue-Combe) jouable, styles d'architecture par les
+données (`"style": "elfe"`), arènes dégagées et combat mis en page façon Octopath (bloc
+`stage`, champ `foreground`, `battle_ui.gd`). Restent : écran de paramètres, chapitres 4 à
+7 avec un jeu de décors par peuple, personnages plus grands et plus détaillés.
+
 ## Pièges connus
+
+- Chantiers en parallèle : un worktree par agent, chemins absolus dans son brief, fusion par
+  l'agent principal ; le conflit dans `tests/smoke_test.gd` se résout en gardant les deux côtés.
+- Les tests de déroulé (`_test_chapter_2`, `_test_chapter_3`) jouent au-dessus du niveau
+  attendu pour ne pas dépendre du hasard : l'équilibre se mesure dans les tests `_data`.
 
 - Toute carte doit avoir un champ `music` connu de `data/music.json` (le test le vérifie).
   Écouter les morceaux sans lancer le jeu : `Godot --headless --path . -s
