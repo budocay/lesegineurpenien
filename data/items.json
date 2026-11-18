@@ -174,5 +174,16 @@
 		"name": "Estoc de la Marche", "kind": "equipment", "slot": "weapon", "for": ["merri"], "price": 100,
 		"desc": "Une lame fine, vendue avec un fourreau et un plan pour la dégainer au bon moment.",
 		"mods": {"atk": 6, "spd": 2}
-	}
+	},
+	"formulaire_3ex": {"name": "Formulaire A-38 (3 ex.)", "kind": "key", "desc": "Trois exemplaires, un par oubli. Merri les a recopiés sans une rature, ce qui est suspect en soi."},
+	"clef_archives": {"name": "Clef des Archives", "kind": "key", "desc": "Une clef d'argent, tiède d'avoir été trop tenue. Elrond la prête à regret, contre reçu."},
+	"proces_verbal": {"name": "Procès-verbal de l'Alliance", "kind": "key", "desc": "Le compte rendu d'origine, écrit à la plume d'oie par un greffier qui a tout entendu. Le passage sur l'anneau est souligné deux fois."},
+	"tampon_officiel": {"name": "Tampon officiel", "kind": "key", "desc": "Un tampon de la Chancellerie, échappé de son tiroir. Il tamponne tout seul si on le laisse faire."},
+	"pain_elfique": {"name": "Pain elfique", "target": "ally", "price": 36, "anim": "tisane", "desc": "Une bouchée qui nourrit une journée entière. Rend beaucoup de PV, et une envie de mieux mâcher.", "effects": [{"type": "heal", "power": 90, "percent": 0.5}]},
+	"arc_elfique": {"name": "Arc elfique", "kind": "equipment", "slot": "weapon", "for": ["digoulasse"], "price": 170, "desc": "Fin, souple, tendu comme une opinion. Il vise tout seul, et pas toujours ce qu'on voulait.", "mods": {"atk": 9, "spd": 2}},
+	"hache_naine": {"name": "Hache à barbe", "kind": "equipment", "slot": "weapon", "for": ["grimli"], "price": 170, "desc": "Lourde, large, entretenue comme une rancune. La barbe du manche est de série.", "mods": {"atk": 10, "def": 1}},
+	"cisailles_elfiques": {"name": "Cisailles elfiques", "kind": "equipment", "slot": "weapon", "for": ["sam"], "desc": "Elles ont taillé la haie qui ne s'arrêtait pas. Elles coupent le reste avec le même enthousiasme.", "mods": {"atk": 9, "spd": 1}},
+	"tunique_sylvestre": {"name": "Tunique sylvestre", "kind": "equipment", "slot": "armor", "price": 160, "desc": "Tissée en forêt, ajustée par une couturière qui n'a jamais eu à hâter son ouvrage. Légère, et pourtant tenace.", "mods": {"def": 6, "res": 4, "hp": 12}},
+	"sceau_chancellerie": {"name": "Sceau de la Chancellerie", "kind": "equipment", "slot": "trinket", "desc": "Cire rouge, ruban vert, mention « bon pour accord ». Qui le porte se sent validé, ce qui aide.", "mods": {"def": 3, "hp": 18}},
+	"diapason_lorelia": {"name": "Diapason de Lorélia", "kind": "equipment", "slot": "trinket", "desc": "Il donne le la, et le ton. Les sorts s'en trouvent plus justes, ou au moins mieux accordés.", "mods": {"mag": 4, "res": 3}}
 }

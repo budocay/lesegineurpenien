@@ -73,7 +73,8 @@
 			"enemies": ["morfale_goinfre", "morfale_eclaireur", "morfale_goinfre"],
 			"arena": "pre", "flee": false,
 			"intro": "Les traînards du Naze tiennent leur péage. Ils encaissent en nature."
-		}
+		},
+		"gardien_archives": {"enemies": ["gardien_archives", "parchemin_vivant", "parchemin_vivant"], "arena": "place", "music": "boss", "flee": false, "intro": "Le Gardien des Archives referme son registre. Les rayonnages, autour, se redressent pour mieux écouter."}
 	},
 
 	"tables": {
@@ -156,6 +157,8 @@
 				{"enemies": ["sanglier_flapi", "sanglier_flapi", "amanite_molle"], "weight": 2, "min_party": 3},
 				{"enemies": ["morfale_goinfre", "frelon_bois"], "weight": 2, "min_party": 3}
 			]
-		}
+		},
+		"col_biscottes": {"arena": "pre", "min_distance": 8, "max_distance": 16, "groups": [{"enemies": ["chamois_blase", "chamois_blase"], "weight": 3}, {"enemies": ["marmotte_cols", "marmotte_cols"], "weight": 3}, {"enemies": ["taon_cols", "taon_cols", "taon_cols"], "weight": 2}, {"enemies": ["chamois_blase", "marmotte_cols"], "weight": 3, "min_party": 2}, {"enemies": ["chamois_blase", "taon_cols", "taon_cols"], "weight": 2, "min_party": 3}, {"enemies": ["marmotte_cols", "marmotte_cols", "chamois_blase"], "weight": 2, "min_party": 4}]},
+		"archives": {"arena": "place", "min_distance": 7, "max_distance": 14, "groups": [{"enemies": ["parchemin_vivant", "parchemin_vivant"], "weight": 3}, {"enemies": ["tampon_zele"], "weight": 3}, {"enemies": ["mite_rayonnage", "mite_rayonnage", "mite_rayonnage"], "weight": 2}, {"enemies": ["moisissure_rayonnage", "parchemin_vivant"], "weight": 3, "min_party": 2}, {"enemies": ["tampon_zele", "mite_rayonnage", "mite_rayonnage"], "weight": 2, "min_party": 3}, {"enemies": ["parchemin_vivant", "tampon_zele", "moisissure_rayonnage"], "weight": 2, "min_party": 4}]}
 	}
 }

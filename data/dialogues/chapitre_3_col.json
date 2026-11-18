@@ -1,0 +1,89 @@
+{
+	"arrivee_col": [
+		{
+			"banner": "Chapitre 3",
+			"sub": "Fondue-Combe"
+		},
+		{
+			"text": "Passé la dernière ferme de Brie, la route de l'ouest monte. Elle monte longtemps, avec la franchise des choses qui n'ont rien à cacher, et se glisse entre deux épaules de roche grise. Au loin, très loin, une vallée verte scintille comme un plat de sauce."
+		},
+		{
+			"who": "pepin",
+			"text": "Ça monte."
+		},
+		{
+			"who": "sam",
+			"text": "Ça monte, oui. On n'a pas tellement le choix : c'est un col."
+		},
+		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "D'après mes cartes, nous avons cinq jours devant nous. D'après mon estomac, quatre. Je me fie à mon estomac : il a la mémoire des repas."
+				}
+			]
+		},
+		{
+			"who": "froton",
+			"text": "Je note que le col est une pente que quelqu'un a décidé de prendre au sérieux."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Le Conseil nous attend à Fondue-Combe. Ceux qui y siègent ne sont pas à un siècle près, mais ils se vexent vite."
+		},
+		{
+			"text": "[i](Ils sauront ce que je sais, ou ce que je veux bien leur laisser. Cela dépendra de ce que contiennent leurs archives.)[/i]"
+		},
+		{
+			"set": "col_vu"
+		}
+	],
+	"panneau_col": [
+		{
+			"text": "« COL DES BISCOTTES. Altitude : suffisante. Chamois : blasés. Marmottes : voraces. Fondue-Combe : à l'ouest, après le dernier virage, puis l'avant-dernier. »"
+		}
+	],
+	"belvedere_col": [
+		{
+			"text": "Un banc de pierre fait face au vide. Sur le dossier, quelqu'un a gravé : « Ici, un voyageur s'est assis. Il y est encore. »"
+		},
+		{
+			"who": "glandoulf",
+			"text": "La vue est belle. Elle serait plus belle sans l'idée de redescendre."
+		}
+	],
+	"coffre_col": [
+		{
+			"if": "tampon_1_pris",
+			"then": [
+				{
+					"text": "Vous avez déjà pris le tampon. Le tiroir, lui, ne s'en remet pas."
+				}
+			],
+			"else": [
+				{
+					"text": "Sous les pierres du belvédère, une petite caisse laissée par un voyageur fatigué. Dedans, entre deux chaussettes, quelque chose a l'air très officiel."
+				},
+				{
+					"give": "tampon_officiel"
+				},
+				{
+					"text": "Un tampon officiel rejoint le sac. Il tamponne aussitôt la doublure."
+				},
+				{
+					"set": "tampon_1_pris"
+				}
+			]
+		}
+	],
+	"rocher_col": [
+		{
+			"text": "Un rocher plat, large, parfait pour s'asseoir, et poli par des générations de genoux."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Il y a des pierres qui font de belles chaises. Celle-ci doit avoir eu des amis."
+		}
+	]
+}

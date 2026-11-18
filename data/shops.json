@@ -27,5 +27,7 @@
 			{"item": "lame_contrebande", "if": "fete_commencee"},
 			{"item": "veste_matelassee", "if": "fete_commencee"}
 		]
-	}
+	},
+	"chancellerie": {"name": "Le guichet de la Chancellerie", "keeper": "greffier", "sell_ratio": 0.5, "greeting": "Tout article est vendu sous réserve d'un reçu en triple exemplaire. Ici, par exception, je tolère l'unique.", "stock": [{"item": "tisane"}, {"item": "tisane_corsee"}, {"item": "pain_elfique"}, {"item": "racine"}, {"item": "remontant"}, {"item": "tunique_sylvestre"}]},
+	"arsenal_sylvanor": {"name": "L'arsenal de Sylvanor", "keeper": "sylvanor", "sell_ratio": 0.5, "greeting": "De l'acier d'hier, du bois de toujours. Je rachète aussi, à moitié prix, car l'hiver est long.", "stock": [{"item": "arc_elfique"}, {"item": "hache_naine"}, {"item": "tunique_sylvestre"}, {"item": "fusee_poche"}, {"item": "decoction"}, {"item": "pain_elfique"}]}
 }

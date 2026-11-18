@@ -1,0 +1,191 @@
+{
+	"arrivee_archives": [
+		{
+			"text": "L'air est sec, ciré, immobile. Des rayonnages montent jusqu'à un plafond qu'on devine à peine, chargés de volumes, de rouleaux, de chemises ficelées. Çà et là, un papier frémit sans qu'aucun courant d'air ne le justifie."
+		},
+		{
+			"who": "pepin",
+			"text": "Ça respire, ici."
+		},
+		{
+			"who": "sam",
+			"text": "Ça respire trop bien. J'ai déjà vu des jardins comme ça, avant qu'une chose n'en sorte."
+		},
+		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "Les rayonnages sont classés par ordre alphabétique des regrets. C'est extraordinaire. Je ne pourrai plus jamais ranger mes cartes autrement."
+				}
+			]
+		},
+		{
+			"who": "glandoulf",
+			"text": "Cherchons le procès-verbal de l'Alliance. Il est sûrement tout au fond, à l'endroit où on l'a mis pour ne pas qu'on le lise."
+		},
+		{
+			"set": "archives_vues"
+		}
+	],
+	"panneau_archives": [
+		{
+			"text": "« ARCHIVES DU CONSEIL. Silence, ordre, respect. Il est interdit de lire à voix haute, de lire à voix basse, et de lire. Les contrevenants seront classés. »"
+		}
+	],
+	"panneau_archives_2": [
+		{
+			"text": "« RAYON INTERDIT : tout ce qui est au fond. Rayon réservé : le reste. Rayon facultatif : celui-ci. »"
+		}
+	],
+	"coffre_archives_1": [
+		{
+			"if": "coffre_archives_1_pris",
+			"then": [
+				{
+					"text": "Il n'y a plus rien ici que de la poussière bien rangée."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans un tiroir de chêne, derrière une pile de circulaires, un petit sac de pièces et un pain elfique oublié depuis la dernière réforme."
+				},
+				{
+					"give": "pain_elfique"
+				},
+				{
+					"money": 35
+				},
+				{
+					"set": "coffre_archives_1_pris"
+				}
+			]
+		}
+	],
+	"coffre_archives_2": [
+		{
+			"if": "coffre_archives_2_pris",
+			"then": [
+				{
+					"text": "Il n'y a plus rien ici que de la poussière bien rangée."
+				}
+			],
+			"else": [
+				{
+					"text": "Une boîte d'archives étiquetée « Divers, à trier, depuis 1 200 ans ». Dedans, trois fioles, intactes, et un mot : « À consommer avant. »"
+				},
+				{
+					"give": "decoction",
+					"count": 2
+				},
+				{
+					"give": "tisane_corsee"
+				},
+				{
+					"set": "coffre_archives_2_pris"
+				}
+			]
+		}
+	],
+	"coffre_archives_tampon": [
+		{
+			"if": "tampon_4_pris",
+			"then": [
+				{
+					"text": "Vous avez déjà pris le tampon. Le tiroir, lui, ne s'en remet pas."
+				}
+			],
+			"else": [
+				{
+					"text": "Sous une pile de formulaires A-38 jamais remplis, quelque chose bouge. Un tampon, qui a pris goût à l'indépendance, tamponne la poussière avec satisfaction."
+				},
+				{
+					"give": "tampon_officiel"
+				},
+				{
+					"text": "Un tampon officiel rejoint le sac. Il tamponne aussitôt la doublure."
+				},
+				{
+					"set": "tampon_4_pris"
+				}
+			]
+		}
+	],
+	"gardien_archives": [
+		{
+			"text": "Au fond de la salle, sous une voûte de rayonnages, un grand elfe voûté, vêtu de gris, feuillette un registre immense. Ses yeux sont d'un blanc d'encre. Autour de lui, des parchemins se redressent comme des chiens de garde."
+		},
+		{
+			"who": "gardien_archives",
+			"text": "Consultation interdite sans autorisation du Président. Autorisation produite ? Visée ? Tamponnée ? En triple exemplaire ?"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une clef d'argent, délivrée par Elrond lui-même, avec reçu. C'est ce qu'il y a de plus officiel sur moi, hormis le chapeau."
+		},
+		{
+			"who": "gardien_archives",
+			"text": "Une clef n'est pas une autorisation. Une autorisation n'est pas une consultation. Une consultation n'est pas un emprunt. L'emprunt, ici, n'existe pas. Rien ne sort. Rien."
+		},
+		{
+			"who": "pepin",
+			"text": "Quelqu'un a déjà essayé de discuter avec lui ?"
+		},
+		{
+			"who": "gardien_archives",
+			"text": "Trois mille ans de service, sans un seul prêt. Je ne commencerai pas aujourd'hui."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Il ne cédera pas. Il faudra passer par la force, ou par les formes."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Les formes sont épuisées. Reste la force. Polie, si possible."
+		},
+		{
+			"battle": "gardien_archives"
+		},
+		{
+			"if": "combat_gardien_archives",
+			"then": [
+				{
+					"text": "Le Gardien referme son registre. Les parchemins retombent, un à un, avec l'air vexé d'un public qu'on a empêché d'applaudir."
+				},
+				{
+					"who": "gardien_archives",
+					"text": "C'est... un cas non prévu. Je n'ai pas de rubrique. Je n'ai... pas de rubrique."
+				},
+				{
+					"who": "gardien_archives",
+					"text": "Prenez-le. Le procès-verbal d'origine de l'Alliance du Dernier Gouda. Je le garde depuis trois mille ans. Je n'ai jamais osé le relire."
+				},
+				{
+					"give": "proces_verbal"
+				},
+				{
+					"text": "Le parchemin est lourd, jauni, plié en seize. Sur la tranche, une main appliquée a écrit : « Ne pas ouvrir avant que ce soit nécessaire ». Quelqu'un l'a souligné deux fois."
+				},
+				{
+					"if": "party:merri",
+					"then": [
+						{
+							"who": "merri",
+							"text": "Je vais le lire avec précaution. C'est un document unique. Un peu comme une naissance, ou une erreur, mais en mieux tenu."
+						}
+					]
+				},
+				{
+					"who": "glandoulf",
+					"text": "[i](Il y a sûrement, quelque part dans ces feuillets, une phrase signée de ma main. Je préférerais ne pas la trouver. Je préférerais, surtout, que ce soit moi qui la dise.)[/i]"
+				},
+				{
+					"set": "gardien_vaincu"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	]
+}

@@ -23,6 +23,9 @@ const FACES := {
 	"follet": {"eyes": [[8, 16, 3, 3], [14, 16, 3, 3]], "mouth": [10, 21, 4, 3]},
 	"rat": {"eyes": [[30, 12, 3, 3]], "mouth": [33, 18, 5, 2]},
 	"coq": {"eyes": [[30, 8, 3, 3]], "mouth": [33, 12, 4, 2]},
+	"chamois": {"eyes": [[34, 12, 3, 3]], "mouth": [37, 18, 4, 2]},
+	"parchemin": {"eyes": [[9, 14, 3, 3], [16, 14, 3, 3]], "mouth": [11, 20, 6, 3]},
+	"tampon": {"eyes": [[10, 9, 3, 3], [15, 9, 3, 3]], "mouth": [11, 14, 6, 2]},
 }
 const FAMILY := {"baveuse": "limace", "sangsue": "limace", "frelon": "guepe", "amanite": "champignon",
 	"solitaire": "sanglier", "crapaud": "grenouille",
@@ -48,6 +51,9 @@ const SIZES := {
 	"vacherin": Vector2i(38, 26),
 	"mouche": Vector2i(32, 30),
 	"moisi": Vector2i(32, 34),
+	"chamois": Vector2i(44, 36),
+	"parchemin": Vector2i(28, 36),
+	"tampon": Vector2i(28, 34),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -80,6 +86,15 @@ static func paint(kind: String) -> Image:
 			"crapaud": _frog(img, ox, f, ["#6a5a34", "#94804a", "#d8c890", "#3c3220"], "#d84a30")
 			"follet": _wisp(img, ox, f)
 			"epouvantail": _scarecrow(img, ox, f)
+			"rat": _rat(img, ox, f)
+			"coq": _rooster(img, ox, f)
+			"asticot": _slug(img, ox, f, ["#b9a67a", "#e0d2a6", "#f4ecd0", "#fffaf0"], "#2b1b2e")
+			"vacherin": _slug(img, ox, f, ["#c9a24a", "#e8cc7a", "#f6e6ac", "#fff6d8"], "#7a3030")
+			"mouche": _wasp(img, ox, f, ["#4a5a3a", "#8aa05a", "#1e261a", "#dfeef4", "#a8c4d4"])
+			"moisi": _mushroom(img, ox, f, ["#4a7a9a", "#2c4e6e", "#7cb0d0", "#e4f2f8"])
+			"chamois": _chamois(img, ox, f)
+			"parchemin": _scroll(img, ox, f)
+			"tampon": _stamp(img, ox, f)
 			_:
 				PA.rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		_volume(img, Rect2i(ox, 0, size.x, size.y))
@@ -516,3 +531,69 @@ static func _rooster(img: Image, ox: int, f: int) -> void:
 	PA.rect(img, ox + 30, 8, 3, 3, Color.WHITE)
 	PA.px(img, ox + 31, 9, dark)
 	PA.rect(img, ox + 30, 7, 4, 1, dark)
+
+
+## Chamois : sabots sûrs, cornes en crochet, regard de celui qui a déjà tout vu de là-haut.
+static func _chamois(img: Image, ox: int, f: int) -> void:
+	var dark := _c("#3a2c24")
+	var mid := _c("#8a6a48")
+	var light := _c("#c9a77a")
+	var cream := _c("#efe2c4")
+	var dy := f
+	for x: int in [10, 13, 26, 29]:
+		PA.rect(img, ox + x, 25 + dy, 2, 9 - dy, dark)
+	PA.ellipse(img, ox + 20.0, 20.0 + dy, 12.0, 6.5, mid)
+	PA.ellipse(img, ox + 20.0, 24.0 + dy, 9.0, 2.4, light)
+	PA.ellipse(img, ox + 31.0, 15.0 + dy, 4.5, 6.5, mid)
+	PA.ellipse(img, ox + 33.5, 14.0 + dy, 5.0, 4.5, mid)
+	PA.ellipse(img, ox + 38.0, 17.0 + dy, 3.2, 2.6, cream)
+	PA.rect(img, ox + 4, 16 + dy, 3, 3, dark)
+	PA.line(img, ox + 31, 10 + dy, ox + 30, 4 + dy, dark)
+	PA.line(img, ox + 30, 4 + dy, ox + 34, 2 + dy, dark)
+	PA.line(img, ox + 34, 10 + dy, ox + 36, 4 + dy, dark)
+	PA.line(img, ox + 36, 4 + dy, ox + 39, 4 + dy, dark)
+	PA.ellipse(img, ox + 29.0, 9.5 + dy, 2.0, 1.4, light)
+	PA.rect(img, ox + 34, 12 + dy, 3, 3, Color.WHITE)
+	PA.rect(img, ox + 34, 12 + dy, 3, 1, dark)
+	PA.px(img, ox + 36, 14 + dy, dark)
+	PA.px(img, ox + 41, 17 + dy, dark)
+
+
+## Parchemin vivant : un rouleau debout, couvert de petites lignes, le coin retroussé.
+static func _scroll(img: Image, ox: int, f: int) -> void:
+	var paper := _c("#e8d8a8")
+	var shade := _c("#c2ae78")
+	var ink := _c("#4a3a2c")
+	var roll := _c("#b89a5c")
+	var dy := f
+	PA.rect(img, ox + 6, 6 + dy, 16, 22 - dy, paper)
+	PA.rect(img, ox + 19, 6 + dy, 3, 22 - dy, shade)
+	PA.ellipse(img, ox + 14.0, 6.0 + dy, 9.0, 3.2, roll)
+	PA.ellipse(img, ox + 14.0, 6.0 + dy, 5.0, 1.4, shade)
+	PA.ellipse(img, ox + 14.0, 28.0, 9.0, 3.2, roll)
+	PA.ellipse(img, ox + 14.0, 28.0, 5.0, 1.4, shade)
+	for y: int in [10, 12, 23, 25]:
+		PA.rect(img, ox + 8, y + dy, 8 + (y % 3) * 2, 1, ink)
+	PA.rect(img, ox + 4, 30, 4, 3, shade)
+	PA.rect(img, ox + 20, 30, 4, 3, shade)
+	PA.line(img, ox + 22, 14 + dy, ox + 25, 11 + dy, shade)
+	PA.line(img, ox + 6, 14 + dy, ox + 3, 17 + dy, shade)
+
+
+## Tampon zélé : bois, caoutchouc rouge, mine de celui qui valide tout ce qui passe.
+static func _stamp(img: Image, ox: int, f: int) -> void:
+	var wood := _c("#9a6a3c")
+	var wood_d := _c("#5e3e22")
+	var wood_l := _c("#c8945c")
+	var rub := _c("#b83a3a")
+	var rub_l := _c("#e06a5a")
+	var dy := f
+	PA.ellipse(img, ox + 14.0, 3.5 + dy, 3.5, 2.0, wood_l)
+	PA.rect(img, ox + 9, 6 + dy, 10, 12 - dy, wood)
+	PA.rect(img, ox + 16, 6 + dy, 3, 12 - dy, wood_d)
+	PA.rect(img, ox + 4, 18, 20, 6, wood_d)
+	PA.rect(img, ox + 4, 18, 20, 1, wood_l)
+	PA.rect(img, ox + 3, 24, 22, 5, rub)
+	PA.rect(img, ox + 3, 24, 22, 1, rub_l)
+	PA.rect(img, ox + 6, 29, 5, 3, wood_d)
+	PA.rect(img, ox + 17, 29, 5, 3, wood_d)

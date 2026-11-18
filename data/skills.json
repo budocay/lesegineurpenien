@@ -574,5 +574,14 @@
 				"element": "tranchant"
 			}
 		]
-	}
+	},
+	"bond_de_chamois": {"name": "Bond de chamois", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 105, "element": "contondant"}]},
+	"dedain_alpin": {"name": "Dédain alpin", "target": "enemy", "effects": [{"type": "status", "id": "demoralise", "chance": 0.65, "turns": 3}]},
+	"coupure_de_papier": {"name": "Coupure de papier", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 85, "element": "tranchant"}, {"type": "status", "id": "poison", "chance": 0.45, "turns": 3}]},
+	"deroulement": {"name": "Déroulement", "target": "all_enemies", "effects": [{"type": "status", "id": "englue", "chance": 0.5, "turns": 2}]},
+	"estampille": {"name": "Estampille", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 110, "element": "contondant"}, {"type": "status", "id": "sonne", "chance": 0.25, "turns": 1}]},
+	"en_triple_exemplaire": {"name": "En triple exemplaire", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 64, "element": "torpeur"}]},
+	"consultation_interdite": {"name": "Consultation interdite", "target": "enemy", "effects": [{"type": "damage", "stat": "mag", "power": 105, "element": "torpeur"}, {"type": "status", "id": "sommeil", "chance": 0.3, "turns": 2}]},
+	"rappel_a_l_ordre": {"name": "Rappel à l'ordre", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.6, "turns": 3}]},
+	"rayonnage_effondre": {"name": "Rayonnage effondré", "target": "all_enemies", "effects": [{"type": "damage", "stat": "atk", "power": 78, "element": "contondant"}]}
 }

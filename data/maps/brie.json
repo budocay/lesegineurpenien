@@ -106,6 +106,13 @@
 				10.7
 			],
 			"facing": "down"
+		},
+		"ouest": {
+			"pos": [
+				3.2,
+				15.0
+			],
+			"facing": "right"
 		}
 	},
 	"on_enter": [
@@ -267,7 +274,8 @@
 				4
 			],
 			"dialogue": "fin_chapitre_2",
-			"if": "nazes_vaincu"
+			"if": "nazes_vaincu",
+			"unless": "chapitre_2_fini"
 		},
 		{
 			"type": "npc",
@@ -642,6 +650,20 @@
 			"reach": 1.8,
 			"if": "brie_vue",
 			"unless": "merri_equipe"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				0,
+				13.5,
+				0.7,
+				3
+			],
+			"to": {
+				"map": "col_biscottes",
+				"spawn": "est"
+			},
+			"if": "chapitre_2_fini"
 		}
 	]
 }

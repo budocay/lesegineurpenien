@@ -57,6 +57,7 @@ func _ready() -> void:
 	_test_character_art()
 	_test_scenery()
 	_test_chapter_2_data()
+	_test_chapter_3_data()
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_active_party()
@@ -90,6 +91,7 @@ func _ready() -> void:
 	print("== Déroulé complet ==")
 	await _test_flow()
 	await _test_chapter_2()
+	await _test_chapter_3()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -1307,32 +1309,44 @@ func _test_battle_scene() -> void:
 
 	# chaque rencontre nommée se construit et se joue toute seule, dans son arène
 	for id: String in Database.encounters:
-		GameState.new_game()
-		for who: String in ["pepin", "sam", "froton"]:
-			GameState.add_to_party(who)
-		for who: String in GameState.party:
-			GameState.member(who)["level"] = 9
-		GameState.heal_party()
-		var s: Node3D = BattleScene.new()
-		add_child(s)
-		s.fast = true
-		s.auto = true
-		if id == "nazes_nuit":
-			GameState.add_to_party("aragrogne")
+		var won := false
+		var outcome := ""
+		for attempt in 2:   # le combat automatique est aléatoire : une seconde chance
+			GameState.new_game()
+			for who: String in ["pepin", "sam", "froton"]:
+				GameState.add_to_party(who)
 			for who: String in GameState.party:
-				GameState.member(who)["level"] = 10
+				GameState.member(who)["level"] = 9
 			GameState.heal_party()
-		s.setup(Database.get_encounter(id), ui)
-		s.run()
-		for _i in 6000:
+			var s: Node3D = BattleScene.new()
+			add_child(s)
+			s.fast = true
+			s.auto = true
+			if id == "nazes_nuit":
+				GameState.add_to_party("aragrogne")
+				for who: String in GameState.party:
+					GameState.member(who)["level"] = 10
+				GameState.heal_party()
+			if id == "gardien_archives":
+				GameState.add_to_party("aragrogne")
+				for who: String in GameState.party:
+					GameState.member(who)["level"] = 12
+				GameState.heal_party()
+			s.setup(Database.get_encounter(id), ui)
+			s.run()
+			for _i in 6000:
+				await get_tree().process_frame
+				if str(s.outcome) != "":
+					break
+			outcome = str(s.outcome)
+			won = outcome == "victory"
+			ui.close()
+			remove_child(s)
+			s.queue_free()
 			await get_tree().process_frame
-			if str(s.outcome) != "":
+			if won:
 				break
-		check(str(s.outcome) == "victory", "rencontre %s : jouée jusqu'à la victoire (issue : %s)" % [id, str(s.outcome)])
-		ui.close()
-		remove_child(s)
-		s.queue_free()
-		await get_tree().process_frame
+		check(won, "rencontre %s : jouée jusqu'à la victoire (issue : %s)" % [id, outcome])
 	layer.queue_free()
 	GameState.new_game()
 
@@ -2995,3 +3009,221 @@ func _test_active_party() -> void:
 	GameState.add_to_party("sam")
 	check(GameState.reserve_party().is_empty() and GameState.active_party().size() == 2, "à deux, personne n'est en réserve")
 	GameState.new_game()
+
+
+# ------------------------------------------------------------------ chapitre 3
+
+const C3_MAPS := ["col_biscottes", "fondue_combe", "salle_conseil", "chancellerie", "auberge_elfique", "archives"]
+
+
+## Une rencontre de table, jouée sans interface (même mise en forme que _c2_rate).
+func _c3_group_rate(table: String, level: int, talents: int) -> Array:
+	var worst := 1.0
+	var which := ""
+	for g: Variant in (Database.encounter_tables[table] as Dictionary)["groups"]:
+		var enc := {"enemies": (g as Dictionary)["enemies"]}
+		var r := _c2_rate(TEAM, level, enc, talents)
+		if r < worst:
+			worst = r
+			which = ", ".join(PackedStringArray((g as Dictionary)["enemies"]))
+	return [worst, which]
+
+
+func _test_chapter_3_data() -> void:
+	print("== Chapitre 3 : données et équilibre ==")
+	for id: String in C3_MAPS:
+		check(Database.has_map(id), "carte %s existe" % id)
+		check(Database.get_map(id).has("music") and Database.music.has(str(Database.get_map(id)["music"])), "carte %s : musique connue" % id)
+	# les monstres du chapitre 2 et du chapitre 3 sont tous peints (aucun carré magenta)
+	for kind: String in ["rat", "coq", "asticot", "vacherin", "mouche", "moisi", "chamois", "parchemin", "tampon"]:
+		check(MonsterPainter.has(kind), "monstre %s : espèce connue" % kind)
+		var img: Image = MonsterPainter.paint(kind)
+		var magenta := 0
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					filled += 1
+					if c.r > 0.95 and c.g < 0.05 and c.b > 0.95:
+						magenta += 1
+		check(magenta == 0 and filled > 150, "monstre %s : dessiné, sans carré magenta (%d px, %d magenta)" % [kind, filled, magenta])
+	for q: String in ["fondue", "tampons", "chant", "haie"]:
+		check(not Database.get_quest(q).is_empty(), "quête %s décrite" % q)
+	check(Database.get_quest("fondue").get("kind") == "principale", "le Conseil est la quête principale")
+	for ch: String in ["elrond", "bromure", "huissier", "greffier", "gardien_archives"]:
+		check(Database.characters.has(ch), "personnage %s décrit" % ch)
+	for it: String in ["formulaire_3ex", "clef_archives", "proces_verbal", "tampon_officiel"]:
+		check(Database.item_kind(it) == "key", "objet de quête %s" % it)
+	for sh: String in ["chancellerie", "arsenal_sylvanor"]:
+		check(not Database.get_shop(sh).is_empty(), "boutique %s" % sh)
+	var west := false
+	for o: Dictionary in Database.get_map("brie").get("objects", []):
+		if str(o.get("type", "")) == "warp" and str((o.get("to", {}) as Dictionary).get("map", "")) == "col_biscottes":
+			west = true
+	check(west, "Brie a une sortie vers le col des Biscottes")
+	check(Database.get_map("brie")["spawns"].has("ouest") and Database.get_map("col_biscottes")["spawns"].has("est"), "points d'arrivée de la route de l'ouest")
+	for table: String in ["col_biscottes", "archives"]:
+		var r := _c3_group_rate(table, 10, -1)
+		check(float(r[0]) >= 0.9, "table %s, quatre niv. 10 sans talents : pire groupe %d %% (%s)" % [table, int(float(r[0]) * 100.0), str(r[1])])
+		print("  table %-14s pire groupe %3d %%  (%s)" % [table, int(float(r[0]) * 100.0), str(r[1])])
+	var boss := Database.get_encounter("gardien_archives")
+	var with_talents := _c2_rate(TEAM, 11, boss, 0)
+	var without := _c2_rate(TEAM, 11, boss, -1)
+	check(with_talents >= 0.7, "Gardien des Archives, quatre niv. 11, talents A : %d %%" % int(with_talents * 100.0))
+	check(without >= 0.3, "Gardien des Archives, quatre niv. 11, sans talents : %d %%" % int(without * 100.0))
+	print("  Gardien des Archives : %d %% avec talents, %d %% sans" % [int(with_talents * 100.0), int(without * 100.0)])
+	var alt := _c2_rate(["glandoulf", "sam", "aragrogne", "merri"], 11, boss, 0)
+	check(alt >= 0.6, "Gardien des Archives, autre équipe de quatre : %d %%" % int(alt * 100.0))
+	var digrim := _c2_rate(["glandoulf", "digoulasse", "grimli", "pepin"], 11, boss, 0)
+	check(digrim >= 0.6, "Gardien des Archives, avec Digoulasse et Grimli : %d %%" % int(digrim * 100.0))
+	print("  Gardien, autre équipe %d %%, avec Digoulasse et Grimli %d %%" % [int(alt * 100.0), int(digrim * 100.0)])
+	GameState.new_game()
+
+
+## Déroulé du chapitre 3, à la suite de la sauvegarde de fin de chapitre 2.
+func _test_chapter_3() -> void:
+	print("== Chapitre 3 : déroulé complet ==")
+	for state: Array in [[], ["archives_ouvertes", "chapitre_2_fini"], ["chapitre_3_fini", "bromure_invite", "archives_ouvertes", "gardien_vaincu"]]:
+		await _test_map("fondue_combe", state, "état %d" % state.size())
+	await _test_map("archives", ["archives_ouvertes"], "archives ouvertes")
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	check(GameState.has_flag("chapitre_2_fini") and GameState.chapter == "chapitre_3", "reprise à la fin du chapitre 2")
+	check(GameState.party.has("merri") and GameState.party.size() == 6, "six compagnons au départ (%d)" % GameState.party.size())
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 10
+	GameState.heal_party()
+	var to_col := false
+	for wp: Dictionary in main.world.warps:
+		if str(wp["map"]) == "col_biscottes":
+			to_col = true
+	check(main.world.map_id == "brie" and to_col, "Brie mène au col des Biscottes une fois le chapitre 2 fini")
+
+	main.change_map("col_biscottes", "est")
+	await _wait_idle(main)
+	check(main.world.map_id == "col_biscottes" and GameState.has_flag("col_vu"), "le col des Biscottes")
+	main.run_dialogue("coffre_col")
+	await _wait_idle(main)
+	check(GameState.item_count("tampon_officiel") == 1, "premier tampon officiel")
+	main.change_map("fondue_combe", "est")
+	await _wait_idle(main)
+	check(main.world.map_id == "fondue_combe" and GameState.has_flag("fondue_vue"), "arrivée à Fondue-Combe")
+	check(GameState.quest_state("fondue") == "active" or GameState.quest_state("fondue") != "", "la quête du Conseil est lancée (%s)" % GameState.quest_state("fondue"))
+	main.run_dialogue("coffre_jardin")
+	await _wait_idle(main)
+	check(GameState.item_count("tampon_officiel") == 2, "deuxième tampon, au jardin")
+
+	# la Salle du Conseil refuse d'abord celui qui n'a pas de formulaire
+	main.change_map("salle_conseil", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("huissier")
+	await _wait_idle(main)
+	check(not GameState.has_flag("conseil_1_fait"), "pas de séance sans formulaire")
+
+	# la Chancellerie : formulaire (Merri recopie), tampons demandés
+	main.change_map("chancellerie", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("greffier")
+	await _wait_idle(main)
+	check(GameState.has_flag("formulaire_pret") and GameState.item_count("formulaire_3ex") == 1, "le formulaire A-38 est prêt, en triple exemplaire")
+	check(GameState.has_flag("tampons_vus") and GameState.quest_state("tampons") != "", "la chasse aux tampons est lancée")
+
+	# deux annexes de la ville : la haie (Sam) et le chant (tisane corsée)
+	main.change_map("fondue_combe", "chancellerie_porte")
+	await _wait_idle(main)
+	main.run_dialogue("buisson")
+	await _wait_idle(main)
+	for n in [1, 2, 3]:
+		main.run_dialogue("haie_%d" % n)
+		await _wait_idle(main)
+	check(GameState.has_flag("haies_taillees"), "les trois haies sont taillées par Sam")
+	main.run_dialogue("buisson")
+	await _wait_idle(main)
+	check(GameState.has_flag("haie_finie") and GameState.item_count("cisailles_elfiques") == 1 and GameState.quest_state("haie") == "done", "Maître Buisson remercie : cisailles dans le sac")
+	main.run_dialogue("lorelia")
+	await _wait_idle(main)
+	check(GameState.has_flag("chant_vu") and not GameState.has_flag("chant_fini"), "Lorélia a perdu sa voix")
+	GameState.add_item("tisane_corsee", 1)
+	main.run_dialogue("lorelia")
+	await _wait_idle(main)
+	check(GameState.has_flag("chant_fini") and GameState.item_count("diapason_lorelia") == 1 and GameState.quest_state("chant") == "done", "le chant de neuf heures, jusqu'au bout")
+	main.run_dialogue("sylvanor")
+	await _wait_idle(main)
+	check(GameState.has_flag("sylvanor_vu"), "l'arsenal de Sylvanor")
+
+	# l'auberge : troisième tampon, repos
+	main.change_map("auberge_elfique", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("coffre_auberge")
+	await _wait_idle(main)
+	main.run_dialogue("clairefontaine")
+	await _wait_idle(main)
+	check(GameState.item_count("tampon_officiel") == 3, "troisième tampon, à l'auberge")
+
+	# la première séance du Conseil
+	main.change_map("salle_conseil", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("huissier")
+	await _wait_idle(main)
+	check(GameState.has_flag("conseil_1_fait") and GameState.has_flag("archives_ouvertes"), "première séance : la clef des Archives est remise")
+	check(GameState.item_count("clef_archives") == 1 and GameState.item_count("formulaire_3ex") == 0, "clef reçue, formulaire déposé")
+	check(GameState.party.has("digoulasse") and GameState.is_reserve("digoulasse") and GameState.active_party().size() == 4, "Digoulasse rejoint l'équipe, en réserve")
+	check(GameState.has_flag("merri_elrond"), "Merri prend les notes du Conseil")
+	main.run_dialogue("huissier")
+	await _wait_idle(main)
+	check(not GameState.has_flag("chapitre_3_fini"), "le Conseil attend le procès-verbal")
+
+	# les Archives et leur Gardien
+	main.change_map("fondue_combe", "conseil_porte")
+	await _wait_idle(main)
+	var to_arch := false
+	for wp: Dictionary in main.world.warps:
+		if str(wp["map"]) == "archives":
+			to_arch = true
+	check(to_arch, "la porte des Archives s'ouvre avec la clef")
+	main.change_map("archives", "entree")
+	await _wait_idle(main)
+	check(main.world.map_id == "archives" and GameState.has_flag("archives_vues"), "dans les Archives")
+	main.run_dialogue("coffre_archives_tampon")
+	await _wait_idle(main)
+	check(GameState.item_count("tampon_officiel") == 4, "quatrième tampon, aux Archives")
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 12
+	GameState.heal_party()
+	main.run_dialogue("gardien_archives")
+	await _wait_idle(main, 200.0)
+	print("    [gardien] issue : combat_gardien_archives=%s gardien_vaincu=%s" % [str(GameState.has_flag("combat_gardien_archives")), str(GameState.has_flag("gardien_vaincu"))])
+	check(GameState.has_flag("gardien_vaincu") and GameState.item_count("proces_verbal") == 1, "le Gardien est vaincu, le procès-verbal est dans le sac")
+	GameState.heal_party()
+
+	# la seconde séance : fin du chapitre
+	main.change_map("salle_conseil", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("huissier")
+	await _wait_idle(main)
+	check(GameState.has_flag("chapitre_3_fini") and GameState.chapter == "chapitre_4", "le chapitre 3 se termine (%s)" % GameState.chapter)
+	check(GameState.has_flag("bromure_invite") and GameState.party.has("grimli"), "Bromure est invité, Grimli rejoint l'équipe")
+	check(GameState.is_reserve("grimli") and GameState.active_party().size() == 4 and GameState.party.size() == 8, "huit compagnons, quatre au combat (%d)" % GameState.party.size())
+	check(GameState.quest_state("fondue") == "done", "la quête principale du Conseil est accomplie")
+	check(SaveManager.has_save(), "sauvegarde à la fin du chapitre 3")
+
+	# les tampons sont rendus à la Chancellerie
+	main.change_map("chancellerie", "entree")
+	await _wait_idle(main)
+	main.run_dialogue("greffier")
+	await _wait_idle(main)
+	check(GameState.has_flag("tampons_rendus") and GameState.item_count("sceau_chancellerie") == 1 and GameState.quest_state("tampons") == "done", "les quatre tampons sont rendus, le sceau est dans le sac")
+	main.change_map("fondue_combe", "chancellerie_porte")
+	await _wait_idle(main)
+	var bromure_there := false
+	for n: Node3D in main.world.npcs:
+		if n.name == "Npc_bromure":
+			bromure_there = true
+	check(bromure_there, "Bromure attend en ville, invité")
+	main.queue_free()
+	await get_tree().process_frame

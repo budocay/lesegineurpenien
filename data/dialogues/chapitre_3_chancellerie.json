@@ -1,0 +1,297 @@
+{
+	"greffier": [
+		{
+			"if": "tampons_vus & item:tampon_officiel:4 & !tampons_rendus",
+			"then": [
+				{
+					"who": "greffier",
+					"text": "Quatre ! Les quatre ! Ils sont tous là, et tamponnés. Vous n'imaginez pas ce que ça fait, d'avoir les tiroirs qui reviennent."
+				},
+				{
+					"take": "tampon_officiel",
+					"count": 4
+				},
+				{
+					"text": "Les quatre tampons sautent d'eux-mêmes dans un tiroir, se tamponnent mutuellement, puis s'endorment."
+				},
+				{
+					"who": "greffier",
+					"text": "La Chancellerie vous doit sa mémoire. Voici le sceau de la maison : il n'ouvre aucune porte, mais il rassure ceux qui les ferment."
+				},
+				{
+					"set": "tampons_rendus"
+				}
+			],
+			"else": [
+				{
+					"if": "!greffier_vu",
+					"then": [
+						{
+							"who": "greffier",
+							"text": "Greffier Tamponnel. Quelle affaire vous amène ? Vous avez rempli la case 1 de votre formulaire de demande de formulaire ?"
+						},
+						{
+							"who": "glandoulf",
+							"text": "Je viens pour le Conseil. Convocation, quatre tampons, dont un à l'envers."
+						},
+						{
+							"who": "greffier",
+							"text": "Ah. L'A-38. Une bonne pièce, qui exige trois exemplaires. Je vous la remets, vous la remplissez, vous revenez, je tamponne. Ensuite, la salle."
+						},
+						{
+							"who": "greffier",
+							"text": "Un détail, avant que vous partiez : on m'a volé mes tampons officiels. Quatre, dans quatre tiroirs. Ils sont sortis tout seuls et tamponnent à qui mieux mieux, un peu partout. Rapportez-les-moi et la Chancellerie saura se montrer reconnaissante."
+						},
+						{
+							"set": "greffier_vu"
+						},
+						{
+							"set": "tampons_vus"
+						}
+					]
+				},
+				{
+					"if": "formulaire_pret",
+					"then": [
+						{
+							"who": "greffier",
+							"text": "Vous avez votre A-38 en triple exemplaire : rien de plus à faire ici. Allez au Conseil. C'est une phrase que je dis rarement avec plaisir."
+						},
+						{
+							"if": "tampons_vus",
+							"then": [
+								{
+									"who": "greffier",
+									"text": "Les tampons ? Il m'en manque encore. Un au col des Biscottes, un à l'auberge, un au jardin de la terrasse, un aux Archives. Ils tamponnent tout ce qu'ils croisent, des fois à contresens."
+								}
+							],
+							"else": [
+								{
+									"who": "greffier",
+									"text": "Autre chose : on m'a volé mes tampons officiels. Quatre, dans quatre tiroirs. Ils sont sortis tout seuls et tamponnent à qui mieux mieux, un peu partout. Rapportez-les-moi et la Chancellerie saura se montrer reconnaissante."
+								},
+								{
+									"set": "tampons_vus"
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "greffier",
+							"text": "Le formulaire A-38 est prêt. Il faut le remplir en trois exemplaires, de la même main, sans rature."
+						},
+						{
+							"choice": [
+								{
+									"text": "Le remplir",
+									"then": [
+										{
+											"if": "party:merri",
+											"then": [
+												{
+													"who": "merri",
+													"text": "Je peux recopier, monsieur Glandoulf. Je recopie mieux que je ne comprends, ce qui est précieux dans ce genre de lieu."
+												},
+												{
+													"text": "Merri tire sa plume, ses trois encres et son regard le plus calme. Il remplit une page, puis une autre, puis une troisième, sans une rature, sans un soupir, avec une application presque inquiétante."
+												},
+												{
+													"who": "greffier",
+													"text": "Admirable. Trois exemplaires strictement identiques. Même l'écriture de la virgule. Je vous embrasserais, si le règlement ne l'interdisait pas."
+												},
+												{
+													"give": "formulaire_3ex"
+												},
+												{
+													"set": "formulaire_pret"
+												},
+												{
+													"who": "merri",
+													"text": "Je sens que je vais aimer cette ville."
+												},
+												{
+													"who": "glandoulf",
+													"text": "Je crains de savoir ce que vous voulez dire."
+												}
+											],
+											"else": [
+												{
+													"who": "greffier",
+													"text": "Vous n'avez personne pour recopier ? Le copiste de la maison fait les trois exemplaires pour trente écus. Pour trente écus, il les fait sans rature."
+												},
+												{
+													"if": "money:30",
+													"then": [
+														{
+															"money": -30
+														},
+														{
+															"text": "Le copiste, un elfe voûté, aligne trois feuilles et recopie sans lever la tête. Il y met neuf heures. Il ne s'en excuse pas."
+														},
+														{
+															"give": "formulaire_3ex"
+														},
+														{
+															"set": "formulaire_pret"
+														}
+													],
+													"else": [
+														{
+															"who": "glandoulf",
+															"text": "Je n'ai pas trente écus sous la main."
+														},
+														{
+															"who": "greffier",
+															"text": "Alors revenez. Ou apprenez à écrire en triple : c'est une discipline. Il y a des gens qui y ont passé leur vie."
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									"text": "Plus tard",
+									"then": [
+										{
+											"who": "glandoulf",
+											"text": "Plus tard. Je ne suis pas encore en état de signer trois fois la même chose."
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"choice": [
+						{
+							"text": "Voir le guichet",
+							"then": [
+								{
+									"shop": "chancellerie"
+								}
+							]
+						},
+						{
+							"text": "Rien pour l'instant",
+							"then": [
+								{
+									"who": "greffier",
+									"text": "Dans ce cas, bonne journée, ou mauvaise, selon ce qu'en dit votre dossier."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"file_chancellerie": [
+		{
+			"who": "elfe_lente",
+			"text": "Je fais la queue. Je la fais depuis quatre-vingts ans. Je commence à m'attacher au rang."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Et le guichet ?"
+		},
+		{
+			"who": "elfe_lente",
+			"text": "On verra le jour où il sera ouvert. Je ne voudrais pas le trouver trop tôt."
+		}
+	],
+	"affiche_chancellerie": [
+		{
+			"text": "« AVIS. La Chancellerie rappelle aux administrés que tout document non tamponné est réputé non tamponnable. Pour tout recours, voir le formulaire A-39, lequel renvoie à l'A-38. »"
+		}
+	],
+	"clairefontaine": [
+		{
+			"if": "!clairefontaine_vue",
+			"then": [
+				{
+					"who": "clairefontaine",
+					"text": "Soyez les bienvenus au Repos Feuillu. Nos lits sont d'une souplesse historique, et notre pain se mange en trois bouchées, ou une, selon l'appétit."
+				},
+				{
+					"set": "clairefontaine_vue"
+				}
+			]
+		},
+		{
+			"choice": [
+				{
+					"text": "Se reposer (gratuit)",
+					"then": [
+						{
+							"who": "clairefontaine",
+							"text": "Aucun supplément. Chez nous, la nuit est comprise, comme la matinée et la moitié du lendemain."
+						},
+						{
+							"action": "rest"
+						},
+						{
+							"text": "Un sommeil sans rêve, parfumé à la menthe. Toute l'équipe se réveille reposée."
+						}
+					]
+				},
+				{
+					"text": "Sauvegarder",
+					"then": [
+						{
+							"action": "save"
+						},
+						{
+							"who": "clairefontaine",
+							"text": "C'est noté, consigné, et rangé dans un tiroir à clef."
+						}
+					]
+				},
+				{
+					"text": "Rien, merci",
+					"then": [
+						{
+							"who": "clairefontaine",
+							"text": "Revenez quand vous voulez. Nous avons le temps ; vous aussi, si vous êtes avec nous."
+						}
+					]
+				}
+			]
+		}
+	],
+	"cheminee_auberge": [
+		{
+			"text": "Un feu bas, bien peigné, qui ne crépite pas : il murmure."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Même les flammes, ici, parlent à voix basse."
+		}
+	],
+	"coffre_auberge": [
+		{
+			"if": "tampon_3_pris",
+			"then": [
+				{
+					"text": "Vous avez déjà pris le tampon. Le tiroir, lui, ne s'en remet pas."
+				}
+			],
+			"else": [
+				{
+					"text": "Derrière les caisses de l'auberge, un tiroir de cire qui n'a rien à faire là. Dedans, un tampon officiel, très content de lui."
+				},
+				{
+					"give": "tampon_officiel"
+				},
+				{
+					"text": "Un tampon officiel rejoint le sac. Il tamponne aussitôt la doublure."
+				},
+				{
+					"set": "tampon_3_pris"
+				}
+			]
+		}
+	]
+}

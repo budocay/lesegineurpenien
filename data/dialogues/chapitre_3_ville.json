@@ -1,0 +1,513 @@
+{
+	"arrivee_fondue": [
+		{
+			"banner": "Fondue-Combe",
+			"sub": "Vallée des Elfes"
+		},
+		{
+			"text": "Le dernier virage s'ouvre sur une vallée si bien rangée qu'on hésite à la regarder. Des maisons de pierre claire et de chaume lisse, des arbres taillés dans l'ordre alphabétique, des jardins en terrasses où aucune feuille ne dépasse. Même la brume est d'équerre."
+		},
+		{
+			"who": "pepin",
+			"text": "C'est joli. C'est trop joli."
+		},
+		{
+			"who": "sam",
+			"text": "Trop rangé, surtout. Un jardin qui ne bouge pas, c'est un jardin qui a peur."
+		},
+		{
+			"if": "party:merri",
+			"then": [
+				{
+					"who": "merri",
+					"text": "Mes cartes disent que la Chancellerie est à gauche de la place, et la Salle du Conseil au fond, avec un grand toit gris. Les cartes disent aussi que le Conseil se réunit « tant qu'il le faut ». Je ne sais pas ce qu'elles veulent dire."
+				}
+			]
+		},
+		{
+			"who": "froton",
+			"text": "Je ne sais pas pourquoi, j'ai envie de m'excuser d'être arrivé."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Le formulaire d'abord. Ces gens-là n'ouvrent aucune porte à qui n'a pas rempli sa case."
+		},
+		{
+			"set": "fondue_vue"
+		}
+	],
+	"enseigne_conseil": [
+		{
+			"text": "« SALLE DU CONSEIL. Séance permanente. Prière d'essuyer ses pieds, ses idées et ses objections. »"
+		}
+	],
+	"enseigne_chancellerie": [
+		{
+			"text": "« CHANCELLERIE DE LA COMBE. Tampons, contre-tampons, retampons. Ouvert quand c'est clos, clos quand c'est ouvert. »"
+		}
+	],
+	"panneau_morbier": [
+		{
+			"text": "« MORBIER ET SES MINES : vers l'ouest, par les monts. Douze jours à pied, trois si l'on ne s'arrête pas, quarante si l'on lit tout. »"
+		}
+	],
+	"panneau_fondue": [
+		{
+			"text": "« FONDUE-COMBE. Fondée avant le fromage, ce qui explique le nom. Vitesse limitée à celle d'un sourire. »"
+		}
+	],
+	"jardin_terrasse": [
+		{
+			"text": "« Jardin de la Terrasse. Ne pas marcher sur la pelouse, ne pas s'asseoir sur les bancs, ne pas souffler sur les pétales. Se contenter d'admirer, à trois pas. »"
+		}
+	],
+	"coffre_jardin": [
+		{
+			"if": "tampon_2_pris",
+			"then": [
+				{
+					"text": "Vous avez déjà pris le tampon. Le tiroir, lui, ne s'en remet pas."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans un massif de pivoines taillées au cordeau, une jardinière de pierre. Elle abrite un tampon officiel, qui a l'air de s'y plaire."
+				},
+				{
+					"give": "tampon_officiel"
+				},
+				{
+					"text": "Un tampon officiel rejoint le sac. Il tamponne aussitôt la doublure."
+				},
+				{
+					"set": "tampon_2_pris"
+				}
+			]
+		}
+	],
+	"haie_1": [
+		{
+			"if": "haie_vue",
+			"then": [
+				{
+					"if": "party:sam",
+					"then": [
+						{
+							"text": "La haie près de l'escalier ondule, remonte, plie, repart : elle pousse en continu, comme si quelqu'un lui avait promis qu'elle ne serait jamais finie."
+						},
+						{
+							"who": "sam",
+							"text": "Un buis, de la belle espèce. Il a juste besoin qu'on lui explique où s'arrêter."
+						},
+						{
+							"text": "Sam sort sa serpette et taille, d'un geste régulier, sans prétendre à l'élégance. La haie, après un instant de surprise, prend une forme."
+						},
+						{
+							"set": "haie_1_taillee"
+						},
+						{
+							"if": "haie_1_taillee & haie_2_taillee & haie_3_taillee",
+							"then": [
+								{
+									"who": "sam",
+									"text": "C'est la dernière. Maître Buisson sera content, ou au moins fatigué de se plaindre."
+								},
+								{
+									"set": "haies_taillees"
+								}
+							],
+							"else": [
+								{
+									"who": "sam",
+									"text": "Une de moins. Il en reste, du travail ; c'est ce qui me plaît dans ce métier."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"text": "La haie pousse sous vos yeux, d'un pouce environ, pendant que vous la regardez."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Il faudrait un jardinier. Un vrai, avec une serpette et des opinions sur les buis."
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "Une haie haute, très verte, un peu envahissante. Un panneau dit : « Merci de ne pas la nourrir. »"
+				}
+			]
+		}
+	],
+	"haie_2": [
+		{
+			"if": "haie_vue",
+			"then": [
+				{
+					"if": "party:sam",
+					"then": [
+						{
+							"text": "La haie entre le Conseil et les Archives ondule, remonte, plie, repart : elle pousse en continu, comme si quelqu'un lui avait promis qu'elle ne serait jamais finie."
+						},
+						{
+							"who": "sam",
+							"text": "Un buis, de la belle espèce. Il a juste besoin qu'on lui explique où s'arrêter."
+						},
+						{
+							"text": "Sam sort sa serpette et taille, d'un geste régulier, sans prétendre à l'élégance. La haie, après un instant de surprise, prend une forme."
+						},
+						{
+							"set": "haie_2_taillee"
+						},
+						{
+							"if": "haie_1_taillee & haie_2_taillee & haie_3_taillee",
+							"then": [
+								{
+									"who": "sam",
+									"text": "C'est la dernière. Maître Buisson sera content, ou au moins fatigué de se plaindre."
+								},
+								{
+									"set": "haies_taillees"
+								}
+							],
+							"else": [
+								{
+									"who": "sam",
+									"text": "Une de moins. Il en reste, du travail ; c'est ce qui me plaît dans ce métier."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"text": "La haie pousse sous vos yeux, d'un pouce environ, pendant que vous la regardez."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Il faudrait un jardinier. Un vrai, avec une serpette et des opinions sur les buis."
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "Une haie haute, très verte, un peu envahissante. Un panneau dit : « Merci de ne pas la nourrir. »"
+				}
+			]
+		}
+	],
+	"haie_3": [
+		{
+			"if": "haie_vue",
+			"then": [
+				{
+					"if": "party:sam",
+					"then": [
+						{
+							"text": "La haie du fond de la place ondule, remonte, plie, repart : elle pousse en continu, comme si quelqu'un lui avait promis qu'elle ne serait jamais finie."
+						},
+						{
+							"who": "sam",
+							"text": "Un buis, de la belle espèce. Il a juste besoin qu'on lui explique où s'arrêter."
+						},
+						{
+							"text": "Sam sort sa serpette et taille, d'un geste régulier, sans prétendre à l'élégance. La haie, après un instant de surprise, prend une forme."
+						},
+						{
+							"set": "haie_3_taillee"
+						},
+						{
+							"if": "haie_1_taillee & haie_2_taillee & haie_3_taillee",
+							"then": [
+								{
+									"who": "sam",
+									"text": "C'est la dernière. Maître Buisson sera content, ou au moins fatigué de se plaindre."
+								},
+								{
+									"set": "haies_taillees"
+								}
+							],
+							"else": [
+								{
+									"who": "sam",
+									"text": "Une de moins. Il en reste, du travail ; c'est ce qui me plaît dans ce métier."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"text": "La haie pousse sous vos yeux, d'un pouce environ, pendant que vous la regardez."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Il faudrait un jardinier. Un vrai, avec une serpette et des opinions sur les buis."
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "Une haie haute, très verte, un peu envahissante. Un panneau dit : « Merci de ne pas la nourrir. »"
+				}
+			]
+		}
+	],
+	"lorelia": [
+		{
+			"if": "chant_fini",
+			"then": [
+				{
+					"who": "lorelia",
+					"text": "Neuf heures, c'est juste le début. Revenez demain pour la suite, elle vaut le déplacement."
+				}
+			],
+			"else": [
+				{
+					"if": "chant_soigne",
+					"then": [
+						{
+							"text": "Lorélia vous écoute à peine, perdue dans des notes que vous ne pouvez pas voir."
+						}
+					],
+					"else": [
+						{
+							"if": "chant_vu",
+							"then": [
+								{
+									"if": "item:tisane_corsee",
+									"then": [
+										{
+											"who": "lorelia",
+											"text": "Une tisane corsée ! Pour moi ? Je n'ose pas dire que vous êtes un ange : les anges, ici, ont un règlement."
+										},
+										{
+											"take": "tisane_corsee"
+										},
+										{
+											"set": "chant_soigne"
+										},
+										{
+											"text": "Lorélia boit, ferme les yeux, ouvre la bouche. Un son en sort, si pur que les moineaux de la place s'assoient. Elle chante."
+										},
+										{
+											"text": "[i]Premier couplet.[/i] Il parle d'un arbre qui a eu une idée, puis une autre, puis plus rien, et qui se sent très bien. Il dure une heure."
+										},
+										{
+											"who": "pepin",
+											"text": "C'est beau. Je crois que c'est beau. Je n'arrive plus à bouger le pouce."
+										},
+										{
+											"text": "[i]Deuxième couplet.[/i] Il parle de la rivière, qui s'est un jour demandé où elle allait, et qui répond « plus tard ». Il dure trois heures."
+										},
+										{
+											"who": "sam",
+											"text": "Je tiens. Je tiens par les racines, au sens propre. Dites-moi quand ça se termine."
+										},
+										{
+											"text": "[i]Troisième couplet.[/i] Il parle de celui qui chante, qui chante pour qu'on l'entende, et qui n'en revient pas qu'on soit resté. Il dure le reste."
+										},
+										{
+											"text": "Quand la dernière note se pose, le crépuscule est devenu l'aube, et personne ne saurait dire dans quel ordre."
+										},
+										{
+											"who": "glandoulf",
+											"text": "Je reconnais que c'était remarquable. Je reconnais aussi que j'ai dormi debout, ce qui est une première."
+										},
+										{
+											"who": "lorelia",
+											"text": "Merci. Voici le diapason qui m'a servi neuf cent ans. Il donne le la ; à vous, il donnera le ton."
+										},
+										{
+											"set": "chant_fini"
+										}
+									],
+									"else": [
+										{
+											"who": "lorelia",
+											"text": "Je n'ai plus de voix, plus un filet. Le chant de neuf heures se donne ce soir, et je ne peux pas le décaler : il est fixé depuis la Création, au moins. Une tisane corsée me rendrait mes cordes."
+										},
+										{
+											"text": "(Sidonie, à Brie, vend des tisanes corsées ; la Chancellerie aussi, au guichet.)"
+										}
+									]
+								}
+							],
+							"else": [
+								{
+									"who": "lorelia",
+									"text": "Chut. Je garde ma voix pour ce soir : le chant de neuf heures, que je donne chaque jour depuis neuf cents ans. Mais ce soir, il me manque la voix. Elle s'est enrouée dans la nuit."
+								},
+								{
+									"who": "lorelia",
+									"text": "Une tisane corsée, bien infusée, me la rendrait sûrement. Si un voyageur en avait une à donner..."
+								},
+								{
+									"set": "chant_vu"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"buisson": [
+		{
+			"if": "haie_finie",
+			"then": [
+				{
+					"who": "buisson",
+					"text": "Vous avez fait ce que mes cisailles n'ont pas fait en trois siècles : arrêter une haie. J'ai maintenant le temps de regretter le bruit."
+				}
+			],
+			"else": [
+				{
+					"if": "haies_taillees",
+					"then": [
+						{
+							"who": "buisson",
+							"text": "Taillées ? Les trois ? Même celle d'en face, qui me narguait ?"
+						},
+						{
+							"text": "Maître Buisson fait le tour des trois haies, la lèvre qui tremble. Elles se tiennent droites, calmes, un peu gênées."
+						},
+						{
+							"who": "buisson",
+							"text": "Prenez mes cisailles. Elles ont servi à tout, sauf à ça."
+						},
+						{
+							"set": "haie_finie"
+						}
+					],
+					"else": [
+						{
+							"if": "haie_vue",
+							"then": [
+								{
+									"who": "buisson",
+									"text": "Trois haies. L'une près de l'escalier, l'autre entre le Conseil et les Archives, la dernière au fond de la place. Il faut un jardinier, un vrai, qui sache où s'arrêter."
+								}
+							],
+							"else": [
+								{
+									"who": "buisson",
+									"text": "Trois haies de Fondue-Combe poussent sans pause depuis le dernier roi. Mes cisailles s'émoussent, ma patience aussi. Si vous connaissez un jardinier..."
+								},
+								{
+									"if": "party:sam",
+									"then": [
+										{
+											"who": "sam",
+											"text": "Je connais un jardinier. Il a quelques opinions sur les buis."
+										},
+										{
+											"who": "buisson",
+											"text": "Parfait. Dites-lui de ne pas hésiter : ce sont des haies sans scrupules."
+										}
+									]
+								},
+								{
+									"set": "haie_vue"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"sylvanor": [
+		{
+			"if": "sylvanor_vu",
+			"then": [
+				{
+					"who": "sylvanor",
+					"text": "L'acier d'hier, le bois de toujours. Regardez, ne tâtez pas : tout ici a un caractère."
+				}
+			],
+			"else": [
+				{
+					"who": "sylvanor",
+					"text": "Sylvanor, marchand d'armes de la Combe. Je vends des arcs, des haches, de quoi se défendre contre ceux qui ne respectent pas les formulaires."
+				},
+				{
+					"set": "sylvanor_vu"
+				}
+			]
+		},
+		{
+			"shop": "arsenal_sylvanor"
+		}
+	],
+	"elfe_pressee": [
+		{
+			"who": "elfe_pressee",
+			"text": "Pardon, pardon ! J'ai trois siècles de retard sur mon rendez-vous. Je crois qu'il m'attend encore."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Prenez votre temps. À Fondue-Combe, tout le monde le fait."
+		}
+	],
+	"elfe_lente": [
+		{
+			"who": "elfe_lente",
+			"text": "Je ne suis pas pressé. Je ne l'ai jamais été. C'est une qualité rare de nos jours, ou une très ancienne maladie."
+		}
+	],
+	"bromure_ville": [
+		{
+			"who": "bromure",
+			"text": "Je reste, puisqu'on me dit que je suis invité. Un invité, ça n'est ni un compagnon ni un gêneur, c'est quelqu'un qui attend qu'on le désigne."
+		},
+		{
+			"who": "bromure",
+			"text": "L'anneau n'est pas à moi, d'accord. Mais Minas Tartine tient encore, et elle ne tiendra pas éternellement. Je le dirai à Morbier, s'il le faut. Poliment."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Poliment, c'est ce que je craignais."
+		}
+	],
+	"sortie_ouest": [
+		{
+			"if": "chapitre_3_fini",
+			"then": [
+				{
+					"who": "glandoulf",
+					"text": "La route des monts s'ouvre ici. Morbier est au bout, avec ses mines et ses mauvaises nouvelles."
+				},
+				{
+					"text": "(La suite du voyage arrivera avec le chapitre 4.)"
+				}
+			],
+			"else": [
+				{
+					"who": "glandoulf",
+					"text": "Plus tard. Le Conseil ne nous a pas encore laissés partir, et il a un Gardien dans son tiroir."
+				}
+			]
+		},
+		{
+			"set": "ouest_dit"
+		}
+	],
+	"porte_archives_fermee": [
+		{
+			"text": "Les Archives du Conseil. Une porte épaisse, ferrée, avec une serrure de la taille d'une assiette. Une plaque dit : « Consultation sur autorisation du Président. Prière de ne pas frapper : la porte est susceptible. »"
+		},
+		{
+			"who": "glandoulf",
+			"text": "La clef est chez Elrond, selon toute vraisemblance. Et derrière elle, selon toute vraisemblance, ce que je préférerais ne pas lire."
+		}
+	],
+	"porte_elfe": [
+		{
+			"text": "La porte est close. Derrière, on entend quelqu'un qui range ses idées par ordre de taille."
+		}
+	]
+}
