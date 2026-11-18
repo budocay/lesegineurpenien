@@ -5,6 +5,10 @@ shader_type spatial;
 uniform sampler2D tex : source_color, filter_nearest, repeat_enable;
 uniform float variation = 0.10;
 uniform float texels_per_unit = 24.0;
+uniform float dim = 1.0;     // assombrissement du fond (décor repoussé)
+uniform float desat = 0.0;   // désaturation du fond
+uniform vec3 haze_color : source_color = vec3(0.3, 0.28, 0.4);
+uniform float haze = 0.0;    // brume de distance mêlée à la paroi
 
 varying vec3 wpos;
 
@@ -30,6 +34,9 @@ void fragment() {
 	float n = vnoise(q * vec2(0.35, 0.9)) * 0.6 + vnoise(q * 1.7 + 9.0) * 0.4;
 	n = floor(n * 4.0) / 3.0;
 	vec3 col = c.rgb * COLOR.rgb * (1.0 + (n - 0.5) * 2.0 * variation);
+	float l = dot(col, vec3(0.299, 0.587, 0.114));
+	col = mix(col, vec3(l), desat) * dim;
+	col = mix(col, haze_color, haze);
 	ALBEDO = col;
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;

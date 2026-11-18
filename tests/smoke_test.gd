@@ -66,6 +66,7 @@ func _ready() -> void:
 	await _test_interface()
 	_test_retouches()
 	await _test_active_party()
+	await _test_arenas()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -2440,8 +2441,11 @@ func _test_chapter_2() -> void:
 	for who: String in ["sam", "froton", "pepin"]:
 		if not GameState.party.has(who):
 			GameState.add_to_party(who)
+	# Ce test suit le déroulé, pas l'équilibre (mesuré par _test_chapter_2_data sur des
+	# dizaines de combats) : l'équipe est au-dessus du niveau attendu pour que l'issue d'un
+	# combat automatique ne dépende pas du hasard.
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 9
+		GameState.member(who)["level"] = 13
 	GameState.heal_party()
 	main.run_dialogue("sidonie")
 	await _wait_idle(main)
@@ -2454,7 +2458,7 @@ func _test_chapter_2() -> void:
 	await _wait_idle(main)
 	check(GameState.party.has("aragrogne") and GameState.has_flag("aragrogne_equipe"), "Aragrogne rejoint l'équipe")
 	check(GameState.is_reserve("aragrogne") and GameState.active_party().size() == 4, "Aragrogne, cinquième, va en réserve")
-	GameState.member("aragrogne")["level"] = 9
+	GameState.member("aragrogne")["level"] = 13
 	GameState.heal_party()
 
 	# le concours de bras de fer : Sam seul
@@ -3394,3 +3398,52 @@ func _test_chapter_3() -> void:
 	check(bromure_there, "Bromure attend en ville, invité")
 	main.queue_free()
 	await get_tree().process_frame
+
+
+## Arènes : chacune se construit avec 1 à 5 ennemis, aucun décor n'occupe la zone de jeu,
+## les champs « stage », « backdrop » et « particles » sont valides.
+func _test_arenas() -> void:
+	print("== Arènes dégagées ==")
+	GameState.new_game()
+	for who: String in ["sam", "froton", "pepin"]:
+		GameState.add_to_party(who)
+	var particle_kinds := ["fireflies", "pollen", "leaves", "dust", "fire", "embers", "smoke"]
+	var foes := ["limace_molle", "guepe_cidre", "champignon_dormeur", "limace_molle", "guepe_cidre"]
+	for id: String in Database.arenas:
+		var arena: Dictionary = Database.arenas[id]
+		var stage: Dictionary = arena.get("stage", {})
+		for key: String in stage:
+			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center"].has(key), "arène %s : champ stage.%s connu" % [id, key])
+		check(float(stage.get("edge", 0.2)) >= 0.0 and float(stage.get("edge", 0.2)) <= 1.0, "arène %s : bords assombris dans [0, 1]" % id)
+		check(float(stage.get("flatten", 0.6)) >= 0.0 and float(stage.get("flatten", 0.6)) <= 1.0, "arène %s : aplat du sol dans [0, 1]" % id)
+		check(float(stage.get("boost", 0.5)) >= 0.0 and float(stage.get("key", 1.6)) >= 0.0, "arène %s : lumière positive" % id)
+		var radius: Array = stage.get("radius", [12.0, 7.5])
+		check(radius.size() == 2 and float(radius[0]) > 3.0 and float(radius[1]) > 3.0, "arène %s : nappe de lumière assez large" % id)
+		check(str(stage.get("light", "#ffd9a0")).begins_with("#"), "arène %s : couleur de lumière" % id)
+		for kind: Variant in arena.get("particles", []):
+			check(particle_kinds.has(str(kind)), "arène %s : particule %s connue" % [id, str(kind)])
+		var back: Dictionary = arena.get("backdrop", {})
+		for key: String in ["dim", "desat", "haze"]:
+			check(float(back.get(key, 0.5)) >= 0.0 and float(back.get(key, 0.5)) <= 1.0, "arène %s : backdrop.%s dans [0, 1]" % [id, key])
+		for n: int in [1, 3, 5]:
+			var layer := CanvasLayer.new()
+			add_child(layer)
+			var ui: Control = BattleUI.new()
+			layer.add_child(ui)
+			var scene: Node3D = BattleScene.new()
+			add_child(scene)
+			scene.setup({"enemies": foes.slice(0, n), "arena": id}, ui, 5)
+			await get_tree().process_frame
+			check(scene.camera != null and scene.get_node_or_null("StageLight") != null, "arène %s (%d ennemis) : construite, caméra et lumière d'appoint" % [id, n])
+			var intruders := 0
+			var too_close := 0
+			for pos: Vector3 in scene.placed_props:
+				if BattleScene.in_stage(pos.x, pos.z):
+					intruders += 1
+				for a: Node3D in scene.actors.values():
+					if Vector2(pos.x, pos.z).distance_to(Vector2(a.position.x, a.position.z)) < 2.5:
+						too_close += 1
+			check(intruders == 0, "arène %s (%d ennemis) : aucun décor dans la zone de jeu (%d)" % [id, n, intruders])
+			check(too_close == 0, "arène %s (%d ennemis) : aucun décor près d'un combattant (%d)" % [id, n, too_close])
+			scene.free()
+			layer.free()
