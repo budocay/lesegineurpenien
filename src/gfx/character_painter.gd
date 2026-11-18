@@ -100,10 +100,21 @@ static func paint_portrait(look: Dictionary) -> Image:
 		_p = _pose(0)
 		_layout(look)
 		y = clampi(int(_hcy - _ry) - 2, 0, FRAME_H - side)
+		# un chapeau haut dépasse la tête : le cadre s'agrandit (jusqu'à 32 px) pour garder le
+		# sommet du chapeau ET le visage, puis l'image est ramenée à 48 x 48
+		var top := maxi(0, PA.opaque_bounds(sheet, Rect2i(0, 0, FRAME_W, FRAME_H)).position.y - 1)
+		if top < y:
+			var chin := int(_hcy + _ry) + 3
+			side = clampi(chin - top, 24, 32)
+			y = clampi(top, 0, FRAME_H - side)
+			x = clampi((FRAME_W - side) / 2, 0, FRAME_W - side)
 	else:
 		var b := PA.opaque_bounds(sheet, Rect2i(0, 0, FRAME_W, FRAME_H))
 		y = clampi(b.position.y - 1, 0, FRAME_H - side)
-	return _scale2x(sheet.get_region(Rect2i(x, y, side, side)))
+	var out := _scale2x(sheet.get_region(Rect2i(x, y, side, side)))
+	if side != 24:
+		out.resize(48, 48, Image.INTERPOLATE_LANCZOS)
+	return out
 
 
 ## Agrandissement x2 qui adoucit les escaliers (algorithme Scale2x).

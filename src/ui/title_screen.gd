@@ -46,30 +46,60 @@ func _ready() -> void:
 	foot_veil.offset_top = -140.0
 	add_child(foot_veil)
 
+	# L'Anneau, dessiné par code, à droite du titre ; il respire doucement.
+	var ring := Control.new()
+	ring.anchor_left = 1.0
+	ring.anchor_right = 1.0
+	ring.offset_left = -330.0
+	ring.offset_right = -50.0
+	ring.offset_top = 30.0
+	ring.offset_bottom = 310.0
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.draw.connect(_draw_ring.bind(ring))
+	add_child(ring)
+	var breath := create_tween().set_loops()
+	breath.tween_property(ring, "modulate:a", 0.78, 2.6).set_trans(Tween.TRANS_SINE)
+	breath.tween_property(ring, "modulate:a", 1.0, 2.6).set_trans(Tween.TRANS_SINE)
+
 	var box := VBoxContainer.new()
 	box.anchor_top = 0.0
 	box.anchor_bottom = 1.0
+	box.anchor_right = 1.0
 	box.offset_left = 96.0
-	box.offset_right = 780.0
-	box.offset_top = 76.0
-	box.offset_bottom = -52.0
+	box.offset_right = -96.0
+	box.offset_top = 56.0
+	box.offset_bottom = -44.0
 	box.add_theme_constant_override("separation", 0)
 	add_child(box)
 
 	box.add_child(UI.caps("Une épopée de la Terre du Mi-Lieu", 15, UI.GOLD_DIM))
-	var title := UI.label("Le Seigneur des Anneaux Péniens", 60, UI.GOLD)
-	title.add_theme_constant_override("shadow_offset_y", 3)
-	title.add_theme_constant_override("outline_size", 5)
+	var tag_gap := Control.new()
+	tag_gap.custom_minimum_size = Vector2(0, 8)
+	box.add_child(tag_gap)
+	# « Le Seigneur » petit, suivi d'un filet ; « des Anneaux Péniens » grand dessous
+	var lord_row := HBoxContainer.new()
+	lord_row.add_theme_constant_override("separation", 18)
+	var lord := UI.label("Le Seigneur", 34, UI.GOLD_DIM, false, true)
+	lord_row.add_child(lord)
+	var lord_rule := UI.rule(0.0, "out", UI.GOLD_DIM)
+	lord_rule.custom_minimum_size = Vector2(160, 9)
+	lord_rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	lord_row.add_child(lord_rule)
+	box.add_child(lord_row)
+	var title := UI.label("des Anneaux Péniens", 88, UI.GOLD)
+	title.add_theme_constant_override("shadow_offset_y", 4)
+	title.add_theme_constant_override("shadow_offset_x", 2)
+	title.add_theme_constant_override("outline_size", 6)
 	title.add_theme_color_override("font_outline_color", Color(0.05, 0.04, 0.1, 0.85))
+	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	box.add_child(title)
-	var sub := UI.label("Glandoulf le Gris et la Communauté de l'Anneau", 29, UI.INK, false, true)
-	box.add_child(sub)
-	var rule_gap := Control.new()
-	rule_gap.custom_minimum_size = Vector2(0, 16)
-	box.add_child(rule_gap)
-	var rule := UI.rule(520.0, "out")
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	box.add_child(rule)
+	var sub_row := HBoxContainer.new()
+	sub_row.add_theme_constant_override("separation", 16)
+	var sub_rule := UI.rule(60.0, "in")
+	sub_rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	sub_row.add_child(sub_rule)
+	sub_row.add_child(UI.label("Glandoulf le Gris et la Communauté de l'Anneau", 28, UI.INK, false, true))
+	box.add_child(sub_row)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -90,7 +120,7 @@ func _ready() -> void:
 	_quit = add_entry("Quitter", func() -> void: quit_requested.emit(), false)
 
 	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0, 30)
+	gap.custom_minimum_size = Vector2(0, 26)
 	box.add_child(gap)
 	box.add_child(UI.hints([["Flèches ou ZQSD", "se déplacer"], ["E ou Entrée", "parler, valider"], ["Échap", "menu"], ["F", "plein écran"]], 15))
 
@@ -135,3 +165,27 @@ func close() -> void:
 func _on_new() -> void:
 	_remember = null
 	new_game_requested.emit()
+
+
+## L'Anneau : bande d'or épaisse, reflet, fines gravures, et un halo qui l'enveloppe.
+func _draw_ring(c: Control) -> void:
+	var ctr := c.size * 0.5
+	var r := minf(c.size.x, c.size.y) * 0.30
+	var w := r * 0.34
+	for i in 16:
+		c.draw_circle(ctr, r * (2.0 - 0.07 * float(i)), Color(1.0, 0.8, 0.42, 0.016))
+	c.draw_arc(ctr + Vector2(0, 5), r, 0.0, TAU, 120, Color(0, 0, 0, 0.45), w + 8.0, true)    # ombre portée
+	c.draw_arc(ctr, r, 0.0, TAU, 120, Color(0.2, 0.12, 0.04), w + 5.0, true)                  # liseré sombre
+	c.draw_arc(ctr, r, 0.0, TAU, 120, Color(0.62, 0.45, 0.16), w, true)                       # or ombré
+	c.draw_arc(ctr, r - w * 0.12, 0.0, TAU, 120, UI.GOLD_DIM, w * 0.62, true)
+	c.draw_arc(ctr, r - w * 0.22, 0.0, TAU, 120, UI.GOLD, w * 0.30, true)
+	c.draw_arc(ctr, r - w * 0.28, deg_to_rad(205.0), deg_to_rad(300.0), 40, Color(1.0, 0.97, 0.85, 0.9), w * 0.12, true)   # reflet
+	c.draw_arc(ctr, r + w * 0.36, deg_to_rad(20.0), deg_to_rad(110.0), 40, Color(0.35, 0.22, 0.07, 0.8), w * 0.14, true)  # ombre basse
+	for i in 36:       # gravures : de petits traits sur la bande
+		var a := TAU * float(i) / 36.0 + 0.05
+		var dir := Vector2(cos(a), sin(a))
+		var len := w * (0.22 if i % 3 != 0 else 0.34)
+		c.draw_line(ctr + dir * (r - len * 0.5), ctr + dir * (r + len * 0.5), Color(0.25, 0.15, 0.05, 0.55), 1.4, true)
+	var sp := ctr + Vector2(cos(deg_to_rad(252.0)), sin(deg_to_rad(252.0))) * (r - w * 0.28)
+	c.draw_line(sp - Vector2(10, 0), sp + Vector2(10, 0), Color(1, 1, 0.9, 0.85), 1.5, true)
+	c.draw_line(sp - Vector2(0, 10), sp + Vector2(0, 10), Color(1, 1, 0.9, 0.85), 1.5, true)

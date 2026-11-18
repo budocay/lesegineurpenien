@@ -26,6 +26,7 @@ func _ready() -> void:
 	visible = false
 	var frame := UI.screen(self, "Paramètres", Vector2(980, 0), 0.82)
 	_panel = frame["panel"]
+	_panel.add_theme_stylebox_override("panel", UI.soft_style(0.97, 26))   # presque opaque : l'écran dessous ne doit pas transparaître
 	var body: VBoxContainer = frame["body"]
 	_scroll = ScrollContainer.new()
 	_scroll.custom_minimum_size = Vector2(920, 380)
