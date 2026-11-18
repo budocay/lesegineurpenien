@@ -12,5 +12,10 @@
 		"money": 0,
 		"inventory": {"tisane": 2, "cidre": 1}
 	},
+	"item_types": {
+		"baton": "Bâton", "ustensile": "Ustensile", "dague": "Dague", "serpe": "Serpe", "rapiere": "Rapière", "epee": "Épée", "arc": "Arc", "hache": "Hache",
+		"robe": "Robe", "cuir": "Cuir", "mailles": "Mailles", "plates": "Plates",
+		"chapeau": "Chapeau", "casque": "Casque"
+	},
 	"progression": {"xp_base": 16, "xp_power": 1.5, "talent_points_per_level": 1}
 }

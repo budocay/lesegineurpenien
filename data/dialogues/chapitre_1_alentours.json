@@ -67,6 +67,8 @@
 			"else": [
 				{"text": "Une caisse à moitié enfouie dans les fougères. Quelqu'un y avait mis ses provisions à l'abri des sangliers."},
 				{"give": "tisane_corsee", "count": 2},
+				{"text": "Sous les provisions, un bonnet de laine que personne ne regrettera. Il est encore chaud, ce qui est inquiétant."},
+				{"give": "bonnet_laine"},
 				{"money": 20},
 				{"set": "coffre_bois_ouvert"}
 			]
@@ -79,6 +81,8 @@
 				{"text": "Une caisse marquée « Bolgère ». Le vieux Bolgère ne viendra pas la chercher : il n'a pas quitté son fauteuil depuis mardi."},
 				{"give": "remontant"},
 				{"give": "decoction"},
+				{"text": "Au fond, une médaille ternie, gravée « Bon réveil ». Bolgère ne l'avait manifestement jamais portée."},
+				{"give": "medaille_anti_sieste"},
 				{"set": "coffre_fougeres_ouvert"}
 			]
 		}
@@ -177,6 +181,8 @@
 				{"text": "Une caisse échouée dans les roseaux, tombée d'une barque. Le cidre a tenu bon."},
 				{"give": "cidre", "count": 2},
 				{"give": "tisane_corsee"},
+				{"text": "Coincé entre deux bouteilles, un chapeau pointu, que le pêcheur avait dû acheter pour impressionner les poissons."},
+				{"give": "chapeau_pointu"},
 				{"set": "coffre_roseaux_ouvert"}
 			]
 		}
@@ -260,6 +266,8 @@
 				{"text": "Le butin du péage, entassé dans une caisse : ce que les Morfales n'avaient pas encore eu le temps de manger."},
 				{"give": "tisane_corsee", "count": 2},
 				{"give": "remontant"},
+				{"text": "Plié sur le dessus, un justaucorps taillé pour passer entre les douaniers. Il porte encore l'odeur de la dernière fuite."},
+				{"give": "justaucorps_contrebande"},
 				{"money": 40},
 				{"set": "coffre_route_ouvert"}
 			]

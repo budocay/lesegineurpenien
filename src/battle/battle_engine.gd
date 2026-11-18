@@ -17,6 +17,8 @@ const WEAK_MULT := 1.5
 const CRIT_MULT := 1.5
 const CRIT_CHANCE := 0.06
 const FLEE_CHANCE := 0.75
+const MIN_HIT := 0.1            # même face à une esquive énorme, un coup sur dix touche
+const MAX_CRIT := 0.8
 
 var encounter: Dictionary = {}
 var party: Array = []
@@ -426,6 +428,13 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			if evade > 0.0 and stat_key == "atk" and target.side != actor.side and rng.randf() < evade:
 				events.append({"type": "miss", "target": target})
 				return
+			# Précision contre esquive, pour les coups physiques : touche avec (précision − esquive) %.
+			# Magie et soins ne ratent jamais ; sans esquive ni précision faible, aucun tirage n'est fait.
+			if stat_key == "atk" and target.side != actor.side:
+				var hit := clampf((actor.stat("acc") - target.stat("eva")) / 100.0, MIN_HIT, 1.0)
+				if hit < 1.0 and rng.randf() >= hit:
+					events.append({"type": "miss", "target": target, "dodge": target.stat("eva") > 0.0})
+					return
 			var att := actor.stat(stat_key)
 			var dfn := target.stat("def" if stat_key == "atk" else "res")
 			var amount := att * 2.0 * float(fx.get("power", 100)) / 100.0 + float(fx.get("flat", 0)) - dfn
@@ -434,9 +443,11 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			var soft := stat_key == "atk" and softness > 0.0 and not actor.is_firm()
 			if soft:
 				amount *= 1.0 - softness
-			var crit := rng.randf() < float(fx.get("crit", CRIT_CHANCE)) + actor.passive("crit")
+			# Critique : chance de la compétence (6 % par défaut) + écart de la caractéristique à 6 % + talents.
+			var crit_chance := minf(MAX_CRIT, float(fx.get("crit", CRIT_CHANCE)) + (actor.stat("crit") - 6.0) / 100.0 + actor.passive("crit"))
+			var crit := rng.randf() < crit_chance
 			if crit:
-				amount *= CRIT_MULT
+				amount *= actor.stat("critdmg") / 100.0
 			var weak := target.weak.has(element)
 			if weak:
 				amount *= WEAK_MULT
@@ -446,6 +457,7 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 				amount *= 1.0 + actor.passive("vs_afflicted")
 			amount *= 1.0 + actor.passive("fury") * (1.0 - float(actor.hp) / actor.max_hp())
 			amount *= maxf(0.2, 1.0 - target.passive("guard"))
+			amount *= maxf(0.2, 1.0 - target.passive("resist", element))   # résistance à l'élément (équipement)
 			amount *= target.vulnerability()
 			if target.defending:
 				amount *= 0.5
@@ -503,6 +515,7 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			var chance := float(fx.get("chance", 1.0))
 			if target.side != actor.side:   # talents qui rendent les altérations plus sûres
 				chance *= 1.0 + actor.passive("status_chance", id) + actor.passive("status_chance", "all")
+				chance *= maxf(0.0, 1.0 - target.passive("status_resist", id) - target.passive("status_resist", "all"))   # équipement
 			if rng.randf() >= chance:
 				events.append({"type": "status", "target": target, "id": id, "applied": false, "immune": false})
 				return
@@ -669,7 +682,7 @@ func commit() -> Dictionary:
 	for item: String in out["drops"]:
 		GameState.add_item(item, int(out["drops"][item]))
 	for c: Combatant in party:
-		var up := GameState.grant_xp(c.source, int(out["xp"]))
+		var up := GameState.grant_xp(c.source, int(round(float(out["xp"]) * (1.0 + c.passive("xp_bonus")))))
 		if not up.is_empty():
 			(out["levelups"] as Array).append(up)
 	# la réserve ne se bat pas : elle ne gagne rien tant que RESERVE_XP vaut zéro

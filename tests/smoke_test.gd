@@ -68,6 +68,7 @@ func _ready() -> void:
 	await _test_active_party()
 	await _test_arenas()
 	_test_retouches_2()
+	_test_equipment()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -321,7 +322,7 @@ func _test_battle_data() -> void:
 				check(GameState.SLOTS.has(str(item.get("slot", ""))), "équipement %s : emplacement connu" % id)
 				check(item.get("mods") is Dictionary, "équipement %s : bonus" % id)
 				for key: String in item.get("mods", {}):
-					check(Rules.STATS.has(key), "équipement %s : caractéristique connue (%s)" % [id, key])
+					check(Rules.MOD_KEYS.has(key), "équipement %s : caractéristique connue (%s)" % [id, key])
 				for who: Variant in item.get("for", []):
 					check(not Rules.battle_def(str(who)).is_empty(), "équipement %s : porteur connu (%s)" % [id, str(who)])
 			"key":
@@ -774,6 +775,8 @@ func _test_engine() -> void:
 	p.hp = 1
 	var wasp: RefCounted = e.enemies[0]
 	wasp.base["atk"] = 999
+	g.base["eva"] = 0   # l'esquive des héros ne doit pas faire manquer ce coup de graine fixée
+	p.base["eva"] = 0
 	e.perform(wasp, {"type": "attack", "target": g})
 	e.perform(wasp, {"type": "attack", "target": p})
 	check(str(e.result) == "defeat", "défaite quand toute l'équipe est à terre")
@@ -1638,7 +1641,7 @@ func _test_menus() -> void:
 	check((menu.entry_texts() as Array).size() == 2, "équipe : la fiche propose équipement et talents")
 	menu.press(0)
 	await get_tree().process_frame
-	check((menu.entry_texts() as Array).size() == 3, "équipe : trois emplacements")
+	check((menu.entry_texts() as Array).size() == GameState.SLOTS.size(), "équipe : un choix par emplacement")
 	menu.press(0)
 	await get_tree().process_frame
 	menu.press((menu.entry_texts() as Array).size() - 1)   # « Retirer »
@@ -3622,3 +3625,193 @@ func _in_frame(scene: Node3D, c: RefCounted) -> bool:
 	var cam: Camera3D = scene.camera
 	var half_w := tan(deg_to_rad(cam.fov * 0.5)) * (16.0 / 9.0) * (cam.global_position.z - p.z)
 	return absf(p.x) < half_w - 0.3
+
+
+# --------------------------------------------------------------- équipement
+
+## Parcourt un contenu JSON et note tous les objets donnés (clé « give »).
+func _collect_gives(v: Variant, out: Dictionary) -> void:
+	if v is Dictionary:
+		for k: Variant in v:
+			if str(k) == "give" and v[k] is String:
+				out[str(v[k])] = true
+			else:
+				_collect_gives(v[k], out)
+	elif v is Array:
+		for x: Variant in v:
+			_collect_gives(x, out)
+
+
+## Tous les objets qu'on peut obtenir sans code : boutiques, coffres et dialogues, quêtes, butins, équipement de départ.
+func _findable_items() -> Dictionary:
+	var out := {}
+	for sid: String in Database.shops:
+		for o: Variant in (Database.shops[sid] as Dictionary).get("stock", []):
+			out[str((o as Dictionary).get("item", ""))] = "boutique " + sid
+	_collect_gives(Database.dialogues, out)
+	for qid: String in Database.quests:
+		var rw: Variant = (Database.quests[qid] as Dictionary).get("reward", {})
+		if rw is Dictionary and (rw as Dictionary).get("items") is Dictionary:
+			for it: String in (rw as Dictionary)["items"]:
+				out[it] = "quête " + qid
+	for eid: String in Database.enemies:
+		for dr: Variant in (Database.enemies[eid] as Dictionary).get("drops", []):
+			out[str((dr as Dictionary).get("item", ""))] = "butin " + eid
+	for cid: String in Database.characters:
+		var eq: Variant = ((Database.characters[cid] as Dictionary).get("battle", {}) as Dictionary).get("equip", {})
+		if eq is Dictionary:
+			for it: Variant in (eq as Dictionary).values():
+				out[str(it)] = "départ " + cid
+	return out
+
+
+func _test_equipment() -> void:
+	GameState.new_game()
+	var slot_kinds := ["weapon", "head", "armor", "trinket"]
+	var gear_ids: Array = []
+	var playable := GameState.playable_ids()
+	check(playable.size() == 8, "huit personnages jouables (%d)" % playable.size())
+	# 1. chaque objet d'équipement : emplacement, bonus et porteur
+	for id: String in Database.items:
+		if Database.item_kind(id) != "equipment":
+			continue
+		gear_ids.append(id)
+		var def := Database.get_item(id)
+		check(slot_kinds.has(str(def.get("slot", ""))), "%s : emplacement connu (%s)" % [id, str(def.get("slot", ""))])
+		for key: String in (def.get("mods", {}) as Dictionary):
+			check(Rules.MOD_KEYS.has(key), "%s : bonus connu (%s)" % [id, key])
+		var p: Variant = def.get("passives", {})
+		check(p is Dictionary, "%s : passives est un objet" % id)
+		if p is Dictionary:
+			for key: String in (p as Dictionary):
+				check(["resist", "status_resist", "immune", "regen_hp", "regen_mp", "money_bonus", "xp_bonus", "initiative", "crit"].has(key), "%s : effet connu (%s)" % [id, key])
+		var any := false
+		for who: String in playable:
+			any = any or GameState.can_equip(who, id)
+		check(any, "%s : au moins un porteur possible" % id)
+		check(str(def.get("name", "")) != "" and str(def.get("desc", "")) != "", "%s : nom et description" % id)
+	check(gear_ids.size() >= 100, "au moins cent pièces d'équipement (%d)" % gear_ids.size())
+	# 2. chaque objet vendu ou trouvé existe ; chaque personnage a de quoi s'équiper à chaque emplacement
+	var found := _findable_items()
+	for id: String in found:
+		check(Database.items.has(id), "objet trouvable inconnu : %s (%s)" % [id, str(found[id])])
+	for who: String in playable:
+		for kind: String in slot_kinds:
+			var n := 0
+			for id: String in found:
+				var d := Database.get_item(id)
+				if str(d.get("slot", "")) == kind and Database.item_kind(id) == "equipment" and GameState.can_equip(who, id):
+					n += 1
+			check(n >= (1 if kind != "weapon" and kind != "armor" else 3), "%s : %d objet(s) trouvable(s) pour « %s »" % [who, n, kind])
+	# 3. équiper puis retirer rend exactement les caractéristiques de départ
+	for who: String in playable:
+		GameState.new_game()
+		GameState.add_to_party(who, true)
+		var before := GameState.member_stats(who)
+		var bare_equip: Dictionary = (GameState.member(who)["equip"] as Dictionary).duplicate(true)
+		for id: String in gear_ids:
+			if not GameState.can_equip(who, id):
+				continue
+			GameState.add_item(id)
+			var preview := GameState.stats_with(who, id)
+			var slot := GameState.slot_for(who, id)
+			var worn := GameState.equipped(who, slot)
+			check(GameState.equip(who, id, slot), "%s équipe %s" % [who, id])
+			check(GameState.member_stats(who) == preview, "%s : l'aperçu de %s correspond au résultat" % [who, id])
+			check(GameState.unequip(who, slot), "%s retire %s" % [who, id])
+			if worn != "":
+				# rend l'objet qui était porté pour revenir au point de départ
+				GameState.equip(who, worn, slot)
+			check(GameState.member(who)["equip"] == bare_equip, "%s : équipement rétabli après %s" % [who, id])
+			check(GameState.member_stats(who) == before, "%s : caractéristiques rétablies après %s" % [who, id])
+			GameState.add_item(id, -GameState.item_count(id))
+	# 4. effets dans le moteur, tirages fixes
+	GameState.new_game()
+	var hits := {}
+	for sc: Array in [["sans bonus", 100, 0, 6], ["esquive 40", 100, 40, 6], ["précision 60", 60, 0, 6], ["précision 150 contre esquive 40", 150, 40, 6], ["critique 50", 100, 0, 50], ["critique démesuré", 100, 0, 400]]:
+		var e: RefCounted = BattleEngine.new()
+		e.setup({"enemies": ["limace_molle"], "arena": "pre"}, 11)
+		var g: RefCounted = e.party[0]
+		var t: RefCounted = e.enemies[0]
+		g.base["acc"] = sc[1]
+		t.base["eva"] = sc[2]
+		g.base["crit"] = sc[3]
+		g.passives = {}
+		t.base["hp"] = 999999
+		t.hp = 999999
+		var miss := 0
+		var crit := 0
+		var n := 800
+		for _i in n:
+			t.shield = 0
+			var ev: Array = e.perform(g, {"type": "attack", "target": t})
+			for x: Dictionary in ev:
+				if str(x.get("type", "")) == "miss":
+					miss += 1
+				elif str(x.get("type", "")) == "damage" and bool(x.get("crit", false)):
+					crit += 1
+		hits[sc[0]] = [float(miss) / n, float(crit) / n]
+	var r: Dictionary = hits
+	check(float(r["sans bonus"][0]) == 0.0, "100 de précision contre 0 d'esquive : jamais raté (%s)" % str(r["sans bonus"][0]))
+	check(absf(float(r["esquive 40"][0]) - 0.4) < 0.06, "40 d'esquive : environ 40 %% de ratés (%s)" % str(r["esquive 40"][0]))
+	check(absf(float(r["précision 60"][0]) - 0.4) < 0.06, "60 de précision : environ 40 %% de ratés (%s)" % str(r["précision 60"][0]))
+	check(float(r["précision 150 contre esquive 40"][0]) == 0.0, "la précision compense l'esquive")
+	check(absf(float(r["sans bonus"][1]) - 0.06) < 0.04, "critique de base : environ 6 %% (%s)" % str(r["sans bonus"][1]))
+	check(absf(float(r["critique 50"][1]) - 0.5) < 0.07, "critique 50 : environ 50 %% (%s)" % str(r["critique 50"][1]))
+	check(float(r["critique démesuré"][1]) <= 0.86 and float(r["critique démesuré"][1]) > 0.7, "le critique plafonne à 80 %% (%s)" % str(r["critique démesuré"][1]))
+	# l'esquive d'une cible est signalée dans l'événement de raté
+	var e2: RefCounted = BattleEngine.new()
+	e2.setup({"enemies": ["limace_molle"], "arena": "pre"}, 3)
+	var a2: RefCounted = e2.party[0]
+	var t2: RefCounted = e2.enemies[0]
+	a2.base["acc"] = 1
+	t2.base["eva"] = 50
+	var dodge_seen := false
+	for _i in 40:
+		for x: Dictionary in e2.perform(a2, {"type": "attack", "target": t2}):
+			if str(x.get("type", "")) == "miss" and bool(x.get("dodge", false)):
+				dodge_seen = true
+	check(dodge_seen, "un raté par esquive porte « dodge » (affichage « Esquive ! »)")
+	# 5. effets d'objets : résistances et expérience
+	var e3: RefCounted = BattleEngine.new()
+	e3.setup({"enemies": ["limace_molle"], "arena": "pre"}, 5)
+	var tgt: RefCounted = e3.party[0]
+	var foe: RefCounted = e3.enemies[0]
+	foe.base["atk"] = 60
+	var dmg0 := 0
+	var dmg1 := 0
+	tgt.hp = tgt.max_hp()
+	for ev: Dictionary in e3.perform(foe, {"type": "attack", "target": tgt}):
+		if str(ev.get("type", "")) == "damage":
+			dmg0 += int(ev.get("amount", 0))
+	tgt.passives = {"resist": {str(foe.element): 0.5}}
+	tgt.hp = tgt.max_hp()
+	for _i in 6:
+		tgt.hp = tgt.max_hp()
+		for ev: Dictionary in e3.perform(foe, {"type": "attack", "target": tgt}):
+			if str(ev.get("type", "")) == "damage":
+				dmg1 = maxi(dmg1, int(ev.get("amount", 0)))
+	check(dmg0 > 0 and dmg1 < dmg0 * 0.8 + 1, "la résistance d'un objet réduit les dégâts (%d -> %d)" % [dmg0, dmg1])
+	# 6. une vieille sauvegarde (trois emplacements, objets disparus) se charge
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	GameState.map_id = "auberge"
+	var d: Dictionary = GameState.to_dict()
+	var ros: Dictionary = d["roster"]
+	ros["glandoulf"]["equip"] = {"weapon": "baton_ferre", "armor": "objet_disparu", "trinket": "bonnet_laine", "cape": "robe_chambre"}
+	ros["sam"]["equip"] = {"weapon": "baton_ferre", "armor": "gilet_batelier"}
+	d["version"] = 3
+	d["inventory"] = {"tisane": 2}
+	check(GameState.from_dict(d), "une ancienne sauvegarde se charge")
+	var ge: Dictionary = GameState.member("glandoulf")["equip"]
+	check(GameState.equipped("glandoulf", "weapon") == "baton_ferre", "l'arme d'une ancienne sauvegarde est gardée")
+	check(GameState.equipped("glandoulf", "armor") == "", "un objet disparu est retiré")
+	check(GameState.equipped("glandoulf", "head") == "" and GameState.equipped("glandoulf", "trinket") == "bonnet_laine" or GameState.item_count("bonnet_laine") >= 1, "un objet mal rangé est remis en place ou dans le sac")
+	check(not ge.has("cape"), "un emplacement inconnu disparaît")
+	check(GameState.equipped("sam", "weapon") == "" and GameState.item_count("baton_ferre") >= 1, "une arme que le porteur ne peut pas tenir retourne au sac")
+	check(GameState.equipped("sam", "armor") == "gilet_batelier", "une tenue valide reste portée")
+	for who: String in ["glandoulf", "sam"]:
+		var st := GameState.member_stats(who)
+		for key: String in Rules.EXTRA:
+			check(st.has(key), "%s : la caractéristique %s existe après chargement" % [who, key])
+	SaveManager.delete_save()

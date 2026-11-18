@@ -9,10 +9,14 @@ signal quest_completed(id: String, reward: Dictionary)
 
 const Rules = preload("res://src/battle/rules.gd")
 
-const SAVE_VERSION := 3
-const SLOTS := ["weapon", "armor", "trinket"]
-const SLOT_NAMES := {"weapon": "Arme", "armor": "Tenue", "trinket": "Babiole"}
-const STAT_NAMES := {"hp": "PV", "mp": "PM", "atk": "Attaque", "def": "Défense", "mag": "Magie", "res": "Résistance", "spd": "Vitesse"}
+const SAVE_VERSION := 4
+## Emplacements d'équipement. Les identifiants weapon, armor et trinket sont ceux des
+## anciennes sauvegardes ; head et trinket2 sont venus ensuite.
+const SLOTS := ["weapon", "head", "armor", "trinket", "trinket2"]
+const SLOT_NAMES := {"weapon": "Arme", "head": "Couvre-chef", "armor": "Tenue", "trinket": "Babiole", "trinket2": "Seconde babiole"}
+## Emplacements qui reçoivent chaque sorte d'objet (champ « slot » d'un objet) : une babiole va dans l'un ou l'autre.
+const ITEM_SLOTS := {"weapon": ["weapon"], "head": ["head"], "armor": ["armor"], "trinket": ["trinket", "trinket2"]}
+const STAT_NAMES := {"hp": "PV", "mp": "PM", "atk": "Attaque", "def": "Défense", "mag": "Magie", "res": "Résistance", "spd": "Vitesse", "acc": "Précision", "eva": "Esquive", "crit": "Critique", "critdmg": "Dégâts crit."}
 const MONEY_NAME := "écus"
 const MAX_ACTIVE := 4            # une équipe ne se bat jamais à plus de quatre
 const RESERVE_XP := 0.0          # part d'expérience de combat d'un réserviste : aucune (règle de l'auteur)
@@ -159,6 +163,10 @@ func _stats(id: String, m: Dictionary) -> Dictionary:
 	out["hp"] = maxi(1, int(out["hp"]))
 	out["mp"] = maxi(0, int(out["mp"]))
 	out["spd"] = maxi(1, int(out["spd"]))
+	out["acc"] = maxi(0, int(out["acc"]))
+	out["eva"] = maxi(0, int(out["eva"]))
+	out["crit"] = maxi(0, int(out["crit"]))
+	out["critdmg"] = maxi(100, int(out["critdmg"]))
 	return out
 
 
@@ -309,8 +317,14 @@ func member_skills(id: String) -> Array:
 ## ("element_boost": {"feu": 0.15}) et listes ("immune": ["sonne"]).
 func member_passives(id: String) -> Dictionary:
 	var out := {}
+	var sources: Array = []
 	for t: Variant in talents_of(id):
-		var passives: Variant = Rules.talent_def(id, str(t)).get("passives", {})
+		sources.append(Rules.talent_def(id, str(t)).get("passives", {}))
+	var gear: Dictionary = member(id)["equip"]
+	for slot: String in SLOTS:   # l'équipement porté joue comme un talent (champ « passives » de l'objet)
+		if gear.has(slot):
+			sources.append(Database.get_item(str(gear[slot])).get("passives", {}))
+	for passives: Variant in sources:
 		if not (passives is Dictionary):
 			continue
 		for key: String in passives:
@@ -439,29 +453,95 @@ func equipped(id: String, slot: String) -> String:
 	return str((member(id)["equip"] as Dictionary).get(slot, ""))
 
 
+## Emplacements où cet objet peut aller (vide si ce n'est pas de l'équipement).
+static func slots_for(item: String) -> Array:
+	var def := Database.get_item(item)
+	if str(def.get("kind", "")) != "equipment":
+		return []
+	return (ITEM_SLOTS.get(str(def.get("slot", "")), []) as Array).duplicate()
+
+
+## Vrai si ce personnage peut porter cet objet : un porteur nommé (« for »), sinon le genre
+## de l'objet (« type ») doit figurer dans la liste de son emplacement (bloc « gear » de sa fiche).
 func can_equip(id: String, item: String) -> bool:
 	var def := Database.get_item(item)
-	if str(def.get("kind", "")) != "equipment" or not SLOTS.has(str(def.get("slot", ""))):
+	if slots_for(item).is_empty():
 		return false
-	if Rules.battle_def(id).is_empty():
+	var battle := Rules.battle_def(id)
+	if battle.is_empty():
 		return false
 	var only: Variant = def.get("for")
-	return not (only is Array) or (only as Array).is_empty() or (only as Array).has(id)
+	if only is Array and not (only as Array).is_empty():
+		return (only as Array).has(id)
+	var type := str(def.get("type", ""))
+	var gear: Variant = battle.get("gear", {})
+	if type != "" and gear is Dictionary:
+		var allowed: Variant = (gear as Dictionary).get(str(def.get("slot", "")), [])
+		if allowed is Array and not (allowed as Array).is_empty():
+			return (allowed as Array).has(type)
+	return true
 
 
-## Équipe un objet pris dans le sac ; l'ancien y retourne.
-func equip(id: String, item: String) -> bool:
+## Qui porte cet objet en ce moment : [{"who": id, "slot": emplacement}].
+func worn_by(item: String) -> Array:
+	var out: Array = []
+	for id: Variant in party:
+		var gear: Dictionary = member(str(id))["equip"]
+		for slot: String in SLOTS:
+			if str(gear.get(slot, "")) == item:
+				out.append({"who": str(id), "slot": slot})
+	return out
+
+
+## Emplacement où irait cet objet pour ce personnage : celui demandé s'il convient, sinon la
+## première place libre, à défaut la première place qui convient ("" si l'objet n'est pas de l'équipement).
+func slot_for(id: String, item: String, slot: String = "") -> String:
+	var fits := slots_for(item)
+	if fits.is_empty():
+		return ""
+	if fits.has(slot):
+		return slot
+	for s: String in fits:
+		if equipped(id, s) == "":
+			return s
+	return str(fits[0])
+
+
+## Caractéristiques qu'aurait ce personnage avec cet objet à la place de ce qu'il porte
+## (item vide : l'emplacement `slot` est vidé). Rien n'est modifié.
+func stats_with(id: String, item: String, slot: String = "") -> Dictionary:
+	var m: Dictionary = member(id).duplicate(true)
+	var gear: Dictionary = m["equip"]
+	if item == "":
+		gear.erase(slot)
+	else:
+		gear[slot_for(id, item, slot)] = item
+	return _stats(id, m)
+
+
+## Équipe un objet pris dans le sac ; l'ancien y retourne. Sans emplacement précisé, une babiole
+## prend la première place libre (à défaut, la première).
+func equip(id: String, item: String, slot: String = "") -> bool:
 	if not can_equip(id, item) or item_count(item) <= 0:
 		return false
+	var target := slot_for(id, item, slot)
 	var m := member(id)
-	var slot := str(Database.get_item(item).get("slot", ""))
-	var old := str((m["equip"] as Dictionary).get(slot, ""))
-	(m["equip"] as Dictionary)[slot] = item
+	var old := str((m["equip"] as Dictionary).get(target, ""))
+	(m["equip"] as Dictionary)[target] = item
 	add_item(item, -1)
 	if old != "":
 		add_item(old, 1)
 	member(id)   # recale PV et PM sur les nouveaux maximums
 	return true
+
+
+## Personnages recrutables (ceux qui ont des talents) : sert à dire qui peut porter quoi.
+func playable_ids() -> Array:
+	var out: Array = []
+	for id: String in Database.characters:
+		if not Rules.battle_def(id).is_empty() and not Rules.branches(id).is_empty():
+			out.append(id)
+	return out
 
 
 func unequip(id: String, slot: String) -> bool:
@@ -473,6 +553,19 @@ func unequip(id: String, slot: String) -> bool:
 	add_item(old, 1)
 	member(id)
 	return true
+
+
+## Remet d'aplomb l'équipement d'une sauvegarde : objet disparu des données retiré, objet qui
+## ne va pas à son emplacement (ou qu'un personnage ne peut plus porter) rendu au sac.
+func _clean_equipment(id: String) -> void:
+	var gear: Dictionary = member(id)["equip"]
+	for slot: String in gear.keys():
+		var item := str(gear[slot])
+		if Database.get_item(item).is_empty():
+			gear.erase(slot)
+		elif not slots_for(item).has(slot) or not can_equip(id, item):
+			gear.erase(slot)
+			add_item(item, 1)
 
 
 ## Vrai si un objet porté rend insensible au Ramollissement.
@@ -677,6 +770,7 @@ func from_dict(d_in: Dictionary) -> bool:
 	for id: Variant in party:
 		member(str(id))   # complète les fiches des anciennes sauvegardes
 		_clean_talents(str(id))
+		_clean_equipment(str(id))
 	for item: String in inventory.keys():
 		inventory[item] = int(inventory[item])
 	_refreshing = false

@@ -4,6 +4,13 @@ extends RefCounted
 ## Tout est lu dans data/characters.json (bloc « battle ») et data/game.json.
 
 const STATS := ["hp", "mp", "atk", "def", "mag", "res", "spd"]
+## Caractéristiques de précision, toutes en pourcents (voir FORMAT_DONNEES.md) :
+## précision (100 : touche toujours un adversaire qui n'esquive pas), esquive (0),
+## chance de coup critique (6, comme avant l'équipement) et puissance du critique (150).
+const EXTRA := ["acc", "eva", "crit", "critdmg"]
+const EXTRA_DEFAULTS := {"acc": 100, "eva": 0, "crit": 6, "critdmg": 150}
+## Tout ce qu'un objet d'équipement peut modifier.
+const MOD_KEYS := ["hp", "mp", "atk", "def", "mag", "res", "spd", "acc", "eva", "crit", "critdmg"]
 const MAX_LEVEL := 50
 
 
@@ -23,6 +30,8 @@ static func stats_at(character_id: String, level: int) -> Dictionary:
 	var out := {}
 	for key: String in STATS:
 		out[key] = int(round(float(base.get(key, 1)) + float(growth.get(key, 0)) * float(level - 1)))
+	for key: String in EXTRA:
+		out[key] = int(round(float(base.get(key, EXTRA_DEFAULTS[key])) + float(growth.get(key, 0)) * float(level - 1)))
 	out["hp"] = maxi(1, int(out["hp"]))
 	out["spd"] = maxi(1, int(out["spd"]))
 	return out

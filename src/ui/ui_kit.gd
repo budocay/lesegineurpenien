@@ -12,6 +12,7 @@ const INK_DIM := Color("#b5ae9f")
 const INK_FAINT := Color("#8a8478")
 const SKY := Color("#bfe8ff")            # points, choses disponibles
 const WARN := Color("#e8a08a")           # refus, manque
+const GOOD := Color("#9fd69a")           # hausse d'une caractéristique
 const NIGHT := Color(0.035, 0.04, 0.085, 0.82)
 const SHADE := Color(0.015, 0.015, 0.04, 0.6)
 
@@ -492,3 +493,19 @@ static func band_button(text: String, size: int = 22, help: String = "", right: 
 ## Losange public (vignettes, curseurs) : points d'un losange de centre c et de rayon r.
 static func diamond_points(c: Vector2, r: float) -> PackedVector2Array:
 	return PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
+
+
+## Texte de détail déjà en BBCode (les « [ » ne sont pas protégés : à réserver à du texte construit
+## par le code). Titre doré, puis le corps.
+static func title_markup(text: String, body: String, title_size: int = 27) -> String:
+	return "[font_size=%d][color=#%s]%s[/color][/font_size]\n%s" % [title_size, GOLD.to_html(false), escape_bb(text), body]
+
+
+## Protège les crochets d'un texte qui va dans un BBCode.
+static func escape_bb(text: String) -> String:
+	return text.replace("[", "[lb]")
+
+
+## Balise de couleur BBCode.
+static func tint(text: String, color: Color) -> String:
+	return "[color=#%s]%s[/color]" % [color.to_html(false), text]

@@ -236,6 +236,12 @@
 					"count": 2
 				},
 				{
+					"text": "Entre deux croûtes, une dent de rat longue comme un doigt. Quelqu'un l'avait gardée comme porte-bonheur, ce qui en dit long sur le quartier."
+				},
+				{
+					"give": "dent_rat_cave"
+				},
+				{
 					"money": 20
 				},
 				{
@@ -263,6 +269,12 @@
 					"give": "tisane"
 				},
 				{
+					"text": "Sous le tonnelet, un dé à coudre de fer, posé là par un fromager qui craignait les lames de la concurrence."
+				},
+				{
+					"give": "de_a_coudre_fer"
+				},
+				{
 					"set": "coffre_cave_2_pris"
 				}
 			]
@@ -283,6 +295,12 @@
 				{
 					"give": "bleu_persille",
 					"count": 2
+				},
+				{
+					"text": "Un casque de la Garde de Brie, rangé là en attendant l'inventaire. Il porte encore le numéro de son dernier propriétaire, qui a dû partir précipitamment."
+				},
+				{
+					"give": "salade_garde"
 				},
 				{
 					"money": 35
