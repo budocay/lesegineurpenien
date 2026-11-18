@@ -24,14 +24,17 @@ signal notice(text: String)                     # petit message à afficher (obj
 const UI = preload("res://src/ui/ui_kit.gd")
 
 const CHAR_DELAY := 0.02
-const BOX_W := 940.0
-const BOX_H := 172.0
+const BOX_W := 1080.0
+const BOX_H := 198.0
+const BOTTOM := 34.0     # marge sous le bandeau
+const PORTRAIT := 140.0
 
 var active := false
 var waiting := false   # en pause pendant un combat lancé par le dialogue
 
 var _stack: Array = []
-var _panel: Panel
+var _veil: TextureRect
+var _panel: Control
 var _name_plate: PanelContainer
 var _name_label: Label
 var _portrait_frame: Panel
@@ -55,35 +58,42 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 
-	_panel = Panel.new()
-	_panel.add_theme_stylebox_override("panel", UI.panel_style())
+	# voile dégradé au bas de l'écran : le texte reste lisible sur n'importe quel décor
+	_veil = UI.veil(false, 0.86)
+	_veil.anchor_left = 0.0
+	_veil.anchor_right = 1.0
+	_veil.anchor_top = 1.0
+	_veil.anchor_bottom = 1.0
+	_veil.offset_top = -BOX_H - 110.0
+	_veil.offset_bottom = 0.0
+	add_child(_veil)
+
+	_panel = Control.new()
 	_panel.anchor_left = 0.5
 	_panel.anchor_right = 0.5
 	_panel.anchor_top = 1.0
 	_panel.anchor_bottom = 1.0
 	_panel.offset_left = -BOX_W * 0.5
 	_panel.offset_right = BOX_W * 0.5
-	_panel.offset_top = -BOX_H - 26.0
-	_panel.offset_bottom = -26.0
+	_panel.offset_top = -BOX_H - BOTTOM
+	_panel.offset_bottom = -BOTTOM
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_panel)
 
-	# liseré intérieur, façon cadre de vieux grimoire
-	var inner := Panel.new()
-	var inner_style := StyleBoxFlat.new()
-	inner_style.bg_color = Color(0, 0, 0, 0)
-	inner_style.border_color = Color(UI.GOLD.r, UI.GOLD.g, UI.GOLD.b, 0.28)
-	inner_style.set_border_width_all(1)
-	inner_style.set_corner_radius_all(3)
-	inner.add_theme_stylebox_override("panel", inner_style)
-	inner.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 6)
-	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.add_child(inner)
+	# filet orné qui ferme le haut du bandeau
+	var top_rule := UI.rule(BOX_W, "both")
+	top_rule.position = Vector2(0, 0)
+	_panel.add_child(top_rule)
 
 	_portrait_frame = Panel.new()
-	_portrait_frame.add_theme_stylebox_override("panel", UI.panel_style(Color(0.13, 0.12, 0.22, 1.0), UI.GOLD_DIM, 4, 2))
-	_portrait_frame.position = Vector2(18, 18)
-	_portrait_frame.size = Vector2(136, 136)
+	var pf := StyleBoxFlat.new()
+	pf.bg_color = Color(0.05, 0.05, 0.1, 0.75)
+	pf.border_color = UI.GOLD_LINE
+	pf.set_border_width_all(1)
+	pf.set_corner_radius_all(2)
+	_portrait_frame.add_theme_stylebox_override("panel", pf)
+	_portrait_frame.position = Vector2(8, 22)
+	_portrait_frame.size = Vector2(PORTRAIT, PORTRAIT)
 	_portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(_portrait_frame)
 	_portrait = TextureRect.new()
@@ -91,7 +101,7 @@ func _ready() -> void:
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_portrait.position = Vector2(3, 3)
-	_portrait.size = Vector2(130, 130)
+	_portrait.size = Vector2(PORTRAIT - 6.0, PORTRAIT - 6.0)
 	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_portrait_frame.add_child(_portrait)
 
@@ -107,30 +117,28 @@ func _ready() -> void:
 	for key: String in ["normal_font_size", "italics_font_size", "bold_font_size", "bold_italics_font_size"]:
 		_text.add_theme_font_size_override(key, 25)
 	_text.add_theme_color_override("default_color", UI.INK)
+	_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	_text.add_theme_constant_override("shadow_offset_x", 1)
+	_text.add_theme_constant_override("shadow_offset_y", 1)
 	_text.add_theme_constant_override("line_separation", 5)
 	_panel.add_child(_text)
 
-	_name_plate = PanelContainer.new()
-	var plate := UI.panel_style(Color(0.11, 0.1, 0.2, 1.0), UI.GOLD, 5, 2)
-	plate.content_margin_left = 18
-	plate.content_margin_right = 18
-	plate.content_margin_top = 3
-	plate.content_margin_bottom = 4
-	_name_plate.add_theme_stylebox_override("panel", plate)
-	_name_plate.position = Vector2(30, -24)
-	_name_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# plaque fine du locuteur, posée sur le filet
+	_name_plate = UI.plate("", 22)
+	_name_plate.position = Vector2(8, -17)
 	_panel.add_child(_name_plate)
-	_name_label = UI.label("", 23, UI.GOLD, true)
-	_name_plate.add_child(_name_label)
+	_name_label = _name_plate.get_child(0) as Label
 
+	# indicateur de suite : petit losange qui respire
 	_arrow = Polygon2D.new()
-	_arrow.polygon = PackedVector2Array([Vector2(-8, -5), Vector2(8, -5), Vector2(0, 6)])
+	_arrow.polygon = PackedVector2Array([Vector2(0, -6), Vector2(6, 0), Vector2(0, 6), Vector2(-6, 0)])
 	_arrow.color = UI.GOLD
-	_arrow.position = Vector2(BOX_W - 30.0, BOX_H - 22.0)
+	_arrow.position = Vector2(BOX_W - 20.0, BOX_H - 14.0)
 	_panel.add_child(_arrow)
 
 	_choice_panel = PanelContainer.new()
-	_choice_panel.add_theme_stylebox_override("panel", UI.panel_style())
+	var cs := UI.soft_style(0.9, 22)
+	_choice_panel.add_theme_stylebox_override("panel", cs)
 	_choice_panel.visible = false
 	_panel.add_child(_choice_panel)
 	_choice_list = VBoxContainer.new()
@@ -154,12 +162,12 @@ func _open_box() -> void:
 		return
 	visible = true
 	modulate.a = 0.0
-	_panel.offset_top = -BOX_H - 10.0
-	_panel.offset_bottom = -10.0
+	_panel.offset_top = -BOX_H - BOTTOM + 12.0
+	_panel.offset_bottom = -BOTTOM + 12.0
 	var tw := create_tween().set_parallel(true)
-	tw.tween_property(self, "modulate:a", 1.0, 0.16)
-	tw.tween_property(_panel, "offset_top", -BOX_H - 26.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_property(_panel, "offset_bottom", -26.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "modulate:a", 1.0, 0.18)
+	tw.tween_property(_panel, "offset_top", -BOX_H - BOTTOM, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_panel, "offset_bottom", -BOTTOM, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _advance() -> void:
@@ -251,9 +259,9 @@ func _show_line(n: Dictionary) -> void:
 	_name_plate.reset_size()
 	_portrait_frame.visible = portrait != null
 	_portrait.texture = portrait
-	var left := 176.0 if portrait != null else 34.0
-	_text.position = Vector2(left, 24.0)
-	_text.size = Vector2(BOX_W - left - 44.0, BOX_H - 44.0)
+	var left := PORTRAIT + 40.0 if portrait != null else 20.0
+	_text.position = Vector2(left, 26.0)
+	_text.size = Vector2(BOX_W - left - 50.0, BOX_H - 34.0)
 	if speaker == "":
 		body = "[color=#cfc6e8][i]%s[/i][/color]" % body
 	_text.text = body
@@ -297,7 +305,7 @@ func _show_choices() -> void:
 	_choice_panel.visible = true
 	_choice_panel.reset_size()
 	await get_tree().process_frame
-	_choice_panel.position = Vector2(BOX_W - _choice_panel.size.x - 20.0, -_choice_panel.size.y - 10.0)
+	_choice_panel.position = Vector2(BOX_W - _choice_panel.size.x, -_choice_panel.size.y - 8.0)
 	if first != null:
 		first.grab_focus()
 
@@ -346,7 +354,8 @@ func _process(delta: float) -> void:
 	if not active:
 		return
 	_time += delta
-	_arrow.position.y = BOX_H - 22.0 + sin(_time * 6.0) * 2.5
+	_arrow.position.y = BOX_H - 14.0 + sin(_time * 5.0) * 3.0
+	_arrow.scale = Vector2.ONE * (1.0 + 0.12 * sin(_time * 5.0))
 	if not _typing:
 		return
 	_timer -= delta

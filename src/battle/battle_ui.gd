@@ -72,7 +72,7 @@ func _ready() -> void:
 
 	# file des tours, en haut à gauche
 	_timeline = HBoxContainer.new()
-	_timeline.position = Vector2(24, 18)
+	_timeline.position = Vector2(28, 22)
 	_timeline.add_theme_constant_override("separation", 6)
 	_timeline.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_timeline.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -87,23 +87,18 @@ func _ready() -> void:
 	_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_top)
 	_ribbon = PanelContainer.new()
-	var rs := UI.panel_style(UI.NIGHT, UI.GOLD, 4, 1)
-	rs.content_margin_left = 30
-	rs.content_margin_right = 30
-	rs.content_margin_top = 5
-	rs.content_margin_bottom = 6
+	var rs := UI.soft_style(0.78, 22)
+	rs.content_margin_top = 8
+	rs.content_margin_bottom = 9
 	_ribbon.add_theme_stylebox_override("panel", rs)
 	_ribbon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_ribbon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ribbon.modulate.a = 0.0
 	_top.add_child(_ribbon)
-	_ribbon_label = UI.label("", 24, UI.INK, false, true)
+	_ribbon_label = UI.label("", 25, UI.INK)
 	_ribbon.add_child(_ribbon_label)
 	_hint = PanelContainer.new()
-	var hs := UI.panel_style(Color(0.09, 0.08, 0.17, 0.95), UI.GOLD_DIM, 6, 1)
-	hs.content_margin_left = 18
-	hs.content_margin_right = 18
-	_hint.add_theme_stylebox_override("panel", hs)
+	_hint.add_theme_stylebox_override("panel", UI.soft_style(0.82, 22))
 	_hint.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint.visible = false
@@ -111,66 +106,69 @@ func _ready() -> void:
 	var hint_row := HBoxContainer.new()
 	hint_row.add_theme_constant_override("separation", 12)
 	_hint.add_child(hint_row)
-	var hint_tag := UI.label("Conseil", 18, UI.GOLD, true)
+	var hint_tag := UI.caps("Conseil", 14, UI.GOLD)
+	hint_tag.custom_minimum_size = Vector2(0, 26)
 	hint_tag.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	hint_row.add_child(hint_tag)
-	_hint_label = UI.label("", 19, UI.INK)
+	_hint_label = UI.label("", 20, UI.INK)
 	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint_label.custom_minimum_size = Vector2(620, 0)
 	hint_row.add_child(_hint_label)
 
 	# équipe, en bas à droite
 	_party_panel = PanelContainer.new()
-	_party_panel.add_theme_stylebox_override("panel", UI.panel_style())
+	_party_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
 	_party_panel.anchor_left = 1.0
 	_party_panel.anchor_right = 1.0
 	_party_panel.anchor_top = 1.0
 	_party_panel.anchor_bottom = 1.0
-	_party_panel.offset_left = -24.0
-	_party_panel.offset_right = -24.0
-	_party_panel.offset_top = -20.0
-	_party_panel.offset_bottom = -20.0
+	_party_panel.offset_left = -6.0
+	_party_panel.offset_right = -6.0
+	_party_panel.offset_top = -4.0
+	_party_panel.offset_bottom = -4.0
 	_party_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	_party_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_party_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_party_panel)
 	_party_rows = VBoxContainer.new()
-	_party_rows.add_theme_constant_override("separation", 6)
+	_party_rows.add_theme_constant_override("separation", 7)
 	_party_panel.add_child(_party_rows)
 
 	# menus, en bas à gauche
 	_menu_box = HBoxContainer.new()
 	_menu_box.anchor_top = 1.0
 	_menu_box.anchor_bottom = 1.0
-	_menu_box.offset_left = 24.0
-	_menu_box.offset_top = -20.0
-	_menu_box.offset_bottom = -20.0
+	_menu_box.offset_left = -6.0
+	_menu_box.offset_top = -4.0
+	_menu_box.offset_bottom = -4.0
 	_menu_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_menu_box.add_theme_constant_override("separation", 10)
 	_menu_box.visible = false
 	add_child(_menu_box)
 	_root_panel = PanelContainer.new()
-	_root_panel.add_theme_stylebox_override("panel", UI.panel_style())
+	_root_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
 	_root_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 	_menu_box.add_child(_root_panel)
 	var root_box := VBoxContainer.new()
 	root_box.add_theme_constant_override("separation", 0)
 	_root_panel.add_child(root_box)
-	_root_title = UI.label("", 20, UI.GOLD, true)
+	_root_title = UI.label("", 22, UI.GOLD)
 	root_box.add_child(_root_title)
+	root_box.add_child(UI.rule(0.0, "out"))
 	_root_list = VBoxContainer.new()
 	_root_list.add_theme_constant_override("separation", 0)
 	root_box.add_child(_root_list)
 	_list_panel = PanelContainer.new()
-	_list_panel.add_theme_stylebox_override("panel", UI.panel_style())
+	_list_panel.add_theme_stylebox_override("panel", UI.soft_style(0.9, 26))
 	_list_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 	_list_panel.visible = false
 	_menu_box.add_child(_list_panel)
 	var list_box := VBoxContainer.new()
 	list_box.add_theme_constant_override("separation", 2)
 	_list_panel.add_child(list_box)
-	_list_title = UI.label("", 18, UI.GOLD_DIM, true)
+	_list_title = UI.label("", 22, UI.GOLD)
 	list_box.add_child(_list_title)
+	list_box.add_child(UI.rule(0.0, "out"))
 	_list_items = VBoxContainer.new()
 	_list_items.add_theme_constant_override("separation", 0)
 	list_box.add_child(_list_items)
@@ -233,22 +231,7 @@ func close() -> void:
 # ------------------------------------------------------------------ éléments
 
 func _bar(color: Color, width: float) -> ProgressBar:
-	var bar := ProgressBar.new()
-	bar.show_percentage = false
-	bar.custom_minimum_size = Vector2(width, 11)
-	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.55)
-	bg.border_color = Color(1, 1, 1, 0.18)
-	bg.set_border_width_all(1)
-	bg.set_corner_radius_all(2)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = color
-	fill.set_corner_radius_all(2)
-	bar.add_theme_stylebox_override("background", bg)
-	bar.add_theme_stylebox_override("fill", fill)
-	return bar
+	return UI.gauge(color, width, 7.0)
 
 
 func _set_bar_color(bar: ProgressBar, color: Color) -> void:
@@ -261,27 +244,29 @@ func _make_row(c: RefCounted) -> Dictionary:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	_party_rows.add_child(row)
-	var name_label := UI.label(str(c.name), 20, UI.INK, true)
-	name_label.custom_minimum_size = Vector2(178, 0)
+	var name_label := UI.label(str(c.name), 21, UI.INK)
+	name_label.custom_minimum_size = Vector2(170, 0)
 	row.add_child(name_label)
 	var level := UI.label("Nv %d" % int(c.level), 16, UI.INK_DIM)
-	level.custom_minimum_size = Vector2(48, 0)
+	level.custom_minimum_size = Vector2(46, 0)
 	row.add_child(level)
-	row.add_child(UI.label("PV", 15, UI.GOLD_DIM, true))
-	var hp := _bar(HP_GREEN, 110)
+	row.add_child(UI.caps("PV", 12, UI.GOLD_DIM))
+	var hp := _bar(HP_GREEN, 104)
 	row.add_child(hp)
 	var hp_text := UI.label("", 17, UI.INK)
-	hp_text.custom_minimum_size = Vector2(78, 0)
+	hp_text.custom_minimum_size = Vector2(76, 0)
+	hp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(hp_text)
-	row.add_child(UI.label("PM", 15, UI.GOLD_DIM, true))
-	var mp := _bar(MP_BLUE, 70)
+	row.add_child(UI.caps("PM", 12, UI.GOLD_DIM))
+	var mp := _bar(MP_BLUE, 64)
 	row.add_child(mp)
 	var mp_text := UI.label("", 17, UI.INK)
-	mp_text.custom_minimum_size = Vector2(62, 0)
+	mp_text.custom_minimum_size = Vector2(56, 0)
+	mp_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(mp_text)
 	var status := HBoxContainer.new()
 	status.add_theme_constant_override("separation", 6)
-	status.custom_minimum_size = Vector2(96, 0)
+	status.custom_minimum_size = Vector2(90, 0)
 	row.add_child(status)
 	return {"name": name_label, "hp": hp, "hp_text": hp_text, "mp": mp, "mp_text": mp_text, "status": status}
 
@@ -405,18 +390,19 @@ func set_active(c: RefCounted) -> void:
 func set_timeline(order: Array) -> void:
 	for n in _timeline.get_children():
 		n.queue_free()
-	var tag := UI.label("Tours", 15, UI.GOLD_DIM, true)
+	var tag := UI.caps("Tours", 13, UI.GOLD_DIM)
 	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_timeline.add_child(tag)
 	for i in order.size():
 		var c: RefCounted = order[i]
-		var side := 54.0 if i == 0 else 40.0
+		var side := 52.0 if i == 0 else 38.0
 		var frame := Panel.new()
 		var s := StyleBoxFlat.new()
-		s.bg_color = Color(0.07, 0.06, 0.13, 0.92)
-		s.border_color = UI.GOLD if c.side == "party" else ENEMY_RED
-		s.set_border_width_all(3 if i == 0 else 2)
-		s.set_corner_radius_all(4)
+		s.bg_color = Color(0.04, 0.04, 0.09, 0.85)
+		var tint: Color = UI.GOLD if c.side == "party" else ENEMY_RED
+		s.border_color = tint if i == 0 else Color(tint, 0.6)
+		s.set_border_width_all(2 if i == 0 else 1)
+		s.set_corner_radius_all(2)
 		frame.add_theme_stylebox_override("panel", s)
 		frame.custom_minimum_size = Vector2(side, side)
 		frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -431,6 +417,8 @@ func set_timeline(order: Array) -> void:
 		icon.position = Vector2(3, 3)
 		icon.size = Vector2(side - 6, side - 6)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if i > 0:
+			icon.modulate = Color(1, 1, 1, 0.82)
 		frame.add_child(icon)
 		if c.side == "enemy" and str(c.name) != str((c.data as Dictionary).get("name", "")):
 			var letter := UI.label(str(c.name).right(1), 15, Color.WHITE, true)
@@ -525,8 +513,8 @@ func _show_root() -> void:
 	]
 	for i in entries.size():
 		var e: Array = entries[i]
-		var b := UI.menu_button(str(e[0]), 23)
-		b.custom_minimum_size = Vector2(190, 0)
+		var b := UI.menu_button(str(e[0]), 24)
+		b.custom_minimum_size = Vector2(200, 0)
 		b.disabled = not bool(e[1])
 		b.pressed.connect(_on_root.bind(i))
 		_root_list.add_child(b)
@@ -585,8 +573,8 @@ func _show_list(kind: String) -> void:
 			text = "%s   ×%d" % [text, int(engine.inventory.get(id, 0))]
 		if (engine.candidates(_actor, str(def.get("target", "enemy"))) as Array).is_empty():
 			usable = false
-		var b := UI.menu_button(text, 21)
-		b.custom_minimum_size = Vector2(350, 0)
+		var b := UI.menu_button(text, 22)
+		b.custom_minimum_size = Vector2(360, 0)
 		b.disabled = not usable
 		var desc := str(def.get("desc", ""))
 		b.focus_entered.connect(_on_list_focus.bind(desc))
@@ -766,37 +754,49 @@ func _end_panel(title: String, color: Color) -> VBoxContainer:
 		c.queue_free()
 	_end_layer.visible = true
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.02, 0.06, 0.55)
+	shade.color = Color(0.02, 0.02, 0.06, 0.45)
 	UI.full_rect(shade)
 	_end_layer.add_child(shade)
-	var center := CenterContainer.new()
-	UI.full_rect(center)
-	_end_layer.add_child(center)
-	var panel := PanelContainer.new()
-	var style := UI.panel_style()
-	style.set_content_margin_all(26)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
+	var column := VBoxContainer.new()
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	UI.full_rect(column)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_end_layer.add_child(column)
+	# bande sombre qui s'estompe en haut et en bas, titre et filets ornés au milieu
+	var holder := PanelContainer.new()
+	holder.add_theme_stylebox_override("panel", UI.band_style(0.86))
+	holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_child(holder)
+	var inner := VBoxContainer.new()
+	inner.alignment = BoxContainer.ALIGNMENT_CENTER
+	holder.add_child(inner)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
-	box.custom_minimum_size = Vector2(460, 0)
-	panel.add_child(box)
-	var head := UI.label(title, 44, color, false, true)
+	box.custom_minimum_size = Vector2(520, 0)
+	box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	inner.add_child(box)
+	var head_row := HBoxContainer.new()
+	head_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	head_row.add_theme_constant_override("separation", 24)
+	box.add_child(head_row)
+	head_row.add_child(UI.rule(130.0, "in", color))
+	var head := UI.label(title, 58, color)
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(head)
-	var rule := ColorRect.new()
-	rule.color = UI.GOLD
-	rule.custom_minimum_size = Vector2(240, 2)
-	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(rule)
+	head_row.add_child(head)
+	head_row.add_child(UI.rule(130.0, "out", color))
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 6)
+	box.add_child(gap)
 	_end_layer.modulate.a = 0.0
-	create_tween().tween_property(_end_layer, "modulate:a", 1.0, 0.3)
+	create_tween().tween_property(_end_layer, "modulate:a", 1.0, 0.35)
 	return box
 
 
 func _end_button(box: Control, text: String, value: String) -> Button:
 	var b := UI.menu_button(text, 24)
 	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	b.custom_minimum_size = Vector2(340, 0)
 	b.pressed.connect(_on_end.bind(value))
 	box.add_child(b)
 	return b

@@ -14,8 +14,10 @@ const Rules = preload("res://src/battle/rules.gd")
 var _title: Label
 var _money: Label
 var _list: VBoxContainer
-var _detail: Label
+var _detail: RichTextLabel
+var _detail_scroll: ScrollContainer
 var _message: Label
+var _panel: PanelContainer
 var _entries: Array = []
 var _back: Callable = Callable()
 var _opened_at := 0
@@ -25,59 +27,39 @@ var _shop: Dictionary = {}
 func _ready() -> void:
 	UI.full_rect(self)
 	visible = false
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.02, 0.06, 0.62)
-	UI.full_rect(dim)
-	add_child(dim)
+	var frame := UI.screen(self, "", Vector2(1040, 520), 0.62)
+	_panel = frame["panel"]
+	_title = frame["title"]
+	_money = frame["right"]
+	var body: VBoxContainer = frame["body"]
 
-	var center := CenterContainer.new()
-	UI.full_rect(center)
-	add_child(center)
-	var panel := PanelContainer.new()
-	var style := UI.panel_style()
-	style.set_content_margin_all(22)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	panel.add_child(box)
-
-	var header := HBoxContainer.new()
-	box.add_child(header)
-	_title = UI.label("", 34, UI.GOLD, false, true)
-	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(_title)
-	_money = UI.label("", 22, UI.GOLD)
-	_money.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	header.add_child(_money)
-	var rule := ColorRect.new()
-	rule.color = UI.GOLD_DIM
-	rule.custom_minimum_size = Vector2(0, 2)
-	box.add_child(rule)
-
-	var body := HBoxContainer.new()
-	body.add_theme_constant_override("separation", 22)
-	box.add_child(body)
+	var cols := HBoxContainer.new()
+	cols.add_theme_constant_override("separation", 22)
+	body.add_child(cols)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(440, 400)
+	scroll.custom_minimum_size = Vector2(450, 430)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
-	body.add_child(scroll)
+	cols.add_child(scroll)
 	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 2)
+	_list.add_theme_constant_override("separation", 1)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
-	_detail = UI.label("", 19, UI.INK)
-	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail.custom_minimum_size = Vector2(470, 400)
-	_detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	body.add_child(_detail)
+	cols.add_child(UI.vline())
+	_detail_scroll = ScrollContainer.new()
+	_detail_scroll.custom_minimum_size = Vector2(480, 430)
+	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cols.add_child(_detail_scroll)
+	_detail = UI.rich(18)
+	_detail.fit_content = true
+	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_detail_scroll.add_child(_detail)
 
 	_message = UI.label("", 20, UI.GOLD, false, true)
 	_message.custom_minimum_size = Vector2(0, 28)
-	box.add_child(_message)
-	var hint := UI.label("Entrée : choisir   ·   Retour arrière ou X : revenir", 16, UI.INK_DIM)
-	box.add_child(hint)
+	body.add_child(_message)
+	(frame["foot"] as HBoxContainer).add_child(UI.hints(UI.KEYS_MENU))
 
 
 # ------------------------------------------------------------------ ouverture
@@ -100,6 +82,7 @@ func open_shop(shop_id: String) -> void:
 func _show() -> void:
 	visible = true
 	_opened_at = Engine.get_process_frames()
+	UI.pop(_panel)
 	Sfx.play("confirm")
 
 
@@ -120,6 +103,10 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		go_back()
+	elif event.is_action_pressed("ui_page_down") or event.is_action_pressed("ui_page_up"):
+		# détail trop long pour la page : on le fait défiler au clavier
+		get_viewport().set_input_as_handled()
+		_detail_scroll.scroll_vertical += 160 if event.is_action_pressed("ui_page_down") else -160
 
 
 ## Revient à la page précédente, ou ferme l'écran s'il n'y en a pas.
@@ -145,7 +132,7 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 	for i in entries.size():
 		var e: Dictionary = entries[i]
 		var b := UI.menu_button(str(e.get("text", "")), 21)
-		b.custom_minimum_size = Vector2(420, 0)
+		b.custom_minimum_size = Vector2(430, 0)
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.clip_text = true
 		if e.get("icon") is Texture2D:
@@ -154,16 +141,16 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 			b.expand_icon = true
 			b.add_theme_constant_override("icon_max_width", 44)
 			b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			b.custom_minimum_size = Vector2(420, 52)
+			b.custom_minimum_size = Vector2(430, 52)
 		if bool(e.get("dim", false)):
-			b.add_theme_color_override("font_color", UI.INK_DIM)
+			b.add_theme_color_override("font_color", UI.INK_FAINT)
 		b.focus_entered.connect(_on_focus.bind(i))
 		b.pressed.connect(_on_pressed.bind(i))
 		_list.add_child(b)
 	_detail.text = ""
 	if not entries.is_empty():
 		var index := clampi(focus, 0, entries.size() - 1)
-		_detail.text = str((entries[index] as Dictionary).get("detail", ""))
+		_detail.text = UI.detail_markup(str((entries[index] as Dictionary).get("detail", "")))
 		_focus_row.call_deferred(index)
 
 
@@ -178,7 +165,7 @@ func _focus_row(index: int) -> void:
 
 func _on_focus(index: int) -> void:
 	if index < _entries.size():
-		_detail.text = str((_entries[index] as Dictionary).get("detail", ""))
+		_detail.text = UI.detail_markup(str((_entries[index] as Dictionary).get("detail", "")))
 
 
 func _on_pressed(index: int) -> void:
