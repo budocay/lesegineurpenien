@@ -325,6 +325,7 @@ func _build_camera() -> void:
 	attr.dof_blur_near_transition = 2.5
 	attr.dof_blur_amount = 0.095
 	camera.attributes = attr
+	Settings.apply_camera(attr)
 	camera.make_current()
 
 

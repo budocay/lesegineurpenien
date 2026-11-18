@@ -12,6 +12,7 @@ const BattleUI = preload("res://src/battle/battle_ui.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const SaveScreen = preload("res://src/ui/save_screen.gd")
+const SettingsScreen = preload("res://src/ui/settings_screen.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
 
@@ -32,6 +33,7 @@ var _menus_from := ""           # "pause" ou "dialogue" : à qui rendre la main 
 var talents: Control            # écran de talents
 var _talents_from := ""         # "pause" ou "team" : où revenir quand il se ferme
 var saves: Control             # liste des sauvegardes (charger, sauvegarder)
+var settings_screen: Control    # écran des paramètres
 var _fade: ColorRect
 var _pending_load := ""         # emplacement choisi depuis l'écran de défaite
 
@@ -69,6 +71,8 @@ func _ready() -> void:
 	saves = SaveScreen.new()
 	ui.add_child(saves)
 	battle_ui.save_screen = saves
+	settings_screen = SettingsScreen.new()
+	ui.add_child(settings_screen)
 
 	var top := CanvasLayer.new()
 	top.layer = 10
@@ -83,6 +87,11 @@ func _ready() -> void:
 	title.continue_requested.connect(func() -> void: continue_game())
 	title.load_requested.connect(func() -> void: _open_saves("load", "title"))
 	saves.finished.connect(_on_saves_finished)
+	settings_screen.closed.connect(_on_settings_closed)
+	title.add_entry("Paramètres", func() -> void: settings_screen.open("title"))
+	pause.add_entry("Paramètres", func() -> void:
+		pause.close(true)
+		settings_screen.open("pause"))
 	saves.saved.connect(_on_slot_saved)
 	pause.load_requested.connect(func() -> void: _open_saves("load", "pause"))
 	title.quit_requested.connect(func() -> void: get_tree().quit())
@@ -439,7 +448,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("fullscreen"):
 		PauseMenu.toggle_fullscreen()
 		return
-	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and event.is_action_pressed("menu"):
+	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and not settings_screen.visible and event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		_open_pause()
 
@@ -524,6 +533,14 @@ func _open_saves(which: String, from: String) -> void:
 	saves.open(which, from)
 
 
+func _on_settings_closed() -> void:
+	if settings_screen.context == "title":
+		if mode == Mode.TITLE:
+			title.open()
+	elif mode == Mode.PLAY and world != null and not busy:
+		_open_pause()
+
+
 func _on_saves_finished(chosen: String) -> void:
 	match saves.context:
 		"defeat":
@@ -557,7 +574,7 @@ func _sync_state() -> void:
 
 
 func _process(_delta: float) -> void:
-	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or saves.visible or world.focus.is_empty():
+	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or saves.visible or settings_screen.visible or world.focus.is_empty():
 		hud.hide_prompt()
 		return
 	var it: Dictionary = world.focus
