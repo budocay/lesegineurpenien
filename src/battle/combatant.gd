@@ -19,6 +19,7 @@ var defending: bool = false
 var wait: float = 0.0         # temps restant avant son prochain tour
 var element: String = "contondant"
 var attack_name: String = "Attaque"
+var attack_anim: String = ""  # animation de l'attaque de base (data/animations.json)
 var ai: Array = []
 var sprite: Dictionary = {}
 var data: Dictionary = {}

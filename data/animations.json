@@ -1,0 +1,466 @@
+{
+	"defaut": {"pose": "cast", "impact": 0.4, "sound": "magic", "steps": [
+		{"fx": "ring", "color": "element", "at": 0.3, "add": true},
+		{"fx": "burst", "sprite": "spark", "count": 5, "at": 0.35, "add": true}]},
+	"attaque_contondant": {"pose": "strike", "impact": 0.3, "sound": "swoosh", "steps": [
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.2, "at": 0.28, "sound": "thud"},
+		{"fx": "shake", "power": 0.4, "at": 0.28}]},
+	"attaque_tranchant": {"pose": "strike", "impact": 0.3, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "slash", "scale": 1.6, "at": 0.22, "sound": "slash"}]},
+	"attaque_feu": {"pose": "cast", "impact": 0.45, "sound": "fire", "steps": [
+		{"fx": "projectile", "sprite": "flame", "duration": 0.3, "at": 0.12, "add": true},
+		{"fx": "burst", "sprite": "flame", "count": 5, "at": 0.42}]},
+	"attaque_foudre": {"pose": "cast", "impact": 0.4, "steps": [
+		{"fx": "drop", "sprite": "bolt", "scale": 2.4, "duration": 0.08, "at": 0.3, "sound": "zap", "add": true},
+		{"fx": "flash", "color": "#fff6b0", "power": 0.3, "at": 0.32}]},
+	"attaque_plante": {"pose": "throw", "impact": 0.45, "sound": "rustle", "steps": [
+		{"fx": "projectile", "sprite": "leaf", "spin": 2, "arc": 0.6, "at": 0.15},
+		{"fx": "burst", "sprite": "leaf", "count": 5, "spin": 1, "at": 0.43}]},
+	"attaque_torpeur": {"pose": "cast", "impact": 0.5, "sound": "yawn", "steps": [
+		{"fx": "cloud", "sprite": "smoke", "count": 3, "color": "#b89cf0", "at": 0.2},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "at": 0.4}]},
+
+	"coup_de_baton": {"pose": "strike", "impact": 0.34, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "staff", "scale": 2.0, "at": 0.22},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.0, "at": 0.33, "sound": "thud"},
+		{"fx": "shake", "power": 0.35, "at": 0.33}]},
+	"coup_de_louche_sam": {"pose": "strike", "impact": 0.34, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "ladle", "scale": 1.9, "at": 0.22},
+		{"fx": "burst", "sprite": "star", "count": 3, "scale": 0.6, "at": 0.33, "sound": "clang", "pitch": 1.5},
+		{"fx": "shake", "power": 0.3, "at": 0.33}]},
+	"coup_de_canif": {"pose": "strike", "impact": 0.26, "sound": "swoosh", "pitch": 1.4, "steps": [
+		{"fx": "swing", "sprite": "knife", "scale": 1.5, "duration": 0.1, "at": 0.17},
+		{"fx": "swing", "sprite": "slash", "scale": 1.3, "duration": 0.1, "at": 0.2, "sound": "slash", "pitch": 1.3}]},
+	"coup_de_serpette": {"pose": "strike", "impact": 0.3, "sound": "swoosh", "pitch": 1.2, "steps": [
+		{"fx": "swing", "sprite": "sickle", "scale": 1.7, "at": 0.2, "sound": "slash"},
+		{"fx": "burst", "sprite": "leaf", "count": 3, "scale": 0.6, "spin": 1, "at": 0.3}]},
+	"coup_d_epee": {"pose": "strike", "impact": 0.32, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "sword", "scale": 2.1, "at": 0.2},
+		{"fx": "swing", "sprite": "slash", "scale": 1.8, "at": 0.24, "sound": "slash", "pitch": 0.9}]},
+	"fleche": {"pose": "shoot", "impact": 0.42, "sound": "twang", "steps": [
+		{"fx": "projectile", "sprite": "arrow", "scale": 1.3, "duration": 0.16, "at": 0.24},
+		{"fx": "burst", "sprite": "pix", "count": 4, "radius": 0.5, "at": 0.4, "sound": "thud", "pitch": 1.6}]},
+	"coup_de_hache_base": {"pose": "strike", "impact": 0.36, "sound": "swoosh", "pitch": 0.8, "steps": [
+		{"fx": "swing", "sprite": "axe", "scale": 2.0, "at": 0.22},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.2, "at": 0.34, "sound": "thud", "pitch": 0.8},
+		{"fx": "shake", "power": 0.45, "at": 0.34}]},
+
+	"tete_molle": {"pose": "charge", "impact": 0.4, "sound": "squeak", "steps": [
+		{"fx": "burst", "sprite": "slime", "count": 4, "scale": 0.6, "at": 0.38, "sound": "splat"}]},
+	"pique": {"pose": "charge", "impact": 0.3, "sound": "buzz", "steps": [
+		{"fx": "projectile", "sprite": "stinger", "duration": 0.1, "at": 0.2},
+		{"fx": "burst", "sprite": "pix", "count": 4, "radius": 0.5, "color": "#f2c84a", "at": 0.3, "sound": "slash", "pitch": 1.6}]},
+	"coup_de_chapeau": {"pose": "stomp", "impact": 0.42, "sound": "squeak", "pitch": 0.8, "steps": [
+		{"fx": "burst", "sprite": "spore", "count": 5, "scale": 0.6, "at": 0.4, "sound": "poof"},
+		{"fx": "shake", "power": 0.3, "at": 0.4}]},
+	"gifle_de_paille": {"pose": "strike", "impact": 0.34, "sound": "rustle", "steps": [
+		{"fx": "swing", "sprite": "straw", "scale": 2.0, "at": 0.22},
+		{"fx": "burst", "sprite": "straw", "count": 5, "scale": 0.6, "spin": 1, "at": 0.33, "sound": "thud", "pitch": 1.4}]},
+	"coup_de_masse": {"pose": "stomp", "impact": 0.5, "sound": "roar", "pitch": 0.7, "steps": [
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 3.5, "at": 0.48, "sound": "boom"},
+		{"fx": "ring", "color": "#ff8a2a", "where": "feet", "at": 0.48, "add": true},
+		{"fx": "flash", "color": "#ff8a2a", "power": 0.25, "at": 0.48},
+		{"fx": "shake", "power": 1.0, "at": 0.48}]},
+	"coup_de_boutoir": {"pose": "charge", "impact": 0.36, "sound": "stomp", "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 3, "on": "caster", "where": "feet", "at": 0.05},
+		{"fx": "swing", "sprite": "tusk", "scale": 1.6, "at": 0.26},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.4, "at": 0.35, "sound": "thud", "pitch": 0.8},
+		{"fx": "shake", "power": 0.6, "at": 0.35}]},
+	"coup_de_patte": {"pose": "stomp", "impact": 0.42, "sound": "croak", "steps": [
+		{"fx": "drop", "sprite": "hand", "scale": 1.8, "color": "#7aa85a", "height": 2.0, "duration": 0.12, "at": 0.3},
+		{"fx": "burst", "sprite": "drop", "count": 4, "scale": 0.6, "at": 0.42, "sound": "splat"},
+		{"fx": "shake", "power": 0.4, "at": 0.42}]},
+	"morsure_molle": {"pose": "charge", "impact": 0.34, "sound": "squeak", "pitch": 1.3, "steps": [
+		{"fx": "drop", "sprite": "fang", "scale": 1.5, "height": 0.8, "duration": 0.1, "stay": 0.15, "at": 0.24, "sound": "munch"}]},
+	"frolement_tiede": {"pose": "charge", "impact": 0.34, "sound": "wind", "steps": [
+		{"fx": "burst", "sprite": "flame", "count": 3, "scale": 0.6, "color": "#a8d8ff", "at": 0.3, "add": true, "sound": "fire", "pitch": 1.5}]},
+	"couteau_a_pain": {"pose": "strike", "impact": 0.3, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "knife", "scale": 2.0, "at": 0.2, "sound": "slash", "pitch": 0.8},
+		{"fx": "burst", "sprite": "bread", "count": 2, "scale": 0.5, "at": 0.3}]},
+	"coup_de_marmite": {"pose": "stomp", "impact": 0.44, "sound": "swoosh", "pitch": 0.7, "steps": [
+		{"fx": "drop", "sprite": "pot", "scale": 2.0, "height": 2.5, "duration": 0.14, "stay": 0.12, "at": 0.3},
+		{"fx": "burst", "sprite": "star", "count": 4, "scale": 0.6, "at": 0.44, "sound": "clang", "pitch": 0.7},
+		{"fx": "shake", "power": 0.6, "at": 0.44}]},
+	"lame_ancien_roi": {"pose": "strike", "impact": 0.4, "sound": "wind", "pitch": 0.7, "steps": [
+		{"fx": "light", "color": "#8a6adf", "on": "caster", "power": 5, "at": 0.02},
+		{"fx": "swing", "sprite": "sword", "scale": 2.6, "color": "#c8b8ff", "at": 0.24},
+		{"fx": "swing", "sprite": "slash", "scale": 2.6, "color": "#b89cf0", "at": 0.3, "add": true, "sound": "slash", "pitch": 0.7},
+		{"fx": "shake", "power": 0.6, "at": 0.38}]},
+
+	"etincelle": {"pose": "throw", "impact": 0.5, "sound": "whistle", "steps": [
+		{"fx": "projectile", "sprite": "rocket", "arc": 1.0, "spin": 0.25, "duration": 0.32, "at": 0.14},
+		{"fx": "burst", "sprite": "spark", "count": 6, "at": 0.47, "add": true, "sound": "pop"},
+		{"fx": "light", "color": "#ff8a2a", "at": 0.47}]},
+	"baillement": {"pose": "shout", "impact": 0.6, "sound": "yawn", "steps": [
+		{"fx": "burst", "sprite": "mouth", "count": 1, "radius": 0.0, "grow": 1.8, "on": "caster", "where": "top", "duration": 0.5},
+		{"fx": "projectile", "sprite": "wave", "scale": 1.6, "color": "#b89cf0", "duration": 0.35, "at": 0.2},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "at": 0.55}]},
+	"petit_somme": {"pose": "sleep", "impact": 0.9, "sound": "snore", "steps": [
+		{"fx": "drop", "sprite": "pillow", "scale": 1.6, "on": "caster", "where": "top", "height": 2.0, "duration": 0.3, "stay": 0.5},
+		{"fx": "rise", "sprite": "zzz", "count": 4, "on": "caster", "where": "top", "at": 0.3, "duration": 1.0},
+		{"fx": "sound", "sound": "snore", "pitch": 0.85, "at": 0.55}]},
+	"tonnerre": {"pose": "cast", "impact": 0.55, "sound": "wind", "steps": [
+		{"fx": "cloud", "sprite": "cloud", "count": 3, "color": "#6a6a80", "where": "top", "at": 0.05, "duration": 0.7},
+		{"fx": "drop", "sprite": "bolt", "scale": 3.2, "height": 3.0, "duration": 0.07, "stay": 0.3, "at": 0.45, "sound": "zap"},
+		{"fx": "flash", "color": "#fff6b0", "power": 0.5, "at": 0.47},
+		{"fx": "burst", "sprite": "spark", "count": 6, "color": "#ffe066", "at": 0.5, "add": true},
+		{"fx": "shake", "power": 0.8, "at": 0.5}]},
+	"bouquet_final": {"pose": "throw", "impact": 0.75, "sound": "whistle", "steps": [
+		{"fx": "projectile", "sprite": "rocket", "on": "center", "arc": 2.2, "spin": 0.3, "duration": 0.4, "at": 0.12},
+		{"fx": "burst", "sprite": "spark", "count": 10, "radius": 1.8, "on": "center", "color": "#ff8ad0", "at": 0.55, "add": true, "sound": "boom"},
+		{"fx": "burst", "sprite": "star", "count": 4, "scale": 0.7, "each": 0.07, "at": 0.62, "sound": "pop"},
+		{"fx": "burst", "sprite": "spark", "count": 8, "radius": 1.3, "on": "center", "color": "#8ad0ff", "at": 0.7, "add": true},
+		{"fx": "flash", "color": "#ffd27a", "power": 0.35, "at": 0.56},
+		{"fx": "shake", "power": 0.8, "at": 0.56}]},
+	"taille_royale": {"pose": "strike", "impact": 0.42, "sound": "fanfare", "steps": [
+		{"fx": "rise", "sprite": "crown", "count": 1, "on": "caster", "where": "top", "height": 0.5, "duration": 0.4},
+		{"fx": "swing", "sprite": "sword", "scale": 2.6, "color": "#ffe9a0", "at": 0.28},
+		{"fx": "swing", "sprite": "slash", "scale": 2.4, "color": "#ffe9a0", "at": 0.33, "add": true, "sound": "slash", "pitch": 0.8},
+		{"fx": "shake", "power": 0.6, "at": 0.4}]},
+	"ralliement": {"pose": "shout", "impact": 0.6, "sound": "fanfare", "steps": [
+		{"fx": "ring", "color": "#ffd27a", "on": "caster", "where": "feet", "add": true},
+		{"fx": "rise", "sprite": "crown", "count": 1, "on": "caster", "where": "top", "height": 0.6},
+		{"fx": "rise", "sprite": "up", "count": 2, "each": 0.08, "at": 0.3, "sound": "chime"}]},
+	"cataplasme": {"pose": "throw", "impact": 0.55, "sound": "rustle", "steps": [
+		{"fx": "projectile", "sprite": "leaf", "scale": 1.5, "arc": 1.0, "spin": 1, "duration": 0.3, "at": 0.15},
+		{"fx": "burst", "sprite": "leaf", "count": 4, "scale": 0.6, "at": 0.45, "sound": "splat"},
+		{"fx": "rise", "sprite": "plus", "count": 3, "at": 0.5, "sound": "chime"}]},
+	"purin_ortie": {"pose": "throw", "impact": 0.55, "sound": "bubble", "steps": [
+		{"fx": "projectile", "sprite": "bottle", "arc": 1.4, "spin": 1.5, "duration": 0.32, "at": 0.14},
+		{"fx": "burst", "sprite": "drop", "count": 6, "color": "#7ac85a", "at": 0.46, "sound": "splat"},
+		{"fx": "cloud", "sprite": "smoke", "count": 3, "color": "#8ed06a", "at": 0.5}]},
+	"antidote_maison": {"pose": "throw", "impact": 0.55, "sound": "gulp", "steps": [
+		{"fx": "projectile", "sprite": "bottle", "color": "#bfe8ff", "arc": 1.0, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "bubble", "count": 4, "color": "#bfe8ff", "at": 0.42, "sound": "bubble"},
+		{"fx": "ring", "color": "#bfe8ff", "at": 0.5, "add": true, "sound": "chime"}]},
+	"tisane_generale": {"pose": "throw", "impact": 0.7, "sound": "bubble", "steps": [
+		{"fx": "projectile", "sprite": "mug", "arc": 1.2, "each": 0.1, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "smoke", "count": 2, "scale": 0.6, "each": 0.1, "at": 0.45},
+		{"fx": "rise", "sprite": "plus", "count": 2, "each": 0.1, "at": 0.5, "sound": "chime"}]},
+	"fumee_soporifique": {"pose": "cast", "impact": 0.8, "sound": "wind", "steps": [
+		{"fx": "projectile", "sprite": "smoke", "on": "center", "scale": 1.4, "color": "#c8b8f0", "duration": 0.45, "at": 0.1},
+		{"fx": "cloud", "sprite": "smoke", "count": 8, "on": "center", "spread": 2.2, "scale": 1.3, "color": "#c8b8f0", "at": 0.4, "duration": 1.1},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "each": 0.1, "at": 0.7, "sound": "snore"}]},
+	"coup_de_poele": {"pose": "strike", "impact": 0.4, "sound": "swoosh", "pitch": 0.8, "steps": [
+		{"fx": "swing", "sprite": "pan", "scale": 1.8, "at": 0.26},
+		{"fx": "burst", "sprite": "star", "count": 5, "at": 0.38, "sound": "clang"},
+		{"fx": "flash", "color": "#ffffff", "power": 0.2, "at": 0.38},
+		{"fx": "shake", "power": 0.8, "at": 0.38},
+		{"fx": "sound", "sound": "bell", "at": 0.45}]},
+	"couvercle": {"pose": "guard", "impact": 0.5, "sound": "clang", "pitch": 1.3, "steps": [
+		{"fx": "drop", "sprite": "lid", "scale": 2.4, "on": "caster", "height": 1.5, "duration": 0.15, "stay": 0.5},
+		{"fx": "ring", "color": "#8ab4e8", "on": "caster", "at": 0.15, "add": true, "sound": "guard"}]},
+	"soupe_du_jour": {"pose": "throw", "impact": 0.7, "sound": "bubble", "steps": [
+		{"fx": "projectile", "sprite": "bowl", "arc": 1.3, "each": 0.1, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "smoke", "count": 2, "scale": 0.6, "each": 0.1, "at": 0.44},
+		{"fx": "rise", "sprite": "plus", "count": 2, "each": 0.1, "at": 0.5, "sound": "gulp"}]},
+	"coup_en_douce": {"pose": "sneak", "impact": 0.42, "sound": "poof", "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 2, "on": "caster", "where": "feet"},
+		{"fx": "swing", "sprite": "knife", "scale": 1.6, "duration": 0.08, "at": 0.32},
+		{"fx": "swing", "sprite": "slash", "scale": 1.6, "duration": 0.08, "at": 0.34, "sound": "slash", "pitch": 1.4},
+		{"fx": "rise", "sprite": "bang", "count": 1, "where": "top", "at": 0.36}]},
+	"lame_trempee": {"pose": "strike", "impact": 0.36, "sound": "bubble", "steps": [
+		{"fx": "swing", "sprite": "knife", "scale": 1.7, "color": "#a6d85a", "at": 0.22},
+		{"fx": "swing", "sprite": "slash", "scale": 1.5, "color": "#a6d85a", "at": 0.26, "sound": "slash"},
+		{"fx": "burst", "sprite": "drop", "count": 4, "scale": 0.6, "color": "#a6d85a", "at": 0.34, "sound": "splat"}]},
+	"poudre_a_eternuer": {"pose": "throw", "impact": 0.7, "sound": "swoosh", "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 7, "on": "center", "spread": 2.2, "color": "#f0e0a0", "at": 0.2, "sound": "poof"},
+		{"fx": "rise", "sprite": "bang", "count": 1, "where": "top", "each": 0.12, "at": 0.55, "sound": "squeak", "pitch": 1.6}]},
+
+	"bave": {"pose": "throw", "impact": 0.5, "sound": "squeak", "pitch": 0.7, "steps": [
+		{"fx": "projectile", "sprite": "slime", "arc": 1.0, "duration": 0.3, "at": 0.15},
+		{"fx": "burst", "sprite": "slime", "count": 5, "scale": 0.6, "at": 0.45, "sound": "splat"}]},
+	"dard": {"pose": "shoot", "impact": 0.4, "sound": "buzz", "pitch": 1.3, "steps": [
+		{"fx": "projectile", "sprite": "stinger", "scale": 1.3, "duration": 0.14, "at": 0.24},
+		{"fx": "burst", "sprite": "drop", "count": 3, "scale": 0.5, "color": "#f2c84a", "at": 0.38, "sound": "slash", "pitch": 1.7}]},
+	"spores": {"pose": "shout", "impact": 0.7, "sound": "poof", "steps": [
+		{"fx": "burst", "sprite": "spore", "count": 6, "on": "caster", "where": "top", "radius": 0.6},
+		{"fx": "projectile", "sprite": "spore", "arc": 1.2, "duration": 0.4, "at": 0.15},
+		{"fx": "cloud", "sprite": "spore", "count": 5, "scale": 0.8, "at": 0.5},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "at": 0.65}]},
+	"etreinte_molle": {"pose": "charge", "impact": 0.5, "sound": "rustle", "steps": [
+		{"fx": "burst", "sprite": "straw", "count": 6, "scale": 0.7, "spin": 1, "at": 0.4, "sound": "squeak", "pitch": 0.6},
+		{"fx": "rise", "sprite": "down", "count": 1, "where": "top", "at": 0.48}]},
+	"raz_de_bave": {"pose": "shout", "impact": 0.8, "sound": "roar", "pitch": 0.8, "steps": [
+		{"fx": "rain", "sprite": "slime", "count": 10, "on": "center", "spread": 2.4, "height": 4.0, "at": 0.25, "sound": "splat"},
+		{"fx": "cloud", "sprite": "web", "count": 4, "on": "center", "spread": 2.0, "where": "feet", "at": 0.6},
+		{"fx": "shake", "power": 0.6, "at": 0.6},
+		{"fx": "sound", "sound": "splat", "pitch": 0.7, "at": 0.7}]},
+	"roule_boule": {"pose": "spin", "impact": 0.45, "sound": "stomp", "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 4, "on": "caster", "where": "feet"},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 3.0, "at": 0.43, "sound": "boom", "pitch": 1.3},
+		{"fx": "shake", "power": 0.9, "at": 0.43}]},
+	"heures_sup": {"pose": "cast", "impact": 0.9, "sound": "bell", "pitch": 0.6, "steps": [
+		{"fx": "rise", "sprite": "scroll", "count": 3, "on": "caster", "where": "top", "height": 0.8},
+		{"fx": "rain", "sprite": "scroll", "count": 10, "on": "center", "spread": 2.5, "spin": 1, "at": 0.35, "duration": 0.3},
+		{"fx": "burst", "sprite": "flame", "count": 4, "each": 0.08, "at": 0.75, "sound": "fire"},
+		{"fx": "flash", "color": "#ff6a2a", "power": 0.35, "at": 0.78},
+		{"fx": "shake", "power": 0.7, "at": 0.78}]},
+	"regard_insistant": {"pose": "shout", "impact": 0.7, "sound": "wind", "pitch": 0.6, "steps": [
+		{"fx": "burst", "sprite": "eye", "count": 1, "radius": 0.0, "grow": 2.6, "on": "caster", "where": "top", "duration": 0.6},
+		{"fx": "projectile", "sprite": "wave", "color": "#ff8a2a", "scale": 1.5, "duration": 0.3, "at": 0.3, "add": true},
+		{"fx": "rise", "sprite": "down", "count": 2, "where": "top", "at": 0.6, "sound": "status"}]},
+	"grand_baillement": {"pose": "shout", "impact": 0.9, "sound": "yawn", "pitch": 0.8, "steps": [
+		{"fx": "burst", "sprite": "mouth", "count": 1, "radius": 0.0, "grow": 3.0, "on": "caster", "where": "top", "duration": 0.7},
+		{"fx": "projectile", "sprite": "wave", "scale": 2.0, "color": "#b89cf0", "each": 0.08, "duration": 0.35, "at": 0.3},
+		{"fx": "cloud", "sprite": "smoke", "count": 6, "on": "center", "spread": 2.2, "color": "#b89cf0", "at": 0.5},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "each": 0.08, "at": 0.8, "sound": "snore"}]},
+	"plat_de_resistance": {"pose": "eat", "impact": 0.75, "sound": "bubble", "pitch": 0.7, "steps": [
+		{"fx": "drop", "sprite": "pot", "scale": 1.8, "on": "caster", "where": "top", "height": 1.2, "duration": 0.2, "stay": 0.4},
+		{"fx": "projectile", "sprite": "bowl", "arc": 1.3, "each": 0.08, "duration": 0.3, "at": 0.25},
+		{"fx": "rise", "sprite": "shield", "count": 1, "where": "top", "each": 0.08, "at": 0.6, "sound": "guard"}]},
+	"croc_en_jambe": {"pose": "sneak", "impact": 0.42, "sound": "swoosh", "pitch": 1.5, "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 3, "where": "feet", "at": 0.3},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.0, "where": "feet", "at": 0.38, "sound": "thud", "pitch": 1.3},
+		{"fx": "rise", "sprite": "dizzy", "count": 2, "where": "top", "spin": 1, "at": 0.42},
+		{"fx": "shake", "power": 0.4, "at": 0.4}]},
+	"charge_molle": {"pose": "charge", "impact": 0.5, "sound": "stomp", "pitch": 0.8, "steps": [
+		{"fx": "cloud", "sprite": "dust", "count": 5, "on": "caster", "where": "feet"},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 3.0, "at": 0.46, "sound": "boom", "pitch": 1.2},
+		{"fx": "burst", "sprite": "dust", "count": 5, "at": 0.46},
+		{"fx": "shake", "power": 0.9, "at": 0.46}]},
+	"pietinement": {"pose": "stomp", "impact": 0.75, "sound": "stomp", "steps": [
+		{"fx": "rain", "sprite": "hoof", "count": 6, "on": "center", "spread": 2.2, "height": 2.5, "at": 0.3, "duration": 0.16, "sound": "stomp", "pitch": 0.8},
+		{"fx": "cloud", "sprite": "dust", "count": 6, "on": "center", "spread": 2.4, "where": "feet", "at": 0.45},
+		{"fx": "shake", "power": 1.0, "at": 0.45},
+		{"fx": "sound", "sound": "boom", "at": 0.6},
+		{"fx": "shake", "power": 0.8, "at": 0.62}]},
+	"nuage_toxique": {"pose": "shout", "impact": 0.8, "sound": "poof", "pitch": 0.7, "steps": [
+		{"fx": "cloud", "sprite": "smoke", "count": 9, "on": "center", "spread": 2.3, "scale": 1.3, "color": "#a6d85a", "at": 0.2, "duration": 1.1},
+		{"fx": "rise", "sprite": "skull", "count": 1, "where": "top", "each": 0.1, "at": 0.6, "sound": "bubble", "pitch": 0.7}]},
+	"coup_de_langue": {"pose": "shoot", "impact": 0.42, "sound": "croak", "pitch": 1.2, "steps": [
+		{"fx": "projectile", "sprite": "tongue", "scale": 2.0, "duration": 0.14, "at": 0.24},
+		{"fx": "burst", "sprite": "drop", "count": 4, "scale": 0.6, "at": 0.4, "sound": "splat", "pitch": 1.3}]},
+	"croassement": {"pose": "shout", "impact": 0.8, "sound": "croak", "pitch": 0.6, "steps": [
+		{"fx": "ring", "color": "#b89cf0", "on": "caster", "grow": 14, "duration": 0.7, "add": true},
+		{"fx": "ring", "color": "#b89cf0", "on": "caster", "grow": 14, "duration": 0.7, "at": 0.25, "add": true, "sound": "croak", "pitch": 0.5},
+		{"fx": "rise", "sprite": "note", "count": 2, "color": "#b89cf0", "where": "top", "each": 0.08, "at": 0.55},
+		{"fx": "shake", "power": 0.5, "at": 0.55}]},
+	"gobage": {"pose": "charge", "impact": 0.55, "sound": "croak", "pitch": 0.8, "steps": [
+		{"fx": "burst", "sprite": "mouth", "count": 1, "radius": 0.0, "grow": 3.2, "color": "#c86a7a", "at": 0.3, "duration": 0.3, "sound": "gulp", "pitch": 0.6},
+		{"fx": "burst", "sprite": "drop", "count": 6, "at": 0.52, "sound": "burp"},
+		{"fx": "rise", "sprite": "dizzy", "count": 2, "where": "top", "spin": 1, "at": 0.55},
+		{"fx": "shake", "power": 0.6, "at": 0.52}]},
+	"ponction": {"pose": "charge", "impact": 0.5, "sound": "squeak", "pitch": 1.2, "steps": [
+		{"fx": "drop", "sprite": "fang", "scale": 1.4, "height": 0.8, "duration": 0.1, "stay": 0.25, "at": 0.28, "sound": "munch"},
+		{"fx": "rise", "sprite": "drop", "count": 4, "color": "#e04a4a", "scale": 0.6, "at": 0.4, "sound": "gulp"}]},
+	"flammeche": {"pose": "cast", "impact": 0.5, "sound": "wind", "pitch": 1.4, "steps": [
+		{"fx": "projectile", "sprite": "flame", "color": "#a8d8ff", "arc": 0.5, "duration": 0.3, "at": 0.15, "add": true},
+		{"fx": "burst", "sprite": "flame", "count": 4, "scale": 0.7, "color": "#a8d8ff", "at": 0.46, "add": true, "sound": "fire", "pitch": 1.4},
+		{"fx": "light", "color": "#a8d8ff", "at": 0.46}]},
+	"coup_de_fourchette": {"pose": "strike", "impact": 0.32, "sound": "swoosh", "pitch": 1.3, "steps": [
+		{"fx": "projectile", "sprite": "fork", "scale": 1.8, "duration": 0.08, "at": 0.22, "spin": 0.25},
+		{"fx": "burst", "sprite": "pix", "count": 3, "radius": 0.5, "at": 0.3, "sound": "slash", "pitch": 1.5}]},
+	"renvoi": {"pose": "shout", "impact": 0.7, "sound": "burp", "steps": [
+		{"fx": "cloud", "sprite": "smoke", "count": 3, "on": "caster", "where": "top", "color": "#c8d87a"},
+		{"fx": "projectile", "sprite": "cloud", "color": "#c8d87a", "scale": 1.4, "each": 0.08, "duration": 0.35, "at": 0.2},
+		{"fx": "rise", "sprite": "down", "count": 1, "where": "top", "each": 0.08, "at": 0.6, "sound": "status"}]},
+	"louche_morfale": {"pose": "strike", "impact": 0.4, "sound": "swoosh", "pitch": 0.7, "steps": [
+		{"fx": "swing", "sprite": "ladle", "scale": 2.6, "color": "#a8a8b8", "at": 0.26},
+		{"fx": "burst", "sprite": "star", "count": 4, "at": 0.38, "sound": "clang", "pitch": 0.8},
+		{"fx": "rise", "sprite": "dizzy", "count": 1, "where": "top", "spin": 1, "at": 0.42},
+		{"fx": "shake", "power": 0.7, "at": 0.38}]},
+	"petit_creux": {"pose": "eat", "impact": 0.7, "sound": "munch", "steps": [
+		{"fx": "drop", "sprite": "bread", "scale": 1.5, "on": "caster", "where": "top", "height": 1.0, "duration": 0.2, "stay": 0.3},
+		{"fx": "sound", "sound": "munch", "pitch": 1.1, "at": 0.3},
+		{"fx": "rise", "sprite": "plus", "count": 3, "on": "caster", "at": 0.5, "sound": "burp", "pitch": 1.3}]},
+	"souffle_ramollissant": {"pose": "shout", "impact": 0.9, "sound": "wind", "pitch": 0.5, "steps": [
+		{"fx": "projectile", "sprite": "wave", "scale": 2.4, "color": "#d89a9a", "each": 0.06, "duration": 0.4, "at": 0.15},
+		{"fx": "cloud", "sprite": "smoke", "count": 8, "on": "center", "spread": 2.4, "color": "#d89a9a", "at": 0.35},
+		{"fx": "rise", "sprite": "down", "count": 2, "where": "top", "each": 0.08, "at": 0.75, "sound": "status"},
+		{"fx": "flash", "color": "#6a4a6a", "power": 0.3, "at": 0.4, "duration": 0.5}]},
+	"cri_strident": {"pose": "shout", "impact": 0.75, "sound": "shriek", "steps": [
+		{"fx": "ring", "color": "#d8c8ff", "on": "caster", "where": "top", "grow": 16, "duration": 0.5, "add": true},
+		{"fx": "ring", "color": "#d8c8ff", "on": "caster", "where": "top", "grow": 16, "duration": 0.5, "at": 0.15, "add": true},
+		{"fx": "ring", "color": "#d8c8ff", "on": "caster", "where": "top", "grow": 16, "duration": 0.5, "at": 0.3, "add": true},
+		{"fx": "flash", "color": "#d8c8ff", "power": 0.4, "at": 0.3},
+		{"fx": "rise", "sprite": "bang", "count": 1, "where": "top", "each": 0.06, "at": 0.6},
+		{"fx": "shake", "power": 1.0, "at": 0.3}]},
+	"doigt_glace": {"pose": "shoot", "impact": 0.7, "sound": "wind", "pitch": 1.6, "steps": [
+		{"fx": "projectile", "sprite": "finger", "scale": 2.2, "duration": 0.4, "at": 0.2},
+		{"fx": "burst", "sprite": "pix", "count": 8, "color": "#c8e0ff", "at": 0.6, "add": true, "sound": "chime", "pitch": 0.5},
+		{"fx": "light", "color": "#8ab8ff", "at": 0.6},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "where": "top", "at": 0.68}]},
+	"serrage": {"pose": "guard", "impact": 0.8, "sound": "wind", "pitch": 0.4, "steps": [
+		{"fx": "burst", "sprite": "band", "count": 1, "radius": 0.0, "grow": 0.3, "scale": 4.0, "on": "caster", "duration": 0.6, "add": true},
+		{"fx": "light", "color": "#f2c84a", "on": "caster", "power": 7, "at": 0.5, "duration": 0.6},
+		{"fx": "rise", "sprite": "up", "count": 3, "on": "caster", "where": "top", "at": 0.55, "sound": "roar", "pitch": 1.3},
+		{"fx": "shake", "power": 0.6, "at": 0.55}]},
+
+	"petarade": {"pose": "throw", "impact": 0.75, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "petard", "arc": 1.4, "spin": 2, "each": 0.09, "duration": 0.3, "at": 0.12},
+		{"fx": "burst", "sprite": "spark", "count": 5, "scale": 0.8, "each": 0.09, "at": 0.43, "add": true, "sound": "pop"},
+		{"fx": "sound", "sound": "pop", "pitch": 1.2, "at": 0.52},
+		{"fx": "sound", "sound": "pop", "pitch": 0.9, "at": 0.61},
+		{"fx": "shake", "power": 0.5, "at": 0.45}]},
+	"chandelle_romaine": {"pose": "cast", "impact": 1.0, "sound": "fire", "pitch": 0.7, "steps": [
+		{"fx": "rise", "sprite": "spark", "count": 6, "on": "caster", "where": "top", "height": 2.5, "duration": 0.4, "add": true, "sound": "whistle"},
+		{"fx": "rain", "sprite": "flame", "count": 12, "on": "center", "spread": 2.5, "at": 0.45, "duration": 0.25, "add": true, "sound": "whistle", "pitch": 0.8},
+		{"fx": "burst", "sprite": "star", "count": 5, "each": 0.07, "at": 0.8, "sound": "boom"},
+		{"fx": "flash", "color": "#ffb060", "power": 0.45, "at": 0.82},
+		{"fx": "shake", "power": 1.0, "at": 0.82}]},
+	"sieste_collective": {"pose": "sleep", "impact": 1.1, "sound": "yawn", "pitch": 0.7, "steps": [
+		{"fx": "flash", "color": "#2a1a4a", "power": 0.45, "duration": 1.2},
+		{"fx": "rain", "sprite": "pillow", "count": 5, "scale": 1.7, "on": "center", "spread": 2.2, "height": 4.0, "at": 0.3, "duration": 0.35, "stay": 0.5, "sound": "poof"},
+		{"fx": "burst", "sprite": "feather", "count": 5, "each": 0.07, "spin": 1, "at": 0.7, "duration": 0.7},
+		{"fx": "rise", "sprite": "zzz", "count": 2, "scale": 0.8, "where": "top", "each": 0.07, "at": 0.9, "sound": "snore"}]},
+	"viens_y_voir": {"pose": "shout", "impact": 0.6, "sound": "clang", "pitch": 1.2, "steps": [
+		{"fx": "rise", "sprite": "bang", "count": 2, "on": "caster", "where": "top", "color": "#e8a05a"},
+		{"fx": "ring", "color": "#e8a05a", "on": "caster", "add": true, "at": 0.15, "sound": "clang", "pitch": 1.4},
+		{"fx": "ring", "color": "#e8a05a", "on": "caster", "add": true, "at": 0.35}]},
+	"casse_croute": {"pose": "throw", "impact": 0.6, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "bread", "arc": 1.3, "spin": 1, "duration": 0.3, "at": 0.12},
+		{"fx": "sound", "sound": "munch", "at": 0.42},
+		{"fx": "rise", "sprite": "heart", "count": 2, "where": "top", "at": 0.5, "sound": "chime"}]},
+	"ragout_tonique": {"pose": "eat", "impact": 0.75, "sound": "bubble", "steps": [
+		{"fx": "projectile", "sprite": "bowl", "arc": 1.3, "each": 0.08, "duration": 0.3, "at": 0.15},
+		{"fx": "burst", "sprite": "flame", "count": 3, "scale": 0.5, "each": 0.08, "at": 0.48, "sound": "fire", "pitch": 1.3},
+		{"fx": "rise", "sprite": "up", "count": 2, "where": "top", "each": 0.08, "at": 0.55, "sound": "chime"}]},
+	"banquet": {"pose": "eat", "impact": 1.0, "sound": "fanfare", "steps": [
+		{"fx": "rain", "sprite": "bread", "count": 4, "on": "center", "spread": 2.0, "height": 3.5, "at": 0.15, "duration": 0.3},
+		{"fx": "rain", "sprite": "bowl", "count": 4, "on": "center", "spread": 2.0, "height": 3.5, "at": 0.3, "duration": 0.3},
+		{"fx": "rain", "sprite": "mug", "count": 4, "on": "center", "spread": 2.0, "height": 3.5, "at": 0.45, "duration": 0.3, "sound": "munch"},
+		{"fx": "rise", "sprite": "heart", "count": 2, "where": "top", "each": 0.07, "at": 0.8, "sound": "chime"},
+		{"fx": "ring", "color": "#8af0a0", "each": 0.07, "at": 0.85, "add": true}]},
+	"fauche": {"pose": "sneak", "impact": 0.42, "sound": "swoosh", "pitch": 1.5, "steps": [
+		{"fx": "swing", "sprite": "knife", "scale": 1.5, "duration": 0.08, "at": 0.3, "sound": "slash", "pitch": 1.3},
+		{"fx": "projectile", "sprite": "hand", "scale": 1.2, "duration": 0.1, "at": 0.3},
+		{"fx": "burst", "sprite": "coin", "count": 5, "scale": 0.7, "where": "feet", "at": 0.4, "sound": "coin"}]},
+	"fiole_douteuse": {"pose": "throw", "impact": 0.8, "sound": "bubble", "pitch": 1.3, "steps": [
+		{"fx": "projectile", "sprite": "bottle", "on": "center", "color": "#c89cf0", "arc": 1.8, "spin": 2, "duration": 0.4, "at": 0.12},
+		{"fx": "burst", "sprite": "bubble", "count": 8, "on": "center", "radius": 1.6, "at": 0.52, "sound": "pop", "pitch": 0.7},
+		{"fx": "cloud", "sprite": "web", "count": 5, "on": "center", "spread": 2.0, "where": "feet", "at": 0.55, "sound": "splat"},
+		{"fx": "rise", "sprite": "skull", "count": 1, "where": "top", "each": 0.08, "at": 0.7}]},
+	"embrouillamini": {"pose": "shout", "impact": 0.9, "sound": "squeak", "pitch": 1.4, "steps": [
+		{"fx": "burst", "sprite": "scroll", "count": 4, "spin": 2, "radius": 1.0, "at": 0.15, "duration": 0.6},
+		{"fx": "burst", "sprite": "coin", "count": 4, "spin": 2, "radius": 1.2, "at": 0.3, "duration": 0.6, "sound": "coin"},
+		{"fx": "burst", "sprite": "bang", "count": 4, "radius": 0.8, "at": 0.45, "duration": 0.5},
+		{"fx": "rise", "sprite": "dizzy", "count": 3, "where": "top", "spin": 2, "at": 0.7, "sound": "status"}]},
+	"baume_matin": {"pose": "throw", "impact": 0.6, "sound": "rustle", "steps": [
+		{"fx": "rise", "sprite": "drop", "count": 5, "color": "#bfe8ff", "where": "feet", "height": 1.6, "at": 0.15},
+		{"fx": "light", "color": "#fff0b0", "power": 5, "at": 0.3, "duration": 0.6},
+		{"fx": "rise", "sprite": "leaf", "count": 3, "spin": 1, "at": 0.35},
+		{"fx": "rise", "sprite": "plus", "count": 2, "where": "top", "at": 0.5, "sound": "chime", "pitch": 1.2}]},
+	"remede_de_cheval": {"pose": "throw", "impact": 0.8, "sound": "stomp", "pitch": 1.4, "steps": [
+		{"fx": "projectile", "sprite": "bottle", "color": "#f0a04a", "scale": 1.6, "arc": 1.4, "spin": 1, "duration": 0.35, "at": 0.12},
+		{"fx": "burst", "sprite": "hoof", "count": 2, "scale": 0.8, "at": 0.5, "sound": "boom", "pitch": 1.5},
+		{"fx": "light", "color": "#fff0b0", "power": 7, "at": 0.55, "duration": 0.6},
+		{"fx": "rise", "sprite": "feather", "count": 4, "where": "feet", "height": 1.8, "at": 0.55, "sound": "fanfare", "pitch": 1.3},
+		{"fx": "shake", "power": 0.5, "at": 0.5}]},
+	"nuage_tonique": {"pose": "cast", "impact": 0.7, "sound": "wind", "pitch": 1.3, "steps": [
+		{"fx": "projectile", "sprite": "smoke", "color": "#ffd27a", "duration": 0.35, "at": 0.1},
+		{"fx": "cloud", "sprite": "smoke", "count": 4, "color": "#ffd27a", "at": 0.4},
+		{"fx": "rise", "sprite": "up", "count": 2, "where": "top", "at": 0.6, "sound": "chime"}]},
+	"nuage_acre": {"pose": "cast", "impact": 0.85, "sound": "wind", "steps": [
+		{"fx": "projectile", "sprite": "smoke", "on": "center", "color": "#6a8a4a", "scale": 1.4, "duration": 0.4, "at": 0.1},
+		{"fx": "cloud", "sprite": "smoke", "count": 9, "on": "center", "spread": 2.3, "scale": 1.3, "color": "#6a8a4a", "at": 0.4, "duration": 1.0, "sound": "poof"},
+		{"fx": "burst", "sprite": "leaf", "count": 3, "each": 0.07, "spin": 1, "at": 0.7},
+		{"fx": "rise", "sprite": "drop", "count": 1, "where": "top", "each": 0.07, "at": 0.8}]},
+	"brouillard_epais": {"pose": "cast", "impact": 0.9, "sound": "wind", "pitch": 0.7, "steps": [
+		{"fx": "cloud", "sprite": "cloud", "count": 10, "on": "center", "spread": 2.4, "scale": 1.5, "duration": 1.4, "at": 0.1},
+		{"fx": "cloud", "sprite": "smoke", "count": 6, "on": "center", "spread": 2.4, "where": "feet", "scale": 1.5, "duration": 1.4, "at": 0.3, "sound": "poof", "pitch": 0.6}]},
+	"duel": {"pose": "strike", "impact": 0.5, "sound": "swoosh", "steps": [
+		{"fx": "swing", "sprite": "sword", "scale": 2.0, "duration": 0.1, "at": 0.2, "sound": "clang", "pitch": 1.6},
+		{"fx": "swing", "sprite": "slash", "scale": 1.6, "duration": 0.1, "at": 0.24},
+		{"fx": "swing", "sprite": "sword", "scale": 2.0, "angle": -1.9, "duration": 0.1, "at": 0.36, "sound": "slash"},
+		{"fx": "swing", "sprite": "slash", "scale": 1.9, "angle": -1.9, "duration": 0.1, "at": 0.4},
+		{"fx": "shake", "power": 0.4, "at": 0.46}]},
+	"botte_secrete": {"pose": "sneak", "impact": 0.6, "sound": "wind", "pitch": 1.5, "steps": [
+		{"fx": "flash", "color": "#101020", "power": 0.5, "duration": 0.5},
+		{"fx": "swing", "sprite": "slash", "scale": 3.0, "duration": 0.08, "at": 0.4, "add": true, "sound": "slash", "pitch": 0.7},
+		{"fx": "flash", "color": "#ffffff", "power": 0.5, "at": 0.5, "duration": 0.15},
+		{"fx": "burst", "sprite": "star", "count": 6, "at": 0.55, "sound": "boom", "pitch": 1.4},
+		{"fx": "shake", "power": 1.0, "at": 0.55}]},
+	"ordre_bref": {"pose": "shout", "impact": 0.5, "sound": "roar", "pitch": 1.5, "steps": [
+		{"fx": "rise", "sprite": "bang", "count": 1, "on": "caster", "where": "top", "color": "#ffd27a"},
+		{"fx": "projectile", "sprite": "wave", "color": "#ffd27a", "duration": 0.2, "at": 0.15},
+		{"fx": "rise", "sprite": "up", "count": 2, "where": "top", "at": 0.4, "sound": "chime"}]},
+	"par_decret": {"pose": "cast", "impact": 0.9, "sound": "fanfare", "pitch": 0.9, "steps": [
+		{"fx": "drop", "sprite": "scroll", "scale": 2.4, "on": "caster", "where": "top", "height": 1.2, "duration": 0.2, "stay": 0.5},
+		{"fx": "sound", "sound": "stomp", "pitch": 1.5, "at": 0.3},
+		{"fx": "projectile", "sprite": "scroll", "arc": 1.0, "each": 0.07, "duration": 0.3, "at": 0.35},
+		{"fx": "rise", "sprite": "crown", "count": 1, "where": "top", "each": 0.07, "at": 0.7, "sound": "chime"},
+		{"fx": "rise", "sprite": "plus", "count": 2, "each": 0.07, "at": 0.8}]},
+	"tir_tendu": {"pose": "shoot", "impact": 0.5, "sound": "twang", "steps": [
+		{"fx": "projectile", "sprite": "arrow", "scale": 1.5, "duration": 0.12, "at": 0.34},
+		{"fx": "burst", "sprite": "pix", "count": 5, "radius": 0.6, "at": 0.47, "sound": "thud", "pitch": 1.5}]},
+	"fleche_percante": {"pose": "shoot", "impact": 0.6, "sound": "twang", "pitch": 0.8, "steps": [
+		{"fx": "ring", "color": "#ff7a6a", "scale": 0.6, "grow": 0.2, "at": 0.05, "duration": 0.35},
+		{"fx": "projectile", "sprite": "arrow", "scale": 1.8, "color": "#fff0a0", "duration": 0.08, "at": 0.45, "add": true, "sound": "whistle", "pitch": 1.6},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.4, "at": 0.55, "sound": "slash", "pitch": 0.8},
+		{"fx": "shake", "power": 0.6, "at": 0.55}]},
+	"pluie_de_fleches": {"pose": "shoot", "impact": 0.8, "sound": "twang", "steps": [
+		{"fx": "rise", "sprite": "arrow", "count": 4, "on": "caster", "where": "top", "height": 3.0, "duration": 0.3, "at": 0.15},
+		{"fx": "sound", "sound": "twang", "pitch": 1.2, "at": 0.22},
+		{"fx": "rain", "sprite": "arrow", "count": 12, "on": "center", "spread": 2.4, "at": 0.5, "duration": 0.18, "spin": 0.12, "sound": "whistle"},
+		{"fx": "sound", "sound": "thud", "pitch": 1.5, "at": 0.75},
+		{"fx": "shake", "power": 0.5, "at": 0.75}]},
+	"soupir": {"pose": "shout", "impact": 0.7, "sound": "wind", "pitch": 0.8, "steps": [
+		{"fx": "projectile", "sprite": "cloud", "color": "#9aa0c8", "scale": 0.9, "arc": 0.3, "duration": 0.5, "at": 0.1},
+		{"fx": "rise", "sprite": "drop", "count": 1, "color": "#9aa0c8", "where": "top", "at": 0.6},
+		{"fx": "rise", "sprite": "down", "count": 1, "where": "top", "at": 0.62, "sound": "status"}]},
+	"remarque_blessante": {"pose": "shout", "impact": 0.6, "sound": "squeak", "pitch": 0.7, "steps": [
+		{"fx": "projectile", "sprite": "bang", "scale": 1.3, "color": "#b89cf0", "duration": 0.25, "at": 0.2},
+		{"fx": "burst", "sprite": "heart", "count": 2, "scale": 0.7, "color": "#8a7aa8", "at": 0.48, "sound": "slash", "pitch": 1.5},
+		{"fx": "rise", "sprite": "down", "count": 1, "where": "top", "at": 0.55}]},
+	"mepris_souverain": {"pose": "guard", "impact": 0.9, "sound": "wind", "pitch": 0.6, "steps": [
+		{"fx": "rise", "sprite": "crown", "count": 1, "on": "caster", "where": "top", "height": 0.5, "color": "#c8d4f0"},
+		{"fx": "flash", "color": "#9aa0c8", "power": 0.3, "at": 0.2, "duration": 0.6},
+		{"fx": "projectile", "sprite": "wave", "color": "#9aa0c8", "scale": 2.0, "each": 0.07, "duration": 0.35, "at": 0.25},
+		{"fx": "rise", "sprite": "down", "count": 2, "where": "top", "each": 0.07, "at": 0.65, "sound": "status"},
+		{"fx": "rise", "sprite": "drop", "count": 1, "color": "#9aa0c8", "where": "top", "each": 0.07, "at": 0.7}]},
+	"coup_de_hache": {"pose": "strike", "impact": 0.4, "sound": "roar", "pitch": 1.4, "steps": [
+		{"fx": "swing", "sprite": "axe", "scale": 2.4, "at": 0.26},
+		{"fx": "swing", "sprite": "slash", "scale": 2.0, "at": 0.3, "sound": "slash", "pitch": 0.8},
+		{"fx": "burst", "sprite": "pix", "count": 5, "color": "#e04a4a", "at": 0.38},
+		{"fx": "shake", "power": 0.6, "at": 0.38}]},
+	"moulinet": {"pose": "spin", "impact": 0.6, "sound": "swoosh", "pitch": 0.7, "steps": [
+		{"fx": "swing", "sprite": "axe", "scale": 2.2, "each": 0.1, "at": 0.3, "sound": "swoosh"},
+		{"fx": "swing", "sprite": "slash", "scale": 2.4, "each": 0.1, "at": 0.34, "add": true, "sound": "slash", "pitch": 0.9},
+		{"fx": "ring", "color": "#cfd8ea", "on": "center", "grow": 14, "at": 0.35, "add": true},
+		{"fx": "shake", "power": 0.7, "at": 0.45}]},
+	"coup_du_bucheron": {"pose": "stomp", "impact": 0.55, "sound": "roar", "pitch": 1.1, "steps": [
+		{"fx": "drop", "sprite": "axe", "scale": 3.2, "height": 3.0, "duration": 0.12, "stay": 0.15, "spin": 0.5, "at": 0.4},
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 3.2, "at": 0.52, "sound": "boom", "pitch": 1.2},
+		{"fx": "burst", "sprite": "root", "count": 4, "scale": 0.7, "spin": 1, "at": 0.53},
+		{"fx": "flash", "color": "#ffffff", "power": 0.3, "at": 0.52},
+		{"fx": "shake", "power": 1.0, "at": 0.52}]},
+	"coup_de_boule": {"pose": "charge", "impact": 0.4, "sound": "roar", "pitch": 1.6, "steps": [
+		{"fx": "burst", "sprite": "impact", "count": 1, "radius": 0.0, "grow": 2.6, "where": "top", "at": 0.36, "sound": "clang", "pitch": 0.6},
+		{"fx": "burst", "sprite": "star", "count": 5, "where": "top", "at": 0.38},
+		{"fx": "rise", "sprite": "dizzy", "count": 1, "on": "caster", "where": "top", "spin": 1, "at": 0.45},
+		{"fx": "shake", "power": 0.8, "at": 0.36}]},
+
+	"tisane": {"pose": "throw", "impact": 0.55, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "mug", "arc": 1.0, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "smoke", "count": 2, "scale": 0.6, "at": 0.42, "sound": "gulp"},
+		{"fx": "rise", "sprite": "plus", "count": 2, "at": 0.5, "sound": "chime"}]},
+	"cidre": {"pose": "throw", "impact": 0.55, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "mug", "color": "#ffe0a0", "arc": 1.0, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "bubble", "count": 4, "color": "#ffe27a", "scale": 0.5, "at": 0.42, "sound": "gulp"},
+		{"fx": "rise", "sprite": "drop", "count": 2, "where": "top", "at": 0.5, "sound": "burp", "pitch": 1.5}]},
+	"decoction": {"pose": "throw", "impact": 0.55, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "bottle", "color": "#a08a5a", "arc": 1.0, "spin": 1, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "bang", "count": 1, "where": "top", "at": 0.42, "sound": "gulp"},
+		{"fx": "ring", "color": "#bfe8ff", "at": 0.5, "add": true, "sound": "chime"}]},
+	"racine": {"pose": "throw", "impact": 0.7, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "root", "scale": 1.4, "arc": 1.2, "spin": 2, "duration": 0.32, "at": 0.12},
+		{"fx": "burst", "sprite": "bang", "count": 3, "where": "top", "at": 0.46, "sound": "squeak", "pitch": 1.5},
+		{"fx": "light", "color": "#fff0b0", "power": 6, "at": 0.5, "duration": 0.5},
+		{"fx": "rise", "sprite": "feather", "count": 3, "where": "feet", "height": 1.6, "at": 0.5, "sound": "chime"}]},
+	"remontant": {"pose": "throw", "impact": 0.6, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "bottle", "color": "#d8a0e8", "scale": 0.8, "arc": 1.0, "spin": 1, "duration": 0.3, "at": 0.12},
+		{"fx": "burst", "sprite": "flame", "count": 4, "scale": 0.6, "where": "top", "at": 0.44, "sound": "fire", "pitch": 1.4},
+		{"fx": "rise", "sprite": "up", "count": 2, "where": "top", "at": 0.5, "sound": "gulp"}]},
+	"tisane_corsee": {"pose": "throw", "impact": 0.65, "sound": "swoosh", "steps": [
+		{"fx": "projectile", "sprite": "mug", "scale": 1.5, "arc": 1.0, "duration": 0.3, "at": 0.12},
+		{"fx": "rise", "sprite": "smoke", "count": 4, "at": 0.42, "sound": "gulp", "pitch": 0.8},
+		{"fx": "rise", "sprite": "plus", "count": 4, "at": 0.5, "sound": "chime"},
+		{"fx": "rise", "sprite": "heart", "count": 1, "where": "top", "at": 0.6}]},
+	"fusee_poche": {"pose": "throw", "impact": 0.7, "sound": "whistle", "steps": [
+		{"fx": "projectile", "sprite": "rocket", "on": "center", "arc": 2.0, "spin": 0.3, "duration": 0.38, "at": 0.12},
+		{"fx": "burst", "sprite": "spark", "count": 9, "radius": 1.8, "on": "center", "at": 0.52, "add": true, "sound": "boom"},
+		{"fx": "burst", "sprite": "flame", "count": 3, "each": 0.07, "at": 0.58},
+		{"fx": "flash", "color": "#ffb060", "power": 0.35, "at": 0.53},
+		{"fx": "shake", "power": 0.8, "at": 0.53}]}
+}

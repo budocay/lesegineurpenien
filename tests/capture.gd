@@ -181,9 +181,53 @@ func _ready() -> void:
 	await _shot("29_boutique")
 	main.menus.close(true)
 	await _frames(10)
+
+	# animations de combat : quelques-unes figées au moment de l'impact
+	GameState.heal_party()
+	main.start_battle({"enemies": ["sanglier_flapi", "limace_molle", "champignon_dormeur"], "arena": "pre"})
+	await _until_menu()
+	await _frames(40)
+	await _anim_shot("34_anim_coup_de_poele", "coup_de_poele", "sam", false, false)
+	await _anim_shot("35_anim_bouquet_final", "bouquet_final", "glandoulf", false, false)
+	await _anim_shot("36_anim_sieste_collective", "sieste_collective", "glandoulf", false, false)
+	await _anim_shot("37_anim_tonnerre", "tonnerre", "glandoulf", false, false)
+	await _anim_shot("38_anim_coup_en_douce", "coup_en_douce", "fripon", false, false)
+	await _anim_shot("39_anim_banquet", "banquet", "sam", false, true)
+	await _anim_shot("40_anim_purin_ortie", "purin_ortie", "pepine", false, false)
+	await _anim_shot("41_anim_charge_ennemie", "charge_molle", "", true, true)
+	await _anim_shot("42_anim_cri_strident", "cri_strident", "", true, true)
 	SaveManager.delete_save()
 	print("CAPTURES OK : ", out_dir)
 	get_tree().quit()
+
+
+## Joue une animation de combat et la photographie juste après l'impact.
+## who : héros qui la joue (ou le premier ennemi si from_enemy) ; on_party : vise l'équipe.
+func _anim_shot(shot_name: String, anim: String, who: String, from_enemy: bool, on_party: bool) -> void:
+	var b: Node3D = main.battle
+	var allies: Array = []
+	var foes: Array = []
+	var caster: Node3D = null
+	for c: RefCounted in b.engine.party:
+		allies.append(b.actor_of(c))
+		if str(c.source) == who:
+			caster = b.actor_of(c)
+	for c: RefCounted in b.engine.enemies:
+		foes.append(b.actor_of(c))
+	if from_enemy:
+		caster = foes[0]
+	if caster == null:
+		caster = allies[0]
+	var targets: Array = allies if on_party else foes
+	if anim in ["coup_de_poele", "coup_en_douce", "purin_ortie", "tonnerre", "charge_molle"]:
+		targets = [targets[0]]
+	main.battle_ui.announce(str(Database.get_skill(anim).get("name", anim)), 1.4)
+	b.fx.play(anim, caster, targets, "")
+	var impact := float(Database.get_animation(anim).get("impact", 0.4))
+	# en temps réel et non en images : l'écran peut tourner à 120 images par seconde
+	await get_tree().create_timer(impact + 0.09).timeout
+	await _shot(shot_name)
+	await get_tree().create_timer(1.8).timeout
 
 
 func _frames(n: int) -> void:

@@ -7,6 +7,7 @@ signal finished(outcome: String)   # "victory", "fled", "retry" ou "title"
 
 const Engine_ = preload("res://src/battle/battle_engine.gd")
 const Actor = preload("res://src/battle/battle_actor.gd")
+const BattleFx = preload("res://src/battle/battle_fx.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const MapBuilder = preload("res://src/world/map_builder.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
@@ -19,6 +20,7 @@ var encounter: Dictionary = {}
 var auto := false             # l'équipe joue toute seule (tests, captures)
 var fast := false             # aucune attente ni animation (tests)
 var outcome := ""
+var fx: Node3D                # animations de combat (data/animations.json)
 
 var _rng := RandomNumberGenerator.new()
 var _cam_home := Vector3(0.0, 3.3, 12.4)
@@ -38,6 +40,10 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	_build_camera()
 	_place(engine.party, 1.0)
 	_place(engine.enemies, -1.0)
+	fx = BattleFx.new()
+	fx.name = "Fx"
+	add_child(fx)
+	fx.setup(self)
 	ui.open(self, engine)
 
 
@@ -180,6 +186,12 @@ func screen_point(c: RefCounted, where: String = "center") -> Vector2:
 	return p
 
 
+## Secousse de caméra (0 à 1).
+func shake(power: float) -> void:
+	if not fast:
+		_shake = maxf(_shake, power)
+
+
 func _process(delta: float) -> void:
 	if camera == null:
 		return
@@ -303,14 +315,13 @@ func _play(events: Array) -> void:
 				var caster: RefCounted = e["actor"]
 				var ca: Node3D = actors[caster.key]
 				ui.announce(str(e.get("name", "")), 1.4)
-				var targets: Array = e.get("targets", [])
-				if str(e.get("kind", "")) == "attack" and not targets.is_empty():
-					var first: Node3D = actors[targets[0].key]
-					await ca.play_attack(first.home)
-				else:
-					Sfx.play("magic")
-					await ca.play_cast()
-					await _wait(0.15)
+				var aimed: Array = []
+				for t: RefCounted in e.get("targets", []):
+					aimed.append(actors[t.key])
+				# l'animation vient des données ; elle rend la main au moment de l'impact
+				await fx.play(str(e.get("anim", "")), ca, aimed, str(e.get("element", "")))
+				if str(e.get("kind", "")) != "attack":
+					await _wait(0.05)
 			"fizzle":
 				ui.popup(screen_point(e["actor"], "top"), "Dans le vide...", Color("#b9b2a6"))
 				await _wait(0.5)
@@ -321,11 +332,19 @@ func _play(events: Array) -> void:
 					color = Database.color(Database.get_status(str(e["status"])).get("color", "#a6d85a"), Color.WHITE)
 				elif target.side == "party":
 					color = Color("#ff9a8a")
-				ta.play_hit()
+				var strong := weak or bool(e.get("crit", false))
+				ta.play_hit(strong)
 				if e.has("element"):
+					var el := Database.get_element(str(e["element"]))
 					_burst(ta.anchor("center"), _element_color(str(e["element"])), 1.5 if weak else 1.0)
+					fx.puff(str(el.get("fx", "")), ta, "burst", 6 if strong else 3)
+					Sfx.play(str(el.get("sound", "hit")), randf_range(0.92, 1.08))
+				elif e.has("status"):
+					fx.puff(str(Database.get_status(str(e["status"])).get("fx", "")), ta, "rise", 2)
 				Sfx.play("weak" if weak else "hit", randf_range(0.92, 1.08))
-				_shake = maxf(_shake, 0.7 if (weak or bool(e.get("crit", false))) else 0.35)
+				shake(0.7 if strong else 0.35)
+				if strong:
+					fx.screen_flash(Color.WHITE, 0.18, 0.15)
 				ui.popup(screen_point(target, "top"), str(int(e.get("amount", 0))), color, 40 if (weak or bool(e.get("crit", false))) else 32)
 				if weak:
 					ui.popup(screen_point(target, "top") + Vector2(0, -34), "Faiblesse !", Color("#ffd27a"), 22)
@@ -335,8 +354,11 @@ func _play(events: Array) -> void:
 				await _wait(0.42)
 			"break":
 				Sfx.play("break")
-				_shake = 1.0
+				shake(1.0)
 				_burst(ta.anchor("center"), Color("#ff7a6a"), 2.2)
+				fx.puff("bang", ta, "burst", 5)
+				fx.puff("ring", ta, "ring", 1, Color("#ff7a6a"), 1.0)
+				fx.screen_flash(Color("#ff7a6a"), 0.3, 0.3)
 				ui.popup(screen_point(target, "center"), "ÉBRANLÉ !", Color("#ff8a6a"), 38)
 				ui.refresh()
 				await _wait(0.7)
@@ -347,11 +369,13 @@ func _play(events: Array) -> void:
 			"heal":
 				Sfx.play("heal")
 				_burst(ta.anchor("center"), Color("#8af0a0"), 1.2)
+				fx.puff("plus", ta, "rise", 3)
 				ui.popup(screen_point(target, "top"), "+%d" % int(e.get("amount", 0)), Color("#8af0a0"), 32)
 				ui.refresh()
 				await _wait(0.42)
 			"mana":
 				if int(e.get("amount", 0)) > 0:
+					fx.puff("drop", ta, "rise", 3)
 					ui.popup(screen_point(target, "top") + Vector2(0, -28), "+%d PM" % int(e["amount"]), Color("#8ab8ff"), 24)
 					ui.refresh()
 					await _wait(0.3)
@@ -359,6 +383,7 @@ func _play(events: Array) -> void:
 				var st := Database.get_status(str(e.get("id", "")))
 				if bool(e.get("applied", false)):
 					Sfx.play("status")
+					fx.puff(str(st.get("fx", "")), ta, "rise", 2, Color.WHITE, 1.0)
 					ui.popup(screen_point(target, "top"), str(st.get("name", "")), Database.color(st.get("color", "#ffffff"), Color.WHITE), 26)
 				elif bool(e.get("immune", false)):
 					ui.popup(screen_point(target, "top"), "Insensible", Color("#b9b2a6"), 24)
@@ -368,6 +393,7 @@ func _play(events: Array) -> void:
 				await _wait(0.45)
 			"cure":
 				Sfx.play("heal")
+				fx.puff("bubble", ta, "rise", 3, Color("#bfe8ff"))
 				ui.popup(screen_point(target, "top"), "Guéri" if not (e.get("ids", []) as Array).is_empty() else "Sans effet", Color("#bfe8ff"), 24)
 				ui.refresh()
 				await _wait(0.4)
@@ -378,25 +404,37 @@ func _play(events: Array) -> void:
 				ui.refresh()
 			"skip":
 				ui.announce("%s %s." % [target.name, str(e.get("status", "passe son tour"))], 1.3)
+				fx.puff("dizzy", ta, "rise", 1)
 				ui.popup(screen_point(target, "top"), "...", Color("#d8c8ff"), 28)
 				await _wait(0.9)
 			"defend":
 				ui.announce("%s se met en garde." % target.name, 1.2)
+				Sfx.play("guard")
+				ta.play_pose("guard", ta.home, 0.3)
+				fx.puff("shield", ta, "rise", 1, Color.WHITE, 1.2)
 				ui.popup(screen_point(target, "top"), "Défense", Color("#8ab4e8"), 26)
 				ui.refresh()
 				await _wait(0.5)
 			"ko":
 				Sfx.play("ko")
+				if target.side == "party":
+					fx.puff("dizzy", ta, "rise", 2)
+				else:
+					fx.puff("dust", ta, "burst", 5)
+					Sfx.play("poof")
 				ui.refresh()
 				await ta.play_ko()
 				await _wait(0.25)
 			"revive":
 				Sfx.play("heal")
 				ta.play_revive()
+				fx.puff("feather", ta, "rise", 3)
 				ui.popup(screen_point(target, "top"), "Debout !", Color("#8af0a0"), 28)
 				ui.refresh()
 				await _wait(0.5)
 			"miss":
+				Sfx.play("swoosh", 1.3)
+				fx.puff("dust", ta, "burst", 3)
 				ui.popup(screen_point(target, "top"), "Raté !", Color("#b9b2a6"), 26)
 				await _wait(0.4)
 			"counter":
@@ -405,6 +443,7 @@ func _play(events: Array) -> void:
 				await _wait(0.35)
 			"steal":
 				if int(e.get("amount", 0)) > 0:
+					Sfx.play("coin")
 					ui.popup(screen_point(target, "top") + Vector2(0, -30), "+%d écus" % int(e["amount"]), Color("#ffd27a"), 24)
 				else:
 					ui.popup(screen_point(target, "top") + Vector2(0, -30), "Poches vides", Color("#b9b2a6"), 22)

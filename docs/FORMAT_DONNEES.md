@@ -320,6 +320,74 @@ Monstres dessinés disponibles : `limace`, `baveuse`, `guepe`, `frelon`, `champi
 `epouvantail`, `sanglier`, `solitaire`, `grenouille`, `crapaud`, `sangsue`, `follet`
 (la liste exacte est dans `src/gfx/monster_painter.gd`, table `SIZES`).
 
+### Animations de combat — `data/animations.json`
+
+Chaque attaque de base, compétence et objet utilisable en combat a son animation. Le
+moteur (`src/battle/battle_fx.gd`) ne connaît aucune compétence : il lit ce fichier.
+
+**Quelle animation est jouée ?**
+
+- Compétence ou objet : l'animation qui porte **le même identifiant** (`"coup_de_poele"`
+  dans `skills.json` joue `"coup_de_poele"` dans `animations.json`). Un champ facultatif
+  `"anim": "autre_nom"` dans la compétence ou l'objet permet d'en réutiliser une autre.
+- Attaque de base : le champ `"attack_anim"` du bloc `battle` d'un personnage, ou de la
+  fiche d'un ennemi.
+- Rien de tout cela n'existe : l'animation de repli de l'élément (`attaque_feu`,
+  `attaque_tranchant`...), puis `defaut`. Le jeu ne plante donc jamais, mais le test
+  automatique signale toute compétence, tout objet ou toute attaque sans animation à soi.
+
+```json
+"coup_de_poele": {"pose": "strike", "impact": 0.4, "sound": "swoosh", "pitch": 0.8, "steps": [
+	{"fx": "swing", "sprite": "pan", "scale": 2.4, "at": 0.26},
+	{"fx": "burst", "sprite": "star", "count": 5, "at": 0.38, "sound": "clang"},
+	{"fx": "flash", "color": "#ffffff", "power": 0.2, "at": 0.38},
+	{"fx": "shake", "power": 0.8, "at": 0.38}]}
+```
+
+- `pose` : ce que fait le lanceur. `strike` (élan, bond et coup), `charge` (course tête
+  baissée), `sneak` (disparaît et frappe dans le dos), `stomp` (saut et retombée lourde),
+  `spin` (tour sur soi au contact), `cast` (s'élève pour lancer un sort), `throw` (lancer),
+  `shoot` (vise, puis recul du tir), `sleep` (bascule en arrière), `eat` (hoche, la bouche
+  pleine), `guard` (se ramasse), `shout` (prend son souffle et crie), `none`.
+- `impact` : moment, en secondes, où le coup porte ; les chiffres de dégâts apparaissent à
+  cet instant. `sound` et `pitch` : son joué au départ.
+- `steps` : les effets, chacun daté par `at` (secondes depuis le début). Champs communs :
+  `sprite` (dessin), `scale` (taille), `color` (`"#rrggbb"`, ou `"element"` pour la
+  couleur de l'élément du coup), `add` (lumineux), `count`, `duration`, `sound`, `pitch`,
+  `on` (`targets` chaque cible, par défaut ; `caster` le lanceur ; `center` le milieu du
+  groupe visé), `where` (`center`, `top`, `feet`), `each` (décalage entre deux cibles).
+- Types d'effets (`fx`) :
+  - `projectile` : le sprite part du lanceur vers la cible (`arc` hauteur de la cloche,
+    `spin` tours sur lui-même, `from: "sky"` s'il vient du ciel) ;
+  - `drop` : tombe sur la cible (`height`, `stay` temps de pose à l'arrivée) ;
+  - `swing` : arme brandie en arc de cercle sur la cible (`angle`, négatif pour un revers) ;
+  - `burst` : `count` sprites jaillissent autour du point (`radius`, `grow`, `spin`) ;
+  - `rise` : `count` sprites montent l'un après l'autre (`height`) : Zzz, cœurs, flèches ;
+  - `rain` : `count` sprites pleuvent sur la zone (`spread` largeur, `height`) ;
+  - `cloud` : `count` bouffées gonflent et se dissipent (`spread`) ;
+  - `ring` : anneau qui s'élargit (`grow`) ;
+  - `light` : lueur colorée (`power`) ; `flash` : éclair sur tout l'écran (`power` 0 à 0,8) ;
+  - `shake` : secousse de caméra (`power` 0 à 1) ; `sound` : un son seul.
+- Sprites disponibles (16 × 16 px, peints dans `src/gfx/fx_painter.gd`, table `KINDS`) :
+  `spark`, `flame`, `star`, `bolt`, `leaf`, `zzz`, `note`, `pan`, `ladle`, `knife`,
+  `sickle`, `sword`, `arrow`, `axe`, `staff`, `bottle`, `mug`, `smoke`, `bubble`, `drop`,
+  `ring`, `slash`, `impact`, `plus`, `shield`, `skull`, `coin`, `pillow`, `feather`,
+  `rocket`, `eye`, `bang`, `bowl`, `bread`, `cloud`, `root`, `stinger`, `tusk`, `tongue`,
+  `fork`, `pot`, `lid`, `scroll`, `crown`, `heart`, `up`, `down`, `dizzy`, `slime`,
+  `spore`, `fang`, `hoof`, `wave`, `finger`, `band`, `mouth`, `dust`, `petard`, `hand`,
+  `straw`, `web`, `pix`. Un fichier `assets/sprites/fx/<nom>.png` remplace le dessin.
+  Les sprites qui ont un sens (flèche, langue, doigt) sont dessinés pointant vers la droite.
+- Sons disponibles (synthétisés dans `src/core/sfx.gd`) : `swoosh`, `clang`, `slash`,
+  `thud`, `boom`, `zap`, `fire`, `snore`, `gulp`, `splat`, `buzz`, `whistle`, `twang`,
+  `roar`, `croak`, `chime`, `poof`, `yawn`, `coin`, `guard`, `squeak`, `stomp`, `bubble`,
+  `pop`, `fanfare`, `shriek`, `munch`, `burp`, `wind`, `rustle`, `bell`, plus ceux de
+  l'interface (`hit`, `weak`, `magic`, `heal`, `status`, `break`, `ko`...).
+- Réactions communes, réglées ailleurs : dans `elements.json`, `"fx"` et `"sound"` donnent
+  l'éclat et le son d'un coup de cet élément ; dans `statuses.json`, `"fx"` est le symbole
+  qui s'élève quand l'état est posé (crâne du poison, Zzz du sommeil, bouclier...).
+- **Ajouter une compétence** : l'écrire dans `skills.json`, puis écrire dans
+  `animations.json` une entrée du même nom en recopiant celle qui ressemble le plus.
+
 ### `data/encounters.json`
 
 - `encounters` : rencontres nommées, lancées par un dialogue. `enemies` (liste), `arena`,

@@ -15,6 +15,8 @@ const Rules = preload("res://src/battle/rules.gd")
 const MonsterPainter = preload("res://src/gfx/monster_painter.gd")
 const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
+const BattleFx = preload("res://src/battle/battle_fx.gd")
+const FxPainter = preload("res://src/gfx/fx_painter.gd")
 
 var failures := 0
 var checks := 0
@@ -44,12 +46,16 @@ func _ready() -> void:
 	_test_step4()
 	print("== Talents ==")
 	_test_talents()
+	print("== Animations de combat : données ==")
+	_test_animations()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
 		return
 	print("== Combat : scène et interface ==")
 	await _test_battle_scene()
+	print("== Animations de combat : jouées une à une ==")
+	await _test_animation_play()
 	print("== Cartes ==")
 	for id in Database.list_maps():
 		await _test_map(id)
@@ -967,6 +973,147 @@ func _test_balance() -> void:
 		var rate := float(wins) / runs
 		check(rate >= float(case[4]), "%s : %d %% de victoires en jeu automatique (attendu : au moins %d %%)" % [str(case[0]), int(rate * 100.0), int(float(case[4]) * 100.0)])
 		print("  %-50s %3d %% de victoires, %2d tours, %3d %% des PV restants" % [str(case[0]), int(rate * 100.0), turns / runs, int(100.0 * left / maxf(1.0, float(wins)))])
+	GameState.new_game()
+
+
+## Données des animations : tout ce qui se joue en combat a la sienne, et elle est valide.
+func _test_animations() -> void:
+	var fx: Node3D = BattleFx.new()
+	var errors: Array = fx.validate()
+	for e: Variant in errors:
+		check(false, str(e))
+	check(errors.is_empty(), "animations : données valides (%d problème(s))" % errors.size())
+	var own := {}
+	for id: String in Database.skills:
+		own[fx.anim_of(id, Database.get_skill(id))] = true
+	check(own.size() == Database.skills.size(), "chaque compétence a une animation à elle (%d pour %d)" % [own.size(), Database.skills.size()])
+	var attacks := {}
+	for id: String in Database.characters:
+		var ch := Database.get_character(id)
+		if ch.has("battle"):
+			attacks[str((ch["battle"] as Dictionary).get("attack_anim", ""))] = true
+	check(attacks.size() >= 7, "les héros ont des attaques de base distinctes (%d)" % attacks.size())
+	check(fx.resolve("etincelle", "feu") == "etincelle", "une compétence connue joue son animation")
+	check(fx.resolve("competence_future", "feu") == "attaque_feu", "une compétence sans animation prend celle de son élément")
+	check(fx.resolve("competence_future", "") == "defaut", "sans élément, animation par défaut")
+	for kind: String in FxPainter.KINDS:
+		var img: Image = FxPainter.paint(kind)
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				if img.get_pixel(x, y).a > 0.5:
+					filled += 1
+		check(filled >= 4, "sprite d'effet %s : dessiné (%d px)" % [kind, filled])
+		check(Sprites.fx(kind) != null, "sprite d'effet %s : accessible par Sprites.fx" % kind)
+	fx.free()
+	# le moteur de règles annonce l'animation dans l'événement « cast »
+	GameState.new_game()
+	var eng: RefCounted = BattleEngine.new()
+	eng.setup({"enemies": ["limace_molle"], "arena": "pre"}, 3)
+	var ev: Array = eng.perform(eng.party[0], {"type": "attack", "target": eng.enemies[0]})
+	check(str(ev[0].get("anim", "")) == "coup_de_baton", "attaque de Glandoulf : animation coup_de_baton (%s)" % str(ev[0].get("anim", "")))
+	ev = eng.perform(eng.party[0], {"type": "skill", "id": "etincelle", "target": eng.enemies[0]})
+	check(str(ev[0].get("anim", "")) == "etincelle", "Étincelle : animation etincelle (%s)" % str(ev[0].get("anim", "")))
+	if eng.enemies[0].alive():
+		ev = eng.perform(eng.enemies[0], {"type": "attack"})
+		check(str(ev[0].get("anim", "")) == "tete_molle", "attaque de la limace : animation tete_molle (%s)" % str(ev[0].get("anim", "")))
+	GameState.new_game()
+
+
+## Joue chaque animation pour de vrai (temps accéléré) : elle doit se voir, se terminer,
+## ne rien laisser à l'écran et remettre le lanceur à sa place. Puis un combat entier
+## avec les animations, et les poses de coup reçu, de KO et de retour.
+func _test_animation_play() -> void:
+	GameState.new_game()
+	for who: String in ["pepine", "sam"]:
+		GameState.add_to_party(who)
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 9
+	GameState.heal_party()
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var ui: Control = BattleUI.new()
+	layer.add_child(ui)
+	await get_tree().process_frame
+	var scene: Node3D = BattleScene.new()
+	add_child(scene)
+	scene.setup({"enemies": ["limace_molle", "sanglier_flapi", "guepe_cidre"], "arena": "pre"}, ui, 5)
+	await get_tree().process_frame
+	var allies: Array = []
+	var foes: Array = []
+	for c: RefCounted in scene.engine.party:
+		allies.append(scene.actor_of(c))
+	for c: RefCounted in scene.engine.enemies:
+		foes.append(scene.actor_of(c))
+	Engine.time_scale = 12.0
+	var played := 0
+	var index := 0
+	for id: String in Database.animations:
+		index += 1
+		# une fois sur quatre, c'est un ennemi qui la joue contre l'équipe (effets retournés)
+		var from_enemy := index % 4 == 0
+		var caster: Node3D = foes[index % foes.size()] if from_enemy else allies[index % allies.size()]
+		var targets: Array = allies if from_enemy else foes
+		await scene.fx.play(id, caster, targets, "feu")
+		var seen: bool = scene.fx.live_count() > 0 or caster.posing()
+		var t0 := Time.get_ticks_msec()
+		while (scene.fx.live_count() > 0 or caster.posing()) and Time.get_ticks_msec() - t0 < 8000:
+			await get_tree().process_frame
+		var clean: bool = scene.fx.live_count() == 0 and not caster.posing()
+		var back: bool = caster.position.distance_to(caster.home) < 0.01 and absf(caster._body.rotation.z) < 0.001 \
+				and caster._body.scale.is_equal_approx(caster._base_scale) and absf(caster._body.position.x) < 0.001
+		if not (seen and clean and back):
+			check(false, "animation %s : visible %s, nettoyée %s, lanceur en place %s" % [id, str(seen), str(clean), str(back)])
+		else:
+			played += 1
+	check(played == Database.animations.size(), "%d animations jouées et terminées proprement sur %d" % [played, Database.animations.size()])
+
+	# coup reçu, KO d'un ennemi, KO puis retour d'un allié
+	var foe: Node3D = foes[0]
+	foe.play_hit(true)
+	await get_tree().process_frame
+	check(absf(foe._body.rotation.z) > 0.0 or absf(foe._body.position.x) > 0.0, "coup reçu : le combattant recule")
+	await foe.play_ko()
+	check(foe.down and not foe.visible, "KO d'un ennemi : il s'aplatit et disparaît")
+	var ally: Node3D = allies[1]
+	ally.play_pose("cast", ally.home, 0.5)
+	await ally.play_ko()
+	check(ally.down and absf(ally._body.rotation.z + PI * 0.5) < 0.01, "KO d'un allié en pleine pose : il reste couché")
+	ally.play_revive()
+	var t1 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t1 < 400:
+		await get_tree().process_frame
+	check(not ally.down and absf(ally._body.rotation.z) < 0.001 and absf(ally._body.position.y - ally._hover) < 0.01, "retour d'un allié : debout à sa place")
+	ui.close()
+	remove_child(scene)
+	scene.queue_free()
+	await get_tree().process_frame
+
+	# un combat entier joué avec ses animations (et non en mode « sans attente »)
+	GameState.heal_party()
+	var s: Node3D = BattleScene.new()
+	add_child(s)
+	s.auto = true
+	s.setup({"enemies": ["limace_molle", "guepe_cidre", "champignon_dormeur"], "arena": "pre"}, ui, 11)
+	s.run()
+	var t2 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t2 < 90000:
+		await get_tree().process_frame
+		if ui._end_layer.visible:
+			ui._on_end("ok" if str(s.engine.result) == "victory" else "title")
+		if str(s.outcome) != "":
+			break
+	check(str(s.outcome) == "victory", "combat animé joué jusqu'au bout (issue : %s)" % str(s.outcome))
+	var t3 := Time.get_ticks_msec()
+	while s.fx.live_count() > 0 and Time.get_ticks_msec() - t3 < 3000:
+		await get_tree().process_frame
+	check(s.fx.live_count() == 0, "combat animé : aucun effet ne reste à l'écran")
+	Engine.time_scale = 1.0
+	ui.close()
+	remove_child(s)
+	s.queue_free()
+	await get_tree().process_frame
+	layer.queue_free()
 	GameState.new_game()
 
 

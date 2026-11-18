@@ -102,6 +102,7 @@ func _make_member(id: String, level: int, hp: int, mp: int, geared: bool = false
 	c.skills = GameState.member_skills(id) if geared else Rules.skills_at(id, level)
 	c.element = str(def.get("element", "contondant"))
 	c.attack_name = str(def.get("attack_name", "Attaque"))
+	c.attack_anim = str(def.get("attack_anim", ""))
 	c.sprite = {"character": id}
 	c.data = def
 	return c
@@ -119,6 +120,7 @@ func _make_enemy(id: String) -> Combatant:
 	c.mp = 9999
 	c.element = str(def.get("element", "contondant"))
 	c.attack_name = str(def.get("attack_name", "Attaque"))
+	c.attack_anim = str(def.get("attack_anim", ""))
 	c.weak = _strings(def.get("weak", []))
 	c.immune = _strings(def.get("immune", []))
 	c.shield_max = int(def.get("shield", 0))
@@ -184,7 +186,7 @@ func action_def(actor: Combatant, action: Dictionary) -> Dictionary:
 	match str(action.get("type", "")):
 		"attack":
 			return {
-				"name": actor.attack_name, "target": "enemy", "cost": 0,
+				"name": actor.attack_name, "target": "enemy", "cost": 0, "anim": actor.attack_anim,
 				"effects": [{"type": "damage", "stat": "atk", "power": 100, "element": actor.element}],
 			}
 		"skill":
@@ -387,7 +389,11 @@ func perform(actor: Combatant, action: Dictionary) -> Array:
 	for fx: Variant in effects:
 		if fx is Dictionary and str(fx.get("type", "")) == "damage":
 			element = str(fx.get("element", actor.element))
-	events.append({"type": "cast", "actor": actor, "name": str(def.get("name", "")), "kind": type, "element": element, "targets": targets})
+	# animation : celle que nomme l'action, sinon celle qui porte son identifiant
+	var anim := str(def.get("anim", ""))
+	if anim == "" and type != "attack":
+		anim = str(action.get("id", ""))
+	events.append({"type": "cast", "actor": actor, "name": str(def.get("name", "")), "kind": type, "element": element, "targets": targets, "anim": anim})
 	if targets.is_empty():
 		events.append({"type": "fizzle", "actor": actor})
 		return events

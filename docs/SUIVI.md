@@ -123,6 +123,29 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
 - l'**intégration au chapitre 1** : une recrue arrive avec les points de son niveau ; le
   Naze a été renforcé pour rester un vrai boss face à une équipe qui a ses talents.
 
+**Animations de combat (priorité 2 de l'auteur, 18 novembre 2026) : terminées.**
+
+- Chaque attaque de base (8 héros, 17 ennemis), chacune des 74 compétences et chacun des
+  7 objets utilisables en combat a **son animation à elle** : 107 animations dans
+  `data/animations.json`, jouées par `src/battle/battle_fx.gd`, qui ne connaît aucune
+  compétence.
+- **Douze poses** du lanceur (`strike`, `charge`, `sneak`, `stomp`, `spin`, `cast`,
+  `throw`, `shoot`, `sleep`, `eat`, `guard`, `shout`) : élan et bond jusqu'au contact,
+  course tête baissée, passage dans le dos, saut et retombée, incantation, lancer, tir...
+- **Douze types d'effets** (projectile, chute, arme brandie, gerbe, montée, pluie, nuage,
+  anneau, lueur, éclair d'écran, secousse, son) et **62 petits sprites d'effets** peints
+  par code (`src/gfx/fx_painter.gd`) : poêle, louche, fusée, oreiller, Zzz, éclair,
+  flèche, hache, bol, chope, parchemin, langue, dard, sabot...
+- **Coup reçu** : éclair blanc, recul et bascule en arrière, plus marqués sur une faiblesse
+  ou un critique (avec éclair d'écran) ; éclat et son propres à l'élément du coup.
+  **KO** : un allié chancelle puis s'effondre, un ennemi sursaute puis s'aplatit dans un
+  nuage de poussière. **Retour** : l'allié se relève d'un bond, plumes.
+- États, soins, mana, garde, coup raté, vol : chacun a son symbole (crâne, Zzz, bouclier,
+  croix vertes, gouttes bleues...) et son bruit.
+- **31 nouveaux sons** synthétisés (souffle filtré et trémolo ajoutés au générateur).
+- Une compétence future sans animation prend celle de son élément, puis `defaut` : le jeu
+  ne plante pas, et le test automatique la signale.
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -407,6 +430,35 @@ dossier du projet.
     les images n'était pas disponible pour l'agent principal ; les captures de l'écran de
     talents ont été regardées par un agent secondaire, qui en a fait un rapport de défauts.
 
+### Décisions des animations de combat (18 novembre 2026)
+
+68. **Une animation porte le nom de sa compétence.** `animations.json` est indexé par
+    l'identifiant de la compétence ou de l'objet ; un champ `anim` permet d'en emprunter
+    une autre. Raison : ajouter une compétence ne demande alors qu'une entrée de plus, sans
+    rien relier à la main, et un oubli se voit tout de suite dans le test.
+69. **Les poses sont des mouvements du sprite entier** (pencher, bondir, s'aplatir, se
+    retourner), pas de nouveaux dessins. Raison : les planches actuelles n'ont que des
+    poses de marche, et l'étape suivante (pixel art) les refait entièrement ; dessiner des
+    poses d'attaque maintenant aurait été du travail jeté. Les armes et objets brandis
+    sont des sprites d'effets à part, ce qui marche aussi pour les ennemis.
+70. **Sprites d'effets nets, sans transparence.** Un sprite translucide était flouté avec
+    l'arrière-plan par le flou de profondeur (constaté sur les premières captures : effets
+    pâles, « en damier », méconnaissables). Ils sont donc découpés franchement, comme les
+    personnages, et disparaissent en rétrécissant au lieu de s'estomper.
+71. **L'animation rend la main à l'instant de l'impact** (`impact`), et les chiffres de
+    dégâts suivent. Les effets finissent seuls. Raison : garder le rythme des combats ; la
+    plupart des animations durent entre 0,3 et 1 seconde avant l'impact.
+72. **Le test joue les 107 animations pour de vrai**, en temps accéléré douze fois, et un
+    combat entier avec animations. Raison : jusque-là les tests tournaient « sans
+    animation », et une erreur dans une animation aurait bloqué l'auteur en plein combat.
+73. **Les captures d'animation sont prises à l'horloge**, 0,09 s après l'impact, et non en
+    comptant les images : l'écran de ce Mac tourne à 120 images par seconde et les
+    premières captures tombaient en plein élan.
+74. **Le journal de quêtes n'a pas été retouché pour le Naze.** L'auteur ne l'avait pas
+    trouvé ; vérification faite, la quête principale déroule déjà les étapes une à une
+    (compagnons, potager, dormir chez Berthe, estrade, Morfales, Naze). À revoir si
+    l'auteur bute encore.
+
 ## Préparé pour la suite, mais pas fait
 
 - `GameState.chapter` vaut `chapitre_2` à la fin du chapitre 1 : c'est le point
@@ -429,9 +481,20 @@ dossier du projet.
 - Les sprites générés sont propres mais raides : deux poses de marche seulement, visages de
   quelques pixels.
 - Pas de musique, pas d'options (volume, touches).
-- Combat : les sprites n'ont pas de pose d'attaque dédiée (ils bondissent vers la cible) ;
-  les sorts sont figurés par des gerbes de particules colorées, sans animation propre à
-  chaque sort ; les monstres n'ont que deux images d'animation.
+- Combat : les poses d'attaque, de sort, de coup reçu et de KO sont des mouvements du
+  sprite entier (penché, bond, aplatissement), pas des dessins dédiés : les bras ne
+  bougent pas, l'arme est un sprite à part. Les monstres n'ont que deux images.
+- Animations de combat : neuf sur 107 ont été capturées (`34` à `42`) et décrites par un
+  assistant, trois fois de suite ; note de lisibilité passée de 4 à 6 sur 10. Les derniers
+  réglages (poêle plus petite, éclair moins éblouissant, oreillers plus gros, sanglier
+  qui reste au contact) n'ont pas été redécrits. Les 98 autres ne sont vérifiées que par
+  programme : elles se jouent, se terminent et nettoient l'écran, mais personne n'a jugé
+  leur allure. Les sons n'ont été entendus par personne.
+- Une capture fige un instant : certains effets (éclair, nourriture du banquet, anneaux du
+  cri) sont déjà passés ou pas encore là sur l'image, sans que ce soit un défaut.
+- Le feu d'artifice du Bouquet final masque en partie les ennemis pendant une demi-seconde.
+- L'outil de captures quitte en plein combat et affiche des erreurs de fermeture du moteur
+  graphique : sans effet sur le jeu.
 - L'équilibre a été réglé par des combats simulés où l'ordinateur joue l'équipe, pas par
   un humain : il faudra l'ajuster après un vrai essai.
 - Hors combat, seuls les objets qui rendent des PV ou du mana s'utilisent depuis le sac.
@@ -453,8 +516,7 @@ dossier du projet.
 - Étape 3 : l'écran de talents a été capturé (`30` à `33`) et décrit par un assistant, pas
   encore jugé par l'auteur en jouant. Le curseur au clavier est vérifié par le test ; la
   souris et la manette n'ont pas été essayées sur cet écran.
-- Les talents n'ont pas d'animation propre : une riposte, un vol ou un coup raté
-  s'affichent par un simple texte au-dessus du personnage.
+- La riposte d'un talent n'a pas d'animation propre (un texte, puis le coup reçu).
 - Les récupérations de PV et de mana des talents ajoutent un petit temps d'affichage au
   début de chaque tour du personnage concerné.
 - L'intérêt relatif des deux voies de chaque personnage n'a pas été jugé par un joueur.
@@ -468,10 +530,11 @@ dossier du projet.
 
 1. Jouer le chapitre 1 en entier et noter ce qui est trop dur, trop facile ou trop long :
    l'équilibre n'a été réglé que par simulation.
-2. **Animations de combat** (priorité 2 de l'auteur) : poses d'attaque, de sort, de coup
-   reçu et de KO ; un effet reconnaissable par compétence et par objet, décrit dans les
-   données ; secousses, flashs, sons. Puis **pixel art** (priorité 3) : sprites refaits,
-   quatre poses de marche, repos animé, Morfales et Naze dédiés, portraits, décors.
+2. **Pixel art** (priorité 3 de l'auteur, prochaine étape) : sprites refaits, quatre poses
+   de marche, repos animé, Morfales et Naze dédiés, portraits, décors. En profiter pour
+   dessiner de vraies poses de combat (attaque, sort, coup reçu, KO) et les brancher dans
+   `battle_actor.gd` à la place des mouvements du sprite entier. Retoucher les animations
+   de combat que l'auteur trouvera peu lisibles (`data/animations.json`).
 3. Essayer les talents en jouant : vérifier que les deux voies de chacun font envie, que
    l'écran se lit bien, et retoucher les chiffres (`data/talents.json`).
 4. Chapitre 2 : Brie, le Poney Flagada, la rencontre d'Aragrogne.

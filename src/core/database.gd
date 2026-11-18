@@ -20,6 +20,7 @@ var arenas: Dictionary = {}
 var quests: Dictionary = {}
 var shops: Dictionary = {}
 var talents: Dictionary = {}
+var animations: Dictionary = {}
 var _maps: Dictionary = {}
 
 
@@ -40,6 +41,7 @@ func reload() -> void:
 	quests = load_json(DATA_DIR + "quests.json")
 	shops = load_json(DATA_DIR + "shops.json")
 	talents = load_json(DATA_DIR + "talents.json")
+	animations = load_json(DATA_DIR + "animations.json")
 	var enc := load_json(DATA_DIR + "encounters.json")
 	encounters = _section(enc, "encounters")
 	encounter_tables = _section(enc, "tables")
@@ -147,6 +149,11 @@ func get_element(id: String) -> Dictionary:
 
 func get_status(id: String) -> Dictionary:
 	return _entry(statuses, id)
+
+
+## Animation de combat (data/animations.json), vide si elle n'existe pas.
+func get_animation(id: String) -> Dictionary:
+	return _entry(animations, id)
 
 
 func get_skill(id: String) -> Dictionary:

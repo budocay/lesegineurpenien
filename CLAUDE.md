@@ -51,26 +51,37 @@ construit, comment l'essayer en jouant, ce qui n'a pas pu être vérifié.
 - `src/world/` : construction des cartes, joueur, personnages, caméra, ambiance.
 - `src/battle/` : `battle_engine.gd` (toutes les règles, sans affichage : c'est lui que
   les tests interrogent), `battle_scene.gd` (arène et mise en scène), `battle_actor.gd`
-  (animation d'un combattant), `battle_ui.gd`, `rules.gd` (niveaux, statistiques, talents).
+  (poses d'un combattant), `battle_fx.gd` (joue les animations de `data/animations.json`),
+  `battle_ui.gd`, `rules.gd` (niveaux, statistiques, talents).
+- Animations de combat : une entrée de `data/animations.json` par compétence, objet et
+  attaque de base (même identifiant ; `attack_anim` pour les attaques). Sprites d'effets
+  dans `src/gfx/fx_painter.gd` (accès : `Sprites.fx`), sons dans `src/core/sfx.gd`.
+  Format complet dans `docs/FORMAT_DONNEES.md`.
 - `src/ui/` : titre, dialogues, pause, HUD, `game_menu.gd` (équipe, inventaire, journal,
   boutiques), `talent_screen.gd` (écran de talents).
 - `tests/` : `smoke_test` (test automatique) et `capture` (captures d'écran).
 
 ## État au 18 novembre 2026
 
-Chapitre 1 jouable de bout en bout (étapes 1 à 5). Étape 3 (talents) terminée avec un
-écran dédié. Ordre de travail fixé par l'auteur pour la suite, une étape à la fois, en
+Chapitre 1 jouable de bout en bout (étapes 1 à 5). Talents terminés avec un écran dédié.
+Animations de combat terminées (107 animations décrites dans les données). Ordre de travail fixé par l'auteur pour la suite, une étape à la fois, en
 s'arrêtant après chacune pour qu'il teste :
 
 1. ~~Talents~~ (fait).
-2. **Animations de combat** : chaque attaque, compétence et objet a son animation
-   reconnaissable, décrite dans les données ; poses d'attaque, de sort, de coup reçu, de
-   KO ; secousses de caméra, flashs, sons.
+2. ~~Animations de combat~~ (fait ; les poses sont des mouvements du sprite entier, à
+   remplacer par de vrais dessins pendant l'étape pixel art).
 3. **Pixel art** : sprites refaits (quatre poses de marche par direction, repos animé),
    sprites dédiés pour les Morfales et le Naze, monstres retravaillés, portraits dans les
    dialogues et les menus, décors plus riches ; comparer les captures avant/après.
 
 ## Pièges connus
+
+- Un sprite d'effet translucide est flouté par le flou de profondeur : garder la découpe
+  franche (`ALPHA_SCISSOR`) de `battle_fx.gd`.
+- L'écran tourne à 120 images par seconde : dans `tests/capture.gd`, attendre en secondes
+  et non en images quand l'instant compte.
+- Toute nouvelle compétence, tout nouvel objet de combat ou ennemi doit avoir son entrée
+  dans `data/animations.json`, sinon le test automatique échoue.
 
 - L'agent principal n'a pas toujours d'outil pour afficher les PNG : faire décrire les
   captures par un agent secondaire et le dire dans le compte rendu.

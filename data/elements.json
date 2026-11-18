@@ -1,8 +1,8 @@
 {
-	"contondant": {"name": "Contondant", "short": "Choc", "color": "#d9b98a"},
-	"tranchant": {"name": "Tranchant", "short": "Lame", "color": "#cfd8ea"},
-	"feu": {"name": "Feu", "short": "Feu", "color": "#ff8a4a"},
-	"foudre": {"name": "Foudre", "short": "Foudre", "color": "#ffe066"},
-	"plante": {"name": "Plante", "short": "Herbe", "color": "#8ed06a"},
-	"torpeur": {"name": "Torpeur", "short": "Torpeur", "color": "#b89cf0"}
+	"contondant": {"name": "Contondant", "short": "Choc", "color": "#d9b98a", "fx": "impact", "sound": "thud"},
+	"tranchant": {"name": "Tranchant", "short": "Lame", "color": "#cfd8ea", "fx": "slash", "sound": "slash"},
+	"feu": {"name": "Feu", "short": "Feu", "color": "#ff8a4a", "fx": "flame", "sound": "fire"},
+	"foudre": {"name": "Foudre", "short": "Foudre", "color": "#ffe066", "fx": "bolt", "sound": "zap"},
+	"plante": {"name": "Plante", "short": "Herbe", "color": "#8ed06a", "fx": "leaf", "sound": "rustle"},
+	"torpeur": {"name": "Torpeur", "short": "Torpeur", "color": "#b89cf0", "fx": "spore", "sound": "poof"}
 }
