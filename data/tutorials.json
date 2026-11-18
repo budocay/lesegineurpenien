@@ -1,0 +1,93 @@
+{
+	"tips": [
+		{
+			"id": "deplacement", "trigger": "arrive", "who": "glandoulf",
+			"title": "Se déplacer",
+			"text": "Marcher, donc. Voilà le principe de toute aventure, et c'est déjà trop. Le reste du corps suivra, en principe.",
+			"keys": [["move", "marcher"]]
+		},
+		{
+			"id": "interaction", "trigger": "interact_near", "who": "glandoulf",
+			"title": "Parler, lire, fouiller",
+			"text": "Une bulle au-dessus de quelqu'un ou de quelque chose ? C'est qu'on peut lui adresser la parole, ou l'examiner. Poliment, et sans que cela dure.",
+			"keys": [["interact", "parler, examiner, faire défiler"]]
+		},
+		{
+			"id": "journal", "trigger": "quest_started", "who": "glandoulf",
+			"title": "Le journal de quêtes",
+			"text": "Une quête : voilà qui est fâcheux. J'ai tout noté pour n'avoir pas à m'en souvenir. L'étape en cours reste affichée en haut à gauche ; le détail est dans le menu, à la ligne « Quêtes ».",
+			"keys": [["menu", "ouvrir le menu"]]
+		},
+		{
+			"id": "equipement", "trigger": "equip_item", "who": ["sam", "glandoulf"],
+			"title": "De quoi s'habiller",
+			"text": "Du nouvel équipement ! Dans le menu, « Équipe » : chacun porte cinq pièces (arme, chapeau, tenue, deux accessoires), et la comparaison des statistiques s'affiche avant de valider.",
+			"keys": [["menu", "ouvrir le menu"]]
+		},
+		{
+			"id": "talents", "trigger": "talent_point", "who": "glandoulf",
+			"title": "Niveau gagné",
+			"text": "Un niveau de plus, et un point de talent avec. Menu, puis « Talents » : on choisit une branche et on en débloque les pouvoirs dans l'ordre. Un point gardé en poche ne soigne personne.",
+			"keys": [["menu", "ouvrir le menu"]]
+		},
+		{
+			"id": "repos", "trigger": "rest", "who": ["sam", "glandoulf"],
+			"title": "Un bon lit",
+			"text": "Un lit, une soupe, et toute l'équipe retrouve ses PV et son mana. C'est le seul remède contre la fatigue qui ait jamais fait l'unanimité."
+		},
+		{
+			"id": "sauvegarde", "trigger": "save", "who": "glandoulf",
+			"title": "Plusieurs emplacements",
+			"text": "Sauvegardé. Pour d'autres emplacements : menu, « Sauvegarder ». La partie s'enregistre aussi d'elle-même à chaque changement de lieu, et avant les combats sans fuite. Même les flemmards sont couverts.",
+			"keys": [["menu", "ouvrir le menu"]]
+		},
+		{
+			"id": "boutique", "trigger": "shop", "mode": "pause", "who": ["sam", "glandoulf"],
+			"title": "Au comptoir",
+			"text": "On achète, on vend, on marchande de loin. Avant de payer, la fiche compare l'objet à ce que porte déjà le personnage choisi ; Gauche et Droite changent de personnage.",
+			"keys": [["elan", "changer de personnage"], ["interact", "acheter"], ["cancel", "retour"]]
+		},
+		{
+			"id": "combat_tours", "trigger": "party_turn", "mode": "pause", "who": ["sam", "glandoulf"],
+			"title": "Chacun son tour",
+			"text": "En haut, la frise : l'ordre des tours. Plus on est vif, plus on joue souvent. À vous de choisir : « Attaquer », puis la victime. Ce n'est pas une sieste, mais ça y ressemble.",
+			"keys": [["choose", "choisir"], ["interact", "valider"], ["cancel", "annuler"]]
+		},
+		{
+			"id": "elan", "trigger": "party_turn", "mode": "pause", "when": "elan & turn>=2", "who": "glandoulf",
+			"title": "L'élan",
+			"text": "Chaque tour donne un point d'élan : ce sont les pastilles dorées. Avant de valider une action, Gauche et Droite en engagent jusqu'à trois pour un coup plus fort, un soin plus généreux. Garder son élan pour le bon moment est une vertu.",
+			"keys": [["elan", "engager l'élan"], ["interact", "valider"]]
+		},
+		{
+			"id": "faiblesse", "trigger": "weak", "mode": "pause", "who": "glandoulf",
+			"title": "Faiblesse !",
+			"text": "Frapper la faiblesse d'un ennemi fait plus mal, et entame son bouclier (le chiffre près de son nom). On ignore ses faiblesses au début : on les découvre en essayant, et le bestiaire s'en souvient.",
+			"keys": [["interact", "continuer"]]
+		},
+		{
+			"id": "brise", "trigger": "break", "mode": "pause", "who": "glandoulf",
+			"title": "Bouclier brisé",
+			"text": "Plus de bouclier : l'ennemi est Brisé. Il passe son prochain tour et encaisse davantage. C'est l'instant de frapper fort, ou de reprendre son souffle.",
+			"keys": [["interact", "continuer"]]
+		},
+		{
+			"id": "allie_a_terre", "trigger": "ally_down", "mode": "pause", "who": ["sam", "glandoulf"],
+			"title": "Allié à terre",
+			"text": "Un allié à terre ne joue plus, mais rien n'est perdu : une Racine-qui-réveille (menu « Objets ») ou certains sorts le relèvent. Si tout le monde tombe, c'est la défaite. Évitez, de préférence.",
+			"keys": [["interact", "continuer"]]
+		},
+		{
+			"id": "reserve", "trigger": "reserve", "who": ["sam", "glandoulf"],
+			"title": "La réserve",
+			"text": "Quatre combattants au plus : les autres patientent en réserve, bien au chaud, sans gagner d'expérience au combat. Menu, « Équipe », pour les faire tourner.",
+			"keys": [["menu", "ouvrir le menu"]]
+		},
+		{
+			"id": "boss", "trigger": "battle_start", "mode": "pause", "when": "boss", "who": "glandoulf",
+			"title": "Pas d'issue de secours",
+			"text": "Ce combat-là ne se fuit pas. La partie vient d'être sauvegardée : en cas de défaite, on pourra reprendre juste avant. Profitez-en pour y croire.",
+			"keys": [["interact", "continuer"]]
+		}
+	]
+}

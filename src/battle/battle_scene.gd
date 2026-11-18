@@ -513,6 +513,7 @@ func run() -> void:
 	if float(engine.softness) > 0.0:
 		ui.announce("Ramollissement : les coups physiques portent %d %% moins fort." % int(round(float(engine.softness) * 100.0)), 2.4)
 		await _wait(2.0)
+	await Tutorial.battle_event("battle_start", self)
 
 	var guard := 0
 	while engine.result == "" and guard < 2000:
@@ -537,6 +538,7 @@ func run() -> void:
 				await _wait(0.3)
 				action = engine.auto_action(actor)
 			else:
+				await Tutorial.battle_event("party_turn", self, actor)
 				var hints: Array = encounter.get("hints", [])
 				if engine.party_turns - 1 < hints.size():
 					ui.show_hint(str(hints[engine.party_turns - 1]))
@@ -648,6 +650,8 @@ func _play(events: Array) -> void:
 					ui.popup(screen_point(target, "top"), "Critique !", Color("#ffb060"), 22, 52.0)
 				ui.refresh()
 				await _wait(0.42)
+				if weak and target.side == "enemy":
+					await Tutorial.battle_event("weak", self)
 			"elan":
 				Sfx.play("elan", 1.3)
 				ui.popup(screen_point(target, "top"), "+1 élan", Color("#ffd24a"), 22, 20.0)
@@ -666,6 +670,7 @@ func _play(events: Array) -> void:
 				ui.popup(screen_point(target, "center"), "BRISÉ !", Color("#ff8a6a"), 38)
 				ui.refresh()
 				await _wait(0.7)
+				await Tutorial.battle_event("break", self)
 			"recover":
 				ta.set_stunned(false)
 				ui.popup(screen_point(target, "top"), "Se ressaisit", Color("#cfd8ea"), 22)
@@ -730,6 +735,8 @@ func _play(events: Array) -> void:
 				ui.refresh()
 				await ta.play_ko()
 				await _wait(0.25)
+				if target.side == "party":
+					await Tutorial.battle_event("ally_down", self)
 			"revive":
 				Sfx.play("heal")
 				ta.play_revive()

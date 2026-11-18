@@ -965,3 +965,29 @@ Pour qu'une scène suive ces réglages, l'objet créé passe par `Settings.apply
 Toute pièce d'intérieur (hors style nain) prolonge son sol au sud de sa dernière rangée de
 plancher, assombri peu à peu : la caméra, qui s'arrête à des bornes fixes, ne montre plus de
 bande noire. Purement décoratif, sans champ de données (`MapBuilder._build_interior_apron`).
+
+
+## Conseils de jeu (`data/tutorials.json`)
+
+Liste `tips` : des encarts qui s'affichent une seule fois, au moment où ils servent, puis se
+rangent dans « Aide » du menu de pause. Le moteur est `src/core/tutorial.gd` (autoload `Tutorial`).
+
+| Champ | Rôle |
+|---|---|
+| `id` | identifiant, unique ; c'est lui qui est enregistré dans la sauvegarde (`tutorials`) |
+| `trigger` | événement : `arrive`, `interact_near`, `quest_started`, `equip_item`, `talent_point`, `rest`, `save`, `shop`, `reserve`, `battle_start`, `party_turn`, `weak`, `break`, `ally_down` |
+| `mode` | `note` (défaut) : encart en bas à droite, n'interrompt rien ; `pause` : suspend le combat ou la boutique jusqu'à une touche |
+| `when` | condition facultative, termes liés par `&` : `turn>=N`, `elan`, `shield`, `ally_down`, `boss`, ou une condition de `GameState.check` |
+| `who` | personnage qui explique (identifiant ou liste ; le premier présent dans l'équipe parle) |
+| `title`, `text` | titre court (40 signes) et texte (320 signes au plus) ; `{interact}` etc. sont remplacés par la touche |
+| `keys` | `[[action, verbe], ...]` : pictogrammes affichés (`move`, `interact`, `cancel`, `menu`, `elan`, `choose` ou toute action de `InputMap`) ; clavier ou manette selon la dernière entrée |
+
+Règles : un conseil ne s'affiche qu'une fois par partie ; une sauvegarde sans clé `tutorials`
+(ancienne) les compte tous comme vus ; l'option `conseils` (Paramètres, « Conseils de jeu »)
+les coupe sans les marquer vus ; « Revoir les conseils » les remet à neuf. Aucun conseil de
+combat ne s'affiche en combat automatique, rapide, scripté (prologue) ou à `hints`. Pas de
+conseils dans les tests sauf `Tutorial.force_on`.
+
+Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale active et son
+étape (premier `steps[].done` non rempli de `data/quests.json`), annonce « Nouvelle quête »,
+« Quête mise à jour », « Quête terminée ».

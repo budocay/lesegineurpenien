@@ -67,6 +67,12 @@ func _build() -> void:
 				var w := f.get_string_size(note, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
 				b.draw_string(f, Vector2(b.size.x - w - 24.0, b.size.y * 0.5 + 4.0), note, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UI.INK_FAINT))
 			_list.add_child(b)
+		elif row.has("action"):   # ligne qui déclenche quelque chose au lieu de régler une valeur
+			var b := UI.menu_button(str(row["label"]), 21)
+			b.pressed.connect(_on_action.bind(str(row["action"])))
+			b.focus_entered.connect(func() -> void: _help.text = "Tous les conseils de jeu reviendront, un par un, au moment où ils servent.")
+			_list.add_child(b)
+			_ordered.append(b)
 		else:
 			var id := str(row["id"])
 			var b := UI.menu_button(str(row["label"]), 21)
@@ -150,6 +156,13 @@ func _step(id: String, dir: int) -> void:
 	Settings.set_value(id, (opts[j] as Array)[0])
 	Sfx.play("blip")
 	_refresh()
+
+
+func _on_action(action: String) -> void:
+	if action == "revoir":
+		Tutorial.reset_seen()
+		Sfx.play("confirm")
+		_help.text = "Les conseils de jeu reviendront, un par un, au moment où ils servent."
 
 
 func _on_reset() -> void:

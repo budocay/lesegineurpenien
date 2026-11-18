@@ -112,6 +112,7 @@ func _ready() -> void:
 	talents.closed.connect(_on_talents_closed)
 	GameState.quest_started.connect(_on_quest_started)
 	GameState.quest_completed.connect(_on_quest_completed)
+	Tutorial.install(self, ui)   # conseils de jeu : page « Aide » du menu de pause
 	SaveManager.before_save.connect(_sync_state)
 
 	show_title()
@@ -250,6 +251,7 @@ func _arrive() -> void:
 	hud.banner(str(world.map.get("name", "")), str(world.map.get("region", "")))
 	hud.set_softness(Database.softness(world.map))
 	busy = false
+	Tutorial.fire("arrive")
 	for e: Variant in world.map.get("on_enter", []):
 		if not (e is Dictionary):
 			continue
@@ -365,6 +367,7 @@ func start_battle(encounter: Dictionary) -> String:
 	busy = false
 	if GameState.party_talent_points() > points_before:
 		hud.toast("Points de talent à dépenser : Échap, puis « Talents »")
+		Tutorial.fire("talent_point")
 	return outcome
 
 
@@ -435,10 +438,12 @@ func _on_dialogue_action(action: String) -> void:
 			if SaveManager.save_game():
 				Sfx.play("save")
 				hud.toast("Partie sauvegardée (%s)" % SaveManager.slot_label(SaveManager.current_slot).to_lower())
+				Tutorial.fire("save")
 		"rest":
 			GameState.heal_party()
 			Sfx.play("heal")
 			hud.toast("L'équipe est reposée")
+			Tutorial.fire("rest")
 		_:
 			if action.begins_with("quitte:"):
 				# un compagnon quitte définitivement l'équipe (chapitre 4 : la chute de Glandoulf) ;
@@ -460,7 +465,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("fullscreen"):
 		PauseMenu.toggle_fullscreen()
 		return
-	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and not settings_screen.visible and event.is_action_pressed("menu"):
+	if mode == Mode.PLAY and world != null and battle == null and not busy and not dialogue.active and not pause.visible and not menus.visible and not talents.visible and not saves.visible and not settings_screen.visible and not Tutorial.help_open() and event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		_open_pause()
 
@@ -507,6 +512,7 @@ func _on_dialogue_shop(shop_id: String) -> void:
 		push_warning("Boutique inconnue : " + shop_id)
 		dialogue.resume()
 		return
+	await Tutorial.fire_wait("shop")
 	_menus_from = "dialogue"
 	menus.open_shop(shop_id)
 
@@ -522,6 +528,7 @@ func _on_menus_closed() -> void:
 
 func _on_quest_started(id: String) -> void:
 	hud.toast("Nouvelle quête : %s" % str(Database.get_quest(id).get("name", id)))
+	Tutorial.fire("quest_started")
 
 
 func _on_quest_completed(id: String, reward: Dictionary) -> void:
@@ -586,9 +593,10 @@ func _sync_state() -> void:
 
 
 func _process(_delta: float) -> void:
-	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or saves.visible or settings_screen.visible or world.focus.is_empty():
+	if mode != Mode.PLAY or world == null or battle != null or dialogue.active or pause.visible or menus.visible or talents.visible or saves.visible or settings_screen.visible or Tutorial.help_open() or world.focus.is_empty():
 		hud.hide_prompt()
 		return
 	var it: Dictionary = world.focus
 	var p: Vector3 = world.interactable_position(it) + Vector3(0.0, float(it.get("height", 1.3)) + 0.45, 0.0)
 	hud.show_prompt(str(it.get("label", "Examiner")), world.screen_position(p))
+	Tutorial.fire("interact_near")

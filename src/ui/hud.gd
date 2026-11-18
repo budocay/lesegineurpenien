@@ -118,6 +118,7 @@ func _ready() -> void:
 	add_child(_soft)
 	_soft_label = UI.label("", 16, Color("#f0c4c4"))
 	_soft.add_child(_soft_label)
+	add_child(preload("res://src/ui/objective_tracker.gd").new())   # rappel de la quête en cours
 
 
 ## Zone occupée par le titre de lieu (vide s'il est effacé).
