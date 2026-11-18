@@ -44,6 +44,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		_char.facing = "left" if combatant.side == "party" else "right"
 		_quad = _char._quad
 		height = float(_char.height) * scale_k
+		_contact_shadow(1.0 * scale_k)
 		var glow := float(sp.get("glow", 0.0))
 		if glow > 0.0:
 			var tex: Texture2D = Sprites.character(str(sp["character"]))["texture"]
@@ -62,26 +63,47 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 		_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 		_body.add_child(_quad)
 		height = h * scale_k
-		var blob := MeshInstance3D.new()
-		var plane := PlaneMesh.new()
-		plane.size = Vector2(w * 0.8, 0.45) * scale_k
-		blob.mesh = plane
-		var mat := StandardMaterial3D.new()
-		mat.albedo_texture = Sprites.prop("blob_shadow")
-		mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		blob.material_override = mat
-		blob.position = Vector3(0, 0.02, 0.04)
-		blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(blob)
+		_contact_shadow(w * 0.85 * scale_k)
 		# un monstre placé du côté de l'équipe (jamais le cas pour l'instant) serait retourné
 		if combatant.side == "party":
 			_body.scale.x = -1.0
+	_quad.set_instance_shader_parameter("rim", 0.7)   # liseré de contre-jour (voir sprite.gdshader)
 	_body.scale *= scale_k
 	_base_scale = _body.scale
 	_body.position.y = _hover
 	_animate(0.0)
+
+
+static var _shadow_tex: Texture2D = null
+
+
+## Ombre de contact franche sous les pieds : ovale sombre à bord net, au sol, sous chaque combattant.
+func _contact_shadow(width: float) -> void:
+	if _shadow_tex == null:
+		var img := Image.create(32, 12, false, Image.FORMAT_RGBA8)
+		for y in 12:
+			for x in 32:
+				var d := Vector2((x - 15.5) / 15.5, (y - 5.5) / 5.5).length()
+				var a := 0.0
+				if d < 0.62:
+					a = 0.72
+				elif d < 1.0:
+					a = 0.34
+				img.set_pixel(x, y, Color(0.02, 0.01, 0.03, a))
+		_shadow_tex = ImageTexture.create_from_image(img)
+	var blob := MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(width, width * 0.38)
+	blob.mesh = plane
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = _shadow_tex
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	blob.material_override = mat
+	blob.position = Vector3(0, 0.02, 0.06)
+	blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(blob)
 
 
 var _mpose := ""   # pose imposée à un monstre ("attack", "hit")
@@ -124,7 +146,7 @@ func set_active(active: bool) -> void:
 	if _active == active or down:
 		return
 	_active = active
-	var target := home + Vector3(_dir * 0.35, 0.0, 0.0) if active else home
+	var target := home + Vector3(_dir * 0.7, 0.0, 0.0) if active else home
 	if fast:
 		position = target
 		return
