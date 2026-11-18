@@ -138,6 +138,17 @@ l'auteur peut rayer ce qui ne lui plaît pas.
 
 ### Scénario détaillé des chapitres 5 à 7
 
+**Décisions de l'auteur (18 novembre 2026), qui priment sur le texte ci-dessous :** les
+grands orques sont les **Ouroukouilles**, les gobelins les **Gobelardons** ; les jeux sur
+le titre sont **appuyés**, partout, sans mot cru ; le Guetteur du lac ne porte pas le
+surnom de « Seigneur des Anneaux », réservé à Sauron ; **Bromure meurt**, de façon nulle
+et drôle à la fois (il survit à tout ce qui devait le tuer, puis disparaît sur un détail
+ridicule au milieu de son discours d'adieu, à la sortie des Mines ou aux Chutes du Gratin
+selon ce que le chapitre 4 aura construit) : il n'est donc ni alité ni présent aux
+chapitres 6 et 7, et Dénigror apprend la nouvelle ; Sauron est endormi et non tué ;
+Goulûm trahit puis se sacrifie ; l'armée des morts s'appelle les Éveillés ; le
+Raidissement et le titre d'Écuyer Tranchant de Merri sont acceptés.
+
 Proposition à valider par l'auteur, scène par scène. Rien n'est construit. Les créatures citées ont leur fiche dans `docs/BESTIAIRE.md`, les arènes de combat dans `docs/AMBIANCES_COMBAT.md`. Règle de ton rappelée : tous les personnages prennent la situation au sérieux ; le rire vient du double sens, du décalage administratif et de la paresse de Glandoulf.
 
 **Réglages valables pour les trois chapitres.**
@@ -186,7 +197,7 @@ Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Br
 
 **Scènes.**
 
-1. **Les Chutes du Gratin (captifs, jouable).** Au petit matin, les Ouroukandouilles tendent l'embuscade qu'on attendait depuis le col. Combat du sergent Uglouk. Pépin reconnaît une Louche Blanche sur un plastron : « Signé. » On ne comprend pas encore de qui. Les quatre Grobittes sont pris, le groupe des grands se bat plus loin sans pouvoir les rejoindre. *Chute :* Uglouk exige un reçu de livraison ; Merri le rédige, par réflexe.
+1. **Les Chutes du Gratin (captifs, jouable).** Au petit matin, les Ouroukouilles tendent l'embuscade qu'on attendait depuis le col. Combat du sergent Uglouk. Pépin reconnaît une Louche Blanche sur un plastron : « Signé. » On ne comprend pas encore de qui. Les quatre Grobittes sont pris, le groupe des grands se bat plus loin sans pouvoir les rejoindre. *Chute :* Uglouk exige un reçu de livraison ; Merri le rédige, par réflexe.
 2. ◆ **La plaine, première nuit (chasseurs, jouable).** Aragrogne suit la piste, Digoulasse se plaint qu'elle sent le pain chaud, Grimli compte les traces. Rencontre avec les **Cavaliers du Roquefort**, qui les prennent pour des voleurs de brebis. Éolaine, nièce du roi, les escorte à Cabécou. *Chute :* elle les fouille ; on trouve dans le sac de Grimli un fromage qu'il n'avait pas déclaré.
 3. **Cabécou (chasseurs).** La Bergerie d'Or. Le roi **Théodort** dort sur son trône, veillé par **Grimace Langue-de-Bois**. Combat contre Grimace (boss de parole : lui couper la parole trois fois). Éomèche, banni, rentre avec les siens. Le roi ne se réveille pas pour autant : il lui faut un autre argument. *Chute :* en tombant, Grimace laisse un papier : « Rapport hebdomadaire à l'Ordre des Mages, sans objet. »
 4. ◆ **L'Isengarde-Manger, de l'intérieur (captifs).** Ils sont enfermés au Garde-Manger, cages à jambon, étiquettes « À conserver ». Froton regarde l'anneau de plus en plus souvent. Merri note tout. Sam compte les jours.
@@ -198,7 +209,7 @@ Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Br
 10. **La bataille de l'Isengarde (tous).** Les chasseurs, les Entremets et les Cavaliers prennent la forteresse. Le joueur joue la brèche (Glandoulf, Aragrogne, Digoulasse, Grimli), puis le Garde-Manger (Froton, Sam, Pépin et Merri, qui revient). Barbe-Molle inonde les fosses ; la pâte lève trop, les fours s'éteignent.
 11. **Sarumâle, boss.** Sur la terrasse de l'Office. Première phase : robe blanche, *Réunion de service*. Seconde phase après l'inondation : *Heures supplémentaires*, *Dossier Glandoulf* (Glandoulf doit répondre à chaque accusation). Il est vaincu, sa robe est devenue bariolée. Il est condamné par Barbe-Molle à « rester sur place, le temps qu'il faut ».
 
-**Qui rejoint, qui part.** Glandoulf revient (scène 7). Merri quitte le groupe des captifs pour Cabécou (scène 9), puis les rejoint. Bromure est toujours au pont. Tout le monde est réuni à la fin, sauf Éolaine et Éomèche, qui restent chez eux.
+**Qui rejoint, qui part.** Glandoulf revient (scène 7). Merri quitte le groupe des captifs pour Cabécou (scène 9), puis les rejoint. Tout le monde est réuni à la fin, sauf Éolaine et Éomèche, qui restent chez eux.
 
 **Quêtes annexes.**
 
@@ -236,7 +247,7 @@ Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Br
 
 **Scènes.**
 
-1. **Les remparts, la première nuit (cité).** Froton, Sam, Glandoulf, Pépin arrivent avec Bromure alité, **Dénigror**, l'Intendant, qui dénigre tout : l'armée venue les sauver, la cuisine, la défaite, la victoire. *Chute :* il dit au premier soldat : « C'est cela, votre aide ? » Le soldat répond : « Oui. »
+1. **Les remparts, la première nuit (cité).** Froton, Sam, Glandoulf, Pépin arrivent devant **Dénigror**, l'Intendant, qui dénigre tout : l'armée venue les sauver, la cuisine, la défaite, la victoire. *Chute :* il dit au premier soldat : « C'est cela, votre aide ? » Le soldat répond : « Oui. »
 2. **Le ravitaillement des remparts (cité, quête).** Sam apprend à faire un pain de siège. Chute : « sans croûte, mais avec principe ».
 3. ◆ **Le Sentier des Insomniaques (Aragrogne, Digoulasse, Grimli).** Aragrogne descend vers l'armée des morts pour la convoquer, seul à pouvoir tenir son regard. Combat des **Éveillés** (quatre rencontres), puis du **Roi des Éveillés**. Aragrogne le vainc par *Par décret : dormez*. Les Éveillés prêtent allégeance à sa lignée.
 4. **La nuit avant la bataille (au choix).** Le joueur choisit : veiller avec Froton sur les remparts, ou suivre Glandoulf. Chacune est une scène facultative : Froton confie à Glandoulf ce qu'il a vu dans l'anneau ; Glandoulf n'explique rien, fait le thé. *Chute :* « C'est trop fort. » « C'est de la camomille. »
@@ -246,7 +257,7 @@ Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Br
 8. **Le Dindon de la Farce et le Naze Suprême.** Le Naze Suprême attaque Éolaine. Elle tient seule un tour. Combat : Aragrogne ne peut pas le blesser (« Nul homme du Gouda… »). Merri porte le coup décisif **par-derrière** avec sa dague de poche (coup dans le dos, dégâts énormes). Le Naze Suprême tombe, son petit anneau se fend.
 9. **La couronne.** Aragrogne accepte enfin le trône, paperasse comprise. Dénigror lui tend les formulaires. *Chute :* « Prière de ne pas lire. Signer en bas. »
 
-**Qui rejoint, qui part.** Éolaine et Éomèche rejoignent la bataille en invités. Bromure revient, alité, enfin reposé. Les Éveillés dorment, délivrés. Personne ne quitte l'équipe.
+**Qui rejoint, qui part.** Éolaine et Éomèche rejoignent la bataille en invités. Les Éveillés dorment, délivrés. Personne ne quitte l'équipe.
 
 **Quêtes annexes.**
 
@@ -294,7 +305,7 @@ Groupe : Froton (porteur), Sam, Merri, Pépin, Aragrogne, Digoulasse, Grimli. Br
 7. **Au Grand Four.** Sauron offre l'anneau à Glandoulf : ne plus jamais être fatigué. Il refuse. Froton ne parvient pas à lâcher l'anneau, comme Isidur ; Glandoulf fait cette fois les **vingt pas**. Il le tient et le jette.
 8. **Boss final en deux phases.** Le Grand Œil, puis Sauron en pleine Vigueur (voir fiche). La torpeur l'endort à la fin du combat, sans qu'on le tue.
 
-**Qui rejoint, qui part.** Goulûm part. Bromure reste à Minas Tartine. Éolaine et Éomèche ne suivent pas. Aucun nouveau compagnon.
+**Qui rejoint, qui part.** Goulûm part. Éolaine et Éomèche ne suivent pas. Aucun nouveau compagnon.
 
 **Quêtes annexes.**
 

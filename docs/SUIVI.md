@@ -749,6 +749,25 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      créatures, de lieux, d'objets et de compétences à double sens, les personnages restant
      sérieux (règle de ton inchangée : jamais de mot cru).
 
+125. **Équipement de vrai RPG.** Cinq emplacements (arme, couvre-chef, tenue, deux
+     babioles), 117 pièces, statistiques précision, esquive, critique et dégâts critiques,
+     genres d'armes et de tenues par personnage (`gear`), passifs d'objets, comparaison avant
+     et après dans l'écran Équipe et en boutique. Les sorts ne ratent jamais ; seuls les
+     coups physiques s'esquivent. Équilibre mesuré inchangé (91 % de victoires simulées).
+126. **Écran de paramètres** (autoload `Settings`, `user://settings.cfg`) : affichage, échelle
+     de rendu, FSR 1 et 2, MetalFX quand le matériel l'annonce, qualité Basse / Moyenne /
+     Haute, volumes, compteur d'images. Moyenne = rendu d'origine. Le DLSS, absent sur Mac,
+     apparaît en ligne grisée. Les tests ignorent le fichier de réglages de l'auteur.
+127. **Sol des arènes rendu à son lieu** (l'auteur voyait « de la terre ») : herbe, humus,
+     herbe humide et flaques, pavés, basalte ; plus de tuile `soil`. Menu de combat placé par
+     recherche d'espace libre, plaques d'ennemis écartées.
+128. **Bestiaire, ambiances de combat, scénario des chapitres 5 à 7** : `docs/BESTIAIRE.md`,
+     `docs/AMBIANCES_COMBAT.md`, bible. Réponses de l'auteur aux dix questions (fin du
+     bestiaire) : Ouroukouilles (nom validé par lui, exception assumée à la règle de ton),
+     Gobelardons, jeux sur le titre appuyés, le Guetteur n'est pas « le Seigneur des
+     Anneaux », Sauron endormi, Bromure meurt de façon nulle et drôle, Goulûm trahit puis
+     se sacrifie, les Éveillés, le Raidissement, Merri Écuyer Tranchant.
+
 ## Demandes de l'auteur (18 novembre 2026, soir)
 
 Faites : réserve sans expérience (116), quatre combattants (115), interface (114), cité

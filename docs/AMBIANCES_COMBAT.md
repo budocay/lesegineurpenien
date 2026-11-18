@@ -263,7 +263,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 # Chapitre 5 : le Roquefort et l'Isengarde-Manger
 
 ### `chutes_gratin`
-- **Lieux et rencontres :** le camp au-dessus des chutes (embuscade des Ouroukandouilles).
+- **Lieux et rencontres :** le camp au-dessus des chutes (embuscade des Ouroukouilles).
 - **Sol :** **berge d'herbe humide et de galets**, bord de fleuve (`riverbank`, *nouveau*).
 - **Fond :** chute d'eau dorée comme une croûte de gratin, rocher, rive opposée en brume ; `far` : chute (*nouveau* : `falls`).
 - **Premier plan flou :** une barque de croûte retournée, un roseau, un galet.
@@ -303,7 +303,7 @@ Sol `basalt`, fond `cavern`, mares de lave. Sert : prologue, et **boss final du 
 - **Détail drôle :** au mur, un tapis **tissé de laine véritable**, avec la devise « Qui ne dort pas ne règne pas » : Théodort ronfle dessous.
 
 ### `petrins`
-- **Lieux et rencontres :** le cercle de l'Isengarde-Manger (Ouroukandouilles, Pâtons, Uglouk) : les fosses où la pâte lève.
+- **Lieux et rencontres :** le cercle de l'Isengarde-Manger (Ouroukouilles, Pâtons, Uglouk) : les fosses où la pâte lève.
 - **Sol :** **dalles de fonte noire** striées de **farine et de charbon** (`cast_iron`, *nouveau*).
 - **Fond :** mur circulaire de pierre noire, **cheminées d'usine**, pétrins gigantesques, tour noire au centre ; `far` : fumées et tour (*nouveau* : `ironworks`).
 - **Premier plan flou :** un rouleau à pâtisserie géant, une palette à enfourner, un sac de farine.
