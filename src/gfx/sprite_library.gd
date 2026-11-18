@@ -16,7 +16,8 @@ const FxPainter = preload("res://src/gfx/fx_painter.gd")
 const SPRITE_SHADER = preload("res://src/gfx/shaders/sprite.gdshader")
 
 const ASSET_DIR := "res://assets/sprites/"
-const PPU := 24.0   # pixels par unité monde
+const PPU := 24.0   # pixels par unité monde (décors)
+const MONSTER_PPU := 28.0   # les monstres, un cran plus petits : les personnages sont à 40
 
 var _cache: Dictionary = {}
 var _materials: Dictionary = {}
@@ -141,7 +142,7 @@ func monster(kind: String) -> Dictionary:
 	var key := "monster:" + kind
 	if _cache.has(key):
 		return _cache[key]
-	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": PPU, "foot": 1, "fps": 2.2,
+	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": MONSTER_PPU, "foot": 1, "fps": 2.2,
 		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.POSES}
 	var img := _load_override("monsters/%s.png" % kind)
 	if img != null:
@@ -149,7 +150,7 @@ func monster(kind: String) -> Dictionary:
 		sheet["columns"] = maxi(1, int(meta.get("columns", 2)))
 		sheet["idle"] = meta["idle"] if meta.get("idle") is Array else range(int(sheet["columns"]))
 		sheet["poses"] = meta["poses"] if meta.get("poses") is Dictionary else {}
-		sheet["ppu"] = float(meta.get("pixels_per_unit", PPU))
+		sheet["ppu"] = float(meta.get("pixels_per_unit", MONSTER_PPU))
 		sheet["foot"] = int(meta.get("foot_margin", 1))
 		sheet["fps"] = float(meta.get("fps", 2.2))
 	else:

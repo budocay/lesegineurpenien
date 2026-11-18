@@ -398,7 +398,7 @@ static func detail_markup(text: String, title_size: int = 27) -> String:
 	if cut < 0:
 		return safe
 	# la ligne vide finale évite qu'un texte court soit rogné d'un demi-interligne
-	return "[font_size=%d][color=#%s]%s[/color][/font_size]%s\n " % [title_size, GOLD.to_html(false), safe.substr(0, cut), safe.substr(cut)]
+	return "[font_size=%d][color=#%s]%s[/color][/font_size]%s\n \n " % [title_size, GOLD.to_html(false), safe.substr(0, cut), safe.substr(cut)]
 
 
 static func full_rect(c: Control) -> void:

@@ -668,6 +668,7 @@ func _scatter(o: Dictionary) -> void:
 	var count := int(o.get("count", 10))
 	var min_dist := float(o.get("min_dist", 1.0))
 	var on: Array = o.get("on", ["grass"])
+	var avoid: Array = o.get("avoid", [])
 	rng.seed = int(o.get("seed", 1)) * 7919 + 13
 	var def: Dictionary = PROPS.get(kind, {})
 	var solid := float(def.get("solid", 0.0))
@@ -678,6 +679,14 @@ func _scatter(o: Dictionary) -> void:
 		var p := Vector2(rng.randf_range(float(r[0]), float(r[0]) + float(r[2])), rng.randf_range(float(r[1]), float(r[1]) + float(r[3])))
 		if p.x < 0.3 or p.y < 0.3 or p.x > w - 0.3 or p.y > h - 0.3:
 			continue
+		var avoided := false
+		for av: Variant in avoid:
+			var ar: Array = av
+			if Rect2(float(ar[0]), float(ar[1]), float(ar[2]), float(ar[3])).has_point(p):
+				avoided = true
+				break
+		if avoided:
+			continue   # zone dégagée demandée par la carte (champ « avoid »)
 		if not on.has(_cell(int(p.x), int(p.y))):
 			continue
 		if not _flat_around(p, maxf(solid, 0.2) + 0.3):
@@ -825,18 +834,20 @@ func _house(o: Dictionary) -> void:
 
 	if door_x >= 0.0:
 		var xd := x0 + door_x
-		if bool(o.get("awning", true)) and wh > 2.2:
+		if bool(o.get("awning", true)) and wh >= 2.9:
 			# auvent de tuiles au-dessus de la porte, sur deux consoles de bois
 			var ast := MeshKit.begin()
-			MeshKit.quad(ast, Vector3(xd - 0.95, 1.98, z1), Vector3(xd + 0.95, 1.98, z1), Vector3(xd + 0.95, 1.66, z1 + 0.55), Vector3(xd - 0.95, 1.66, z1 + 0.55), Vector2.ZERO, Vector2(0.95, 0.35))
+			MeshKit.quad(ast, Vector3(xd - 1.25, 2.58, z1), Vector3(xd + 1.25, 2.58, z1), Vector3(xd + 1.25, 2.24, z1 + 0.55), Vector3(xd - 1.25, 2.24, z1 + 0.55), Vector2.ZERO, Vector2(1.25, 0.35))
 			var awn := MeshKit.finish(ast, MeshKit.pixel_material(Sprites.tile_texture("roof_" + roof)))
 			house.add_child(awn)
-			var awn_parts: Array = [awn, _mesh_box(Vector3(xd, 1.62, z1 + 0.55), Vector3(1.9, 0.07, 0.07), MeshKit.flat_material(Color("#3c281c")), false)]
-			for sx: float in [-0.85, 0.85]:
-				awn_parts.append(_mesh_box(Vector3(xd + sx, 1.78, z1 + 0.3), Vector3(0.07, 0.07, 0.5), MeshKit.flat_material(Color("#3c281c")), false))
+			var awn_parts: Array = [awn, _mesh_box(Vector3(xd, 2.2, z1 + 0.55), Vector3(2.5, 0.07, 0.07), MeshKit.flat_material(Color("#3c281c")), false)]
+			for sx: float in [-1.15, 1.15]:
+				awn_parts.append(_mesh_box(Vector3(xd + sx, 2.36, z1 + 0.3), Vector3(0.07, 0.07, 0.5), MeshKit.flat_material(Color("#3c281c")), false))
 			(world.occluders.back()["nodes"] as Array).append_array(awn_parts)
-		_mesh_box(Vector3(xd, wh - 0.5, z1 + 0.1), Vector3(0.2, 0.26, 0.16), MeshKit.flat_material(Color("#ffd28a"), 4.0), false)
-		_mesh_box(Vector3(xd, wh - 0.34, z1 + 0.1), Vector3(0.28, 0.06, 0.24), MeshKit.flat_material(Color("#2f2c38")), false)
+		# la lanterne se pose au-dessus de l'arc de la porte (dont le sommet est à 2,1 unités)
+		if wh >= 2.4:
+			_mesh_box(Vector3(xd, wh - 0.3, z1 + 0.1), Vector3(0.2, 0.26, 0.16), MeshKit.flat_material(Color("#ffd28a"), 4.0), false)
+			_mesh_box(Vector3(xd, wh - 0.14, z1 + 0.1), Vector3(0.28, 0.06, 0.24), MeshKit.flat_material(Color("#2f2c38")), false)
 		_add_light(Vector3(xd, wh - 0.6, z1 + 0.55), WARM, 1.6, 4.6, true, 0.08)
 		var door_pos := Vector3(xd, 0.0, z1 + 0.35)
 		var to: Variant = o.get("to")
