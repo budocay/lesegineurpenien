@@ -26,6 +26,7 @@ var fx: Node3D                # animations de combat (data/animations.json)
 var _rng := RandomNumberGenerator.new()
 var _cam_home := Vector3(0.0, 3.3, 12.4)
 var _cam_look := Vector3(0.0, 0.8, 0.0)
+var _taken: Array[Vector3] = []     # places des combattants : aucun décor haut ne s'y adosse
 var _decor: RefCounted             # paroi et lointain (arena_decor.gd)
 var _shake := 0.0
 
@@ -38,6 +39,7 @@ func setup(p_encounter: Dictionary, p_ui: Control, p_seed: int = -1) -> void:
 	var arena_id := str(encounter.get("arena", "pre"))
 	var arena := Database.get_arena(arena_id)
 	_rng.seed = hash(arena_id)
+	_taken = _spots(engine.party, 1.0) + _spots(engine.enemies, -1.0)
 	_build_arena(arena)
 	_build_camera()
 	_place(engine.party, 1.0)
@@ -82,6 +84,11 @@ func _step_height(x: float, z: float) -> float:
 	return _decor.height_at(x, z) if _decor != null else 0.0
 
 
+const FLAT_PROPS := ["grass", "flowers", "wheat", "fern", "wilted", "reeds", "mushrooms"]   # trop bas pour cacher qui que ce soit
+const FORM_SPAN := 4.9    # largeur maximale (en x) d'une file de combattants
+const FORM_DEPTH := 0.55  # profondeur de la file, par rapport à sa largeur
+
+
 ## Place des combattants d'un camp, en diagonale : le premier plan est le plus près du
 ## centre. L'écart tient compte de la taille de chacun, pour que personne ne soit caché.
 ## « scales » : la taille de chaque combattant ; renvoie une position par combattant
@@ -94,11 +101,13 @@ static func formation(scales: Array, spread: float = 1.0) -> Array[Vector3]:
 	for i in range(1, n):
 		total += (0.5 + 0.45 * (float(scales[i - 1]) + float(scales[i]))) * spread
 		offsets.append(total)
-	var k := minf(1.0, 4.2 / total) if total > 0.0 else 1.0
+	var k := minf(1.0, FORM_SPAN / total) if total > 0.0 else 1.0
 	var out: Array[Vector3] = []
 	for i in n:
-		var z := (offsets[i] - total * 0.5) * k
-		out.append(Vector3(3.5 - z + 0.55 * (float(scales[i]) - 1.0), 0.0, z))
+		var along := (offsets[i] - total * 0.5) * k
+		# l'écart en x fait l'écart à l'écran ; la profondeur, plus faible, ne sert qu'à
+		# étager les rangs : une diagonale à 45 degrés ramène les voisins l'un sur l'autre
+		out.append(Vector3(3.5 - along + 0.55 * (float(scales[i]) - 1.0), 0.0, along * FORM_DEPTH))
 	return out
 
 
@@ -196,17 +205,25 @@ func _build_camera() -> void:
 	camera.make_current()
 
 
-func _place(list: Array, side: float) -> void:
+## Places (monde) des combattants d'un camp.
+func _spots(list: Array, side: float) -> Array[Vector3]:
 	var scales: Array = []
 	for c: RefCounted in list:
 		scales.append(float((c.sprite as Dictionary).get("scale", 1.0)))
-	var spots := formation(scales, 1.3 if side < 0.0 else 1.0)
+	var out: Array[Vector3] = []
+	for sp: Vector3 in formation(scales, 1.3 if side < 0.0 else 1.0):
+		out.append(Vector3(sp.x * side, 0.0, sp.z))
+	return out
+
+
+func _place(list: Array, side: float) -> void:
+	var spots := _spots(list, side)
 	for i in list.size():
 		var c: RefCounted = list[i]
 		var actor := Actor.new()
 		actor.name = "Actor_" + str(c.key).replace("#", "_")
 		add_child(actor)
-		actor.setup(c, Vector3(spots[i].x * side, 0.0, spots[i].z))
+		actor.setup(c, spots[i])
 		actors[c.key] = actor
 
 

@@ -3,6 +3,19 @@
 	"cave_fromage": {"background": "#06080a", "ambient": {"color": "#587886", "energy": 0.5}, "volumetric": {"density": 0.025, "albedo": "#b8d0c0", "emission": "#0a1014", "emission_energy": 0.2, "length": 40}, "glow": {"intensity": 0.8, "bloom": 0.05, "threshold": 1.0, "strength": 1.0}, "exposure": 1.0, "saturation": 1.05, "contrast": 1.05, "particles": ["dust"]},
 	"auberge_nuit": {"background": "#04040a", "ambient": {"color": "#3a4468", "energy": 0.3}, "volumetric": {"density": 0.03, "albedo": "#a8b0d8", "emission": "#080a14", "emission_energy": 0.2, "length": 40}, "glow": {"intensity": 0.8, "bloom": 0.05, "threshold": 1.0, "strength": 1.0}, "exposure": 0.95, "saturation": 1.05, "contrast": 1.08, "particles": ["dust"]},
 	"cave_fromage": {"background": "#06080a", "ambient": {"color": "#587886", "energy": 0.5}, "volumetric": {"density": 0.025, "albedo": "#b8d0c0", "emission": "#0a1014", "emission_energy": 0.2, "length": 40}, "glow": {"intensity": 0.8, "bloom": 0.05, "threshold": 1.0, "strength": 1.0}, "exposure": 1.0, "saturation": 1.05, "contrast": 1.05, "particles": ["dust"]},
+	"pre_combat": {
+		"background": "#14122a",
+		"ambient": {"color": "#8a86b8", "energy": 0.55},
+		"sun": {"color": "#ffa070", "energy": 1.15, "direction": [0.6, -0.42, -0.68], "fog_energy": 0.35},
+		"fog": {"color": "#2e2a4e", "density": 0.0035},
+		"volumetric": {"density": 0.007, "albedo": "#c8bce6", "emission": "#25224a", "emission_energy": 0.25, "length": 72},
+		"glow": {"intensity": 0.8, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.0,
+		"saturation": 1.2,
+		"contrast": 1.14,
+		"rays": {"density": 0.004, "color": "#ffb060", "strength": 0.028},
+		"particles": ["fireflies", "pollen", "leaves"]
+	},
 	"crepuscule": {
 		"background": "#1c1a36",
 		"ambient": {"color": "#6f78c4", "energy": 0.6},
