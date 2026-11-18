@@ -170,6 +170,19 @@ de l'existant, noms définitifs, et un **vrai écran de talents** (voir plus bas
   sur les planches ; mottes et pousses dans la terre ; lézardes dans l'enduit.
 - Captures d'avant conservées dans `docs/captures/avant_pixel_art/` pour comparer.
 
+**Reprise de l'histoire (demande de l'auteur, 18 novembre 2026) : faite pour ce qui est jouable.**
+
+- **Prologue réécrit** : après le combat, Isidur ramasse l'anneau et refuse de le jeter.
+  Il le garde, pour son royaume et pour ses propres désirs. Glandoulf, à vingt pas du
+  Grand Four, remet la discussion au lendemain, s'endort, puis dit à l'Alliance que
+  c'est fait.
+- **Chapitre 1 accordé** : après le Naze, Glandoulf nomme Isidur et raconte que le roi a
+  perdu l'anneau dans la rivière deux ans plus tard ; il cache toujours sa propre part.
+- **Bible complétée** (`docs/HISTOIRE.md`) : règne et chute d'Isidur au Gué des Poireaux,
+  vraie faute de Glandoulf, peur d'Aragrogne, et une section « Reprise de l'histoire »
+  qui comble les trous des chapitres à venir (Bromure, Dame Galadrielle, Barbe-Molle,
+  l'Arachnée, le retour à Bittebourg). Ces chapitres ne sont pas encore construits.
+
 ## Commandes
 
 | Action | Clavier | Manette |
@@ -503,6 +516,27 @@ dossier du projet.
     confondaient avec son vêtement.
 81. **Le menu Équipe affiche « 1 point » au lieu de « 1 point de talent »** : avec le
     portrait, le texte était tronqué.
+
+### Décisions de la reprise de l'histoire (18 novembre 2026)
+
+82. **Isidur garde l'anneau** au lieu de le confier à Glandoulf (demande de l'auteur). La
+    faute de Glandoulf change de nature sans disparaître : il était là, n'a rien fait,
+    s'est endormi, puis a menti. Raison : son secret et sa paresse portent toute
+    l'histoire, il fallait les garder.
+83. **On ne dit ni ne montre où Isidur passe l'anneau** (il se détourne, puis « se tient
+    très droit »). Raison : règle de ton de la bible, tout par le double sens.
+84. **Les « désirs » d'Isidur restent à double lecture** (« de grands désirs pour mon
+    royaume », « j'en ai aussi pour moi », un Gouda couvert « de chantiers et de
+    berceaux »). Même raison.
+85. **Le joueur apprend la vérité dès le prologue**, contrairement à la décision d'origine
+    (prologue qui ne dévoilait rien). Raison : la scène demandée ne peut pas se jouer sans
+    la montrer, et les mensonges de Glandoulf au chapitre 1 deviennent plus drôles quand
+    le joueur sait. Les compagnons, eux, ne l'apprennent qu'au chapitre 5.
+86. **Les ajouts aux chapitres 2 à 7 sont écrits dans la bible, pas dans le jeu.** Raison :
+    ces chapitres n'existent pas encore ; l'auteur peut rayer ce qui ne lui plaît pas
+    avant qu'on construise dessus.
+87. **Noms inventés** : Gué des Poireaux, Bromure du Gouda, Lothlorraine, Dame Galadrielle,
+    Barbe-Molle, l'Arachnée. À valider par l'auteur.
 
 ## Préparé pour la suite, mais pas fait
 

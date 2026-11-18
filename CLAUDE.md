@@ -74,8 +74,9 @@ terminé. Les trois priorités fixées par l'auteur sont faites :
    Naze, monstres à quatre poses, portraits peints, décors enrichis ; captures d'avant
    dans `docs/captures/avant_pixel_art/`).
 
-Demande suivante de l'auteur : reprendre toute l'histoire, qui a des trous (Isidur ne
-détruit pas l'anneau, il le garde pour lui).
+Histoire reprise à la demande de l'auteur : Isidur garde l'anneau (prologue réécrit),
+Glandoulf a laissé faire puis menti ; la section « Reprise de l'histoire » de la bible
+comble les trous des chapitres 2 à 7, pas encore construits et à valider par l'auteur.
 
 ## Pièges connus
 

@@ -1672,6 +1672,9 @@ func _test_flow() -> void:
 	check(GameState.has_flag("combat_prologue_sauron"), "combat du prologue gagné")
 	check(int(GameState.member("glandoulf")["level"]) == 1 and int(GameState.member("glandoulf")["xp"]) == 0, "le prologue ne donne ni niveau ni expérience")
 	check(not GameState.party.has("isidur"), "Isidur ne reste pas dans l'équipe")
+	# reprise de l'histoire : Isidur garde l'anneau, il ne le confie plus à Glandoulf
+	var prologue_text := FileAccess.get_file_as_string("res://data/dialogues/prologue.json")
+	check(prologue_text.contains("Je le garde") and not prologue_text.contains("dans la paume du magicien"), "prologue : Isidur garde l'anneau")
 	check(GameState.item_count("tisane") == 2, "inventaire de départ intact après le prologue")
 	check(GameState.has_flag("intro_vue"), "scène d'introduction jouée")
 	check(main.world.input_enabled and main.world.player.control, "le joueur a la main")

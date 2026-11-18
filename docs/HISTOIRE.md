@@ -33,7 +33,9 @@ Les érudits jurent que « pénien » vient de l'elfique ancien pên, « la volo
 
 Le projet de Sauron est la Vigueur Éternelle : un monde sans repos, où chacun travaille et conquiert sans fin pour lui. Dans sa montagne se tient un banquet perpétuel qui ne le rassasie jamais.
 
-Il y a trois cents ans, l'Alliance vainquit Sauron et le roi Isidur lui retira l'anneau. Glandoulf fut chargé de le jeter dans le Grand Four, en haut de quatre mille marches. Il dit « demain » et fit une sieste. Au réveil, l'anneau avait roulé dans la rivière. Il ne l'a jamais avoué à personne.
+Il y a trois cents ans, l'Alliance vainquit Sauron et le roi Isidur lui retira l'anneau, devant le Grand Four, en haut de quatre mille marches. Il n'y avait plus qu'à le jeter : vingt pas. Isidur ne le jeta pas. L'anneau lui allait, il ne sentait plus sa fatigue, et il avait des désirs, pour son royaume et pour lui-même. Il le garda. Glandoulf, seul témoin, aurait dû le convaincre ou l'en empêcher. Il dit « nous en reparlerons demain » et fit une sieste. Au réveil, le roi était reparti. Pour ne pas avoir à s'expliquer, Glandoulf dit à l'Alliance que c'était fait. Il ne l'a jamais avoué à personne.
+
+Isidur régna deux ans dans la Vigueur. Il ne dormait plus, relevait des remparts la nuit et ne tenait pas en place ; le Gouda se couvrit de chantiers et de berceaux. L'anneau serrait chaque jour un peu plus. Au Gué des Poireaux, pris dans une embuscade de Morfales, il le lâcha d'un coup, au pire moment : l'anneau glissa dans la rivière, et le roi, vidé de deux ans de sommeil en retard, s'endormit en selle au milieu du combat. On ne le réveilla pas. Le courant porta l'anneau jusqu'au Comté, où un pêcheur grobitte le remonta dans son filet.
 
 Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut rien faire. Il mate, c'est tout ce qui lui reste. Aujourd'hui l'anneau se réveille et appelle son maître, et le Ramollissement gagne le Comté.
 
@@ -43,7 +45,7 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 - Sam Gamelle (tank) : cuisinier grobitte, se bat à la poêle, loyal jusqu'à l'absurde. Branches : Poêle de Fer (défense, provocation) ou Cuistot de Campagne (plats qui renforcent l'équipe).
 - Fripon Besace (voleur) : le seul Grobitte qui rêve d'être quelqu'un, donc le seul vulnérable à l'anneau. Branches : Pickpocket (vol, vitesse, critiques) ou Embrouilleur (poisons, altérations).
 - Pépine Bontabac (soigneuse) : herboriste aux remèdes douteux. Branches : Herboriste (soins, antidotes) ou Fumeuse de Pipe (nuages qui renforcent ou affaiblissent).
-- Aragrogne (bretteur) : rôdeur bougon, héritier du trône du Gouda, qu'il fuit à cause de la paperasse. Branches : Rôdeur (duel, contre-attaques) ou Roi Malgré Lui (ordres qui galvanisent l'équipe).
+- Aragrogne (bretteur) : rôdeur bougon, héritier d'Isidur et du trône du Gouda, qu'il fuit à cause de la paperasse. C'est du moins ce qu'il dit : il sait ce que son aïeul a fait de l'anneau, et craint que dans la famille on ne sache pas s'arrêter une fois qu'on veut quelque chose. Branches : Rôdeur (duel, contre-attaques) ou Roi Malgré Lui (ordres qui galvanisent l'équipe).
 - Légolasse (archer) : elfe de 2 900 ans, blasée de tout. Branches : Tir de Précision ou Mépris Elfique (affaiblit le moral ennemi).
 - Gimlette (berserker) : naine de Morbier, bruyante et rancunière. Branches : Hache Furieuse ou Tête Dure.
 
@@ -57,7 +59,7 @@ Privé d'anneau, Sauron n'est plus que le Grand Œil : il voit tout et ne peut r
 
 ## Les chapitres
 
-Prologue, il y a trois cents ans. Combat-tutoriel : Glandoulf et le roi Isidur contre Sauron. Isidur confie l'anneau à Glandoulf. Fondu au noir avant la suite.
+Prologue, il y a trois cents ans. Combat-tutoriel : Glandoulf et le roi Isidur contre Sauron. Isidur refuse de jeter l'anneau et le garde pour lui ; Glandoulf remet la discussion au lendemain. Fondu au noir avant la suite.
 
 Chapitre 1, Bittebourg. Glandoulf arrive pour la Fête des Amarres. Les bittes du port se mettent à pencher : le Ramollissement est là. Il recrute Sam (retrouver sa poêle volée avant le concours de cuisine), Fripon (c'est lui le voleur, et il a aussi pris la pipe de Glandoulf) et Pépine (sauver son potager flétri). Annexes : redresser les bittes du port, la course de barques. Boss : un Naze venu fouiller le village.
 
@@ -67,7 +69,7 @@ Chapitre 3, Fondue-Combe. Elrond de Cuir exige un formulaire de quête en trois 
 
 Chapitre 4, les Mines de Morbier. Gimlette guide l'équipe. Duel d'énigmes puis combat contre Goulûm : l'équipe récupère l'anneau, que Fripon portera. Boss : le Balourd. Glandoulf lui barre le pont (« Vous ne passerez pas. Enfin si, mais pas tout de suite, je suis crevé ») et tombe avec lui.
 
-Chapitre 5, le Roquefort et l'Isengarde-Manger. Sans Glandoulf. Le roi Théodort dort depuis des mois, veillé par son conseiller Grimace Langue-de-Bois. Sarumâle capture l'équipe et révèle la faute de Glandoulf. Fripon, trahi, enfile l'anneau : combat contre lui pour le sauver. Glandoulf revient en Glandoulf le Blanc-Cassé, avoue tout et débloque de nouveaux sorts. Annexes : réveiller le roi, la transhumance des brebis de guerre. Boss : Sarumâle.
+Chapitre 5, le Roquefort et l'Isengarde-Manger. Sans Glandoulf. Le roi Théodort dort depuis des mois, veillé par son conseiller Grimace Langue-de-Bois. Sarumâle capture l'équipe et révèle la faute de Glandoulf : il était là, il a laissé Isidur repartir avec l'anneau, et il a menti à l'Alliance pendant trois cents ans. Fripon, trahi, enfile l'anneau : combat contre lui pour le sauver. Glandoulf revient en Glandoulf le Blanc-Cassé, avoue tout et débloque de nouveaux sorts. Annexes : réveiller le roi, la transhumance des brebis de guerre. Boss : Sarumâle.
 
 Chapitre 6, Minas Tartine. Les Morfales assiègent la ville. Défense des sept niveaux de la cité. Aragrogne accepte enfin la couronne, paperasse comprise. Annexes : l'Intendant qui dénigre tout, le ravitaillement des remparts. Boss : le Naze Suprême.
 
@@ -88,6 +90,45 @@ La paresse de Glandoulf et l'acharnement de Sauron sont les deux faces du même 
 - Le porteur de l'anneau dispose d'une jauge de Vigueur (gros bonus temporaire) qui fait monter le Serrage. Trop de Serrage : il perd le contrôle.
 - Les zones touchées par le Ramollissement affaiblissent les attaques physiques.
 - Glandoulf est absent pendant la première moitié du chapitre 5.
+
+## Reprise de l'histoire (18 novembre 2026, à la demande de l'auteur)
+
+L'auteur trouvait que l'histoire avait des trous par rapport à son modèle, à commencer par
+Isidur. Ce qui a été corrigé dans le texte ci-dessus : Isidur garde l'anneau, sa chute au
+Gué des Poireaux, la vraie faute de Glandoulf (avoir laissé faire, puis menti), la peur
+d'Aragrogne. Ce qui suit complète les chapitres à venir ; rien n'est encore construit, et
+l'auteur peut rayer ce qui ne lui plaît pas.
+
+- **La faute, en une phrase.** Sauron n'a pas su s'arrêter, Isidur n'a pas su renoncer,
+  Glandoulf n'a pas su se lever. Les trois ont eu l'anneau à portée de main.
+- **Les Neuf Nazes** étaient neuf rois qui voulaient chacun « un peu plus ». Leur drame
+  fait écho à celui d'Isidur : il a failli être le dixième.
+- **Goulûm** est le pêcheur Trempette, de Bittebourg. Il a remonté l'anneau deux ans après
+  la bataille et l'a emporté sous Morbier. (Déjà annoncé au chapitre 1 par Basile et par le
+  registre de la Capitainerie.)
+- **Chapitre 2, Brie.** Aragrogne reconnaît Glandoulf : dans sa famille, on se transmet
+  le récit d'un magicien qui « était là-haut ». Il se tait, pour l'instant.
+- **Chapitre 3, Fondue-Combe.** Le Conseil décide qui portera l'anneau quand on l'aura
+  repris. Chacun le veut « pour le bien de tous », sauf les Grobittes, qui voudraient
+  rentrer. Y siège **Bromure du Gouda**, fils de l'Intendant, vaillant et à bout : il
+  propose de s'en servir pour sauver Minas Tartine. Il accompagne l'équipe en invité.
+- **Chapitre 4, Morbier.** Une fois l'anneau repris à Goulûm, Bromure tente de le prendre
+  à Fripon. Il y renonce de lui-même, honteux, et tient seul le pont derrière l'équipe.
+  On le retrouve au chapitre 6, alité à Minas Tartine, enfin reposé.
+- **Entre les chapitres 4 et 5, la Lothlorraine.** Forêt de **Dame Galadrielle**. Son
+  Miroir montre à chacun ce qu'il ferait de la Vigueur. Fripon y reste trop longtemps.
+  Elle refuse l'anneau qu'il lui tend : « Tous me désireraient, et plus personne ne
+  dormirait. » C'est là que l'équipe, sans Glandoulf, commence à douter de lui.
+- **Chapitre 5.** Les arbres de la forêt voisine, menés par **Barbe-Molle**, mettent
+  trois jours à décider de se lever, puis marchent sur l'Isengarde-Manger. Après l'aveu,
+  Aragrogne dit enfin ce qu'il savait : la faute est aussi celle de sa lignée.
+- **Chapitre 6.** En acceptant la couronne, Aragrogne répare ce qu'Isidur a défait : il
+  règne sans l'anneau, fatigue comprise.
+- **Chapitre 7.** Dans le col avant les cuisines, **l'Arachnée**, qui tisse sans jamais
+  s'arrêter et n'a pas dormi depuis des siècles. Au Grand Four, Fripon ne parvient pas à
+  lâcher l'anneau, comme Isidur ; Glandoulf fait cette fois les vingt pas.
+- **Épilogue.** De retour à Bittebourg, l'équipe trouve Sarumâle installé à la
+  Capitainerie, qui a mis tout le village au travail. Dernière quête avant la sieste.
 
 ## Ajouts
 
@@ -141,9 +182,11 @@ ne modifie ce qui précède ; en cas de contradiction, c'est le texte ci-dessus 
   traduit ainsi : rien ne peut l'endormir, mais la torpeur est sa faiblesse.
 - Sauron et Glandoulf se connaissent : Sauron rappelle qu'il fut « premier de la promotion
   sans jamais ouvrir un grimoire ».
-- Après le combat, Isidur confie l'anneau à Glandoulf (« jette-la, et qu'on n'en parle
-  plus »). Glandoulf répond « Je m'en occupe ». La scène s'arrête là : le secret n'est pas
-  dévoilé.
+- Après le combat (version reprise le 18 novembre 2026), Isidur ramasse l'anneau et refuse
+  de le jeter : « Je le garde. C'est le prix du sang de mon père, et il est à ma taille. »
+  On ne le voit pas le passer : il se détourne, et se tient ensuite « très droit ».
+  Glandoulf pense aux vingt pas, dit « nous en reparlerons demain » et s'endort contre le
+  Four. Le joueur sait donc dès le prologue ce que les compagnons ignorent.
 - Trois cents ans sans lancer un sort : Glandoulf a tout oublié et repart du niveau 1.
 
 **Lieu**
