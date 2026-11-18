@@ -490,6 +490,88 @@ static func band_button(text: String, size: int = 22, help: String = "", right: 
 	return b
 
 
+## Comme band_button, avec une icône devant le texte, une icône facultative à droite (genre d'arme),
+## une main qui désigne l'entrée choisie ; « warn » colore l'indication de droite (coût trop élevé).
+static func icon_band_button(text: String, size: int = 22, help: String = "", right: String = "", width: int = 240, icon: Texture2D = null, right_icon: Texture2D = null, warn: bool = false) -> Button:
+	var b := Button.new()
+	b.text = ""   # le texte est dessiné ici (en haut du bandeau, l'aide s'ouvre dessous)
+	b.set_meta("label", text)
+	b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var tx := 26.0 + (30.0 if icon != null else 0.0)   # le texte laisse la place à l'icône
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.focus_mode = Control.FOCUS_ALL
+	b.add_theme_font_override("font", font())
+	b.add_theme_font_size_override("font_size", size)
+	b.add_theme_color_override("font_color", INK)
+	b.add_theme_color_override("font_hover_color", GOLD)
+	b.add_theme_color_override("font_focus_color", GOLD)
+	b.add_theme_color_override("font_pressed_color", GOLD)
+	b.add_theme_color_override("font_hover_pressed_color", GOLD)
+	b.add_theme_color_override("font_disabled_color", Color(0.6, 0.58, 0.55, 0.5))
+	var help_h := 0
+	if help != "":
+		help_h = int(ceilf(font(false, true).get_multiline_string_size(help, HORIZONTAL_ALIGNMENT_LEFT, width - tx - 16.0, 15).y)) + 4
+	var idle := StyleBoxFlat.new()
+	idle.bg_color = Color(0.03, 0.035, 0.07, 0.86)
+	idle.border_color = Color(1, 1, 1, 0.07)
+	idle.border_width_bottom = 1
+	idle.content_margin_left = 26
+	idle.content_margin_right = 16
+	idle.content_margin_top = 3
+	idle.content_margin_bottom = 3
+	var hot := idle.duplicate() as StyleBoxFlat
+	hot.bg_color = Color(0.17, 0.15, 0.13, 0.9)
+	hot.border_color = GOLD
+	hot.border_width_left = 3
+	hot.border_width_bottom = 0
+	hot.content_margin_bottom = 3 + help_h
+	b.add_theme_stylebox_override("normal", idle)
+	b.add_theme_stylebox_override("disabled", idle)
+	b.add_theme_stylebox_override("hover", hot)
+	b.add_theme_stylebox_override("focus", hot)
+	b.add_theme_stylebox_override("pressed", hot)
+	# la hauteur de base est fixée ici (un bouton calcule son minimum sur son style « normal »)
+	var base_h := font().get_height(size) + 6.0
+	b.custom_minimum_size = Vector2(width, base_h)
+	b.draw.connect(func() -> void:
+		var focused := b.has_focus() and not b.disabled
+		var ink := GOLD if focused else (INK if not b.disabled else Color(0.6, 0.58, 0.55, 0.5))
+		var tint := Color.WHITE if not b.disabled else Color(1, 1, 1, 0.4)
+		if icon != null:
+			var ih := font().get_height(size)
+			b.draw_texture_rect(icon, Rect2(floorf(24.0), floorf(3.0 + (ih - 24.0) * 0.5), 24.0, 24.0), false, tint)
+		b.draw_string(font(), Vector2(tx, 3.0 + font().get_ascent(size)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, ink)
+		if focused:
+			# la main qui désigne l'entrée, d'un léger va-et-vient
+			var hand := Sprites.icon("hand")
+			var bob := roundf(sin(float(Time.get_ticks_msec()) * 0.009) * 2.0)
+			b.draw_texture_rect(hand, Rect2(1.0 + bob, floorf(3.0 + (font().get_height(size) - 16.0) * 0.5), 16.0, 16.0), false)
+			if help != "":
+				b.draw_multiline_string(font(false, true), Vector2(tx, b.size.y - help_h - 1.0 + 15.0), help, HORIZONTAL_ALIGNMENT_LEFT, width - tx - 16.0, 15, -1, INK_DIM)
+		var rx := b.size.x - 16.0
+		if right_icon != null:
+			rx -= 24.0
+			b.draw_texture_rect(right_icon, Rect2(rx, floorf(3.0 + (font().get_height(size) - 24.0) * 0.5), 24.0, 24.0), false, tint)
+			rx -= 6.0
+		if right != "":
+			var col := GOLD if focused else (INK_DIM if not b.disabled else Color(0.6, 0.58, 0.55, 0.5))
+			if warn and not focused:
+				col = Color("#e8785a") if not b.disabled else Color(0.7, 0.4, 0.34, 0.55)
+			var w := font().get_string_size(right, HORIZONTAL_ALIGNMENT_LEFT, -1, size - 3).x
+			b.draw_string(font(), Vector2(rx - w, 3.0 + size * 0.95), right, HORIZONTAL_ALIGNMENT_LEFT, -1, size - 3, col))
+	b.focus_entered.connect(func() -> void:
+		Sfx.play("move")
+		b.custom_minimum_size.y = base_h + help_h
+		b.queue_redraw())
+	b.focus_exited.connect(func() -> void:
+		b.custom_minimum_size.y = base_h
+		b.queue_redraw())
+	b.mouse_entered.connect(func() -> void:
+		if not b.disabled and b.focus_mode != Control.FOCUS_NONE:
+			b.grab_focus())
+	return b
+
+
 ## Losange public (vignettes, curseurs) : points d'un losange de centre c et de rayon r.
 static func diamond_points(c: Vector2, r: float) -> PackedVector2Array:
 	return PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])

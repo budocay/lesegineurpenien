@@ -46,6 +46,8 @@ func _ready() -> void:
 	_test_sprites()
 	print("== Combat : règles ==")
 	_test_engine()
+	print("== Combat : élan ==")
+	_test_boost()
 	print("== Combat : équilibre (combats simulés) ==")
 	_test_balance()
 	print("== Quêtes, équipement, argent, Ramollissement ==")
@@ -84,6 +86,8 @@ func _ready() -> void:
 	await _test_animation_play()
 	print("== Combat : composition façon Octopath ==")
 	await _test_battle_layout()
+	print("== Élan et icônes de combat ==")
+	_test_icons()
 	print("== Cartes ==")
 	for id in Database.list_maps():
 		await _test_map(id)
@@ -2407,6 +2411,7 @@ func _c2_rate(ids: Array, level: int, enc: Dictionary, talents: int) -> float:
 		var e := _fight(enc, 100 + s)
 		if str(e.result) == "victory":
 			wins += 1
+	print("  taux : %s niv. %d contre %s : %d %%" % [str(ids), level, str((enc.get("enemies", []) as Array).slice(0, 3)), int(100.0 * wins / runs)])
 	return float(wins) / runs
 
 
@@ -3923,6 +3928,7 @@ func _check_battle_frame(scene: Node3D, ui: Control, tag: String, first: bool) -
 	for k: Variant in ui._rows:
 		var card: Control = ui._rows[k]["card"]
 		check(view.encloses(card.get_global_rect()), "%s : fiche alliée dans la fenêtre" % tag)
+		check(ui._rows[k]["pips"].custom_minimum_size.x > 0.0 and card.get_global_rect().encloses(ui._rows[k]["pips"].get_global_rect()), "%s : pastilles d'élan dans la fiche" % tag)
 	var fr: Rect2 = ui._timeline.get_global_rect()
 	check(ui._timeline.get_child_count() > 2 and view.encloses(fr), "%s : frise des tours dans la fenêtre" % tag)
 	# plaques des ennemis : dans la fenêtre, jamais l'une sur l'autre, jamais sur le sprite d'un autre ennemi
@@ -3933,6 +3939,7 @@ func _check_battle_frame(scene: Node3D, ui: Control, tag: String, first: bool) -
 	for i in keys.size():
 		var ri: Rect2 = (ui._plates[keys[i].key]["root"] as Control).get_global_rect()
 		check(view.encloses(ri), "%s : plaque de %s dans la fenêtre" % [tag, str(keys[i].name)])
+		_check_plate_content(ui, keys[i], tag)
 		for j in range(i + 1, keys.size()):
 			var rj: Rect2 = (ui._plates[keys[j].key]["root"] as Control).get_global_rect()
 			check(not ri.intersects(rj), "%s : plaques de %s et %s sans recouvrement" % [tag, str(keys[i].name), str(keys[j].name)])
@@ -4489,3 +4496,168 @@ func _test_chapter_4_data() -> void:
 		check(alt >= 0.35, "%s, autre équipe de quatre : %d %%" % [str(case[0]), int(alt * 100.0)])
 		print("  %-18s niv. %2d : %3d %% avec talents, %3d %% sans, %3d %% autre équipe" % [str(case[0]), int(case[1]), int(a * 100.0), int(b * 100.0), int(alt * 100.0)])
 	GameState.new_game()
+
+
+# ------------------------------------------------------------------ élan et icônes
+
+## Plaque d'un ennemi : bouclier, une case par faiblesse (« ? » tant qu'elle est inconnue).
+func _check_plate_content(ui: Control, e: RefCounted, tag: String) -> void:
+	var chips: HBoxContainer = ui._plates[e.key]["chips"]
+	var want := (1 if int(e.shield_max) > 0 else 0) + (e.weak as Array).size()
+	check(chips.get_child_count() >= want, "%s : plaque de %s : bouclier et %d cases de faiblesse (%d éléments)" % [tag, str(e.name), (e.weak as Array).size(), chips.get_child_count()])
+	if int(e.shield_max) > 0 and chips.get_child_count() > 0:
+		check(chips.get_child(0).custom_minimum_size.x >= 24.0, "%s : plaque de %s : le bouclier est dessiné" % [tag, str(e.name)])
+
+
+func _test_boost() -> void:
+	GameState.new_game()
+	GameState.add_to_party("pepin")
+	var e: RefCounted = BattleEngine.new()
+	e.setup({"enemies": ["limace_molle"], "arena": "pre"}, 11)
+	var g: RefCounted = e.party[0]
+	var p: RefCounted = e.party[1]
+	var slug: RefCounted = e.enemies[0]
+	slug.base["hp"] = 999999
+	slug.hp = 999999
+	slug.base["eva"] = 0
+	check(int(g.elan) == e.ELAN_START and int(p.elan) == e.ELAN_START and int(slug.elan) == 0, "élan : un point au départ pour les héros, aucun pour l'ennemi")
+	var ev: Array = e.start_turn(g)
+	check(int(g.elan) == e.ELAN_START + e.ELAN_GAIN and _has_event(ev, "elan"), "élan : un point gagné au début du tour")
+	g.elan = e.ELAN_MAX
+	e.start_turn(g)
+	check(int(g.elan) == e.ELAN_MAX, "élan : la réserve plafonne à %d" % e.ELAN_MAX)
+	# engagement : 1 + N coups, les points sont dépensés, pas de gain au tour suivant
+	g.elan = 3
+	g.elan_rest = false
+	ev = e.perform(g, {"type": "attack", "target": slug, "elan": 2})
+	var casts := 0
+	for x: Dictionary in ev:
+		if str(x.get("type", "")) == "cast":
+			casts += 1
+	check(casts == 3 and int(g.elan) == 1, "élan : deux points engagés donnent trois coups (%d) et laissent 1 en réserve (%d)" % [casts, int(g.elan)])
+	e.start_turn(g)
+	check(int(g.elan) == 1, "élan : pas de point gagné au tour qui suit un engagement")
+	e.start_turn(g)
+	check(int(g.elan) == 2, "élan : le gain reprend ensuite")
+	g.elan = 1
+	ev = e.perform(g, {"type": "attack", "target": slug, "elan": 3})
+	check(int(g.elan) == 0, "élan : on n'engage jamais plus que sa réserve")
+	g.elan = 5
+	ev = e.perform(g, {"type": "attack", "target": slug, "elan": 9})
+	check(int(g.elan) == 2, "élan : au plus %d points par tour" % e.ELAN_COMMIT_MAX)
+	# chaque coup d'une attaque écorne le bouclier quand il touche une faiblesse
+	g.elan = 3
+	ev = e.perform(g, {"type": "attack", "target": slug})
+	var element := ""
+	for x: Dictionary in ev:
+		if str(x.get("type", "")) == "cast":
+			element = str(x.get("element", ""))
+	slug.weak = [element]
+	slug.shield = 10
+	slug.shield_max = 10
+	g.elan = 3
+	ev = e.perform(g, {"type": "attack", "target": slug, "elan": 3})
+	var weak_hits := 0
+	for x: Dictionary in ev:
+		if str(x.get("type", "")) == "damage" and bool(x.get("weak", false)):
+			weak_hits += 1
+	check(weak_hits >= 1 and int(slug.shield) == 10 - weak_hits, "élan : chaque coup sur une faiblesse écorne le bouclier (%d coups, bouclier %d)" % [weak_hits, int(slug.shield)])
+	slug.weak = []
+	slug.shield = 99
+	slug.shield_max = 99
+	# compétence offensive : puissance multipliée
+	check(str(e.elan_kind(g, {"type": "skill", "id": "etincelle"})) == "power", "élan : une compétence offensive est amplifiée")
+	var plain := 0
+	var boosted := 0
+	for _i in 30:
+		g.mp = g.max_mp()
+		g.elan = 3
+		ev = e.perform(g, {"type": "skill", "id": "etincelle", "target": slug})
+		for x: Dictionary in ev:
+			if str(x.get("type", "")) == "damage":
+				plain += int(x.get("amount", 0))
+		g.mp = g.max_mp()
+		g.elan = 3
+		ev = e.perform(g, {"type": "skill", "id": "etincelle", "target": slug, "elan": 2})
+		for x: Dictionary in ev:
+			if str(x.get("type", "")) == "damage":
+				boosted += int(x.get("amount", 0))
+	check(plain > 0 and float(boosted) > float(plain) * 1.6 and float(boosted) < float(plain) * 2.5, "élan : deux points doublent à peu près les dégâts d'une compétence (%d contre %d)" % [boosted, plain])
+	# soin amplifié
+	check(str(e.elan_kind(p, {"type": "skill", "id": "cataplasme"})) == "heal", "élan : un soin est amplifié")
+	var heal_plain := 0
+	var heal_boost := 0
+	for _i in 10:
+		p.mp = p.max_mp()
+		g.hp = 1
+		p.elan = 3
+		ev = e.perform(p, {"type": "skill", "id": "cataplasme", "target": g})
+		for x: Dictionary in ev:
+			if str(x.get("type", "")) == "heal":
+				heal_plain += int(x.get("amount", 0))
+		p.mp = p.max_mp()
+		g.hp = 1
+		p.elan = 3
+		ev = e.perform(p, {"type": "skill", "id": "cataplasme", "target": g, "elan": 2})
+		for x: Dictionary in ev:
+			if str(x.get("type", "")) == "heal":
+				heal_boost += int(x.get("amount", 0))
+	check(heal_plain > 0 and heal_boost > heal_plain, "élan : un soin engagé soigne davantage (%d contre %d)" % [heal_boost, heal_plain])
+	# défendre et les objets n'en consomment pas ; l'ennemi n'en a pas
+	g.elan = 3
+	e.perform(g, {"type": "defend", "elan": 3})
+	check(int(g.elan) == 3 and str(e.elan_kind(g, {"type": "defend"})) == "" and str(e.elan_kind(g, {"type": "item", "id": "tisane"})) == "", "élan : défendre et les objets n'en consomment pas")
+	ev = e.perform(slug, {"type": "attack", "target": g, "elan": 3})
+	casts = 0
+	for x: Dictionary in ev:
+		if str(x.get("type", "")) == "cast":
+			casts += 1
+	check(casts == 1 and int(slug.elan) == 0, "élan : l'ennemi n'en a pas")
+	# le combat automatique des tests s'en sert, et la sauvegarde l'ignore
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	var f: RefCounted = BattleEngine.new()
+	f.setup({"enemies": ["vacherin"], "arena": "pre"}, 5)   # un gros ennemi : l'automate y engage son élan
+	var used := 0
+	var turns := 0
+	while str(f.result) == "" and turns < 400:
+		turns += 1
+		var who: RefCounted = f.next_actor()
+		if who == null:
+			break
+		f.start_turn(who)
+		if str(f.result) == "" and bool(f.can_act):
+			var action: Dictionary = f.ai_action(who) if str(who.side) == "enemy" else f.auto_action(who)
+			if int(action.get("elan", 0)) > 0:
+				used += 1
+			f.perform(who, action)
+		if str(f.result) == "":
+			f.end_turn(who)
+	check(used > 0, "élan : le combat automatique des tests engage de l'élan (%d fois)" % used)
+	check(JSON.stringify(GameState.to_dict()).find("elan") == -1, "élan : rien dans la sauvegarde")
+
+
+func _test_icons() -> void:
+	var IP: GDScript = load("res://src/gfx/icon_painter.gd")
+	var kinds: Array = IP.kinds()
+	for id: Variant in ["attack", "skills", "items", "defend", "flee", "elan", "hand", "unknown"]:
+		check(kinds.has(id), "icônes : « %s » existe" % str(id))
+	for id: Variant in Database.elements:
+		check(kinds.has(str(id)), "icônes : l'élément %s a son icône" % str(id))
+	for id: Variant in Database.statuses:
+		check(kinds.has(str(id)), "icônes : l'état %s a son icône" % str(id))
+	for id: Variant in ["baton", "ustensile", "dague", "serpe", "rapiere", "epee", "arc", "hache"]:   # les genres d'arme de item_types
+		check(kinds.has(str(id)) and (Database.game.get("item_types", {}) as Dictionary).has(str(id)), "icônes : le genre d'arme %s a son icône" % str(id))
+	for id: Variant in kinds:
+		var img: Image = IP.paint(str(id))
+		var opaque := 0
+		var magenta := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					opaque += 1
+					if c.r > 0.9 and c.b > 0.9 and c.g < 0.15:
+						magenta += 1
+		check(opaque >= 12 and magenta == 0, "icônes : « %s » est dessinée (%d pixels) sans magenta" % [str(id), opaque])
+		check(Sprites.icon(str(id)) != null, "icônes : « %s » passe par Sprites.icon" % str(id))

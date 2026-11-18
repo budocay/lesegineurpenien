@@ -13,6 +13,7 @@ const PropPainter = preload("res://src/gfx/prop_painter.gd")
 const TilePainter = preload("res://src/gfx/tile_painter.gd")
 const MonsterPainter = preload("res://src/gfx/monster_painter.gd")
 const FxPainter = preload("res://src/gfx/fx_painter.gd")
+const IconPainter = preload("res://src/gfx/icon_painter.gd")
 const SPRITE_SHADER = preload("res://src/gfx/shaders/sprite.gdshader")
 
 const ASSET_DIR := "res://assets/sprites/"
@@ -210,6 +211,20 @@ func fx(kind: String) -> Texture2D:
 	var img := _load_override("fx/%s.png" % kind)
 	if img == null:
 		img = FxPainter.paint(kind)
+	var tex := PA.texture(img)
+	_cache[key] = tex
+	return tex
+
+
+## Icône d'interface (commande, élément, genre d'arme, état, signe) : assets/sprites/icons/<nom>.png
+## s'il existe, sinon la version peinte par code (12 x 12 pixels, voir icon_painter.gd).
+func icon(kind: String) -> Texture2D:
+	var key := "icon:" + kind
+	if _cache.has(key):
+		return _cache[key]
+	var img := _load_override("icons/%s.png" % kind)
+	if img == null:
+		img = IconPainter.paint(kind)
 	var tex := PA.texture(img)
 	_cache[key] = tex
 	return tex
