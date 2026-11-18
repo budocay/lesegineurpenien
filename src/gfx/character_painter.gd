@@ -260,7 +260,7 @@ static func _front(look: Dictionary, back: bool) -> void:
 	# jambes et pieds
 	for s: int in [-1, 1]:
 		var lift := float(_p["lf"]) if s < 0 else float(_p["ln"])
-		_leg_front(cx + float(s) * 5.6, s, _foot - 4.0 - lift, lift, outfit)
+		_leg_front(cx + float(s) * 5.6, s, _foot - 4.0 - lift, lift, outfit, back)
 
 	# le haut du corps se déhanche d'un pixel du côté du pied d'appui
 	cx += float(signi(int(_p["an"])))
@@ -385,7 +385,7 @@ static func _front(look: Dictionary, back: bool) -> void:
 		if s > 0 and item == "baton" and arms == "down":
 			hx += 2.0
 			ex += 1.0
-		_arm(sx, sy, ex, ey, hx, hy, top, wide, al)
+		_arm(sx, sy, ex, ey, hx, hy, top, wide, al, 2 if (s > 0 and item == "baton") else 0, s)
 		if s > 0:
 			hand_r = Vector2(hx, hy)
 
@@ -434,7 +434,7 @@ static func _torso_blouse(cx: float, belt_y: float, top: Array, back: bool) -> v
 			_put(int(cx) + 1, int(_ny) + 4 + i * 3, _c["belt"][3])
 
 
-static func _leg_front(lx: float, s: int, ay: float, lift: float, outfit: String) -> void:
+static func _leg_front(lx: float, s: int, ay: float, lift: float, outfit: String, back: bool = false) -> void:
 	var bottom: Array = _c["bottom"]
 	var boot: Array = _c["boot"]
 	var skin: Array = _c["skin"]
@@ -444,28 +444,45 @@ static func _leg_front(lx: float, s: int, ay: float, lift: float, outfit: String
 		_cap(lx, ay - 10.0, lx, ay, 4.9, 4.5, boot)
 		_rect(lx - 4.9, ay - 10.0, 9.8, 1.5, boot[3])
 		_rect(lx - 4.9, ay - 9.0, 9.8, 1.0, boot[0])
-		_ell(fx, ay + 1.6, 6.4, 3.8, boot)
-		_rect(fx - 5.0, ay + 4.2, 10.0, 1.0, boot[0])
-		_put(int(fx) - 3, int(ay) + 1, boot[4])
-		_put(int(fx) - 2, int(ay) + 1, boot[3])
+		if back:
+			# talon : arrondi, sans bout, avec la semelle qui dépasse
+			_ell(lx, ay + 1.8, 5.5, 3.5, boot)
+			_rect(lx - 4.5, ay + 3.0, 9.0, 1.0, boot[1])
+			_rect(lx - 4.5, ay + 4.0, 9.0, 1.0, boot[0])
+			_put(int(lx) - 2, int(ay) + 1, boot[3])
+		else:
+			_ell(fx, ay + 1.6, 6.4, 3.8, boot)
+			# bout renforcé : couture, reflet, semelle
+			_line(fx - 4.5, ay + 1.0, fx + 4.5, ay + 1.0, boot[1])
+			_rect(fx - 3.0, ay + 2.0, 6.0, 1.0, boot[3])
+			_rect(fx - 5.0, ay + 4.2, 10.0, 1.0, boot[0])
+			_put(int(fx) - 3, int(ay) + 1, boot[4])
+			_put(int(fx) - 2, int(ay) + 1, boot[3])
 		# boucle ou couture de la botte
 		_put(int(lx), int(ay) - 4, boot[1])
 		_put(int(lx), int(ay) - 3, boot[1])
 	else:
 		_cap(lx, _hip - 2.0, lx, ay - 2.0, 4.5, 4.0, bottom)
-		_ell(fx, ay + 1.6, 6.6, 3.6, skin)
-		# touffe de poils de Grobitte et orteils
 		var hr: Array = _c["hair"]
-		for i in 5:
-			_put(int(round(lx)) - 3 + i, int(ay) - 1 - (i % 2), hr[1 + (i % 3)])
-		_put(int(round(lx)) - 2, int(ay) - 3, hr[2])
-		_put(int(round(lx)) + 1, int(ay) - 3, hr[3])
-		for i in 3:
-			_put(int(round(fx)) - 3 + i * 3, int(ay) + 4, skin[1])
-		_put(int(round(fx)) - 4, int(ay) + 1, skin[3])
+		if back:
+			_ell(lx, ay + 1.8, 5.2, 3.4, skin)
+			_rect(lx - 3.0, ay + 3.0, 6.0, 1.0, skin[1])
+			_put(int(round(lx)) - 2, int(ay), skin[3])
+		else:
+			_ell(fx, ay + 1.6, 6.6, 3.6, skin)
+			# touffe de poils de Grobitte et orteils
+			for i in 5:
+				_put(int(round(lx)) - 3 + i, int(ay) - 1 - (i % 2), hr[1 + (i % 3)])
+			_put(int(round(lx)) - 2, int(ay) - 3, hr[2])
+			_put(int(round(lx)) + 1, int(ay) - 3, hr[3])
+			for i in 5:
+				_put(int(round(fx)) - 5 + i * 2, int(ay) + 3, skin[1])
+				_put(int(round(fx)) - 5 + i * 2, int(ay) + 4, skin[0] if i % 2 == 0 else skin[2])
+			_put(int(round(fx)) - 4, int(ay) + 1, skin[3])
 
 
-static func _arm(sx: float, sy: float, ex: float, ey: float, hx: float, hy: float, sleeve: Array, wide: bool, al: float) -> void:
+static func _arm(sx: float, sy: float, ex: float, ey: float, hx: float, hy: float, sleeve: Array, wide: bool, al: float,
+		hand: int = 0, hs: int = 1) -> void:
 	var dir := Vector2(hx - ex, hy - ey)
 	if dir.length() < 0.1:
 		dir = Vector2(0, 1)
@@ -477,10 +494,44 @@ static func _arm(sx: float, sy: float, ex: float, ey: float, hx: float, hy: floa
 	_cap(ex, ey, wx, wy, 4.1, 5.6 if wide else 3.6, sleeve)
 	# poignet : manchette plus claire
 	_cap(wx - dir.x * 1.2, wy - dir.y * 1.2, wx + dir.x * 1.0, wy + dir.y * 1.0, 5.4 if wide else 4.5, 5.4 if wide else 4.5, sleeve, 0.22)
-	_ell(hx, hy, 3.6, 3.8, skin)
-	_put(int(round(hx - 3.0)), int(round(hy + 0.5)), skin[1])
-	_put(int(round(hx + 2.0)), int(round(hy + 2.0)), skin[0])
-	_put(int(round(hx - 1.0)), int(round(hy - 2.0)), skin[4])
+	_hand(hx, hy, hand, hs)
+
+
+## Main. mode 0 : pendante (face, dos), pouce côté corps (hs : côté de l'écran du bras) ;
+## mode 1 : poing de profil, doigts vers l'avant ; mode 2 : poing fermé sur un manche.
+static func _hand(hx: float, hy: float, mode: int, hs: int) -> void:
+	var skin: Array = _c["skin"]
+	var x := int(round(hx))
+	var y := int(round(hy))
+	match mode:
+		1:
+			_ell(hx - 0.3, hy + 0.3, 3.7, 3.5, skin)
+			_put(x - 3, y - 1, skin[1])
+			_put(x - 2, y - 1, skin[1])
+			_put(x - 3, y + 1, skin[1])
+			_put(x - 2, y + 1, skin[1])
+			_put(x - 3, y + 2, skin[0])
+			_cap(hx - 2.6, hy - 2.7, hx - 0.6, hy - 3.0, 1.1, 1.1, skin, 0.25)
+			_put(x + 1, y + 2, skin[1])
+		2:
+			_ell(hx, hy, 3.7, 3.4, skin)
+			for i in 7:
+				_put(x - 3 + i, y, skin[1])
+				_put(x - 3 + i, y + 2, skin[0] if i % 2 == 0 else skin[1])
+			_put(x - 1, y - 1, skin[4])
+			_put(x + 1, y - 1, skin[3])
+			_cap(hx - 0.8, hy - 3.2, hx + 0.8, hy - 1.0, 1.2, 1.1, skin, 0.25)
+		_:
+			_ell(hx, hy + 0.6, 3.3, 4.0, skin)
+			_cap(hx - float(hs) * 2.5, hy - 1.8, hx - float(hs) * 2.1, hy + 1.4, 1.2, 1.0, skin, 0.25)
+			_put(x - 1, y + 1, skin[1])
+			_put(x - 1, y + 2, skin[1])
+			_put(x + 1, y + 1, skin[1])
+			_put(x + 1, y + 2, skin[1])
+			_put(x - 2, y + 3, skin[1])
+			_put(x, y + 3, skin[1])
+			_put(x + 2, y + 3, skin[1])
+			_put(x, y - 2, skin[4])
 
 
 static func _staff(hx: float, hy: float, arms: String, back: bool) -> void:
@@ -526,10 +577,7 @@ static func _staff(hx: float, hy: float, arms: String, back: bool) -> void:
 		_put(int(round(tx)) + 8, int(round(top)) - 10, Color("#a8f4ff"))
 		_put(int(round(tx)) + 7, int(round(top)) - 2, WHITE)
 		_put(int(round(tx)) - 5, int(round(top)) - 12, Color("#a8f4ff"))
-	var skin: Array = _c["skin"]
-	_ell(hx, hy, 3.6, 3.8, skin)
-	_put(int(round(hx)), int(round(hy)) - 2, skin[1])
-	_put(int(round(hx)) - 1, int(round(hy)) + 1, skin[1])
+	_hand(hx, hy, 2, 1)
 
 
 # ----------------------------------------------------------------------- profil
@@ -557,8 +605,7 @@ static func _side(look: Dictionary) -> void:
 	if str(look.get("hair_style", "")) == "long":
 		_hair_back(tx, _hcy, _rx, _ry, 1, sway)
 	if has_cape:
-		_trap(ny + 2.0, _foot - 4.0, tx + 1.0, tx + hs + 5.0, tx + 5.0, tx + hs + 16.0, _c["cape"], -0.1,
-			[Vector2(0.35, 0.1), Vector2(0.65, 0.2), Vector2(0.85, 0.0)], true, sway * 1.0 + 1.0)
+		_cape_side(tx, hs, sway)
 
 	# bras éloigné, caché par le torse
 	var swing_f := float(_p["af"]) * 1.4
@@ -577,7 +624,7 @@ static func _side(look: Dictionary) -> void:
 		"slump":
 			far_hand = Vector2(tx, ny + th + 3.0)
 			far_el = Vector2(tx, ny + th * 0.5)
-	_arm(tx + 1.0, ny + 5.0, far_el.x, far_el.y, far_hand.x, far_hand.y, _dim(top), outfit == "robe", al)
+	_arm(tx + 1.0, ny + 5.0, far_el.x, far_el.y, far_hand.x, far_hand.y, _dim(top), outfit == "robe", al, 1)
 
 	# jambes : la jambe proche est celle de droite dans les poses de marche
 	for near: bool in [false, true]:
@@ -610,7 +657,13 @@ static func _side(look: Dictionary) -> void:
 			_rect(tx - hs - belly - 1.0, belt_y - 2.5, 5.0, 1.0, _c["gold"][4])
 			if outfit == "tablier":
 				var ap: Array = _c["apron"]
-				_trap(ny + 8.0, minf(_hip + _lh * 0.28, _foot - 9.0), tx - hs - belly - 2.0, tx - hs + 4.0, tx - hs - belly - 5.0, tx - hs + 5.0, ap, 0.0, [], true)
+				var by2 := minf(_hip + _lh * 0.28, _foot - 9.0)
+				var fxa := tx - hs - belly
+				_poly([Vector2(fxa + 0.5, ny + 6.0), Vector2(fxa - 1.2, belt_y), Vector2(fxa - 4.5, by2 - 2.0), Vector2(fxa - 3.8, by2),
+					Vector2(fxa + 4.5, by2), Vector2(fxa + 5.0, belt_y), Vector2(fxa + 3.0, ny + 7.0)], ap, 0.0, true)
+				_line(fxa - 3.0, belt_y + 5.0, fxa + 4.0, belt_y + 5.0, ap[1])
+				_line(fxa - 1.0, belt_y + 5.0, fxa - 1.0, belt_y + 11.0, ap[1])
+				_cap(tx - 0.5, ny + 2.5, fxa + 1.5, ny + 7.5, 1.4, 1.2, ap)
 	_ell(tx - 0.5, ny + 4.6, 5.4, 4.6, top if not has_cape else _c["cape"])
 	_cast(tx - 1.0, _hcy + _ry + 0.5, _rx - 2.0, 4.6, -0.24)
 
@@ -631,10 +684,28 @@ static func _side(look: Dictionary) -> void:
 		"slump":
 			ne = Vector2(tx + 2.0, ny + th * 0.5)
 			nh = Vector2(tx + 2.0, ny + th + 4.0)
-	_arm(tx - 0.5, ny + 5.0, ne.x, ne.y, nh.x, nh.y, top, outfit == "robe", al)
+	_arm(tx - 0.5, ny + 5.0, ne.x, ne.y, nh.x, nh.y, top, outfit == "robe", al, 2 if item == "baton" else 1)
 	if item == "baton":
 		_staff(nh.x, nh.y, arms, false)
 	_head_side(look, tx - 1.0, item)
+
+
+## Cape de profil : elle part de la nuque, tombe derrière le dos et s'évase en plis, l'ourlet suit le pas.
+static func _cape_side(tx: float, hs: float, sway: float) -> void:
+	var cp: Array = _c["cape"]
+	var ny := _ny
+	var cs := sway * 0.9
+	_poly([Vector2(tx + 0.5, ny + 1.5), Vector2(tx + hs + 3.5, ny + 2.5), Vector2(tx + hs + 6.5 + cs * 0.3, ny + _th * 0.7),
+		Vector2(tx + hs + 11.0 + cs * 0.7, ny + _th * 1.4), Vector2(tx + hs + 15.0 + cs, _foot - 6.5),
+		Vector2(tx + hs + 10.0 + cs, _foot - 3.0), Vector2(tx + hs + 5.0 + cs, _foot - 5.0),
+		Vector2(tx + hs - 0.5 + cs * 0.6, _foot - 3.5), Vector2(tx - 1.5, _foot - 6.0)], cp, -0.12, true)
+	var top_x := tx + hs + 1.5
+	for k in 3:
+		var fx := top_x + float(k) * 3.4
+		_line(fx, ny + 9.0, fx + 1.5 + cs * (0.5 + 0.2 * float(k)), _foot - 7.0 - float(k % 2) * 2.0, cp[1])
+		_line(fx + 1.0, ny + 12.0, fx + 2.5 + cs * (0.5 + 0.2 * float(k)), _foot - 12.0, cp[3])
+	# pan de la cape qui retombe sur l'épaule
+	_ell(tx + 1.0, ny + 4.0, 4.6, 3.6, cp, 0.1)
 
 
 static func _leg_side(hx: float, fx: float, ay: float, near: bool) -> void:
@@ -645,20 +716,34 @@ static func _leg_side(hx: float, fx: float, ay: float, near: bool) -> void:
 		_cap(hx, _hip - 2.0, fx, ay - 9.0, 4.7, 4.2, bottom)
 		_cap(fx, ay - 10.0, fx, ay, 4.9, 4.6, boot)
 		_rect(fx - 4.9, ay - 10.0, 9.8, 1.5, boot[3])
-		_ell(fx - 3.2, ay + 1.7, 8.4, 3.8, boot)
-		_rect(fx - 10.0, ay + 4.2, 14.0, 1.0, boot[0])
-		_put(int(fx) - 7, int(ay) + 1, boot[4])
-		_put(int(fx) - 6, int(ay) + 1, boot[3])
+		_foot_side(fx, ay, boot, true)
 	else:
 		_cap(hx, _hip - 2.0, fx, ay - 2.0, 4.7, 4.2, bottom)
-		_ell(fx - 3.2, ay + 1.7, 8.4, 3.6, skin)
 		var hr: Array = _c["hair"]
+		_foot_side(fx, ay, skin, false)
 		for i in 4:
 			_put(int(round(fx)) - 2 + i, int(ay) - 1 - (i % 2), hr[1 + (i % 3)])
-		_put(int(round(fx)) - 10, int(ay) + 4, skin[1])
-		_put(int(round(fx)) - 7, int(ay) + 4, skin[1])
-		_put(int(round(fx)) - 4, int(ay) + 4, skin[1])
-		_put(int(round(fx)) - 9, int(ay) + 1, skin[3])
+
+
+## Pied de profil (vers la gauche) : talon, voûte, bout arrondi, semelle ou orteils.
+static func _foot_side(fx: float, ay: float, col: Array, boot: bool) -> void:
+	_poly([Vector2(fx + 4.6, ay - 3.0), Vector2(fx + 5.6, ay + 1.5), Vector2(fx + 4.6, ay + 4.8), Vector2(fx - 8.5, ay + 4.8),
+		Vector2(fx - 11.6, ay + 3.2), Vector2(fx - 11.8, ay + 1.4), Vector2(fx - 9.0, ay - 0.6), Vector2(fx - 4.0, ay - 2.4),
+		Vector2(fx - 3.0, ay - 3.6)], col, 0.05)
+	if boot:
+		_rect(fx - 10.0, ay + 4.0, 15.0, 1.0, col[0])
+		_rect(fx + 1.5, ay + 2.0, 3.5, 2.0, col[1])
+		_line(fx - 5.0, ay - 1.0, fx - 5.0, ay + 3.0, col[1])
+		_put(int(fx) - 9, int(ay) + 1, col[4])
+		_put(int(fx) - 8, int(ay), col[3])
+		_put(int(fx) - 7, int(ay), col[3])
+	else:
+		_put(int(fx) - 11, int(ay) + 4, col[1])
+		_line(fx - 9.0, ay + 2.0, fx - 9.0, ay + 4.0, col[1])
+		_line(fx - 6.0, ay + 2.5, fx - 6.0, ay + 4.0, col[1])
+		_put(int(fx) - 10, int(ay) + 1, col[3])
+		_put(int(fx) + 4, int(ay) + 2, col[1])
+		_put(int(fx) + 1, int(ay) - 2, col[4])
 
 
 static func _head_side(look: Dictionary, hx: float, item: String) -> void:
@@ -670,12 +755,16 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 	var hair_style := str(look.get("hair_style", "court"))
 	var mood := str(_p["eyes"])
 	var old := _elder(look)
+	_fk = str(look.get("face", ""))
+	var heavy := _fk in ["las", "hautain", "sournois", "renfrogne", "bourru"]
 	if hat == "capuche":
 		_hood_back(hx, hcy, rx, ry, 1)
 	if hair_style == "boucles" or hair_style == "chignon":
 		_hair_volume(hx, hcy, rx, ry, hair_style, 1)
 	_ell(hx, hcy, rx, ry, skin)
-	_ell(hx - 1.0, hcy + ry - 3.0, rx * 0.62, 3.6, skin, -0.1)
+	_ell(hx + 1.0, hcy + ry - 3.4, rx * 0.6, 3.4, skin, -0.1)
+	_ell(hx - rx * 0.4, hcy + ry - 2.6, rx * 0.5, 3.5, skin, -0.05)          # menton qui avance
+	_put(int(round(hx - rx * 0.4)) - 2, int(hcy + ry) + 1, skin[4])
 	# nez
 	var nlen := 3.6 if old else 3.0
 	_ell(hx - rx - 0.8, hcy + 4.4, nlen, 3.0, skin)
@@ -720,7 +809,7 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 			_put(ex + 1, ey + 2, WHITE)
 			_put(ex + 1, ey + 4, skin[1])
 			_put(ex + 2, ey + 4, skin[1])
-			if old or mood == "angry":
+			if old or heavy or mood == "angry":
 				_put(ex, ey + 1, skin[1])
 				_put(ex + 1, ey + 1, skin[1].lerp(iris[0], 0.55))
 				_put(ex + 2, ey + 1, skin[1].lerp(iris[0], 0.55))
@@ -730,8 +819,10 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 	var brow_col: Color = (_c["beard"] if old and str(look.get("beard", "none")) != "none" else hr)[1]
 	for i in 5:
 		var yy := ey - 3 + (1 if mood == "angry" and i < 2 else 0) + (1 if i == 0 else 0)
+		if mood == "open" and _fk != "":
+			yy = ey - 3 + _brow_dy(4 - i, 0)
 		_put(ex - 1 + i, yy, brow_col)
-		if old:
+		if old or _fk == "bourru":
 			_put(ex - 1 + i, yy + 1, brow_col)
 	_put(ex + 2, ey + 7, skin[2].lerp(Color("#e0607a"), 0.45))
 	_put(ex + 3, ey + 7, skin[2].lerp(Color("#e0607a"), 0.45))
@@ -754,7 +845,28 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 			_put(mx, my - 1, MOUTH)
 			_put(mx + 2, my - 1, MOUTH)
 		_:
-			if not hidden:
+			if not hidden and _fk in ["renfrogne", "bourru", "las"]:
+				_put(mx - 2, my + 1, MOUTH)
+				_put(mx - 1, my + 1, MOUTH)
+				_put(mx, my + 1, MOUTH)
+				_put(mx + 1, my + (2 if _fk != "las" else 1), skin[1])
+				_put(mx - 1, my + 2, skin[3])
+			elif not hidden and _fk == "bonhomme":
+				_put(mx - 3, my - 1, skin[1])
+				_put(mx - 2, my, SCLERA)
+				_put(mx - 1, my, SCLERA)
+				_put(mx - 2, my + 1, MOUTH)
+				_put(mx - 1, my + 1, MOUTH)
+				_put(mx, my, MOUTH)
+				_put(mx + 1, my - 1, skin[1])
+				_put(mx - 1, my + 2, skin[3])
+			elif not hidden and (_fk == "hautain" or _fk == "sournois"):
+				_put(mx - 2, my + 1, MOUTH)
+				_put(mx - 1, my + 1, MOUTH)
+				_put(mx, my, MOUTH)
+				_put(mx + 1, my - 1, MOUTH)
+				_put(mx - 1, my + 2, skin[3])
+			elif not hidden:
 				_put(mx - 2, my, MOUTH)
 				_put(mx - 1, my + 1, MOUTH)
 				_put(mx, my + 1, MOUTH)
