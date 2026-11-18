@@ -1,0 +1,1522 @@
+{
+	"arrivee_porte": [
+		{
+			"banner": "Les monts de Morbier",
+			"sub": "Là où la montagne dit non"
+		},
+		{
+			"text": "Le vent descend du col avec une opinion arrêtée. La neige, devant, a déjà pris position."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Le col de Caradras. La route la plus courte vers le sud, d'après tous les cartographes qui n'y sont jamais allés."
+		},
+		{
+			"who": "froton",
+			"text": "On ne passe pas, c'est ça ?"
+		},
+		{
+			"text": "Un bloc de neige, haut comme une maison, bouche le col. Il a l'air d'y tenir."
+		},
+		{
+			"who": "sam",
+			"text": "Mon grand-père disait : quand la montagne dit non, on dit « bien sûr » et on s'assoit."
+		},
+		{
+			"who": "grimli",
+			"text": "Elle ne dit pas non à tout le monde. Elle dit non à ceux qui montent. À ceux qui entrent, elle dit « par ici, c'est plus tiède »."
+		},
+		{
+			"who": "grimli",
+			"text": "Il y a un autre chemin. Plus bas, plus sombre, plein de cousins. Les Mines de Morbier."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Des mines. Évidemment. La Terre du Milieu est un gruyère à qui l'on a donné des ambitions."
+		},
+		{
+			"who": "grimli",
+			"text": "Morbier, pas gruyère. Chez nous, on distingue. Le gruyère a des trous partout. Morbier a une ligne de cendre au milieu, et du respect."
+		},
+		{
+			"who": "merri",
+			"text": "Je tiendrai la corde. Quelqu'un doit la tenir, et je préfère que ce soit quelqu'un qui sait pourquoi."
+		},
+		{
+			"if": "bromure_invite",
+			"then": [
+				{
+					"who": "bromure",
+					"text": "Je marcherai derrière. C'est une place d'honneur : on y voit tout, et l'on n'est devant personne."
+				}
+			]
+		},
+		{
+			"text": "Au bout du sentier, une paroi lisse. Sur la paroi, une porte de pierre sans poignée. Au pied de la porte, un lac noir, parfaitement immobile, comme quelqu'un qui retient son souffle."
+		},
+		{
+			"set": "porte_vue"
+		}
+	],
+	"panneau_monts": [
+		{
+			"text": "« MINES DE MORBIER. Entrée par la porte, jamais par la fenêtre. Il n'y a pas de fenêtre. — La Direction. »"
+		},
+		{
+			"text": "Quelqu'un a ajouté au charbon : « Il n'y a pas de Direction non plus. »"
+		}
+	],
+	"stele_porte": [
+		{
+			"text": "Une stèle, gravée en lettres carrées : « LA PORTE S'OUVRE POUR L'AMI. L'AMI S'OUVRE POUR LA PORTE. LE LAC S'OUVRE POUR PERSONNE. »"
+		},
+		{
+			"who": "merri",
+			"text": "C'est précis. J'aime quand un règlement dit ce qu'il ne fait pas."
+		}
+	],
+	"col_ferme": [
+		{
+			"text": "Une plaque de fer rouillé, vissée dans le roc : « COL DE CARADRAS. FERMÉ POUR CAUSE DE MONTAGNE. »"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Le plus honnête des avis de fermeture. Aucun motif administratif, juste la chose elle-même."
+		}
+	],
+	"bromure_porte": [
+		{
+			"who": "bromure",
+			"text": "Cette porte est exemplaire. Elle ne cède ni à la force ni à l'éloquence : seulement à la bonne réponse."
+		},
+		{
+			"who": "bromure",
+			"text": "Minas Tartine devrait en prendre de la graine. Et des portes."
+		}
+	],
+	"porte_enigme": [
+		{
+			"text": "Deux battants de pierre, un cercle d'argent entre eux, et des runes qui se lisent comme un règlement intérieur."
+		},
+		{
+			"who": "grimli",
+			"text": "C'est du khuzdul de comptoir. « Dis le nom de l'ami, et entre. » Facile."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Facile pour toi. Moi, je lis surtout les menus."
+		},
+		{
+			"if": "porte_essai",
+			"then": [
+				{
+					"who": "grimli",
+					"text": "L'inscription dit « ami ». Chez nous, un ami, c'est ce qu'on affine longtemps et qu'on partage avec modération. Ça vous met sur la voie ?"
+				}
+			]
+		},
+		{
+			"text": "Alors. Le nom de l'ami...",
+			"choice": [
+				{
+					"text": "« Mellon »",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Mellon."
+						},
+						{
+							"text": "Rien ne bouge. Les runes se contractent, comme un sourcil."
+						},
+						{
+							"who": "merri",
+							"text": "C'est un melon, Glandoulf. Même pas un ami."
+						},
+						{
+							"who": "glandoulf",
+							"text": "C'est le mot elfique pour ami. Je l'ai tiré d'un livre d'Elrond."
+						},
+						{
+							"who": "merri",
+							"text": "Les livres d'Elrond sont des livres d'Elrond. Ça ne les rend pas faux, ça les rend longs."
+						},
+						{
+							"set": "porte_essai"
+						}
+					]
+				},
+				{
+					"text": "« Camembert »",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Camembert."
+						},
+						{
+							"text": "Le cercle d'argent tremble, vexé. Une poussière de roche tombe du linteau, avec le ton de quelqu'un qui soupire."
+						},
+						{
+							"who": "froton",
+							"text": "C'était mon ami, pourtant. On a grandi ensemble. Enfin, lui a mûri."
+						},
+						{
+							"set": "porte_essai"
+						}
+					]
+				},
+				{
+					"text": "« Ami du Chambertin »",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Ami du Chambertin."
+						},
+						{
+							"text": "Les runes s'allument une à une, comme un public qui comprend la plaisanterie. Le cercle d'argent se divise. Les battants pivotent sans bruit, ce qui est inquiétant pour des battants de cette taille."
+						},
+						{
+							"who": "grimli",
+							"text": "« Ami du Chambertin ». Un fromage de Bourgogne. L'une des rares choses que mon peuple ait jamais acceptées d'un étranger."
+						},
+						{
+							"who": "sam",
+							"text": "Et la porte n'a pas demandé le Chambertin lui-même ?"
+						},
+						{
+							"who": "grimli",
+							"text": "Elle est de bonne composition."
+						},
+						{
+							"text": "Derrière vous, l'eau du lac se creuse, sans une ride. Quelque chose a entendu qu'on avait la bonne réponse, et n'en est pas content."
+						},
+						{
+							"who": "froton",
+							"text": "Mon cousin disait toujours : « Ne regarde jamais l'eau qui ne bouge pas. » Il a fini dans un étang. Pas celui-là."
+						},
+						{
+							"battle": "guetteur_du_lac"
+						},
+						{
+							"if": "combat_guetteur_du_lac",
+							"then": [
+								{
+									"text": "Le Guetteur du lac rentre sous la surface, une perle en moins et un grief en plus. Les battants de la porte, eux, restent grands ouverts, comme on tient une porte à quelqu'un qu'on n'attendait pas."
+								},
+								{
+									"who": "merri",
+									"text": "Je tiens la corde. À partir d'ici, personne ne lâche personne."
+								},
+								{
+									"set": "porte_ouverte"
+								},
+								{
+									"action": "save"
+								}
+							]
+						}
+					]
+				}
+			],
+			"who": "glandoulf"
+		}
+	],
+	"arrivee_galeries": [
+		{
+			"banner": "Les galeries de Morbier",
+			"sub": "Fondées sous Pic Ier, fondues sous Ballot"
+		},
+		{
+			"text": "L'air sent la pierre froide, la graisse de lampe et, très faiblement, la croûte."
+		},
+		{
+			"who": "grimli",
+			"text": "Retenez ceci : tout ce qui est creusé ici est creusé droit. Ce qui est tordu a été creusé par autre chose."
+		},
+		{
+			"who": "merri",
+			"text": "Je tiens la corde. Chacun à une brasse de l'autre. Une brasse, c'est un bras tendu plus un peu d'optimisme."
+		},
+		{
+			"who": "froton",
+			"text": "Elle est bien longue, cette corde."
+		},
+		{
+			"who": "merri",
+			"text": "On ne se perd pas avec une corde. On se retrouve ensemble, ce qui est plus rassurant que de se retrouver seul."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Et si la corde casse ?"
+		},
+		{
+			"who": "merri",
+			"text": "Alors on se perd tous, mais chacun avec un bout. C'est déjà de la logistique."
+		},
+		{
+			"set": "galeries_vues"
+		}
+	],
+	"stele_galeries": [
+		{
+			"text": "Gravé dans la roche, de haut en bas : « MORBIER. FONDÉE SOUS PIC PREMIER. FONDUE SOUS BALLOT. REFONDÉE, DEPUIS, PAR PERSONNE. »"
+		},
+		{
+			"who": "grimli",
+			"text": "La fondation, c'est la fierté de mon peuple. La fonte, c'est notre gêne. On n'en parle pas aux étrangers, sauf quand ils posent la question, c'est-à-dire tout de suite."
+		}
+	],
+	"panneau_galeries": [
+		{
+			"text": "Un panneau de bois noirci, peint à la main : « → GRANDE SALLE DES FORGES. ↓ CAMP DES GOBELINS (NE PAS SE PENCHER). » La seconde flèche a été rajoutée à la craie, par quelqu'un de très pressé."
+		}
+	],
+	"squelette_galeries": [
+		{
+			"text": "Un ancien mineur, assis contre la paroi, le pic sur les genoux. Il a quitté son poste sans préavis, ce qui explique à peu près tout."
+		},
+		{
+			"who": "grimli",
+			"text": "Pic Ier, de la lignée des Barbe-à-Sel. Mon arrière-oncle. Il a toujours su se tenir. Là, il se tient très bien."
+		}
+	],
+	"pioche_trouvee": [
+		{
+			"text": "Sous un tas de gravats, un manche de bois usé et un fer qui brille encore : une pioche, laissée par quelqu'un qui n'avait plus les mains libres."
+		},
+		{
+			"give": "pioche_rondin"
+		},
+		{
+			"set": "pioche_prise"
+		}
+	],
+	"coffre_galerie_1": [
+		{
+			"if": "coffre_galerie_1_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de mineur, cerclé de fer, posé sur le plus haut palier. Il est resté sec, et sur ses gardes."
+				},
+				{
+					"give": "page_comptes"
+				},
+				{
+					"give": "miche_du_mineur",
+					"count": 2
+				},
+				{
+					"set": "coffre_galerie_1_pris"
+				}
+			]
+		}
+	],
+	"coffre_galerie_2": [
+		{
+			"if": "coffre_galerie_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre à l'entrée, bien rangé, comme si quelqu'un avait prévu qu'on viendrait."
+				},
+				{
+					"give": "tomme_de_cave",
+					"count": 2
+				},
+				{
+					"give": "sel_de_roche"
+				},
+				{
+					"money": 60
+				},
+				{
+					"set": "coffre_galerie_2_pris"
+				}
+			]
+		}
+	],
+	"coffre_camp": [
+		{
+			"if": "coffre_camp_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Le coffre du camp des gobelins. Il sent la graisse, le fumet de cuisine et, très fort, le vol."
+				},
+				{
+					"give": "meule_morbier"
+				},
+				{
+					"give": "petard_de_mineur",
+					"count": 2
+				},
+				{
+					"money": 45
+				},
+				{
+					"set": "coffre_camp_pris"
+				}
+			]
+		}
+	],
+	"camp_gobelins": [
+		{
+			"text": "Un Gobe-Gras surveille un chaudron où mijote quelque chose qui a, de loin, l'allure d'un ragoût. De près, il a l'allure d'un ragoût qui vous regarde."
+		},
+		{
+			"text": "« On goûte ! On goûte ! » crie le contremaître, qui n'a de la cuisine que le vocabulaire."
+		},
+		{
+			"who": "sam",
+			"text": "Il fait de la cuisine sans permission. Je ne peux pas laisser passer ça."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Le plus court chemin vers la sortie traverse cette marmite. Je regrette."
+		},
+		{
+			"battle": "gobelins_du_camp"
+		},
+		{
+			"if": "combat_gobelins_du_camp",
+			"then": [
+				{
+					"text": "Le Gobe-Gras renverse son chaudron en battant en retraite. Le ragoût s'enfuit de son côté, ce qui est plus sage."
+				},
+				{
+					"set": "camp_vaincu"
+				}
+			]
+		}
+	],
+	"arrivee_halle": [
+		{
+			"banner": "La Grande Salle des Forges",
+			"sub": "Dix mille enclumes, aucune de service"
+		},
+		{
+			"text": "Une salle à ne plus savoir où mettre ses yeux : des piliers carrés grands comme des tours, des forges mortes alignées comme des fours à pain, des braises qui n'ont jamais tout à fait renoncé."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Voilà ce qu'il reste d'une civilisation qui savait compter, forger et s'enterrer. Dans cet ordre."
+		},
+		{
+			"who": "grimli",
+			"text": "Ne reste pas là à admirer. Ici, mon cousin Pic IV a perdu son chapeau, et trois siècles plus tard on en parle encore."
+		},
+		{
+			"who": "merri",
+			"text": "Où est-ce, la tombe de Ballot ?"
+		},
+		{
+			"who": "grimli",
+			"text": "Au nord. Il y a un registre. Mon oncle y est inscrit, à l'encre, avec la mention « à rembourser »."
+		},
+		{
+			"who": "froton",
+			"text": "Il faut y aller ?"
+		},
+		{
+			"who": "grimli",
+			"text": "Un nain ne passe pas devant son roi sans le saluer. Même mort, même ruiné, même quand le roi doit de l'argent."
+		},
+		{
+			"set": "halle_vue"
+		}
+	],
+	"grimli_barre": [
+		{
+			"who": "grimli",
+			"text": "Pas par là. Pas avant d'avoir salué Ballot. Chez nous, ce n'est pas de la politesse : c'est de l'hygiène."
+		},
+		{
+			"who": "grimli",
+			"text": "La tombe est au nord de la Salle. Tout droit, deux piliers, une statue sans nez. Tu ne peux pas la rater, sauf à le vouloir."
+		}
+	],
+	"bromure_halle": [
+		{
+			"who": "bromure",
+			"text": "Je ne me fatigue pas. Je regarde. Une forge qui s'éteint, on dirait une ville qui renonce."
+		},
+		{
+			"who": "bromure",
+			"text": "Chez nous, les fumées montent encore. Je les compte, de temps en temps, à voix basse, pour qu'elles sachent que quelqu'un s'en soucie."
+		}
+	],
+	"halle_repos": [
+		{
+			"text": "Un établi tiède, où quelqu'un a laissé un tas de braises bien entretenu et une couverture de laine. Les nains sont propres et prévoyants, même quand ils ne sont plus là."
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'étend près des braises. Personne ne rêve de gobelins. C'est la preuve que l'endroit est sûr, ou que l'on est très fatigué."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Plus tard. Les pauses ont ceci de commun avec les dettes : on les prend toujours trop tôt."
+						}
+					]
+				}
+			]
+		}
+	],
+	"coffre_halle": [
+		{
+			"if": "coffre_halle_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de forgeron : lourd, plein de pièces d'armure oubliées et de pétards mal étiquetés."
+				},
+				{
+					"give": "petard_de_mineur",
+					"count": 3
+				},
+				{
+					"give": "tomme_de_cave"
+				},
+				{
+					"money": 80
+				},
+				{
+					"set": "coffre_halle_pris"
+				}
+			]
+		}
+	],
+	"rondin": [
+		{
+			"if": "!rondin_vu",
+			"then": [
+				{
+					"text": "Un petit nain à la barbe tressée de fils de cuivre, accoudé à un établi comme à un comptoir. Autour de lui, des outils alignés au cordeau et un silence de vente à perte."
+				},
+				{
+					"who": "rondin",
+					"text": "Rondin Piochard, forgeron, puis marchand, puis seul. Les gobelins ont pris la galerie du bas, la clientèle a pris la route de l'est, et moi j'ai pris mon temps."
+				},
+				{
+					"who": "grimli",
+					"text": "Rondin ! Le fils de Piochard le Long ! Tu tiens encore ?"
+				},
+				{
+					"who": "rondin",
+					"text": "Je tiens ce que je peux. Tout est de qualité naine : lourd, juste, et un peu rancunier."
+				},
+				{
+					"set": "rondin_vu"
+				}
+			]
+		},
+		{
+			"text": "Alors, qu'est-ce que je te sers ?",
+			"choice": [
+				{
+					"text": "Voir l'étal",
+					"then": [
+						{
+							"shop": "rondin"
+						},
+						{
+							"who": "rondin",
+							"text": "À ton service. Je ne bouge pas, de toute façon."
+						}
+					]
+				},
+				{
+					"text": "Parler de pioche",
+					"then": [
+						{
+							"if": "pioche_rendue",
+							"then": [
+								{
+									"who": "rondin",
+									"text": "Elle chante, à nouveau. Merci encore."
+								}
+							],
+							"else": [
+								{
+									"if": "item:pioche_rondin",
+									"then": [
+										{
+											"who": "rondin",
+											"text": "Ma pioche ! Elle a encore le manche tordu à ma main. Tu l'as sauvée du sort le plus triste : celui d'un outil sans travail."
+										},
+										{
+											"take": "pioche_rondin"
+										},
+										{
+											"set": "pioche_rendue"
+										}
+									],
+									"else": [
+										{
+											"if": "pioche_cherchee",
+											"then": [
+												{
+													"who": "rondin",
+													"text": "Toujours pas de pioche, hein ? Elle est dans les galeries, sous un tas de caillasse. Elle fait semblant d'être un caillou."
+												}
+											],
+											"else": [
+												{
+													"who": "rondin",
+													"text": "J'ai perdu ma pioche en fuyant les gobelins. Je ne la réclame pas : je la regarde dans le vide, à l'endroit où elle manque."
+												},
+												{
+													"who": "rondin",
+													"text": "Si tu la voyais, du côté de la chambre fromagère... Elle a un manche usé et un air de reproche."
+												},
+												{
+													"set": "pioche_cherchee"
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"text": "Parler de fromage",
+					"then": [
+						{
+							"if": "meule_livree",
+							"then": [
+								{
+									"who": "rondin",
+									"text": "Une meule entière, ligne de cendre au milieu. Le Roi Ballot lui-même aurait salué."
+								}
+							],
+							"else": [
+								{
+									"if": "item:meule_morbier",
+									"then": [
+										{
+											"who": "rondin",
+											"text": "Une meule de Morbier ! Ronde, pesante, droite sur sa cendre. Tu me rends le goût du pays."
+										},
+										{
+											"take": "meule_morbier"
+										},
+										{
+											"set": "meule_livree"
+										}
+									],
+									"else": [
+										{
+											"if": "meule_demandee",
+											"then": [
+												{
+													"who": "rondin",
+													"text": "Les gobelins gardent la meule dans le coffre de leur camp, côté sud. Ils ne la mangent pas. Ils la regardent, et ça me rend fou."
+												}
+											],
+											"else": [
+												{
+													"who": "rondin",
+													"text": "Je n'ai plus goûté de morbier depuis l'arrivée des gobelins. Ils en ont une meule, là-bas, dans leur camp."
+												},
+												{
+													"who": "rondin",
+													"text": "Je ne demande pas qu'on se batte pour un fromage. Je demande qu'on se batte, et qu'on me rapporte le fromage."
+												},
+												{
+													"set": "meule_demandee"
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"text": "Au revoir",
+					"then": [
+						{
+							"who": "rondin",
+							"text": "Les mines sont longues. Reviens entier, ou ne reviens pas : j'ai assez de monde, ici, qui ne revient pas."
+						}
+					]
+				}
+			],
+			"who": "rondin"
+		}
+	],
+	"arrivee_tombe": [
+		{
+			"banner": "La tombe du Roi Ballot",
+			"sub": "Les comptes sont ouverts"
+		},
+		{
+			"text": "Une salle haute, carrée, taillée d'un seul bloc. Au fond, une dalle ; près de la dalle, un registre ouvert sur un pupitre ; partout, une odeur de moisissure qui n'est pas tout à fait celle de la pierre."
+		},
+		{
+			"who": "grimli",
+			"text": "Chut. On entre chez un roi. Même mort, il écoute."
+		},
+		{
+			"set": "tombe_vue"
+		}
+	],
+	"troll_tombe": [
+		{
+			"text": "Le mur de gauche bouge. Ce n'était pas un mur. C'était bleu, moite, et ça se lève."
+		},
+		{
+			"who": "grimli",
+			"text": "Un Gros Bleu des caves ! Dix pieds de moisissure sur deux pieds de rancune. Il garde le roi, parce que personne d'autre ne s'en occupe."
+		},
+		{
+			"who": "sam",
+			"text": "Il est... très bleu."
+		},
+		{
+			"who": "froton",
+			"text": "C'est la moisissure."
+		},
+		{
+			"who": "sam",
+			"text": "Ce n'est pas pour ça qu'il est moins bleu."
+		},
+		{
+			"who": "glandoulf",
+			"text": "On évite la gloire et on vise la sortie. Dans cet ordre. Il est trop tard pour l'ordre, d'ailleurs."
+		},
+		{
+			"battle": "gros_bleu"
+		},
+		{
+			"if": "combat_gros_bleu",
+			"then": [
+				{
+					"text": "Le Gros Bleu s'affaisse avec le bruit d'un gâteau trop mou. Un fumet de caveau monte dans la salle, puis s'en va, vexé."
+				},
+				{
+					"set": "gros_bleu_vaincu"
+				}
+			]
+		}
+	],
+	"tombe_ballot": [
+		{
+			"if": "combat_gros_bleu",
+			"then": [
+				{
+					"text": "Sur la dalle, des lettres profondes : « ICI REPOSE BALLOT, FILS DE PIC, FILS DE GRAS. IL A TENU SES COMPTES JUSQU'AU BOUT, ET MÊME UN PEU APRÈS. »"
+				},
+				{
+					"who": "grimli",
+					"text": "Roi Ballot. Grimli, fille de Barbe-à-Sel, de la lignée qui vous doit trois siècles et deux écus. Je viens saluer, et payer, si c'est possible."
+				},
+				{
+					"text": "Une voix monte de la dalle, sèche, très ancienne, et pointilleuse."
+				},
+				{
+					"who": "roi_ballot",
+					"text": "Ma fille. Tu es en retard de trois siècles et de deux écus. Je te pardonne le retard, pas les écus."
+				},
+				{
+					"who": "roi_ballot",
+					"text": "Les Mines sont perdues, tu le sais. Sous le pont, un Balourd dort. Il est maladroit, et c'est ce qui le rend dangereux : il n'a jamais rien cassé exprès, il a tout cassé."
+				},
+				{
+					"who": "roi_ballot",
+					"text": "Ne le réveillez pas. Ne lui devez rien. Passez vite, et tenez vos comptes."
+				},
+				{
+					"who": "grimli",
+					"text": "Compris, mon Roi. Les comptes sont tenus."
+				},
+				{
+					"who": "glandoulf",
+					"text": "[i](Tenir ses comptes. Il y a un écrit, quelque part, où figure une phrase de ma main. Elle me doit encore quelque chose.)[/i]"
+				},
+				{
+					"set": "tombe_visitee"
+				}
+			],
+			"else": [
+				{
+					"text": "Le Gros Bleu occupe la salle ; on n'approche pas d'une dalle avec ce genre de voisin."
+				}
+			]
+		}
+	],
+	"registre_ballot": [
+		{
+			"text": "Le Grand Livre des Comptes de Morbier, sur son pupitre de pierre. Chaque ligne est tenue. Chaque total est faux d'un écu."
+		},
+		{
+			"if": "comptes_rendus",
+			"then": [
+				{
+					"who": "roi_ballot",
+					"text": "Les comptes sont justes. Enfin, ils sont faux d'un écu, mais cet écu-là est à moi."
+				}
+			],
+			"else": [
+				{
+					"if": "item:page_comptes:3",
+					"then": [
+						{
+							"who": "roi_ballot",
+							"text": "Mes pages. Les trois. Elles s'étaient cachées pour ne pas payer."
+						},
+						{
+							"take": "page_comptes",
+							"count": 3
+						},
+						{
+							"set": "comptes_rendus"
+						},
+						{
+							"text": "Les pages rejoignent le registre avec un petit bruit de soulagement. Quelque part, un roi se rend compte qu'il a rendu l'âme sans solde de tout compte, et se sent mieux."
+						}
+					],
+					"else": [
+						{
+							"if": "registre_lu",
+							"then": [
+								{
+									"who": "roi_ballot",
+									"text": "Il manque encore des pages. Elles sont dans les galeries, dans cette tombe et dans les profondeurs. Rapportez-les-moi : un registre sans ses pages est un roi sans ses chausses."
+								}
+							],
+							"else": [
+								{
+									"who": "roi_ballot",
+									"text": "Trois pages manquent à mon livre. On les a emportées pour les relire, ou pour ne pas payer."
+								},
+								{
+									"who": "roi_ballot",
+									"text": "Cherchez-les, rendez-les. Je tiens les comptes, et vous êtes à mon débit."
+								},
+								{
+									"set": "registre_lu"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"coffre_tombe": [
+		{
+			"if": "coffre_tombe_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de pierre, au pied d'un pilier. Un tampon royal sur le couvercle : « Sous réserve de vérification. »"
+				},
+				{
+					"give": "page_comptes"
+				},
+				{
+					"give": "cordee_de_merri"
+				},
+				{
+					"money": 120
+				},
+				{
+					"set": "coffre_tombe_pris"
+				}
+			]
+		}
+	],
+	"arrivee_profondeurs": [
+		{
+			"banner": "Les Profondeurs",
+			"sub": "Dont personne ne revient, sauf par erreur"
+		},
+		{
+			"text": "On descend. Les marches sont larges, taillées pour des jambes courtes qui n'aimaient pas se presser. Plus bas, un gouffre ; plus bas encore, quelque chose qui respire à contretemps."
+		},
+		{
+			"who": "merri",
+			"text": "La corde s'est tendue. Sans que personne tire. C'est inquiétant."
+		},
+		{
+			"who": "grimli",
+			"text": "Quelqu'un nous suit depuis la porte. Il fait semblant de ne pas avoir de pieds."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Un mince, pâle, humide ?"
+		},
+		{
+			"who": "grimli",
+			"text": "Il y a des cousins comme ça, chez nous aussi. Mais ils boivent."
+		},
+		{
+			"set": "profondeurs_vues"
+		}
+	],
+	"stele_profondeurs": [
+		{
+			"text": "Une stèle, à moitié rongée : « ICI, ON DESCEND. ON REMONTE PAR UN AUTRE CHEMIN. OU PAS. »"
+		},
+		{
+			"who": "sam",
+			"text": "Rassurant, comme annonce."
+		}
+	],
+	"coffre_prof_1": [
+		{
+			"if": "coffre_prof_1_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre sur la corniche, au bord du vide. Il a l'air d'avoir été posé là par quelqu'un qui n'aimait pas qu'on le dérange."
+				},
+				{
+					"give": "page_comptes"
+				},
+				{
+					"give": "sel_de_roche",
+					"count": 2
+				},
+				{
+					"set": "coffre_prof_1_pris"
+				}
+			]
+		}
+	],
+	"coffre_prof_2": [
+		{
+			"if": "coffre_prof_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Au sommet de la deuxième corniche, un coffre bardé de rivets, qui n'a pas peur du vide : il est au-dessus."
+				},
+				{
+					"give": "casque_de_mineur"
+				},
+				{
+					"give": "miche_du_mineur"
+				},
+				{
+					"money": 90
+				},
+				{
+					"set": "coffre_prof_2_pris"
+				}
+			]
+		}
+	],
+	"goulum_duel_rappel": [
+		{
+			"text": "Goulûm vous observe depuis son rocher, la tête penchée, un poisson cru dans la main. Il ne cligne pas. Les poissons non plus."
+		}
+	],
+	"goulum_duel": [
+		{
+			"set": "goulum_rencontre"
+		},
+		{
+			"banner": "Le lac de Maroilles",
+			"sub": "Forte odeur, grande profondeur"
+		},
+		{
+			"text": "Un lac souterrain, noir et plat comme un verre qu'on n'a pas touché. Sur la rive, une barque tirée au sec, des arêtes alignées avec un soin maniaque, et un nom gravé au plat-bord : TREMPETTE."
+		},
+		{
+			"who": "sam",
+			"text": "Trempette. Le pêcheur de Bittebourg. Basile en parlait au comptoir, la voix basse."
+		},
+		{
+			"text": "Sur un rocher, au bord de l'eau, une silhouette pâle se gratte le dos avec une arête. Elle serre quelque chose contre sa poitrine, et ce n'est pas un poisson."
+		},
+		{
+			"who": "goulum",
+			"text": "Mon bijou de famille... Il est à nous. À moi. À nous. Les petits visiteurs veulent voir ? Les petits visiteurs veulent jouer ?"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Trempette ? Trempette, de Bittebourg ?"
+		},
+		{
+			"who": "goulum",
+			"text": "Plus de Trempette. Plus de registre, plus d'écailles. Goulûm. On garde le nom qui reste quand on a tout perdu sauf ça."
+		},
+		{
+			"who": "merri",
+			"text": "Il a l'air d'avoir un procès-verbal à régler avec la vie."
+		},
+		{
+			"who": "goulum",
+			"text": "Jouons. Trois devinettes. Si les petits trouvent, on les laisse passer. Si les petits ne trouvent pas, on les mange. Avec du sel. Mais on n'a plus de sel."
+		},
+		{
+			"text": "« Ça fait des trous mais ça ne creuse pas. Plus on en mange, moins il en reste. Qu'est-ce que c'est ? »",
+			"choice": [
+				{
+					"text": "Un gruyère",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Gnnn ! Un gruyère, oui. Il n'a jamais rien creusé : ce sont les autres qui ont creusé pour lui."
+						},
+						{
+							"set": "devinette_1"
+						}
+					]
+				},
+				{
+					"text": "Un mineur nain",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Non, non, non ! Un mineur ne mange rien, il creuse ! Il creuse, il creuse, c'est tout ce qu'il sait faire !"
+						}
+					]
+				},
+				{
+					"text": "Un vieux filet",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Un filet ? Un filet ? C'est plein de trous, mais on n'en mange pas. Tricheur !"
+						}
+					]
+				}
+			],
+			"who": "goulum"
+		},
+		{
+			"text": "« Je suis rond, je suis blanc, je coule si l'on m'attend trop, et mon odeur arrive avant moi. Qui suis-je ? »",
+			"choice": [
+				{
+					"text": "Un camembert",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Gnnn... oui. Camembert. Il arrive toujours avant lui-même. C'est la seule politesse qu'on lui connaisse."
+						},
+						{
+							"set": "devinette_2"
+						}
+					]
+				},
+				{
+					"text": "Une chandelle",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Une chandelle ! Non ! Une chandelle ne sent pas des pieds ! (Si, un peu. Mais non !)"
+						}
+					]
+				},
+				{
+					"text": "Bromure du Gouda",
+					"then": [
+						{
+							"who": "bromure",
+							"text": "Je proteste. Je suis rond, c'est tout."
+						},
+						{
+							"who": "goulum",
+							"text": "Gnnn ! Pas lui ! Il est rond, mais il n'a pas d'odeur. Seulement un titre."
+						}
+					]
+				}
+			],
+			"who": "goulum"
+		},
+		{
+			"text": "« Qu'est-ce que j'ai dans mes poches ? »",
+			"choice": [
+				{
+					"text": "Un anneau",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Gnnn ! Oui... non... Trop juste. Tricheur. TRICHEUR !"
+						}
+					]
+				},
+				{
+					"text": "Un poisson cru",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Un poisson ? Il y en a toujours, il y en a trop ! Mais ce n'est pas ce qu'on demande !"
+						}
+					]
+				},
+				{
+					"text": "Rien du tout",
+					"then": [
+						{
+							"who": "goulum",
+							"text": "Rien ! Rien ? Rien, c'est ce qu'on a, quand on a tout. Mais tricheur quand même !"
+						}
+					]
+				}
+			],
+			"who": "goulum"
+		},
+		{
+			"who": "merri",
+			"text": "Cette question n'a pas de réponse. Elle est là pour qu'on perde."
+		},
+		{
+			"if": "devinette_1 & devinette_2",
+			"then": [
+				{
+					"who": "goulum",
+					"text": "Deux sur trois. Les petits sont malins. Les petits sont... délicieux."
+				},
+				{
+					"text": "Goulûm laisse tomber une poignée d'écailles dorées pour faire diversion. Sam les ramasse, par réflexe de Grobitte."
+				},
+				{
+					"money": 150
+				}
+			],
+			"else": [
+				{
+					"who": "goulum",
+					"text": "Les petits ont perdu. Presque. On mange quand même !"
+				}
+			]
+		},
+		{
+			"battle": "goulum"
+		},
+		{
+			"if": "combat_goulum",
+			"then": [
+				{
+					"text": "Goulûm s'effondre contre son rocher. Le fil de pêche qui lui servait de collier se dénoue. À son bout, quelque chose roule sur la pierre et s'arrête aux pieds de Froton, sans qu'on l'ait poussé."
+				},
+				{
+					"text": "L'anneau. Il est plus petit qu'on ne l'imagine, plus chaud qu'on ne le voudrait, et il a l'air d'un bijou de famille qui a fait trop de chemin."
+				},
+				{
+					"who": "froton",
+					"text": "Je le ramasse. C'est pour ça qu'on est venus."
+				},
+				{
+					"who": "goulum",
+					"text": "Bijou... bijou de famille... il est à nous, il a toujours été à nous... il est le seul qui..."
+				},
+				{
+					"text": "Il se glisse dans l'eau avec la dignité d'un poisson qu'on a trop regardé. Quelque part, très loin sous la surface, un clapotis ressemble à un nom."
+				},
+				{
+					"who": "merri",
+					"text": "Froton. Ton regard."
+				},
+				{
+					"who": "froton",
+					"text": "Mon regard ? Quoi, mon regard ?"
+				},
+				{
+					"who": "merri",
+					"text": "Il est plus loin que d'habitude. Et tu ne clignes plus."
+				},
+				{
+					"who": "froton",
+					"text": "Je vais bien. Il est juste chaud."
+				},
+				{
+					"text": "Merri resserre la corde autour de sa main, sans que personne le lui demande. Il est le seul à avoir vu le premier. Il aurait préféré être le seul à ne pas voir."
+				},
+				{
+					"if": "bromure_invite",
+					"then": [
+						{
+							"who": "bromure",
+							"text": "Froton."
+						},
+						{
+							"who": "froton",
+							"text": "Oui ?"
+						},
+						{
+							"who": "bromure",
+							"text": "Donne-le-moi."
+						},
+						{
+							"who": "bromure",
+							"text": "Minas Tartine tient grâce à moi. Pas grâce à l'anneau : à moi. Mais avec l'anneau, elle tiendrait aussi après moi."
+						},
+						{
+							"who": "froton",
+							"text": "Non, Bromure. Je ne sais pas à qui il est. Je sais que je ne te le donnerai pas."
+						},
+						{
+							"text": "La main de Bromure tremble, ouverte, à vingt centimètres de la poitrine de Froton. Elle reste là, très longtemps. Puis elle se referme, très lentement, sur rien."
+						},
+						{
+							"who": "bromure",
+							"text": "Pardon. Je ne suis pas ce que j'étais il y a une minute. Je ne suis pas non plus ce que je serai dans cinq : je vais me remettre à tenir. C'est tout ce que je sais faire."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Il y a des hommes qui font le pire à cause de la fatigue, et d'autres qui s'excusent à cause de la même fatigue. Prends celui qui s'excuse."
+						},
+						{
+							"who": "bromure",
+							"text": "Je fermerai la marche. Je tiendrai le pont derrière vous, si la nécessité l'exige."
+						}
+					]
+				},
+				{
+					"text": "L'équipe repart vers l'est, l'anneau au cou de Froton, sous un silence qui pèse plus lourd que l'anneau."
+				},
+				{
+					"set": "anneau_repris"
+				},
+				{
+					"set": "froton_porte_anneau"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"camp_trempette": [
+		{
+			"text": "La barque de Trempette, retournée comme une table. Dessous, une couverture, un tas d'arêtes, et un registre de pêche tenu avec soin : « Aujourd'hui : rien. Hier : rien. Avant-hier : un truc brillant. »"
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'étend sous la barque. Personne n'ose dormir. On se repose quand même, d'un œil."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Plus tard. Il y a une pêche en cours."
+						}
+					]
+				}
+			]
+		}
+	],
+	"aretes_trempette": [
+		{
+			"text": "Des arêtes, bien rangées par taille, du plus petit au plus gros. Au bout de la rangée, une étiquette : « Pas ce poisson-là. »"
+		}
+	],
+	"arrivee_pont": [
+		{
+			"banner": "Le Pont-l'Évêque",
+			"sub": "Large d'une brasse, long d'une prière"
+		},
+		{
+			"text": "Le pont d'un seul tenant enjambe un gouffre sans fond ni fin. De l'autre côté, une lueur rouge cogne contre les parois comme un cœur qu'on aurait mal rangé."
+		},
+		{
+			"who": "grimli",
+			"text": "Le Pont-l'Évêque. Une seule travée, des parapets que mon peuple n'a jamais demandés. Il tient parce que personne ne lui a demandé comment."
+		},
+		{
+			"text": "Quelque part derrière la lueur, quelque chose inspire. Longuement. Comme quelqu'un qui compte jusqu'à dix avant de se fâcher."
+		},
+		{
+			"set": "pont_vu"
+		}
+	],
+	"bromure_pont": [
+		{
+			"who": "bromure",
+			"text": "Allez. Je regarde derrière, vous regardez devant. C'est une division du travail que même le Conseil a fini par approuver."
+		},
+		{
+			"who": "bromure",
+			"text": "Je tiens ici. Ne vous retournez pas pour moi : je ne suis pas ce qu'il y a de plus intéressant à regarder."
+		}
+	],
+	"balourd_rappel": [
+		{
+			"text": "Le Balourd attend au bout du pont, si grand que le plafond a dû négocier sa hauteur. Il ne bouge pas. Il réfléchit, et c'est pire."
+		}
+	],
+	"balourd_pont": [
+		{
+			"set": "balourd_fait"
+		},
+		{
+			"text": "Le pont tremble. Pas de peur : de poids. Une silhouette se dresse au bout, plus haute que la voûte, un fouet de flammes enroulé autour du poing."
+		},
+		{
+			"who": "grimli",
+			"text": "Le Balourd. C'est lui qui a mis le feu au quartier des cuisines. Sans le faire exprès. Il ne fait jamais rien exprès, et c'est tout le problème."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Reculez. Tous. Derrière moi."
+		},
+		{
+			"who": "sam",
+			"text": "Glandoulf..."
+		},
+		{
+			"who": "glandoulf",
+			"text": "J'ai un bâton, un chapeau et une réputation. L'un des trois tiendra."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Vous ne passerez pas. Enfin si, mais pas tout de suite, je suis crevé."
+		},
+		{
+			"text": "Le Balourd penche la tête. C'est la première fois qu'on lui parle poliment, et il ne sait pas quoi en faire."
+		},
+		{
+			"battle": "balourd"
+		},
+		{
+			"if": "combat_balourd",
+			"then": [
+				{
+					"text": "Le Balourd vacille. Il n'a pas été vaincu : il a été déconcerté. Une pierre du pont cède sous ses pieds, puis une autre, avec la lenteur de ceux qui n'ont pas l'habitude."
+				},
+				{
+					"who": "merri",
+					"text": "Le pont se fend ! Tout le monde, vers l'est, vite !"
+				},
+				{
+					"text": "Le Balourd bascule. Son fouet de flammes, dans un dernier mouvement, s'enroule autour de la cheville de Glandoulf."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Merri. La corde."
+				},
+				{
+					"who": "merri",
+					"text": "Je la tiens ! Je la tiens, je ne la lâche pas !"
+				},
+				{
+					"who": "glandoulf",
+					"text": "Je sais. C'est bien pour ça qu'il faut que ce soit moi qui la coupe."
+				},
+				{
+					"text": "Il y avait une corde, quelque part, qu'on aurait pu tirer. Il la coupe lui-même, avec un petit couteau de poche, et son geste ressemble à un reçu."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Fuyez. Maintenant. Je ne le redirai pas : je n'ai plus le souffle."
+				},
+				{
+					"text": "Le magicien disparaît dans la lueur rouge, avec le Balourd, le fouet et le pont. Il y a eu un bruit, très long, qui s'est arrêté trop tôt."
+				},
+				{
+					"who": "sam",
+					"text": "Il avait promis de ne pas s'éloigner."
+				},
+				{
+					"who": "froton",
+					"text": "Il n'a pas dit qu'il ne tomberait pas."
+				},
+				{
+					"text": "Sur la rive d'en face, Bromure tient seul le bout de pont qui reste, sans un mot, et personne ne trouve rien à lui dire."
+				},
+				{
+					"set": "glandoulf_tombe"
+				},
+				{
+					"action": "quitte:glandoulf:sam"
+				},
+				{
+					"text": "Le groupe franchit la brèche, à pas lents. Sam passe devant, sans que personne l'ait décidé."
+				}
+			]
+		}
+	],
+	"deuil_portes": [
+		{
+			"banner": "Les portes de l'Est",
+			"sub": "Sans lui"
+		},
+		{
+			"text": "L'air, enfin. Un vrai, froid, plein de neige et de ciel, qui sent le début d'un autre monde. L'équipe sort des Mines en file, sans parler. Personne ne sait où mettre la corde."
+		},
+		{
+			"who": "merri",
+			"text": "J'ai lâché la corde."
+		},
+		{
+			"who": "froton",
+			"text": "Tu l'as tenue le plus longtemps possible."
+		},
+		{
+			"who": "merri",
+			"text": "C'est ce qu'on dit aux gens qui l'ont lâchée."
+		},
+		{
+			"who": "sam",
+			"text": "Il m'avait dit que le Balourd ne m'aurait pas. Il avait raison, d'ailleurs. Il avait toujours raison, c'est ce qui était agaçant."
+		},
+		{
+			"who": "froton",
+			"text": "L'anneau est lourd."
+		},
+		{
+			"who": "grimli",
+			"text": "Il y a pire que le poids. Il y a le silence, quand on se rend compte qu'on a oublié quelqu'un."
+		},
+		{
+			"who": "sam",
+			"text": "On avance. Il l'aurait dit. Il l'aurait dit plus longuement, mais il l'aurait dit."
+		},
+		{
+			"set": "portes_vues"
+		},
+		{
+			"set": "chapitre_4_fini"
+		},
+		{
+			"chapter": "chapitre_5"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"portes_panneau": [
+		{
+			"text": "Un panneau gravé par un nain pressé : « VERS LA FORÊT DE LOTHLORRAINE. PRIÈRE DE NE PAS FAIRE DE BRUIT, LA DAME DORT. »"
+		},
+		{
+			"text": "(La suite du voyage arrivera avec le chapitre 5.)"
+		}
+	],
+	"portes_repos": [
+		{
+			"text": "Un établi de pierre, abrité sous un surplomb. Quelqu'un y a laissé une couverture, une lampe et un mot : « Pour qui sort. »"
+		},
+		{
+			"text": "Faire une pause ?",
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe se couche près de l'établi. Le vent, dehors, retient son souffle, par respect."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Plus tard",
+					"then": [
+						{
+							"who": "sam",
+							"text": "Plus tard. J'ai encore quelque chose à dire à la montagne."
+						}
+					]
+				}
+			]
+		}
+	],
+	"coffre_corniche": [
+		{
+			"if": "coffre_corniche_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide, et plus poli que tout à l'heure."
+				}
+			],
+			"else": [
+				{
+					"text": "Sur la corniche, au-dessus de la porte, un coffre que personne n'a pu voir d'en bas. Il a dû être oublié par quelqu'un de très haut, ou de très sournois."
+				},
+				{
+					"give": "tomme_de_cave",
+					"count": 3
+				},
+				{
+					"give": "petard_de_mineur"
+				},
+				{
+					"money": 70
+				},
+				{
+					"set": "coffre_corniche_pris"
+				}
+			]
+		}
+	],
+	"chapeau_gris": [
+		{
+			"text": "Sur la neige, quelqu'un a posé, sans y penser, un chapeau pointu et gris. On ne sait pas d'où il vient. Personne ne le ramasse."
+		},
+		{
+			"who": "merri",
+			"text": "Il est tombé avec lui, pourtant. C'est moi qui l'ai vu partir."
+		}
+	]
+}

@@ -111,5 +111,80 @@
 		"saturation": 1.05,
 		"contrast": 1.05,
 		"particles": ["lueurs", "dust"]
+	},
+	"neige_morbier": {
+		"background": "#1c2236",
+		"ambient": {"color": "#8a9cc8", "energy": 0.66},
+		"sun": {"color": "#c8d4ff", "energy": 0.85, "direction": [0.5, -0.4, -0.7], "fog_energy": 0.5},
+		"fog": {"color": "#5a6a8c", "density": 0.009},
+		"volumetric": {"density": 0.016, "albedo": "#dce6ff", "emission": "#34406a", "emission_energy": 0.35, "length": 72},
+		"glow": {"intensity": 0.8, "bloom": 0.06, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.0,
+		"contrast": 1.06,
+		"particles": ["neige"]
+	},
+	"mines": {
+		"background": "#07060c",
+		"ambient": {"color": "#6a6a92", "energy": 0.52},
+		"volumetric": {"density": 0.02, "albedo": "#c8c0d8", "emission": "#14121e", "emission_energy": 0.22, "length": 44},
+		"glow": {"intensity": 0.9, "bloom": 0.07, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.0,
+		"saturation": 1.05,
+		"contrast": 1.1,
+		"particles": ["dust"]
+	},
+	"mines_forge": {
+		"background": "#0a0606",
+		"ambient": {"color": "#8a6a62", "energy": 0.55},
+		"volumetric": {"density": 0.024, "albedo": "#ffb888", "emission": "#2a0e08", "emission_energy": 0.4, "length": 44},
+		"glow": {"intensity": 1.0, "bloom": 0.09, "threshold": 1.0, "strength": 1.05},
+		"exposure": 1.02,
+		"saturation": 1.1,
+		"contrast": 1.1,
+		"particles": ["dust", "embers"]
+	},
+	"mines_profondeurs": {
+		"background": "#050408",
+		"ambient": {"color": "#7a7aa8", "energy": 0.85},
+		"volumetric": {"density": 0.026, "albedo": "#a8a0c8", "emission": "#10081a", "emission_energy": 0.3, "length": 44},
+		"glow": {"intensity": 0.95, "bloom": 0.08, "threshold": 1.0, "strength": 1.0},
+		"exposure": 0.98,
+		"saturation": 1.08,
+		"contrast": 1.12,
+		"particles": ["lueurs", "dust"]
+	},
+	"lac_noir": {
+		"background": "#04060c",
+		"ambient": {"color": "#6a8aba", "energy": 0.8},
+		"volumetric": {"density": 0.03, "albedo": "#a8c0e0", "emission": "#081428", "emission_energy": 0.3, "length": 44},
+		"glow": {"intensity": 0.95, "bloom": 0.08, "threshold": 1.0, "strength": 1.0},
+		"exposure": 0.98,
+		"saturation": 1.05,
+		"contrast": 1.1,
+		"particles": ["lueurs", "embruns"]
+	},
+	"mines_combat": {
+		"background": "#0c0a14",
+		"ambient": {"color": "#9a98c0", "energy": 0.72},
+		"volumetric": {"density": 0.01, "albedo": "#c8c0d8", "emission": "#14121e", "emission_energy": 0.22, "length": 50},
+		"glow": {"intensity": 0.9, "bloom": 0.07, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.02,
+		"saturation": 1.06,
+		"contrast": 1.1,
+		"particles": ["dust"]
+	},
+	"portes_est": {
+		"background": "#2a2438",
+		"ambient": {"color": "#c8a898", "energy": 0.66},
+		"sun": {"color": "#ffb878", "energy": 1.0, "direction": [-0.55, -0.32, -0.72], "fog_energy": 0.6},
+		"fog": {"color": "#8a6a7a", "density": 0.007},
+		"volumetric": {"density": 0.014, "albedo": "#ffd8b0", "emission": "#4a3040", "emission_energy": 0.35, "length": 72},
+		"glow": {"intensity": 0.85, "bloom": 0.07, "threshold": 1.0, "strength": 1.0},
+		"exposure": 1.05,
+		"saturation": 1.05,
+		"contrast": 1.05,
+		"rays": {"density": 0.005, "color": "#ffc890", "strength": 0.06},
+		"particles": ["pollen", "feuilles_dorees"]
 	}
 }

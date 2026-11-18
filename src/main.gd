@@ -430,7 +430,18 @@ func _on_dialogue_action(action: String) -> void:
 			Sfx.play("heal")
 			hud.toast("L'équipe est reposée")
 		_:
-			push_warning("Action de dialogue inconnue : " + action)
+			if action.begins_with("quitte:"):
+				# un compagnon quitte définitivement l'équipe (chapitre 4 : la chute de Glandoulf) ;
+				# la carte reconstruite à la fin du dialogue prend le nouveau meneur.
+				# `quitte:<id>` ou `quitte:<id>:<meneur>` : le second nom prend la tête de l'équipe.
+				var parts := action.substr(7).split(":")
+				GameState.party.erase(parts[0])
+				if parts.size() > 1 and GameState.party.has(parts[1]):
+					GameState.party.erase(parts[1])
+					GameState.party.insert(0, parts[1])
+				GameState.refresh_quests()
+			else:
+				push_warning("Action de dialogue inconnue : " + action)
 
 
 # ---------------------------------------------------------------------- pause

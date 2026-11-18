@@ -1,0 +1,228 @@
+{
+	"id": "morbier_tombe",
+	"name": "La tombe du Roi Ballot",
+	"region": "Mines de Morbier",
+	"size": [
+		30,
+		25
+	],
+	"interior": true,
+	"wall_height": 4.6,
+	"ambiance": "mines_forge",
+	"music": "morbier_mines",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "nain_dalle",
+				"rect": [
+					13,
+					18,
+					4,
+					5
+				]
+			},
+			{
+				"type": "nain_marbre",
+				"rect": [
+					5,
+					3,
+					20,
+					15
+				]
+			},
+			{
+				"type": "nain_veine",
+				"rect": [
+					13,
+					3,
+					4,
+					15
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				15.0,
+				21.0
+			],
+			"facing": "up"
+		}
+	},
+	"style": "nain",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				13.2,
+				22.3,
+				3.6,
+				0.6
+			],
+			"to": {
+				"map": "morbier_halle",
+				"spawn": "tombe"
+			}
+		},
+		{
+			"type": "nain_tombe",
+			"pos": [
+				15.0,
+				8.0
+			],
+			"dialogue": "tombe_ballot",
+			"label": "Se recueillir",
+			"reach": 2.2
+		},
+		{
+			"type": "nain_registre",
+			"pos": [
+				9.6,
+				7.4
+			],
+			"dialogue": "registre_ballot",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "nain_dais",
+			"rect": [
+				12,
+				5,
+				6,
+				4
+			],
+			"height": 0.3
+		},
+		{
+			"type": "nain_statue",
+			"pos": [
+				10.6,
+				4.6
+			]
+		},
+		{
+			"type": "nain_statue",
+			"pos": [
+				19.4,
+				4.6
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				6.6,
+				10.4
+			],
+			"dialogue": "coffre_tombe",
+			"label": "Fouiller",
+			"turn": 10
+		},
+		{
+			"type": "monster",
+			"id": "gros_bleu",
+			"pos": [
+				15.0,
+				13.4
+			],
+			"dialogue": "troll_tombe",
+			"solid": 1.0,
+			"unless": "combat_gros_bleu"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				5,
+				15.6,
+				20,
+				1.6
+			],
+			"dialogue": "troll_tombe",
+			"unless": "combat_gros_bleu"
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				8.4,
+				4.2
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				21.6,
+				4.2
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				14.4,
+				20.8
+			],
+			"energy": 1.8
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				7.0,
+				7.4
+			],
+			"height": 4.4
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				23.0,
+				7.4
+			],
+			"height": 4.4
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				7.0,
+				14.2
+			],
+			"height": 4.4
+		},
+		{
+			"type": "nain_pilier",
+			"pos": [
+				23.0,
+				14.2
+			],
+			"height": 4.4
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				21.0,
+				16.0
+			],
+			"variant": 1
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				6.4,
+				16.4
+			]
+		}
+	],
+	"on_enter": [
+		{
+			"dialogue": "arrivee_tombe",
+			"unless": "tombe_vue"
+		}
+	],
+	"wall_tile": "nain_mur_forge"
+}

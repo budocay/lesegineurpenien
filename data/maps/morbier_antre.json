@@ -1,0 +1,273 @@
+{
+	"id": "morbier_antre",
+	"name": "Le lac de Maroilles",
+	"region": "Mines de Morbier",
+	"size": [
+		40,
+		26
+	],
+	"interior": true,
+	"wall_height": 4.2,
+	"ambiance": "lac_noir",
+	"music": "morbier_lac",
+	"camera": {
+		"distance": 20,
+		"pitch": 36,
+		"fov": 24,
+		"dof": 0.09
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "nain_pate",
+				"rect": [
+					3,
+					11,
+					34,
+					13
+				]
+			},
+			{
+				"type": "nain_pate",
+				"rect": [
+					2,
+					0,
+					4,
+					11
+				]
+			},
+			{
+				"type": "nain_pate",
+				"rect": [
+					34,
+					0,
+					4,
+					11
+				]
+			},
+			{
+				"type": "nain_pate",
+				"rect": [
+					6,
+					0,
+					28,
+					2
+				]
+			},
+			{
+				"type": "water",
+				"rect": [
+					6,
+					2,
+					28,
+					9
+				]
+			},
+			{
+				"type": "nain_veine",
+				"rect": [
+					3,
+					17,
+					34,
+					1
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				4.8,
+				19.0
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				35.2,
+				19.0
+			],
+			"facing": "left"
+		}
+	},
+	"style": "nain",
+	"objects": [
+		{
+			"type": "warp",
+			"rect": [
+				3.0,
+				17.5,
+				0.8,
+				3.0
+			],
+			"to": {
+				"map": "morbier_profondeurs",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				36.1,
+				17.5,
+				0.8,
+				3.0
+			],
+			"to": {
+				"map": "morbier_pont",
+				"spawn": "ouest"
+			}
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				11.5,
+				11,
+				1,
+				13
+			],
+			"dialogue": "goulum_duel",
+			"unless": "goulum_rencontre"
+		},
+		{
+			"type": "monster",
+			"id": "goulum",
+			"pos": [
+				22.0,
+				15.6
+			],
+			"dialogue": "goulum_duel_rappel",
+			"solid": 0.9,
+			"unless": "combat_goulum"
+		},
+		{
+			"type": "nain_etabli",
+			"pos": [
+				33.0,
+				14.0
+			],
+			"variant": 1,
+			"dialogue": "camp_trempette",
+			"label": "Se reposer",
+			"reach": 2.0
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				26.4,
+				12.6
+			],
+			"variant": 1,
+			"dialogue": "aretes_trempette",
+			"label": "Examiner"
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				9.0,
+				22.2
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				28.0,
+				22.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				8.0,
+				0.9
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				14.6,
+				1.1
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				26.0,
+				1.1
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				32.6,
+				0.9
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				3.8,
+				11.6
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				35.0,
+				11.6
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				20,
+				5
+			],
+			"height": 3.2,
+			"color": "#6aa8ff",
+			"energy": 2.4,
+			"range": 14.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				10,
+				16
+			],
+			"height": 2.6,
+			"color": "#9ac0ff",
+			"energy": 1.2,
+			"range": 10.0
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				5.0,
+				11.2
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				34.0,
+				11.2
+			]
+		},
+		{
+			"type": "nain_meule",
+			"pos": [
+				30.4,
+				21.6
+			],
+			"variant": 1
+		}
+	],
+	"water": {
+		"deep": "#101c34",
+		"shallow": "#2a4a6a",
+		"ripple": "#8ab4d8",
+		"glint": "#e8f4ff"
+	},
+	"wall_tile": "nain_mur_morbier"
+}
