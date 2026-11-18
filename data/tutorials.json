@@ -48,31 +48,31 @@
 			"keys": [["elan", "changer de personnage"], ["interact", "acheter"], ["cancel", "retour"]]
 		},
 		{
-			"id": "combat_tours", "trigger": "party_turn", "mode": "pause", "who": ["sam", "glandoulf"],
+			"id": "combat_tours", "trigger": "party_turn", "mode": "pause", "points": "frise", "who": ["sam", "glandoulf"],
 			"title": "Chacun son tour",
 			"text": "En haut, la frise : l'ordre des tours. Plus on est vif, plus on joue souvent. À vous de choisir : « Attaquer », puis la victime. Ce n'est pas une sieste, mais ça y ressemble.",
 			"keys": [["choose", "choisir"], ["interact", "valider"], ["cancel", "annuler"]]
 		},
 		{
-			"id": "elan", "trigger": "party_turn", "mode": "pause", "when": "elan & turn>=2", "who": "glandoulf",
+			"id": "elan", "trigger": "party_turn", "mode": "pause", "points": "elan", "when": "elan & turn>=2", "who": "glandoulf",
 			"title": "L'élan",
 			"text": "Chaque tour donne un point d'élan : ce sont les pastilles dorées. Avant de valider une action, Gauche et Droite en engagent jusqu'à trois pour un coup plus fort, un soin plus généreux. Garder son élan pour le bon moment est une vertu.",
 			"keys": [["elan", "engager l'élan"], ["interact", "valider"]]
 		},
 		{
-			"id": "faiblesse", "trigger": "weak", "mode": "pause", "who": "glandoulf",
+			"id": "faiblesse", "trigger": "weak", "mode": "pause", "points": "bouclier", "who": "glandoulf",
 			"title": "Faiblesse !",
 			"text": "Frapper la faiblesse d'un ennemi fait plus mal, et entame son bouclier (le chiffre près de son nom). On ignore ses faiblesses au début : on les découvre en essayant, et le bestiaire s'en souvient.",
 			"keys": [["interact", "continuer"]]
 		},
 		{
-			"id": "brise", "trigger": "break", "mode": "pause", "who": "glandoulf",
+			"id": "brise", "trigger": "break", "mode": "pause", "points": "bouclier", "who": "glandoulf",
 			"title": "Bouclier brisé",
 			"text": "Plus de bouclier : l'ennemi est Brisé. Il passe son prochain tour et encaisse davantage. C'est l'instant de frapper fort, ou de reprendre son souffle.",
 			"keys": [["interact", "continuer"]]
 		},
 		{
-			"id": "allie_a_terre", "trigger": "ally_down", "mode": "pause", "who": ["sam", "glandoulf"],
+			"id": "allie_a_terre", "trigger": "ally_down", "mode": "pause", "points": "allie", "who": ["sam", "glandoulf"],
 			"title": "Allié à terre",
 			"text": "Un allié à terre ne joue plus, mais rien n'est perdu : une Racine-qui-réveille (menu « Objets ») ou certains sorts le relèvent. Si tout le monde tombe, c'est la défaite. Évitez, de préférence.",
 			"keys": [["interact", "continuer"]]

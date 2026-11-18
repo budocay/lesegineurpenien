@@ -122,7 +122,7 @@ func _ready() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 26)
 	box.add_child(gap)
-	box.add_child(UI.hints([["Flèches ou ZQSD", "se déplacer"], ["E ou Entrée", "parler, valider"], ["Échap", "menu"], ["F", "plein écran"]], 15))
+	box.add_child(UI.hints([["walk", "se déplacer"], ["talk", "parler, valider"], ["menu", "menu"], ["fullscreen", "plein écran"]], 15))
 
 
 ## Ajoute une ligne au menu (avant « Quitter » par défaut) et la renvoie.

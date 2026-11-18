@@ -13,6 +13,7 @@ const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const SaveScreen = preload("res://src/ui/save_screen.gd")
 const SettingsScreen = preload("res://src/ui/settings_screen.gd")
+const LoadingUI = preload("res://src/ui/ui_kit.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
 
@@ -36,6 +37,7 @@ var _talents_from := ""         # "pause" ou "team" : où revenir quand il se fe
 var saves: Control             # liste des sauvegardes (charger, sauvegarder)
 var settings_screen: Control    # écran des paramètres
 var _fade: ColorRect
+var _loading: Label
 var _pending_load := ""         # emplacement choisi depuis l'écran de défaite
 
 
@@ -83,6 +85,19 @@ func _ready() -> void:
 	_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top.add_child(_fade)
+	_loading = Label.new()   # « Chargement » : visible pendant la construction d'une carte, sur le fondu noir
+	_loading.text = "Chargement…"
+	_loading.add_theme_font_override("font", LoadingUI.font(false, true))
+	_loading.add_theme_font_size_override("font_size", 22)
+	_loading.add_theme_color_override("font_color", LoadingUI.GOLD_DIM)
+	_loading.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_loading.offset_left = -260.0
+	_loading.offset_top = -64.0
+	_loading.offset_right = -36.0
+	_loading.offset_bottom = -28.0
+	_loading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_loading.visible = false
+	top.add_child(_loading)
 
 	title.new_game_requested.connect(start_new_game)
 	title.continue_requested.connect(func() -> void: continue_game())
@@ -135,6 +150,12 @@ func _free_world() -> void:
 		world = null
 
 
+## Affiche « Chargement… » et laisse une image se dessiner avant la construction d'une carte (qui fige l'écran).
+func _loading_on() -> void:
+	_loading.visible = true
+	await get_tree().process_frame
+
+
 func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, attract: bool) -> void:
 	_free_world()
 	world = World.new()
@@ -147,6 +168,7 @@ func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, a
 	world.interact_requested.connect(_on_interact)
 	world.trigger_fired.connect(_on_trigger)
 	world.encounter_requested.connect(_on_encounter)
+	_loading.visible = false
 
 
 func show_title() -> void:
@@ -219,6 +241,7 @@ func _begin_play(pos: Array, facing: String) -> void:
 		pos = []
 	mode = Mode.PLAY
 	GameState.playing = true
+	await _loading_on()
 	_load_world(map_id, GameState.spawn_id, pos, facing, false)
 	await _arrive()
 
@@ -237,6 +260,7 @@ func change_map(map_id: String, spawn_id: String) -> void:
 	GameState.map_id = map_id
 	GameState.spawn_id = spawn_id
 	GameState.player_pos = []
+	await _loading_on()
 	_load_world(map_id, spawn_id, [], "", false)
 	SaveManager.autosave("lieu")   # sauvegarde automatique à chaque changement de lieu
 	await _arrive()
@@ -298,6 +322,7 @@ func _refresh_world() -> void:
 	busy = true
 	await _fade_to(1.0, 0.25)
 	_sync_state()
+	await _loading_on()
 	_load_world(GameState.map_id, "", GameState.player_pos, GameState.player_facing, false)
 	await get_tree().process_frame
 	await _fade_to(0.0, 0.3)
@@ -389,7 +414,7 @@ func start_battle(encounter: Dictionary) -> String:
 	busy = false
 	_battle_running = false
 	if GameState.party_talent_points() > points_before:
-		hud.toast("Points de talent à dépenser : Échap, puis « Talents »")
+		hud.toast("Points de talent à dépenser : %s, puis « Talents »" % str(Tutorial.caps_for("menu")[0]))
 		Tutorial.fire("talent_point")
 	return outcome
 
