@@ -66,5 +66,11 @@ void fragment() {
 
 void light() {
 	// Pas de terme N.L : un sprite plat doit être éclairé comme un volume.
-	DIFFUSE_LIGHT += LIGHT_COLOR * ATTENUATION * (0.85 / PI);
+	// Soleil : l'ombre d'un autre sprite ne doit pas couper un feuillage en deux moitiés brunes ;
+	// elle n'assombrit ici qu'un tiers de ce qu'elle assombrit le sol.
+	float att = ATTENUATION;
+	if (LIGHT_IS_DIRECTIONAL) {
+		att = mix(ATTENUATION, 1.0, 0.65);
+	}
+	DIFFUSE_LIGHT += LIGHT_COLOR * att * (0.85 / PI);
 }

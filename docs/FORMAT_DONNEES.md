@@ -577,6 +577,10 @@ chemin d'une case, le test vérifie que tout reste atteignable. Village : `vil_p
 `vil_butte` (2 : fleurs ou pierrier, sans obstacle). Écurie des cavaliers : `cav_ratelier`,
 `cav_abreuvoir`, `cav_cheval_bois`, `cav_brasero` (poser un objet `light` chaud au même point).
 
+Ombre sur les sprites : la lumière du soleil n'assombrit un sprite (arbre, personnage) que d'un
+tiers de ce qu'elle assombrit le sol (shader `sprite.gdshader`) : l'ombre d'un arbre voisin ne
+coupe plus un feuillage en deux moitiés.
+
 ### Arènes et panneaux d'arène
 
 Sept arènes en fin de `arenas.json` : `chutes_gratin`, `plaine_roquefort`, `fongorn`,
