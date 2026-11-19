@@ -30,7 +30,11 @@ const NO_DECOR_TYPES: Array[String] = ["encounter_zone", "trigger", "light", "mo
 
 
 static func dress(b) -> void:
-	if not bool(b.map.get("interior", false)):
+	var interior := bool(b.map.get("interior", false))
+	# un extérieur dont le sol par défaut est le vide (terrasse suspendue) reçoit lui aussi son hors-carte
+	if not interior:
+		if str((b.map.get("ground", {}) as Dictionary).get("default", "")) == "void":
+			_surround(b)
 		return
 	_surround(b)
 	var name := str(b.map.get("wall_dress", ""))

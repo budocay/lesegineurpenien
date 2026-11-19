@@ -113,5 +113,8 @@
 			"energy": 1.8,
 			"range": 14.0
 		}
-	]
+	],
+	"surround_tile": "isen_dalle",
+	"surround_tint": "#9a8a96",
+	"surround_fade": 14
 }
