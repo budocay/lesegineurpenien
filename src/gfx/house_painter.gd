@@ -18,7 +18,7 @@ const ROOF_PAL := {
 	"vert": ["#5f7d4c", "#536f44", "#6d8c56", "#2f4232", "#86a468"],
 	"ardoise": ["#5c6684", "#4f5874", "#6b7594", "#30364e", "#8690ad"],
 	"chaume": ["#c2a25a", "#b3924c", "#cfb06a", "#7c6234", "#e2c884"],
-	"herbe": ["#a4c84c", "#92b842", "#bad862", "#46682f", "#dcf08a"],
+	"herbe": ["#62c234", "#4cae2e", "#8ce04e", "#1f6a30", "#d0f478"],
 }
 
 
@@ -542,13 +542,13 @@ static func _turf_curve(img: Image) -> void:
 	for y in h:
 		var v := float(y) / float(maxi(h - 1, 1))
 		var k := 1.0 - absf(v - 0.5) * 2.0          # 0 aux avant-toits, 1 à la crête
-		var d := -0.3 + 0.52 * k * k + 0.2 * k
+		var d := -0.36 + 0.9 * k * k + 0.3 * k   # courbe franche : sombre aux avant-toits, claire à la crête
 		for x in w:
 			var c := PA.shade(img.get_pixel(x, y), d)
 			if k > 0.55:
-				c = c.lerp(Color("#e6f08a"), 0.22 * (k - 0.55) / 0.45)   # la crête, dorée par le soleil
+				c = c.lerp(Color("#f0f89a"), 0.34 * (k - 0.55) / 0.45)   # la crête, dorée par le soleil
 			elif k < 0.3:
-				c = c.lerp(Color("#2e5a3a"), 0.25 * (0.3 - k) / 0.3)    # le dessous, vert profond
+				c = c.lerp(Color("#1e4a34"), 0.4 * (0.3 - k) / 0.3)    # le dessous, vert profond
 			img.set_pixel(x, y, c)
 	# raies de gazon, plus serrées près des bords (la courbe fuit)
 	for i in range(1, 9):
@@ -770,11 +770,11 @@ static func _turf(img: Image, tones: Array[Color], sd: int) -> void:
 		for x in w:
 			var n := nm[y * w + x] * 0.7 + nm2[y * w + x] * 0.3
 			var c := c_mid
-			if n > 0.6:
-				c = c_hi
-			elif n < 0.4:
-				c = c_lo
-			if PA.rnd(x, y, sd) < 0.018:
+			if n > 0.62:
+				c = c_mid.lerp(c_hi, 0.7)
+			elif n < 0.38:
+				c = c_mid.lerp(c_lo, 0.7)
+			if PA.rnd(x, y, sd) < 0.012:
 				c = c_dk
 			img.set_pixel(x, y, c)
 	# touffes d'herbe : traits clairs verticaux, plus hauts

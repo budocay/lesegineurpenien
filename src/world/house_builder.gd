@@ -407,28 +407,37 @@ static func house(b, o: Dictionary) -> void:
 			MeshKit.box(lamp, Vector3(xd + 0.95, 2.19, z1 + 0.46), Vector3(0.2, 0.25, 0.14))
 			node.add_child(MeshKit.finish(lamp, MeshKit.flat_material(Color("#ffd28a"), 4.0 * glow), false))
 		# enseigne : potence, tringle et panneau peint
-		if str(sp["sign"]) != "" and hw >= 6.0:
-			var cands: Array[float] = [xd - 2.3, xd + 2.3, xd - 1.9, xd + 1.9, xd - 1.5, xd + 1.5]
-			var best := cands[0]
-			var best_d := -1.0
-			for cxs: float in cands:
-				if cxs < x0 + 0.9 or cxs > x1 - 0.9:
-					continue
-				var dmin := 99.0
-				for wv: Variant in windows:
-					dmin = minf(dmin, absf(cxs - (x0 + float(wv))))
-				if dmin > best_d:
-					best_d = dmin
-					best = cxs
-			var stex: Texture2D = Sprites.cached("hsg:" + str(sp["sign"]), func() -> Texture2D:
-				return PA.texture(HP.sign_board(str(sp["sign"]))))
-			var sy := clampf(wh - 0.6, 1.5, 2.0)
-			_tb(trim, "#2f2c38", Vector3(best, sy + 0.55, z1 + 0.34), Vector3(0.07, 0.07, 0.7))
-			_tb(trim, "#2f2c38", Vector3(best, sy + 0.55, z1 + 0.7), Vector3(1.2, 0.07, 0.07))
-			_tb(trim, "#2f2c38", Vector3(best, sy + 0.38, z1 + 0.24), Vector3(0.05, 0.4, 0.05))
-			var sst := MeshKit.begin()
-			MeshKit.quad(sst, Vector3(best - 0.58, sy + 0.55, z1 + 0.7), Vector3(best + 0.58, sy + 0.55, z1 + 0.7), Vector3(best + 0.58, sy - 0.4, z1 + 0.7), Vector3(best - 0.58, sy - 0.4, z1 + 0.7))
-			node.add_child(MeshKit.finish(sst, _double(stex), false))
+		if str(sp["sign"]) != "" and hw >= 5.0:
+			# l'enseigne (1,16 de large) se pend là où elle ne touche ni une fenêtre (demi-largeur 0,6) ni la
+			# porte ; sur une façade étroite elle rapetisse (jusqu'aux deux tiers) plutôt que de disparaître
+			var best := -1.0
+			var ss := 1.0
+			for try_s: float in [1.0, 0.85, 0.7]:
+				var hs := 0.58 * try_s
+				var best_d := -1.0
+				var cxs := x0 + hs + 0.25
+				while cxs <= x1 - hs - 0.25:
+					var dmin := absf(cxs - xd) - 0.55
+					for wv: Variant in windows:
+						dmin = minf(dmin, absf(cxs - (x0 + float(wv))) - 0.6)
+					if dmin > best_d:
+						best_d = dmin
+						best = cxs
+					cxs += 0.1
+				if best_d >= hs + 0.04:
+					ss = try_s
+					break
+				best = -1.0
+			if best >= 0.0:
+				var stex: Texture2D = Sprites.cached("hsg:" + str(sp["sign"]), func() -> Texture2D:
+					return PA.texture(HP.sign_board(str(sp["sign"]))))
+				var sy := clampf(wh - 0.6, 1.5, 2.0)
+				_tb(trim, "#2f2c38", Vector3(best, sy + 0.55, z1 + 0.34), Vector3(0.07, 0.07, 0.7))
+				_tb(trim, "#2f2c38", Vector3(best, sy + 0.55, z1 + 0.7), Vector3(1.2 * ss, 0.07, 0.07))
+				_tb(trim, "#2f2c38", Vector3(best, sy + 0.55 - 0.17 * ss, z1 + 0.24), Vector3(0.05, 0.4 * ss, 0.05))
+				var sst := MeshKit.begin()
+				MeshKit.quad(sst, Vector3(best - 0.58 * ss, sy + 0.55, z1 + 0.7), Vector3(best + 0.58 * ss, sy + 0.55, z1 + 0.7), Vector3(best + 0.58 * ss, sy + 0.55 - 0.95 * ss, z1 + 0.7), Vector3(best - 0.58 * ss, sy + 0.55 - 0.95 * ss, z1 + 0.7))
+				node.add_child(MeshKit.finish(sst, _double(stex), false))
 
 	# ---- jardinières sous les fenêtres et lierre d'angle, en volume
 	if not grobitte:
