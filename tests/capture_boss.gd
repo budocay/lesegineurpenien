@@ -48,7 +48,17 @@ func _ready() -> void:
 			enc["music"] = "boss"   # le combat se fuit pour la photo : « music boss » remplace « flee false » pour la détection du boss
 		enc.erase("party")
 		GameState.heal_party()
-		main.start_battle(enc)
+		if OS.has_environment("BOSS_BANNER"):   # le titre de lieu est affiché sur la carte quand le combat se déclenche : il doit disparaître
+			main.hud.banner(str(main.world.map.get("name", "")), str(main.world.map.get("region", "")))
+			await get_tree().create_timer(1.2).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_carte_bandeau.png" % [out_dir, id])
+			main.start_battle(enc)
+			await get_tree().create_timer(0.5).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_combat_debut.png" % [out_dir, id])
+		else:
+			main.start_battle(enc)
 		await _until_menu()
 		for _k in 50:
 			await get_tree().process_frame
@@ -77,6 +87,18 @@ func _ready() -> void:
 			await get_tree().create_timer(0.6).timeout
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png("%s/%s_annonce.png" % [out_dir, id])
+			sc.boss.next_skill = ""
+		if sc != null and sc.boss != null and OS.has_environment("BOSS_TIP"):   # le conseil de jeu du coup annoncé, tel qu'il s'affiche au premier coup annoncé
+			Tutorial.force_on = true
+			Tutorial.modal_in_tests = true
+			GameState.tutorials_seen.erase("coup_annonce")
+			sc.boss.next_skill = "attack"
+			await get_tree().create_timer(0.5).timeout   # (comme dans le combat : le triangle est déjà là quand le conseil s'ouvre)
+			Tutorial.battle_event("telegraph", sc, sc.boss)   # (sans attendre : le conseil attend une touche)
+			await get_tree().create_timer(1.2).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_conseil.png" % [out_dir, id])
+			Tutorial.clear()
 			sc.boss.next_skill = ""
 		if sc != null and sc.boss != null and OS.has_environment("BOSS_POSES"):   # poses « sort » puis « KO » du boss, dans le vrai combat
 			var actor: Node3D = sc.actors[sc.boss.key]

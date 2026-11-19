@@ -296,7 +296,7 @@ const BOSS_RATIO_MAX := 5.2  # ...sans dépasser tant de fois la hauteur d'un h�
 const BOSS_RATIO_FLOOR := 3.0  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
 const MENU_GAP := 300.0   # largeur laissée au menu d'action entre un boss et l'équipe
 const BOSS_HERO_K := 0.8     # part de la taille qu'un héros aurait sans boss, quand il affronte un boss : l'équipe reste grande et lisible (jamais moins de BOSS_HERO_K_MIN)...
-const BOSS_HERO_K_MIN := 0.76   # ...et c'est le boss qui est immense
+const BOSS_HERO_K_MIN := 0.62   # ...et c'est le boss qui est immense
 const BOSS_FILL_MIN := 0.45  # un boss occupe au moins cette part de la hauteur de l'écran (si son ratio à un héros ne peut atteindre BOSS_RATIO_FLOOR)
 const BOSS_RATIO_SOFT := 2.5   # plancher du ratio quand c'est la hauteur d'écran (BOSS_FILL_MIN) qui garantit la présence du boss
 const HERO_STYLES := [[1.0, 1.0], [1.25, 1.0], [1.5, 1.0]]   # (écart, profondeur relative) essayés pour les héros, pour qu'aucun corps n'en cache un autre
@@ -786,7 +786,7 @@ func layout() -> void:
 		_layout_foes(view)
 		if boss == null or fraction <= BOSS_HERO_K_MIN + 0.001 or _boss_ok(view):
 			break
-		fraction = BOSS_HERO_K_MIN   # le boss n'a pas assez de place : les héros reculent jusqu'à leur plancher, pas plus
+		fraction = maxf(BOSS_HERO_K_MIN, fraction - 0.06)   # le boss n'a pas assez de place : les héros reculent d'un cran, jusqu'à leur plancher, pas plus
 	for c: RefCounted in engine.enemies:   # la flaque de lumière du boss, couleur de son élément
 		(actors[c.key] as Node3D).set_boss(c == boss, _element_color(str(c.element)).lightened(0.15))
 
@@ -794,7 +794,7 @@ func layout() -> void:
 ## Un boss est présent à l'écran : au moins BOSS_RATIO_FLOOR héros de haut, ou (si l'écran ne le permet pas)
 ## au moins BOSS_FILL_MIN de la hauteur de l'écran et BOSS_RATIO_SOFT héros.
 func boss_present(ratio: float, screen_h: float, view_h: float) -> bool:
-	return ratio >= BOSS_RATIO_FLOOR - 0.001 or (ratio >= BOSS_RATIO_SOFT and screen_h >= BOSS_FILL_MIN * view_h - 1.0)
+	return ratio >= BOSS_RATIO_FLOOR - 0.001
 
 
 func _boss_ok(view: Vector2) -> bool:

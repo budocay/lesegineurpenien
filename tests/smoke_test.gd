@@ -106,6 +106,11 @@ func _ready() -> void:
 		print("%d vérifications, %d échec(s) (coups annoncés seuls)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_OVERRIDES"):   # essai ciblé des réglages de mesure
+		_test_measure_overrides()
+		print("%d vérifications, %d échec(s) (réglages de mesure seuls)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_PLATES"):   # toutes les rencontres des données : plaques et mise en page (GLAN_FILTER : un texte de l'identifiant)
 		await _test_all_encounters_staging()
 		print("%d vérifications, %d échec(s) (plaques de toutes les rencontres seules)." % [checks, failures])
@@ -126,6 +131,7 @@ func _ready() -> void:
 	_test_engine()
 	print("== Combat : élan ==")
 	_test_boost()
+	_test_measure_overrides()
 	print("== Combat : équilibre (combats simulés) ==")
 	_test_balance()
 	print("== Combat : équilibre des combats obligatoires (joueur attentif, talents, compositions) ==")
@@ -1280,6 +1286,9 @@ func _skill_status(def: Dictionary) -> String:
 ## zone contre plusieurs ennemis, vise la faiblesse connue (et essaie un autre élément tant que celle d'un
 ## ennemi à bouclier est inconnue), garde son élan pour le moment « Brisé ». Il ne triche pas : il ne
 ## connaît que les faiblesses déjà révélées et ne touche pas aux règles.
+var _sim_counts := {"taunt": 0, "parry": 0}   # combien de provocations et de parades le joueur simulé a jouées (affiché par la mesure)
+
+
 func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictionary:
 	var foes: Array = e.living("enemy")
 	var allies: Array = e.living("party")
@@ -1357,6 +1366,7 @@ func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictio
 					if a.has_status("provocation"):
 						taunting = true
 				if not taunting:
+					_sim_counts["taunt"] += 1
 					return {"type": "skill", "id": id, "target": actor}
 			elif st in ["galvanise", "garde", "enfume"] and turn - int(memo.get("buff_" + id, -99)) >= 6 and (int(actor.mp) >= int(d.get("cost", 0)) + 8 or kind == "self"):
 				var lacking: Array = []
@@ -1384,10 +1394,13 @@ func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictio
 				if not top.has_status(st) and not (top.immune as Array).has(st) and foe_hp >= 500:
 					memo["debuff_" + id] = turn
 					return {"type": "skill", "id": id, "target": top}
-	# --- coup annoncé : un joueur attentif se couvre quand il n'est pas en grande forme (se défendre divise le coup)
+	# --- coup annoncé : un joueur attentif se couvre quand il n'est pas en grande forme, et le provocateur (celui que le coup
+	# visera) se couvre toujours : se défendre divise le coup, et la parade des talents s'y ajoute
 	for f: RefCounted in foes:
-		if f.has_status("annonce") and float(actor.hp) / float(actor.max_hp()) < 0.6 and int(f.shield) <= 0:
-			return {"type": "defend"}
+		if (f.has_status("annonce") or str(f.next_skill) != "") and int(f.shield) <= 0:
+			if actor.has_status("provocation") or float(actor.hp) / float(actor.max_hp()) < 0.6:
+				_sim_counts["parry"] += 1
+				return {"type": "defend"}
 	# --- attaque
 	var target: RefCounted = foes[0]
 	var broken: RefCounted = null
@@ -1668,6 +1681,8 @@ func _measure_forced() -> void:
 					worst_np = float(r[0])
 					worst_np_team = label
 		print("  %-34s %-6s | %3d%% %3d%% | %3d%% %3d%% | %5.1f | %-34s | %-34s | %4d%%" % [str(case[0]), str(case[4]).left(6), int(100.0 * float(a0[0])), int(100.0 * float(a1[0])), int(100.0 * float(s0[0])), int(100.0 * float(s1[0])), float(s1[1]), worst_team, worst_np_team, int(100.0 * float(s1[2]))])
+		print("      (joueur simulé : %d provocations, %d parades sur l'ensemble des essais)" % [int(_sim_counts["taunt"]), int(_sim_counts["parry"])])
+		_sim_counts = {"taunt": 0, "parry": 0}
 	GameState.new_game()
 
 
@@ -6673,7 +6688,7 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 		var ratio := boss_h / hero_h
 		var boss_screen_h: float = scene.screen_rect(scene.boss).size.y
 		check(scene.boss_present(ratio, boss_screen_h, view.size.y) and ratio <= scene.BOSS_RATIO_MAX + 0.02, "%s : le boss fait %.2f fois un héros et %.0f %% de l'écran (au moins %.1f héros, ou %.1f et %.0f %% de l'écran)" % [tag, ratio, boss_screen_h / view.size.y * 100.0, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_SOFT, scene.BOSS_FILL_MIN * 100.0])
-		check(scene.hero_k >= scene.hero_k_free * 0.75 - 0.001, "%s : face au boss les héros gardent %.0f %% de leur taille (au moins 75 %%)" % [tag, scene.hero_k / scene.hero_k_free * 100.0])
+		check(scene.hero_k >= scene.hero_k_free * scene.BOSS_HERO_K_MIN - 0.001, "%s : face au boss les héros gardent %.0f %% de leur taille (au moins 62 %%)" % [tag, scene.hero_k / scene.hero_k_free * 100.0])
 		for c: RefCounted in scene.engine.enemies:
 			if c != scene.boss:
 				check(boss_h >= 1.25 * (scene.actors[c.key] as Node3D).height, "%s : le boss domine %s" % [tag, str(c.name)])

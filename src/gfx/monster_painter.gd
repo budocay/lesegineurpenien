@@ -289,8 +289,8 @@ static func _cast_fx(img: Image, region: Rect2i, kind: String) -> void:
 ## Pose de KO : le dessin de coup reçu, tassé puis basculé en arrière (vers la gauche : le monstre regarde à droite),
 ## pieds au sol, ramené à la taille de la case, un peu assombri. Rotation autour des pieds, échantillonnage au plus proche
 ## (pixel art) ou lissé (HD) sur l'alpha.
-const KO_ANGLE := 0.95   # radians (54 degrés)
-const KO_SQUASH := 0.72
+const KO_ANGLE := 1.25   # radians (54 degrés)
+const KO_SQUASH := 0.8
 
 static func _slump(img: Image, region: Rect2i) -> void:
 	var w := region.size.x
@@ -298,8 +298,9 @@ static func _slump(img: Image, region: Rect2i) -> void:
 	var src := img.get_region(Rect2i(region.position.x, region.position.y, w, h))
 	var b := PA.opaque_bounds(src, Rect2i(0, 0, w, h))
 	var pivot := Vector2(float(b.position.x + b.end.x) * 0.5, float(b.end.y))
-	var ca := cos(KO_ANGLE)
-	var sa := sin(KO_ANGLE)
+	var angle := KO_ANGLE if float(b.size.x) < float(b.size.y) * 1.2 else 0.45   # une bête plus large que haute (limace) bascule à peine : couchée à la verticale elle ne serait plus qu'une tranche
+	var ca := cos(angle)
+	var sa := sin(angle)
 	# les coins du dessin, tassé puis tourné, donnent la place qu'il prend : on le réduit pour qu'il tienne dans la case
 	var lo := Vector2(INF, INF)
 	var hi := Vector2(-INF, -INF)
@@ -328,6 +329,14 @@ static func _slump(img: Image, region: Rect2i) -> void:
 			else:
 				c = Color(0, 0, 0, 0)
 			img.set_pixel(region.position.x + x, region.position.y + y, c)
+	# le plus bas pixel réel (et non le coin du cadre tourné) pose sur la ligne de sol : le corps couché ne flotte pas
+	var laid := img.get_region(Rect2i(region.position.x, region.position.y, w, h))
+	var lb := PA.opaque_bounds(laid, Rect2i(0, 0, w, h))
+	var drop := (h - int(margin)) - lb.end.y
+	if lb.size.x > 0 and drop > 0:
+		var clear := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		img.blit_rect(clear, Rect2i(0, 0, w, h), region.position)
+		img.blit_rect(laid, Rect2i(0, 0, w, h - drop), region.position + Vector2i(0, drop))
 
 
 ## Réduit une pose (couleur étalée sous la transparence voisine avant, pour qu'aucun liseré sombre ne naisse au bord).
@@ -370,7 +379,7 @@ const UPSCALE := 3
 const HD := 4
 ## Les gros monstres (boss, vedettes) sont affichés très agrandis : finesse supérieure.
 const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur": 6, "balourd": 6, "crapaud": 6,
-	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
+	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "ouroukouille_petrisseur": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
 	# chapitre 6 (gouda_monsters.gd)
 	"eveille": 6, "eveille_veilleur": 6, "roi_eveille": 6, "boucanier": 6, "saumure": 6, "cassouletain": 6,
 	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6,

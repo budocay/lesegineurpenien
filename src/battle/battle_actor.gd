@@ -522,6 +522,12 @@ func play_ko() -> void:
 		var s := _body.scale
 		var tw := create_tween()
 		tw.tween_property(_body, "scale", Vector3(s.x * 0.85, s.y * 1.18, s.z), 0.09)
+		if (_sheet.get("poses", {}) as Dictionary).has("ko"):   # boss repeint : on laisse voir sa pose à terre avant qu'il s'efface
+			tw.tween_property(_body, "scale", s, 0.12)
+			tw.tween_callback(func() -> void:
+				_flash = 0.0
+				_quad.set_instance_shader_parameter("flash", 0.0))
+			tw.tween_interval(0.8)
 		tw.tween_property(_body, "scale", Vector3(s.x * 1.3, s.y * 0.04, s.z), 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 		await tw.finished
 		visible = false
