@@ -410,24 +410,9 @@ static func house(b, o: Dictionary) -> void:
 		if str(sp["sign"]) != "" and hw >= 5.0:
 			# l'enseigne (1,16 de large) se pend là où elle ne touche ni une fenêtre (demi-largeur 0,6) ni la
 			# porte ; sur une façade étroite elle rapetisse (jusqu'aux deux tiers) plutôt que de disparaître
-			var best := -1.0
-			var ss := 1.0
-			for try_s: float in [1.0, 0.85, 0.7]:
-				var hs := 0.58 * try_s
-				var best_d := -1.0
-				var cxs := x0 + hs + 0.25
-				while cxs <= x1 - hs - 0.25:
-					var dmin := absf(cxs - xd) - 0.55
-					for wv: Variant in windows:
-						dmin = minf(dmin, absf(cxs - (x0 + float(wv))) - 0.6)
-					if dmin > best_d:
-						best_d = dmin
-						best = cxs
-					cxs += 0.1
-				if best_d >= hs + 0.04:
-					ss = try_s
-					break
-				best = -1.0
+			var spot := sign_spot(x0, hw, xd, windows)
+			var best := spot.x
+			var ss := spot.y
 			if best >= 0.0:
 				var stex: Texture2D = Sprites.cached("hsg:" + str(sp["sign"]), func() -> Texture2D:
 					return PA.texture(HP.sign_board(str(sp["sign"]))))
@@ -481,6 +466,28 @@ static func house(b, o: Dictionary) -> void:
 
 ## Jardinières qui dépassent sous les fenêtres du rez-de-chaussée : caisse de bois, terreau, touffes de
 ## feuillage et fleurs en petits cubes, retombées sur le devant. Tirage stable (graine de la maison).
+## Où pendre l'enseigne d'une façade : x du centre et échelle (1, 0,85 ou 0,7), ou (-1, 1) si elle ne tient pas.
+## Elle (1,16 de large) ne touche ni une fenêtre (demi-largeur 0,6) ni la porte (demi-largeur 0,55).
+static func sign_spot(x0: float, hw: float, xd: float, windows: Array) -> Vector2:
+	var x1 := x0 + hw
+	for try_s: float in [1.0, 0.85, 0.7]:
+		var hs := 0.58 * try_s
+		var best := -1.0
+		var best_d := -1.0
+		var cxs := x0 + hs + 0.25
+		while cxs <= x1 - hs - 0.25:
+			var dmin := absf(cxs - xd) - 0.55
+			for wv: Variant in windows:
+				dmin = minf(dmin, absf(cxs - (x0 + float(wv))) - 0.6)
+			if dmin > best_d:
+				best_d = dmin
+				best = cxs
+			cxs += 0.1
+		if best_d >= hs + 0.04:
+			return Vector2(best, try_s)
+	return Vector2(-1.0, 1.0)
+
+
 static func _planters(trim: Dictionary, sp: Dictionary, windows: Array, x0: float, z1: float) -> void:
 	var sd: int = int(sp["seed"])
 	var blooms := ["#e86a7a", "#f2d55c", "#f4f0e2", "#b98ae0", "#ff9a3c"]
