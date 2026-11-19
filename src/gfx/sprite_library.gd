@@ -61,6 +61,10 @@ func _warm_monsters() -> void:
 			return
 		if ResourceLoader.exists(ASSET_DIR + "monsters/%s.png" % kind):
 			continue
+		# les monstres de gouda_monsters.gd passent par l'état statique du peintre d'origine, pas par la
+		# copie du fil : ils se peignent à la demande, sur le fil principal
+		if (load("res://src/gfx/gouda_monsters.gd").KINDS as Array).has(kind):
+			continue
 		_monster_stamp_init()
 		var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
 		if not FileAccess.file_exists(path):
