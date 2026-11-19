@@ -57,7 +57,7 @@ func _ready() -> void:
 	side.add_child(_keys)
 	_count = UI.label("", 16, UI.INK_DIM, false, true)
 	body.add_child(_count)
-	(frame["foot"] as HBoxContainer).add_child(UI.hints([["Haut / bas", "choisir"], ["Échap", "retour"]]))
+	(frame["foot"] as HBoxContainer).add_child(UI.hints([["ud", "choisir"], ["back", "retour"]]))
 
 
 func open() -> void:
@@ -73,6 +73,8 @@ func close(silent: bool = false) -> void:
 		return
 	var f := get_viewport().gui_get_focus_owner()
 	_remember = str(f.get_meta("tip")) if f is Button and f.has_meta("tip") else ""
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	if not silent:
 		Sfx.play("cancel")

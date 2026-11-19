@@ -87,8 +87,16 @@ func _ready() -> void:
 	cs.content_margin_bottom = 1
 	cap.add_theme_stylebox_override("panel", cs)
 	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cap.add_child(UI.label("E", 16, UI.GOLD, true))
+	var cap_label := UI.label("E", 16, UI.GOLD, true)
+	cap.add_child(cap_label)
 	row.add_child(cap)
+	var pad_cap := UI.pad_glyph("A", 16)
+	pad_cap.visible = false
+	row.add_child(pad_cap)
+	var show_device := func(pad: bool) -> void:   # « E » au clavier, pastille A à la manette
+		cap.visible = not pad
+		pad_cap.visible = pad
+	UI.follow_device(row, show_device)
 	_prompt_label = UI.label("", 18)
 	row.add_child(_prompt_label)
 

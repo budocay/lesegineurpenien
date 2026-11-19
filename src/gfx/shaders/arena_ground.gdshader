@@ -25,6 +25,13 @@ uniform float fleck_density = 0.0;  // fleurs et touffes à plat, par case de 4 
 uniform vec3 fleck_a : source_color = vec3(0.96, 0.94, 0.88);   // pétales
 uniform vec3 fleck_b : source_color = vec3(0.95, 0.80, 0.25);   // coeur
 uniform vec3 tuft_color : source_color = vec3(0.45, 0.72, 0.32);
+uniform float cloud_amount = 0.0;   // ombres de nuages : larges plaques douces qui assombrissent le sol (0 à 0,4)
+uniform float cloud_scale = 0.06;   // finesse des nuages (petit : très larges)
+uniform float dapple_amount = 0.0;  // ombres de feuillage tachetées, hors de la zone de jeu (bas et côtés de l'image)
+uniform float stone_density = 0.0;  // pierres plates, hors de la zone de jeu, par case de 6 pixels
+uniform float blade_density = 0.0;  // brins d'herbe dressés (traits de 3 pixels), un peu partout
+uniform vec3 blade_a : source_color = vec3(0.85, 0.72, 0.30);   // brin éclairé
+uniform vec3 blade_b : source_color = vec3(0.45, 0.36, 0.14);   // brin à l'ombre
 uniform vec2 pool_center = vec2(0.0, 0.0);
 uniform vec2 pool_radius = vec2(12.0, 7.5);   // demi-largeur et demi-profondeur de la nappe
 uniform vec3 pool_color : source_color = vec3(1.0, 0.92, 0.78);
@@ -113,6 +120,43 @@ void fragment() {
 				}
 			}
 		}
+	}
+
+	// hors de la zone de jeu (sous les combattants, sur les côtés) : le sol se compose
+	float away = max(smoothstep(2.4, 4.4, wpos.z), smoothstep(7.5, 10.5, abs(wpos.x)));
+	if (blade_density > 0.0) {
+		vec2 bc = floor(px / 3.0);
+		if (hash(bc + 71.0) < blade_density * (0.4 + 0.6 * away)) {
+			vec2 bl = px - bc * 3.0;
+			float lean = floor(hash(bc + 3.3) * 3.0);   // brin penché à gauche, droit ou à droite
+			if (bl.x == lean) {
+				col = bl.y < 1.0 ? blade_a : (bl.y < 2.0 ? mix(blade_a, blade_b, 0.4) : blade_b);
+			}
+		}
+	}
+	if (stone_density > 0.0 && away > 0.0) {
+		vec2 sc = floor(px / 6.0);
+		if (hash(sc + 53.0) < stone_density * away) {
+			vec2 so = vec2(hash(sc + 1.3), hash(sc + 8.1)) * 1.5;
+			vec2 sp = (px - sc * 6.0 - vec2(3.0) - so + vec2(0.75)) / vec2(2.7, 1.7);
+			if (length(sp) < 1.0) {
+				float sl = dot(col, vec3(0.299, 0.587, 0.114));
+				vec3 st = mix(col, vec3(sl * 1.3), 0.55);
+				col = sp.y < -0.25 ? st * 1.25 : (sp.y > 0.45 ? st * 0.62 : st * 0.95);
+			} else if (length(sp) < 1.35 && sp.y > 0.0) {
+				col *= 0.7;   // ombre portée sous la pierre
+			}
+		}
+	}
+	if (dapple_amount > 0.0) {
+		float dp = vnoise(q * vec2(0.5, 0.75) + 13.0) * 0.6 + vnoise(q * 1.6 + 29.0) * 0.4;
+		float dm = smoothstep(0.5, 0.56, dp) * (0.55 + 0.45 * step(0.5, vnoise(q * 3.1 + 2.0)));
+		col *= 1.0 - dapple_amount * away * dm;
+	}
+	if (cloud_amount > 0.0) {
+		vec2 cq = wpos.xz * cloud_scale + vec2(3.0, 11.0);
+		float cl = vnoise(cq) * 0.62 + vnoise(cq * 2.3 + 5.0) * 0.38;
+		col *= 1.0 - cloud_amount * smoothstep(0.46, 0.7, cl);
 	}
 
 	col *= tint;

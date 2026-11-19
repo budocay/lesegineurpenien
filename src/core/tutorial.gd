@@ -15,6 +15,7 @@ extends Node
 
 const TipPanel = preload("res://src/ui/tutorial_panel.gd")
 const HelpScreen = preload("res://src/ui/help_screen.gd")
+const UI = preload("res://src/ui/ui_kit.gd")
 const BattleUI = preload("res://src/battle/battle_ui.gd")   # lecture seule : places libres de l'écran de combat
 const FILE := "res://data/tutorials.json"
 const NOTE_SECONDS := 8.0       # durée d'un conseil de passage (plus la lecture)
@@ -29,7 +30,11 @@ var host: Node = null                # main.gd, pour savoir si l'écran est libr
 var help = null                      # page d'aide (pause)
 var force_on := false                # tests : conseils actifs malgré tout
 var modal_in_tests := false          # tests : les conseils « pause » s'affichent aussi
-var pad := false                     # la dernière entrée venait de la manette
+var pad: bool:                       # la dernière entrée venait de la manette (source : Controls)
+	get:
+		return Controls.pad
+	set(value):
+		Controls.set_pad(value)
 var shown_log: Array = []            # identifiants affichés depuis le lancement (tests)
 var current := ""                    # conseil de passage à l'écran
 
@@ -43,6 +48,13 @@ var _modal := false
 var _guard := 0.0
 var _tween: Tween
 var _by_trigger: Dictionary = {}
+var _pointer: Control               # surbrillance et flèche vers ce dont parle un conseil de combat
+var _aim := Rect2()                 # rectangle visé (coordonnées d'écran), vide si le conseil ne vise rien
+var _modal_view: Dictionary = {}    # contenu du conseil de combat affiché (pour le redimensionner)
+var _modal_points := ""
+var _spot_dirty := true
+var _height_hint := 0.0   # hauteur réellement prise par l'encart une fois disposé (le minimum calculé d'avance peut être court)
+var _pulse := 0.0
 
 signal _closed
 
@@ -59,6 +71,12 @@ func _ready() -> void:
 	_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_veil.visible = false
 	_layer.add_child(_veil)
+	_pointer = Control.new()
+	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pointer.visible = false
+	_pointer.draw.connect(_draw_pointer)
+	_layer.add_child(_pointer)
 	_panel = TipPanel.new()
 	_panel.visible = false
 	_layer.add_child(_panel)
@@ -270,6 +288,10 @@ func _process(delta: float) -> void:
 	_gap -= delta
 	if _modal:
 		_place(true)
+		_pulse += delta
+		if _pointer.visible:
+			_pointer.modulate.a = 0.72 + 0.28 * sin(_pulse * 4.5)
+			_pointer.queue_redraw()
 		return
 	if current != "":
 		if not explore_open():
@@ -302,6 +324,10 @@ func _show_note(id: String) -> void:
 func _show_modal(tip: Dictionary) -> void:
 	var view := resolve(tip)
 	view["modal"] = true
+	_modal_view = view
+	_modal_points = str(tip.get("points", ""))
+	_spot_dirty = true
+	_height_hint = 0.0
 	(_panel as TipPanel).build(view)
 	_veil.visible = true
 	_modal = true
@@ -310,9 +336,19 @@ func _show_modal(tip: Dictionary) -> void:
 	_panel.visible = true
 	_fade_in()
 	_place(true)
+	for _pass in 2:   # une fois disposé, l'encart peut être plus haut que prévu : on le replace avec sa vraie hauteur
+		await get_tree().process_frame
+		if not _modal:
+			break
+		if _panel.size.y > _panel.get_combined_minimum_size().y + 1.0 and _panel.size.y > _height_hint + 1.0:
+			_height_hint = _panel.size.y
+			_spot_dirty = true
+			_place(true)
 	await _closed
 	_modal = false
 	_panel.visible = false
+	_pointer.visible = false
+	_aim = Rect2()
 	_veil.visible = false
 	Sfx.play("confirm")
 
@@ -334,15 +370,21 @@ func _place(modal: bool) -> void:
 	var view := get_viewport().get_visible_rect().size
 	_panel.size = _panel.get_combined_minimum_size()
 	if modal:
-		_panel.position = _battle_spot(view)
+		if _spot_dirty or _panel.position == Vector2.ZERO:
+			_spot_dirty = false
+			_panel.position = _battle_spot(view)
+			_pointer.visible = _aim.size != Vector2.ZERO
+			_pointer.queue_redraw()
 	else:
 		_panel.position = (view - _panel.size - Vector2(26.0, 26.0)).round()
 
 
-## Place d'un conseil de combat : la plus proche du haut de l'écran, sous la frise, parmi celles qui
-## ne couvrent ni combattant, ni plaque, ni fiche d'équipe, ni frise (BattleUI.free_spot). Hors
-## combat (boutique), sous la frise, au centre.
+## Place d'un conseil de combat : une place qui ne couvre ni combattant, ni plaque, ni fiche d'équipe,
+## ni frise, ni ce que le conseil désigne, la plus proche du haut de l'écran sous la frise (et de ce qu'il
+## désigne). On essaie d'abord de laisser libre aussi le menu de combat, puis une version plus étroite de
+## l'encart ; BattleUI.free_spot ne sert qu'en dernier recours. Hors combat (boutique) : sous la frise, au centre.
 func _battle_spot(view: Vector2) -> Vector2:
+	_aim = Rect2()
 	var prefer := Vector2((view.x - _panel.size.x) * 0.5, BattleUI.TOP_BAND_H + 4.0)
 	var ui: Variant = host.get("battle_ui") if host != null and is_instance_valid(host) else null
 	if host == null or host.get("battle") == null or ui == null or not (ui as Object).has_method("_obstacles"):
@@ -352,14 +394,147 @@ func _battle_spot(view: Vector2) -> Vector2:
 		if not (o.position == Vector2.ZERO and o.size.x >= view.x - 1.0):   # les bandes pleine largeur (haut, bas) : remplacées ci-dessous
 			obstacles.append(o)
 	obstacles.append(BattleUI.top_band(view))
+	_aim = target_rect(_modal_points)
+	if _aim.size != Vector2.ZERO:
+		obstacles.append(_aim.grow(14.0))
+	var with_menu: Array[Rect2] = obstacles.duplicate()
+	for n: String in ["_root_panel", "_list_panel"]:
+		var menu: Variant = (ui as Object).get(n)
+		if menu is Control and (menu as Control).is_visible_in_tree():
+			with_menu.append((menu as Control).get_global_rect().grow(6.0))
+	for width: float in [TipPanel.WIDTH_MODAL, 560.0, 470.0]:
+		if int(_panel.custom_minimum_size.x) != int(width):
+			_modal_view["width"] = width
+			(_panel as TipPanel).build(_modal_view)
+			_panel.size = _panel.get_combined_minimum_size()
+		for obs: Array[Rect2] in [with_menu, obstacles]:
+			var spot: Variant = _clear_spot(Vector2(_panel.size.x, maxf(_panel.size.y, _height_hint)), prefer, obs, _aim, view)
+			if spot != null:
+				return (spot as Vector2).round()
+	# dernier recours avant le repli : on accepte de couvrir un combattant, jamais une plaque, la fiche d'équipe,
+	# la frise, l'indication de touches ni ce que le conseil désigne
+	var essential: Array[Rect2] = [BattleUI.top_band(view)]
+	if _aim.size != Vector2.ZERO:
+		essential.append(_aim.grow(14.0))
+	var plates: Variant = (ui as Object).get("_plates")
+	if plates is Dictionary:
+		for key: Variant in plates:
+			var root: Control = (plates[key] as Dictionary)["root"]
+			if root.visible:
+				essential.append(Rect2(root.position, root.size).grow(8.0))
+	var party: Variant = (ui as Object).get("_party_panel")
+	if party is Control:
+		essential.append((party as Control).get_global_rect().grow(8.0))
+	for n: String in ["_root_panel", "_list_panel"]:
+		var menu: Variant = (ui as Object).get(n)
+		if menu is Control and (menu as Control).is_visible_in_tree():
+			essential.append((menu as Control).get_global_rect().grow(6.0))
+	var hint: Variant = (ui as Object).get("_hint")
+	if hint is Control and (hint as Control).visible:
+		essential.append((hint as Control).get_global_rect().grow(6.0))
+	for width: float in [_modal_view.get("width", TipPanel.WIDTH_MODAL), 560.0, 470.0]:
+		if int(_panel.custom_minimum_size.x) != int(width):
+			_modal_view["width"] = width
+			(_panel as TipPanel).build(_modal_view)
+			_panel.size = _panel.get_combined_minimum_size()
+		var spot2: Variant = _clear_spot(Vector2(_panel.size.x, maxf(_panel.size.y, _height_hint)), prefer, essential, _aim, view)
+		if spot2 != null:
+			return (spot2 as Vector2).round()
 	return BattleUI.free_spot(_panel.size, prefer, obstacles, view).round()
 
 
+## Place (au pas de 8 px) qui ne recoupe aucun obstacle ; la plus proche de « prefer » et de la cible.
+## Renvoie null s'il n'y en a pas.
+static func _clear_spot(size: Vector2, prefer: Vector2, obstacles: Array[Rect2], aim: Rect2, view: Vector2) -> Variant:
+	var best: Variant = null
+	var best_score := INF
+	var y := 8.0
+	while y <= view.y - size.y - 8.0:
+		var x := 8.0
+		while x <= view.x - size.x - 8.0:
+			var r := Rect2(x, y, size.x, size.y)
+			var free := true
+			for o: Rect2 in obstacles:
+				if r.intersects(o):
+					free = false
+					break
+			if free:
+				var score := Vector2(x, y).distance_to(prefer)
+				if aim.size != Vector2.ZERO:
+					score += r.get_center().distance_to(aim.get_center()) * 0.6
+				if score < best_score:
+					best_score = score
+					best = Vector2(x, y)
+			x += 8.0
+		y += 8.0
+	return best
+
+
+## Rectangle d'écran de ce qu'un conseil désigne : « frise » (ordre des tours), « elan » (pastilles
+## dorées), « bouclier » (le bouclier d'un ennemi), « allie » (la fiche d'un allié à terre). Vide sinon.
+func target_rect(kind: String) -> Rect2:
+	var ui: Variant = host.get("battle_ui") if host != null and is_instance_valid(host) else null
+	if ui == null or kind == "" or (ui as Object).get("engine") == null:
+		return Rect2()
+	var eng: RefCounted = (ui as Object).get("engine")
+	match kind:
+		"frise":
+			var tl: Control = (ui as Object).get("_timeline")
+			var tag: Control = (ui as Object).get("_turn_tag")
+			return tl.get_global_rect().merge(tag.get_global_rect()).grow(6.0)
+		"elan":
+			for b: Variant in (ui as Object).get("_elan_bars"):
+				var panel: Control = (b as Dictionary)["panel"]
+				if panel.is_visible_in_tree():
+					return panel.get_global_rect().grow(4.0)
+			var actor: Variant = (ui as Object).get("_actor")
+			var rows: Dictionary = (ui as Object).get("_rows")
+			if actor != null and rows.has((actor as Object).get("key")):
+				return ((rows[(actor as Object).get("key")] as Dictionary)["pips"] as Control).get_global_rect().grow(4.0)
+		"bouclier":
+			var plates: Dictionary = (ui as Object).get("_plates")
+			var pick: RefCounted = null
+			for e: RefCounted in eng.call("living", "enemy"):
+				if int(e.get("shield_max")) > 0 and plates.has(e.get("key")):
+					if pick == null or (int(e.get("shield")) == 0 and int(pick.get("shield")) > 0):
+						pick = e
+			if pick != null:
+				var chips: Control = (plates[pick.get("key")] as Dictionary)["chips"]
+				return chips.get_global_rect().grow(5.0)
+		"allie":
+			var rows2: Dictionary = (ui as Object).get("_rows")
+			for c: RefCounted in eng.call("fallen", "party"):
+				if rows2.has(c.get("key")):
+					return ((rows2[c.get("key")] as Dictionary)["card"] as Control).get_global_rect().grow(3.0)
+	return Rect2()
+
+
+func _draw_pointer() -> void:
+	if _aim.size == Vector2.ZERO or not _panel.visible:
+		return
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(UI.GOLD, 0.08)
+	box.border_color = UI.GOLD
+	box.set_border_width_all(2)
+	box.set_corner_radius_all(7)
+	_pointer.draw_style_box(box, _aim)
+	# flèche : du bord de l'encart le plus proche jusqu'au bord de la cible
+	var panel := Rect2(_panel.position, _panel.size)
+	var from := Vector2(clampf(_aim.get_center().x, panel.position.x + 12.0, panel.end.x - 12.0), clampf(_aim.get_center().y, panel.position.y, panel.end.y))
+	if panel.has_point(from):
+		from.y = panel.position.y if _aim.get_center().y < panel.get_center().y else panel.end.y
+	var to := Vector2(clampf(from.x, _aim.position.x, _aim.end.x), clampf(from.y, _aim.position.y, _aim.end.y))
+	var dir := (to - from)
+	if dir.length() < 6.0:
+		return
+	dir = dir.normalized()
+	var tip := to - dir * 2.0
+	var side := Vector2(-dir.y, dir.x)
+	_pointer.draw_line(from, tip - dir * 8.0, Color(UI.GOLD, 0.9), 2.0, true)
+	_pointer.draw_colored_polygon(PackedVector2Array([tip, tip - dir * 14.0 + side * 7.0, tip - dir * 14.0 - side * 7.0]), UI.GOLD)
+
+
 func _input(event: InputEvent) -> void:
-	if event is InputEventJoypadButton or (event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) > 0.5):
-		pad = true
-	elif event is InputEventKey or event is InputEventMouseButton:
-		pad = false
 	if not _modal or _guard > 0.0:
 		return
 	var press := event.is_pressed() and not event.is_echo()
@@ -423,9 +598,9 @@ func speaker_tag(who: Variant) -> String:
 func caps_for(action: String) -> Array:
 	match action:
 		"elan":
-			return ["Gauche", "Droite"]
+			return ["dpad_lr"] if pad else ["Gauche", "Droite"]
 		"choose":
-			return ["Haut", "Bas"]
+			return ["dpad_ud"] if pad else ["Haut", "Bas"]
 		"move":
 			if pad:
 				return ["Stick gauche", "ou", "Croix"]

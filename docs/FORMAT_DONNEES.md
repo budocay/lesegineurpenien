@@ -29,6 +29,14 @@ Un objet par personnage, rangé par identifiant.
   - `hat` : `none`, `magicien`, `toque`, `casquette`, `capuche`, `chapeau_paille`,
     `foulard` ; `hat_color`, `band`.
   - `item` : `baton`, `pipe`.
+  - `held` : objet tenu en main (arme ou outil), dessiné dans les quatre directions :
+    `poele`, `epee`, `rapiere`, `dague`, `serpe`, `hache`, `marteau`, `arc`, `registre`,
+    `gigot` (objets courts) ; `fourche`, `lance`, `balai` (longues hampes). Au repos,
+    un objet court est rangé (ceinture, dos, hanche) et une hampe reste droite dans la main ;
+    en marche il est en main ; à l'attaque et au sort il est brandi ; au KO il tombe à terre.
+    Les Morfales (`species`) le tiennent toujours en main. Vide ou absent : rien en main.
+  - `glow` : couleur de la lueur (yeux, bouche, lame) d'un Naze (`species` `naze`) ;
+    défaut bleu pâle.
   - Facultatifs (dessin des personnages) : `cape` (couleur d'une cape dans le dos),
     `eye` (couleur des yeux), `ears` (`elfe` : longues oreilles pointues), `crest`
     (`cornes` : cornes sur un `heaume`). Les planches peintes par code font 48 x 72 px
@@ -112,7 +120,13 @@ Champ facultatif `stage` (réglage de la lumière de scène, tout est facultatif
   `rim` (1 par défaut) : force du liseré clair de leur silhouette (uniform `rim` de
   `sprite.gdshader`) ; `shafts` : `{"color": "#ffe6b0", "strength": 0.08, "slant": 0.55}`,
   larges rayons de lumière obliques posés sur l'image, sous l'interface (`shafts.gdshader`,
-  force 0,12 au plus).
+  force 0,25 au plus ; `scale` : largeur des rayons, `sharp` : netteté des bords, 0,55 par défaut).
+- `halos` (champ de l'arène, hors `stage`) : `[{"pos": [x, y, z], "color": "#ffb060", "size": 3.0,
+  "strength": 0.9}]`, halo flou et additif posé sur chaque source de lumière du décor.
+- `clouds` : `{"amount": 0.14, "scale": 0.07}`, ombres de nuages qui glissent sur le sol ;
+  `dapple` (0 à 1) : ombres de feuillage tachetées ; `stones` : densité de dalles plates ;
+  `blades` : `{"density": 0.3, "color": "#f0dc88", "shade": "#8a6a30"}`, brins d'herbe
+  peints, touffes dorées dans la plaine ; `light` : teinte de la flaque de lumière.
 - `variation` : amplitude des plaques de teinte du sol (0,09 par défaut) ; `tint` : couleur
   qui multiplie tout le sol (teinte du lieu, `#ffffff` par défaut).
 - `patches` : `{"tile": "grass", "amount": 0.3, "tint": "#ffffff"}`, seconde matière par
@@ -169,10 +183,15 @@ au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la
 héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
 large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique est `boss` ou la fuite impossible, l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
 la place qui reste, jusqu'à `BOSS_RATIO_MAX` (3,4) fois la hauteur d'un héros (plancher vérifié
-par le test : 1,7), en descendant au besoin vers la caméra ; il penche et bondit moins qu'un
-petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres peints par code sont affichés
-repeints plus fin (`MonsterPainter.upscale`, trois fois la définition, contours des diagonales
-arrondis) : un boss agrandi n'a plus des pixels dix fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
+par le test : 2,2), en descendant au besoin vers la caméra ; face à un boss, les héros sont un peu
+plus petits (`BOSS_HERO_K`). Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
+se tient en retrait (`BOSS_BACK`), au centre de son camp et jamais collé au bord (`BOSS_AIR`) ; ses
+sbires, plus petits (`MINION_K`), sont devant lui (`BOSS_FRONT`), de part et d'autre, sur deux rangs
+au besoin. Il penche et bondit moins qu'un petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres
+peints par code sont dessinés directement à la définition des héros (`MonsterPainter.paint_hd`, grille
+quatre à six fois plus fine que la planche logique de `paint`, grain de matière, verrues, pores, poils,
+contour épais ; mise en cache dans `user://cache_monstres/`) : un boss agrandi n'a plus des pixels dix
+fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) reste sa
 taille relative aux autres monstres.
 Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
@@ -325,8 +344,8 @@ Champs facultatifs, tous ignorés quand ils manquent :
 - Unicité : deux bâtiments d'une même carte ne partagent jamais mur + toit + couleur de porte
   (le test le vérifie). Dans l'ordre du fichier, ce que le JSON n'impose pas (`wall`, puis
   `roof`, puis `door_color`) est modifié pour lever le conflit. Les toits de tuiles, d'ardoises
-  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, mousse vers
-  l'avant-toit, quelques tuiles manquantes, ombre des lucarnes ; le toit d'herbe des Grobittes
+  et de chaume vieillissent seuls : teinte variable d'une assise à l'autre, petites touffes de mousse vers
+  l'avant-toit, quelques tuiles manquantes (volige brune avec fine ombre, jamais de trou noir), ombre des lucarnes ; le toit d'herbe des Grobittes
   est plus clair, avec une crête lumineuse et des raies de gazon qui suivent la courbe.
 - `extra` : accessoire contre le mur, loin de la porte (`"barrel"`, `"crates"`, `"flowers"`,
   `""` pour aucun) ; tiré au hasard sinon.
@@ -504,7 +523,7 @@ or, braise des forges, et la raie sombre du fromage dans les murs.
 `nain_dalle` (dalles sombres), `nain_veine` (dalle à veine d'or), `nain_voie` et `nain_voie_v`
 (rail de wagonnet, horizontal et vertical), `nain_pont` (tablier de pont, franchissable sur
 un abîme), `nain_marbre` (marbre de la Grande Salle, motif de forge), `nain_pate` (croûte du
-(Sols `nain_roche_humide` : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
+(Sols `nain_roche_humide` (drapeau `puddles` de la table `GROUND` : flaques éparpillées par bruit, en amas irréguliers, par `MapBuilder._scatter_puddles`) : roche mouillée bleutée aux flaques reflétant le plafond ; `nain_galets` : bord de l'eau couvert de galets. Utilisés au lac de Maroilles.)
 fromage), `nain_abime` (vide solide), `nain_neige`, `nain_sentier`, `nain_roc`,
 `nain_marches`, `nain_pierre`, et les murs `nain_mur`, `nain_mur_morbier`, `nain_mur_forge`.
 
@@ -1208,6 +1227,7 @@ Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale a
 doré). La touche `journal` (J au clavier, Y à la manette) ouvre le journal de quêtes directement ;
 elle est rappelée par le rappel et par le conseil « journal ».
 
+<<<<<<< HEAD
 ## Styles du chapitre 6 (Minas Tartine, Sentier, Port-Salé, Pelle-à-Tarte)
 
 Quatre styles d'architecture, choisis par le champ `style` d'une carte, servis par un seul
@@ -1248,3 +1268,10 @@ Blanc, légèrement lumineux), `gou_lit_pierre` (2 variantes), `gou_voile` (2 va
 Conseils : placer les murs d'une ville à `thick` près de la ligne de la porte pour ne pas fermer
 le passage ; laisser une case libre devant chaque porte (le test de dégagement le vérifie).
 Les cartes de l'étape suivante réutilisent ces objets sans code : tout passe par `data/maps/`.
+=======
+
+### Sols : mouchetage et décor des maisons
+
+- `MapBuilder.MOTTLE` : par type de sol, `[teinte sombre, teinte claire, force, luminosité]`, appliqué après la peinture du sol (bruit à deux échelles, interpolé) pour casser la répétition des cases. Sans entrée, le sol n'est pas touché.
+- Maisons au style par défaut : jardinières sous les fenêtres du rez-de-chaussée (`flowers`) et lierre (`ivy`) sont en volume (cartes à feuilles découpées, tirages stables selon la carte et la maison).
+>>>>>>> main

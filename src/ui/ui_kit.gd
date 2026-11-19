@@ -27,7 +27,24 @@ const SMALL_SIZE := 16                    # notes, légendes, mentions discrète
 const ROW_SIZE := 22                      # entrées de liste
 
 ## Rappels de touches : mêmes mots partout.
-const KEYS_MENU := [["Flèches", "choisir"], ["Entrée", "valider"], ["Échap", "retour"]]
+## Un rappel s'écrit [jeton, verbe] : le jeton (voir KEYS) donne la touche du clavier ou le bouton
+## de la manette selon le dernier périphérique utilisé ; un texte inconnu s'affiche tel quel.
+const KEYS_MENU := [["nav", "choisir"], ["ok", "valider"], ["back", "retour"]]
+const KEYS := {
+	"nav": {"kb": ["Flèches"], "pad": ["dpad"]},
+	"ud": {"kb": ["Haut / bas"], "pad": ["dpad_ud"]},
+	"lr": {"kb": ["Gauche / droite"], "pad": ["dpad_lr"]},
+	"ok": {"kb": ["Entrée"], "pad": ["A"]},
+	"back": {"kb": ["Échap"], "pad": ["B"]},
+	"delete": {"kb": ["Suppr"], "pad": ["X"]},
+	"pages": {"kb": ["Page préc. / suiv."], "pad": ["LB", "RB"]},
+	"menu": {"kb": ["Échap"], "pad": ["Start"]},
+	"journal": {"kb": ["J"], "pad": ["Y"]},
+	"walk": {"kb": ["Flèches ou ZQSD"], "pad": ["dpad"]},
+	"talk": {"kb": ["E ou Entrée"], "pad": ["A"]},
+	"fullscreen": {"kb": ["F"], "pad": []},
+}
+const PAD_COLORS := {"A": Color("#8fd18a"), "B": Color("#e68a7c"), "X": Color("#7fb4ea"), "Y": Color("#ecd07a")}
 
 static var _fonts: Dictionary = {}
 static var _cache: Dictionary = {}
@@ -272,32 +289,149 @@ static func menu_button(text: String, size: int = 24) -> Button:
 	return b
 
 
-## Ligne de rappels de touches : [["Entrée", "valider"], ...] sous forme de petites touches.
+## Ligne de rappels de touches : [["ok", "valider"], ...]. Elle suit le dernier périphérique
+## utilisé (clavier ou manette) et se redessine toute seule quand il change.
 static func hints(pairs: Array, size: int = 15) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 24)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fill_hints(row, pairs, size)
+	follow_device(row, func(_pad: bool) -> void: _fill_hints(row, pairs, size), false)
+	return row
+
+
+## Fait suivre un nœud au périphérique actif : « on_change » est appelée à chaque changement tant que le nœud
+## est dans l'arbre (et tout de suite si « now »). La connexion se défait quand le nœud sort de l'arbre :
+## jamais d'appel sur un nœud libéré.
+static func follow_device(node: Node, on_change: Callable, now: bool = true) -> void:
+	node.tree_entered.connect(func() -> void:
+		if not Controls.device_changed.is_connected(on_change):
+			Controls.device_changed.connect(on_change)
+		on_change.call(Controls.pad))
+	node.tree_exited.connect(func() -> void:
+		if Controls.device_changed.is_connected(on_change):
+			Controls.device_changed.disconnect(on_change))
+	if now:
+		on_change.call(Controls.pad)
+
+
+## Noms (ou pictogrammes) d'un jeton pour le périphérique demandé.
+static func key_names(token: String, pad: bool) -> Array:
+	if KEYS.has(token):
+		return (KEYS[token] as Dictionary)["pad" if pad else "kb"]
+	return [token]
+
+
+## Nom de la touche (ou du bouton de la manette) d'un jeton, pour l'écrire dans une phrase.
+static func key_text(token: String) -> String:
+	var names := key_names(token, Controls.pad)
+	return str(names[0]) if not names.is_empty() else token
+
+
+static func _fill_hints(row: HBoxContainer, pairs: Array, size: int) -> void:
+	for c in row.get_children():
+		row.remove_child(c)
+		c.queue_free()
 	for p: Array in pairs:
+		var names := key_names(str(p[0]), Controls.pad)
+		if names.is_empty():
+			continue
 		var item := HBoxContainer.new()
 		item.add_theme_constant_override("separation", 8)
 		item.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var cap := PanelContainer.new()
-		var cs := StyleBoxFlat.new()
-		cs.bg_color = Color(1, 1, 1, 0.05)
-		cs.border_color = Color(INK_FAINT, 0.8)
-		cs.set_border_width_all(1)
-		cs.set_corner_radius_all(3)
-		cs.content_margin_left = 8
-		cs.content_margin_right = 8
-		cs.content_margin_top = 3
-		cs.content_margin_bottom = 3
-		cap.add_theme_stylebox_override("panel", cs)
-		cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		cap.add_child(label(str(p[0]), size - 2, GOLD))
-		item.add_child(cap)
+		for n: Variant in names:
+			item.add_child(cap(str(n), size))
 		item.add_child(label(str(p[1]), size, INK_DIM))
 		row.add_child(item)
-	return row
+
+
+## Une touche de clavier (petite plaque) ou un bouton de manette (pictogramme dessiné), selon son nom.
+static func cap(text: String, size: int = 15) -> Control:
+	if PAD_COLORS.has(text) or text in ["LB", "RB", "Start", "dpad", "Croix", "dpad_ud", "dpad_lr", "Stick gauche"]:
+		return pad_glyph(text, size)
+	var plate := PanelContainer.new()
+	var cs := StyleBoxFlat.new()
+	cs.bg_color = Color(1, 1, 1, 0.05)
+	cs.border_color = Color(INK_FAINT, 0.8)
+	cs.set_border_width_all(1)
+	cs.set_corner_radius_all(3)
+	cs.content_margin_left = 8
+	cs.content_margin_right = 8
+	cs.content_margin_top = 3
+	cs.content_margin_bottom = 3
+	plate.add_theme_stylebox_override("panel", cs)
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	plate.add_child(label(text, size - 2, GOLD))
+	return plate
+
+
+## Pictogramme de bouton de manette, dessiné par code : pastilles rondes A B X Y (couleurs de
+## la manette), gâchettes LB RB, Start, croix (entière, haut/bas ou gauche/droite), stick.
+static func pad_glyph(kind: String, size: int = 15) -> Control:
+	var d := float(size) + 9.0
+	var w := d
+	match kind:
+		"LB", "RB":
+			w = d * 1.75
+		"Start":
+			w = d * 1.6
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(w, d)
+	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	c.set_meta("glyph", kind)
+	c.draw.connect(func() -> void: _draw_glyph(c, kind, Vector2(w, d), size))
+	return c
+
+
+static func _draw_glyph(c: Control, kind: String, box: Vector2, size: int) -> void:
+	var mid := box * 0.5
+	var f := font(true)
+	var fs := maxi(size - 3, 10)
+	match kind:
+		"A", "B", "X", "Y":
+			var col: Color = PAD_COLORS[kind]
+			var r := box.y * 0.5 - 1.0
+			c.draw_circle(mid, r, Color(col, 0.2))
+			c.draw_arc(mid, r, 0.0, TAU, 32, col, 1.6, true)
+			var sz := f.get_string_size(kind, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+			c.draw_string(f, Vector2(mid.x - sz.x * 0.5, mid.y - sz.y * 0.5 + f.get_ascent(fs)), kind, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+		"LB", "RB", "Start":
+			var pill := StyleBoxFlat.new()
+			pill.bg_color = Color(GOLD, 0.14)
+			pill.border_color = GOLD
+			pill.set_border_width_all(1)
+			pill.set_corner_radius_all(int(box.y * 0.5))
+			c.draw_style_box(pill, Rect2(Vector2(0.5, 1.5), box - Vector2(1.0, 3.0)))
+			if kind == "Start":
+				for i in 3:
+					var y := mid.y - 4.0 + 4.0 * i
+					c.draw_line(Vector2(mid.x - 6.0, y), Vector2(mid.x + 6.0, y), GOLD, 1.6, true)
+			else:
+				var sz := f.get_string_size(kind, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+				c.draw_string(f, Vector2(mid.x - sz.x * 0.5, mid.y - sz.y * 0.5 + f.get_ascent(fs)), kind, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GOLD)
+		"Stick gauche":
+			c.draw_arc(mid, box.y * 0.5 - 1.5, 0.0, TAU, 32, GOLD, 1.4, true)
+			c.draw_circle(mid, box.y * 0.2, GOLD)
+		_:
+			# croix : quatre bras et un centre ; les bras actifs sont dorés
+			var t := box.y * 0.3
+			var arm := box.y * 0.5 - 1.0
+			var all := kind == "dpad" or kind == "Croix"
+			var on_v := all or kind == "dpad_ud"
+			var on_h := all or kind == "dpad_lr"
+			var dim := Color(INK_FAINT, 0.55)
+			var lit := Color(GOLD, 0.95)
+			var s := StyleBoxFlat.new()
+			s.set_corner_radius_all(2)
+			s.bg_color = lit if on_v else dim
+			c.draw_style_box(s, Rect2(mid.x - t * 0.5, mid.y - arm, t, arm * 2.0))
+			var s2 := StyleBoxFlat.new()
+			s2.set_corner_radius_all(2)
+			s2.bg_color = lit if on_h else dim
+			c.draw_style_box(s2, Rect2(mid.x - arm, mid.y - t * 0.5, arm * 2.0, t))
+			c.draw_circle(mid, t * 0.28, Color(0.05, 0.05, 0.1, 0.8))
 
 
 ## Jauge fine (PV, PM, vie d'ennemi).
@@ -389,6 +523,29 @@ static func style_scroll(sc: ScrollContainer) -> void:
 	bar.add_theme_stylebox_override("grabber", grab)
 	bar.add_theme_stylebox_override("grabber_highlight", grab_hot)
 	bar.add_theme_stylebox_override("grabber_pressed", grab_hot)
+
+
+## Fermeture douce d'un écran : une image figée de l'écran s'estompe par-dessus le jeu pendant que
+## l'écran, lui, disparaît tout de suite (la logique n'attend rien). Sans fenêtre (tests), rien.
+static func ghost_fade(from: Control, duration: float = 0.15) -> void:
+	if Settings.testing or DisplayServer.get_name() == "headless" or not from.is_inside_tree():
+		return
+	var img := from.get_viewport().get_texture().get_image()
+	if img == null or img.is_empty():
+		return
+	var layer := CanvasLayer.new()
+	layer.layer = 9
+	var ghost := TextureRect.new()
+	ghost.texture = ImageTexture.create_from_image(img)
+	ghost.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ghost.stretch_mode = TextureRect.STRETCH_SCALE
+	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	full_rect(ghost)
+	layer.add_child(ghost)
+	from.get_tree().root.add_child(layer)
+	var tw := ghost.create_tween()
+	tw.tween_property(ghost, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_QUAD)
+	tw.tween_callback(layer.queue_free)
 
 
 ## Apparition courte d'un panneau : fondu et léger grossissement (centré sur lui-même).

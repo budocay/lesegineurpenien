@@ -430,6 +430,13 @@ static func house(b, o: Dictionary) -> void:
 			MeshKit.quad(sst, Vector3(best - 0.58, sy + 0.55, z1 + 0.7), Vector3(best + 0.58, sy + 0.55, z1 + 0.7), Vector3(best + 0.58, sy - 0.4, z1 + 0.7), Vector3(best - 0.58, sy - 0.4, z1 + 0.7))
 			node.add_child(MeshKit.finish(sst, _double(stex), false))
 
+	# ---- jardinières sous les fenêtres et lierre d'angle, en volume
+	if not grobitte:
+		if bool(sp["flowers"]):
+			_planters(trim, sp, windows, x0, z1)
+		if bool(sp["ivy"]):
+			_ivy(node, sp, x0, x1, z1, wh, door_x >= 0.0, x0 + door_x, windows)
+
 	# ---- toutes les petites pièces, une maille par couleur
 	for hex: String in trim:
 		node.add_child(MeshKit.finish(trim[hex], _flat(Color.from_string(hex, Color.BLACK))))
@@ -461,6 +468,81 @@ static func house(b, o: Dictionary) -> void:
 			b._interactable(door_pos, o, "Examiner", null, 1.6)
 		else:
 			b.keep_clear.append(Vector2(xd, z1 + 0.6))
+
+
+## Jardinières qui dépassent sous les fenêtres du rez-de-chaussée : caisse de bois, terreau, touffes de
+## feuillage et fleurs en petits cubes, retombées sur le devant. Tirage stable (graine de la maison).
+static func _planters(trim: Dictionary, sp: Dictionary, windows: Array, x0: float, z1: float) -> void:
+	var sd: int = int(sp["seed"])
+	var blooms := ["#e86a7a", "#f2d55c", "#f4f0e2", "#b98ae0", "#ff9a3c"]
+	var pair: Array[String] = [blooms[sd % 5], blooms[(sd / 5 + 2) % 5]]
+	for wi in windows.size():
+		var xc := x0 + float(windows[wi])
+		var zc := z1 + 0.13
+		var wide := 0.76
+		_tb(trim, "#6e4c33", Vector3(xc, 0.93, zc), Vector3(wide, 0.2, 0.26))
+		_tb(trim, "#8c6644", Vector3(xc, 1.04, z1 + 0.02 + 0.13), Vector3(wide + 0.06, 0.04, 0.3))
+		_tb(trim, "#3a2a1e", Vector3(xc, 1.06, zc), Vector3(wide - 0.06, 0.03, 0.2))
+		_tb(trim, "#3c281c", Vector3(xc - wide * 0.5 + 0.04, 0.78, z1 + 0.05), Vector3(0.05, 0.1, 0.07))
+		_tb(trim, "#3c281c", Vector3(xc + wide * 0.5 - 0.04, 0.78, z1 + 0.05), Vector3(0.05, 0.1, 0.07))
+		var n := 7
+		for k in n:
+			var fx := xc - wide * 0.5 + 0.07 + (wide - 0.14) * float(k) / float(n - 1)
+			var hgt := 0.1 + 0.1 * PA.rnd(k, wi, sd + 3)
+			var gh: String = ["#3f7d43", "#4f9148", "#2f5a34"][int(PA.rnd(k, wi, sd + 4) * 3.0) % 3]
+			_tb(trim, gh, Vector3(fx, 1.08 + hgt * 0.5, zc + (PA.rnd(k, wi, sd + 5) - 0.5) * 0.08), Vector3(0.12, hgt, 0.13))
+			if PA.rnd(k, wi, sd + 6) < 0.65:
+				_tb(trim, pair[(k + wi) % 2], Vector3(fx + 0.01, 1.08 + hgt + 0.03, zc + 0.02), Vector3(0.08, 0.07, 0.09))
+			if k % 2 == 0:
+				# feuillage retombant sur le devant de la caisse
+				_tb(trim, "#3f7d43", Vector3(fx, 0.97, zc + 0.14), Vector3(0.09, 0.16 + 0.06 * PA.rnd(k, wi, sd + 7), 0.04))
+
+
+## Lierre qui grimpe sur un angle de la façade : trois cartes à transparence franche, de plus en plus
+## décollées du mur (la plus haute et la plus étroite en avant), plus quelques rameaux pendants. Pas
+## d'angle de porte : le côté est tiré de la graine puis, si une porte ou une fenêtre est trop proche,
+## on prend l'autre angle.
+static func _ivy(node: Node3D, sp: Dictionary, x0: float, x1: float, z1: float, wh: float, has_door: bool, xd: float, windows: Array) -> void:
+	var sd: int = int(sp["seed"])
+	var left := sd % 2 == 0
+	var ivy_w := 1.1
+	var near := func(xc: float) -> bool:
+		if has_door and absf(xc - xd) < 1.5:
+			return true
+		for wv: Variant in windows:
+			if absf(xc - (x0 + float(wv))) < 0.75:
+				return true
+		return false
+	if near.call(x0 + 0.45 if left else x1 - 0.45):
+		left = not left
+	if near.call(x0 + 0.45 if left else x1 - 0.45):
+		return
+	var height := wh * (0.62 + 0.28 * PA.rnd(sd, 31, 5))
+	var key := "hiv:%d:%d" % [sd, int(left)]
+	var texs: Array = Sprites.cached(key, func() -> Array:
+		var out: Array = []
+		for layer in 2:
+			out.append(PA.texture(HP.ivy_card(int(ivy_w * 24.0) - (4 if layer == 1 else 0), int(height * 24.0) - (24 if layer == 1 else 0), layer, sd + layer * 11)))
+		return out)
+	var xa := x0 + 0.02 if left else x1 - 0.02 - ivy_w
+	for layer in 2:
+		var st := MeshKit.begin()
+		var wl := ivy_w - (0.17 if layer == 1 else 0.0)
+		var hl := height - (1.0 if layer == 1 else 0.0)
+		var xs := xa + (0.0 if left else (ivy_w - wl))
+		var zt := z1 + (0.05 if layer == 0 else 0.07)
+		var zb := z1 + (0.05 if layer == 0 else 0.17)   # la couche avant s'écarte du mur par le bas
+		MeshKit.quad(st, Vector3(xs, hl, zt), Vector3(xs + wl, hl, zt), Vector3(xs + wl, 0.0, zb), Vector3(xs, 0.0, zb))
+		var mi := MeshKit.finish(st, _leaf_material(texs[layer]))
+		node.add_child(mi)
+
+
+static func _leaf_material(tex: Texture2D) -> StandardMaterial3D:
+	var m := MeshKit.pixel_material(tex)
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	return m
 
 
 ## Tonneau, caisses ou fleurs au pied du mur, à l'écart de la porte ; sans tirage aléatoire du constructeur.

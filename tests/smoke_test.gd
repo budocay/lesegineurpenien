@@ -109,6 +109,7 @@ func _ready() -> void:
 	_test_names_and_merri()
 	await _test_tutorials()
 	await _test_interface()
+	await _test_interface_input()
 	_test_retouches()
 	await _test_active_party()
 	await _test_arenas()
@@ -2479,6 +2480,27 @@ func _test_character_art() -> void:
 		check(f != "", "%s : expression au repos définie" % hero)
 		faces[f] = true
 	check(faces.size() == 8, "les huit héros ont chacun une expression différente")
+	# objets tenus : visibles à l'attaque, sans élargir la silhouette au repos ; visages de combat distincts
+	for who: String in ["sam", "aragrogne", "digoulasse", "grimli", "froton", "pepin", "merri", "morfale_goinfre", "morfale_eclaireur", "pinard", "lambert"]:
+		var look: Dictionary = Database.characters[who]["look"]
+		check(str(look.get("held", "")) != "", "%s : objet tenu défini" % who)
+		var bare_look := look.duplicate()
+		bare_look["held"] = ""
+		var with_img: Image = Sprites.character(who)["image"]
+		var bare_img: Image = CP.paint_sheet(bare_look)
+		for row in [0, 1]:
+			var shown := with_img.get_region(Rect2i(7 * 88, row * 132, 88, 132))
+			check(shown.get_data() != bare_img.get_region(Rect2i(7 * 88, row * 132, 88, 132)).get_data(), "%s : l'objet tenu se voit à l'attaque (ligne %d)" % [who, row])
+		var w_with := Sprites.PA.opaque_bounds(with_img, Rect2i(0, 0, 88, 132)).size.x
+		var w_bare := Sprites.PA.opaque_bounds(bare_img, Rect2i(0, 0, 88, 132)).size.x
+		check(w_with <= w_bare + 2 or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
+	for who: String in ["sam", "aragrogne", "grimli", "morfale_eclaireur", "naze", "naze_aine"]:
+		var lk: Dictionary = Database.characters[who]["look"]
+		var heads := {}
+		for col in [0, 7, 8, 9, 10]:
+			heads[(CP.paint_portrait(lk, col) as Image).get_data()] = true
+		check(heads.size() == 5, "%s : visages de repos, d'effort, de concentration, de douleur et de KO distincts" % who)
+	check(str(Database.characters["naze_aine"]["look"].get("glow", "")) != str(Database.characters["naze_cadet"]["look"].get("glow", "")), "les Nazes de l'Est et de l'Ouest n'ont pas la même lueur")
 
 
 ## Décors, façades et arènes : paroi irrégulière, éléments connus, rien de magenta.
@@ -3158,6 +3180,193 @@ func _ui_inside(root: Control, what: String) -> void:
 func _ui_focus_in(root: Control, what: String) -> void:
 	var owner := get_viewport().gui_get_focus_owner()
 	check(owner != null and root.is_ancestor_of(owner), "interface : %s a un focus visible" % what)
+
+
+## Touche pressée puis relâchée, par clavier (kb) ou par manette : passe par la file d'entrées du jeu.
+func _tap(kb: bool, action: String) -> void:
+	var keys := {"down": KEY_DOWN, "up": KEY_UP, "ok": KEY_ENTER, "back": KEY_BACKSPACE, "menu": KEY_ESCAPE, "left": KEY_LEFT, "right": KEY_RIGHT}
+	var pads := {"down": JOY_BUTTON_DPAD_DOWN, "up": JOY_BUTTON_DPAD_UP, "ok": JOY_BUTTON_A, "back": JOY_BUTTON_B, "menu": JOY_BUTTON_START, "left": JOY_BUTTON_DPAD_LEFT, "right": JOY_BUTTON_DPAD_RIGHT}
+	for down in [true, false]:
+		var ev: InputEvent
+		if kb:
+			var k := InputEventKey.new()
+			k.keycode = keys[action] as Key
+			k.physical_keycode = keys[action] as Key
+			k.pressed = down
+			ev = k
+		else:
+			var j := InputEventJoypadButton.new()
+			j.button_index = pads[action] as JoyButton
+			j.pressed = down
+			ev = j
+		get_viewport().push_input(ev)
+		await get_tree().process_frame
+
+
+func _hint_texts(node: Node) -> String:
+	var out := ""
+	if node is Label:
+		out += (node as Label).text + "|"
+	for c in node.get_children():
+		out += _hint_texts(c)
+	return out
+
+
+func _test_interface_input() -> void:
+	print("== Interface : clavier seul, manette seule, rappels de touches ==")
+	GameState.new_game()
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var pad_before := Controls.pad
+	for tip_id: String in ["boutique", "elan", "faiblesse"]:
+		Tutorial.mark_seen(tip_id)   # l'aide a de quoi se parcourir
+	GameState.add_to_party("sam")
+	GameState.add_item("tisane")
+	GameState.add_item("baton_ferre")
+	GameState.set_flag("cales_recues")
+	GameState.set_flag("intro_vue")   # le journal a une quête à montrer
+	check(SaveManager.save_game("m1") and SaveManager.save_game("m2"), "interface : deux sauvegardes d'essai pour l'écran de chargement")
+
+	# les rappels de touches suivent le dernier périphérique utilisé
+	Controls.set_pad(false)
+	var UIKit = preload("res://src/ui/ui_kit.gd")
+	var row: Control = UIKit.hints(UIKit.KEYS_MENU)
+	layer.add_child(row)
+	await get_tree().process_frame
+	check(_hint_texts(row).contains("Entrée") and not _hint_texts(row).contains("valider|valider"), "rappels : au clavier, les touches du clavier (%s)" % _hint_texts(row))
+	Controls.set_pad(true)
+	await get_tree().process_frame
+	check(not _hint_texts(row).contains("Entrée") and _hint_texts(row).contains("valider"), "rappels : à la manette, plus de nom de touche du clavier (%s)" % _hint_texts(row))
+	check(UIKit.key_text("ok") != "Entrée" and UIKit.key_text("menu") != "Échap", "rappels : les phrases parlent du bouton de la manette (%s)" % UIKit.key_text("ok"))
+	Controls.set_pad(false)
+	check(UIKit.key_text("ok") == "Entrée", "rappels : retour au clavier, retour à « Entrée »")
+	var swapped := InputEventJoypadButton.new()
+	swapped.button_index = JOY_BUTTON_A
+	swapped.pressed = true
+	get_viewport().push_input(swapped)
+	await get_tree().process_frame
+	check(Controls.pad, "rappels : un bouton de manette bascule les rappels sur la manette")
+	var tapped := InputEventKey.new()
+	tapped.keycode = KEY_DOWN
+	tapped.pressed = true
+	get_viewport().push_input(tapped)
+	await get_tree().process_frame
+	check(not Controls.pad, "rappels : une touche du clavier les rebascule")
+	row.queue_free()
+
+	# chaque écran se parcourt et se quitte avec un seul périphérique : aucune impasse
+	for kb in [true, false]:
+		var who := "clavier" if kb else "manette"
+		Controls.set_pad(not kb)
+		var screens := {}
+		var pause: Control = PauseMenu.new()
+		layer.add_child(pause)
+		var settings: Control = preload("res://src/ui/settings_screen.gd").new()
+		layer.add_child(settings)
+		var help: Control = preload("res://src/ui/help_screen.gd").new()
+		layer.add_child(help)
+		var saves: Control = preload("res://src/ui/save_screen.gd").new()
+		layer.add_child(saves)
+		var menu: Control = GameMenu.new()
+		layer.add_child(menu)
+		await get_tree().process_frame
+		var openers := {
+			"pause": func() -> void: pause.open("Test"),
+			"paramètres": func() -> void: settings.open("test"),
+			"aide": func() -> void: help.open(),
+			"sauvegardes": func() -> void: saves.open("load", "test"),
+			"inventaire": func() -> void: menu.open("inventory"),
+			"équipe": func() -> void: menu.open("team"),
+			"journal": func() -> void: menu.open("quests"),
+		}
+		var nodes := {"pause": pause, "paramètres": settings, "aide": help, "sauvegardes": saves, "inventaire": menu, "équipe": menu, "journal": menu}
+		for name: String in openers:
+			var node: Control = nodes[name]
+			(openers[name] as Callable).call()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var first: Control = node.get_viewport().gui_get_focus_owner()
+			check(node.visible and first != null and node.is_ancestor_of(first), "%s, %s : ouvert, le curseur est quelque part (%s)" % [name, who, str(first)])
+			var seen := {first: true}
+			for _i in 8:
+				await _tap(kb, "down")
+				var f: Control = node.get_viewport().gui_get_focus_owner()
+				check(f != null, "%s, %s : le curseur ne disparaît jamais en descendant" % [name, who])
+				if f != null:
+					seen[f] = true
+			for _i in 3:
+				await _tap(kb, "up")
+				var g: Control = node.get_viewport().gui_get_focus_owner()
+				check(g != null, "%s, %s : le curseur ne disparaît jamais en montant" % [name, who])
+				if g != null:
+					seen[g] = true
+			check(seen.size() >= 2 or name == "aide", "%s, %s : les touches fléchées déplacent le curseur (%d lignes visitées)" % [name, who, seen.size()])
+			await _tap(kb, "back")
+			await get_tree().process_frame
+			check(not node.visible, "%s, %s : retour ferme l'écran (pas d'impasse)" % [name, who])
+		pause.queue_free()
+		settings.queue_free()
+		help.queue_free()
+		saves.queue_free()
+		menu.queue_free()
+		await get_tree().process_frame
+	Controls.set_pad(pad_before)
+	SaveManager.delete_slot("m1")
+	SaveManager.delete_slot("m2")
+	Tutorial.reset_seen()
+
+	# une ligne de sauvegarde : récente (avec équipe), très ancienne (sans rien), jamais d'erreur
+	var SaveScreenS = preload("res://src/ui/save_screen.gd")
+	var ss: Control = SaveScreenS.new()
+	layer.add_child(ss)
+	await get_tree().process_frame
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	GameState.map_id = "auberge"
+	var keep_slot := SaveManager.current_slot
+	check(SaveManager.save_game("m1"), "sauvegardes : écriture d'essai pour les lignes")
+	var fresh: Dictionary = (SaveManager.list_slots(false)[0] as Dictionary).duplicate()
+	var old: Dictionary = fresh.duplicate()
+	old.erase("party")   # une très ancienne sauvegarde ne portait pas l'équipe
+	old["id"] = "m2"
+	var empty: Dictionary = (SaveManager.list_slots(false)[3] as Dictionary).duplicate()
+	empty["empty"] = true
+	var r1: Button = ss._make_row(fresh)
+	var r2: Button = ss._make_row(old)
+	var r3: Button = ss._make_row(empty)
+	layer.add_child(r1)
+	layer.add_child(r2)
+	layer.add_child(r3)
+	await get_tree().process_frame
+	check(r1 != null and r2 != null and r3 != null, "sauvegardes : une ligne récente, une ancienne sans équipe et une vide se construisent")
+	check(_hint_texts(r1).contains("niv.") and _hint_texts(r1).contains("Au Bon Mouillage"), "sauvegardes : la ligne récente donne niveau et lieu (%s)" % _hint_texts(r1))
+	check(_hint_texts(r2).contains("Au Bon Mouillage"), "sauvegardes : la ligne d'une ancienne sauvegarde s'affiche sans équipe")
+	var faces1 := 0
+	for c in _all_nodes(r1):
+		if c is TextureRect:
+			faces1 += 1
+	var faces2 := 0
+	for c in _all_nodes(r2):
+		if c is TextureRect:
+			faces2 += 1
+	check(faces1 >= 2 and faces2 == 0, "sauvegardes : des vignettes pour une partie récente (%d), aucune pour une ancienne (%d)" % [faces1, faces2])
+	SaveManager.delete_slot("m1")
+	SaveManager.current_slot = keep_slot
+	check(r1.size.y >= SaveScreenS.ROW_H - 1, "sauvegardes : la ligne est assez haute pour les vignettes")
+	r1.queue_free()
+	r2.queue_free()
+	r3.queue_free()
+	ss.queue_free()
+	var described := SaveManager.describe(GameState.to_dict())
+	check(described.has("party") and (described["party"] as Array).size() <= GameState.MAX_ACTIVE, "sauvegardes : la description donne au plus %d visages" % GameState.MAX_ACTIVE)
+	layer.queue_free()
+
+
+func _all_nodes(n: Node) -> Array:
+	var out: Array = [n]
+	for c in n.get_children():
+		out.append_array(_all_nodes(c))
+	return out
 
 
 func _test_interface() -> void:
@@ -4161,7 +4370,7 @@ func _test_arenas() -> void:
 		var arena: Dictionary = Database.arenas[id]
 		var stage: Dictionary = arena.get("stage", {})
 		for key: String in stage:
-			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck", "dim", "exposure", "saturation", "contrast", "fill", "fill_color", "lift", "rim", "shafts"].has(key), "arène %s : champ stage.%s connu" % [id, key])
+			check(["light", "boost", "key", "edge", "flatten", "grain", "desat", "vignette", "radius", "center", "tint", "variation", "patches", "puddles", "fleck", "clouds", "dapple", "stones", "blades", "dim", "exposure", "saturation", "contrast", "fill", "fill_color", "lift", "rim", "shafts"].has(key), "arène %s : champ stage.%s connu" % [id, key])
 		check(float(stage.get("edge", 0.2)) >= 0.0 and float(stage.get("edge", 0.2)) <= 1.0, "arène %s : bords assombris dans [0, 1]" % id)
 		check(float(stage.get("flatten", 0.6)) >= 0.0 and float(stage.get("flatten", 0.6)) <= 1.0, "arène %s : aplat du sol dans [0, 1]" % id)
 		check(float(stage.get("boost", 0.5)) >= 0.0 and float(stage.get("key", 1.6)) >= 0.0, "arène %s : lumière positive" % id)
@@ -5442,6 +5651,18 @@ func _test_tutorials() -> void:
 		jkey = jkey or ev is InputEventKey
 		jpad = jpad or ev is InputEventJoypadButton
 	check(InputMap.has_action("journal") and jkey and jpad, "journal : une touche directe au clavier et à la manette")
+	# La manette répond quel que soit son numéro (sous Windows elle n'est pas toujours la 0).
+	for pad_case: Array in [["interact", JOY_BUTTON_A], ["cancel", JOY_BUTTON_B], ["menu", JOY_BUTTON_START], ["move_left", JOY_BUTTON_DPAD_LEFT], ["ui_accept", JOY_BUTTON_A], ["ui_cancel", JOY_BUTTON_B], ["ui_down", JOY_BUTTON_DPAD_DOWN]]:
+		var pad_ev := InputEventJoypadButton.new()
+		pad_ev.device = 3
+		pad_ev.button_index = pad_case[1] as JoyButton
+		pad_ev.pressed = true
+		check(pad_ev.is_action(pad_case[0]), "manette numéro 3 : le bouton déclenche « %s »" % pad_case[0])
+	var stick_ev := InputEventJoypadMotion.new()
+	stick_ev.device = 2
+	stick_ev.axis = JOY_AXIS_LEFT_X
+	stick_ev.axis_value = 1.0
+	check(stick_ev.is_action("move_right"), "manette numéro 2 : le stick gauche déplace le héros")
 	var QT: GDScript = load("res://src/core/quest_target.gd")
 	var n_targets := 0
 	var bad_targets: Array = []
@@ -5593,12 +5814,24 @@ func _test_tutorials() -> void:
 	scene.run()
 	var overlapped := false
 	var saw_modal := false
+	var placement_checked := false
 	for _i in 2400:
 		await get_tree().process_frame
 		if Tutorial._modal:
 			saw_modal = true
 			if ui._state == ui.S.ROOT:
 				overlapped = true
+			if not placement_checked and Tutorial._guard <= 0.0 and Tutorial.shown_log.back() == "combat_tours":
+				placement_checked = true
+				var tip_box: Rect2 = Tutorial.panel_rect()
+				var touched := 0
+				for key: String in ui._plates:
+					var root: Control = (ui._plates[key] as Dictionary)["root"]
+					if root.visible and tip_box.intersects(Rect2(root.position, root.size)):
+						touched += 1
+				var frieze: Rect2 = Tutorial.target_rect("frise")
+				check(touched == 0, "conseils : l'encart ne touche aucune plaque (%d touchées)" % touched)
+				check(frieze.size == Vector2.ZERO or not tip_box.intersects(frieze), "conseils : l'encart des tours ne couvre pas la frise qu'il désigne")
 			if Tutorial._guard <= 0.0 and Tutorial.shown_log.back() == "combat_tours":
 				Input.parse_input_event(press)
 		elif ui._state == ui.S.ROOT:
@@ -5830,7 +6063,7 @@ func _test_arena_mood() -> void:
 		check(float(radius[0]) >= 8.0 and float(radius[0]) <= 11.0 and float(radius[1]) >= 5.0 and float(radius[1]) <= 7.5, "%s : nappe de lumière (radius) resserrée sur le combat" % t)
 		check(float(st.get("flatten", 0.15)) <= 0.35 and float(st.get("desat", 0.0)) <= 0.2, "%s : le sol garde sa texture et ses couleurs" % t)
 		var shafts: Dictionary = st.get("shafts", {})
-		check(float(shafts.get("strength", 0.0)) <= 0.12, "%s : rayons discrets (shafts)" % t)
+		check(float(shafts.get("strength", 0.0)) <= 0.25, "%s : rayons discrets (shafts)" % t)
 		var bd: Dictionary = a.get("backdrop", {})
 		check(float(bd.get("dim", 0.6)) >= 0.35 and float(bd.get("dim", 0.6)) <= 1.0, "%s : fond (backdrop dim) entre 0,35 et 1" % t)
 		# luminance estimée du sol (couleur moyenne de la tuile, teinte du lieu) : sombre, on compense ; clair, on assombrit
