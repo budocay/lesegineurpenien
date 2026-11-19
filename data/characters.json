@@ -10,7 +10,7 @@
 	"pinard": {"name": "Pinard", "full_name": "Mathurin Pinard, fermier", "look": {"build": "grand", "outfit": "tunique", "skin": "#dc9c74", "top": "#7a8a4a", "bottom": "#5a4a30", "belt": "#4a3a22", "hair": "#6a4a2a", "hair_style": "court", "hat": "chapeau_paille", "hat_color": "#d8c070", "held": "fourche"}},
 	"naze_aine": {"name": "Le Naze de l'Est", "full_name": "Un des Neuf Nazes, ancien roi de l'Est", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#2a1c26", "belt": "#a08a8a", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#1c1218", "glow": "#ff8a5a", "feet": "bottes", "boots": "#0c0a10"}},
 	"naze_cadet": {"name": "Le Naze de l'Ouest", "full_name": "Un des Neuf Nazes, ancien roi de l'Ouest", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c2430", "belt": "#8a9ab0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#121a24", "glow": "#9aff8a", "feet": "bottes", "boots": "#0c0a10"}},
-	"glandoulf": {,
+	"glandoulf": {
 		"name": "Glandoulf",
 		"full_name": "Glandoulf le Gris",
 		"role": "mage",
@@ -31,7 +31,7 @@
 			"item": "baton", "feet": "bottes", "boots": "#4a3a30"
 		}
 	},
-	"sam": {,
+	"sam": {
 		"name": "Sam Gamelle",
 		"role": "jardinier",
 		"branches": ["Poêle de Fer", "Cuistot de Campagne"],
@@ -50,7 +50,7 @@
 			"hat": "toque", "hat_color": "#f2ecdc", "held": "poele"
 		}
 	},
-	"froton": {,
+	"froton": {
 		"name": "Froton",
 		"full_name": "Froton Salfait",
 		"role": "voleur",
@@ -70,7 +70,7 @@
 			"item": "pipe", "held": "dague"
 		}
 	},
-	"pepin": {,
+	"pepin": {
 		"name": "Pépin Bontabac",
 		"role": "soigneur",
 		"branches": ["Herboriste", "Fumeur de Pipe"],
@@ -108,7 +108,7 @@
 			"feet": "bottes", "boots": "#3a2a20", "held": "rapiere"
 		}
 	},
-	"isidur": {,
+	"isidur": {
 		"name": "Isidur",
 		"full_name": "Isidur, roi du Gouda",
 		"role": "bretteur",
@@ -127,7 +127,7 @@
 			"feet": "bottes", "boots": "#3a2a24", "held": "epee"
 		}
 	},
-	"aragrogne": {,
+	"aragrogne": {
 		"name": "Aragrogne",
 		"full_name": "Aragrogne, rôdeur",
 		"role": "bretteur",
@@ -148,7 +148,7 @@
 			"feet": "bottes", "boots": "#2a221c", "held": "epee"
 		}
 	},
-	"digoulasse": {,
+	"digoulasse": {
 		"name": "Digoulasse",
 		"full_name": "Digoulasse, elfe de 2 900 ans",
 		"role": "archère",
@@ -167,7 +167,7 @@
 			"feet": "bottes", "boots": "#4a3a2a", "held": "arc"
 		}
 	},
-	"grimli": {,
+	"grimli": {
 		"name": "Grimli",
 		"full_name": "Grimli, naine de Morbier",
 		"role": "berserker",
@@ -187,7 +187,7 @@
 			"feet": "bottes", "boots": "#2a221c", "held": "hache"
 		}
 	},
-	"sauron": {,
+	"sauron": {
 		"name": "Sauron",
 		"full_name": "Sauron, porteur de l'anneau",
 		"look": {"crest": "cornes", 
@@ -198,7 +198,7 @@
 			"feet": "bottes", "boots": "#17131c"
 		}
 	},
-	"gedeon": {,
+	"gedeon": {
 		"name": "Maître Gédéon",
 		"full_name": "Gédéon Durondin, Maître des Amarres",
 		"look": {
@@ -209,7 +209,7 @@
 			"hat": "casquette", "hat_color": "#24344e"
 		}
 	},
-	"titou": {,
+	"titou": {
 		"name": "Titou",
 		"full_name": "Titou Rondelet",
 		"look": {
@@ -218,7 +218,7 @@
 			"hair": "#d8b45a", "hair_style": "boucles"
 		}
 	},
-	"meme_louchette": {,
+	"meme_louchette": {
 		"name": "Mémé Louchette",
 		"look": {
 			"build": "petit", "outfit": "jupe", "skin": "#e4b596",
@@ -227,7 +227,7 @@
 			"hat": "foulard", "hat_color": "#b0483c", "held": "balai"
 		}
 	},
-	"anselme": {,
+	"anselme": {
 		"name": "Anselme",
 		"full_name": "Anselme Courtepatte, garde-barrière",
 		"look": {
@@ -238,7 +238,7 @@
 			"hat": "casquette", "hat_color": "#4a5a34", "held": "balai"
 		}
 	},
-	"berthe": {,
+	"berthe": {
 		"name": "Berthe",
 		"full_name": "Berthe Tirebouchon, aubergiste du Bon Mouillage",
 		"look": {
@@ -247,7 +247,7 @@
 			"hair": "#6a3a2a", "hair_style": "chignon"
 		}
 	},
-	"odilon": {,
+	"odilon": {
 		"name": "Odilon",
 		"full_name": "Odilon Bonnepâte, tailleur de bittes",
 		"look": {
@@ -257,7 +257,7 @@
 			"beard": "courte", "beard_color": "#a8a8ae"
 		}
 	},
-	"ursule": {,
+	"ursule": {
 		"name": "Ursule",
 		"full_name": "Ursule Bonpoids, marchande du quai",
 		"look": {"build": "petit", "outfit": "tablier", "skin": "#e6b08c", "top": "#3f6e62", "bottom": "#5a4636", "belt": "#c9a24a", "hair": "#3a2a22", "hair_style": "boucles", "hat": "chapeau_paille", "hat_color": "#d8c07a", "band": "#a8483c"}

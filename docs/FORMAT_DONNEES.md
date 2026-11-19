@@ -1227,7 +1227,6 @@ Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale a
 doré). La touche `journal` (J au clavier, Y à la manette) ouvre le journal de quêtes directement ;
 elle est rappelée par le rappel et par le conseil « journal ».
 
-<<<<<<< HEAD
 ## Styles du chapitre 6 (Minas Tartine, Sentier, Port-Salé, Pelle-à-Tarte)
 
 Quatre styles d'architecture, choisis par le champ `style` d'une carte, servis par un seul
