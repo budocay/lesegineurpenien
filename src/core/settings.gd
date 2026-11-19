@@ -260,6 +260,8 @@ func value_label(id: String) -> String:
 
 func help(id: String) -> String:
 	var text := str(HELP.get(id, ""))
+	if Controls.pad:
+		text = text.replace(" La touche F bascule aussi.", "")   # une touche du clavier ne dit rien à la manette
 	var note := _note(id)
 	return text if note == "" else text + "  (" + note + ")"
 

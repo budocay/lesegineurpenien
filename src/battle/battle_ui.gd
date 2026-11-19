@@ -907,7 +907,7 @@ func announce(text: String, duration: float = 1.4) -> void:
 
 func show_hint(text: String) -> void:
 	_hint.visible = text != ""
-	_hint_label.text = text
+	_hint_label.text = Tutorial.expand(text)   # {interact}, {cancel} : touches du clavier ou de la manette
 	_hint.reset_size()
 
 

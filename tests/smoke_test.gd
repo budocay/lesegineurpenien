@@ -6654,6 +6654,14 @@ func _stick(axis: int, value: float, hold: int = 2, release: bool = true) -> voi
 		await get_tree().process_frame
 
 
+func _focus_label(f: Control) -> String:
+	if f.has_meta("label"):
+		return str(f.get_meta("label"))
+	if f is Button:
+		return (f as Button).text
+	return str(f.name)
+
+
 func _focus_name() -> String:
 	var f := get_viewport().gui_get_focus_owner()
 	if f == null:
@@ -7043,6 +7051,40 @@ func _test_pad_leave(main: Node) -> void:
 	print("== Manette seule : confirmations, titre, continuer, charger ==")
 	SaveManager.save_game("m2")
 	await _pb(JOY_BUTTON_START)
+	await _pad_to("Reprendre")
+	# stick : zone morte, un cran à la fois, répétition régulière tenu, relâché il s'arrête
+	var names: Array = []
+	var list_ctl: Control = get_viewport().gui_get_focus_owner().get_parent()
+	for c in list_ctl.get_children():
+		if c is Button and c.focus_mode != Control.FOCUS_NONE:
+			names.append(_focus_label(c))
+	var start := _focus_name()
+	await _stick(JOY_AXIS_LEFT_Y, 0.2, 6)   # sous la zone morte : rien
+	check(_focus_name() == start, "stick : sous la zone morte, rien ne bouge (%s)" % _focus_name())
+	await _stick(JOY_AXIS_LEFT_Y, 0.9, 3)   # appui bref : un seul cran
+	var one := _focus_name()
+	check(names.find(one) == (names.find(start) + 1) % names.size(), "stick : un appui bref avance d'un seul cran (%s -> %s)" % [start, one])
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 1)
+	var moves := 0
+	var prev := _focus_name()
+	var big_jump := false
+	await _stick(JOY_AXIS_LEFT_Y, 0.9, 0, false)
+	for _i in 90:   # une seconde et demie tenue
+		await get_tree().process_frame
+		var now := _focus_name()
+		if now != prev:
+			moves += 1
+			if (names.find(now) - names.find(prev) + names.size()) % names.size() != 1:
+				big_jump = true
+			prev = now
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 2)
+	var at_release := _focus_name()
+	for _i in 30:
+		await get_tree().process_frame
+	check(not big_jump, "stick : tenu, il ne saute jamais deux lignes à la fois")
+	check(moves >= 1 and moves <= 12, "stick : tenu, répétition régulière sans emballement (%d crans en 1,5 s)" % moves)
+	check(_focus_name() == at_release, "stick : relâché, il s'arrête net")
+	await _pad_to("Reprendre")
 	check(await _pad_to("Quitter le jeu"), "pause : « Quitter le jeu » à la croix (%s)" % _focus_name())
 	check(main.pause.quit_requested.is_connected(main._on_pause_quit), "pause : « Quitter le jeu » passe par la confirmation")
 	await _pb(JOY_BUTTON_A)
@@ -7263,6 +7305,21 @@ func _test_gamepad_full() -> void:
 	main.queue_free()
 	await get_tree().process_frame
 	await _test_pad_battle()
+	# fichier de sauvegarde plein d'octets nuls : lecture sans message ni plantage
+	var nul := PackedByteArray([123, 0, 0, 0, 125])
+	var nf := FileAccess.open(SaveManager.slot_path("nul_test"), FileAccess.WRITE)
+	nf.store_buffer(nul)
+	nf.close()
+	check(SaveManager._read_file(SaveManager.slot_path("nul_test")).is_empty(), "sauvegarde : un fichier à octets nuls se lit comme vide")
+	DirAccess.remove_absolute(SaveManager.slot_path("nul_test"))
+	# textes d'aide : jamais de nom de touche du clavier quand la manette est active
+	Controls.set_pad(true)
+	var hints_txt := Tutorial.expand("avec {interact}, {cancel} annule")
+	check(hints_txt == "avec A, B annule", "aide : les indications du combat parlent des boutons de la manette (%s)" % hints_txt)
+	check(not Settings.help("mode").contains("touche F"), "aide : pas de « touche F » à la manette")
+	Controls.set_pad(false)
+	check(not Tutorial.expand("{interact}").contains("A"), "aide : au clavier, une touche (%s)" % Tutorial.expand("{interact}"))
+	check(Settings.help("mode").contains("touche F"), "aide : au clavier, « touche F » reste")
 	Controls.set_pad(pad_before)
 	await get_tree().process_frame
 	Controls.set_pad(pad_before)
