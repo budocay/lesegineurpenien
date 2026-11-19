@@ -1641,6 +1641,8 @@ func show_defeat(before_slot: String = "") -> String:
 		_end_button(box, "Revenir avant le combat", "before")
 	var load_btn := _end_button(box, "Charger une sauvegarde", "load")
 	load_btn.disabled = not SaveManager.has_save() or save_screen == null
+	if load_btn.disabled:
+		load_btn.focus_mode = Control.FOCUS_NONE   # une ligne grisée ne reçoit pas le curseur
 	_end_button(box, "Retour à l'écran-titre", "title")
 	retry.grab_focus.call_deferred()
 	var value := ""

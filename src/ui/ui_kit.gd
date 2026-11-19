@@ -652,7 +652,7 @@ static func band_button(text: String, size: int = 22, help: String = "", right: 
 	var base_h := font().get_height(size) + 12.0
 	b.custom_minimum_size = Vector2(width, base_h)
 	b.draw.connect(func() -> void:
-		var focused := b.has_focus() and not b.disabled
+		var focused := b.has_focus()   # une ligne grisée garde son curseur : à la croix, il ne disparaît jamais
 		var ink := GOLD if focused else (INK if not b.disabled else Color(0.6, 0.58, 0.55, 0.5))
 		b.draw_string(font(), Vector2(26.0, 6.0 + font().get_ascent(size)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, ink)
 		if focused:
@@ -720,7 +720,7 @@ static func icon_band_button(text: String, size: int = 22, help: String = "", ri
 	var base_h := font().get_height(size) + 6.0
 	b.custom_minimum_size = Vector2(width, base_h)
 	b.draw.connect(func() -> void:
-		var focused := b.has_focus() and not b.disabled
+		var focused := b.has_focus()   # une ligne grisée garde son curseur : à la croix, il ne disparaît jamais
 		var ink := GOLD if focused else (INK if not b.disabled else Color(0.6, 0.58, 0.55, 0.5))
 		var tint := Color.WHITE if not b.disabled else Color(1, 1, 1, 0.4)
 		if icon != null:
