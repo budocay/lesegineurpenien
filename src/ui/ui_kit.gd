@@ -75,7 +75,7 @@ static func font_caps() -> Font:
 	return v
 
 
-static func label(text: String, size: int, color: Color = INK, bold: bool = false, italic: bool = false) -> Label:
+static func label(text: String, size: int, color: Color = INK, bold: bool = false, italic: bool = false, room: bool = false) -> Label:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_override("font", font(bold, italic))
@@ -84,12 +84,18 @@ static func label(text: String, size: int, color: Color = INK, bold: bool = fals
 	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
 	l.add_theme_constant_override("shadow_offset_x", 1)
 	l.add_theme_constant_override("shadow_offset_y", 1)
-	# Les capitales accentuées (É È À Ô) dépassent le haut de la ligne de 1 à 7 px : une marge les garde
-	# dans la case de l'étiquette, donc hors d'atteinte d'un cadre qui découpe (liste défilante).
-	var room := StyleBoxEmpty.new()
-	room.content_margin_top = ceilf(size * 0.1) + 1.0
-	l.add_theme_stylebox_override("normal", room)
+	if room:
+		accent_room(l, size)
 	return l
+
+
+## Les capitales accentuées (É È À Ô) dépassent le haut de la ligne de 1 à 7 px : cette marge les garde dans la
+## case de l'étiquette. À donner aux textes d'un cadre qui découpe (liste défilante) ; ailleurs elle décalerait
+## la mise en page pour rien (« room » de label).
+static func accent_room(l: Label, size: int) -> void:
+	var margin := StyleBoxEmpty.new()
+	margin.content_margin_top = ceilf(size * 0.1) + 1.0
+	l.add_theme_stylebox_override("normal", margin)
 
 
 ## Étiquette en petites capitales espacées (le texte passe en majuscules).
