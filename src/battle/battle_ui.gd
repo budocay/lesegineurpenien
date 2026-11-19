@@ -68,6 +68,7 @@ var _list_pos := Vector2.ZERO
 var _timeline: HBoxContainer      # frise des tours : actif, cinq suivants, « Ensuite », cinq autres
 var _frieze_bg: Texture2D            # fond de la frise des tours
 var _tl_gap: Label                # étiquette de la seconde frise
+const PLATE_NAME_MAX := 22   # un nom plus long perd son titre sur la plaque (plate_name)
 var _turn_tag: PanelContainer
 var _turn_label: Label
 var _top: VBoxContainer
@@ -88,6 +89,7 @@ var _list_title: Label
 var _list_items: VBoxContainer
 var _list_desc: Label
 var _overlay: Control
+var _warn: Dictionary = {}    # clé -> triangle rouge au-dessus d'un ennemi qui prépare un coup annoncé
 var _plates: Dictionary = {}  # clé -> {root, chips, name, bar}
 var _cursors: Array[Node2D] = []   # mains qui désignent les cibles
 var _elan_commit := 0               # points d'élan engagés pour l'action en cours de choix
@@ -142,7 +144,9 @@ func _ready() -> void:
 	# cartouche du nom de l'action et conseils, en haut au centre
 	_top = VBoxContainer.new()
 	_top.anchor_left = 0.0
+	_top.offset_left = RIBBON_LEFT   # (ni sur la vignette « Tour N » qui pend sous la frise)
 	_top.anchor_right = 1.0
+	_top.offset_right = -(CARD_W + CARDS_RIGHT + 14.0)   # (le bandeau se centre à gauche des fiches de l'équipe : jamais dessus)
 	_top.offset_top = 92.0
 	_top.add_theme_constant_override("separation", 10)
 	_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -311,6 +315,7 @@ func close() -> void:
 		c.queue_free()
 	_rows = {}
 	_plates = {}
+	_warn = {}
 	_cursors = []
 	_elan_commit = 0
 
@@ -426,6 +431,19 @@ func _chip(text: String, color: Color, size: int = 14) -> PanelContainer:
 
 
 ## Sous l'ennemi : états et faiblesses connues, son nom, et (en visant) sa jauge de PV.
+## Nom sur la plaque d'un ennemi : sans titre (« Saumure, capitaine des Boucaniers » -> « Saumure »), en gardant
+## la lettre qui distingue des jumeaux (« Gros Gobelardon, contremaître du camp B » -> « Gros Gobelardon B ») : les
+## plaques restent compactes, donc alignées proprement sous leur ennemi.
+static func plate_name(full: String) -> String:
+	if full.length() <= PLATE_NAME_MAX or not full.contains(","):
+		return full
+	var head := full.get_slice(",", 0).strip_edges()
+	var tail := full.get_slice(" ", full.get_slice_count(" ") - 1)
+	if tail.length() == 1 and tail == tail.to_upper() and tail != head.get_slice(" ", head.get_slice_count(" ") - 1):
+		return head + " " + tail
+	return head
+
+
 func _make_plate(c: RefCounted) -> Dictionary:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 2)
@@ -436,7 +454,8 @@ func _make_plate(c: RefCounted) -> Dictionary:
 	chips.add_theme_constant_override("separation", 3)
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(chips)
-	var name_label := UI.label(str(c.name), 17 if str(c.name).length() <= 18 else 14, UI.INK, true)
+	var shown := plate_name(str(c.name))
+	var name_label := UI.label(shown, 17 if shown.length() <= 18 else 14, UI.INK, true)
 	name_label.add_theme_constant_override("outline_size", 4)
 	name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.07, 0.9))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -894,11 +913,66 @@ func shatter(at: Vector2) -> void:
 		tw.chain().tween_callback(shard.queue_free)
 
 
+const RIBBON_LEFT := 128.0   # le bandeau d'annonce commence à droite de la vignette « Tour N »
+const RIBBON_SIZES := [22, 20, 18]   # tailles essayées pour le bandeau d'annonce : deux lignes au plus
+const RIBBON_LINES := 2
+
+
+## Largeur laissée au bandeau d'annonce : de la marge gauche aux fiches de l'équipe.
+static func ribbon_room(view_w: float) -> float:
+	return view_w - (CARD_W + CARDS_RIGHT + 14.0) - RIBBON_LEFT - 24.0 - 52.0
+
+
+## Taille de police du bandeau pour que « text » tienne sur RIBBON_LINES lignes dans « room » (la plus petite
+## si aucune ne convient : voir le test des textes d'ouverture) et le nombre de lignes obtenu.
+static func ribbon_fit(text: String, room: float) -> Array:
+	var font := UI.font()
+	var fs := int(RIBBON_SIZES[RIBBON_SIZES.size() - 1])
+	var lines := 99
+	for size_try: int in RIBBON_SIZES:
+		fs = size_try
+		lines = int(round(font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, room, fs).y / float(font.get_height(fs))))
+		if lines <= RIBBON_LINES:
+			break
+	return [fs, lines]
+
+
+## Triangle rouge qui palpite au-dessus de tout ennemi dont le gros coup tombe à son prochain tour
+## (`next_skill` ou état « annonce »).
+func _update_warn() -> void:
+	for c: RefCounted in engine.enemies:
+		var on: bool = c.alive() and (str(c.next_skill) != "" or c.has_status("annonce")) and not scene.fast
+		var icon: TextureRect = _warn.get(c.key)
+		if icon == null or not is_instance_valid(icon):
+			if not on:
+				continue
+			icon = TextureRect.new()
+			icon.texture = Sprites.icon("annonce")
+			icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_SCALE
+			icon.custom_minimum_size = Vector2(48.0, 48.0)
+			icon.size = Vector2(48.0, 48.0)
+			icon.pivot_offset = Vector2(24.0, 40.0)
+			_overlay.add_child(icon)
+			_warn[c.key] = icon
+		icon.visible = on
+		if on:
+			var top: Vector2 = scene.screen_point(c, "top")
+			var pulse := 1.0 + 0.14 * sin(_time * 7.0)
+			icon.scale = Vector2(pulse, pulse)
+			icon.position = Vector2(top.x - 24.0, maxf(top.y - 60.0, 178.0))
+
+
 func announce(text: String, duration: float = 1.4) -> void:
 	_ribbon_label.text = text
-	# un texte long passe à la ligne plutôt que de déborder sous les fiches de l'équipe (le bandeau est centré)
+	# un texte long passe à la ligne (deux lignes au plus, quitte à réduire un peu la police) plutôt que de
+	# déborder sous les fiches de l'équipe
 	var view := size if size.x > 0.0 else Vector2(1280, 720)
-	var room := view.x - 2.0 * (CARDS_RIGHT + CARD_W + 14.0) - 52.0
+	var room := ribbon_room(view.x)
+	var fit := ribbon_fit(text, room)
+	_ribbon_label.add_theme_font_size_override("font_size", int(fit[0]))
 	_ribbon_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_ribbon_label.custom_minimum_size = Vector2.ZERO
 	var natural := _ribbon_label.get_minimum_size().x
@@ -1319,6 +1393,7 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	_layout_plates()
+	_update_warn()
 	if _state == S.ROOT or _state == S.LIST:   # la main du menu va et vient : on redessine l'entrée choisie
 		for box: Control in [_root_list, _list_items]:
 			for b in box.get_children():

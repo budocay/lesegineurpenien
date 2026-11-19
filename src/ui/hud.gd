@@ -221,8 +221,16 @@ func set_softness(level: float) -> void:
 	_soft.reset_size()
 
 
+## Efface le titre de lieu tout de suite, et arrête son fondu (sinon il se rallumait : le nom du lieu restait
+## affiché au début d'un combat).
+func hide_banner() -> void:
+	if _banner_tween != null and _banner_tween.is_valid():
+		_banner_tween.kill()
+	_banner.modulate.a = 0.0
+
+
 func clear() -> void:
 	hide_prompt()
 	_soft.visible = false
-	_banner.modulate.a = 0.0
+	hide_banner()
 	_toast.modulate.a = 0.0

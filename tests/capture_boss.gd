@@ -56,9 +56,28 @@ func _ready() -> void:
 		var ratio := 0.0
 		if sc != null and sc.boss != null:
 			ratio = (sc.actors[sc.boss.key] as Node3D).height / (sc.actors[sc.engine.party[0].key] as Node3D).height
-		print("BOSS %s : %.2f fois un héros" % [id, ratio])
+		var info := ""
+		if sc != null:
+			var vs := get_viewport().get_visible_rect().size
+			var hero_k_txt := "héros k=%.3f (libre %.3f, soit %.2f)" % [sc.hero_k, sc.hero_k_free, sc.hero_k / maxf(0.001, sc.hero_k_free)]
+			var frac := 0.0
+			if sc.boss != null:
+				frac = sc.screen_rect(sc.boss).size.y / vs.y
+			var xs := ""
+			for h: RefCounted in sc.engine.party:
+				var r: Rect2 = sc.screen_rect(h)
+				xs += " [%d..%d, %d..%d]" % [r.position.x, r.end.x, r.position.y, r.end.y]
+			info = " | %s, boss %.0f %% de la hauteur |%s" % [hero_k_txt, frac * 100.0, xs]
+		print("BOSS %s : %.2f fois un héros%s" % [id, ratio, info])
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("%s/%s.png" % [out_dir, id])
+		if sc != null and sc.boss != null and OS.has_environment("BOSS_ANNONCE"):   # photo du coup annoncé : triangle rouge et bandeau
+			sc.boss.next_skill = "attack"
+			sc.ui.announce("%s prépare un grand coup !" % sc.boss.name, 5.0)
+			await get_tree().create_timer(0.6).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_annonce.png" % [out_dir, id])
+			sc.boss.next_skill = ""
 		await _flee()
 		main.battle_ui._on_end("ok")
 		for _m in 100:

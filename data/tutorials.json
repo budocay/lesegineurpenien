@@ -72,6 +72,12 @@
 			"keys": [["interact", "continuer"]]
 		},
 		{
+			"id": "coup_annonce", "trigger": "telegraph", "mode": "pause", "points": "annonce", "who": "glandoulf",
+			"title": "Coup annoncé !",
+			"text": "Un triangle rouge au-dessus d'un ennemi : il prépare un gros coup pour son prochain tour. Choisir « Défendre » en réduit les dégâts de moitié ; briser son bouclier lui fait perdre son tour ; un provocateur en détourne la cible.",
+			"keys": [["interact", "continuer"]]
+		},
+		{
 			"id": "allie_a_terre", "trigger": "ally_down", "mode": "pause", "points": "allie", "who": ["sam", "glandoulf"],
 			"title": "Allié à terre",
 			"text": "Un allié à terre ne joue plus, mais rien n'est perdu : une Racine-qui-réveille (menu « Objets ») ou certains sorts le relèvent. Si tout le monde tombe, c'est la défaite. Évitez, de préférence.",

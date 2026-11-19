@@ -356,6 +356,7 @@ func start_battle(encounter: Dictionary) -> String:
 	_battle_running = true
 	busy = true
 	hud.hide_prompt()
+	hud.hide_banner()   # le nom du lieu ne reste pas affiché pendant un combat
 	var points_before := GameState.party_talent_points()
 	var field := world
 	encounter = BattleScene.resolve(encounter, field.map if field != null else {})   # arène : rencontre, sinon carte
