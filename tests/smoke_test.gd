@@ -5636,7 +5636,7 @@ func _test_tutorials() -> void:
 			check(str(w) == "" or not Database.get_character(str(w)).is_empty(), "conseil %s : %s est un personnage connu" % [id, str(w)])
 		for term: String in str(tip.get("when", "")).split("&"):
 			var t := term.strip_edges().trim_prefix("!")
-			check(t == "" or t.begins_with("turn>=") or Tutorial.CTX_TERMS.has(t), "conseil %s : condition « %s » comprise" % [id, t])
+			check(t == "" or t.begins_with("turn>=") or t.begins_with("item:") or Tutorial.CTX_TERMS.has(t), "conseil %s : condition « %s » comprise" % [id, t])
 		for pad_mode in [false, true]:
 			Tutorial.pad = pad_mode
 			var view: Dictionary = Tutorial.resolve(tip)
