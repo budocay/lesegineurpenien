@@ -260,6 +260,113 @@
 			"turn": 10
 		},
 		{
+			"type": "gou_statue",
+			"pos": [
+				6,
+				12.5
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				22.7,
+				14.9
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				4.3,
+				16.2
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				8.5,
+				19.4
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				5.7,
+				19.5
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				20.7,
+				16.9
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				14.2,
+				17.1
+			]
+		},
+		{
+			"type": "vil_banc",
+			"pos": [
+				10.3,
+				15.9
+			]
+		},
+		{
+			"type": "vil_banc",
+			"pos": [
+				30.4,
+				17.0
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				5,
+				10.0
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				31,
+				10.0
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				3.6,
+				12
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				32.4,
+				12
+			]
+		},
+		{
+			"type": "tree",
+			"pos": [
+				3.4,
+				19.7
+			],
+			"scale": 0.8
+		},
+		{
+			"type": "tree",
+			"pos": [
+				32.6,
+				14.6
+			],
+			"scale": 0.92
+		},
+		{
 			"type": "warp",
 			"rect": [
 				16,
@@ -293,6 +400,70 @@
 			"color": "#ffd890",
 			"energy": 1.2,
 			"range": 9
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				18,
+				-4.5
+			],
+			"size": 6,
+			"height": 19,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				3,
+				0.5
+			],
+			"size": 4,
+			"height": 13,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				33,
+				0.5
+			],
+			"size": 4,
+			"height": 13,
+			"cap": true
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				1,
+				-4,
+				7,
+				4
+			],
+			"height": 10,
+			"door": -1,
+			"windows": [
+				1.5,
+				3.5,
+				5.5
+			],
+			"chimney": false
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				28,
+				-4,
+				7,
+				4
+			],
+			"height": 10,
+			"door": -1,
+			"windows": [
+				1.5,
+				3.5,
+				5.5
+			],
+			"chimney": false
 		}
 	]
 }

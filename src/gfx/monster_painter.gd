@@ -202,7 +202,10 @@ const UPSCALE := 3
 const HD := 4
 ## Les gros monstres (boss, vedettes) sont affichés très agrandis : finesse supérieure.
 const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur": 6, "balourd": 6, "crapaud": 6,
-	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6}
+	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
+	# chapitre 6 (gouda_monsters.gd)
+	"eveille": 6, "eveille_veilleur": 6, "roi_eveille": 6, "boucanier": 6, "saumure": 6, "cassouletain": 6,
+	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6}
 static var K := 1                # facteur de la peinture en cours
 static var _ga := 0.0            # amplitude du grain de matière (0 : aucun)
 static var _gs := 3.0            # taille du grain, en pixels de la grille fine
@@ -675,6 +678,12 @@ const MARKS := {
 	"ouroukouille_brocheur": [["wart", 6, 2.0], ["crack", 3, 4.0], ["fleck", 12, 1.0]],
 	"ouroukouille_petrisseur": [["wart", 6, 2.0], ["crack", 3, 4.0], ["fleck", 12, 1.0]],
 	"ouroukouille_chef": [["wart", 7, 2.2], ["crack", 3, 4.0], ["fleck", 12, 1.0]],
+	# chapitre 6
+	"eveille": [["fleck", 8, 1.0]], "eveille_veilleur": [["fleck", 8, 1.0]], "roi_eveille": [["fleck", 8, 1.0]],
+	"boucanier": [["crack", 2, 3.0], ["fleck", 10, 1.0]], "saumure": [["crack", 2, 3.0], ["fleck", 10, 1.0]],
+	"cassouletain": [["fleck", 10, 1.0]], "gothmoque": [["crack", 4, 5.0], ["wart", 3, 1.8], ["fleck", 12, 1.0]],
+	"naze_supreme": [["fleck", 6, 1.0]], "mammou": [["hair", 40, 5.0], ["fleck", 10, 1.0]],
+	"dindon_farce": [["hair", 40, 5.0], ["fleck", 8, 1.0]], "grondine": [["crack", 5, 6.0], ["fleck", 12, 1.0]],
 }
 
 

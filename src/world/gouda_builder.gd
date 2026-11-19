@@ -53,7 +53,15 @@ static func restyle(b) -> void:
 		st.material_override = MeshKit.pixel_material(Sprites.tile_texture(str(sp["stairs"])))
 	var rw := _node(b, "ReliefWalls")
 	if rw != null:
-		rw.material_override = MeshKit.pixel_material(Sprites.tile_texture(str(sp["relief"])))
+		var rtex: Texture2D = Sprites.tile_texture(str(sp["relief"]))
+		var rm := MeshKit.pixel_material(rtex)
+		if str(b.map.get("style", "")) == "gouda":   # les murs de soutènement restent blancs, même à l'ombre
+			rm.emission_enabled = true
+			rm.emission = Color.WHITE
+			rm.emission_operator = BaseMaterial3D.EMISSION_OP_ADD
+			rm.emission_texture = rtex
+			rm.emission_energy_multiplier = 0.4
+		rw.material_override = rm
 	var water := _node(b, "Water")
 	if water != null:
 		var wm := water.material_override as ShaderMaterial
