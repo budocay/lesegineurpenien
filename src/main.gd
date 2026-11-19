@@ -13,6 +13,7 @@ const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const SaveScreen = preload("res://src/ui/save_screen.gd")
 const SettingsScreen = preload("res://src/ui/settings_screen.gd")
+const PadScreen = preload("res://src/ui/pad_screen.gd")
 const ConfirmBox = preload("res://src/ui/confirm_box.gd")
 const LoadingUI = preload("res://src/ui/ui_kit.gd")
 
@@ -37,6 +38,7 @@ var talents: Control            # écran de talents
 var _talents_from := ""         # "pause" ou "team" : où revenir quand il se ferme
 var saves: Control             # liste des sauvegardes (charger, sauvegarder)
 var settings_screen: Control    # écran des paramètres
+var pad_screen: Control         # diagnostic de la manette
 var confirm: Control            # « Quitter le jeu ? », « Retour au titre ? » : Non par défaut
 var _fade: ColorRect
 var _loading: Label
@@ -78,6 +80,8 @@ func _ready() -> void:
 	battle_ui.save_screen = saves
 	settings_screen = SettingsScreen.new()
 	ui.add_child(settings_screen)
+	pad_screen = PadScreen.new()
+	ui.add_child(pad_screen)
 	confirm = ConfirmBox.new()
 	ui.add_child(confirm)
 
@@ -112,7 +116,15 @@ func _ready() -> void:
 	title.load_requested.connect(func() -> void: _open_saves("load", "title"))
 	saves.finished.connect(_on_saves_finished)
 	settings_screen.closed.connect(_on_settings_closed)
+	title.add_entry("Manette", func() -> void: pad_screen.open("title"))
 	title.add_entry("Paramètres", func() -> void: settings_screen.open("title"))
+	pad_screen.closed.connect(_on_pad_closed)
+	settings_screen.pad_requested.connect(func() -> void:
+		settings_screen.visible = false   # le diagnostic se place au-dessus ; Paramètres revient à sa fermeture
+		pad_screen.open("settings_" + settings_screen.context))
+	Controls.notice.connect(hud.toast)
+	for text: Variant in Controls.take_pending():
+		hud.toast(str(text))
 	pause.add_entry("Paramètres", func() -> void:
 		pause.close(true)
 		settings_screen.open("pause"))
@@ -668,6 +680,13 @@ func _on_pause_quit() -> void:
 		get_tree().quit()
 	elif mode == Mode.PLAY and world != null and not busy:
 		_open_pause()
+
+
+func _on_pad_closed() -> void:
+	if pad_screen.context.begins_with("settings_"):
+		settings_screen.open(pad_screen.context.trim_prefix("settings_"))
+	elif mode == Mode.TITLE:
+		title.open()
 
 
 func _on_settings_closed() -> void:

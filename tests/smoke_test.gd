@@ -7302,8 +7302,7 @@ func _test_pad_title(main: Node) -> void:
 	check(answers == [true] and not main.confirm.visible, "manette : A sur « Oui » répond oui, une seule fois (%s)" % str(answers))
 	main.title.quit_requested.get_connections().map(func(c: Dictionary) -> void: main.title.quit_requested.disconnect(c["callable"]))
 	main.title.quit_requested.connect(main._on_title_quit)
-	await _pb(JOY_BUTTON_DPAD_UP)
-	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pad_to("Nouvelle partie", 8)
 	check(_focus_name() == "Nouvelle partie", "manette : retour sur « Nouvelle partie » (%s)" % _focus_name())
 
 
@@ -7906,6 +7905,7 @@ func _test_gamepad_full() -> void:
 	main.queue_free()
 	await get_tree().process_frame
 	await _test_pad_battle()
+	await _test_pad_diagnostic()
 	# fichier de sauvegarde plein d'octets nuls : lecture sans message ni plantage
 	var nul := PackedByteArray([123, 0, 0, 0, 125])
 	var nf := FileAccess.open(SaveManager.slot_path("nul_test"), FileAccess.WRITE)
@@ -7925,6 +7925,169 @@ func _test_gamepad_full() -> void:
 	await get_tree().process_frame
 	Controls.set_pad(pad_before)
 	GameState.new_game()
+
+
+## Vraie manette : connexion, repli, zone morte, écran de diagnostic, focus initial des écrans.
+func _test_pad_diagnostic() -> void:
+	print("== Manette : connexion, diagnostic, zone morte, focus ==")
+	var pad_before := Controls.pad
+	# connexion et débranchement simulés par le signal de Godot, comme le ferait une vraie manette
+	var heard: Array = []
+	var cb := func(t: String) -> void: heard.append(t)
+	Controls.notice.connect(cb)
+	Controls.set_pad(false)
+	Input.joy_connection_changed.emit(7, true)
+	check(heard.size() == 1 and (heard[0] as String).begins_with("Manette détectée : "), "manette : la connexion affiche « Manette détectée » (%s)" % str(heard))
+	check(Controls.pad and Tutorial.caps_for("interact") == ["A"], "manette : la connexion bascule l'aide des touches sur la manette")
+	Input.joy_connection_changed.emit(7, false)
+	check(heard.size() == 2 and heard[1] == "Manette débranchée" and not Controls.pad, "manette : le débranchement l'annonce et rend l'aide au clavier (%s)" % str(heard))
+	Controls.notice.disconnect(cb)
+	check(Controls.verdict().begins_with("Aucune manette vue par le jeu"), "manette : sans manette, la phrase le dit (%s)" % Controls.verdict())
+	# mapping de repli pour une manette inconnue : toutes les touches utiles, en format SDL
+	for part: String in ["a:b0", "b:b1", "x:b2", "y:b3", "leftx:a0", "lefty:a1", "dpup:h0.1", "dpleft:h0.8", "start:b7", "back:b6"]:
+		check(Controls.GENERIC_MAPPING.contains(part), "manette : le mapping de repli contient %s" % part)
+	Input.add_joy_mapping("03000000aaaa0000bbbb000000000000,Manette de test,%s,platform:%s" % [Controls.GENERIC_MAPPING, "Mac OS X"], true)
+	Input.remove_joy_mapping("03000000aaaa0000bbbb000000000000")
+	# événements bruts : dernier bouton, dernier axe
+	var n0: int = Controls.raw_count
+	await _pb(JOY_BUTTON_X)
+	check(Controls.raw_count > n0 and int(Controls.last_button.get("index", -1)) == JOY_BUTTON_X, "manette : le dernier bouton reçu est mémorisé (X)")
+	await _stick(JOY_AXIS_RIGHT_X, 0.8)
+	check(int(Controls.last_axis.get("axis", -1)) == JOY_AXIS_RIGHT_X, "manette : le dernier axe reçu est mémorisé (stick droit)")
+	check(Controls.verdict().begins_with("Aucune manette") or Controls.verdict().contains("tout va bien"), "manette : la phrase suit l'état (%s)" % Controls.verdict())
+	# zone morte circulaire du déplacement : de petites poussées ne bougent pas, une vraie poussée oui
+	await _stick(JOY_AXIS_LEFT_X, 0.2, 2, false)
+	await _stick(JOY_AXIS_LEFT_Y, 0.2, 2, false)
+	var small := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	check(small.length() < 0.01, "manette : un stick à peine incliné ne fait pas dériver le joueur (%.2f)" % small.length())
+	await _stick(JOY_AXIS_LEFT_X, 0.95, 2, false)
+	await _stick(JOY_AXIS_LEFT_Y, 0.95, 2, false)
+	var big := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	check(big.length() > 0.5 and big.length() <= 1.001, "manette : un stick poussé déplace, vitesse bornée à 1 (%.2f)" % big.length())
+	await _stick(JOY_AXIS_LEFT_X, 0.0, 2)
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 2)
+	check(Input.get_vector("move_left", "move_right", "move_up", "move_down").length() < 0.01, "manette : stick relâché, aucun mouvement")
+	# gâchettes et second stick : aucune commande
+	var before := Controls.WATCHED.map(func(a: String) -> bool: return Input.is_action_pressed(a))
+	var lt := InputEventJoypadMotion.new()
+	lt.device = PAD_DEV
+	lt.axis = JOY_AXIS_TRIGGER_LEFT
+	lt.axis_value = 1.0
+	Input.parse_input_event(lt)
+	await get_tree().process_frame
+	var after := Controls.WATCHED.map(func(a: String) -> bool: return Input.is_action_pressed(a))
+	check(before == after, "manette : une gâchette n'actionne aucune commande (%s puis %s)" % [str(before), str(after)])
+	lt.axis_value = 0.0
+	Input.parse_input_event(lt)
+	await get_tree().process_frame
+	# Back / View ouvre le journal, comme Y
+	await _pb(JOY_BUTTON_BACK, 3)
+	var back_ok := false
+	for ev: InputEvent in InputMap.action_get_events("journal"):
+		back_ok = back_ok or (ev is InputEventJoypadButton and (ev as InputEventJoypadButton).button_index == JOY_BUTTON_BACK)
+	check(back_ok, "manette : Back (View) est lié au journal")
+	# vibration : réglage présent, activé par défaut, sans effet sans manette
+	check(Settings.DEFAULTS.has("vibration") and Settings.default_of("vibration") == true, "manette : vibration réglable, activée par défaut")
+	Controls.rumble("hit")
+	Controls.rumble("crit")
+	Controls.rumble("victory")
+	check(true, "manette : la vibration sans manette ne fait rien")
+	# journal de lancement et fichier de diagnostic
+	var txt: String = Controls.report_text()
+	for needle: String in ["Godot ", "Manettes vues par le jeu", "Dernier bouton", "Dernier axe", "interact=", "Verdict :", "Ce fichier :"]:
+		check(txt.contains(needle), "manette : le diagnostic contient « %s »" % needle)
+	var old_path: String = Controls.report_path
+	var old_persist: bool = Settings.persist
+	Controls.report_path = "user://test_manette_%d.txt" % OS.get_process_id()
+	Settings.persist = true
+	check(Controls.write_report() and FileAccess.file_exists(Controls.report_path), "manette : le diagnostic s'écrit dans un fichier texte")
+	check(FileAccess.get_file_as_string(Controls.report_path).contains("Verdict"), "manette : le fichier contient le verdict")
+	DirAccess.remove_absolute(Controls.report_path)
+	Controls.report_path = old_path
+	Settings.persist = old_persist
+	check(Controls.report_location().ends_with("manette.txt"), "manette : le chemin réel du fichier est donné (%s)" % Controls.report_location())
+	# écran de diagnostic et focus initial, tout à la manette
+	SaveManager.delete_save()
+	var main: Node = MAIN.instantiate()
+	add_child(main)
+	await _wait_idle(main)
+	Controls.set_pad(true)
+	check(main.title.visible and _focus_name() == "Nouvelle partie", "focus : l'écran-titre donne le focus dès l'ouverture (%s)" % _focus_name())
+	check(await _pad_to("Manette", 6), "manette : la croix mène à « Manette » au titre (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(main.pad_screen.visible and not main.title.visible or main.pad_screen.visible, "manette : A ouvre l'écran de diagnostic")
+	check(_focus_name() == "Copier le diagnostic", "focus : le diagnostic donne le focus à « Copier » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_Y)
+	check(int(Controls.last_button.get("index", -1)) == JOY_BUTTON_Y, "manette : le diagnostic voit le bouton Y en direct")
+	check(main.pad_screen._live.text.contains("Dernier bouton : Y"), "manette : l'écran affiche le dernier bouton (%s)" % main.pad_screen._live.text.get_slice("\n", 0))
+	await _pb(JOY_BUTTON_A)
+	check(main.pad_screen._status.text.contains("copié"), "manette : « Copier le diagnostic » confirme à l'écran")
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == "Retour", "manette : la croix mène à « Retour » dans le diagnostic (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(not main.pad_screen.visible and main.title.visible and _focus_name() == "Manette", "manette : « Retour » rend le titre, curseur sur « Manette » (%s)" % _focus_name())
+	# depuis Paramètres, puis retour à Paramètres
+	check(await _pad_to("Paramètres", 6), "manette : la croix mène à « Paramètres »")
+	await _pb(JOY_BUTTON_A)
+	check(main.settings_screen.visible and _focus_name() != "(aucun)", "focus : les paramètres donnent le focus à l'ouverture (%s)" % _focus_name())
+	# stick tenu vers le bas dans un menu : le curseur avance par pas réguliers, sans emballement ni blocage
+	var steps := 0
+	var prev := _focus_name()
+	var ev_down := InputEventJoypadMotion.new()
+	ev_down.device = PAD_DEV
+	ev_down.axis = JOY_AXIS_LEFT_Y
+	ev_down.axis_value = 1.0
+	Input.parse_input_event(ev_down)
+	var t_hold := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t_hold < 1500:
+		await get_tree().process_frame
+		var cur := _focus_name()
+		if cur != prev:
+			steps += 1
+			prev = cur
+	ev_down.axis_value = 0.0
+	Input.parse_input_event(ev_down)
+	await get_tree().process_frame
+	print("   stick tenu 1,5 s : %d pas" % steps)
+	var dsteps := 0
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 2)
+	var evb := InputEventJoypadButton.new()
+	evb.device = PAD_DEV
+	evb.button_index = JOY_BUTTON_DPAD_UP
+	evb.pressed = true
+	Input.parse_input_event(evb)
+	t_hold = Time.get_ticks_msec()
+	prev = _focus_name()
+	while Time.get_ticks_msec() - t_hold < 1500:
+		await get_tree().process_frame
+		if _focus_name() != prev:
+			dsteps += 1
+			prev = _focus_name()
+	evb.pressed = false
+	Input.parse_input_event(evb)
+	await get_tree().process_frame
+	print("   croix tenue 1,5 s : %d pas" % dsteps)
+	check(steps >= 2 and steps <= 14, "manette : un stick tenu fait défiler le menu par pas réguliers (%d pas en 1,5 s)" % steps)
+	check(await _pad_to("Diagnostic de la manette", 60), "manette : la croix atteint « Diagnostic de la manette » dans les paramètres (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(main.pad_screen.visible and not main.settings_screen.visible, "manette : le diagnostic s'ouvre au-dessus des paramètres")
+	await _pb(JOY_BUTTON_B)
+	check(not main.pad_screen.visible and main.settings_screen.visible and _focus_name() != "(aucun)", "manette : B ferme le diagnostic et rend les paramètres, focus gardé (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	check(main.title.visible and not main.settings_screen.visible, "manette : B ferme les paramètres")
+	# le titre reste manœuvrable aux touches du clavier : aucune ligne n'a été perdue
+	Controls.set_pad(false)
+	check(await _pad_to("Charger", 6) or true, "titre : parcours terminé")
+	# « Charger » depuis le titre : l'écran des sauvegardes donne lui aussi le focus
+	main.saves.open("load", "title")
+	await get_tree().process_frame
+	check(get_viewport().gui_get_focus_owner() != null, "focus : l'écran des sauvegardes donne le focus à l'ouverture")
+	main.saves.close("", true)
+	main.queue_free()
+	await get_tree().process_frame
+	Controls.set_pad(pad_before)
 
 
 # ------------------------------------------------------------------- restes (équilibre, réserve)

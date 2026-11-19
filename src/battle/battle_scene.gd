@@ -1035,6 +1035,7 @@ func _finish() -> void:
 		"victory":
 			await _wait(0.5)
 			Sfx.play("victory")
+			Controls.rumble("victory")
 			Music.play(Music.default("victory"), 0.3)
 			var rewards: Dictionary = engine.commit()
 			if fast:
@@ -1116,6 +1117,7 @@ func _play(events: Array) -> void:
 					fx.puff(str(Database.get_status(str(e["status"])).get("fx", "")), ta, "rise", 2)
 				Sfx.play("weak" if weak else "hit", randf_range(0.92, 1.08))
 				shake(0.7 if strong else 0.35)
+				if strong or target.side == "party": Controls.rumble("crit" if strong else "hit")
 				if strong:
 					fx.screen_flash(Color.WHITE, 0.18, 0.15)
 				ui.popup(screen_point(target, "top"), str(int(e.get("amount", 0))), color, 40 if (weak or bool(e.get("crit", false))) else 32)
