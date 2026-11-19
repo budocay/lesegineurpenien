@@ -817,9 +817,19 @@ func _vues_only() -> void:
 			n += 1
 		else:
 			var q := part.split("@")
+			if OS.get_environment("GLAN_FPS") != "":
+				Engine.max_fps = 0
+				DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)   # sinon l'image est bornée à 120 par seconde
 			main.change_map(q[0], q[1])
 			await _frames(150)
 			await _idle()
+			if OS.get_environment("GLAN_FPS") != "":
+				# temps d'image moyen sur trois secondes
+				var f0 := Engine.get_frames_drawn()
+				var tm0 := Time.get_ticks_msec()
+				while Time.get_ticks_msec() - tm0 < 3000:
+					await get_tree().process_frame
+				print("IMAGE ", q[0], " : ", snappedf(3000.0 / float(Engine.get_frames_drawn() - f0), 0.01), " ms")
 			# une scène d'arrivée peut lancer un combat : on le joue tout seul, puis on rend la main
 			for _k in 3:
 				if main.battle == null:

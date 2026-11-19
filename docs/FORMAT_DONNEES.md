@@ -1434,3 +1434,25 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
   coins ébréchés (table `SLABS` de `map_builder.gd`).
 - Intérieurs (hors nains) : un plan noir opaque (`InteriorVoid`) couvre le vide au-delà des murs.
 - Objet `bed` : voir la ligne du mobilier ci-dessus.
+
+
+## Décors 9 : eau, mines, forêt, étal
+
+- Eau : la berge suit le trou du sol (alpha de la texture peinte, déformée plus fort au bord de l'eau) ; une texture
+  de distance au rivage (`shore_tex`, RG8, quatre échantillons par case, calculée sur la boîte qui entoure l'eau)
+  donne à `water.gdshader` un liseré d'écume fin et une dentelle irrégulière, et à `ground.gdshader` une bande
+  mouillée, de la mousse et des galets sur la terre. Aucun champ à régler.
+- `water.gdshader` : uniforme `pool_rect` (x0, z0, x1, z1 en mètres) : bassin à bord arrondi et irrégulier
+  (posé par `elven_builder` au pied des cascades). `waterfall.gdshader` : nappes verticales qui défilent, filets
+  clairs, bord tramé, écume en tête et brume au pied ; `waterfall_foam.gdshader` : uniforme `size`.
+- Murs nains : `wall_tint` s'applique désormais même sans `wall_dress` ; `wall_glow` règle l'éclat de la texture
+  (l'émission des murs nains est noire : seule la texture brille). Un plan noir (`InteriorVoid`, y = -0,45) passe
+  sous le lac des intérieurs nains.
+- Carte : `"mottle": true` active les plaques teintées des sols de `MOTTLE_OPTIN` (`elf_flag`), réservées aux
+  salles où le sol est un décor (calcul coûteux). `VARY_TILES` : les tuiles de `ent_mousse`, `ent_racines` et
+  `isen_fosse` sont retournées bloc par bloc de 2 x 2 cases (plus de motif en rangées).
+- Flaques d'huile (`WEAR`) : positions tirées au hasard avec espacement minimal, beaucoup de petites, quelques
+  grandes, une zone de bruit crée amas et vides.
+- Objet `market_stall` : `pos` [x, z] (coin nord-ouest du comptoir), `width` (3), `colors` (deux teintes de
+  l'auvent), `goods` ("fromage", "bouteilles" ou "mixte") ; comptoir, poteaux, auvent rayé en pente, marchandises,
+  saucissons pendus, cageot et lanterne ; `if` / `unless` comme les autres objets. Posé à Bittebourg pour Ursule.

@@ -37,6 +37,11 @@ static func dress(b) -> void:
 			_surround(b)   # (un belvédère ouvre le vide sur l'horizon : pas de sol sombre)
 		return
 	_surround(b)
+	var walls0 := b.world.get_node_or_null("Walls") as MeshInstance3D
+	if walls0 != null and b.map.has("wall_tint"):
+		var m0 := walls0.material_override as StandardMaterial3D
+		if m0 != null:
+			m0.albedo_color = Color(str(b.map["wall_tint"]))
 	var name := str(b.map.get("wall_dress", ""))
 	if name == "" or not SETS.has(name):
 		return

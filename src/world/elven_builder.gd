@@ -198,7 +198,8 @@ static func _waterfall(b, base: Vector3, height: float, width: float, pool: bool
 	mi.set_meta("elven", "waterfall")
 	b.world.add_child(mi)
 	if pool:
-		_pool(b, Rect2(base.x - width * 0.9, base.z, width * 1.8, 1.7), base.y + 0.04)
+		# le bassin s'étend sous la paroi : seul son arc avant se voit, bord arrondi
+		_pool(b, Rect2(base.x - width * 0.95, base.z - 1.0, width * 1.9, 2.7), base.y + 0.04)
 	var mist := Atmosphere.make_particles("embruns")
 	if mist != null:
 		mist.position = base + Vector3(0.0, 0.35, 0.5)
@@ -211,6 +212,8 @@ static func _pool(b, r: Rect2, y: float) -> void:
 	MeshKit.quad(st, Vector3(r.position.x, y, r.position.y), Vector3(r.end.x, y, r.position.y), Vector3(r.end.x, y, r.end.y), Vector3(r.position.x, y, r.end.y))
 	var mat := ShaderMaterial.new()
 	mat.shader = WATER_SHADER
+	# bord arrondi et irrégulier, liseré d'écume (voir `pool_rect` dans water.gdshader)
+	mat.set_shader_parameter("pool_rect", Vector4(r.position.x, r.position.y, r.end.x, r.end.y))
 	var spec: Dictionary = b.map.get("water", {})
 	mat.set_shader_parameter("deep", Color(str(spec.get("deep", "#1f6f86"))))
 	mat.set_shader_parameter("shallow", Color(str(spec.get("shallow", "#5cc0c0"))))

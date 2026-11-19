@@ -368,5 +368,6 @@
 		}
 	],
 	"wall_tile": "nain_mur_morbier",
-	"wall_glow": 0.25
+	"wall_glow": 0.1,
+	"wall_tint": "#8f7a5c"
 }

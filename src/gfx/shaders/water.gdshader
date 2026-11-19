@@ -20,6 +20,8 @@ uniform float glow_power = 0.0;
 // carte des distances à la rive (R : distance en cases divisée par 8) et zone qu'elle recouvre (x, z, largeur, hauteur)
 uniform sampler2D shore_tex : filter_linear, repeat_disable;
 uniform vec4 shore_rect = vec4(0.0, 0.0, 1.0, 1.0);
+// bassin posé à la main (pied d'une cascade) : x0, z0, x1, z1 ; bord arrondi et irrégulier, rien d'autre à régler
+uniform vec4 pool_rect = vec4(0.0);
 
 // reflets des sources de lumière posées au bord de l'eau (cristaux, torches) : x, z, longueur du reflet, sens (+1 vers
 // la caméra, -1 à l'opposé, 0 : inutilisé) et leur couleur
@@ -64,6 +66,16 @@ void fragment() {
 	if (shore_rect.z > 1.0) {
 		d = texture(shore_tex, (wpos.xz - shore_rect.xy) / shore_rect.zw).r * 8.0;
 	}
+	if (pool_rect.z > pool_rect.x) {
+		vec2 hs = (pool_rect.zw - pool_rect.xy) * 0.5;
+		vec2 qq = (wpos.xz - (pool_rect.xy + pool_rect.zw) * 0.5) / hs;
+		float rr = pow(pow(abs(qq.x), 3.0) + pow(abs(qq.y), 3.0), 1.0 / 3.0);
+		float jag = (vnoise(p * 2.4 + 3.0) - 0.5) * 0.2 + (hash(px) - 0.5) * 0.035;
+		if (rr + jag > 1.0) {
+			discard;
+		}
+		d = (1.0 - rr - jag) * min(hs.x, hs.y);
+	}
 	float wob = (vnoise(p * 0.9 + vec2(t * 0.05, 0.0)) - 0.5) * 0.8 + (vnoise(p * 2.7 - vec2(0.0, t * 0.08)) - 0.5) * 0.25;
 	d = max(d + wob, 0.0);
 
@@ -101,14 +113,20 @@ void fragment() {
 	float twinkle = step(0.955, h) * max(0.0, sin(t * 2.6 + h * 57.0));
 	em += glint * twinkle * (is_lake ? 0.22 : 0.62);
 
-	// rive : liseré d'écume irrégulier qui respire, puis un second trait plus pâle qui s'éloigne
-	float edge = (is_lake ? 0.2 : 0.11) + (is_lake ? 0.16 : 0.1) * vnoise(p * 3.1 + vec2(t * 0.35, 0.0)) + 0.05 * sin(t * 0.9 + p.x * 1.6);
-	float foam1 = step(d, edge) * step(0.42, vnoise(p * 4.5 + 3.0));
-	float ring = abs(d - (0.62 + 0.18 * sin(t * 0.55 + p.x * 0.8) + 0.2 * (vnoise(p * 1.7) - 0.5)));
-	float foam2 = step(ring, 0.055) * step(0.45, vnoise(p * 2.6 - vec2(t * 0.2, 0.0)));
-	vec3 foam_col = mix(ripple, vec3(1.0), 0.55);
-	base = mix(base, foam_col * (is_lake ? 0.6 : 0.78), foam1 * (is_lake ? 0.5 : 0.5) + foam2 * 0.35);
-	em += foam_col * (foam1 * 0.28 + foam2 * 0.12);
+	// rive : un liseré fin qui respire, une frange de bulles tramée qui se dissout vers le large, et une vaguelette
+	// pâle, courte, qui s'éloigne (jamais de plaque pleine : l'écume est un trait et une trame)
+	float lap = 0.5 + 0.5 * sin(t * 0.9 + p.x * 1.3 + vnoise(p * 1.1) * 3.0);
+	float rim_w = (is_lake ? 0.045 : 0.06) + 0.04 * lap;
+	float rim = step(d, rim_w + 0.035 * vnoise(p * 5.0 + vec2(t * 0.3, 0.0))) * step(0.12, vnoise(p * vec2(9.0, 6.0) + 5.0));
+	float reach = (is_lake ? 0.14 : 0.22) * (0.6 + 0.6 * lap);
+	float fk = 1.0 - smoothstep(rim_w, rim_w + reach, d);
+	float lace = vnoise(p * vec2(8.0, 6.0) + vec2(t * 0.3, -t * 0.12));
+	float fringe = step(0.62 + dith * 0.6, fk * (0.5 + 0.9 * lace));
+	float ring = abs(d - (0.78 + 0.16 * sin(t * 0.55 + p.x * 0.8) + 0.18 * (vnoise(p * 1.7) - 0.5)));
+	float foam2 = step(ring, 0.03) * step(0.62, vnoise(p * vec2(1.6, 2.2) - vec2(t * 0.2, 0.0)));
+	vec3 foam_col = mix(ripple, vec3(1.0), 0.5);
+	base = mix(base, foam_col * (is_lake ? 0.62 : 0.8), clamp(rim * 0.66 + fringe * (is_lake ? 0.26 : 0.34) + foam2 * 0.14, 0.0, 1.0));
+	em += foam_col * (rim * 0.2 + fringe * 0.08 + foam2 * 0.05);
 
 	// brume très douce, qui dérive au-dessus de l'eau
 	float mist = smoothstep(0.55, 0.9, vnoise(p * vec2(0.3, 0.55) + vec2(t * 0.025, -t * 0.012)));

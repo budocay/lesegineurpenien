@@ -132,6 +132,7 @@
 		{"type": "npc", "id": "gedeon", "pos": [24.3, 24.0], "facing": "down", "unless": "invasion"},
 		{"type": "npc", "id": "titou", "pos": [20, 15.3], "facing": "down", "wander": 1.8, "unless": "invasion"},
 		{"type": "npc", "id": "meme_louchette", "pos": [36.5, 11.3], "facing": "down", "unless": "invasion"},
+		{"type": "market_stall", "pos": [18.8, 24.0], "width": 3, "goods": "mixte", "unless": "invasion"},
 		{"type": "npc", "id": "ursule", "pos": [20.3, 23.2], "facing": "down", "reach": 1.8, "unless": "invasion"},
 		{"type": "npc", "id": "nestor", "pos": [28.0, 24.0], "facing": "down", "unless": "invasion"},
 		{"type": "crate", "pos": [21.3, 23.5], "turn": -6},
