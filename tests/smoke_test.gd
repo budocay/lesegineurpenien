@@ -4408,7 +4408,7 @@ func _test_chapter_4() -> void:
 	check(GameState.has_flag("chapitre_3_fini") and GameState.chapter == "chapitre_4", "reprise à la fin du chapitre 3 (%s)" % GameState.chapter)
 	check(GameState.party.has("glandoulf") and GameState.party.has("grimli") and GameState.party.size() == 8, "huit compagnons au départ (%d)" % GameState.party.size())
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 30   # déroulé, pas équilibre : très au-dessus du niveau attendu (à 16 un combat se perdait une fois sur dix)
+		GameState.member(who)["level"] = 40   # déroulé, pas équilibre : très au-dessus du niveau attendu (à 16 un combat se perdait une fois sur dix, à 30 le Gros Bleu gagnait encore de temps en temps)
 	GameState.heal_party()
 
 	# Fondue-Combe mène à la porte de Morbier une fois le chapitre 3 fini
