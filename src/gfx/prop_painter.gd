@@ -13,6 +13,7 @@ static func paint(kind: String, variant: int = 0) -> Image:
 		"bush": return bush(variant)
 		"flowers": return flowers(variant)
 		"grass": return grass_tuft(variant)
+		"tallgrass": return tall_grass(variant)
 		"wheat": return wheat(variant)
 		"wilted": return wilted(variant)
 		"barrel": return barrel()
@@ -139,6 +140,43 @@ static func grass_tuft(v: int) -> Image:
 		PA.px(img, x, 12 - n, Color("#7fbb58"))
 		if i % 2 == 0:
 			PA.rect(img, x + 1, 12 - n + 2, 1, n - 2, Color("#2f6240"))
+	return img
+
+
+## Herbes hautes : une touffe de vingt brins qui se courbent, plus sombres au pied, plus claires et
+## dorées à la pointe, quelques épis de graines et, selon la variante, une fleur sauvage. Le sprite
+## balance doucement (champ `sway` de la table PROPS).
+static func tall_grass(v: int) -> Image:
+	var img := PA.new_image(30, 30)
+	var sd := 330 + v * 7
+	var flower: Color = [Color("#f4f0e0"), Color("#f2d04a"), Color("#e88aa8")][v % 3]
+	for i in 20:
+		var bx := 3 + int(PA.rnd(i, 1, sd) * 24.0)
+		var n := 12 + int(PA.rnd(i, 2, sd) * 16.0)
+		var lean := (PA.rnd(i, 3, sd) - 0.5) * 0.7 + (float(bx) - 15.0) * 0.012
+		var back := 0.0 if PA.rnd(i, 4, sd) > 0.4 else -0.16
+		var x := float(bx)
+		for k in n:
+			x += lean * (0.15 + float(k) / float(n) * 0.5)
+			var y := 29 - k
+			var t := float(k) / float(n)
+			var col := Color("#2c5a38").lerp(Color("#5aa04a"), minf(1.0, t * 1.6))
+			if t > 0.7:
+				col = col.lerp(Color("#c8d870"), (t - 0.7) * 2.2)
+			PA.px(img, int(round(x)), y, PA.shade(col, back))
+		if PA.rnd(i, 5, sd) < 0.3:
+			var hx := int(round(x))
+			PA.px(img, hx, 29 - n, Color("#e8d27a"))
+			PA.px(img, hx, 29 - n - 1, Color("#c4a44a"))
+	if v % 3 != 1:
+		var fx := 8 + int(PA.rnd(1, 9, sd) * 14.0)
+		for k in 9:
+			PA.px(img, fx, 29 - k, Color("#3a7a3e"))
+		PA.px(img, fx, 20, flower)
+		PA.px(img, fx - 1, 20, PA.shade(flower, -0.1))
+		PA.px(img, fx + 1, 20, PA.shade(flower, -0.1))
+		PA.px(img, fx, 19, PA.shade(flower, 0.1))
+		PA.px(img, fx, 21, Color("#e8c040"))
 	return img
 
 

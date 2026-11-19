@@ -57,3 +57,7 @@ focus_world={
 "type": "vec3",
 "value": Vector3(0, 0, 100000)
 }
+cloud_shadow={
+"type": "float",
+"value": 0.0
+}

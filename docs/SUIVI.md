@@ -1039,3 +1039,14 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
 5. Retoucher les musiques que l'auteur n'aimera pas (`data/music.json`), réglage du
    volume, bruits d'ambiance (rivière, vent, foule de la fête).
 6. Vraies poses dessinées pour les monstres (corps qui bouge, pas seulement le visage).
+163. **Chantier décors 6 (eau, sols, captures)** : l'eau est refaite en pixels tramés avec une carte
+     des distances à la rive (haut-fonds clairs, large sombre, écume qui respire, reflets des
+     cristaux et torches) ; le lac de l'antre de Morbier reçoit rochers et cristaux plantés dans
+     l'eau, reflet de la paroi et lueurs. La mise au point (`World._focus_on_player`) recale chaque
+     image la zone nette sur la vraie profondeur du héros : il n'est plus flou, quel que soit le
+     décor (angle et zoom inchangés). Plaine et Cabécou : herbes hautes (`tallgrass`), fleurs,
+     ombres de nuages (`clouds`). Chutes : seconde chute (une balustrade posée au pied de la terrasse a été retirée : les clôtures ignorent le relief), flaques sur la roche de la terrasse
+     (`chu_roche` porte `puddles`). Isengarde : rails épais, flaques d'huile luisantes. Salle du
+     Conseil : `ground_variation` 0,2. Enseigne du poney redessinée (le fer s'ouvrait sur le côté).
+     Captures : `24_etal_ursule` recadrée, `110_brie_ecurie` ajoutée.
+

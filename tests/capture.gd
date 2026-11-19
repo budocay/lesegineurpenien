@@ -163,7 +163,8 @@ func _ready() -> void:
 	main.change_map("bittebourg", "route_est")
 	await _frames(60)
 	await _idle()
-	await _goto(Vector3(20.4, 0.0, 24.3), "up")
+	# Ursule est en (20,3 ; 23,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
+	await _goto(Vector3(22.6, 0.0, 25.9), "up")
 	await _shot("24_etal_ursule")
 	main._open_pause()
 	await _frames(20)
@@ -450,7 +451,7 @@ func _rider_shots() -> void:
 	await _shot("91_chutes_arrivee")
 	await _goto(Vector3(24.0, 0.0, 9.2), "up")
 	await _shot("92_chutes_cascade")
-	await _goto(Vector3(37.0, 0.0, 5.5), "left")
+	await _goto(Vector3(32.5, 0.0, 6.0), "left")
 	await _shot("93_chutes_terrasse")
 	main.change_map("plaine_roquefort", "ouest")
 	await _frames(150)
@@ -505,6 +506,12 @@ func _rider_shots() -> void:
 	await _idle()
 	await _goto(Vector3(13.0, 0.0, 9.0), "right")
 	await _shot("109_terrasse_office")
+	# l'écurie de Brie et son enseigne en fer à cheval
+	main.change_map("brie", "route")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(54.0, 0.0, 15.6), "up")
+	await _shot("110_brie_ecurie")
 
 
 func _rider_arenas(bosses: bool) -> void:
@@ -747,6 +754,19 @@ func _gouda_arenas() -> void:
 		await _frames(120)
 
 
+## Prise de vue libre : ni rencontre ni déclencheur pendant la pause, et on attend quelques secondes (en temps réel,
+## l'affichage peut tourner bien plus vite que 120 images par seconde) que le bandeau du lieu s'efface.
+func _view_goto(p: Vector3, facing: String) -> void:
+	main.world.input_enabled = false
+	main.hud.visible = false
+	print("VUE carte ", main.world.map.get("id"), "  combat : ", main.battle != null, "  dialogue : ", main.dialogue.active)
+	main.world.player.position = p
+	main.world.player.set_facing(facing)
+	var until := Time.get_ticks_msec() + 5200
+	while Time.get_ticks_msec() < until:
+		await get_tree().process_frame
+
+
 ## Mode « vues » : prises de vue libres, pour régler une carte. Variable GLAN_VUES :
 ## « carte@arrivée:x,y,hauteur,direction;... » (une prise par morceau, « carte@arrivée »
 ## change de carte), et GLAN_ARENES : « arène:ennemi,ennemi;... » pour des combats.
@@ -759,6 +779,15 @@ func _vues_only() -> void:
 	GameState.set_flag("chapitre_5_fini")
 	GameState.set_flag("minas_vu")
 	GameState.set_flag("combat_dindon_farce")
+	# les scènes d'arrivée et les déclencheurs d'histoire sont déjà joués : on veut voir les cartes, pas les combats
+	for map_id: String in Database.list_maps():
+		var md: Dictionary = Database.get_map(map_id)
+		for e: Variant in md.get("on_enter", []):
+			if e is Dictionary and not (e as Dictionary).has("if") and (e as Dictionary).has("unless"):
+				GameState.set_flag(str((e as Dictionary)["unless"]))
+		for o: Variant in md.get("objects", []):
+			if o is Dictionary and str((o as Dictionary).get("type", "")) == "trigger" and (o as Dictionary).has("unless") and not (o as Dictionary).has("if"):
+				GameState.set_flag(str((o as Dictionary)["unless"]))
 	GameState.map_id = "minas_croute"
 	GameState.spawn_id = "aigle"
 	GameState.heal_party()
@@ -771,7 +800,7 @@ func _vues_only() -> void:
 		if part.contains(":"):
 			var q := part.split(":")
 			var c := q[1].split(",")
-			await _goto(Vector3(float(c[0]), float(c[2]), float(c[1])), c[3])
+			await _view_goto(Vector3(float(c[0]), float(c[2]), float(c[1])), c[3])
 			await _shot("v%02d_%s" % [n, q[0].replace("@", "_")])
 			n += 1
 		else:
@@ -779,6 +808,17 @@ func _vues_only() -> void:
 			main.change_map(q[0], q[1])
 			await _frames(150)
 			await _idle()
+			# une scène d'arrivée peut lancer un combat : on le joue tout seul, puis on rend la main
+			for _k in 3:
+				if main.battle == null:
+					break
+				await _until_menu()
+				main.battle.auto = true
+				await _until_end()
+				await _frames(40)
+				main.battle_ui._on_end("ok")
+				await _frames(120)
+				await _idle()
 	for part: String in OS.get_environment("GLAN_ARENES").split(";", false):
 		var q := part.split(":")
 		main.start_battle({"enemies": q[1].split(","), "arena": q[0], "flee": true})

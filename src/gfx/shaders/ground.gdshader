@@ -7,6 +7,8 @@ uniform sampler2D tex : source_color, filter_nearest, repeat_enable;
 uniform float variation = 0.07;
 uniform float texels_per_unit = 24.0;
 uniform vec2 uv_scale = vec2(1.0, 1.0);
+// ombres de nuages (force réglée par la carte, voir `clouds` dans FORMAT_DONNEES.md) : grandes plaques qui dérivent lentement
+global uniform float cloud_shadow;
 
 varying vec3 wpos;
 
@@ -40,6 +42,15 @@ void fragment() {
 	n = floor(clamp(n, 0.0, 0.999) * 5.0) / 4.0;
 	vec3 col = c.rgb * (1.0 + (n - 0.5) * 2.0 * variation);
 	col *= mix(vec3(0.95, 1.0, 1.05), vec3(1.05, 1.02, 0.93), n);
+	if (cloud_shadow > 0.0) {
+		vec2 drift = vec2(TIME * 0.35, TIME * 0.12);
+		float cl = vnoise((q + drift) * 0.05) * 0.62 + vnoise((q - drift * 0.6) * 0.12 + 9.0) * 0.38;
+		// quatre paliers tramés : une ombre de nuage en pixels, pas un voile flou
+		float edge = smoothstep(0.5, 0.74, cl);
+		float dith = (hash(floor(q * texels_per_unit * 0.5)) - 0.5) * 0.35;
+		float shade_q = floor(clamp(edge + dith * edge * (1.0 - edge) * 3.0, 0.0, 1.0) * 3.0 + 0.5) / 3.0;
+		col *= mix(vec3(1.0), vec3(0.8, 0.86, 0.98), shade_q * cloud_shadow * 0.3);
+	}
 	ALBEDO = col;
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;

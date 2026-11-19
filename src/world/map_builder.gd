@@ -36,7 +36,7 @@ const GROUND := {
 	"ent_mousse": {}, "ent_sentier": {}, "ent_racines": {},
 	"isen_dalle": {"hard": true}, "isen_fonte": {"hard": true}, "isen_farine": {},
 	"isen_fosse": {"hard": true, "solid": true},
-	"chu_roche": {"hard": true}, "chu_gravier": {},
+	"chu_roche": {"hard": true, "puddles": true}, "chu_gravier": {},
 	# styles du chapitre 6 : gouda, veille, port, champ (voir docs/FORMAT_DONNEES.md)
 	"gou_pave": {"hard": true}, "gou_dalle": {"hard": true}, "gou_marbre": {"hard": true}, "gou_rempart": {"hard": true}, "gou_mur": {"hard": true},
 	"gou_herbe": {}, "gou_boue": {"puddles": true}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
@@ -72,6 +72,7 @@ const PROPS := {
 	"bush": {"variants": 3, "solid": 0.42, "sway": 0.015, "flip": true},
 	"flowers": {"variants": 4, "sway": 0.02},
 	"grass": {"variants": 4, "sway": 0.04},
+	"tallgrass": {"variants": 3, "sway": 0.05},
 	"wheat": {"variants": 3, "sway": 0.02},
 	"wilted": {"variants": 2},
 	"barrel": {"solid": 0.36},
@@ -187,6 +188,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 	h = int(size[1])
 	wall_height = float(map.get("wall_height", 3.0))
 	rng.seed = hash(str(map.get("id", "carte")))
+	# ombres de nuages sur le sol (champ `clouds`, 0 : aucune)
+	RenderingServer.global_shader_parameter_set("cloud_shadow", float(map.get("clouds", 0.0)))
 	_build_cells()
 	world.grid_w = w
 	world.grid_h = h
@@ -617,10 +620,15 @@ func _wear(img: Image) -> void:
 				continue
 			PA.ellipse(img, cx, cy, rx, ry, Color("#0a080c"))
 			PA.ellipse(img, cx - 0.4, cy - 0.5, rx * 0.84, ry * 0.76, Color("#17121a"))
-			if rx > 4.5:
-				# reflet des flammes, un trait orangé, et un reflet irisé froid
-				PA.ellipse(img, cx - rx * 0.25, cy - ry * 0.35, rx * 0.4, 0.8, Color("#a85a34"))
-				PA.px(img, int(cx + rx * 0.3), int(cy + ry * 0.2), Color("#4a5a8a"))
+			# bord net et luisant : un liseré clair sur le haut de la flaque, comme un liquide épais
+			PA.ellipse(img, cx - 0.2, cy - ry * 0.2, rx * 0.97, ry * 0.2, Color("#2a2234"))
+			if rx > 4.0:
+				# reflet des flammes (trait orangé, cœur jaune), irisation froide et violette sur la nappe
+				PA.ellipse(img, cx - rx * 0.28, cy - ry * 0.4, rx * 0.42, 0.9, Color("#c8683a"))
+				PA.ellipse(img, cx - rx * 0.32, cy - ry * 0.42, rx * 0.2, 0.6, Color("#ffd080"))
+				for k in int(rx * 0.7):
+					PA.px(img, int(cx - rx * 0.2) + k, int(cy + ry * 0.25) + (k % 2), Color("#3e5a9a") if k % 3 != 1 else Color("#7a4a9a"))
+				PA.px(img, int(cx + rx * 0.5), int(cy - ry * 0.1), Color("#7a9ae0"))
 	# rails de chariots
 	for r: Variant in map.get("rails", []):
 		if not (r is Array) or (r as Array).size() < 4:
@@ -645,15 +653,14 @@ func _wear(img: Image) -> void:
 					var ty2 := gy + o if horiz else gy
 					var base := Color("#2a1c16") if (a % 9) != 0 else Color("#4a3426")
 					img.set_pixel(clampi(tx2, 0, w * PPU - 1), clampi(ty2, 0, h * PPU - 1), base)
+			# deux rails épais : trois pixels de large (dessus clair, flanc de fer, ombre dessous)
 			for rail: int in [-5, 5]:
-				var rx2 := gx if horiz else gx + rail
-				var ry2 := gy + rail if horiz else gy
-				var cxl := clampi(rx2, 0, w * PPU - 1)
-				var cyl := clampi(ry2, 0, h * PPU - 1)
-				img.set_pixel(cxl, cyl, Color("#8a8a9a"))
-				var sx2 := clampi(rx2 if horiz else rx2 + 1, 0, w * PPU - 1)
-				var sy2 := clampi(ry2 + 1 if horiz else ry2, 0, h * PPU - 1)
-				img.set_pixel(sx2, sy2, Color("#2a2a34"))
+				for wd in 4:
+					var off := rail - 1 + wd
+					var rx2 := gx if horiz else gx + off
+					var ry2 := gy + off if horiz else gy
+					var col := Color("#c4c4d4") if wd == 1 else (Color("#8a8a9c") if wd == 2 else (Color("#6a6a7c") if wd == 0 else Color("#1e1e28")))
+					img.set_pixel(clampi(rx2, 0, w * PPU - 1), clampi(ry2, 0, h * PPU - 1), col)
 
 
 ## Flaques semées sur les sols qui portent le flag `puddles` (roche mouillée des lacs souterrains). Positions,
@@ -699,7 +706,7 @@ func _scatter_puddles(img: Image) -> void:
 
 func _build_ground() -> void:
 	var tex: Texture2D = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
-	var mat := MeshKit.ground_material(tex)
+	var mat := MeshKit.ground_material(tex, float(map.get("ground_variation", 0.07)))
 	var st := MeshKit.begin()
 	if world.has_relief:
 		# sol en dalles : chacune à la hauteur de sa case (les rampes ont leur propre maillage)
@@ -824,9 +831,102 @@ func _undergrowth() -> void:
 			_prop(str(kinds[rng.randi() % kinds.size()]), {"shadow": false}, Vector3(p.x, world.ground_y(p.x, p.y), p.y))
 
 
+## Carte des distances à la rive (R : distance en cases divisée par 8), quatre échantillons par case. Les cases
+## d'eau sont l'eau ; tout le reste est de la terre. L'eau lit cette carte pour s'éclaircir près du bord, y
+## faire son écume et s'assombrir vers le large (voir water.gdshader).
+func _shore_texture() -> ImageTexture:
+	var res := 4
+	var gw := w * res
+	var gh := h * res
+	var dist := PackedFloat32Array()
+	dist.resize(gw * gh)
+	var big := 1000.0
+	for y in gh:
+		for x in gw:
+			dist[y * gw + x] = big if cells[(y / res) * w + (x / res)] == "water" else 0.0
+	# deux passes de distance (chanfrein 1 / 1,414), en échantillons
+	for y in gh:
+		for x in gw:
+			var i := y * gw + x
+			var v := dist[i]
+			if x > 0:
+				v = minf(v, dist[i - 1] + 1.0)
+			if y > 0:
+				v = minf(v, dist[i - gw] + 1.0)
+				if x > 0:
+					v = minf(v, dist[i - gw - 1] + 1.414)
+				if x < gw - 1:
+					v = minf(v, dist[i - gw + 1] + 1.414)
+			dist[i] = v
+	for y in range(gh - 1, -1, -1):
+		for x in range(gw - 1, -1, -1):
+			var i := y * gw + x
+			var v := dist[i]
+			if x < gw - 1:
+				v = minf(v, dist[i + 1] + 1.0)
+			if y < gh - 1:
+				v = minf(v, dist[i + gw] + 1.0)
+				if x < gw - 1:
+					v = minf(v, dist[i + gw + 1] + 1.414)
+				if x > 0:
+					v = minf(v, dist[i + gw - 1] + 1.414)
+			dist[i] = v
+	var data := PackedByteArray()
+	data.resize(gw * gh)
+	for i in gw * gh:
+		data[i] = int(clampf(dist[i] / float(res) / 8.0, 0.0, 1.0) * 255.0)
+	return ImageTexture.create_from_image(Image.create_from_data(gw, gh, false, Image.FORMAT_R8, data))
+
+
+## Les sources de lumière posées près de l'eau (cristaux, torches, braseros) s'y reflètent : un trait vertical
+## qui part de leur pied, du côté de l'eau (voir `refl` dans water.gdshader). Douze reflets au plus.
+func _water_reflections(mat: ShaderMaterial) -> void:
+	var pts := PackedVector4Array()
+	var cols := PackedVector4Array()
+	for o: Variant in map.get("objects", []):
+		if pts.size() >= 12 or not (o is Dictionary):
+			continue
+		var od: Dictionary = o
+		var tp := str(od.get("type", ""))
+		var def: Dictionary = PROPS.get(tp, {})
+		var tint := Color("#ffb45e")
+		if tp == "nain_cristal":
+			tint = Color("#8adcff")
+		elif tp != "nain_torche" and float(def.get("glow", 0.0)) <= 0.0:
+			continue
+		if not od.has("pos"):
+			continue
+		var pos: Array = od["pos"]
+		var x := float(pos[0])
+		var z := float(pos[1])
+		var dir := 0.0
+		for k: float in [1.6, 2.6]:
+			if _cell_at_pixel(x * PPU, (z + k) * PPU) == "water":
+				dir = 1.0
+				break
+			if _cell_at_pixel(x * PPU, (z - k) * PPU) == "water":
+				dir = -1.0
+				break
+		if dir == 0.0:
+			continue
+		var reach := 2.4 if tp == "nain_cristal" else 1.8
+		pts.append(Vector4(x, z, reach, dir))
+		cols.append(Vector4(tint.r, tint.g, tint.b, 1.0))
+	if pts.is_empty():
+		return
+	while pts.size() < 12:
+		pts.append(Vector4(0.0, 0.0, 0.0, 0.0))
+		cols.append(Vector4(0.0, 0.0, 0.0, 0.0))
+	mat.set_shader_parameter("refl", pts)
+	mat.set_shader_parameter("refl_c", cols)
+
+
 func _build_water() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = WATER_SHADER
+	mat.set_shader_parameter("shore_tex", _shore_texture())
+	mat.set_shader_parameter("shore_rect", Vector4(0.0, 0.0, float(w), float(h)))
+	_water_reflections(mat)
 	var st := MeshKit.begin()
 	MeshKit.quad(st, Vector3(-80, 0, -10), Vector3(w + 80, 0, -10), Vector3(w + 80, 0, h + 80), Vector3(-80, 0, h + 80))
 	var node := MeshKit.finish(st, mat, false)

@@ -5,6 +5,7 @@
 	"size": [30, 16],
 	"interior": true,
 	"wall_height": 3.6,
+	"ground_variation": 0.2,
 	"ambiance": "fondue_combe_interieur",
 	"music": "village",
 	"arena": "salle_conseil",

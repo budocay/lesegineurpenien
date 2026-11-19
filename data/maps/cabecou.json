@@ -126,7 +126,10 @@
 		}
 	],
 	"style": "cavalier",
+	"clouds": 1.0,
 	"objects": [
+		{"type": "scatter", "prop": "tallgrass", "rect": [0, 3, 60, 24], "count": 150, "min_dist": 0.9, "seed": 210, "on": ["cav_herbe"]},
+		{"type": "scatter", "prop": "flowers", "rect": [0, 3, 60, 24], "count": 45, "min_dist": 1.6, "seed": 211, "on": ["cav_herbe"]},
 		{"type": "cav_ratelier", "pos": [19.5, 13.6]},
 		{"type": "cav_ratelier", "pos": [39.5, 13.6]},
 		{"type": "cav_abreuvoir", "pos": [19.5, 20.6]},
