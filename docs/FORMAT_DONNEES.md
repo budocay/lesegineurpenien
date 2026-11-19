@@ -947,6 +947,13 @@ pièce rare d'un boss.
 facultatifs. `ai` est un tirage pondéré entre l'attaque de base et des compétences.
 Un boss peut changer de tactique quand il faiblit : `"low_at": 0.5` (part des PV, 0,5 par
 défaut) et `"ai_low": [...]`, une seconde liste utilisée sous ce seuil.
+Attaque télégraphiée, par les données seules : l'ennemi annonce son coup par une compétence qui
+se pose un état sur lui-même (ex. `plafond_qui_gronde`, état `gronde` : `mods` d'attaque et de magie
+à 1,5, `turns: 1`), visible sur sa plaque ; son tour suivant, tout ce qu'il lance est alourdi. Le
+joueur a le temps de se défendre, de provoquer ou d'ébranler le boss avant. Exemple : le Balourd
+(`ai_low` : `plafond_qui_gronde` puis `eboulement_du_balourd`). Un combat en deux vagues s'écrit avec deux
+`{"battle": ...}` à la suite dans un dialogue (PV et PM passent d'une vague à l'autre, aucun soin entre
+les deux) : voir `isengarde_breche` (`breche_avant`, puis `breche` si `combat_breche_avant`).
 Monstres dessinés disponibles : `limace`, `baveuse`, `guepe`, `frelon`, `champignon`, `amanite`,
 `epouvantail`, `sanglier`, `solitaire`, `grenouille`, `crapaud`, `sangsue`, `follet`, `rat`, `coq`, `asticot`, `vacherin`, `mouche`, `moisi`
 (la liste exacte est dans `src/gfx/monster_painter.gd`, table `SIZES`).

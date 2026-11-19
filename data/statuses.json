@@ -29,6 +29,11 @@
 		"mods": {"atk": 1.3, "mag": 1.3}, "firm": true,
 		"desc": "Attaque et magie augmentées. Insensible au Ramollissement."
 	},
+	"gronde": {
+		"name": "Le plafond gronde", "fx": "up", "color": "#d8a060", "negative": false, "turns": 1,
+		"mods": {"atk": 1.5, "mag": 1.5},
+		"desc": "Le prochain coup sera lourd : se défendre, provoquer ou ébranler avant qu'il tombe."
+	},
 	"garde": {
 		"name": "Bien calé", "fx": "shield", "color": "#8ab4e8", "negative": false, "turns": 3,
 		"mods": {"def": 1.5, "res": 1.5},

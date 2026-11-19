@@ -140,6 +140,8 @@ func _ready() -> void:
 	_test_door_clearance()
 	await _test_interior_dress()
 	await _test_gamepad_full()
+	_test_reserve_catch_up()
+	_test_balourd_phase_and_breche_waves()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -1120,6 +1122,13 @@ func _test_talents() -> void:
 	GameState.new_game()
 
 
+## Une rencontre suivie d'une autre (vagues enchaînées par deux « battle » d'un dialogue) : voir _sim.
+func _waved(first: String, second: String) -> Dictionary:
+	var enc := Database.get_encounter(first).duplicate(true)
+	enc["_next"] = Database.get_encounter(second).duplicate(true)
+	return enc
+
+
 func _soft(encounter_id: String, softness: float) -> Dictionary:
 	var enc := Database.get_encounter(encounter_id).duplicate(true)
 	enc["ramollissement"] = softness
@@ -1138,26 +1147,44 @@ func _sim(team: Array, level: int, enc: Dictionary, talents: int, smart: bool, s
 			_spend(id, talents)
 	GameState.heal_party()
 	GameState.inventory = inv.duplicate()
-	var e: RefCounted = BattleEngine.new()
-	e.setup(enc, seed_value)
+	# Un combat en plusieurs vagues : la clé de test « _next » enchaîne les rencontres, PV et PM d'une vague à l'autre
+	# (comme deux « battle » à la suite dans un dialogue : aucun soin entre les deux).
+	var waves: Array = [enc]
+	var more: Variant = enc.get("_next")
+	while more is Dictionary:
+		waves.append(more)
+		more = (more as Dictionary).get("_next")
+	var e: RefCounted = null
 	var memo := {}
-	var guard := 0
 	var hero_turns := 0
-	while str(e.result) == "" and guard < 800:
-		guard += 1
-		var actor: RefCounted = e.next_actor()
-		if actor == null:
+	for wave_index in waves.size():
+		if wave_index > 0:
+			for c: RefCounted in e.party:
+				var m: Dictionary = GameState.member(str(c.source))
+				m["hp"] = maxi(1, int(c.hp))
+				m["mp"] = int(c.mp)
+			GameState.inventory = (e.inventory as Dictionary).duplicate(true)
+			GameState.bestiary = (e.revealed as Dictionary).duplicate(true)
+		e = BattleEngine.new()
+		e.setup(waves[wave_index], seed_value + 7919 * wave_index)
+		var guard := 0
+		while str(e.result) == "" and guard < 800:
+			guard += 1
+			var actor: RefCounted = e.next_actor()
+			if actor == null:
+				break
+			e.start_turn(actor)
+			if str(e.result) == "" and bool(e.can_act):
+				if str(actor.side) != "enemy":
+					hero_turns += 1
+					var act: Dictionary = _smart_action(e, actor, memo) if smart else e.auto_action(actor)
+					e.perform(actor, act)
+				else:
+					e.perform(actor, e.ai_action(actor))
+			if str(e.result) == "":
+				e.end_turn(actor)
+		if str(e.result) != "victory":
 			break
-		e.start_turn(actor)
-		if str(e.result) == "" and bool(e.can_act):
-			if str(actor.side) != "enemy":
-				hero_turns += 1
-				var act: Dictionary = _smart_action(e, actor, memo) if smart else e.auto_action(actor)
-				e.perform(actor, act)
-			else:
-				e.perform(actor, e.ai_action(actor))
-		if str(e.result) == "":
-			e.end_turn(actor)
 	var left := 0.0
 	for c: RefCounted in e.party:
 		left += float(c.hp) / float(c.max_hp())
@@ -1489,7 +1516,7 @@ func _forced_cases() -> Array:
 		["5 Grimace niv. 17", captives, 17, Database.get_encounter("grimace"), "boss", [], ""],
 		["5 Uglouk (Garde-Manger) niv. 17", hunters, 17, Database.get_encounter("uglouk_garde"), "ordinaire", [], ""],
 		["5 Froton Anneauté niv. 17", ["sam", "merri", "pepin"], 17, Database.get_encounter("froton_anneaute"), "boss", [], ""],
-		["5 brèche niv. 18", reunited, 18, Database.get_encounter("breche"), "boss", all8, "sam"],
+		["5 brèche niv. 18", reunited, 18, _waved("breche_avant", "breche"), "boss", all8, "sam"],
 		["5 Sarumâle niv. 18", reunited, 18, Database.get_encounter("sarumale"), "boss", all8, "sam"],
 	]
 
@@ -1524,6 +1551,11 @@ func _measure_forced() -> void:
 			if kv.size() == 2 and Database.enemies.has(kv[0]):
 				for stat_key: String in ["atk", "mag"]:
 					Database.enemies[kv[0]]["stats"][stat_key] = int(round(float(Database.enemies[kv[0]]["stats"][stat_key]) * float(kv[1])))
+	if OS.has_environment("GLAN_SHIELD"):   # idem pour le bouclier (« id:nombre »)
+		for part: String in OS.get_environment("GLAN_SHIELD").split(","):
+			var kv := part.split(":")
+			if kv.size() == 2 and Database.enemies.has(kv[0]):
+				Database.enemies[kv[0]]["shield"] = int(kv[1])
 	print("  %-34s %-6s | %9s | %9s | %5s | %-34s | %-34s | %5s" % ["combat", "type", "auto s/a", "atten s/a", "tours", "pire équipe (avec talents)", "pire sans Pépin", "PV %"])
 	for case: Array in _forced_cases():
 		if filter != "" and not str(case[0]).contains(filter):
@@ -1667,21 +1699,28 @@ func _test_forced_balance() -> void:
 					worst_np_name = tag
 		var lo := 0.85 if kind == "ordinaire" else 0.55
 		if label.contains("Naze") and not label.contains("Nazes"):
-			lo = 0.8   # le boss de fin du chapitre 1 exige faiblesses et élan : 80 à 90 %
+			lo = 0.83   # le boss de fin du chapitre 1 exige faiblesses et élan : 85 à 95 % pour le joueur attentif
 		var hi := 1.0 if (kind == "ordinaire" or tutorial) else 0.97
 		if label.contains("Naze") and not label.contains("Nazes"):
-			hi = 0.93
+			hi = 0.97
 		if label.contains("brèche"):
 			lo = 0.85   # mise en scène du chapitre 5 : tous les groupes l'emportent, sauf les pires compositions
 			hi = 1.0
 		check(rate >= lo and rate <= hi, "%s : %d %% de victoires attentif avec talents (fourchette %d à %d %%)" % [label, int(rate * 100.0), int(lo * 100.0), int(hi * 100.0)])
 		if not tutorial:
-			var t_lo := 8.0 if kind == "boss" else 3.0
+			var t_lo := 7.0 if kind == "boss" else 3.0   # boucliers plus bas depuis le réglage « naïf » : combats un peu plus courts
 			var t_hi := 15.5 if kind == "boss" else 7.0
 			check(turns >= t_lo and turns <= t_hi, "%s : %.1f tours par héros (fourchette %d à %d)" % [label, turns, int(t_lo), int(t_hi)])
 		if worst <= 1.0 and kind == "boss":
 			check(worst >= 0.35, "%s : pire équipe raisonnable %s (au moins 35 %%)" % [label, worst_name])
 			check(worst_np >= 0.35, "%s : pire équipe sans soigneur %s (au moins 35 %%)" % [label, worst_np_name])
+		# Le joueur « naïf » (il ne dépense aucun point de talent) doit garder une vraie chance contre les premiers boss.
+		var naive_min := {"1 le Naze": 0.55, "2 Nazes": 0.28, "2 Chantecler": 0.28, "2 Vacherin": 0.35, "3 Gardien": 0.35}
+		for key: String in naive_min:
+			if label.begins_with(key):
+				var nv := float(_sim_rate(case[1], int(case[2]), case[3], -1, true, 60, inv)[0])
+				check(nv >= float(naive_min[key]), "%s : %d %% de victoires pour un joueur sans talents (au moins %d %%)" % [label, int(nv * 100.0), int(float(naive_min[key]) * 100.0)])
+				print("      naïf (sans talents) : %d %%" % int(nv * 100.0))
 		print("  %-36s %3d %%, %4.1f tours | pire équipe %-22s | sans soigneur %-22s" % [label, int(rate * 100.0), turns, worst_name, worst_np_name])
 	GameState.new_game()
 
@@ -5756,7 +5795,7 @@ func _test_chapter_5_data() -> void:
 			["ambuscade_chutes", C5_HUNTERS, 17, C5_MIN_BOSS, 0.95], ["grimace", C5_CAPTIVES, 17, C5_MIN_BOSS, 0.95],
 			["uglouk_garde", C5_HUNTERS, 17, C5_MIN_TABLE, 1.0], ["froton_anneaute", ["sam", "merri", "pepin"], 17, C5_MIN_BOSS, 0.95],
 			["breche", C5_REUNITED, 18, C5_MIN_BOSS, 1.0], ["sarumale", C5_REUNITED, 18, C5_MIN_BOSS, 0.95]]:
-		var enc := Database.get_encounter(str(case[0]))
+		var enc := _waved("breche_avant", "breche") if str(case[0]) == "breche" else Database.get_encounter(str(case[0]))
 		var a := _c2_rate(case[1], int(case[2]), enc, 0)
 		check(a >= float(case[3]) and a <= float(case[4]), "%s, équipe niv. %d : %d %% (visé %d à %d %%)" % [str(case[0]), int(case[2]), int(a * 100.0), int(float(case[3]) * 100.0), int(float(case[4]) * 100.0)])
 		print("  %-18s niv. %2d : %3d %%" % [str(case[0]), int(case[2]), int(a * 100.0)])
@@ -7833,4 +7872,76 @@ func _test_gamepad_full() -> void:
 	Controls.set_pad(pad_before)
 	await get_tree().process_frame
 	Controls.set_pad(pad_before)
+	GameState.new_game()
+
+
+# ------------------------------------------------------------------- restes (équilibre, réserve)
+
+## Un réserviste échangé à la main rattrape le niveau de l'équipe, comme par le récit (set_group).
+func _test_reserve_catch_up() -> void:
+	print("== Réserve : rattrapage au passage dans l'équipe ==")
+	GameState.new_game()
+	for id: String in ["sam", "froton", "pepin", "merri"]:
+		GameState.add_to_party(id)
+	var levels := {"glandoulf": 10, "sam": 10, "froton": 12, "pepin": 11, "merri": 3}
+	for id: String in levels:
+		GameState.member(id)["level"] = int(levels[id])
+		GameState.member(id)["xp"] = 7
+	GameState.heal_party()
+	check(GameState.is_reserve("merri"), "réserve : Merri attend hors de l'équipe de quatre")
+	check(GameState.swap_members("sam", "merri"), "réserve : échange Sam / Merri")
+	check(int(GameState.member("merri")["level"]) == 12 and int(GameState.member("merri")["xp"]) == 0, "réserve : Merri rattrape le niveau 12 en entrant (niv. %d)" % int(GameState.member("merri")["level"]))
+	check(GameState.member("merri")["hp"] == GameState.member_stats("merri")["hp"], "réserve : Merri entre avec tous ses PV")
+	check(int(GameState.member("sam")["level"]) == 10, "réserve : Sam garde son niveau en sortant (%d)" % int(GameState.member("sam")["level"]))
+	# retour de Sam : il rattrape à son tour les trois qui restent (Glandoulf 10, Froton 12, Pépin 11, Merri 12)
+	check(GameState.swap_members("merri", "sam"), "réserve : échange Merri / Sam")
+	check(int(GameState.member("sam")["level"]) == 12, "réserve : Sam, revenu, rattrape aussi le niveau 12 (%d)" % int(GameState.member("sam")["level"]))
+	# un réserviste déjà plus haut ne perd rien
+	GameState.member("merri")["level"] = 15
+	check(GameState.swap_members("pepin", "merri"), "réserve : échange Pépin / Merri")
+	check(int(GameState.member("merri")["level"]) == 15, "réserve : un réserviste plus haut garde son niveau (%d)" % int(GameState.member("merri")["level"]))
+	# même règle par le récit
+	GameState.new_game()
+	for id: String in ["sam", "froton"]:
+		GameState.add_to_party(id)
+	GameState.member("glandoulf")["level"] = 9
+	GameState.member("sam")["level"] = 9
+	GameState.member("pepin")["level"] = 2
+	check(GameState.set_group(["glandoulf", "sam", "pepin"]), "réserve : groupe réuni par le récit")
+	check(int(GameState.member("pepin")["level"]) == 9, "réserve : Pépin rattrape le niveau 9 par le récit (%d)" % int(GameState.member("pepin")["level"]))
+	GameState.new_game()
+
+
+## Le Balourd a une vraie phase (plafond qui gronde puis éboulement) ; la brèche se joue en deux vagues.
+func _test_balourd_phase_and_breche_waves() -> void:
+	print("== Balourd : phase et attaque télégraphiée ; brèche en deux vagues ==")
+	var b := Database.get_enemy("balourd")
+	var low: Array = b.get("ai_low", [])
+	var names: Array = low.map(func(x: Variant) -> String: return str((x as Dictionary).get("skill", "")))
+	check(names.has("plafond_qui_gronde") and names.has("eboulement_du_balourd"), "Balourd : la phase de mi-vie annonce puis lance l'éboulement (%s)" % str(names))
+	check(not (b.get("ai", []) as Array).any(func(x: Variant) -> bool: return str((x as Dictionary).get("skill", "")) == "eboulement_du_balourd"), "Balourd : l'éboulement est réservé à la seconde phase")
+	for sk: String in ["plafond_qui_gronde", "eboulement_du_balourd"]:
+		check(not Database.get_skill(sk).is_empty() and Database.animations.has(sk), "Balourd : %s décrit avec son animation" % sk)
+	check(not Database.get_status("gronde").is_empty(), "Balourd : l'état « le plafond gronde » existe")
+	GameState.new_game()
+	GameState.party = ["glandoulf", "sam"]
+	var eng: RefCounted = BattleEngine.new()
+	eng.setup(Database.get_encounter("balourd"), 5)
+	var boss: RefCounted = eng.enemies[0]
+	var atk0 := float(boss.stat("atk"))
+	eng.perform(boss, {"type": "skill", "id": "plafond_qui_gronde"})
+	check(boss.has_status("gronde") and float(boss.stat("atk")) > atk0 * 1.4, "Balourd : le plafond gronde, son prochain coup est plus lourd (%.0f contre %.0f)" % [float(boss.stat("atk")), atk0])
+	boss.hp = int(boss.max_hp() * 0.4)
+	var seen := {}
+	for i in 300:
+		var act: Dictionary = eng.ai_action(boss)
+		seen[str(act.get("id", "attack"))] = true
+	check(seen.has("plafond_qui_gronde") and seen.has("eboulement_du_balourd"), "Balourd : sous la moitié des PV, il utilise la phase (%s)" % str(seen.keys()))
+	# la brèche : deux vagues enchaînées par le dialogue, la seconde pose le drapeau attendu par la suite
+	var first := Database.get_encounter("breche_avant")
+	var second := Database.get_encounter("breche")
+	check(not first.is_empty() and not second.is_empty(), "brèche : deux vagues décrites")
+	check((first.get("enemies", []) as Array).size() <= 3 and (second.get("enemies", []) as Array).size() <= 2, "brèche : au plus trois ennemis à la fois (%d puis %d)" % [(first.get("enemies", []) as Array).size(), (second.get("enemies", []) as Array).size()])
+	var dlg: Array = Database.get_dialogue("isengarde_breche")
+	check(_dialogue_has(dlg, "battle", "breche_avant") and _dialogue_has(dlg, "battle", "breche"), "brèche : le dialogue enchaîne les deux combats")
 	GameState.new_game()

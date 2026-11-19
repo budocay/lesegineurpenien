@@ -114,13 +114,7 @@ func set_group(ids: Array) -> bool:
 			away.append(id)
 	for id: Variant in next:
 		if not party.has(id):
-			var m := member(str(id))
-			if top > int(m["level"]):
-				m["level"] = top
-				m["xp"] = 0
-				m.erase("hp")
-				m.erase("mp")
-				member(str(id))
+			_catch_up(str(id), top)
 	party = next
 	bench = away
 	refresh_quests()
@@ -155,9 +149,29 @@ func swap_members(a: String, b: String) -> bool:
 		return false
 	if mini(ia, ib) == 0:
 		return false
+	# Celui qui quitte la réserve rattrape le niveau des trois qui restent dans l'équipe
+	# (même règle que set_group : il ne gagne rien en réserve, il ne doit pas revenir trop bas).
+	var entering := a if ia >= MAX_ACTIVE else b
+	var leaving := b if entering == a else a
+	var top := 0
+	for id: Variant in active_party():
+		if str(id) != leaving:
+			top = maxi(top, int(member(str(id))["level"]))
 	party[ia] = b
 	party[ib] = a
+	_catch_up(entering, top)
 	return true
+
+
+## Remet un personnage au niveau « top » s'il est en retard (expérience à zéro, PV et PM pleins).
+func _catch_up(id: String, top: int) -> void:
+	var m := member(id)
+	if top > int(m["level"]):
+		m["level"] = top
+		m["xp"] = 0
+		m.erase("hp")
+		m.erase("mp")
+		member(id)
 
 
 ## Fiche d'un membre de l'équipe (créée et complétée au besoin) : niveau, xp, PV et PM
