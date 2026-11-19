@@ -7286,6 +7286,35 @@ func _test_pad_battle() -> void:
 	await get_tree().process_frame
 
 
+## Conseils de jeu : aucun nom de touche du clavier à la manette, et A referme un conseil qui suspend le jeu.
+func _test_pad_tips(main: Node) -> void:
+	print("== Manette seule : conseils de jeu ==")
+	Controls.set_pad(true)
+	var keyboard_words := ["Entrée", "Échap", "Espace", "Tab ", "Flèches", "Retour arrière", "touche ", "clic", "souris"]
+	var offenders: Array = []
+	for id: Variant in Tutorial.by_id:
+		var view: Dictionary = Tutorial.resolve(Tutorial.by_id[id])
+		var blob := str(view.get("text", "")) + " " + str(view.get("title", ""))
+		for w: String in keyboard_words:
+			if blob.contains(w):
+				offenders.append("%s (%s)" % [str(id), w])
+	check(offenders.is_empty(), "conseils : à la manette, aucun nom de touche du clavier (%s)" % str(offenders))
+	var closed := [false]
+	var tip: Dictionary = Tutorial.by_id["boutique"]
+	var run := func() -> void:
+		await Tutorial._show_modal(tip)
+		closed[0] = true
+	run.call()
+	await get_tree().process_frame
+	check(Tutorial._modal, "conseils : le conseil suspend le jeu")
+	var t0 := Time.get_ticks_msec()
+	while Tutorial._guard > 0.0 and Time.get_ticks_msec() - t0 < 3000:
+		await get_tree().process_frame
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(closed[0] and not Tutorial._modal, "conseils : A referme le conseil, une seule fois")
+
+
 func _test_gamepad_full() -> void:
 	var pad_before := Controls.pad
 	SaveManager.delete_save()
@@ -7302,6 +7331,7 @@ func _test_gamepad_full() -> void:
 	await _test_pad_world(main)
 	await _test_pad_menus(main)
 	await _test_pad_leave(main)
+	await _test_pad_tips(main)
 	main.queue_free()
 	await get_tree().process_frame
 	await _test_pad_battle()
