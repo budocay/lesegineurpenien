@@ -15,8 +15,7 @@
 		"fov": 46,
 		"dof": 0.05,
 		"far_start": 9,
-		"near_start": 0.55,
-		"zones": [{"rect": [2, 36, 32, 8], "pitch": 3.5, "fov": 51, "feather": 4}]
+		"near_start":0.55,"bounds":[2,7.8,34,37.9],"zones": [{"rect": [2, 36, 32, 8], "pitch": 3.5, "fov": 51, "feather": 4}]
 	},
 	"ground": {
 		"default": "void",

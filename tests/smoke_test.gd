@@ -8243,6 +8243,131 @@ func _test_horizon() -> void:
 		if absf(c0.r - c1.r) + absf(c0.g - c1.g) + absf(c0.b - c1.b) > 0.45:
 			seams += 1
 	check(seams < 40, "montagne : peu de ruptures verticales (%d)" % seams)
+	# remparts en tronçons : seul ce qui cache le héros s'estompe (portion locale, opacité minimale plus haute)
+	GameState.new_game()
+	var wc: Node3D = World.new()
+	add_child(wc)
+	wc.setup("minas_croute", "aigle")
+	await get_tree().process_frame
+	var n_local := 0
+	var wide := 0
+	for oc: Dictionary in wc.occluders:
+		if oc.has("local"):
+			n_local += 1
+			var orc: Rect2 = oc["rect"]
+			if str(((oc["nodes"] as Array)[0] as Node).name) == "GoudaRempart" and maxf(orc.size.x, orc.size.y) > 2.1:
+				wide += 1
+	check(n_local > 20 and wide == 0, "murs de la Croûte : remparts taillés en tronçons de 2 m (%d estompables, %d trop larges)" % [n_local, wide])
+	wc.player.position = Vector3(24.0, 0.0, 10.0)
+	wc._cam_target = wc._desired_target()
+	for _k in 6:
+		wc._fade_occluders(1.0)
+	var near_max := 0.0
+	var far_max := 0.0
+	var n_far := 0
+	for oc: Dictionary in wc.occluders:
+		var orc2: Rect2 = oc["rect"]
+		var dxo := maxf(maxf(orc2.position.x - 24.0, 24.0 - orc2.end.x), 0.0)
+		if dxo < 0.5:
+			near_max = maxf(near_max, float(oc["fade"]))
+		elif dxo > 2.0:
+			far_max = maxf(far_max, float(oc["fade"]))
+			n_far += 1
+	check(near_max > 0.3 and near_max <= 0.73, "murs de la Croûte : le tronçon devant le héros s'estompe sans devenir du verre (%.2f)" % near_max)
+	check(n_far > 10 and far_max < 0.01, "murs de la Croûte : le reste du rempart reste plein (%d éléments, %.2f)" % [n_far, far_max])
+	wc.queue_free()
+	await get_tree().process_frame
+	# Cour du Poirier : Tour Blanche entière avec de l'air au-dessus de l'étendard, couloirs et belvédère atteignables
+	GameState.new_game()
+	var wz: Node3D = World.new()
+	add_child(wz)
+	wz.setup("minas_citadelle", "bas")
+	await get_tree().process_frame
+	var twr: Node3D = null
+	for ch2 in wz.get_children():
+		if str(ch2.name).begins_with("TourBlanche"):
+			twr = ch2
+	var top_y := -1000.0
+	var foot_y := 1000.0
+	var tx := 0.0
+	if twr != null:
+		for mi: Node in twr.find_children("*", "MeshInstance3D", true, false):
+			if mi.get_parent().name == "Oiseaux" or mi.get_parent().get_parent().name == "Oiseaux":
+				continue   # les oiseaux volent où ils veulent : seule la tour et son étendard comptent
+			var ab: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
+			top_y = maxf(top_y, ab.end.y)
+			foot_y = minf(foot_y, ab.position.y)
+			if ab.end.y >= top_y:
+				tx = ab.get_center().x
+	var vsz: Vector2 = get_viewport().get_visible_rect().size
+	var n_cut := 0
+	var n_pts := 0
+	var cut_at := ""
+	var gzc := 4.5
+	while gzc < 22.0:
+		var gxc := 4.5
+		while gxc < 32.0:
+			if wz.is_free(Vector2(gxc, gzc), 0.3):
+				wz.player.position = Vector3(gxc, wz.ground_y(gxc, gzc), gzc)
+				wz._cam_target = wz._desired_target()
+				wz._apply_camera()
+				var ptop: Vector2 = wz.camera.unproject_position(Vector3(tx, top_y, -42.0))
+				n_pts += 1
+				if OS.get_environment("GLAN_DBG") != "":
+					print("  TOUR (%.1f,%.1f) haut-y %.0f%%  fov %.0f pitch %.1f" % [gxc, gzc, ptop.y / vsz.y * 100.0, wz.camera.fov, wz.cam_pitch])
+				if ptop.y < vsz.y * 0.04 or wz.camera.is_position_behind(Vector3(tx, top_y, -42.0)):
+					n_cut += 1
+					cut_at = "(%.1f,%.1f) haut %.1f tx %.1f py %.0f/%.0f" % [gxc, gzc, top_y, tx, ptop.y, vsz.y]
+			gxc += 3.0
+		gzc += 3.0
+	check(twr != null and n_pts > 20 and n_cut == 0, "Cour du Poirier : le bout de l'étendard reste dans le cadre en %d points (%d coupés %s)" % [n_pts, n_cut, cut_at])
+	var reach := {}
+	var queue: Array = [Vector2i(int(18.0 * 2.0), int(19.6 * 2.0))]
+	reach[queue[0]] = true
+	while not queue.is_empty():
+		var cur: Vector2i = queue.pop_back()
+		for dv: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var nx: Vector2i = cur + dv
+			if reach.has(nx) or nx.x < 0 or nx.y < 0 or nx.x > 72 or nx.y > 48:
+				continue
+			if wz.is_free(Vector2(float(nx.x) * 0.5, float(nx.y) * 0.5), 0.3):
+				reach[nx] = true
+				queue.append(nx)
+	check(reach.has(Vector2i(9, 16)) and reach.has(Vector2i(9, 9)), "Cour du Poirier : le couloir de gauche (lunette) est libre")
+	check(reach.has(Vector2i(58, 9)), "Cour du Poirier : le belvédère de droite est atteignable")
+	wz.queue_free()
+	await get_tree().process_frame
+	# la caméra ne s'enfonce jamais dans un mur ou un relief sur les trois cartes de Minas
+	for id5: String in ["minas_rues", "minas_croute", "minas_citadelle"]:
+		var mp5: Dictionary = Database.get_map(id5)
+		GameState.new_game()
+		var w5: Node3D = World.new()
+		add_child(w5)
+		w5.setup(id5, str(mp5.get("spawns", {}).keys()[0]))
+		await get_tree().process_frame
+		var low := 0
+		var low_at := ""
+		var gz5 := 1.5
+		while gz5 < float((mp5.get("size", [32, 32]) as Array)[1]):
+			var gx5 := 1.5
+			while gx5 < float((mp5.get("size", [32, 32]) as Array)[0]):
+				if w5.is_free(Vector2(gx5, gz5), 0.3):
+					w5.player.position = Vector3(gx5, w5.ground_y(gx5, gz5), gz5)
+					w5._cam_target = w5._desired_target()
+					w5._apply_camera()
+					var cp: Vector3 = w5.camera.global_position
+					if cp.y < w5.ground_y(cp.x, cp.z) + 0.6:
+						low += 1
+						low_at = "(%.1f,%.1f)" % [gx5, gz5]
+				gx5 += 2.0
+			gz5 += 2.0
+		check(low == 0, "%s : la caméra reste au-dessus du sol et des reliefs en tout point accessible (%d trop bas %s)" % [id5, low, low_at])
+		w5.queue_free()
+		await get_tree().process_frame
+	# fil de préparation : la fermeture le joint proprement
+	Hz.prepare(["minas_croute"])
+	Hz.shutdown_prepare()
+	check(Hz._prep_thread == null, "horizon : le fil de préparation est joint à la fermeture")
 
 
 ## Tous les boss du jeu, dans leur vraie rencontre et leur vraie arène, aux deux formats d'écran : chacun doit

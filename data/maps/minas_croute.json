@@ -16,7 +16,7 @@
 		"near_start": 0.55,
 		"dof": 0.05,
 		"far_start": 9,
-		"zones": [{"rect": [2, 19, 44, 12], "pitch": 8, "fov": 38, "feather": 6}, {"rect": [2, 2, 44, 16], "pitch": 8, "fov": 38, "feather": 6}]
+		"zones": [{"rect": [2, 19, 44, 12], "pitch": 8, "fov": 38, "feather": 6}, {"rect":[2,2,44,16],"pitch":9,"fov":38,"distance":30,"feather":6}]
 	},
 	"ground": {
 		"default": "void",
@@ -130,7 +130,8 @@
 	"style": "gouda",
 	"horizon": {"preset": "plaine", "prepare": ["minas_citadelle", "minas_rues"]},
 	"hole_tile": "gou_boue",
-	"siege": {"fires": 8, "depth": 30},
+	"siege":{"fires":8,"depth":30},
+	"apron": {"from": 41.5, "depth": 8, "x0": 2, "x1": 46, "tile": "gou_pave"},
 	"objects": [
 		{
 			"type": "gou_rempart",
@@ -162,31 +163,11 @@
 		},
 		{
 			"type": "gou_rempart",
-			"points": [
-				[
-					1.5,
-					41
-				],
-				[
-					5.5,
-					41
-				]
-			],
-			"height": 2.4
+			"points":[[1.5,41],[5.5,41]],"height":1.1
 		},
 		{
 			"type": "gou_rempart",
-			"points": [
-				[
-					14.5,
-					41
-				],
-				[
-					46.5,
-					41
-				]
-			],
-			"height": 2.4
+			"points":[[14.5,41],[46.5,41]],"height":1.1
 		},
 		{
 			"type": "gou_porte",
@@ -199,59 +180,24 @@
 		},
 		{
 			"type": "gou_rempart",
-			"points": [
-				[
-					1.5,
-					18
-				],
-				[
-					19,
-					18
-				]
-			],
-			"height": 3
+			"points":[[1.5,18],[19,18]],"height":4.2
 		},
 		{
 			"type": "gou_rempart",
-			"points": [
-				[
-					29,
-					18
-				],
-				[
-					46.5,
-					18
-				]
-			],
-			"height": 3
+			"points":[[29,18],[46.5,18]],"height":4.2
 		},
 		{
 			"type": "gou_porte",
-			"pos": [
-				24,
-				18
-			],
-			"gap": 4,
-			"height": 6.5
+			"pos":[24,18],"gap":4,"height":8
 		},
 		{
 			"type": "gou_tour",
-			"pos": [
-				16,
-				18
-			],
-			"size": 3,
-			"height": 7,
+			"pos":[16,18],"size":3,"height":10,
 			"cap": true
 		},
 		{
 			"type": "gou_tour",
-			"pos": [
-				32,
-				18
-			],
-			"size": 3,
-			"height": 7,
+			"pos":[32,18],"size":3,"height":10,
 			"cap": true
 		},
 		{
