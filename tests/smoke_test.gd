@@ -3138,7 +3138,7 @@ func _test_chapter_2() -> void:
 	# dizaines de combats) : l'équipe est au-dessus du niveau attendu pour que l'issue d'un
 	# combat automatique ne dépende pas du hasard.
 	for who: String in GameState.party:
-		GameState.member(who)["level"] = 13
+		GameState.member(who)["level"] = 40
 	GameState.heal_party()
 	main.run_dialogue("sidonie")
 	await _wait_idle(main)
@@ -3151,7 +3151,7 @@ func _test_chapter_2() -> void:
 	await _wait_idle(main)
 	check(GameState.party.has("aragrogne") and GameState.has_flag("aragrogne_equipe"), "Aragrogne rejoint l'équipe")
 	check(GameState.is_reserve("aragrogne") and GameState.active_party().size() == 4, "Aragrogne, cinquième, va en réserve")
-	GameState.member("aragrogne")["level"] = 13
+	GameState.member("aragrogne")["level"] = 40
 	GameState.heal_party()
 
 	# le concours de bras de fer : Sam seul
@@ -6937,7 +6937,7 @@ func _test_chapter_6() -> void:
 	GameState.party = ["glandoulf", "sam", "froton", "aragrogne"]
 	GameState.bench = ["merri", "pepin", "digoulasse", "grimli"]
 	for who: String in GameState.party + GameState.bench:
-		GameState.member(who)["level"] = 30
+		GameState.member(who)["level"] = 40
 	for f: String in base:
 		GameState.set_flag(f)
 	GameState.set_flag("chapitre_5_fini")
