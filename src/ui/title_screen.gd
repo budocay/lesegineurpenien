@@ -124,6 +124,14 @@ func _ready() -> void:
 	box.add_child(gap)
 	box.add_child(UI.hints([["nav", "choisir"], ["ok", "valider"], ["fullscreen", "plein écran"]], 15))
 
+	var ver := Label.new()   # numéro de version (application/config/version), coin bas droit
+	ver.text = "v" + str(ProjectSettings.get_setting("application/config/version", ""))
+	ver.add_theme_font_size_override("font_size", 14)
+	ver.add_theme_color_override("font_color", Color(0.75, 0.7, 0.6, 0.55))
+	ver.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(ver)
+	ver.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 14)
+
 
 ## Ajoute une ligne au menu (avant « Quitter » par défaut) et la renvoie.
 func add_entry(text: String, action: Callable, before_quit: bool = true) -> Button:
