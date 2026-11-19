@@ -1267,10 +1267,19 @@ Blanc, légèrement lumineux), `gou_lit_pierre` (2 variantes), `gou_voile` (2 va
 Conseils : placer les murs d'une ville à `thick` près de la ligne de la porte pour ne pas fermer
 le passage ; laisser une case libre devant chaque porte (le test de dégagement le vérifie).
 Les cartes de l'étape suivante réutilisent ces objets sans code : tout passe par `data/maps/`.
-=======
 
 ### Sols : mouchetage et décor des maisons
 
 - `MapBuilder.MOTTLE` : par type de sol, `[teinte sombre, teinte claire, force, luminosité]`, appliqué après la peinture du sol (bruit à deux échelles, interpolé) pour casser la répétition des cases. Sans entrée, le sol n'est pas touché.
 - Maisons au style par défaut : jardinières sous les fenêtres du rez-de-chaussée (`flowers`) et lierre (`ivy`) sont en volume (cartes à feuilles découpées, tirages stables selon la carte et la maison).
->>>>>>> main
+- Cinquième valeur facultative d'une entrée `MOTTLE` : `[largeur, hauteur]` des dalles en pixels, pour que chaque dalle ait sa propre teinte (`nain_dalle`, `nain_pont`, `isen_dalle`).
+- Enseigne d'une maison : `HouseBuilder.sign_spot` la pend là où elle ne touche ni fenêtre ni porte ; sur une façade étroite elle rapetisse (échelle 0,85 puis 0,7), et sans place elle est omise.
+
+### Habillage des intérieurs — `src/world/interior_dress.gd`, `src/gfx/interior_painter.gd`
+
+Appliqué à la fin de la construction de toute carte `interior`, sans effet sur les collisions, les passages ni les portes.
+
+- Hors-carte : un plan `Surround` prolonge la roche (ou le gouffre) au-delà de la pièce et se fond dans l'ombre ; jamais noir franc (une part de sa teinte est émissive). Champs facultatifs de la carte : `surround_tile` (tuile du hors-carte ; défaut `roche_fond`, ou `nain_abime` si le sol par défaut l'est), `surround_tint` (couleur de teinte), `surround_fade` (distance d'obscurcissement, défaut 9). Un extérieur dont le sol par défaut est `void` (terrasse suspendue) reçoit le même plan.
+- `wall_dress` : jeu de décors plaqués contre les murs du fond, parmi `cave` (étagères, crochets, niches à bougie, tonneaux, tentures, poutres), `garde` (casseroles, crochets, grilles, appliques), `auberge` (tentures, étagères, appliques, lumière de fenêtres) et `mine` (boucliers, plaques, niches, tentures). Tirage stable selon l'identifiant de la carte ; rien n'est posé devant une porte, une fenêtre ou un meuble.
+- `wall_tile` accepte aussi `cave_pierre` et `cave_pierre_noire` (moellons appareillés de cave) ; `wall_tint` (couleur multipliée) et `wall_cap` (dessus des murs) retouchent la matière.
+- Les bougies, niches et fenêtres éclairent sans projeter d'ombre supplémentaire.

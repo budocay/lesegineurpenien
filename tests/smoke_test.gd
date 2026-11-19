@@ -121,6 +121,7 @@ func _ready() -> void:
 	await _test_houses()
 	_test_arena_mood()
 	_test_door_clearance()
+	await _test_interior_dress()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -5496,6 +5497,97 @@ func _test_door_clearance() -> void:
 					bad += 1
 					check(false, "portes : « %s » (%s en %s) gêne la porte de la maison %s" % [str((o as Dictionary).get("type", "")), id, str(p), str(r)])
 	check(bad == 0, "portes : aucun objet devant une porte de maison")
+
+
+## Habillage des intérieurs : hors-carte jamais noir, décors posés de façon stable, enseignes sans chevauchement.
+func _test_interior_dress() -> void:
+	print("== Habillage des intérieurs et décors ==")
+	var ID: GDScript = load("res://src/world/interior_dress.gd")
+	var IP: GDScript = load("res://src/gfx/interior_painter.gd")
+	var HB: GDScript = load("res://src/world/house_builder.gd")
+	var MB: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for field: String in ["wall_dress", "surround_tile", "surround_fade", "sign_spot", "cave_pierre"]:
+		check(docs.contains(field), "habillage : « %s » est documenté" % field)
+	# décors muraux : tous peints, opaques par endroits, à un pixel des bords
+	for kind: String in IP.DECOR:
+		for v in int(IP.DECOR[kind][0]):
+			var d: Dictionary = IP.paint_decor(kind, v)
+			var img: Image = d["albedo"]
+			var opaque := 0
+			for y in img.get_height():
+				for x in img.get_width():
+					if img.get_pixel(x, y).a > 0.5:
+						opaque += 1
+			check(opaque > 40, "habillage : décor %s/%d peint (%d pixels)" % [kind, v, opaque])
+	# mouchetage : teintes distinctes, dalles bien formées
+	for t: String in MB.MOTTLE:
+		var m: Array = MB.MOTTLE[t]
+		check(not Color(str(m[0])).is_equal_approx(Color(str(m[1]))), "mouchetage %s : deux teintes distinctes" % t)
+		if m.size() > 4:
+			check(m[4] is Array and (m[4] as Array).size() == 2 and int(m[4][0]) > 0 and int(m[4][1]) > 0, "mouchetage %s : dalles [largeur, hauteur]" % t)
+	# les cartes d'intérieur : hors-carte présent, ombre coupée, rien de noir, décors stables
+	var checked := 0
+	for id in Database.list_maps():
+		var map := Database.get_map(id)
+		if not bool(map.get("interior", false)):
+			continue
+		var tile := str(map.get("surround_tile", "roche_fond"))
+		var tex_img: Image = load("res://src/gfx/tile_painter.gd").paint(tile)
+		var lum := 0.0
+		for y in range(0, tex_img.get_height(), 3):
+			for x in range(0, tex_img.get_width(), 3):
+				var c := tex_img.get_pixel(x, y)
+				lum += 0.299 * c.r + 0.587 * c.g + 0.114 * c.b
+		lum /= float((tex_img.get_width() / 3 + 1) * (tex_img.get_height() / 3 + 1))
+		var tint := Color(str(map.get("surround_tint", "#ffffff")))
+		# au plus loin du fondu (far_level 0,1 x 0,6 d'éclat), plus la part émissive (glow 0,45)
+		var seen := lum * (tint.r + tint.g + tint.b) / 3.0 * 0.1 * 0.6 * 1.45
+		check(lum > 0.08, "hors-carte %s : tuile « %s » assez claire pour n'être jamais noire (%.2f)" % [id, tile, lum])
+		check(seen > 0.0 and tint.get_luminance() > 0.2, "hors-carte %s : teinte non noire" % id)
+		var sums: Array = []
+		for pass_i in 2:
+			GameState.new_game()
+			var world: Node3D = World.new()
+			add_child(world)
+			world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
+			var sur := world.get_node_or_null("Surround") as MeshInstance3D
+			check(sur != null and sur.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "habillage %s : hors-carte posé, sans ombre" % id)
+			var dress := world.get_node_or_null("InteriorDress")
+			var sig := 0.0
+			var n := 0
+			if dress != null:
+				for c: Node in dress.get_children():
+					if c is MeshInstance3D:
+						sig += (c as MeshInstance3D).position.x * 3.0 + (c as MeshInstance3D).position.y
+						n += 1
+					elif c is OmniLight3D:
+						check(not (c as OmniLight3D).shadow_enabled, "habillage %s : une bougie ou fenêtre ne projette pas d'ombre" % id)
+			if str(map.get("wall_dress", "")) != "":
+				check(dress != null, "habillage %s : décors muraux posés" % id)
+			sums.append([snappedf(sig, 0.001), n])
+			world.queue_free()
+			await get_tree().process_frame
+		check(sums[0] == sums[1], "habillage %s : décors posés à l'identique d'une construction à l'autre" % id)
+		checked += 1
+	check(checked >= 12, "habillage : au moins douze intérieurs contrôlés (%d)" % checked)
+	# enseignes : ni sur une fenêtre ni sur la porte, jamais plus large que la façade
+	for id in Database.list_maps():
+		for o: Variant in Database.get_map(id).get("objects", []):
+			if not (o is Dictionary) or str((o as Dictionary).get("type", "")) != "house" or not (o as Dictionary).has("door"):
+				continue
+			var r: Array = (o as Dictionary).get("rect", [0, 0, 5, 4])
+			var x0 := float(r[0])
+			var xd := x0 + float((o as Dictionary)["door"])
+			var wins: Array = (o as Dictionary).get("windows", [])
+			var spot: Vector2 = HB.sign_spot(x0, float(r[2]), xd, wins)
+			if spot.x < 0.0:
+				continue
+			var half := 0.58 * spot.y
+			check(absf(spot.x - xd) >= half + 0.55 - 0.001, "enseigne %s %s : ne touche pas la porte" % [id, str(r)])
+			for wv: Variant in wins:
+				check(absf(spot.x - (x0 + float(wv))) >= half + 0.6 - 0.001, "enseigne %s %s : ne touche pas la fenêtre en %s" % [id, str(r), str(wv)])
+			check(spot.x - half >= x0 and spot.x + half <= x0 + float(r[2]), "enseigne %s %s : tient dans la façade" % [id, str(r)])
 
 
 ## Maisons du style par défaut : volumes, variété stable, jouabilité inchangée (emprise, porte, estompage).

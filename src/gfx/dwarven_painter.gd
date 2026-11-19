@@ -249,14 +249,15 @@ static func _wet_rock(pebbles: bool) -> Image:
 	var img := PA.new_image(T, T)
 	var sd := 861 if pebbles else 851
 	img.fill(Color("#3a4a5e"))
-	TP._blotches(img, sd, 9, Color("#33425a") if not pebbles else Color("#2e3c50"), 5.0, 11.0)
-	TP._blotches(img, sd + 1, 8, Color("#4a5e76"), 3.5, 8.0)
-	TP._blotches(img, sd + 2, 5, Color("#26324a"), 4.0, 7.0)
+	# taches proches du fond et assez petites : aucune forme ne ressort, donc rien ne se répète à l'oeil
+	TP._blotches(img, sd, 22, Color("#36465c") if not pebbles else Color("#2e3c50"), 2.5, 6.0)
+	TP._blotches(img, sd + 1, 20, Color("#42566e"), 2.0, 5.0)
+	TP._blotches(img, sd + 2, 12, Color("#2c3a50"), 2.5, 5.5)
 	_specks_in(img, sd + 3, 70, Color("#566c86"))
 	_specks_in(img, sd + 4, 34, Color("#22304a"))
 	if not pebbles:
 		# fissures sombres, courtes et sinueuses
-		for i in 5:
+		for i in 3:
 			var x := PA.rnd(i, 1, sd + 5) * T
 			var y := PA.rnd(i, 2, sd + 5) * T
 			var dir := PA.rnd(i, 3, sd + 5) * TAU
@@ -284,15 +285,18 @@ static func _wet_rock(pebbles: bool) -> Image:
 ## Le gouffre : presque noir, des strates à peine devinées et quelques braises au fond.
 static func _abyss() -> Image:
 	var img := PA.new_image(T, T)
-	img.fill(Color("#0b0a14"))
-	TP._blotches(img, 831, 10, Color("#14121f"), 6.0, 13.0)
-	TP._blotches(img, 832, 5, Color("#06050c"), 5.0, 9.0)
+	img.fill(Color("#120f1e"))
+	TP._blotches(img, 831, 12, Color("#1c1830"), 6.0, 13.0)
+	TP._blotches(img, 832, 5, Color("#0a0814"), 5.0, 9.0)
+	# couches de magma qui rougeoient sous la roche : le gouffre n'est jamais noir franc
+	TP._blotches(img, 836, 7, Color("#2e1420"), 4.0, 9.0)
+	TP._blotches(img, 837, 4, Color("#4a1c1c"), 2.5, 5.0)
 	for i in 6:
 		var y := int(PA.rnd(i, 1, 833) * T)
 		for x in T:
 			if PA.rnd(x, i, 834) < 0.55:
-				_wrap_px(img, x, y, Color("#1c1a2c"))
-	for i in 3:
+				_wrap_px(img, x, y, Color("#241f38"))
+	for i in 7:
 		var x := int(PA.rnd(i, 1, 835) * T)
 		var y := int(PA.rnd(i, 2, 835) * T)
 		_wrap_px(img, x, y, Color("#d8602a"))

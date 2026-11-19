@@ -12,6 +12,7 @@ const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
 const HouseBuilder = preload("res://src/world/house_builder.gd")
 const RiderBuilder = preload("res://src/world/rider_builder.gd")
 const GoudaBuilder = preload("res://src/world/gouda_builder.gd")
+const InteriorDress = preload("res://src/world/interior_dress.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -47,7 +48,12 @@ const MOTTLE := {
 	"cav_chemin": ["#8a6c40", "#d8bc82", 0.5, 0.1],
 	"nain_neige": ["#9db2d8", "#f4f2ee", 0.5, 0.08],
 	"nain_sentier": ["#8a8590", "#d4cec8", 0.5, 0.1],
-	"nain_roche_humide": ["#223048", "#4e6684", 0.42, 0.14],
+	"nain_roche_humide": ["#1c2c3e", "#58769a", 0.58, 0.16],
+	# cinquième valeur : [largeur, hauteur] des dalles, pour que chacune ait sa propre teinte (voir `_mottle`)
+	"nain_dalle": ["#262f52", "#5c5a80", 0.55, 0.1, [24, 16]],
+	"nain_pont": ["#6a6580", "#aaa2bc", 0.5, 0.08, [16, 12]],
+	"isen_dalle": ["#1e1c28", "#504b5c", 0.55, 0.1, [16, 12]],
+	"floor": ["#6a4222", "#bc8a52", 0.5, 0.1],
 	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
 	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
 }
@@ -216,6 +222,7 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		if str(o.get("type", "")) == "scatter":
 			_scatter(o)
 	_undergrowth()
+	InteriorDress.dress(self)
 
 	var amb := Database.get_ambiance(str(map.get("ambiance", "crepuscule")))
 	world.followers = Atmosphere.build(world, amb, Rect2(0.0, 0.0, w, h))
@@ -515,7 +522,7 @@ func _mottle(img: Image) -> void:
 				continue
 			if not parsed.has(t):
 				var m: Array = MOTTLE[t]
-				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3])]
+				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3]), m[4] if m.size() > 4 else null]
 			var pm: Array = parsed[t]
 			for py in PPU:
 				for px in PPU:
@@ -749,7 +756,7 @@ func _build_interior_walls() -> void:
 				any = true
 	if not any:
 		return
-	var walls := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("interior_wall")))
+	var walls := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture(str(map.get("wall_tile", "interior_wall")))))
 	walls.name = "Walls"
 	world.add_child(walls)
 	var caps := MeshKit.finish(cap, MeshKit.flat_material(Color("#0d0a12")))

@@ -8,6 +8,7 @@
 	],
 	"interior": true,
 	"wall_height": 3.0,
+	"wall_dress": "auberge",
 	"ambiance": "auberge_nuit",
 	"music": "menace",
 	"arena": "etage_auberge",

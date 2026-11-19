@@ -435,6 +435,70 @@
 				12.0
 			],
 			"if": "fosses_inondees"
+		},
+		{
+			"type": "scatter",
+			"prop": "brazier",
+			"rect": [
+				0,
+				0,
+				64,
+				36
+			],
+			"count": 8,
+			"min_dist": 5.0,
+			"seed": 93,
+			"on": [
+				"isen_dalle"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "anvil",
+			"rect": [
+				0,
+				0,
+				64,
+				36
+			],
+			"count": 4,
+			"min_dist": 8.0,
+			"seed": 94,
+			"on": [
+				"isen_dalle"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "isen_marmite",
+			"rect": [
+				0,
+				0,
+				64,
+				36
+			],
+			"count": 3,
+			"min_dist": 8.0,
+			"seed": 95,
+			"on": [
+				"isen_dalle"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "barrel",
+			"rect": [
+				0,
+				0,
+				64,
+				36
+			],
+			"count": 6,
+			"min_dist": 3.0,
+			"seed": 96,
+			"on": [
+				"isen_dalle"
+			]
 		}
 	]
 }

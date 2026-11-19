@@ -8,6 +8,7 @@
 	],
 	"interior": true,
 	"wall_height": 4.4,
+	"wall_dress": "mine",
 	"ambiance": "mines_profondeurs",
 	"music": "morbier_mines",
 	"arena": "galerie_mine",
