@@ -673,7 +673,7 @@ static func mushrooms(v: int) -> Image:
 ## Roseaux et massettes : lames qui retombent, épis bruns.
 static func reeds(v: int) -> Image:
 	var img := PA.new_image(30, 46)
-	var pal := _palette(["#2a5a3a", "#4a8a48", "#8cc060"])
+	var pal := _palette(["#2a6a3e", "#3f9a4a", "#7cd068"])
 	for i in 9:
 		var x := 4 + i * 3 + int(PA.rnd(i, 1, 340 + v) * 2.0)
 		var hgt := 22 + int(PA.rnd(i, 2, 340 + v) * 20.0)
@@ -687,7 +687,7 @@ static func reeds(v: int) -> Image:
 				PA.px(img, xx + 1, 45 - k, pal[2] if i % 2 == 0 else c)
 		if i % 3 == 1:
 			var tx := int(round(float(x) + lean))
-			PA.rect(img, tx, 45 - hgt - 1, 2, 6, Color("#6a4528"))
+			PA.rect(img, tx, 45 - hgt - 1, 3, 8, Color("#5a3820"))
 			PA.px(img, tx, 45 - hgt - 1, Color("#8a6238"))
 			PA.px(img, tx, 45 - hgt - 5, Color("#3a2618"))
 	# longues feuilles qui retombent

@@ -96,6 +96,8 @@
 	"style": "cavalier",
 	"clouds": 1.0,
 	"objects": [
+		{"type": "fence", "points": [[22, 3], [22, 4.6]], "lean": 4},
+		{"type": "fence", "points": [[22, 8.4], [22, 10.6], [35, 10.6], [35, 3]], "lean": 4},
 		{"type": "scatter", "prop": "tallgrass", "rect": [0, 3, 56, 22], "count": 150, "min_dist": 0.9, "seed": 200, "on": ["cav_herbe"]},
 		{"type": "scatter", "prop": "flowers", "rect": [0, 3, 56, 22], "count": 45, "min_dist": 1.6, "seed": 201, "on": ["cav_herbe"]},
 		{

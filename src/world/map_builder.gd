@@ -604,14 +604,14 @@ func _wear(img: Image) -> void:
 			var ix := gx / cs
 			var iy := gy / cs
 			var zone := hp.vnoise(float(gx), float(gy), 961, 80.0)
-			var p := clampf((zone - 0.42) * 1.6, 0.0, 0.55)
+			var p := clampf((zone - 0.36) * 1.9, 0.0, 0.7)
 			if PA.rnd(ix, iy, 962) >= p:
 				continue
 			var cx := float(gx) + PA.rnd(ix, iy, 963) * float(cs)
 			var cy := float(gy) + PA.rnd(ix, iy, 964) * float(cs)
 			var big := PA.rnd(ix, iy, 965)
-			var rx := 3.0 + 7.0 * big * big
-			var ry := rx * (0.4 + 0.3 * PA.rnd(ix, iy, 966))
+			var rx := 4.5 + 9.0 * big
+			var ry := rx * (0.45 + 0.3 * PA.rnd(ix, iy, 966))
 			var ok := true
 			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry)]:
 				if not WEAR.has(_cell_at_pixel(cx + q.x, cy + q.y)):
@@ -621,11 +621,12 @@ func _wear(img: Image) -> void:
 			PA.ellipse(img, cx, cy, rx, ry, Color("#0a080c"))
 			PA.ellipse(img, cx - 0.4, cy - 0.5, rx * 0.84, ry * 0.76, Color("#17121a"))
 			# bord net et luisant : un liseré clair sur le haut de la flaque, comme un liquide épais
-			PA.ellipse(img, cx - 0.2, cy - ry * 0.2, rx * 0.97, ry * 0.2, Color("#2a2234"))
+			PA.ellipse(img, cx - 0.2, cy - ry * 0.2, rx * 0.97, ry * 0.26, Color("#5a4a78"))
+			PA.ellipse(img, cx + rx * 0.1, cy + ry * 0.35, rx * 0.6, ry * 0.18, Color("#2a3a6a"))
 			if rx > 4.0:
 				# reflet des flammes (trait orangé, cœur jaune), irisation froide et violette sur la nappe
-				PA.ellipse(img, cx - rx * 0.28, cy - ry * 0.4, rx * 0.42, 0.9, Color("#c8683a"))
-				PA.ellipse(img, cx - rx * 0.32, cy - ry * 0.42, rx * 0.2, 0.6, Color("#ffd080"))
+				PA.ellipse(img, cx - rx * 0.28, cy - ry * 0.4, rx * 0.5, 1.3, Color("#e07a3a"))
+				PA.ellipse(img, cx - rx * 0.32, cy - ry * 0.42, rx * 0.26, 0.9, Color("#fff0b0"))
 				for k in int(rx * 0.7):
 					PA.px(img, int(cx - rx * 0.2) + k, int(cy + ry * 0.25) + (k % 2), Color("#3e5a9a") if k % 3 != 1 else Color("#7a4a9a"))
 				PA.px(img, int(cx + rx * 0.5), int(cy - ry * 0.1), Color("#7a9ae0"))
@@ -1075,6 +1076,7 @@ func _object(o: Dictionary) -> void:
 				HouseBuilder.house(self, o)
 		"lantern": _lantern(o)
 		"fence": _fence(o)
+		"balustrade": _balustrade(o)
 		"npc": _npc(o)
 		"light": _light(o)
 		"warp": _warp(o)
@@ -1350,7 +1352,7 @@ func _lantern(o: Dictionary) -> void:
 	_mesh_box(p + Vector3(0, 2.29, 0), Vector3(0.46, 0.08, 0.46), MeshKit.flat_material(Color("#2f2c38")), false)
 	_mesh_box(p + Vector3(0, 2.37, 0), Vector3(0.2, 0.08, 0.2), MeshKit.flat_material(Color("#2f2c38")), false)
 	var color := Database.color(o.get("color", "#ffb45e"), WARM)
-	_add_light(p + Vector3(0, 2.0, 0.05), color, float(o.get("energy", 3.2)), float(o.get("range", 7.5)), bool(o.get("shadow", true)), 0.1)
+	_add_light(p + Vector3(0, 2.0, 0.05), color, float(o.get("energy", 3.2)), float(o.get("range", 7.5)), bool(o.get("shadow", false)), 0.1)
 	world.circles.append(Vector3(p.x, p.z, 0.2))
 	keep_clear.append(Vector2(p.x, p.z))
 
@@ -1383,6 +1385,43 @@ func _fence(o: Dictionary) -> void:
 		for k in range(steps + 1):
 			var q := a.lerp(b, float(k) / float(steps))
 			world.circles.append(Vector3(q.x, q.y, 0.17))
+
+
+## Balustrade de pierre mousseuse qui suit le relief (terrasses, bords de gouffre). Champs : `points` (cases,
+## comme `fence`), `height` (0,6). Blocs de teintes variées, chapeau plus clair, mousse au pied et sur le dessus.
+func _balustrade(o: Dictionary) -> void:
+	var pts: Array = o.get("points", [])
+	var hgt := float(o.get("height", 0.6))
+	var tones := [Color("#6f7478"), Color("#7d8286"), Color("#62686c"), Color("#868a8c")]
+	for i in range(pts.size() - 1):
+		var pa: Array = pts[i]
+		var pb: Array = pts[i + 1]
+		var a := Vector2(float(pa[0]) + 0.5, float(pa[1]) + 0.5)
+		var b := Vector2(float(pb[0]) + 0.5, float(pb[1]) + 0.5)
+		var length := a.distance_to(b)
+		if length < 0.05:
+			continue
+		var n := maxi(1, int(round(length / 0.8)))
+		var angle := -atan2(b.y - a.y, b.x - a.x)
+		for k in range(n):
+			var q := a.lerp(b, (float(k) + 0.5) / float(n))
+			var seg := length / float(n)
+			var gy: float = world.ground_y(q.x, q.y)
+			var tone: Color = tones[rng.randi() % tones.size()]
+			var block := _mesh_box(Vector3(q.x, gy + hgt * 0.5, q.y), Vector3(seg * 0.96, hgt, 0.3), MeshKit.flat_material(tone))
+			block.rotation.y = angle
+			var cap := _mesh_box(Vector3(q.x, gy + hgt + 0.04, q.y), Vector3(seg, 0.09, 0.38), MeshKit.flat_material(tone.lightened(0.12)))
+			cap.rotation.y = angle
+			if rng.randf() < 0.55:
+				var moss := _mesh_box(Vector3(q.x + rng.randf_range(-0.12, 0.12), gy + hgt + 0.1, q.y), Vector3(seg * rng.randf_range(0.3, 0.7), 0.05, 0.3), MeshKit.flat_material(Color("#5a8a3c").darkened(rng.randf_range(0.0, 0.25))))
+				moss.rotation.y = angle
+			if rng.randf() < 0.5:
+				var foot := _mesh_box(Vector3(q.x, gy + 0.12, q.y + 0.0), Vector3(seg * rng.randf_range(0.4, 0.9), 0.24, 0.34), MeshKit.flat_material(Color("#4f7a38").darkened(rng.randf_range(0.0, 0.2))))
+				foot.rotation.y = angle
+		var steps := int(ceil(length / 0.35))
+		for k in range(steps + 1):
+			var q2 := a.lerp(b, float(k) / float(steps))
+			world.circles.append(Vector3(q2.x, q2.y, 0.17))
 
 
 func _npc(o: Dictionary) -> void:
