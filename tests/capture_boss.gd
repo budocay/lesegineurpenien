@@ -78,6 +78,20 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png("%s/%s_annonce.png" % [out_dir, id])
 			sc.boss.next_skill = ""
+		if sc != null and sc.boss != null and OS.has_environment("BOSS_POSES"):   # poses « sort » puis « KO » du boss, dans le vrai combat
+			var actor: Node3D = sc.actors[sc.boss.key]
+			var hero_pos: Vector3 = (sc.actors[sc.engine.party[0].key] as Node3D).position
+			actor.play_pose("cast", hero_pos, 0.9)
+			await get_tree().create_timer(0.3).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_cast.png" % [out_dir, id])
+			await get_tree().create_timer(1.6).timeout
+			actor.play_ko()
+			await get_tree().create_timer(0.3).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png("%s/%s_ko.png" % [out_dir, id])
+			await get_tree().create_timer(1.2).timeout
+			actor.play_revive()
 		await _flee()
 		main.battle_ui._on_end("ok")
 		for _m in 100:

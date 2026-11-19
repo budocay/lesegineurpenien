@@ -918,7 +918,7 @@ func _foes_fit(view: Vector2) -> bool:
 		var r := _play_rect(c)   # dans toutes ses poses : ni sous la frise, ni hors de l'écran, sa plaque comprise
 		# (la tête d'un boss, au repos, passe sous la frise ; son bond, rare et bref, peut passer derrière elle)
 		var head: float = screen_rect(c).position.y if c == boss else r.position.y
-		if r.position.x < 8.0 or r.end.y + PLATE_H > view.y - 8.0 or head < top.end.y + 4.0:
+		if r.position.x < 8.0 or r.end.y + PLATE_H > view.y - 14.0 or head < top.end.y + 4.0:
 			return false
 		for h: RefCounted in engine.party:
 			if r.intersects(screen_rect(h).grow(4.0)):

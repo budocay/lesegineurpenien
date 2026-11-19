@@ -93,6 +93,7 @@ func setup(p_combatant: RefCounted, p_home: Vector3) -> void:
 func set_light(lift: float, rim: float) -> void:
 	_quad.set_instance_shader_parameter("lift", lift)
 	_quad.set_instance_shader_parameter("rim", rim)
+	_quad.set_instance_shader_parameter("tame", 1.0)   # (aucun blanc brûlé, quelle que soit l'arène)
 
 
 ## Taille d'affichage en combat : multiplie le sprite, son ombre, sa hauteur et son vol. La scène
@@ -286,9 +287,10 @@ func _set_pose(p: String) -> void:
 		_char.pose = p
 		return
 	_mpose = p
-	if p == "ko":
+	var drawn: Dictionary = _sheet.get("poses", {})
+	if p == "ko" and not drawn.has("ko"):   # (les boss et vedettes ont de vraies poses de KO et de sort ; les autres reprennent coup reçu et attaque)
 		_mpose = "hit"
-	elif p == "cast":
+	elif p == "cast" and not drawn.has("cast"):
 		_mpose = "attack"
 	_monster_frame()
 

@@ -15,12 +15,13 @@ const MP = preload("res://src/gfx/monster_painter.gd")
 const GM = preload("res://src/gfx/gouda_monsters.gd")
 
 const KINDS: Array[String] = ["boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron",
-		"boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum"]
+		"boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk"]
 
 const SIZES := {
 	"boss_sarumale": Vector2i(72, 112), "boss_froton": Vector2i(64, 92), "boss_grimace": Vector2i(72, 104),
 	"boss_gardien": Vector2i(72, 108), "boss_sauron": Vector2i(84, 112), "boss_naze": Vector2i(72, 108),
 	"boss_naze_est": Vector2i(72, 108), "boss_naze_ouest": Vector2i(72, 108), "boss_goulum": Vector2i(64, 76),
+	"boss_uglouk": Vector2i(92, 108),
 }
 
 const INK := Color("#1c1222")
@@ -60,6 +61,8 @@ static func paint(kind: String, img: Image, ox: int, f: int, col: int, size: Vec
 			_thief(img, ox, f, col, size)
 		"boss_goulum":
 			_goulum(img, ox, f, col, size)
+		"boss_uglouk":
+			_uglouk(img, ox, f, col, size)
 		_:
 			MP._rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 
@@ -625,3 +628,142 @@ static func _goulum(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	# l'anneau, à son cou : un petit éclat d'or contre la poitrine
 	GM._o(img, cx + w * 0.1, h * 0.44 + dy, w * 0.022, w * 0.022, gold, 0.3)
 	_star(img, cx + w * 0.1, h * 0.44 + dy, w * 0.07, Color("#fff0a0"))
+
+
+## Uglouk, chef de brigade : un ouroukouille massif en toque de cuisinier de travers, tablier crème taché de ragoût,
+## jambon de bras, deux défenses, une louche de guerre grande comme lui et, sous le bras, le bon de livraison
+## (qu'il ne lâche jamais). Galons de brigadier en chevrons sur l'épaule, gamelle à la ceinture. Poses : repos,
+## respiration, attaque (louche brandie, gueule ouverte), coup reçu ; le sort et le KO sont tirés de ces dessins.
+static func _uglouk(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void:
+	var w := float(size.x)
+	var h := float(size.y)
+	var lean := -w * 0.05 if col == 3 else (w * 0.03 if col == 2 else 0.0)
+	var cx := ox + w * 0.43 + lean * 0.5
+	var dy := float(f) * 0.9
+	var skin := MP._ramp("#7d9558")
+	var leather := MP._ramp("#6a4a34")
+	var apron := MP._ramp("#ece2c4")
+	var pants := MP._ramp("#54483c")
+	var boots := MP._ramp("#2e2420")
+	var iron := MP._ramp("#a4aebc")
+	var wood := MP._ramp("#8e6234")
+	var gold := MP._ramp("#d8aa44")
+	var stew := Color("#8a4a2a")
+	var tusk := Color("#f2e8cc")
+	var y0 := h * 0.36 + dy
+	# jambes épaisses, bottes ferrées
+	GM._cp(img, cx - w * 0.12, h * 0.66, cx - w * 0.15, h * 0.92, w * 0.09, w * 0.075, MP._dim(pants))
+	GM._cp(img, cx + w * 0.12, h * 0.66, cx + w * 0.16, h * 0.92, w * 0.095, w * 0.08, pants)
+	GM._o(img, cx - w * 0.16, h * 0.955, w * 0.12, h * 0.034, MP._dim(boots))
+	GM._o(img, cx + w * 0.22, h * 0.958, w * 0.14, h * 0.036, boots)
+	GM._tp(img, h * 0.9, h * 0.935, cx - w * 0.24, cx - w * 0.07, cx - w * 0.25, cx - w * 0.06, MP._dim(leather))
+	GM._tp(img, h * 0.9, h * 0.935, cx + w * 0.07, cx + w * 0.24, cx + w * 0.06, cx + w * 0.26, leather)
+	# bras de derrière : serre le bon de livraison contre la hanche
+	var bh := Vector2(cx - w * 0.3, h * 0.62 + dy * 0.5)
+	if col == 2:
+		bh = Vector2(cx - w * 0.33, h * 0.52)
+	GM._cp(img, cx - w * 0.2, y0 + h * 0.04, cx - w * 0.33, h * 0.5 + dy * 0.5, w * 0.075, w * 0.065, MP._dim(skin))
+	GM._cp(img, cx - w * 0.33, h * 0.5 + dy * 0.5, bh.x, bh.y, w * 0.065, w * 0.055, MP._dim(skin))
+	GM._tp(img, bh.y - h * 0.09, bh.y + h * 0.07, bh.x - w * 0.075, bh.x + w * 0.07, bh.x - w * 0.08, bh.x + w * 0.075, MP._ramp("#e8dcb8"))   # le bon, replié
+	for i in 4:
+		MP._cap(img, bh.x - w * 0.05, bh.y - h * 0.065 + h * 0.03 * float(i), bh.x + w * (0.05 - 0.012 * float(i % 2)), bh.y - h * 0.065 + h * 0.03 * float(i), 0.22, 0.22, GM._flat(Color("#6a5638")))
+	GM._disc(img, bh.x + w * 0.035, bh.y + h * 0.045, w * 0.016, Color("#b8321a"))
+	GM._o(img, bh.x - w * 0.01, bh.y + h * 0.02, w * 0.05, w * 0.05, MP._dim(skin))
+	# tronc : gros, voûté, ventre en avant (cuir de brigadier)
+	GM._o(img, cx, h * 0.5 + dy, w * 0.26, h * 0.2, leather, -0.05)
+	GM._o(img, cx + w * 0.02, h * 0.62 + dy * 0.7, w * 0.275, h * 0.15, leather, 0.05)
+	# tablier crème, taché
+	GM._tp(img, y0 + h * 0.1, h * 0.84, cx - w * 0.17, cx + w * 0.2, cx - w * 0.23, cx + w * 0.26, apron)
+	GM._folds(img, [cx - w * 0.07, cx + w * 0.1], y0 + h * 0.14, h * 0.82, apron, 0.0)
+	GM._disc(img, cx - w * 0.08, h * 0.7, w * 0.04, stew)
+	GM._disc(img, cx + w * 0.12, h * 0.77, w * 0.03, stew)
+	GM._o(img, cx + w * 0.03, h * 0.62, w * 0.05, h * 0.02, MP._ramp("#b87a46"), 0.1)
+	MP._cap(img, cx - w * 0.2, h * 0.74, cx - w * 0.04, h * 0.745, 0.3, 0.3, GM._flat(apron[1]))
+	GM._tp(img, h * 0.835, h * 0.855, cx - w * 0.23, cx + w * 0.26, cx - w * 0.235, cx + w * 0.265, MP._ramp("#b8a878"))
+	# bretelles du tablier et baudrier
+	MP._cap(img, cx - w * 0.12, y0 + h * 0.05, cx - w * 0.08, y0 + h * 0.14, 0.9, 0.9, GM._flat(apron[1]))
+	MP._cap(img, cx + w * 0.14, y0 + h * 0.05, cx + w * 0.12, y0 + h * 0.14, 0.9, 0.9, GM._flat(apron[1]))
+	# ceinture, gamelle et trousseau
+	GM._tp(img, h * 0.675, h * 0.715, cx - w * 0.26, cx + w * 0.28, cx - w * 0.265, cx + w * 0.285, MP._ramp("#3a2a20"))
+	GM._o(img, cx + w * 0.03, h * 0.695, w * 0.045, h * 0.024, gold, 0.15)
+	GM._o(img, cx - w * 0.18, h * 0.76, w * 0.055, h * 0.04, iron, 0.1)   # la gamelle
+	GM._tp(img, h * 0.725, h * 0.735, cx - w * 0.225, cx - w * 0.135, cx - w * 0.225, cx - w * 0.135, iron)
+	MP._curve(img, Vector2(cx - w * 0.2, h * 0.72), Vector2(cx - w * 0.18, h * 0.69), Vector2(cx - w * 0.15, h * 0.72), GM.INK, 0.3)
+	# épaules : épaulières de cuir, galons en chevrons
+	GM._o(img, cx - w * 0.25, y0 + h * 0.03, w * 0.11, h * 0.07, leather, 0.1)
+	GM._o(img, cx + w * 0.26, y0 + h * 0.03, w * 0.115, h * 0.07, leather, 0.1)
+	for i in 3:
+		var gy := y0 + h * (0.0 + 0.026 * float(i))
+		GM._tri(img, Vector2(cx - w * 0.31, gy + h * 0.03), Vector2(cx - w * 0.25, gy), Vector2(cx - w * 0.19, gy + h * 0.03), gold[3])
+		GM._tri(img, Vector2(cx - w * 0.31, gy + h * 0.042), Vector2(cx - w * 0.25, gy + h * 0.012), Vector2(cx - w * 0.19, gy + h * 0.042), gold[1])
+	# tête : mâchoire carrée, front bas, défenses
+	var hcx := cx + w * 0.06 + lean
+	var hcy := h * 0.245 + dy
+	var hr := w * 0.15
+	var hv := h * 0.1
+	GM._cp(img, cx + w * 0.02, y0 + h * 0.03, hcx - w * 0.02, hcy + hv * 0.7, w * 0.09, w * 0.08, MP._dim(skin))
+	GM._tri(img, Vector2(hcx - hr * 0.8, hcy - hv * 0.2), Vector2(hcx - hr * 0.8, hcy + hv * 0.5), Vector2(hcx - hr * 1.9, hcy - hv * 0.7), skin[2])   # oreille pointue
+	GM._tri(img, Vector2(hcx - hr * 0.8, hcy - hv * 0.05), Vector2(hcx - hr * 0.8, hcy + hv * 0.4), Vector2(hcx - hr * 1.5, hcy - hv * 0.45), skin[1])
+	GM._o(img, hcx, hcy, hr, hv, skin, 0.05)
+	GM._o(img, hcx + hr * 0.12, hcy + hv * 0.52, hr * 0.98, hv * 0.62, skin, -0.05)   # la mâchoire
+	GM._o(img, hcx + hr * 0.92, hcy + hv * 0.12, w * 0.05, h * 0.04, skin, 0.15)   # groin
+	GM._disc(img, hcx + hr * 1.08, hcy + hv * 0.16, w * 0.009, GM.INK)
+	# yeux : petits, rouges, sous un sourcil en bloc
+	for e in 2:
+		var ex := hcx - hr * 0.05 + float(e) * hr * 0.62
+		var ey := hcy - hv * 0.12
+		if col == 3:
+			MP._cap(img, ex - w * 0.03, ey + 0.2, ex + w * 0.03, ey + 0.2, 0.4, 0.4, GM._flat(GM.INK))
+		else:
+			GM._eye(img, ex, ey, w * 0.026, h * 0.022, Color("#ff4a2a"), 2 if col == 2 else 0, 1 if e == 0 else -1)
+	MP._cap(img, hcx - hr * 0.35, hcy - hv * 0.45, hcx + hr * 0.95, hcy - hv * (0.6 if col != 2 else 0.4), 1.0, 0.8, GM._flat(Color("#33422a")))
+	# bouche et défenses
+	if col == 2:
+		GM._o(img, hcx + hr * 0.5, hcy + hv * 0.7, hr * 0.45, hv * 0.3, MP._ramp("#4a1424"), 0.0)
+		for t in 4:
+			var tx := hcx + hr * (0.15 + 0.22 * float(t))
+			GM._tri(img, Vector2(tx - 0.8, hcy + hv * 0.52), Vector2(tx + 0.8, hcy + hv * 0.52), Vector2(tx, hcy + hv * 0.8), tusk)
+	else:
+		MP._curve(img, Vector2(hcx - hr * 0.1, hcy + hv * 0.72), Vector2(hcx + hr * 0.45, hcy + hv * (0.8 if col != 3 else 0.62)), Vector2(hcx + hr * 0.9, hcy + hv * 0.7), GM.INK, 0.4)
+	GM._tri(img, Vector2(hcx + hr * 0.1, hcy + hv * 0.76), Vector2(hcx + hr * 0.3, hcy + hv * 0.76), Vector2(hcx + hr * 0.18, hcy + hv * 0.2), tusk)
+	GM._tri(img, Vector2(hcx + hr * 0.62, hcy + hv * 0.76), Vector2(hcx + hr * 0.84, hcy + hv * 0.74), Vector2(hcx + hr * 0.76, hcy + hv * 0.22), tusk)
+	# toque : haute, bouffante, de travers, tachée de ragoût
+	var tx0 := hcx - hr * 0.1
+	GM._tp(img, hcy - hv * 1.15, hcy - hv * 0.7, tx0 - hr * 0.95, tx0 + hr * 1.0, tx0 - hr * 1.0, tx0 + hr * 1.05, MP._ramp("#d8cfb4"))   # bandeau
+	GM._o(img, tx0 - hr * 0.7, hcy - hv * 1.85, hr * 0.55, hv * 0.8, apron, 0.1)
+	GM._o(img, tx0 + hr * 0.65, hcy - hv * 1.8, hr * 0.55, hv * 0.8, apron, 0.1)
+	GM._o(img, tx0 - hr * 0.05, hcy - hv * 2.35, hr * 0.8, hv * 0.95, apron, 0.15)
+	GM._o(img, tx0 + hr * 0.3, hcy - hv * 2.55, hr * 0.28, hv * 0.3, MP._ramp("#fffaf0"), 0.2)
+	GM._disc(img, tx0 + hr * 0.45, hcy - hv * 1.5, w * 0.022, stew)
+	GM._disc(img, tx0 - hr * 0.4, hcy - hv * 2.0, w * 0.016, MP._ramp("#c8bc98")[2])
+	# bras armé : la louche de guerre
+	var hand := Vector2(cx + w * 0.34, h * 0.6)
+	var bowl := Vector2(hand.x + w * 0.1, hand.y - h * 0.5)
+	if col == 2:
+		hand = Vector2(cx + w * 0.22, h * 0.3)
+		bowl = Vector2(hand.x + w * 0.14, hand.y - h * 0.13)
+	elif col == 3:
+		hand = Vector2(cx + w * 0.26, h * 0.66)
+		bowl = Vector2(hand.x + w * 0.08, hand.y - h * 0.4)
+	var sh := Vector2(cx + w * 0.26, y0 + h * 0.05)
+	var elbow := Vector2(cx + w * 0.4, y0 + h * 0.22) if col != 2 else Vector2(cx + w * 0.4, y0 - h * 0.01)
+	if col == 3:
+		elbow = Vector2(cx + w * 0.33, y0 + h * 0.26)
+	GM._cp(img, hand.x - w * 0.02, hand.y + h * 0.16, bowl.x, bowl.y, w * 0.026, w * 0.02, wood)   # manche de la louche
+	GM._cp(img, sh.x, sh.y, elbow.x, elbow.y, w * 0.085, w * 0.08, skin)
+	GM._o(img, elbow.x, elbow.y, w * 0.085, w * 0.08, skin, 0.05)
+	GM._cp(img, elbow.x, elbow.y, hand.x, hand.y, w * 0.08, w * 0.06, skin)
+	GM._o(img, hand.x, hand.y, w * 0.07, w * 0.062, skin, 0.1)
+	for g in 3:   # phalanges
+		GM._disc(img, hand.x - w * 0.02 + float(g) * w * 0.028, hand.y - w * 0.04, w * 0.012, skin[3])
+	# le bol de la louche : fer cabossé, creux sombre, reflet
+	var tilt := 0.0 if col != 2 else 0.35
+	GM._o(img, bowl.x, bowl.y, w * 0.12, h * 0.062, iron, 0.0)
+	GM._o(img, bowl.x + w * 0.012, bowl.y - h * 0.005, w * 0.095, h * 0.045, MP._ramp("#3a4250"), -0.2)
+	GM._o(img, bowl.x + w * 0.025, bowl.y + h * 0.008 + tilt, w * 0.06, h * 0.02, MP._ramp("#9a5a32"), 0.1)   # le fond de sauce
+	MP._cap(img, bowl.x - w * 0.1, bowl.y - h * 0.02, bowl.x - w * 0.02, bowl.y - h * 0.055, 0.35, 0.3, GM._flat(iron[4]))
+	GM._o(img, bowl.x - w * 0.115, bowl.y + h * 0.018, w * 0.018, h * 0.016, iron, 0.2)   # bec verseur
+	if col == 2:   # éclaboussure de sauce au coup
+		GM._disc(img, bowl.x + w * 0.14, bowl.y - h * 0.04, w * 0.018, stew)
+		GM._disc(img, bowl.x + w * 0.19, bowl.y + h * 0.02, w * 0.012, stew)
+		GM._disc(img, bowl.x + w * 0.12, bowl.y + h * 0.06, w * 0.014, stew)
