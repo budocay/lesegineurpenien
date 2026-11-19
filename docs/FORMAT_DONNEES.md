@@ -1328,18 +1328,36 @@ dans le rectangle (chacune facultative : absente, elle reste celle de la carte).
 distance de fondu autour du rectangle (défaut 4). Une inclinaison basse (6 à 8) découvre le ciel ;
 le haut du cadre se tient à `fov/2 - pitch` degrés au-dessus de l'horizon.
 
-**`horizon`** : `{"preset": "cite"}` (ou `plaine`, `collines`), complété au besoin par `sky` et
+**`camera.near_start`** : part de la distance de la caméra où le flou de profondeur proche commence
+(défaut 0,87). Une caméra basse qui plonge sur le joueur depuis le sud doit l'abaisser (0,55) : sinon
+le héros, plus proche que la cible, tombe dans le flou. Le test automatique vérifie en tout point
+accessible des trois cartes de Minas que le joueur reste net.
+
+**`horizon`** : `{"preset": "cite"}` (ou `belvedere`, `plaine`, `collines`), complété au besoin par `sky` et
 `layers` qui remplacent ceux du préréglage. Absent ou carte d'intérieur : rien n'est construit.
 
 - `sky` : nom d'un ciel (`matin`, `siege`, `col`) ou dictionnaire de couleurs (`top`, `mid`, `low`,
   `below`, `sun`, `sun_col`, `clouds`, `cloud_lit`, `cloud_shade`, `speed`). Dégradé, nuages
   peints qui dérivent, lueur du soleil bas.
 - `layers` : plans peints dressés au nord, du plus lointain au plus proche. Champs : `kind`
-  (`city`, `mountain`, `plain`, `hills`, `ridge`), `z` (négatif : au nord), `y` (pied), `height`
+  (`city`, `terraces` (la cité vue d'en haut, pour un belvédère), `mountain`, `plain`, `hills`, `ridge`), `z` (négatif : au nord), `y` (pied), `height`
   (mètres), `k` (part du mouvement de la caméra suivie : 1 colle au ciel), `res` (réduction de la
   peinture), `seed`, `w` (largeur de la toile, défaut 1200), `off`, `peak`, `tiers` (cité),
-  `fires` (plaine), `haze`, `haze_top`, `haze_bottom` (brume), `light`, `x` (décalage).
+  `fires` (plaine), `scale`, `trees`, `glow` (lueur additive des foyers), `haze`, `haze_top`,
+  `haze_bottom` (brume), `light`, `x` (décalage).
 - `ground` : `{from, to, y, near, far, haze}`, sol lointain qui prolonge la carte jusqu'à l'horizon.
 
-Un plan n'est ni solide ni cliquable. Les cartes à `horizon` portent une caméra à 600 de portée.
+**`apron`** (style `gouda`) : `{"from": 43, "depth": 10, "x0": 2, "x1": 34, "tile": "gou_pave"}`. Prolonge
+le dallage au sud de la carte (`from` : où il s'arrête, `depth` : longueur ; `x0`, `x1` : étendue) pour
+qu'une caméra basse ne voie pas l'herbe nue des abords. Décoratif, sans mur.
+
+**`belvedere`** (style `gouda`) : `{"z": 2.5}`. Le nord de la carte s'ouvre sur le vide : l'herbe, les talus et
+le sol sombre du hors-carte disparaissent (les abords est, ouest et sud restent) et les plans de l'horizon
+(préréglage `belvedere`) passent sous le niveau de la carte.
+
+Un plan n'est ni solide ni cliquable. Les cartes à `horizon` portent une caméra à 600 de portée. Le
+flou lointain n'efface pas les plans : ils restent lisibles sous un léger voile. Le titre de lieu
+(`hud.gd`) n'assombrit plus le ciel qu'à 42 % sur 190 px.
+Un horizon ne se voit que si la caméra relève le cadre au-dessus de l'horizon (sinon le haut du cadre
+reste sous 20 degrés d'inclinaison et rien n'apparaît : essayé sur la plaine du Roquefort, aucun gain).
 Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (cité).

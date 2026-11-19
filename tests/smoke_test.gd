@@ -70,6 +70,11 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_HORIZON"):   # seulement l'horizon et la caméra par carte
+		await _test_horizon()
+		print("%d vérifications, %d échec(s)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_WARM"):   # seulement le test du préchauffage des monstres
 		await _test_warm_matches_demand()
 		print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -156,7 +161,7 @@ func _ready() -> void:
 	_test_balourd_phase_and_breche_waves()
 	_test_decors_restes()
 	_test_help_texts()
-	_test_horizon()
+	await _test_horizon()
 	if not OS.has_environment("GLAN_QUICK"):
 		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
@@ -8102,7 +8107,7 @@ func _json_files(dir: String) -> Array:
 func _test_horizon() -> void:
 	print("-- horizon et caméra par carte")
 	var Hz: GDScript = load("res://src/world/horizon.gd")
-	var kinds: Array = ["city", "mountain", "plain", "hills", "ridge"]
+	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge"]
 	var tuned: Array = []
 	for f in DirAccess.get_files_at("res://data/maps"):
 		if not f.ends_with(".json"):
@@ -8145,6 +8150,40 @@ func _test_horizon() -> void:
 		var vs: Vector2 = get_viewport().get_visible_rect().size
 		check(sp.x > 0.0 and sp.x < vs.x and sp.y > 0.0 and sp.y < vs.y, "%s : le joueur est dans le cadre" % id)
 		world.queue_free()
+		await get_tree().process_frame
+	# le joueur n'est jamais dans le flou de profondeur : sur les cartes de Minas, en tout point
+	# accessible d'une grille, la caméra se tient entre les limites du flou proche et du flou lointain
+	for id2: String in ["minas_rues", "minas_croute", "minas_citadelle"]:
+		var mp3: Dictionary = Database.get_map(id2)
+		GameState.new_game()
+		var w3: Node3D = World.new()
+		add_child(w3)
+		w3.setup(id2, str(mp3.get("spawns", {}).keys()[0]))
+		await get_tree().process_frame
+		var gw := int((mp3.get("size", [32, 32]) as Array)[0])
+		var gh := int((mp3.get("size", [32, 32]) as Array)[1])
+		var n_ok := 0
+		var n_bad := 0
+		var worst := ""
+		var gz := 1.5
+		while gz < float(gh):
+			var gx := 1.5
+			while gx < float(gw):
+				if w3.is_free(Vector2(gx, gz), 0.3):
+					w3.player.position = Vector3(gx, w3.ground_y(gx, gz), gz)
+					w3._cam_target = w3._desired_target()
+					w3._apply_camera()
+					var dd: float = w3.camera.global_position.distance_to(w3.player.position + Vector3(0, 0.9, 0))
+					var at: CameraAttributesPractical = w3._cam_attr
+					if dd >= at.dof_blur_near_distance + 0.3 and dd <= at.dof_blur_far_distance - 0.3:
+						n_ok += 1
+					else:
+						n_bad += 1
+						worst = "(%.1f,%.1f) dist %.1f net %.1f" % [gx, gz, dd, at.dof_blur_near_distance]
+				gx += 3.0
+			gz += 3.0
+		check(n_ok > 10 and n_bad == 0, "%s : le joueur reste net en %d points d'une grille (flou proche et lointain) %s" % [id2, n_ok, worst])
+		w3.queue_free()
 		await get_tree().process_frame
 
 

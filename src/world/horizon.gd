@@ -11,6 +11,7 @@ const LAYER_SHADER = preload("res://src/gfx/shaders/horizon_layer.gdshader")
 const GROUND_SHADER = preload("res://src/gfx/shaders/horizon_ground.gdshader")
 
 static var _cache: Dictionary = {}
+static var _glow_mat: StandardMaterial3D = null
 
 ## Ciels : couleurs du zénith, du milieu, de la brume d'horizon, du sol lointain ; direction du
 ## soleil ; part de ciel couverte de nuages.
@@ -30,9 +31,14 @@ const SKIES := {
 ## fois plus grosses).
 const PRESETS := {
 	"cite": {"sky": "matin", "layers": [
-		{"kind": "mountain", "w": 2400, "z": -300.0, "y": -20.0, "height": 75.0, "k": 0.97, "res": 2, "seed": 3, "off": 120, "peak": 0.95, "haze": "#dbe6f2", "haze_top": 0.5, "haze_bottom": 0.85},
-		{"kind": "ridge", "w": 2400, "z": -230.0, "y": -10.0, "height": 50.0, "k": 0.93, "res": 2, "seed": 9, "peak": 0.5, "haze": "#dbe6f2", "haze_top": 0.6, "haze_bottom": 0.85},
-		{"kind": "city", "z": -130.0, "y": 10.0, "height": 34.0, "k": 0.86, "res": 3, "seed": 5, "tiers": 4, "haze": "#dfe8f2", "haze_top": 0.0, "haze_bottom": 0.12},
+		{"kind": "mountain", "w": 2400, "z": -260.0, "y": -40.0, "height": 130.0, "k": 0.97, "seed": 3, "off": 120, "peak": 0.95, "haze": "#bccae2", "haze_top": 0.0, "haze_bottom": 0.5},
+		{"kind": "city", "z": -100.0, "y": -4.0, "height": 46.0, "k": 0.86, "seed": 5, "tiers": 4, "haze": "#dbe4f0", "haze_top": 0.0, "haze_bottom": 0.14},
+	]},
+	"belvedere": {"sky": "matin", "layers": [
+		{"kind": "mountain", "w": 2400, "z": -330.0, "y": -45.0, "height": 140.0, "k": 0.97, "seed": 7, "off": -120, "peak": 0.95, "haze": "#bccae2", "haze_top": 0.0, "haze_bottom": 0.5},
+		{"kind": "plain", "w": 2400, "z": -240.0, "y": -14.0, "height": 60.0, "k": 0.9, "seed": 21, "fires": 9, "haze": "#d8d0cc", "haze_top": 0.3, "haze_bottom": 0.5},
+		{"kind": "city", "z": -120.0, "y": -6.0, "height": 50.0, "k": 0.86, "seed": 5, "tiers": 1, "haze": "#dbe4f0", "haze_top": 0.0, "haze_bottom": 0.14},
+		{"kind": "terraces", "z": -64.0, "y": -17.0, "height": 22.0, "k": 0.8, "seed": 11, "tiers": 4, "haze": "#d4dcea", "haze_top": 0.2, "haze_bottom": 0.42},
 	]},
 	"plaine": {"sky": "siege", "layers": [
 		{"kind": "mountain", "w": 2400, "z": -330.0, "y": -14.0, "height": 55.0, "k": 0.97, "res": 2, "seed": 12, "off": -500, "peak": 0.6, "haze": "#cfc6c4", "haze_top": 0.35, "haze_bottom": 0.8},
@@ -120,16 +126,18 @@ func _make_sky(world: Node3D, cfg: Dictionary) -> void:
 
 func _make_layer(ld: Dictionary, map_w: float) -> void:
 	var kind := str(ld.get("kind", "mountain"))
-	var res := maxi(1, int(ld.get("res", 2)))
+	var res := maxi(1, int(ld.get("res", 1)))
 	var cw := int(ld.get("w", 1200))
-	var key := "%s|%s|%d|%s|%s|%s|%s|%d" % [kind, str(ld.get("seed", 1)), res, str(ld.get("off", 0)), str(ld.get("tiers", 5)), str(ld.get("peak", 0.9)), str(ld.get("fires", 12)), cw]
-	var tex: ImageTexture = _cache.get(key)
-	if tex == null:
+	var key := "%s|%s|%d|%s|%s|%s|%s|%d|%s|%s|%s" % [kind, str(ld.get("seed", 1)), res, str(ld.get("off", 0)), str(ld.get("tiers", 5)), str(ld.get("peak", 0.9)), str(ld.get("fires", 12)), cw, str(ld.get("haze", "")), str(ld.get("scale", 1.0)), str(ld.get("trees", 1))]
+	var entry: Dictionary = _cache.get(key, {})
+	if entry.is_empty():
 		var img := Layers.paint(kind, int(ld.get("seed", 1)), ld)
 		if res > 1:
 			img.resize(cw / res, 360 / res, Image.INTERPOLATE_BILINEAR)
-		tex = ImageTexture.create_from_image(img)
-		_cache[key] = tex
+		img.generate_mipmaps()
+		entry = {"tex": ImageTexture.create_from_image(img), "fires": Layers.fires.duplicate()}
+		_cache[key] = entry
+	var tex: ImageTexture = entry["tex"]
 	var h := float(ld.get("height", 60.0))
 	var w := h * float(cw) / 360.0
 	var q := QuadMesh.new()
@@ -147,8 +155,46 @@ func _make_layer(ld: Dictionary, map_w: float) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mi.position = Vector3(_cx, float(ld.get("y", 0.0)) + h * 0.5, float(ld.get("z", -150.0)))
 	add_child(mi)
+	# lueur des feux : un halo additif posé sur chaque foyer du plan
+	var glow_n := int(ld.get("glow", 1))
+	for fp: Variant in entry["fires"]:
+		if glow_n <= 0:
+			break
+		var g := MeshInstance3D.new()
+		var gq := QuadMesh.new()
+		gq.size = Vector2(h * 0.17, h * 0.17)
+		g.mesh = gq
+		g.material_override = _glow_material()
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.position = Vector3(((fp as Vector2).x / float(cw) - 0.5) * w, (0.5 - (fp as Vector2).y / 360.0) * h, 0.4)
+		mi.add_child(g)
 	_items.append({"node": mi, "k": float(ld.get("k", 0.9)), "off": float(ld.get("x", 0.0))})
 	follow(_cx)
+
+
+static func _glow_material() -> StandardMaterial3D:
+	if _glow_mat != null:
+		return _glow_mat
+	var grad := Gradient.new()
+	grad.colors = PackedColorArray([Color(1.0, 0.55, 0.15, 0.85), Color(1.0, 0.35, 0.05, 0.28), Color(1.0, 0.25, 0.0, 0.0)])
+	grad.offsets = PackedFloat32Array([0.0, 0.35, 1.0])
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 64
+	tex.height = 64
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_texture = tex
+	m.disable_fog = true
+	m.no_depth_test = false
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_glow_mat = m
+	return m
 
 
 ## Sol lointain : prolonge le sol de la carte (plaine boueuse du siège) jusqu'à l'horizon.
