@@ -2216,5 +2216,14 @@
 				}
 			]
 		}
-	]
+	],
+	"rues_boulangere": [{"who": "boulangere", "text": "Ici on pétrit à deux mains et on enfourne bien profond. La pâte est ferme, le four est chaud, et personne n'a jamais levé trop tôt. Prenez une miche : elle est encore tendre, mais elle durcit si on s'attarde."}],
+	"rues_commeres_1": [{"who": "citoyen_mou", "text": "Il paraît que la Tour Blanche a encore grandi cette nuit. Plus la ville est assiégée, plus elle se dresse."}, {"who": "jardinier_poirier", "text": "Elle ne se laisse jamais abattre, la bougresse. Et dire que les assiégeants n'ont même pas de quoi la regarder en face."}],
+	"rues_commeres_2": [{"who": "jardinier_poirier", "text": "Le Poirier de la Cour, il donne une fois l'an. Quatre cents poires, bien rondes, bien mûres. On les cueille à deux mains, délicatement, avant qu'elles ne tombent toutes seules. Un art."}],
+	"rues_garde_tour": [{"who": "soldat_minas", "text": "Sept cent quarante marches jusqu'au sommet de la Tour, et aucune pause. Là-haut, l'étendard flotte à l'horizontale : signe d'une bonne tenue. Depuis le siège, il ne retombe plus."}],
+	"rues_doigtiste_2": [{"who": "doigtiste", "text": "Je dénombre les marches de la rue haute. Il y en a toujours une de plus que ce qu'on m'a dit. Le compte y est : c'est la ville qui s'allonge, pas moi qui me trompe."}],
+	"citadelle_lunette": [{"text": "Une lunette de laiton braquée sur la plaine. À l'oculaire : des milliers de tentes, des brasiers, et une machine de siège en plein effort. Un petit écriteau : « Ne pas regarder trop longtemps : les assiégeants se vexent. Ils sont déjà assez tendus comme ça. »"}],
+	"citadelle_garde_plaine": [{"who": "soldat_minas", "text": "Je guette la plaine. Là-bas, ils dressent leurs machines depuis l'aube. Du grand art, je dois le reconnaître : longues, raides, bien huilées. On les dirait fières. Moi, je garde le regard fixe, par discipline."}],
+	"citadelle_boulangere": [{"who": "boulangere", "text": "Le Poirier a donné cette nuit, vous avez vu ? Quatre cents poires, toutes d'un coup. Les gardes ont dû les ramasser à genoux. Ça arrive, quand on tire trop fort sur la branche."}],
+	"citadelle_citoyen_2": [{"who": "citoyen_mou", "text": "De la Cour, on voit la Tour mieux que de nulle part. Elle monte, elle monte, et on ne lui voit jamais le bout. Mon grand-père disait qu'à son âge elle n'était déjà plus très fraîche. Elle tient bon, pourtant. Elle a de la tenue."}]
 }

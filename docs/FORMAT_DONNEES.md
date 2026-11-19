@@ -1391,3 +1391,22 @@ flou lointain n'efface pas les plans : ils restent lisibles sous un léger voile
 Un horizon ne se voit que si la caméra relève le cadre au-dessus de l'horizon (sinon le haut du cadre
 reste sous 20 degrés d'inclinaison et rien n'apparaît : essayé sur la plaine du Roquefort, aucun gain).
 Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (cité).
+
+### Tour Blanche, rues, belvédère et cache (style `gouda`)
+
+- `white_tower` (champ de carte) : la Tour Blanche en 3D, bâtie par `src/world/gouda_tower.gd` (pierre blanche à
+  ombre bleue, meurtrières, balcons, flèche d'ardoise, grand étendard au champignon, oiseaux). Champs : `x`, `z`
+  (au loin, négatif au nord), `base` (altitude du pied de l'éperon), `height`, `scale`, `flag` (faux : sans
+  étendard), `birds` (nombre d'oiseaux, 6). Un plan de ville du préréglage doit alors porter `"tower": false`.
+- `belvedere.terraces` : étages de maisons en 3D sous le belvédère (murs de soutènement, toits d'ardoise, jardins,
+  cheminées qui fument). Champs : `rings` (3), `step` (3.0), `gap` (9.0), `scale` (1.7).
+- Objet `gou_deco` : pose n'importe quel accessoire de la palette gouda (`kind` : `gou_charrette`, `gou_pots`,
+  `gou_fromages`, `gou_caisses`, `gou_banc`, `gou_lunette`, `gou_panneau`, `gou_lampadaire`, `gou_tonneaux`,
+  `gou_linge`, `gou_buisson`) ; `variant`, `scale`, `glow`, `solid` (0 par défaut), `dialogue`, `label`, `reach`.
+- Objet `gou_pavage` (à placer en dernier) : couche de dalles usées, fissures, cailloux, caniveau (`gutter` :
+  liste de `{x, z0, z1}`), mousse et ombre portée au pied des murs ; `seed`, `wear`, `moss`.
+- `siege` (Croûte) : chaque feu a sa colonne de fumée animée (`fumee.gdshader`), ses braises et un halo vacillant
+  (`halo_feu.gdshader`) ; des fanions ennemis flottent dans le camp.
+- `horizon.prepare` : liste de cartes dont le cache disque des plans est préparé en arrière-plan à l'entrée de la
+  carte. Le cache vit dans `user://cache_horizon/` ; la clé tient aux paramètres du plan et à l'empreinte de
+  `horizon_layers.gd` (retoucher le peintre invalide tout seul). `GLAN_HZ_TIME=1` affiche les durées de construction.

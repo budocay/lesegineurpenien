@@ -128,7 +128,7 @@
 		}
 	],
 	"style": "gouda",
-	"horizon": {"preset": "plaine"},
+	"horizon": {"preset": "plaine", "prepare": ["minas_citadelle", "minas_rues"]},
 	"hole_tile": "gou_boue",
 	"siege": {"fires": 8, "depth": 30},
 	"objects": [

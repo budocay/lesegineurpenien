@@ -6967,7 +6967,7 @@ func _test_gouda_scenery() -> void:
 		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style gouda : la tuile %s n'est pas le magenta de secours" % kind)
 		check(docs.contains(kind), "style gouda : la tuile %s est documentée" % kind)
 	for kind: String in Gouda.PROP_VARIANTS:
-		check(MapBuilder.PROPS.has(kind), "style gouda : %s est un accessoire déclaré" % kind)
+		check(MapBuilder.PROPS.has(kind) or Gouda.has_prop(kind), "style gouda : %s est un accessoire déclaré" % kind)
 		check(docs.contains(kind), "style gouda : %s est documenté" % kind)
 		for v in int(Gouda.PROP_VARIANTS[kind]):
 			var tex: Texture2D = Sprites.prop(kind, v)
@@ -8198,6 +8198,51 @@ func _test_horizon() -> void:
 		check(n_ok > 10 and n_bad == 0, "%s : le joueur reste net en %d points d'une grille (flou proche et lointain) %s" % [id2, n_ok, worst])
 		w3.queue_free()
 		await get_tree().process_frame
+	# Tour Blanche en 3D, décor des rues, terrasses du belvédère, fumées animées du siège
+	for id4: String in ["minas_rues", "minas_citadelle"]:
+		var mp4: Dictionary = Database.get_map(id4)
+		var wt: Dictionary = mp4.get("white_tower", {})
+		check(not wt.is_empty() and float(wt.get("height", 0.0)) > 20.0, "%s : la Tour Blanche est déclarée (white_tower)" % id4)
+		GameState.new_game()
+		var w4: Node3D = World.new()
+		add_child(w4)
+		w4.setup(id4, str(mp4.get("spawns", {}).keys()[0]))
+		await get_tree().process_frame
+		var tower_found := false
+		for ch in w4.get_children():
+			if str(ch.name).begins_with("TourBlanche"):
+				tower_found = true
+		check(tower_found, "%s : la Tour Blanche est construite dans la scène" % id4)
+		w4.queue_free()
+		await get_tree().process_frame
+	var n_deco := 0
+	var n_pave := 0
+	for o: Variant in (Database.get_map("minas_rues").get("objects", []) as Array):
+		if str((o as Dictionary).get("type", "")) == "gou_deco":
+			n_deco += 1
+		if str((o as Dictionary).get("type", "")) == "gou_pavage":
+			n_pave += 1
+	check(n_deco >= 25 and n_pave == 1, "minas_rues : rues habillées (%d décors, %d pavage)" % [n_deco, n_pave])
+	check(not (Database.get_map("minas_citadelle").get("belvedere", {}) as Dictionary).get("terraces", {}).is_empty(), "minas_citadelle : terrasses du belvédère en 3D")
+	# cache disque des plans : un deuxième accès relit le fichier et rend la même image et les mêmes foyers
+	var ld_t: Dictionary = {"kind": "plain", "w": 2400, "res": 2, "seed": 4, "fires": 12, "haze": "#d6cdc4"}
+	var key_t: String = Hz._layer_key(ld_t)
+	var d1: Dictionary = Hz._layer_data(key_t, ld_t)
+	var d2: Dictionary = Hz._layer_data(key_t, ld_t)
+	check(FileAccess.file_exists(Hz._cache_path(key_t) + ".png"), "cache d'horizon : le plan est écrit sur le disque")
+	check((d1["img"] as Image).get_size() == (d2["img"] as Image).get_size() and (d1["fires"] as Array).size() == (d2["fires"] as Array).size(), "cache d'horizon : relecture identique")
+	var t_c := Time.get_ticks_msec()
+	Hz._layer_data(key_t, ld_t)
+	check(Time.get_ticks_msec() - t_c < 300, "cache d'horizon : relecture d'un plan en moins de 300 ms")
+	# montagne : pas de couture verticale (écart de teinte entre deux colonnes voisines, sous le sommet)
+	var mt: Image = (load("res://src/gfx/horizon_layers.gd") as GDScript).paint("mountain", 3, {"w": 2400, "off": 120, "peak": 0.95})
+	var seams := 0
+	for xm in range(1, 2399):
+		var c0 := mt.get_pixel(xm, 340)
+		var c1 := mt.get_pixel(xm + 1, 340)
+		if absf(c0.r - c1.r) + absf(c0.g - c1.g) + absf(c0.b - c1.b) > 0.45:
+			seams += 1
+	check(seams < 40, "montagne : peu de ruptures verticales (%d)" % seams)
 
 
 ## Tous les boss du jeu, dans leur vraie rencontre et leur vraie arène, aux deux formats d'écran : chacun doit
