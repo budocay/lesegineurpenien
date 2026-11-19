@@ -20,7 +20,7 @@ const SMOKE_SHADER = preload("res://src/gfx/shaders/fumee.gdshader")
 const HALO_SHADER = preload("res://src/gfx/shaders/halo_feu.gdshader")
 const FLAG_SHADER = preload("res://src/gfx/shaders/tour_etendard.gdshader")
 
-const OBJECTS: Array[String] = ["gou_maison", "gou_tour", "gou_rempart", "gou_porte"]
+const OBJECTS: Array[String] = ["gou_maison", "gou_tour", "gou_rempart", "gou_porte", "gou_deco", "gou_pavage"]
 
 ## Par style : sol des abords, falaises, marches, parois entre deux niveaux, mur d'intérieur,
 ## arbres ou décors plantés autour de la carte.

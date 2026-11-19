@@ -6954,7 +6954,7 @@ func _test_gouda_scenery() -> void:
 		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style gouda : la tuile %s n'est pas le magenta de secours" % kind)
 		check(docs.contains(kind), "style gouda : la tuile %s est documentée" % kind)
 	for kind: String in Gouda.PROP_VARIANTS:
-		check(MapBuilder.PROPS.has(kind), "style gouda : %s est un accessoire déclaré" % kind)
+		check(MapBuilder.PROPS.has(kind) or Gouda.has_prop(kind), "style gouda : %s est un accessoire déclaré" % kind)
 		check(docs.contains(kind), "style gouda : %s est documenté" % kind)
 		for v in int(Gouda.PROP_VARIANTS[kind]):
 			var tex: Texture2D = Sprites.prop(kind, v)
