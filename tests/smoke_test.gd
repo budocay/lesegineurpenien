@@ -2478,7 +2478,9 @@ func _test_character_art() -> void:
 			check(shown.get_data() != bare_img.get_region(Rect2i(7 * 88, row * 132, 88, 132)).get_data(), "%s : l'objet tenu se voit à l'attaque (ligne %d)" % [who, row])
 		var w_with := Sprites.PA.opaque_bounds(with_img, Rect2i(0, 0, 88, 132)).size.x
 		var w_bare := Sprites.PA.opaque_bounds(bare_img, Rect2i(0, 0, 88, 132)).size.x
-		check(w_with <= w_bare + 2 or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
+		# hache et marteau, portés à l'écart du corps pour se lire de face, ont droit à 8 px de plus
+		var slack := 8 if str(look.get("held", "")) in ["hache", "marteau"] else 2
+		check(w_with <= w_bare + slack or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
 	for who: String in ["sam", "aragrogne", "grimli", "morfale_eclaireur", "naze", "naze_aine"]:
 		var lk: Dictionary = Database.characters[who]["look"]
 		var heads := {}
