@@ -4,6 +4,7 @@ extends Control
 ## Échap ou retour : revenir (les réglages sont alors enregistrés). Tout s'applique tout de suite.
 
 signal closed
+signal pad_requested   # « Diagnostic de la manette » : main.gd ouvre l'écran dédié
 
 const UI = preload("res://src/ui/ui_kit.gd")
 
@@ -72,7 +73,10 @@ func _build() -> void:
 		elif row.has("action"):   # ligne qui déclenche quelque chose au lieu de régler une valeur
 			var b := UI.menu_button(str(row["label"]), 21)
 			b.pressed.connect(_on_action.bind(str(row["action"])))
-			b.focus_entered.connect(func() -> void: _help.text = "Tous les conseils de jeu reviendront, un par un, au moment où ils servent.")
+			var tip := "Tous les conseils de jeu reviendront, un par un, au moment où ils servent."
+			if str(row["action"]) == "manette":
+				tip = "Ce que le jeu voit de la manette, boutons reçus en direct : à montrer si elle reste muette."
+			b.focus_entered.connect(func() -> void: _help.text = tip)
 			_list.add_child(b)
 			_ordered.append(b)
 		else:
@@ -161,6 +165,9 @@ func _step(id: String, dir: int) -> void:
 
 
 func _on_action(action: String) -> void:
+	if action == "manette":
+		pad_requested.emit()
+		return
 	if action == "revoir":
 		Tutorial.reset_seen()
 		Sfx.play("confirm")

@@ -37,6 +37,7 @@ const DEFAULTS: Dictionary = {
 	"compteur": ["divers", false],
 	"conseils": ["divers", true],
 	"repere": ["divers", true],
+	"vibration": ["manette", true],
 }
 
 ## Réglages fins pilotés par la « Qualité ». Moyenne = le rendu d'origine.
@@ -81,6 +82,9 @@ const ROWS: Array = [
 	{"id": "conseils", "label": "Conseils de jeu"},
 	{"id": "repere", "label": "Repère de quête"},
 	{"action": "revoir", "label": "Revoir les conseils"},
+	{"section": "Manette"},
+	{"id": "vibration", "label": "Vibration de la manette"},
+	{"action": "manette", "label": "Diagnostic de la manette"},
 ]
 
 const HELP: Dictionary = {
@@ -105,6 +109,7 @@ const HELP: Dictionary = {
 	"effets": "Le volume des bruitages.",
 	"compteur": "Affiche discrètement le nombre d'images par seconde dans un coin.",
 	"repere": "Une petite marque dorée au-dessus de ce que vise l'étape de quête en cours, et le sens à prendre quand c'est dans une autre carte.",
+	"vibration": "Une légère vibration de la manette quand un coup est reçu, sur un coup critique et à la victoire. Sans effet sans manette.",
 	"conseils": "Explique chaque système une seule fois, au moment où il sert. Les conseils déjà vus restent relisibles dans Pause, « Aide ».",
 }
 
@@ -208,7 +213,7 @@ func choices(id: String) -> Array:
 			return [["fenetre", "Fenêtre"], ["plein_ecran", "Plein écran"], ["sans_bord", "Fenêtre sans bord"]]
 		"taille":
 			return SIZES.map(func(s: String) -> Array: return [s, s.replace("x", " × ")])
-		"vsync", "halo", "rayons", "compteur", "conseils", "repere":
+		"vsync", "halo", "rayons", "compteur", "conseils", "repere", "vibration":
 			return [[false, "Non"], [true, "Oui"]]
 		"fps_max":
 			return [[30, "30"], [60, "60"], [120, "120"], [0, "Sans limite"]]
