@@ -18,6 +18,8 @@ const CACHE_DIR := "user://cache_horizon"
 const CACHE_VERSION := 1
 static var _paint_lock := Mutex.new()
 static var _prep_thread: Thread = null
+static var _prep_abort := false   # vrai à la fermeture du jeu : le fil de préparation s'arrête entre deux plans
+static var _prep_joiner: Node = null   # nœud posé à la racine : à la fermeture il joint le fil (voir shutdown_prepare)
 static var _prep_done: Array = []   # cartes déjà préparées (ou en cours) pendant cette session
 static var _stamp := ""
 static var _glow_mat: StandardMaterial3D = null
@@ -305,10 +307,19 @@ static func prepare(map_ids: Array) -> void:
 		_prep_thread.wait_to_finish()
 	_prep_thread = Thread.new()
 	_prep_thread.start(_prepare_job.bind(todo))
+	if _prep_joiner == null:
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree != null:
+			_prep_joiner = Node.new()
+			_prep_joiner.name = "HorizonJoin"
+			_prep_joiner.tree_exiting.connect(shutdown_prepare)
+			tree.root.add_child.call_deferred(_prep_joiner)
 
 
 static func _prepare_job(ids: Array) -> void:
 	for id: Variant in ids:
+		if _prep_abort:
+			return
 		var f := FileAccess.open("res://data/maps/%s.json" % str(id), FileAccess.READ)
 		if f == null:
 			continue
@@ -317,6 +328,8 @@ static func _prepare_job(ids: Array) -> void:
 			continue
 		var cfg := _config((map as Dictionary)["horizon"] as Dictionary)
 		for ld: Variant in cfg.get("layers", []):
+			if _prep_abort:
+				return
 			_layer_data(_layer_key(ld as Dictionary), ld as Dictionary)
 
 
@@ -327,7 +340,14 @@ static func _config(spec: Dictionary) -> Dictionary:
 	return cfg
 
 
-## Attend la fin de la préparation (utile aux tests et à la fermeture).
+## Fermeture du jeu : demande au fil de s'arrêter au prochain plan et le joint (sinon Godot signale un fil non joint).
+static func shutdown_prepare() -> void:
+	_prep_abort = true
+	finish_prepare()
+	_prep_abort = false
+
+
+## Attend la fin de la préparation (utile aux tests).
 static func finish_prepare() -> void:
 	if _prep_thread != null:
 		_prep_thread.wait_to_finish()

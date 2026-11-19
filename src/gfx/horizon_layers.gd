@@ -512,7 +512,8 @@ static func _plain(img: Image, sd: int, nfires: int, scale: float) -> void:
 	var tent_cols := [Color("#b4784c"), Color("#8e92a2"), Color("#c0503c"), Color("#7a8a5a"), Color("#d2bc8e")]
 	var fire_pos: Array = []
 	var rows := 5
-	for row in rows:
+	for rr in rows:
+		var row := rows - 1 - rr   # du fond vers le devant : les rangs proches recouvrent les lointains
 		var sc := (1.0 - float(row) * 0.14) * scale
 		var base := ground - 2 - row * int(12.0 * scale)
 		var x := int(_n(row, 0, sd) * 30.0)
@@ -537,8 +538,10 @@ static func _plain(img: Image, sd: int, nfires: int, scale: float) -> void:
 				_trebuchet(img, x + w + 8, base, sc)
 			elif roll < 0.22 and row < 3:
 				_siege_tower(img, x + w + 8, base, sc)
-			elif roll < 0.45:
-				_pikes(img, x + w + 3, base, sc, sd + i)
+			elif roll < 0.27:
+				_ram(img, x + w + 8, base, sc)
+			elif roll < 0.50:
+				_ranks(img, x + w + 3, base, sc, sd + i)
 			x += w + int((6.0 + _n(i, row + 40, sd) * 22.0) * sc)
 			i += 1
 	_r(img, 0, ground, W, H - ground, Color("#43362f"))
@@ -551,16 +554,32 @@ static func _plain(img: Image, sd: int, nfires: int, scale: float) -> void:
 		fires.append(Vector2(fp.x + 1, fp.y - 4))
 
 
-## Une troupe : forêt de piques serrées et étendard, silhouettes sombres.
-static func _pikes(img: Image, x: int, y: int, sc: float, sd: int) -> void:
-	var c := Color("#2c2530")
-	var n := 5 + int(_n(x, y, sd) * 5.0)
-	for q in n:
-		var ph := int((18.0 + _n(q, x, sd) * 12.0) * sc)
-		_r(img, x + q * 3, y - ph, 1, ph, c)
-		_r(img, x + q * 3, y - ph - 2, 1, 2, Color("#c8c0b8"))
-	_r(img, x - 1, y - 6, n * 3 + 2, 6, c.lightened(0.05))
-	_r(img, x + n, y - int(26.0 * sc), 8, 4, Color("#8a2236"))
+## Une troupe en rangs serrés : colonnes de soldats alignés (casque, corps, pique), étendard haut au milieu.
+static func _ranks(img: Image, x: int, y: int, sc: float, sd: int) -> void:
+	var cols := 6 + int(_n(x, y, sd) * 5.0)
+	var step := maxi(3, int(4.0 * sc))
+	var hs := maxi(5, int(8.0 * sc))
+	for rw in 3:
+		var shade := Color("#2c2530").lightened(0.07 * float(2 - rw))
+		var ry := y - rw * maxi(2, int(3.0 * sc))
+		for q in cols:
+			var qx := x + q * step
+			_r(img, qx, ry - hs, 2, hs, shade)   # corps
+			_r(img, qx, ry - hs - 2, 2, 2, Color("#8a8484") if rw == 0 else shade.lightened(0.2))   # casque
+			if rw == 0 or q % 2 == 0:
+				var ph := int((16.0 + _n(q, x + rw, sd) * 8.0) * sc)
+				_r(img, qx + 1, ry - hs - ph, 1, ph, shade)   # pique
+				_r(img, qx + 1, ry - hs - ph - 2, 1, 2, Color("#d8d0c8"))
+	var px := x + (cols / 2) * step
+	var ph2 := int(40.0 * sc)
+	_r(img, px, y - ph2, 1, ph2 + 2, Color("#3a2e2a"))   # hampe de l'étendard
+	var fw := maxi(8, int(12.0 * sc))
+	var fh := maxi(5, int(8.0 * sc))
+	_r(img, px + 1, y - ph2, fw, fh, Color("#a82a3c"))
+	_r(img, px + 1, y - ph2, fw, 1, Color("#d4506a"))
+	_r(img, px + 1 + fw / 2 - 1, y - ph2 + fh / 2 - 1, 2, 2, Color("#f4efe4"))
+	_r(img, px + 1 + fw, y - ph2 + 1, 2, fh - 2, Color("#a82a3c"))   # pointe flottante
+	_r(img, px - 1, y - ph2 - 2, 3, 2, GOLD)
 
 
 ## Un feu de camp et sa colonne de fumée, en gros pixels ombrés (pas de points épars).
@@ -591,32 +610,86 @@ static func _fire(img: Image, x: int, y: int, sd: int, scale: float) -> void:
 	_r(img, x, y - 8, 2, 3, Color("#fff2a0"))
 
 
+## Trait épais (t pixels) : les machines de siège sont des silhouettes sombres, nettes, au liseré clair côté soleil.
+static func _tl(img: Image, x0: int, y0: int, x1: int, y1: int, c: Color, t: int, horizontal: bool = false) -> void:
+	for o in t:
+		if horizontal:
+			PA.line(img, x0, y0 + o, x1, y1 + o, c)
+		else:
+			PA.line(img, x0 + o, y0, x1 + o, y1, c)
+
+
+static func _wheel(img: Image, cx: int, cy: int, r: int, c: Color) -> void:
+	_disc(img, cx, cy, r, c)
+	_disc(img, cx, cy, maxi(1, r - 2), c.lightened(0.18))
+	_disc(img, cx, cy, 1, c)
+
+
+## Trébuchet armé : portique en A, bras long qui plonge à gauche avec sa fronde, contrepoids qui pend à droite.
 static func _trebuchet(img: Image, x: int, y: int, sc: float) -> void:
-	var c := Color("#33281f")
-	var h := int(36.0 * sc)
-	for k in h:
-		var inset := int(float(k) * 0.22)
-		PA.px(img, x + inset, y - k, c)
-		PA.px(img, x + 1 + inset, y - k, c)
-		PA.px(img, x + 14 - inset, y - k, c)
-		PA.px(img, x + 15 - inset, y - k, c)
-	PA.line(img, x + 2, y - h, x + 32, y - h + 11, c)
-	PA.line(img, x + 2, y - h - 1, x + 32, y - h + 10, c)
-	PA.line(img, x + 2, y - h - 2, x + 32, y - h + 9, c)
-	_disc(img, x - 5, y - h - 4, 5, c)
-	_r(img, x - 2, y - 4, 22, 4, c)
+	var c := Color("#2a2026")
+	var e := Color("#8a7060")
+	var h := int(46.0 * sc)
+	var bw := int(34.0 * sc)
+	var ax := x + bw / 2
+	_tl(img, x, y - 4, ax - 1, y - h, c, 3)
+	_tl(img, x + bw, y - 4, ax + 1, y - h, c, 3)
+	_tl(img, x + bw + 3, y - 4, ax + 3, y - h, e, 1)
+	_r(img, x - 5, y - 5, bw + 12, 5, c)
+	_r(img, x + bw / 4, y - h / 2, bw / 2 + 2, 3, c)
+	var ex := ax - int(40.0 * sc)
+	var ey := y - h + int(24.0 * sc)
+	var sx := ax + int(15.0 * sc)
+	var sy := y - h - int(10.0 * sc)
+	_tl(img, ex, ey, sx, sy, c, 3, true)
+	_tl(img, ex, ey - 1, sx, sy - 1, e, 1, true)
+	var cw := maxi(8, int(11.0 * sc))
+	_r(img, sx - cw / 2, sy, cw, int(13.0 * sc), c)
+	_r(img, sx + cw / 2 - 2, sy, 2, int(13.0 * sc), e)
+	_r(img, ex, ey, 1, int(8.0 * sc), c)
+	_disc(img, ex, ey + int(10.0 * sc), maxi(3, int(4.0 * sc)), c)
+	_wheel(img, x + 3, y - 3, maxi(3, int(4.0 * sc)), c)
+	_wheel(img, x + bw - 1, y - 3, maxi(3, int(4.0 * sc)), c)
 
 
+## Tour d'assaut : grande caisse de bois sur roues, étages à meurtrières, créneaux, fanion.
 static func _siege_tower(img: Image, x: int, y: int, sc: float) -> void:
-	var c := Color("#47372d")
-	var w := int(22.0 * sc)
-	var h := int(58.0 * sc)
-	_r(img, x, y - h, w, h, c)
-	_r(img, x + w - 4, y - h, 4, h, c.lightened(0.12))
-	_r(img, x + 2, y - h + 5, w - 4, 3, Color("#241a17"))
-	_r(img, x + 2, y - h / 2, w - 4, 3, Color("#241a17"))
-	_r(img, x - 2, y - h - 4, w + 4, 5, Color("#5c4a3e"))
-	for q in (w + 4) / 5:
-		_r(img, x - 2 + q * 5, y - h - 8, 3, 4, Color("#5c4a3e"))
-	_disc(img, x + 4, y - 4, 4, Color("#241a17"))
-	_disc(img, x + w - 4, y - 4, 4, Color("#241a17"))
+	var c := Color("#33282c")
+	var e := Color("#7a6a60")
+	var w := int(28.0 * sc)
+	var h := int(74.0 * sc)
+	_r(img, x, y - h, w, h - 4, c)
+	_r(img, x + w - 3, y - h, 3, h - 4, e)
+	_r(img, x, y - h, 2, h - 4, c.darkened(0.3))
+	for q in 3:
+		var fy := y - h + int(float(q + 1) * float(h) * 0.24)
+		_r(img, x + 4, fy, w - 8, 3, Color("#120c10"))
+		_r(img, x, fy + 6, w, 2, c.lightened(0.12))
+	PA.line(img, x + 2, y - 6, x + w - 3, y - h + 8, c.darkened(0.35))
+	PA.line(img, x + w - 3, y - 6, x + 2, y - h + 8, c.darkened(0.35))
+	_r(img, x - 3, y - h - 5, w + 6, 5, c.lightened(0.08))
+	for q in (w + 6) / 6:
+		_r(img, x - 3 + q * 6, y - h - 9, 3, 4, c.lightened(0.08))
+	_r(img, x + w / 2, y - h - 22, 1, 14, Color("#3a2e2a"))
+	_r(img, x + w / 2 + 1, y - h - 22, 9, 6, Color("#a82a3c"))
+	_r(img, x - 12, y - h + 8, 10, 3, c)   # pont-levis relevé
+	_wheel(img, x + 5, y - 3, maxi(3, int(5.0 * sc)), c)
+	_wheel(img, x + w - 5, y - 3, maxi(3, int(5.0 * sc)), c)
+
+
+## Bélier : toit en pente sur roues, tronc ferré qui dépasse devant.
+static func _ram(img: Image, x: int, y: int, sc: float) -> void:
+	var c := Color("#33282c")
+	var e := Color("#8a7a6e")
+	var w := int(44.0 * sc)
+	var h := int(22.0 * sc)
+	for r in h:
+		var inset := int(float(h - r) * 0.5)
+		_r(img, x + inset, y - 6 - h + r, w - inset * 2, 1, c)
+	_r(img, x + w / 2, y - 6 - h, w / 2 - int(float(h) * 0.5), 1, e)
+	for q in 4:
+		_r(img, x + int(float(w) * 0.12) + q * (w / 5), y - 6 - h / 2, 2, h / 2, c.darkened(0.3))
+	_r(img, x - int(16.0 * sc), y - 6 - h / 3, w + int(24.0 * sc), maxi(3, int(5.0 * sc)), Color("#51402f"))
+	_r(img, x - int(20.0 * sc), y - 7 - h / 3, int(6.0 * sc), maxi(4, int(7.0 * sc)), Color("#6a6a74"))
+	_wheel(img, x + 6, y - 3, maxi(3, int(5.0 * sc)), c)
+	_wheel(img, x + w - 6, y - 3, maxi(3, int(5.0 * sc)), c)

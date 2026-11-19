@@ -795,7 +795,7 @@ static func _house(b, o: Dictionary) -> void:
 			b._interactable(door_pos, o, "Examiner", null, 1.6)
 		else:
 			b.keep_clear.append(Vector2(xd, z1 + 0.6))
-	b.world.occluders.append({"rect": Rect2(x0, z0, hw, hd), "nodes": parts, "fade": 0.0})
+	b.world.occluders.append({"rect": Rect2(x0, z0, hw, hd), "nodes": parts, "fade": 0.0, "local": true})
 
 
 ## Tour carrée à créneaux et chapeau d'ardoise. Champs : `pos` (centre du pied), `size` (3),
@@ -836,7 +836,7 @@ static func _tower(b, o: Dictionary) -> void:
 					continue
 				parts.append(_box_in(parent, p + Vector3((ix - 1) * (sz * 0.5 - 0.1), hgt + 0.55, (iz - 1) * (sz * 0.5 - 0.1)), Vector3(0.5, 0.6, 0.5), m))
 	b.world.rects.append(Rect2(p.x - sz * 0.5, p.z - sz * 0.5, sz, sz))
-	b.world.occluders.append({"rect": Rect2(p.x - sz * 0.5, p.z - sz * 0.5, sz, sz), "nodes": parts, "fade": 0.0})
+	b.world.occluders.append({"rect": Rect2(p.x - sz * 0.5, p.z - sz * 0.5, sz, sz), "nodes": parts, "fade": 0.0, "local": true})
 
 
 ## Rempart crénelé le long d'une ligne brisée de segments horizontaux ou verticaux. Champs :
@@ -847,7 +847,6 @@ static func _wall(b, o: Dictionary) -> void:
 	var th := float(o.get("thick", 0.9))
 	var mat := MeshKit.pixel_material(Sprites.tile_texture("gou_rempart"))
 	for i in range(pts.size() - 1):
-		var st := MeshKit.begin()
 		var pa: Array = pts[i]
 		var pc: Array = pts[i + 1]
 		var a := Vector2(float(pa[0]), float(pa[1]))
@@ -857,19 +856,35 @@ static func _wall(b, o: Dictionary) -> void:
 		var base: float = b.world.ground_y((a.x + c.x) * 0.5, (a.y + c.y) * 0.5)
 		var size := Vector3(maxf(hi.x - lo.x, th), hgt, maxf(hi.y - lo.y, th))
 		var center := Vector3((lo.x + hi.x) * 0.5, base + hgt * 0.5, (lo.y + hi.y) * 0.5)
-		MeshKit.box(st, center, size)
-		var length := maxf(size.x, size.z)
-		var n := int(length / 1.3)
+		b.world.rects.append(Rect2(center.x - size.x * 0.5, center.z - size.z * 0.5, size.x, size.z))
+		# le rempart est taillé en tronçons de 2 mètres (une répétition de la texture) : seuls ceux qui
+		# cachent le héros s'estompent, le reste du mur reste plein (voir World._fade_occluders)
+		var horiz := (hi.x - lo.x) >= (hi.y - lo.y)
+		var span := (hi.x - lo.x) if horiz else (hi.y - lo.y)
+		var n_ch := maxi(1, ceili(span / 2.0))
+		var sts: Array = []
+		for k in n_ch:
+			sts.append(MeshKit.begin())
+		for k in n_ch:
+			var c0 := float(k) * 2.0
+			var c1 := minf(span, c0 + 2.0)
+			var mid := lo.x + (c0 + c1) * 0.5 if horiz else lo.y + (c0 + c1) * 0.5
+			var csz := Vector3(maxf(c1 - c0, th), hgt, size.z) if horiz else Vector3(size.x, hgt, maxf(c1 - c0, th))
+			MeshKit.box(sts[k], Vector3(mid, base + hgt * 0.5, center.z) if horiz else Vector3(center.x, base + hgt * 0.5, mid), csz)
+		var n := int(maxf(size.x, size.z) / 1.3)
 		for k in range(n + 1):
 			var t := float(k) / float(maxi(1, n))
 			var q := Vector2(lerpf(lo.x, hi.x, t), lerpf(lo.y, hi.y, t))
-			MeshKit.box(st, Vector3(q.x, base + hgt + 0.25, q.y), Vector3(0.62, 0.5, 0.62))
-		var r := Rect2(center.x - size.x * 0.5, center.z - size.z * 0.5, size.x, size.z)
-		b.world.rects.append(r)
-		var node := MeshKit.finish(st, mat)
-		node.name = "GoudaRempart"
-		b.world.add_child(node)
-		b.world.occluders.append({"rect": r, "nodes": [node], "fade": 0.0})   # s'estompe quand il passe devant le héros
+			var ci := clampi(int(((q.x - lo.x) if horiz else (q.y - lo.y)) / 2.0), 0, n_ch - 1)
+			MeshKit.box(sts[ci], Vector3(q.x, base + hgt + 0.25, q.y), Vector3(0.62, 0.5, 0.62))
+		for k in n_ch:
+			var c0 := float(k) * 2.0
+			var c1 := minf(span, c0 + 2.0)
+			var r := Rect2(lo.x + c0, center.z - size.z * 0.5, maxf(c1 - c0, th), size.z) if horiz else Rect2(center.x - size.x * 0.5, lo.y + c0, size.x, maxf(c1 - c0, th))
+			var node := MeshKit.finish(sts[k], mat)
+			node.name = "GoudaRempart"
+			b.world.add_child(node)
+			b.world.occluders.append({"rect": r, "nodes": [node], "fade": 0.0, "local": true})   # s'estompe quand il passe devant le héros
 
 
 ## Grande Porte : deux tours, un linteau et un porche sombre où l'on passe (herse relevée).
@@ -883,24 +898,26 @@ static func _gate(b, o: Dictionary) -> void:
 	var parent := Node3D.new()
 	parent.name = "GoudaPorte"
 	b.world.add_child(parent)
-	var parts: Array = []
+	var lintel: Array = []
 	for s: float in [-1.0, 1.0]:
+		var parts: Array = []   # un pilier = un estompage à lui (le héros passe entre les deux)
 		var cx := p.x + s * (gap * 0.5 + tw * 0.5)
 		parts.append(_box_in(parent, Vector3(cx, p.y + hgt * 0.5, p.z), Vector3(tw, hgt, 2.4), _stone_mat(tw, hgt)))
 		parts.append(_box_in(parent, Vector3(cx, p.y + hgt + 0.15, p.z), Vector3(tw + 0.5, 0.3, 2.9), MeshKit.flat_material(Color("#d8d0bc"))))
 		for k in 3:
 			parts.append(_box_in(parent, Vector3(cx + (k - 1) * 1.0, p.y + hgt + 0.55, p.z + 1.2), Vector3(0.6, 0.6, 0.5), _stone_mat(0.6, 0.6)))
 		b.world.rects.append(Rect2(cx - tw * 0.5, p.z - 1.2, tw, 2.4))
-	parts.append(_box_in(parent, Vector3(p.x, p.y + hgt - 0.7, p.z), Vector3(gap + 0.2, 1.4, 2.4), _stone_mat(gap, 1.4)))
-	parts.append(_box_in(parent, Vector3(p.x, p.y + hgt + 0.15, p.z), Vector3(gap + 0.4, 0.3, 2.9), MeshKit.flat_material(Color("#d8d0bc"))))
-	b.world.occluders.append({"rect": Rect2(p.x - gap * 0.5 - tw, p.z - 1.2, gap + tw * 2.0, 2.4), "nodes": parts, "fade": 0.0})
+		b.world.occluders.append({"rect": Rect2(cx - tw * 0.5, p.z - 1.2, tw, 2.4), "nodes": parts, "fade": 0.0, "local": true})
+	lintel.append(_box_in(parent, Vector3(p.x, p.y + hgt - 0.7, p.z), Vector3(gap + 0.2, 1.4, 2.4), _stone_mat(gap, 1.4)))
+	lintel.append(_box_in(parent, Vector3(p.x, p.y + hgt + 0.15, p.z), Vector3(gap + 0.4, 0.3, 2.9), MeshKit.flat_material(Color("#d8d0bc"))))
+	b.world.occluders.append({"rect": Rect2(p.x - gap * 0.5, p.z - 1.2, gap, 2.4), "nodes": lintel, "fade": 0.0, "local": true})
 	var wood := MeshKit.flat_material(Color("#3a2a1c"))
 	for k in 5:   # herse relevée sous le linteau
-		_box_in(parent, Vector3(p.x - gap * 0.4 + k * gap * 0.2, p.y + hgt - 1.6, p.z + 0.4), Vector3(0.1, 0.8, 0.1), wood)
+		lintel.append(_box_in(parent, Vector3(p.x - gap * 0.4 + k * gap * 0.2, p.y + hgt - 1.6, p.z + 0.4), Vector3(0.1, 0.8, 0.1), wood))
 	var banner := MeshKit.flat_material(Color("#27365e"))
-	_box_in(parent, Vector3(p.x, p.y + hgt - 2.6, p.z + 1.25), Vector3(1.0, 1.6, 0.05), banner)
-	_box_in(parent, Vector3(p.x, p.y + hgt - 2.4, p.z + 1.29), Vector3(0.12, 0.5, 0.03), MeshKit.flat_material(Color("#f4f0e4")))
-	_box_in(parent, Vector3(p.x, p.y + hgt - 2.0, p.z + 1.29), Vector3(0.5, 0.4, 0.03), MeshKit.flat_material(Color("#f4f0e4")))
+	lintel.append(_box_in(parent, Vector3(p.x, p.y + hgt - 2.6, p.z + 1.25), Vector3(1.0, 1.6, 0.05), banner))
+	lintel.append(_box_in(parent, Vector3(p.x, p.y + hgt - 2.4, p.z + 1.29), Vector3(0.12, 0.5, 0.03), MeshKit.flat_material(Color("#f4f0e4"))))
+	lintel.append(_box_in(parent, Vector3(p.x, p.y + hgt - 2.0, p.z + 1.29), Vector3(0.5, 0.4, 0.03), MeshKit.flat_material(Color("#f4f0e4"))))
 	for s: float in [-1.0, 1.0]:
 		var torch := Atmosphere.make_light(Color("#ffc870"), 1.6, 5.5, false, 0.2)
 		torch.position = Vector3(p.x + s * (gap * 0.5 + 0.4), p.y + 2.2, p.z + 1.6)

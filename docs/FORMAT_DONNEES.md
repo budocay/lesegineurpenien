@@ -1412,3 +1412,10 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
 - `horizon.prepare` : liste de cartes dont le cache disque des plans est préparé en arrière-plan à l'entrée de la
   carte. Le cache vit dans `user://cache_horizon/` ; la clé tient aux paramètres du plan et à l'empreinte de
   `horizon_layers.gd` (retoucher le peintre invalide tout seul). `GLAN_HZ_TIME=1` affiche les durées de construction.
+  À la fermeture du jeu, `Horizon.shutdown_prepare()` interrompt et joint ce fil (aucune erreur à la sortie).
+- Remparts, portes, tours et maisons du style `gouda` : chaque rempart est taillé en tronçons de 2 m, chacun son
+  propre cache dans `world.occluders` avec la clé `"local": true`. Une entrée « locale » ne s'estompe que si le
+  héros est à moins de 1,6 m de son étendue en x, et au plus à 72 % de transparence ; sans la clé, le comportement
+  est celui d'avant (estompage entier). Les cartes des autres styles ne sont pas touchées.
+- Cartes à caméra basse : `camera.bounds` (`[x0, z0, x1, z1]`) borne la cible de la caméra ; `camera.zones` règle
+  inclinaison et champ par zone. `white_tower.scale` réduit la Tour Blanche pour que son étendard reste dans le cadre.
