@@ -37,8 +37,8 @@ static func paint(kind: String, img: Image, ox: int, f: int, col: int, size: Vec
 					"hair": "#dcdce8", "eye": "#b8b8ff", "hat": "hood", "hat_c": "#4a4a66", "item": "book",
 					"boots": "#4a3a2a", "ears": true, "glow": "#c8c8ff"})
 		"boss_grimace":
-			_robed(img, ox, f, col, size, {"robe": "#5a5a64", "lining": "#2a2a32", "trim": "#c9a24a", "skin": "#c8b8a8",
-					"hair": "#6a6a70", "eye": "#8a8a98", "hat": "toque", "hat_c": "#34343c", "item": "scroll",
+			_robed(img, ox, f, col, size, {"robe": "#6c5a82", "lining": "#2a1e3a", "trim": "#e0b84a", "skin": "#d8b8a0",
+					"hair": "#7a7088", "eye": "#c8a8ff", "hat": "toque", "hat_c": "#4a3a5e", "item": "scroll", "glow": "#c8a0ff",
 					"boots": "#3a2a20", "fat": 1.18, "mustache": "#8a8a90", "wooden": true})
 		"boss_sauron":
 			_robed(img, ox, f, col, size, {"robe": "#4a4266", "lining": "#1e1a2c", "trim": "#c9a24a", "skin": "#b8b0c8",

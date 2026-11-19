@@ -102,6 +102,7 @@ func _ready() -> void:
 		return
 	if OS.has_environment("GLAN_ONLY_ANNONCE"):   # essai ciblé des coups annoncés
 		_test_telegraphed_attacks()
+		await _test_annonce_cues()
 		print("%d vérifications, %d échec(s) (coups annoncés seuls)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
 		return
@@ -165,6 +166,7 @@ func _ready() -> void:
 	_test_reserve_catch_up()
 	_test_balourd_phase_and_breche_waves()
 	_test_telegraphed_attacks()
+	await _test_annonce_cues()
 	_test_decors_restes()
 	_test_help_texts()
 	await _test_horizon()
@@ -1593,6 +1595,9 @@ func _measure_forced() -> void:
 			if kv.size() == 2 and Database.enemies.has(kv[0]):
 				for stat_key: String in ["atk", "mag"]:
 					Database.enemies[kv[0]]["stats"][stat_key] = int(round(float(Database.enemies[kv[0]]["stats"][stat_key]) * float(kv[1])))
+	if OS.has_environment("GLAN_ANNONCE"):   # multiplicateur de l'état « Coup annoncé » (force et magie), pour mesurer son poids
+		var mul := float(OS.get_environment("GLAN_ANNONCE"))
+		Database.statuses["annonce"]["mods"] = {"atk": mul, "mag": mul}
 	if OS.has_environment("GLAN_SHIELD"):   # idem pour le bouclier (« id:nombre »)
 		for part: String in OS.get_environment("GLAN_SHIELD").split(","):
 			var kv := part.split(":")
@@ -6276,7 +6281,7 @@ func _test_houses() -> void:
 
 # ----------------------------------------------------------- conseils de jeu
 
-const TUTORIAL_EVENTS := ["arrive", "interact_near", "quest_started", "item", "equip_item", "talent_point", "rest", "save", "shop", "reserve", "battle_start", "party_turn", "weak", "break", "ally_down"]
+const TUTORIAL_EVENTS := ["arrive", "interact_near", "quest_started", "item", "equip_item", "talent_point", "rest", "save", "shop", "reserve", "battle_start", "party_turn", "weak", "break", "ally_down", "telegraph"]
 
 
 func _first_tracker(main: Node) -> Node:
@@ -6628,7 +6633,9 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 		var hero_h: float = (scene.actors[scene.engine.party[0].key] as Node3D).height
 		var boss_h: float = (scene.actors[scene.boss.key] as Node3D).height
 		var ratio := boss_h / hero_h
-		check(ratio >= scene.BOSS_RATIO_FLOOR and ratio <= scene.BOSS_RATIO_MAX + 0.02, "%s : le boss fait %.2f fois un héros (entre %.1f et %.1f)" % [tag, ratio, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_MAX])
+		var boss_screen_h: float = scene.screen_rect(scene.boss).size.y
+		check(scene.boss_present(ratio, boss_screen_h, view.size.y) and ratio <= scene.BOSS_RATIO_MAX + 0.02, "%s : le boss fait %.2f fois un héros et %.0f %% de l'écran (au moins %.1f héros, ou %.1f et %.0f %% de l'écran)" % [tag, ratio, boss_screen_h / view.size.y * 100.0, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_SOFT, scene.BOSS_FILL_MIN * 100.0])
+		check(scene.hero_k >= scene.hero_k_free * 0.75 - 0.001, "%s : face au boss les héros gardent %.0f %% de leur taille (au moins 75 %%)" % [tag, scene.hero_k / scene.hero_k_free * 100.0])
 		for c: RefCounted in scene.engine.enemies:
 			if c != scene.boss:
 				check(boss_h >= 1.25 * (scene.actors[c.key] as Node3D).height, "%s : le boss domine %s" % [tag, str(c.name)])
@@ -6670,6 +6677,8 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 		var posed: Rect2 = scene.screen_rect(c, false, true).merge(scene.screen_rect(c, true, true))
 		bodies.append(posed)
 		check(view.encloses(home) and view.encloses(posed), "%s : %s entier dans l'écran, poses comprises" % [tag, str(c.name)])
+		if c == scene.boss:   # (sa tête passe sous la frise au repos ; son bond, bref, peut passer derrière)
+			posed = Rect2(posed.position.x, home.position.y, posed.size.x, posed.end.y - home.position.y)
 		var worst := 0.0
 		for r: Rect2 in ui_rects:
 			worst = maxf(worst, _overlap(posed, r))
@@ -6684,6 +6693,13 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 		else:
 			foe_count += 1
 	check(hero_count >= 2 and foe_count >= 1, "%s : %d héros et %d ennemis en place" % [tag, hero_count, foe_count])
+	var hero_overlap := 0.0   # les héros sont espacés : aucun corps n'en cache un autre
+	for i in scene.engine.party.size():
+		for j in range(i + 1, scene.engine.party.size()):
+			var ra: Rect2 = scene.screen_rect(scene.engine.party[i])
+			var rb: Rect2 = scene.screen_rect(scene.engine.party[j])
+			hero_overlap = maxf(hero_overlap, _overlap(ra.grow_individual(-ra.size.x * 0.05, 0, -ra.size.x * 0.05, 0), rb.grow_individual(-rb.size.x * 0.05, 0, -rb.size.x * 0.05, 0)))
+	check(hero_overlap < 1.0, "%s : les héros ne se chevauchent pas (%.0f px²)" % [tag, hero_overlap])
 	# le menu : jamais sur un combattant, une plaque ou une fiche
 	var mw := 0.0
 	for r: Rect2 in menu:
@@ -8459,7 +8475,8 @@ func _test_boss_presence() -> void:
 			if scene.boss != null:
 				var hero_h: float = (scene.actors[scene.engine.party[0].key] as Node3D).height
 				var boss_h: float = (scene.actors[scene.boss.key] as Node3D).height
-				check(boss_h / hero_h >= scene.BOSS_RATIO_FLOOR - 0.001, "%s : %.2f fois un héros (au moins %.1f)" % [tag, boss_h / hero_h, scene.BOSS_RATIO_FLOOR])
+				var screen_h: float = scene.screen_rect(scene.boss).size.y
+				check(scene.boss_present(boss_h / hero_h, screen_h, ui.get_viewport_rect().size.y), "%s : %.2f fois un héros, %.0f %% de l'écran (au moins %.1f fois, ou %.1f et %.0f %% de l'écran)" % [tag, boss_h / hero_h, screen_h / ui.get_viewport_rect().size.y * 100.0, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_SOFT, scene.BOSS_FILL_MIN * 100.0])
 				check((scene.actors[scene.boss.key] as Node3D)._halo != null, "%s : le boss a sa flaque de lumière" % tag)
 			_check_staging(scene, ui, tag, false)
 			ui.close()
@@ -8596,4 +8613,68 @@ func _test_telegraphed_attacks() -> void:
 		boss.statuses["ebranle"] = {"turns": 1, "fresh": false}
 		eng.start_turn(boss)
 		check(boss.next_skill == "" and not bool(eng.can_act), "coup annoncé : bouclier brisé, le coup de %s est interrompu" % str(c[1]))
+	GameState.new_game()
+
+
+
+## Le coup annoncé se voit et s'apprend : triangle rouge au-dessus du boss, bandeau, conseil de jeu ; les coups
+## « pierce » ignorent la provocation, les coups « ignore_guard » passent la parade des talents.
+func _test_annonce_cues() -> void:
+	print("== Coup annoncé : signes visibles et conseil ==")
+	var tip: Dictionary = Tutorial.by_id.get("coup_annonce", {})
+	check(not tip.is_empty() and str(tip.get("trigger", "")) == "telegraph" and str(tip.get("points", "")) == "annonce", "coup annoncé : un conseil de jeu l'enseigne au premier coup annoncé")
+	check(not str(tip.get("text", "")).to_lower().contains("touche") and not Tutorial.resolve(tip)["text"].contains("{"), "coup annoncé : conseil sans nom de touche en dur")
+	check(Database.get_skill("morsure_de_poisson").get("pierce", false) == true, "coup annoncé : la morsure de Goulûm ignore la provocation")
+	# bandeau d'annonce : les textes d'ouverture tiennent sur deux lignes à 1280 x 720 sans passer sur une fiche
+	var room: float = BattleUI.ribbon_room(1280.0)
+	check(BattleUI.RIBBON_LEFT >= 120.0 and room > 600.0, "bandeau : il commence après la vignette de tour (place %.0f px)" % room)
+	for enc_id: String in Database.encounters:
+		var intro := str((Database.encounters[enc_id] as Dictionary).get("intro", ""))
+		if intro != "":
+			var fit: Array = BattleUI.ribbon_fit(intro, room)
+			check(int(fit[1]) <= BattleUI.RIBBON_LINES, "bandeau : l'ouverture de %s tient sur %d lignes (police %d)" % [enc_id, int(fit[1]), int(fit[0])])
+	var eng: RefCounted = BattleEngine.new()
+	GameState.new_game()
+	for who: String in ["glandoulf", "sam", "froton", "pepin"]:
+		GameState.add_to_party(who)
+	eng.setup(Database.get_encounter("goulum"), 3)
+	var boss: RefCounted = eng.enemies[0]
+	var tank: RefCounted = eng.party[1]
+	tank.statuses["provocation"] = {"turns": 3, "fresh": false}
+	var others := 0
+	for i in 120:
+		boss.next_skill = "morsure_de_poisson"
+		var act: Dictionary = eng.ai_action(boss)
+		if act.get("target") != tank:
+			others += 1
+	check(others > 10, "coup annoncé : la morsure vise hors du provocateur (%d fois sur 120)" % others)
+	# interface : un triangle rouge palpite au-dessus d'un ennemi qui a un coup annoncé
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var ui: Control = BattleUI.new()
+	layer.add_child(ui)
+	await get_tree().process_frame
+	var scene: Node3D = BattleScene.new()
+	add_child(scene)
+	scene.setup({"enemies": ["chantecler"], "arena": "pre", "music": "boss", "flee": false}, ui, 5)
+	scene.run()
+	for _i in 600:
+		await get_tree().process_frame
+		if ui._state == ui.S.ROOT:
+			break
+	scene.fast = false
+	scene.boss.next_skill = "pietinement"
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var icon: Control = ui._warn.get(scene.boss.key)
+	check(icon != null and icon.visible, "coup annoncé : un triangle rouge s'affiche au-dessus du boss")
+	check(Tutorial.target_rect("annonce") == Rect2() or icon != null, "coup annoncé : le conseil sait désigner le triangle")
+	scene.boss.next_skill = ""
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(icon != null and not icon.visible, "coup annoncé : le triangle disparaît une fois le coup parti")
+	ui.close()
+	remove_child(scene)
+	scene.queue_free()
+	layer.queue_free()
 	GameState.new_game()

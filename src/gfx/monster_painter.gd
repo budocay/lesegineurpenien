@@ -133,19 +133,25 @@ static func paint_hd(kind: String) -> Image:
 
 ## Marge ajoutée de chaque côté de la case (le peintre dessine décalé de cette valeur) : le dessin d'origine débordait.
 const SHIFTX := {"chauve": 6, "dindon_farce": 8}
+## Marge de travail (pixels logiques, de chaque côté) pour les dessins d'origine qui débordaient de leur case : ils
+## sont peints dans une case plus large puis ramenés à la taille de la case (le monstre y est un peu plus petit, la
+## case et donc les plaques gardent leur largeur), si bien que rien n'est coupé.
+const EXTRA := {"limace": 4, "baveuse": 4, "sangsue": 4, "guepe": 4, "frelon": 4, "coq": 4, "asticot": 4}
 
 static func _render(kind: String, k: int) -> Image:
 	var size: Vector2i = SIZES.get(kind, Vector2i(24, 24))
 	var shx: int = SHIFTX.get(kind, 0)
+	var ex: int = EXTRA.get(kind, 0)
+	var ws := size.x + 2 * ex   # largeur de la case de travail
 	K = k
 	var gr: Array = GRAIN.get(kind, GRAIN_DEFAULT)
 	_ga = float(gr[0]) if k > 1 else 0.0
 	_gs = float(gr[1]) * k / 4.0
 	_gseed = kind.hash() & 0xffff
-	var img := PA.new_image(size.x * k * COLUMNS, size.y * k)
+	var img := PA.new_image(ws * k * COLUMNS, size.y * k)
 	for col in COLUMNS:
 		var f := col if col < 2 else 0
-		var ox := col * size.x + shx
+		var ox := col * ws + shx + ex
 		var inner := Vector2i(size.x - 2 * shx, size.y)
 		match kind:
 			"limace": _slug(img, ox, f, ["#5f8a3c", "#8fb552", "#c3dc7c", "#e9f2b8"], "#d9732e")
@@ -194,23 +200,56 @@ static func _render(kind: String, k: int) -> Image:
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		if not PAINTED.has(kind):
-			_volume(img, Rect2i((ox - shx) * k, 0, size.x * k, size.y * k))
+			_volume(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k))
 		if col >= 2:
 			_mood(img, ox, kind, col == 2)
 		if k > 1:
 			_marks(img, Rect2i(ox * k, 0, inner.x * k, inner.y * k), kind)
-			_finish_hd(img, Rect2i((ox - shx) * k, 0, size.x * k, size.y * k), kind, col)
+			_finish_hd(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k), kind, col)
 	# marge de PAD pixels logiques autour de chaque pose, puis le contour : un dessin qui touche le bord de sa
 	# case n'est plus coupé net (et aucun pixel opaque ne reste à moins d'un pixel du bord : voir le test)
 	var pad := PAD * k
 	var fw := (size.x + 2 * PAD) * k
 	var out := PA.new_image(fw * COLUMNS, (size.y + 2 * PAD) * k)
 	for col in COLUMNS:
-		out.blit_rect(img, Rect2i(col * size.x * k, 0, size.x * k, size.y * k), Vector2i(col * fw + pad, pad))
+		var cell := img.get_region(Rect2i(col * ws * k, 0, ws * k, size.y * k))
+		var at := Vector2i(col * fw + pad, pad)
+		if ex > 0:   # case de travail trop large : on la ramène à la largeur de la case (même rapport), les pieds en bas
+			var nh := int(round(float(size.y * k) * float(size.x) / float(ws)))
+			cell = _shrink(cell, size.x * k, nh, k)
+			at.y += size.y * k - nh
+		out.blit_rect(cell, Rect2i(0, 0, cell.get_width(), cell.get_height()), at)
 		_outline(out, Rect2i(col * fw, 0, fw, out.get_height()))
 	K = 1
 	_ga = 0.0
 	return out
+
+
+## Réduit une pose (couleur étalée sous la transparence voisine avant, pour qu'aucun liseré sombre ne naisse au bord).
+static func _shrink(src: Image, w: int, h: int, k: int) -> Image:
+	var tmp := src.duplicate() as Image
+	if k <= 1:
+		tmp.resize(w, h, Image.INTERPOLATE_NEAREST)
+		return tmp
+	var fw := tmp.get_width()
+	var fh := tmp.get_height()
+	for _pass in 3:   # étale la couleur des bords sous les pixels transparents voisins
+		var prev := tmp.duplicate() as Image
+		for y in fh:
+			for x in fw:
+				if prev.get_pixel(x, y).a >= 0.5:
+					continue
+				var best := Color(0, 0, 0, 0)
+				for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+					var nx := x + d.x
+					var ny := y + d.y
+					if nx >= 0 and ny >= 0 and nx < fw and ny < fh and prev.get_pixel(nx, ny).a >= 0.5:
+						best = prev.get_pixel(nx, ny)
+						break
+				if best.a > 0.0:
+					tmp.set_pixel(x, y, Color(best.r, best.g, best.b, 0.0))
+	tmp.resize(w, h, Image.INTERPOLATE_LANCZOS)
+	return tmp
 
 
 ## Version agrandie d'une planche de monstre (chaque pose séparément, pour qu'aucune ne
@@ -1800,6 +1839,14 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 			_line(img, ox + int(hand_x), int(hand_y) + 8, ox + int(hand_x), int(hand_y) - 10, Color("#7a5632"))
 			_ell(img, ox + hand_x, hand_y - 12.0, 5.5, 4.5, metal)
 			_ell(img, ox + hand_x, hand_y - 12.0, 3.5, 2.6, _ramp("#2a2a30"))
+	if kind == 2:   # pétrisseur : foulard rouge, boule de pâte dans la main libre, nuage de farine
+		_rect(img, ox + int(hx) - 6, int(hy) + 6, 12, 3, Color("#b8382a"))
+		_rect(img, ox + int(hx) - 6, int(hy) + 6, 12, 1, Color("#d85a40"))
+		_ell(img, ox + cx - 10.0, 31.0 + dy, 4.2, 3.6, _ramp("#f0e2b8"))
+		_px(img, ox + int(cx) - 11, 29 + int(dy), Color.WHITE)
+		_cap(img, ox + cx - 6.0, 24.0 + dy, ox + cx - 10.0, 30.0 + dy, 2.4, 2.0, skin)
+		for k in 7:
+			_px(img, ox + int(cx) - 14 + (k * 7) % 28, 14 + (k * 5) % 22, Color("#f4f0e4") if k % 2 == 0 else Color("#d8d2c0"))
 
 
 ## Pâton : une boule de pâte qui lève, deux yeux d'olive et une bouche de fournil.

@@ -501,6 +501,12 @@ func target_rect(kind: String) -> Rect2:
 			if pick != null:
 				var chips: Control = (plates[pick.get("key")] as Dictionary)["chips"]
 				return chips.get_global_rect().grow(5.0)
+		"annonce":
+			var warn: Dictionary = (ui as Object).get("_warn")
+			for k: Variant in warn:
+				var w: Control = warn[k]
+				if is_instance_valid(w) and w.visible:
+					return w.get_global_rect().grow(8.0)
 		"allie":
 			var rows2: Dictionary = (ui as Object).get("_rows")
 			for c: RefCounted in eng.call("fallen", "party"):

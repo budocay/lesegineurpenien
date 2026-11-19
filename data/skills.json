@@ -594,7 +594,7 @@
 	"etreinte_du_lac": {"name": "Étreinte du lac", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 95, "element": "contondant"}, {"type": "status", "id": "englue", "chance": 0.5, "turns": 3}]},
 	"vague_noire": {"name": "Vague noire", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 62, "element": "contondant"}]},
 	"devinette_vicieuse": {"name": "Devinette vicieuse", "target": "enemy", "effects": [{"type": "status", "id": "sommeil", "chance": 0.5, "turns": 2}]},
-	"morsure_de_poisson": {"name": "Morsure de poisson cru", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 92, "element": "tranchant"}, {"type": "status", "id": "poison", "chance": 0.5, "turns": 3}]},
+	"morsure_de_poisson": {"name": "Morsure de poisson cru", "target": "enemy", "pierce": true, "effects": [{"type": "damage", "stat": "atk", "power": 92, "element": "tranchant", "ignore_guard": true}, {"type": "status", "id": "poison", "chance": 0.5, "turns": 3}]},
 	"bijou_de_famille": {"name": "Bijou de famille", "target": "all_enemies", "effects": [{"type": "status", "id": "demoralise", "chance": 0.55, "turns": 3}, {"type": "damage", "stat": "mag", "power": 40, "element": "torpeur"}]},
 	"fouet_de_flamme": {"name": "Fouet de flamme", "target": "all_enemies", "effects": [{"type": "damage", "stat": "mag", "power": 72, "element": "feu"}]},
 	"coup_de_balourd": {"name": "Coup de Balourd", "target": "enemy", "effects": [{"type": "damage", "stat": "atk", "power": 140, "element": "contondant"}]},

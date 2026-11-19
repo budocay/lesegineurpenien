@@ -519,6 +519,13 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	var cloak := MP._ramp("#2c2c3e")
 	var inner := MP._ramp("#14141c")
 	var iron := MP._ramp("#8a8a9c")
+	# grande cape cramoisie qui flotte derrière, ourlée de lueur : la silhouette se détache du fond
+	var cape := MP._ramp("#7a1a2a")
+	_tp(img, h * 0.27 + dy, h * 0.93, cx - w * 0.2, cx + w * 0.2, cx - w * 0.42 + sway, cx + w * 0.38 - sway * 0.5, MP._dim(cape))
+	for i in 5:
+		var ty2 := h * 0.93
+		var tx4 := cx - w * 0.42 + sway + float(i) * w * 0.16
+		_tri(img, Vector2(tx4, ty2 - 1.0), Vector2(tx4 + w * 0.15, ty2 - 1.0), Vector2(tx4 + w * 0.07 - float(i % 2) * 2.0, ty2 + 4.0), cape[1])
 	# traîne du manteau, déchirée, soulevée par un vent qui n'existe pas
 	_tp(img, h * 0.3 + dy, h * 0.88, cx - w * 0.22, cx + w * 0.22, cx - w * 0.34 + sway, cx + w * 0.3, MP._dim(cloak))
 	# manteau de face
@@ -527,6 +534,18 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	for i in 7:   # lisière en dents régulières, deux hauteurs alternées
 		var tx2 := cx - w * 0.3 + sway * 0.4 + float(i) * w * 0.0857
 		_tri(img, Vector2(tx2, h * 0.89), Vector2(tx2 + w * 0.0857, h * 0.89), Vector2(tx2 + w * 0.043, h * 0.975 - float(i % 2) * 3.0), cloak[1])
+	# runes qui couvent sur le manteau
+	var rune := Color("#ff6a4a") if col != 3 else Color("#8a3a30")
+	for i in 5:
+		var rx2 := cx - w * 0.13 + float(i) * w * 0.065
+		var ry2 := h * 0.55 + dy + float((i * 3) % 4) * h * 0.06
+		MP._ellipse(img, rx2, ry2, 0.9, 1.7, rune.darkened(0.3))
+		MP._ellipse(img, rx2, ry2, 0.5, 1.2, rune.lightened(0.35))
+	# braises qui montent
+	for i in 6:
+		var bx := cx - w * 0.3 + float((i * 37) % 60) * w * 0.01 - sway * 0.2
+		var by2 := h * (0.2 + float((i * 53) % 70) * 0.01)
+		MP._ellipse(img, bx, by2, 0.7, 0.7, Color("#ff9a4a"))
 	# fermoir : une griffe de fer
 	_o(img, cx + w * 0.02, h * 0.37 + dy, 2.4, 2.4, iron, 0.1)
 	# épaulières de fer
@@ -575,7 +594,7 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	_tp(img, hcy - h * 0.115, hcy - h * 0.075, hcx - w * 0.14, hcx + w * 0.16, hcx - w * 0.15, hcx + w * 0.17, iron)
 	for i in 7:
 		var tx3 := hcx - w * 0.14 + float(i) * w * 0.045
-		_tri(img, Vector2(tx3, hcy - h * 0.11), Vector2(tx3 + w * 0.045, hcy - h * 0.11), Vector2(tx3 + w * 0.022, hcy - h * 0.2 + float(i % 2) * 3.0), iron[3])
+		_tri(img, Vector2(tx3, hcy - h * 0.11), Vector2(tx3 + w * 0.045, hcy - h * 0.11), Vector2(tx3 + w * 0.022, hcy - h * 0.2 + float(i % 2) * 3.0), Color("#e8c25a") if i % 2 == 0 else iron[3])
 
 
 # ------------------------------------------------------------------ Mammou

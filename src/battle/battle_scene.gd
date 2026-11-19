@@ -50,6 +50,9 @@ var _fg_base: Array[float] = []
 var _fg_flip: Array[float] = []
 var hero_k := 1.0               # taille d'affichage des héros, choisie par layout()
 var foe_k := 1.0                # taille d'affichage des monstres
+var hero_k_free := 1.0          # la taille que les héros auraient sans boss (layout() : face à un boss, ils en gardent BOSS_HERO_K)
+var hero_spread := 1.0          # écart entre les héros (1 : de base ; plus, quand ils se chevauchent)
+var hero_depth := FORM_DEPTH    # profondeur de leur file : plus elle est grande, plus la file des héros est verticale (et étroite)
 var hero_shift := Vector2.ZERO  # décalage (x, z) de la colonne des héros, choisi par layout()
 var foe_shift := Vector2.ZERO
 var boss: RefCounted = null     # le boss de la rencontre, s'il y en a un (voir find_boss) : il domine la scène
@@ -291,8 +294,14 @@ const DEFAULT_RIM := 1.0    # liseré de contre-jour par défaut (champ « rim �
 const BOSS_MUL_MAX := 6.0    # un boss peut grossir jusqu'à tant de fois la taille des monstres...
 const BOSS_RATIO_MAX := 5.2  # ...sans dépasser tant de fois la hauteur d'un héros
 const BOSS_RATIO_FLOOR := 3.0  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
-const MENU_GAP := 340.0   # largeur laissée au menu d'action entre un boss et l'équipe
-const BOSS_HERO_K := 0.56    # part de la taille maximale d'un héros quand il affronte un boss (le boss domine : l'équipe est petite à ses pieds)
+const MENU_GAP := 300.0   # largeur laissée au menu d'action entre un boss et l'équipe
+const BOSS_HERO_K := 0.8     # part de la taille qu'un héros aurait sans boss, quand il affronte un boss : l'équipe reste grande et lisible (jamais moins de BOSS_HERO_K_MIN)...
+const BOSS_HERO_K_MIN := 0.76   # ...et c'est le boss qui est immense
+const BOSS_FILL_MIN := 0.45  # un boss occupe au moins cette part de la hauteur de l'écran (si son ratio à un héros ne peut atteindre BOSS_RATIO_FLOOR)
+const BOSS_RATIO_SOFT := 2.5   # plancher du ratio quand c'est la hauteur d'écran (BOSS_FILL_MIN) qui garantit la présence du boss
+const HERO_STYLES := [[1.0, 1.0], [1.25, 1.0], [1.5, 1.0]]   # (écart, profondeur relative) essayés pour les héros, pour qu'aucun corps n'en cache un autre
+const HERO_STYLES_BOSS := [[0.55, 2.6], [0.65, 2.3], [0.75, 2.0], [0.85, 1.7], [1.0, 1.9], [1.0, 1.55], [1.0, 1.25], [1.0, 1.0], [1.3, 1.0]]   # face à un boss : une file plus verticale, donc plus étroite : le boss a la place
+const HERO_BODY := 0.9       # part de la largeur de sa boîte que couvre vraiment le corps d'un héros
 const BOSS_BACK := 0.9       # un boss se tient en retrait de la file normale (vers le fond)...
 const BOSS_FRONT := 1.4      # ...et ses sbires devant lui, de tant plus près de la caméra
 const BOSS_CENTER := 0.4     # centre du camp du boss : un peu plus vers l'équipe que la file ordinaire
@@ -302,6 +311,7 @@ const BOSS_HEAVY := 0.4      # un boss penche beaucoup moins qu'un petit monstre
 const FOOT_MARGIN := 76.0  # place laissée sous les pieds d'un héros (ombre, bord de l'écran)
 const PLATE_H := 66.0      # plaque d'un ennemi sous ses pieds (états, nom)
 const PLATE_W := 190.0
+const PLATE_CLEAR := 10.0   # marge entre la plaque d'un boss et ses sbires
 const KEYS_H := 44.0       # bandeau des rappels de touches, en bas à gauche : aucune plaque dessous
 const KEYS_W := 480.0
 const FG_DIM := 0.5        # le premier plan est sombre
@@ -318,7 +328,7 @@ const FG_CORNER_Y := 0.74  # (fraction de l'écran) en dessous de laquelle il se
 ## (côté droit ; le camp d'en face prend l'opposé en x, la même profondeur : la file des
 ## ennemis descend donc vers la gauche, celle des héros vers la droite).
 ## « spread » élargit les écarts (les monstres sont plus larges que les personnages).
-static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPAN, x0: float = FORM_X) -> Array[Vector3]:
+static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPAN, x0: float = FORM_X, depth: float = FORM_DEPTH) -> Array[Vector3]:
 	var n := scales.size()
 	var offsets: Array[float] = [0.0]
 	var total := 0.0
@@ -331,7 +341,7 @@ static func formation(scales: Array, spread: float = 1.0, span: float = FORM_SPA
 		var along := (offsets[i] - total * 0.5) * k
 		# l'écart en x fait l'écart à l'écran ; la profondeur, plus faible, ne sert qu'à
 		# étager les rangs : une diagonale à 45 degrés ramène les voisins l'un sur l'autre
-		out.append(Vector3(x0 + along + 0.55 * (float(scales[i]) - 1.0), 0.0, along * FORM_DEPTH))
+		out.append(Vector3(x0 + along + 0.55 * (float(scales[i]) - 1.0), 0.0, along * depth))
 	return out
 
 
@@ -659,7 +669,7 @@ func _spots(list: Array, side: float, shift: Vector2) -> Array[Vector3]:
 		scales.append((float(sp.get("scale", 1.0)) if sp.has("monster") else 1.0) * _view_k(c))
 	var out: Array[Vector3] = []
 	var i := 0
-	var form := formation(scales, 1.3, ENEMY_SPAN, ENEMY_X + shift.x) if side < 0.0 else formation(scales, 1.0, FORM_SPAN, FORM_X + shift.x)
+	var form := formation(scales, 1.3, ENEMY_SPAN, ENEMY_X + shift.x) if side < 0.0 else formation(scales, hero_spread, FORM_SPAN, FORM_X + shift.x, hero_depth)
 	for sp: Vector3 in form:
 		var limit := maxf(1.5, tan(deg_to_rad(CAM_FOV * 0.5)) * (_view().x / _view().y) * (_cam_home.z - sp.z) - 0.15 - _half_width(list[i]))
 		out.append(Vector3(clampf(sp.x * side, -limit, limit), 0.0, sp.z + shift.y))
@@ -682,13 +692,17 @@ func _boss_spots(list: Array, shift: Vector2) -> Array[Vector3]:
 	xb = clampf(xb, -(reach - hb), reach - hb)
 	out[list.find(boss)] = Vector3(xb, 0.0, zb)
 	var n := 0
+	var ppu := 100.0   # pixels par unité du monde, à la profondeur du boss : sa plaque (sous ses pieds) reste libre, aucun sbire dessus
+	if camera != null:
+		ppu = absf(camera.unproject_position(Vector3(1.0, 0.0, zb)).x - camera.unproject_position(Vector3(0.0, 0.0, zb)).x)
+	var plate_half := (PLATE_W * 0.5 + PLATE_CLEAR) / maxf(ppu, 1.0)
 	for c: RefCounted in list:
 		if c == boss:
 			continue
 		var hm := _half_width(c)
 		var rank := n / 2
 		var inner := n % 2 == 0
-		var dx := (hb * 0.62 + hm * 0.8) + rank * (2.0 * hm + 0.1)
+		var dx := maxf(hb * 0.62 + hm * 0.8, plate_half + hm) + rank * (2.0 * hm + 0.1)
 		var zf := zb + BOSS_FRONT + (0.5 if rank % 2 == 1 else 0.0) + rank * 0.15
 		var lim := tan(deg_to_rad(CAM_FOV * 0.5)) * vw * (_cam_home.z - zf) - 0.15 - hm
 		var x := xb + (dx if inner else -dx)
@@ -751,25 +765,83 @@ func _play_rect(c: RefCounted) -> Rect2:
 func layout() -> void:
 	var view := _view()
 	var zones: Array[Rect2] = [BattleUI.cards_zone(engine.party.size(), view), BattleUI.top_band(view)]
-	var found := false
-	var k := HERO_K_MAX * (BOSS_HERO_K if find_boss() != null else 1.0)   # face à un boss, l'équipe est plus petite
-	while k >= HERO_K_MIN - 0.001 and not found:
-		for dx: float in [0.0, -0.3, -0.6, -0.9]:
-			for dz in 14:
-				_apply_party(k, Vector2(dx, float(dz) * 0.25))
-				if _party_fits(view, zones):
-					found = true
-					break
-			if found:
-				break
-		if not found:
-			k -= 0.02
-	if not found:
+	# les héros d'abord, sans boss : leur taille normale
+	var had_boss := find_boss() != null
+	if not _fit_heroes(view, zones, HERO_K_MAX, HERO_K_MIN, [0.0, -0.3, -0.6, -0.9], HERO_STYLES):
+		hero_spread = 1.0
+		hero_depth = FORM_DEPTH
 		_apply_party(HERO_K_MIN, Vector2.ZERO)
-	boss = null
+	hero_k_free = hero_k
+	var free_shift := hero_shift
+	var free_spread := hero_spread
+	var free_depth := hero_depth
+	var fraction := BOSS_HERO_K if had_boss else 1.0
+	while true:
+		if had_boss:   # face à un boss ils gardent la plus grande part possible de leur taille, bien espacés (plutôt à droite : le boss a besoin de la place)
+			if not _fit_heroes(view, zones, hero_k_free * fraction, hero_k_free * BOSS_HERO_K_MIN, [0.5, 0.25, 0.0, -0.3, -0.6, -0.9], HERO_STYLES_BOSS, true):
+				hero_spread = free_spread
+				hero_depth = free_depth
+				_apply_party(hero_k_free, free_shift)
+		boss = null
+		_layout_foes(view)
+		if boss == null or fraction <= BOSS_HERO_K_MIN + 0.001 or _boss_ok(view):
+			break
+		fraction = BOSS_HERO_K_MIN   # le boss n'a pas assez de place : les héros reculent jusqu'à leur plancher, pas plus
+	for c: RefCounted in engine.enemies:   # la flaque de lumière du boss, couleur de son élément
+		(actors[c.key] as Node3D).set_boss(c == boss, _element_color(str(c.element)).lightened(0.15))
+
+
+## Un boss est présent à l'écran : au moins BOSS_RATIO_FLOOR héros de haut, ou (si l'écran ne le permet pas)
+## au moins BOSS_FILL_MIN de la hauteur de l'écran et BOSS_RATIO_SOFT héros.
+func boss_present(ratio: float, screen_h: float, view_h: float) -> bool:
+	return ratio >= BOSS_RATIO_FLOOR - 0.001 or (ratio >= BOSS_RATIO_SOFT and screen_h >= BOSS_FILL_MIN * view_h - 1.0)
+
+
+func _boss_ok(view: Vector2) -> bool:
+	var hero_h: float = (actors[engine.party[0].key] as Node3D).height
+	var boss_h: float = (actors[boss.key] as Node3D).height
+	return boss_present(boss_h / hero_h, screen_rect(boss).size.y, view.y)
+
+
+## Cherche pour les héros la plus grande taille (de « k_top » à « k_low », par pas de 0,02) pour laquelle ils
+## tiennent : un écart entre eux, une profondeur de file, un décalage de leur colonne, aucun corps sur un autre
+## ni sur les fiches. Avec « roomy », parmi les arrangements d'une même taille, celui qui laisse le plus de place
+## à gauche (au boss).
+func _fit_heroes(view: Vector2, zones: Array[Rect2], k_top: float, k_low: float, dxs: Array, styles: Array, roomy: bool = false) -> bool:
+	var k := k_top
+	while k >= k_low - 0.001:
+		var best := [INF, 0.0, 0.0, 0.0, 0.0]   # (x du plus à gauche, dx, dz, écart, profondeur) : on cherche le plus à droite
+		var any := false
+		for dx: float in dxs:
+			for dz in 14:
+				for st: Array in styles:
+					hero_spread = float(st[0])
+					hero_depth = FORM_DEPTH * float(st[1])
+					_apply_party(k, Vector2(dx, float(dz) * 0.25))
+					if not _party_fits(view, zones):
+						continue
+					if not roomy:
+						return true
+					var left := view.x
+					for h: RefCounted in engine.party:
+						left = minf(left, screen_rect(h).position.x)
+					if not any or left > float(best[0]) + 0.5:
+						best = [left, dx, float(dz) * 0.25, float(st[0]), FORM_DEPTH * float(st[1])]
+						any = true
+		if any:
+			hero_spread = float(best[3])
+			hero_depth = float(best[4])
+			_apply_party(k, Vector2(float(best[1]), float(best[2])))
+			return true
+		k -= 0.02
+	return false
+
+
+## Place les monstres (et le boss, s'il y en a un) d'après la taille des héros déjà fixée.
+func _layout_foes(view: Vector2) -> void:
+	var found := false
 	boss_mul = 1.0
-	found = false
-	k = FOE_K_MAX
+	var k := FOE_K_MAX
 	while k >= FOE_K_MIN - 0.001 and not found:
 		for dz in 12:
 			_apply_foes(k, Vector2(0.0, float(dz) * 0.25))
@@ -780,6 +852,7 @@ func layout() -> void:
 			k -= 0.05
 	if not found:
 		_apply_foes(FOE_K_MIN, Vector2.ZERO)
+
 	# un boss prend ensuite toute la place qui reste, jusqu'à BOSS_RATIO_MAX hauteurs de héros
 	boss = find_boss()
 	boss_mul = 1.0
@@ -802,8 +875,6 @@ func layout() -> void:
 		if not _boss_fits(lo, base_k, hero_h, view):
 			boss_mul = 1.0
 			_apply_foes(base_k, base_shift)
-	for c: RefCounted in engine.enemies:   # la flaque de lumière du boss, couleur de son élément
-		(actors[c.key] as Node3D).set_boss(c == boss, _element_color(str(c.element)).lightened(0.15))
 
 
 ## Essaie la taille « m » du boss : cherche une place (plus au centre de l'arène, plus près de la caméra) où
@@ -829,6 +900,15 @@ func _party_fits(view: Vector2, zones: Array[Rect2]) -> bool:
 		for z: Rect2 in zones:
 			if r.intersects(z):
 				return false
+	# aucun corps n'en cache un autre : on compare ce que chacun couvre vraiment de sa case (HERO_BODY)
+	var bodies: Array[Rect2] = []
+	for c: RefCounted in engine.party:
+		var b := screen_rect(c)
+		bodies.append(b.grow_individual(-b.size.x * (1.0 - HERO_BODY) * 0.5, 0.0, -b.size.x * (1.0 - HERO_BODY) * 0.5, 0.0))
+	for i in bodies.size():
+		for j in range(i + 1, bodies.size()):
+			if bodies[i].grow(3.0).intersects(bodies[j]):
+				return false
 	return true
 
 
@@ -836,7 +916,9 @@ func _foes_fit(view: Vector2) -> bool:
 	var top := BattleUI.top_band(view)
 	for c: RefCounted in engine.enemies:
 		var r := _play_rect(c)   # dans toutes ses poses : ni sous la frise, ni hors de l'écran, sa plaque comprise
-		if r.position.x < 8.0 or r.end.y + PLATE_H > view.y - 8.0 or r.position.y < top.end.y + 4.0:
+		# (la tête d'un boss, au repos, passe sous la frise ; son bond, rare et bref, peut passer derrière elle)
+		var head: float = screen_rect(c).position.y if c == boss else r.position.y
+		if r.position.x < 8.0 or r.end.y + PLATE_H > view.y - 8.0 or head < top.end.y + 4.0:
 			return false
 		for h: RefCounted in engine.party:
 			if r.intersects(screen_rect(h).grow(4.0)):
@@ -847,7 +929,7 @@ func _foes_fit(view: Vector2) -> bool:
 			var left := view.x
 			for h: RefCounted in engine.party:
 				left = minf(left, screen_rect(h).position.x)
-			if r.end.x > left - MENU_GAP:
+			if screen_rect(c).end.x > left - MENU_GAP:   # (le boss au repos : le menu est fermé quand il fait son pas en avant)
 				return false
 	return true
 
@@ -1172,6 +1254,11 @@ func _play(events: Array) -> void:
 					Sfx.play("status")
 					fx.puff(str(st.get("fx", "")), ta, "rise", 2, Color.WHITE, 1.0)
 					ui.popup(screen_point(target, "top"), str(st.get("name", "")), Database.color(st.get("color", "#ffffff"), Color.WHITE), 26)
+					if bool(st.get("telegraph", false)) and target.side == "enemy":
+						ui.announce("%s prépare un grand coup !" % target.name, 1.6)
+						ui.refresh()
+						await _wait(0.5)
+						await Tutorial.battle_event("telegraph", self, target)
 				elif bool(e.get("immune", false)):
 					ui.popup(screen_point(target, "top"), "Insensible", Color("#b9b2a6"), 24)
 				else:
