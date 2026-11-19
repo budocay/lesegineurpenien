@@ -7968,13 +7968,15 @@ func _test_pad_diagnostic() -> void:
 	await _stick(JOY_AXIS_LEFT_Y, 0.0, 2)
 	check(Input.get_vector("move_left", "move_right", "move_up", "move_down").length() < 0.01, "manette : stick relâché, aucun mouvement")
 	# gâchettes et second stick : aucune commande
+	var before := Controls.WATCHED.map(func(a: String) -> bool: return Input.is_action_pressed(a))
 	var lt := InputEventJoypadMotion.new()
 	lt.device = PAD_DEV
 	lt.axis = JOY_AXIS_TRIGGER_LEFT
 	lt.axis_value = 1.0
 	Input.parse_input_event(lt)
 	await get_tree().process_frame
-	check(not Input.is_action_pressed("interact") and not Input.is_action_pressed("cancel") and not Input.is_action_pressed("menu") and not Input.is_action_pressed("ui_accept"), "manette : une gâchette n'actionne aucune commande")
+	var after := Controls.WATCHED.map(func(a: String) -> bool: return Input.is_action_pressed(a))
+	check(before == after, "manette : une gâchette n'actionne aucune commande (%s puis %s)" % [str(before), str(after)])
 	lt.axis_value = 0.0
 	Input.parse_input_event(lt)
 	await get_tree().process_frame
