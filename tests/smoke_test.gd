@@ -4888,7 +4888,7 @@ func _test_rider_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "tree"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "balustrade", "tree"] \
 					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
@@ -8369,6 +8369,26 @@ func _test_decors_6() -> void:
 	# la mise au point suit le héros : rapports lus dans la caméra de la carte
 	var wsrc := FileAccess.get_file_as_string("res://src/world/world.gd")
 	check(wsrc.contains("_focus_on_player()") and wsrc.contains("_dof_near_k"), "caméra : le héros reste toujours dans la zone nette")
+	# finitions : balustrades de la terrasse des chutes, clôtures des plateaux cavaliers, arrivée dégagée au Conseil
+	var rails := 0
+	for o: Variant in chutes.get("objects", []):
+		if o is Dictionary and str((o as Dictionary).get("type", "")) == "balustrade":
+			rails += 1
+	check(rails >= 2, "Chutes : la terrasse a ses balustrades (%d)" % rails)
+	for mid: String in ["plaine_roquefort", "cabecou"]:
+		var nf := 0
+		for o: Variant in Database.get_map(mid).get("objects", []):
+			if o is Dictionary and str((o as Dictionary).get("type", "")) == "fence":
+				nf += 1
+		check(nf >= 2, "%s : le plateau est clôturé (%d clôtures)" % [mid, nf])
+	var conseil := Database.get_map("salle_conseil")
+	var arr: Array = (conseil.get("spawns", {}) as Dictionary).get("entree", {}).get("pos", [0, 0])
+	var near := 99.0
+	for o: Variant in conseil.get("objects", []):
+		if o is Dictionary and str((o as Dictionary).get("type", "")) == "npc":
+			var np: Array = (o as Dictionary).get("pos", [0, 0])
+			near = minf(near, Vector2(float(np[0]), float(np[1])).distance_to(Vector2(float(arr[0]), float(arr[1]))))
+	check(near >= 2.0, "salle du Conseil : arrivée à %.1f case(s) du PNJ le plus proche" % near)
 
 
 ## Coups annoncés (champ « next » de « ai », état « annonce ») : Chantecler, Uglouk, le pétrisseur et Goulûm préparent un

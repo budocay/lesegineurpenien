@@ -378,7 +378,7 @@ static func object(b, type: String, o: Dictionary) -> bool:
 		"elf_rail": _rail(b, o)
 		"elf_lantern":
 			var p: Vector3 = b._p(o)
-			_lantern_at(b, p, float(o.get("height", 2.2)), true, float(o.get("energy", 2.4)), float(o.get("range", 7.0)), bool(o.get("shadow", true)),
+			_lantern_at(b, p, float(o.get("height", 2.2)), true, float(o.get("energy", 2.4)), float(o.get("range", 7.0)), bool(o.get("shadow", false)),
 					Color(str(o.get("color", "#bcd8ff"))))
 		"elf_column3d":
 			var parent := Node3D.new()

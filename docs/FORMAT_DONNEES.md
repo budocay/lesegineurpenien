@@ -276,6 +276,7 @@ Objets (champ `type`) :
 | `lantern` | lanterne | `pos`, `shadow` |
 | `light` | lumière seule | `pos`, `height`, `color`, `energy`, `range` |
 | `fence` | clôture | `points` (ligne brisée), `lean` |
+| `balustrade` | balustrade de pierre mousseuse qui suit le relief | `points` (cases, comme `fence`), `height` (0,6) |
 | `scatter` | semis aléatoire | `prop`, `rect`, `count`, `min_dist`, `seed`, `on` (sols autorisés), `avoid` (liste de rectangles `[x, y, l, h]` à laisser vides) |
 | `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate` | mobilier | `pos` ou `rect` |
 | `tree`, `bush`, `rock`, `barrel`, `sign`, `bollard`, `monument`, `boat`, `shelf`, `window`… | décor | `pos`, `variant`, `lean`, `height` |

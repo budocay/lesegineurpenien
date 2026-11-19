@@ -5,19 +5,20 @@
 	"size": [30, 16],
 	"interior": true,
 	"wall_height": 3.6,
-	"ground_variation": 0.2,
+	"ground_variation": 0.34,
 	"ambiance": "fondue_combe_interieur",
 	"music": "village",
 	"arena": "salle_conseil",
 	"camera": {"distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [15, 7.0, 12, 6.0]},
 	"ground": {"default": "void", "fills": [{"type": "elf_flag", "rect": [1, 2, 28, 12]}, {"type": "elf_flag", "rect": [14, 14, 2, 1]}]},
-	"spawns": {"entree": {"pos": [15.0, 12.6], "facing": "up"}},
+	"spawns": {"entree": {"pos": [15.0, 10.3], "facing": "up"}},
 	"style": "elfe",
 	"wall_tile": "elf_wall_vista",
 	"wall_cap": "#b9b29c",
 	"wall_glow": 0.35,
 	"objects": [
 		{"type": "elf_medallion", "pos": [15, 8.6], "radius": 3.4},
+		{"type": "rug", "rect": [14, 12.1, 2, 2.0], "color": "#2f5a3c", "border": "#c9a24a"},
 		{"type": "elf_seat", "pos": [10.2, 10.8], "variant": 0, "scale": 0.7},
 		{"type": "elf_seat", "pos": [9.4, 9.1], "variant": 1, "scale": 0.7},
 		{"type": "elf_seat", "pos": [9.7, 7.3], "variant": 0, "scale": 0.7},
@@ -55,7 +56,7 @@
 		{"type": "light", "pos": [26, 8], "height": 2.0, "color": "#bcd0ff", "energy": 0.8, "range": 6.0},
 		{"type": "npc", "id": "elrond", "pos": [15, 3.6], "facing": "down", "reach": 2.4},
 		{"type": "npc", "id": "bromure", "pos": [11, 3.8], "facing": "down", "reach": 2.2, "dialogue": "bromure_salle"},
-		{"type": "npc", "id": "huissier", "pos": [15, 9.8], "facing": "down", "reach": 2.0},
+		{"type": "npc", "id": "huissier", "pos": [18.0, 10.6], "facing": "left", "reach": 2.0},
 		{"type": "warp", "rect": [14, 14.4, 2, 0.6], "to": {"map": "fondue_combe", "spawn": "conseil_porte"}}
 	]
 }
