@@ -49,13 +49,13 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum"]
 
 const SIZES := {
-	"limace": Vector2i(42, 26),
-	"baveuse": Vector2i(42, 26),
-	"guepe": Vector2i(38, 30),
+	"limace": Vector2i(38, 26),
+	"baveuse": Vector2i(38, 26),
+	"guepe": Vector2i(32, 30),
 	"champignon": Vector2i(32, 34),
 	"epouvantail": Vector2i(40, 56),
-	"sangsue": Vector2i(42, 26),
-	"frelon": Vector2i(38, 30),
+	"sangsue": Vector2i(38, 26),
+	"frelon": Vector2i(32, 30),
 	"amanite": Vector2i(32, 34),
 	"sanglier": Vector2i(46, 32),
 	"solitaire": Vector2i(46, 32),
@@ -63,8 +63,8 @@ const SIZES := {
 	"crapaud": Vector2i(36, 28),
 	"follet": Vector2i(24, 32),
 	"rat": Vector2i(40, 26),
-	"coq": Vector2i(46, 40),
-	"asticot": Vector2i(44, 26),
+	"coq": Vector2i(40, 40),
+	"asticot": Vector2i(38, 26),
 	"vacherin": Vector2i(38, 26),
 	"mouche": Vector2i(32, 30),
 	"moisi": Vector2i(32, 34),
@@ -94,7 +94,7 @@ const SIZES := {
 	"boucanier": Vector2i(52, 64),
 	"saumure": Vector2i(76, 92),
 	"cassouletain": Vector2i(56, 68),
-	"gothmoque": Vector2i(102, 108),
+	"gothmoque": Vector2i(96, 108),
 	"naze_supreme": Vector2i(76, 100),
 	"mammou": Vector2i(100, 76),
 	"dindon_farce": Vector2i(104, 88),
@@ -132,7 +132,7 @@ static func paint_hd(kind: String) -> Image:
 
 
 ## Marge ajoutée de chaque côté de la case (le peintre dessine décalé de cette valeur) : le dessin d'origine débordait.
-const SHIFTX := {"limace": 2, "baveuse": 2, "sangsue": 2, "guepe": 3, "frelon": 3, "coq": 3, "asticot": 3, "chauve": 6, "gothmoque": 3, "dindon_farce": 8}
+const SHIFTX := {"chauve": 6, "dindon_farce": 8}
 
 static func _render(kind: String, k: int) -> Image:
 	var size: Vector2i = SIZES.get(kind, Vector2i(24, 24))

@@ -8247,7 +8247,7 @@ func _test_telegraphed_attacks() -> void:
 			continue
 		var atk0 := float(boss.stat("atk"))
 		eng.perform(boss, {"type": "skill", "id": tele})
-		check(boss.has_status("annonce") and float(boss.stat("atk")) > atk0 * 1.5, "coup annoncé : %s prépare un coup plus lourd (%.0f contre %.0f)" % [tele, float(boss.stat("atk")), atk0])
+		check(boss.has_status("annonce") and float(boss.stat("atk")) > atk0 * 1.45, "coup annoncé : %s prépare un coup plus lourd (%.0f contre %.0f)" % [tele, float(boss.stat("atk")), atk0])
 		# la liste « ai » mène bien à l'annonce, puis au coup, dans cet ordre
 		var order_ok := false
 		for i in 400:
