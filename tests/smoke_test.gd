@@ -41,6 +41,11 @@ func _ready() -> void:
 	# un fichier par lancement : deux tests lancés en même temps ne se marchent pas dessus
 	SaveManager.save_path = "user://test_sauvegarde_%d.json" % OS.get_process_id()
 	SaveManager.delete_save()
+	if OS.has_environment("GLAN_ONLY_PERF"):   # mesure de fluidité, EN FENÊTRE : tableau des durées par carte et combat (tests/perf_probe.gd)
+		await preload("res://tests/perf_probe.gd").new().run(self)
+		SaveManager.delete_save()
+		get_tree().quit(0)
+		return
 	if OS.has_environment("GLAN_ONLY_C5"):   # essai ciblé du chapitre 5 (quelques minutes)
 		_test_chapter_5_data()
 		await _test_chapter_5()
@@ -171,6 +176,7 @@ func _ready() -> void:
 	_test_decors_restes()
 	_test_help_texts()
 	await _test_horizon()
+	await _test_fluidity()
 	if not OS.has_environment("GLAN_QUICK"):
 		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
@@ -8830,3 +8836,102 @@ func _test_decors_8() -> void:
 		if cam.has("near_start"):
 			var ns := float(cam["near_start"])
 			check(ns <= f_min + 0.005, "carte %s : near_start %.2f ne floute pas le héros (plan le plus proche %.2f)" % [id, ns, f_min])
+
+
+# --------------------------------------------------------------- fluidité
+
+func _list_files(dir: String, ext: String, out: PackedStringArray) -> void:
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(ext):
+			out.append(dir.path_join(f))
+	for d in DirAccess.get_directories_at(dir):
+		_list_files(dir.path_join(d), ext, out)
+
+
+func _count_nodes(n: Node) -> int:
+	var c := 1
+	for ch in n.get_children():
+		c += _count_nodes(ch)
+	return c
+
+
+## Préchauffage des shaders, construction étalée, cache disque des décors, durées de construction.
+## (Le tableau complet, en fenêtre : GLAN_ONLY_PERF=1, voir docs/PERFORMANCE.md.)
+func _test_fluidity() -> void:
+	print("-- fluidité : préchauffage, construction étalée, cache disque")
+	var Prewarm: GDScript = load("res://src/gfx/prewarm.gd")
+	# 1. le préchauffage couvre tous les shaders du jeu (liste lue dans le dossier, pas écrite à la main)
+	var all := PackedStringArray()
+	_list_files("res://src", ".gdshader", all)
+	all.sort()
+	var listed: PackedStringArray = Prewarm.shader_paths()
+	check(listed.size() > 0, "préchauffage : la liste des shaders n'est pas vide (%d)" % listed.size())
+	await Prewarm.run(self, true)
+	var covered: PackedStringArray = Prewarm.covered
+	for path in all:
+		check(covered.has(path), "préchauffage : %s est dans la liste de préchauffage (un nouveau shader doit aller dans src/gfx/shaders)" % path)
+	check(covered.size() == all.size(), "préchauffage : %d shaders préchauffés pour %d dans src" % [covered.size(), all.size()])
+	# 2. cache disque : l'image relue est identique
+	var img := Image.create_empty(7, 5, false, Image.FORMAT_RGBA8)
+	img.fill(Color("#336699"))
+	img.set_pixel(2, 3, Color("#ff8800"))
+	Sprites.disk_store("test:fluidite", img)
+	var back: Image = Sprites.disk_load("test:fluidite")
+	check(back != null and back.get_data() == img.get_data(), "cache disque : l'image relue est identique")
+	DirAccess.remove_absolute(Sprites._decor_path("test:fluidite"))
+	check(Sprites.disk_load("test:fluidite") == null, "cache disque : une clé inconnue ne renvoie rien")
+	# 3. la construction étalée donne la même carte que la construction d'un seul tenant ; sol relu du disque identique
+	var slow: Array = []
+	for id: String in ["brie", "morbier_halle", "minas_citadelle"]:
+		if Database.get_map(id).is_empty():
+			continue
+		var sp: String = str(Database.get_map(id).get("spawns", {}).keys()[0])
+		GameState.new_game()
+		var w1: Node3D = World.new()
+		add_child(w1)
+		var t0 := Time.get_ticks_msec()
+		w1.setup(id, sp)
+		var first_ms := Time.get_ticks_msec() - t0
+		var ground1: Image = (Sprites._cache["ground:" + id] as ImageTexture).get_image()
+		Sprites._cache.erase("ground:" + id)   # force la relecture du cache disque
+		var w2: Node3D = World.new()
+		w2.process_mode = Node.PROCESS_MODE_DISABLED
+		add_child(w2)
+		t0 = Time.get_ticks_msec()
+		await w2.setup(id, sp, [], "", false, true)
+		var staged_ms := Time.get_ticks_msec() - t0
+		var ground2: Image = (Sprites._cache["ground:" + id] as ImageTexture).get_image()
+		check(ground1.get_data() == ground2.get_data(), "%s : le sol relu du cache disque est identique au sol peint" % id)
+		check(_count_nodes(w1) == _count_nodes(w2), "%s : construction étalée = même nombre de nœuds (%d / %d)" % [id, _count_nodes(w1), _count_nodes(w2)])
+		check(w1.blocked == w2.blocked and w1.npcs.size() == w2.npcs.size() and w1.warps.size() == w2.warps.size(), "%s : construction étalée = mêmes collisions, PNJ et passages" % id)
+		# 4. plafond large : une construction à chaud qui dépasse 3 s est une régression grossière
+		var w3: Node3D = World.new()
+		add_child(w3)
+		t0 = Time.get_ticks_msec()
+		w3.setup(id, sp)
+		var hot_ms := Time.get_ticks_msec() - t0
+		check(hot_ms < 3000, "%s : construction à chaud sous 3 s (%d ms)" % [id, hot_ms])
+		slow.append("%s %d / %d ms" % [id, first_ms, hot_ms])
+		for w: Node3D in [w1, w2, w3]:
+			remove_child(w)
+			w.queue_free()
+	print("   construction (première / à chaud) : ", ", ".join(slow))
+	# 5. near_start : 0,70 par défaut, la valeur de la carte quand elle en déclare une
+	var with_ns := ""
+	var without_ns := ""
+	for id in Database.list_maps():
+		var cam: Dictionary = Database.get_map(id).get("camera", {})
+		if cam.has("near_start") and with_ns == "":
+			with_ns = id
+		if not cam.has("near_start") and without_ns == "":
+			without_ns = id
+	for id: String in [with_ns, without_ns]:
+		if id == "":
+			continue
+		var wn: Node3D = World.new()
+		add_child(wn)
+		wn.setup(id, str(Database.get_map(id).get("spawns", {}).keys()[0]))
+		var want := float(Database.get_map(id).get("camera", {}).get("near_start", 0.70))
+		check(is_equal_approx(wn._dof_near_k, want), "%s : near_start %.2f (défaut 0,70 si la carte n'en déclare pas)" % [id, want])
+		remove_child(wn)
+		wn.queue_free()

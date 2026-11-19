@@ -23,7 +23,14 @@ const MONSTER_PPU := 28.0   # les monstres, un cran plus petits : les personnage
 var _cache: Dictionary = {}
 var _materials: Dictionary = {}
 var _warm_thread: Thread = null
+var paint_usec := 0          # mesure : temps passé à peindre (hors cache), pour tests/perf_probe.gd
+var _paint_depth := 0
+var paint_log: Dictionary = {}   # mesure : clé -> ms de peinture (inclusif)
 var _warm_stop := false
+var _char_thread: Thread = null
+var _char_mutex := Mutex.new()
+var _want: Array[String] = []     # personnages à préparer d'abord (voir prefetch_neighbors)
+var _want_mutex := Mutex.new()
 
 
 ## Préchauffage du cache des monstres : un fil d'arrière-plan peint, du plus petit au plus
@@ -35,16 +42,87 @@ func _ready() -> void:
 		return   # les tests peignent à la demande
 	_warm_thread = Thread.new()
 	_warm_thread.start(_warm_monsters)
+	_char_thread = Thread.new()
+	_char_thread.start(_warm_characters)
 
 
 func _exit_tree() -> void:
 	_warm_stop = true
 	if _warm_thread != null and _warm_thread.is_started():
 		_warm_thread.wait_to_finish()
+	if _char_thread != null and _char_thread.is_started():
+		_char_thread.wait_to_finish()
+
+
+## Préchauffage du cache disque des planches de personnages (user://cache_persos/) : un fil d'arrière-plan
+## peint celles qui manquent (une demi-seconde chacune), pour que l'entrée sur une carte les relise au lieu
+## de les peindre. Le peintre de personnages n'a qu'un état : `_char_mutex` l'accorde à un seul fil.
+## Attente d'un fil d'arrière-plan, interrompue dès que le jeu se ferme (pas de fil à attendre à la sortie).
+func _sleep(ms: int) -> void:
+	var left := ms
+	while left > 0 and not _warm_stop:
+		OS.delay_msec(50)
+		left -= 50
+
+
+func _warm_characters() -> void:
+	_sleep(2500)
+	var done := {}
+	while not _warm_stop:
+		var id := ""
+		_want_mutex.lock()
+		while not _want.is_empty() and id == "":
+			var w: String = _want.pop_front()
+			if not done.has(w):
+				id = w
+		_want_mutex.unlock()
+		if id == "":   # rien d'urgent : le premier personnage qui manque, dans l'ordre des données
+			for c: String in Database.characters.keys():
+				if not done.has(c):
+					id = c
+					break
+		if id == "":
+			_sleep(300)   # tout est préparé ; on attend d'éventuelles demandes (changement de carte)
+			continue
+		done[id] = true
+		if not Database.characters.has(id) or _load_override("characters/%s.png" % id) != null:
+			continue
+		var look: Variant = Database.get_character(id).get("look", {})
+		_painted_sheet(look if look is Dictionary else {})
+
+
+## Demande au fil d'arrière-plan de préparer d'abord les personnages des cartes voisines (passages de la
+## carte `map`, puis les voisines de celles-ci) : ils seront relus du cache disque à l'arrivée.
+func prefetch_neighbors(map: Dictionary) -> void:
+	if _char_thread == null:
+		return
+	var ids: Array[String] = []
+	var seen := {str(map.get("id", "")): true}
+	var frontier: Array = [map]
+	for _depth in 2:
+		var next: Array = []
+		for m: Dictionary in frontier:
+			for o: Variant in m.get("objects", []):
+				var od: Dictionary = o
+				if str(od.get("type", "")) != "warp":
+					continue
+				var to_id := str((od.get("to", {}) as Dictionary).get("map", ""))
+				if to_id == "" or seen.has(to_id):
+					continue
+				seen[to_id] = true
+				var tm: Dictionary = Database.get_map(to_id)
+				next.append(tm)
+				for t: Variant in tm.get("objects", []):
+					if str((t as Dictionary).get("type", "")) == "npc":
+						ids.append(str((t as Dictionary).get("id", "")))
+		frontier = next
+	_want_mutex.lock()
+	_want.append_array(ids)
+	_want_mutex.unlock()
 
 
 func _warm_monsters() -> void:
-	OS.delay_msec(1500)   # laisse l'écran de titre s'afficher d'abord
+	_sleep(1500)   # laisse l'écran de titre s'afficher d'abord
 	# le peintre garde son état dans des variables statiques : le fil d'arrière-plan en utilise une
 	# copie à lui (même texte, autres variables), pour ne jamais gêner le fil principal
 	var painter := GDScript.new()
@@ -106,12 +184,26 @@ func _load_meta(relative: String) -> Dictionary:
 
 # --------------------------------------------------------------- personnages
 
+func _pb() -> int:
+	_paint_depth += 1
+	return Time.get_ticks_usec()
+
+
+func _pe(t0: int, key: String = "") -> void:
+	_paint_depth -= 1
+	if key != "":
+		paint_log[key] = float(paint_log.get(key, 0.0)) + (Time.get_ticks_usec() - t0) / 1000.0
+	if _paint_depth == 0:
+		paint_usec += Time.get_ticks_usec() - t0
+
+
 ## Planche de sprites d'un personnage.
 ## Renvoie {texture, image, frame_w, frame_h, columns, row_count, rows, walk, idle, ppu, foot, fps}.
 func character(id: String) -> Dictionary:
 	var key := "char:" + id
 	if _cache.has(key):
 		return _cache[key]
+	var _t := _pb()
 	var sheet := {
 		"columns": CharacterPainter.COLUMNS,
 		"row_count": CharacterPainter.ROWS,
@@ -152,6 +244,7 @@ func character(id: String) -> Dictionary:
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])
 	sheet["frame_h"] = img.get_height() / int(sheet["row_count"])
 	_cache[key] = sheet
+	_pe(_t, key)
 	return sheet
 
 
@@ -173,9 +266,13 @@ func _painted_sheet(look: Dictionary) -> Image:
 		if cached.load(path) == OK and cached.get_width() == CharacterPainter.FRAME_W * CharacterPainter.COLUMNS:
 			cached.convert(Image.FORMAT_RGBA8)
 			return cached
+	_char_mutex.lock()   # le peintre garde son état dans des variables statiques : un seul fil à la fois
 	var img := CharacterPainter.paint_sheet(look)
+	_char_mutex.unlock()
 	DirAccess.make_dir_recursive_absolute("user://cache_persos")
-	img.save_png(path)
+	var tmp := path + ".%d.tmp" % OS.get_thread_caller_id()   # écrit puis renommé : jamais lu à moitié écrit
+	if img.save_png(tmp) == OK:
+		DirAccess.rename_absolute(tmp, path)
 	return img
 
 
@@ -191,7 +288,10 @@ func portrait(id: String) -> Texture2D:
 	elif Database.characters.has(id) and _load_override("characters/%s.png" % id) == null:
 		# portrait peint : la tête de face, agrandie deux fois et lissée
 		var look: Variant = Database.get_character(id).get("look", {})
-		tex = PA.texture(CharacterPainter.paint_portrait(look if look is Dictionary else {}))
+		_char_mutex.lock()
+		var pimg := CharacterPainter.paint_portrait(look if look is Dictionary else {})
+		_char_mutex.unlock()
+		tex = PA.texture(pimg)
 	elif Database.characters.has(id):
 		var sheet := character(id)
 		var fw: int = sheet.frame_w
@@ -214,6 +314,7 @@ func monster(kind: String) -> Dictionary:
 	var key := "monster:" + kind
 	if _cache.has(key):
 		return _cache[key]
+	var _t := _pb()
 	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": MONSTER_PPU, "foot": 1, "fps": 2.2,
 		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.POSES}
 	var img := _load_override("monsters/%s.png" % kind)
@@ -236,6 +337,7 @@ func monster(kind: String) -> Dictionary:
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])
 	sheet["frame_h"] = img.get_height()
 	_cache[key] = sheet
+	_pe(_t, key)
 	return sheet
 
 
@@ -304,6 +406,7 @@ func prop(kind: String, variant: int = 0) -> Texture2D:
 	var key := "prop:%s:%d" % [kind, variant]
 	if _cache.has(key):
 		return _cache[key]
+	var _t := _pb()
 	var img := _load_override("props/%s_%d.png" % [kind, variant])
 	if img == null:
 		img = _load_override("props/%s.png" % kind)
@@ -311,6 +414,7 @@ func prop(kind: String, variant: int = 0) -> Texture2D:
 		img = PropPainter.paint(kind, variant)
 	var tex := PA.texture(img)
 	_cache[key] = tex
+	_pe(_t, key)
 	return tex
 
 
@@ -320,11 +424,13 @@ func fx(kind: String) -> Texture2D:
 	var key := "fx:" + kind
 	if _cache.has(key):
 		return _cache[key]
+	var _t := _pb()
 	var img := _load_override("fx/%s.png" % kind)
 	if img == null:
 		img = FxPainter.paint(kind)
 	var tex := PA.texture(img)
 	_cache[key] = tex
+	_pe(_t, key)
 	return tex
 
 
@@ -347,10 +453,12 @@ func tile_image(kind: String) -> Image:
 	var key := "tileimg:" + kind
 	if _cache.has(key):
 		return _cache[key]
+	var _t := _pb()
 	var img := _load_override("tiles/%s.png" % kind)
 	if img == null:
 		img = TilePainter.paint(kind)
 	_cache[key] = img
+	_pe(_t, key)
 	return img
 
 
@@ -363,10 +471,69 @@ func tile_texture(kind: String) -> Texture2D:
 	return tex
 
 
+# ----------------------------------------------------- cache disque des décors peints
+
+const DECOR_CACHE := "user://cache_decor"
+var _decor_stamp := ""
+
+
+## Empreinte de tous les peintres (src/gfx), du bâtisseur de cartes et des tuiles remplacées : toute retouche
+## change l'empreinte, donc invalide d'un coup tout le cache disque des décors (les anciens fichiers sont effacés).
+func decor_stamp() -> String:
+	if _decor_stamp != "":
+		return _decor_stamp
+	var src := ""
+	var names := ResourceLoader.list_directory("res://src/gfx/")
+	names.sort()
+	for n in names:
+		var f := n.trim_suffix(".remap")
+		if f.ends_with(".gd"):
+			src += FileAccess.get_file_as_string("res://src/gfx/" + f)
+	src += FileAccess.get_file_as_string("res://src/world/map_builder.gd")
+	src += str(ProjectSettings.get_setting("application/config/version", ""))
+	var tiles: PackedStringArray = DirAccess.get_files_at(ASSET_DIR + "tiles") if DirAccess.dir_exists_absolute(ASSET_DIR + "tiles") else PackedStringArray()
+	for t in tiles:
+		src += "%s:%d;" % [t, FileAccess.get_modified_time(ASSET_DIR + "tiles/" + t)]
+	_decor_stamp = src.md5_text().substr(0, 10)
+	var dir := DirAccess.open(DECOR_CACHE)   # purge des fichiers d'une ancienne empreinte
+	if dir != null:
+		for f in dir.get_files():
+			if not f.begins_with(_decor_stamp):
+				dir.remove(f)
+	return _decor_stamp
+
+
+func _decor_path(key: String) -> String:
+	return "%s/%s_%s.png" % [DECOR_CACHE, decor_stamp(), key.md5_text()]
+
+
+## Image peinte relue du cache disque (null si absente). `key` : tout ce dont dépend l'image.
+func disk_load(key: String) -> Image:
+	var path := _decor_path(key)
+	if not FileAccess.file_exists(path):
+		return null
+	var img := Image.new()
+	if img.load(path) != OK:
+		return null
+	img.convert(Image.FORMAT_RGBA8)
+	return img
+
+
+## Range une image peinte dans le cache disque (écrite sous un nom provisoire puis renommée).
+func disk_store(key: String, img: Image) -> void:
+	DirAccess.make_dir_recursive_absolute(DECOR_CACHE)
+	var path := _decor_path(key)
+	var tmp := path + ".%d.tmp" % OS.get_thread_caller_id()
+	if img.save_png(tmp) == OK:
+		DirAccess.rename_absolute(tmp, path)
+
+
 ## Mémorise une texture coûteuse à peindre (sol complet d'une carte, façade...).
 func cached(key: String, builder: Callable) -> Variant:
 	if not _cache.has(key):
+		var t := _pb()
 		_cache[key] = builder.call()
+		_pe(t, key)
 	return _cache[key]
 
 

@@ -13,6 +13,7 @@ const Horizon = preload("res://src/world/horizon.gd")
 
 var map_id: String = ""
 var map: Dictionary = {}
+var perf: Dictionary = {}   # mesure : durée (ms) des étapes de setup, lue par tests/perf_probe.gd
 
 # Données de collision remplies par MapBuilder.
 var grid_w := 0
@@ -75,14 +76,23 @@ func needs_refresh() -> bool:
 	return false
 
 
-func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: String = "", p_attract: bool = false) -> void:
+## `staged` : construction étalée sur plusieurs images (main.gd, sous le fondu noir) ; sinon synchrone.
+func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: String = "", p_attract: bool = false, staged: bool = false) -> void:
 	map_id = p_map_id
 	map = Database.get_map(map_id)
 	attract = p_attract
+	var t0 := Time.get_ticks_usec()
 	var builder := MapBuilder.new()
-	builder.build(self, map)
+	builder.staged = staged
+	await builder.build(self, map)
+	var t1 := Time.get_ticks_usec()
 	_setup_camera()
+	if staged:
+		await get_tree().process_frame
 	horizon = Horizon.build(self, map)
+	if staged:
+		await get_tree().process_frame
+	var t2 := Time.get_ticks_usec()
 	if not attract:
 		player = Player.new()
 		player.name = "Player"
@@ -108,6 +118,9 @@ func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: Str
 			player.sprite.add_lantern(lantern, true)
 	_cam_target = _desired_target()
 	_apply_camera()
+	if not attract:
+		Sprites.prefetch_neighbors(map)   # prépare en arrière-plan les personnages des cartes voisines
+	perf = {"builder": (t1 - t0) / 1000.0, "horizon": (t2 - t1) / 1000.0, "rest": (Time.get_ticks_usec() - t2) / 1000.0}
 
 
 func spawn_info(spawn_id: String) -> Dictionary:
@@ -252,7 +265,7 @@ func _setup_camera() -> void:
 	var attr := CameraAttributesPractical.new()
 	attr.dof_blur_far_enabled = true
 	_dof_far_k = float(cam.get("far_start", 1.15))
-	_dof_near_k = float(cam.get("near_start", 0.87))
+	_dof_near_k = float(cam.get("near_start", 0.70))
 	attr.dof_blur_far_distance = cam_distance * _dof_far_k
 	attr.dof_blur_far_transition = cam_distance * 0.45
 	attr.dof_blur_near_enabled = true
