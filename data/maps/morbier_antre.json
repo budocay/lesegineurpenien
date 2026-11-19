@@ -13,6 +13,7 @@
 	"music": "morbier_lac",
 	"arena": "bord_du_lac",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 20,
 		"pitch": 36,
 		"fov": 24,

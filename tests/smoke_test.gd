@@ -155,6 +155,7 @@ func _ready() -> void:
 	await _test_arena_by_place()
 	_test_decors_6()
 	_test_retouches_2()
+	_test_decors_8()
 	_test_lanternes_mines()
 	_test_equipment()
 	await _test_settings()
@@ -5052,7 +5053,7 @@ func _test_elven_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "house", "lantern", "fence", "npc", "light", "warp", "trigger", "table", "stool", "counter",
-					"fireplace", "stove", "rug", "crate", "scatter"] or MapBuilder.PROPS.has(t) or ElvenBuilder.OBJECTS.has(t)
+					"fireplace", "stove", "rug", "crate", "bed", "scatter"] or MapBuilder.PROPS.has(t) or ElvenBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
@@ -8803,3 +8804,29 @@ func _test_annonce_cues() -> void:
 	scene.queue_free()
 	layer.queue_free()
 	GameState.new_game()
+
+## Décors 8 : bornes de caméra bien ordonnées, héros net partout (flou de proximité), dalles et lits connus.
+func _test_decors_8() -> void:
+	print("== Décors 8 : caméra et netteté du héros ==")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	check(MapBuilder.GROUND.has("chu_dalle") and MapBuilder.SLABS.has("chu_dalle"), "terrasse des Chutes : dalles déclarées")
+	for id in Database.list_maps():
+		var m: Dictionary = Database.get_map(id)
+		var cam: Dictionary = m.get("camera", {})
+		var b: Variant = cam.get("bounds")
+		if b is Array and (b as Array).size() == 4:
+			var bb: Array = b
+			check(float(bb[0]) <= float(bb[2]) and float(bb[1]) <= float(bb[3]), "carte %s : bornes de caméra dans l'ordre (x0 ≤ x1, z0 ≤ z1)" % id)
+		# le héros au plus bas de la carte est plus proche de la caméra que sa cible : sa profondeur doit
+		# rester au-delà du début du flou de proximité (distance * near_start)
+		var interior: bool = bool(m.get("interior", false))
+		var dist := float(cam.get("distance", 24.0)) * (1.0 if interior else 0.87)
+		var pitch := deg_to_rad(float(cam.get("pitch", 32.0)))
+		var h := float((m.get("size", [0, 0]) as Array)[1])
+		var dz := 7.0 * 0.87
+		if interior and b is Array and (b as Array).size() == 4:
+			dz = maxf(0.0, h - 1.0 - float((b as Array)[3]))
+		var f_min := (dist - dz * cos(pitch)) / dist
+		if cam.has("near_start"):
+			var ns := float(cam["near_start"])
+			check(ns <= f_min + 0.005, "carte %s : near_start %.2f ne floute pas le héros (plan le plus proche %.2f)" % [id, ns, f_min])

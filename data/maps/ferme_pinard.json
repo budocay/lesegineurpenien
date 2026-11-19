@@ -11,6 +11,7 @@
 	"arena": "ferme",
 	"ramollissement": 0.2,
 	"camera": {
+		"near_start": 0.7,
 		"distance": 24,
 		"pitch": 32,
 		"fov": 24,

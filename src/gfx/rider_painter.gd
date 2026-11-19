@@ -26,7 +26,7 @@ const EMBER := Color("#ff8a30")
 const TILES: Array[String] = ["cav_herbe", "cav_chemin", "cav_planches", "cav_mur", "cav_botte_sol",
 		"ent_mousse", "ent_sentier", "ent_racines",
 		"isen_dalle", "isen_fonte", "isen_farine", "isen_fosse", "isen_mur",
-		"chu_roche", "chu_gravier", "chu_mur"]
+		"chu_roche", "chu_gravier", "chu_mur", "chu_dalle"]
 
 ## Décors-sprites : nom -> nombre de variantes.
 const PROP_VARIANTS := {
@@ -65,6 +65,7 @@ static func paint_tile(kind: String) -> Image:
 		"chu_roche": return TP._rock_strata(["#4a5a62", "#3c4a52", "#586a72", "#2e3c44", "#6a7c84"], 1131, 1)
 		"chu_gravier": return _noise(["#7a8a8a", "#6a7a7c", "#8a9a98", "#5c6c6e"], 1132, 70, Color("#b8c8c4"))
 		"chu_mur": return _wet_wall()
+		"chu_dalle": return TP._stones(["#56666a", "#4c5c62", "#617176", "#445459", "#5a6a64", "#6a7a78"], Color("#222e36"), 24, 16)
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img
@@ -561,8 +562,13 @@ static func _wet_rock(v: int) -> Image:
 
 static func _foam() -> Image:
 	var img := PA.new_image(48, 20)
-	for k in 7:
-		var cx := 6.0 + k * 6.0
-		PA.ellipse(img, cx, 11.0 + (k % 2) * 2.0, 6.0, 4.0, Color("#e8f4f8"))
-		PA.ellipse(img, cx - 1.0, 9.0, 3.0, 2.0, Color.WHITE)
+	# bulles de crème : anneau doré, cœur pâle, point de lumière, de tailles inégales
+	for k in 13:
+		var cx := 4.0 + PA.rnd(k, 1, 1141) * 40.0
+		var cy := 6.0 + PA.rnd(k, 2, 1141) * 9.0
+		var r := 2.0 + PA.rnd(k, 3, 1141) * 3.2
+		PA.ellipse(img, cx, cy + 0.6, r, r * 0.72, Color("#c8923c"))
+		PA.ellipse(img, cx, cy, r - 0.5, (r - 0.5) * 0.72, Color("#f2d890"))
+		PA.ellipse(img, cx - 0.3, cy - 0.3, r * 0.62, r * 0.42, Color("#fff4d0"))
+		PA.px(img, int(cx - r * 0.35), int(cy - r * 0.35), Color.WHITE)
 	return img

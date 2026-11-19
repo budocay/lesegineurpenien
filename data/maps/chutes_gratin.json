@@ -10,6 +10,7 @@
 	"music": "chutes_gratin",
 	"arena": "chutes_gratin",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 24,
 		"pitch": 32,
 		"fov": 24,
@@ -19,7 +20,7 @@
 		"default": "chu_gravier",
 		"fills": [
 			{
-				"type": "chu_roche",
+				"type": "chu_dalle",
 				"rect": [
 					0,
 					10,
@@ -37,7 +38,7 @@
 				]
 			},
 			{
-				"type": "chu_roche",
+				"type": "chu_dalle",
 				"rect": [
 					31,
 					2,

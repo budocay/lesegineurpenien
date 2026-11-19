@@ -8,7 +8,7 @@
 	"ambiance": "fondue_combe_interieur",
 	"music": "auberge",
 	"arena": "taverne",
-	"camera": {"distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [11, 6.0, 9, 7.0]},
+	"camera": {"near_start": 0.7, "distance": 21, "pitch": 34, "fov": 24, "dof": 0.09, "bounds": [11, 6.0, 11, 7.0]},
 	"ground": {"default": "void", "fills": [{"type": "elf_parquet", "rect": [1, 2, 20, 9]}, {"type": "elf_parquet", "rect": [10, 11, 2, 1]}]},
 	"spawns": {"entree": {"pos": [11.0, 9.9], "facing": "up"}},
 	"style": "elfe",

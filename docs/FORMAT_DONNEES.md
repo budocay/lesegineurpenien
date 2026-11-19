@@ -278,7 +278,7 @@ Objets (champ `type`) :
 | `fence` | clôture | `points` (ligne brisée), `lean` |
 | `balustrade` | balustrade de pierre mousseuse qui suit le relief | `points` (cases, comme `fence`), `height` (0,6) |
 | `scatter` | semis aléatoire | `prop`, `rect`, `count`, `min_dist`, `seed`, `on` (sols autorisés), `avoid` (liste de rectangles `[x, y, l, h]` à laisser vides) |
-| `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate` | mobilier | `pos` ou `rect` |
+| `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate`, `bed` | mobilier (`bed` : lit plein, `rect` [x, z, longueur, profondeur], `color` de la couverture, oreiller à gauche) | `pos` ou `rect` |
 | `tree`, `bush`, `rock`, `barrel`, `sign`, `bollard`, `monument`, `boat`, `shelf`, `window`… | décor | `pos`, `variant`, `lean`, `height` |
 
 ### Champs de carte : eau, nuages, sol nuancé
@@ -612,7 +612,7 @@ Cavaliers : `cav_herbe` (herbe dorée), `cav_chemin` (terre battue), `cav_planch
 dorées), `cav_mur` (rondins dorés), `cav_botte_sol` (paille). Forêt : `ent_mousse`, `ent_sentier`,
 `ent_racines`. Isengarde : `isen_dalle` (dalles noires), `isen_fonte` (plaques de fonte),
 `isen_farine` (sol enfariné), `isen_fosse` (fosse, bleue quand elle est inondée), `isen_mur`.
-Chutes : `chu_roche`, `chu_gravier`, `chu_mur`. Se mettent dans `ground.fills` comme tout sol.
+Chutes : `chu_roche` (strates, pour les falaises), `chu_dalle` (dalles de la terrasse), `chu_gravier`, `chu_mur`. Se mettent dans `ground.fills` comme tout sol.
 
 ### Accessoires (sprites debout)
 
@@ -1419,3 +1419,18 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
   est celui d'avant (estompage entier). Les cartes des autres styles ne sont pas touchées.
 - Cartes à caméra basse : `camera.bounds` (`[x0, z0, x1, z1]`) borne la cible de la caméra ; `camera.zones` règle
   inclinaison et champ par zone. `white_tower.scale` réduit la Tour Blanche pour que son étendard reste dans le cadre.
+
+
+## Décors 8 : caméra, sols et intérieurs
+
+- `camera.bounds` [x0, z0, x1, z1] : la cible de la caméra est bornée entre x0 et x1, z0 et z1. L'ordre
+  doit être x0 ≤ x1 et z0 ≤ z1 (sinon la caméra saute et le héros colle au bord de l'écran) ; le test le vérifie.
+- `camera.near_start` : chaque carte des chapitres 1 à 5 le déclare (0,70). Le héros
+  au bas de la carte est plus proche que la cible ; avec le défaut de 0,87 il entrait dans le flou de proximité.
+  Le test refuse un `near_start` supérieur au plan le plus proche du héros.
+- Bords de chemin : entre deux sols « mous » (chemin/herbe), le bord est irrégulier (liseré sombre, herbe piétinée,
+  touffes et cailloux semés par le peintre) ; aucun champ à régler.
+- Dalles variées : `elf_flag`, `elf_flag_dim`, `elf_floor_dark`, `chu_dalle` reçoivent teintes par dalle, fissures et
+  coins ébréchés (table `SLABS` de `map_builder.gd`).
+- Intérieurs (hors nains) : un plan noir opaque (`InteriorVoid`) couvre le vide au-delà des murs.
+- Objet `bed` : voir la ligne du mobilier ci-dessus.

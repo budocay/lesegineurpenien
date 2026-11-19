@@ -13,6 +13,7 @@
 	"music": "morbier_mines",
 	"arena": "galerie_mine",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 20,
 		"pitch": 36,
 		"fov": 24,

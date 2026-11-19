@@ -10,6 +10,7 @@
 	"music": "plaine_or",
 	"arena": "plaine_roquefort",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 24,
 		"pitch": 32,
 		"fov": 24,
@@ -218,7 +219,7 @@
 		{
 			"type": "cav_enclos",
 			"pos": [
-				45.5,
+				41.5,
 				22.0
 			],
 			"dialogue": "plaine_cisailles",
