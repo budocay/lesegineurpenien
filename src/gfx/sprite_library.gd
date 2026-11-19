@@ -61,6 +61,10 @@ func _warm_monsters() -> void:
 			return
 		if ResourceLoader.exists(ASSET_DIR + "monsters/%s.png" % kind):
 			continue
+		# les monstres de gouda_monsters.gd passent par l'état statique du peintre d'origine, pas par la
+		# copie du fil : ils se peignent à la demande, sur le fil principal
+		if (load("res://src/gfx/gouda_monsters.gd").KINDS as Array).has(kind):
+			continue
 		_monster_stamp_init()
 		var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
 		if not FileAccess.file_exists(path):
@@ -241,7 +245,8 @@ static var _monster_stamp := ""
 func _monster_stamp_init() -> void:
 	if _monster_stamp == "":
 		_monster_stamp = (FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
-			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")).md5_text()
+			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")
+			+ FileAccess.get_file_as_string("res://src/gfx/gouda_monsters.gd")).md5_text()
 
 
 ## Planche HD d'un monstre peint par code (MonsterPainter.paint_hd), avec cache disque

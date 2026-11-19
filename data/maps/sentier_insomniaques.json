@@ -117,6 +117,195 @@
 			"scale": 1.0
 		},
 		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				12.5,
+				15.9
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				34.5,
+				15.9
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				6,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				14,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				22,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				29,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				36,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				43,
+				3.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				11,
+				16.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				19,
+				16.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				26,
+				16.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				33,
+				16.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				40,
+				16.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				47,
+				16.7
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				21.1,
+				12.2
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				15.9,
+				12.4
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				12.9,
+				6.8
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				24.4,
+				9.5
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				28.6,
+				6.8
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				39.2,
+				12.6
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				41.4,
+				6.5
+			]
+		},
+		{
+			"type": "elf_forms",
+			"pos": [
+				43.9,
+				7.9
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				37.2,
+				9.2
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				47.0,
+				6.2
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				12,
+				4.2
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				20,
+				4.2
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				34,
+				4.2
+			]
+		},
+		{
 			"type": "encounter_zone",
 			"rect": [
 				5,
@@ -326,6 +515,16 @@
 			"color": "#fff0c0",
 			"energy": 1.8,
 			"range": 9
+		},
+		{
+			"type": "rug",
+			"rect": [
+				5,
+				9.2,
+				44,
+				1.6
+			],
+			"color": "#2a3a52"
 		}
 	]
 }

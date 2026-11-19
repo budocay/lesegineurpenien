@@ -39,7 +39,7 @@ const GROUND := {
 	"chu_roche": {"hard": true}, "chu_gravier": {},
 	# styles du chapitre 6 : gouda, veille, port, champ (voir docs/FORMAT_DONNEES.md)
 	"gou_pave": {"hard": true}, "gou_dalle": {"hard": true}, "gou_marbre": {"hard": true}, "gou_rempart": {"hard": true}, "gou_mur": {"hard": true},
-	"gou_herbe": {}, "gou_boue": {}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
+	"gou_herbe": {}, "gou_boue": {"puddles": true}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
 }
 
 ## Sols dont les grandes plaques sont teintées (voir `_mottle`) : [sombre, clair, force, clarté].
@@ -56,6 +56,14 @@ const MOTTLE := {
 	"floor": ["#6a4222", "#bc8a52", 0.5, 0.1],
 	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
 	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
+	# chapitre 6 : mêmes plaques teintées pour que la boue, le quai ou la dalle ne soient plus d'une seule couleur
+	"gou_boue": ["#3a2414", "#9a6a3a", 0.7, 0.14],
+	"gou_herbe": ["#4a5a22", "#a8a040", 0.6, 0.12],
+	"gou_quai": ["#2a2a34", "#6a6258", 0.55, 0.12, [24, 12]],
+	"gou_veille": ["#1a3a32", "#4a7a62", 0.5, 0.1, [24, 12]],
+	"gou_pave": ["#8a8478", "#ece6d8", 0.4, 0.06, [24, 12]],
+	"gou_dalle": ["#9a968c", "#f0ece0", 0.4, 0.06, [24, 24]],
+	"gou_marbre": ["#a8a4a0", "#f6f2ea", 0.35, 0.05, [48, 48]],
 }
 
 ## Accessoires affichés comme des sprites debout.

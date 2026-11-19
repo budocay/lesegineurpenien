@@ -125,7 +125,7 @@
 				28,
 				8
 			],
-			"h": 1.4
+			"h": 2.6
 		},
 		{
 			"rect": [
@@ -134,7 +134,7 @@
 				28,
 				8
 			],
-			"h": 2.8
+			"h": 5.2
 		},
 		{
 			"rect": [
@@ -143,7 +143,7 @@
 				24,
 				8
 			],
-			"h": 4.2
+			"h": 7.8
 		}
 	],
 	"stairs": [
@@ -156,7 +156,7 @@
 			],
 			"dir": "up",
 			"from": 0.0,
-			"to": 1.4
+			"to": 2.6
 		},
 		{
 			"rect": [
@@ -166,8 +166,8 @@
 				2
 			],
 			"dir": "up",
-			"from": 1.4,
-			"to": 2.8
+			"from": 2.6,
+			"to": 5.2
 		},
 		{
 			"rect": [
@@ -177,8 +177,8 @@
 				2
 			],
 			"dir": "up",
-			"from": 2.8,
-			"to": 4.2
+			"from": 5.2,
+			"to": 7.8
 		}
 	],
 	"style": "gouda",
@@ -277,6 +277,178 @@
 			"pos": [
 				20.5,
 				34.6
+			]
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				3.5,
+				1.0
+			],
+			"size": 4,
+			"height": 15,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				32.5,
+				1.0
+			],
+			"size": 4,
+			"height": 15,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				18,
+				-5
+			],
+			"size": 6,
+			"height": 21,
+			"cap": true
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				14.5,
+				33.4
+			]
+		},
+		{
+			"type": "vil_linge",
+			"pos": [
+				3.4,
+				41.6
+			]
+		},
+		{
+			"type": "vil_linge",
+			"pos": [
+				31,
+				41.6
+			]
+		},
+		{
+			"type": "tree",
+			"pos": [
+				3.0,
+				16.5
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				33.0,
+				17.2
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				3.0,
+				20
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				33.0,
+				20.7
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				3.0,
+				24.5
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				33.0,
+				25.2
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				3.0,
+				28
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				33.0,
+				28.7
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "tree",
+			"pos": [
+				33.0,
+				31.2
+			],
+			"scale": 0.9
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				18.7,
+				25.4
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				13.3,
+				31.0
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				26.5,
+				15.4
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				23.9,
+				20.9
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				29.9,
+				19.0
+			]
+		},
+		{
+			"type": "flowers",
+			"pos": [
+				12.0,
+				20.9
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				17.5,
+				11.0
 			]
 		},
 		{
@@ -520,7 +692,7 @@
 				5.5
 			],
 			"size": 3,
-			"height": 5,
+			"height": 8,
 			"cap": true
 		},
 		{
@@ -530,7 +702,7 @@
 				5.5
 			],
 			"size": 3,
-			"height": 5,
+			"height": 8,
 			"cap": true
 		},
 		{
@@ -602,6 +774,40 @@
 			"color": "#fff0d0",
 			"energy": 1.4,
 			"range": 11
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				8,
+				-3,
+				7,
+				4
+			],
+			"height": 12,
+			"door": -1,
+			"windows": [
+				1.5,
+				3.5,
+				5.5
+			],
+			"chimney": false
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				21,
+				-3,
+				7,
+				4
+			],
+			"height": 12,
+			"door": -1,
+			"windows": [
+				1.5,
+				3.5,
+				5.5
+			],
+			"chimney": false
 		}
 	]
 }
