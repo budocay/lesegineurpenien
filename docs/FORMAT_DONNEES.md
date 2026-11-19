@@ -24,6 +24,7 @@ Un objet par personnage, rangé par identifiant.
   - `build` : `petit` (Grobitte), `enfant`, `grand`.
   - `outfit` : `tunique`, `robe`, `jupe`, `tablier`.
   - `skin`, `top`, `bottom`, `belt`, `hair`, `boots` : couleurs (`"#rrggbb"`).
+  - `hair_lift` (facultatif, en pixels) : remonte la chevelure au-dessus du visage pour dégager les yeux (ex. Balourd).
   - `hair_style` : `court`, `long`, `boucles`, `chignon`, `chauve`.
   - `beard` : `none`, `longue`, `moustache`, `courte` ; `beard_color`.
   - `hat` : `none`, `magicien`, `toque`, `casquette`, `capuche`, `chapeau_paille`,

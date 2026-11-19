@@ -19,8 +19,8 @@ func _process(_delta: float) -> bool:
 		p.save_png("%s/portrait_%s.png" % [out, id])
 	var mp: GDScript = load("res://src/gfx/monster_painter.gd")
 	for kind: String in mp.SIZES:
-		var m: Image = (sprites.monster(kind)["image"] as Image).duplicate()
-		m.resize(m.get_width() * 6, m.get_height() * 6, Image.INTERPOLATE_NEAREST)
+		# planche HD telle qu'affichée (texture), pas le dessin d'origine
+		var m: Image = (sprites.monster(kind)["texture"] as Texture2D).get_image()
 		m.save_png("%s/monstre_%s.png" % [out, kind])
 	print("PLANCHES OK")
 	return true

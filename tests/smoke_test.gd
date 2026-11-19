@@ -2494,7 +2494,9 @@ func _test_character_art() -> void:
 			check(shown.get_data() != bare_img.get_region(Rect2i(7 * 88, row * 132, 88, 132)).get_data(), "%s : l'objet tenu se voit à l'attaque (ligne %d)" % [who, row])
 		var w_with := Sprites.PA.opaque_bounds(with_img, Rect2i(0, 0, 88, 132)).size.x
 		var w_bare := Sprites.PA.opaque_bounds(bare_img, Rect2i(0, 0, 88, 132)).size.x
-		check(w_with <= w_bare + 2 or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
+		# hache et marteau, portés à l'écart du corps pour se lire de face, ont droit à 8 px de plus
+		var slack := 8 if str(look.get("held", "")) in ["hache", "marteau"] else 2
+		check(w_with <= w_bare + slack or str(look.get("species", "")) != "" or str(look.get("held", "")) in CP.POLES, "%s : l'objet au repos n'élargit pas la silhouette (%d contre %d)" % [who, w_with, w_bare])
 	for who: String in ["sam", "aragrogne", "grimli", "morfale_eclaireur", "naze", "naze_aine"]:
 		var lk: Dictionary = Database.characters[who]["look"]
 		var heads := {}
@@ -6061,6 +6063,23 @@ func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 		var root: Control = ui._plates[k]["root"]
 		if root.visible:
 			plates.append(root.get_global_rect())
+	# plaques des ennemis : lisibles (ni l'une sur l'autre, ni sur le sprite d'un autre ennemi), et au-dessus
+	# du bandeau des rappels de touches (bas de l'écran), même avec des sbires devant un boss
+	var plate_worst := 0.0
+	for i in plates.size():
+		for j in range(i + 1, plates.size()):
+			plate_worst = maxf(plate_worst, _overlap(plates[i], plates[j]))
+		check(_overlap(plates[i], scene.keys_band(view.size)) < 1.0, "%s : plaque hors du bandeau des touches (bas à %.0f sur %.0f)" % [tag, plates[i].end.y, view.size.y])
+	check(plate_worst < 1.0, "%s : les plaques ne se chevauchent pas (%.0f px²)" % [tag, plate_worst])
+	var plate_on_foe := 0.0
+	for k: String in ui._plates:
+		var root: Control = ui._plates[k]["root"]
+		if not root.visible:
+			continue
+		for c: RefCounted in scene.engine.enemies:
+			if c.key != k and c.alive():
+				plate_on_foe = maxf(plate_on_foe, _overlap(root.get_global_rect(), scene.screen_rect(c).grow(-4.0)))
+	check(plate_on_foe < 1.0, "%s : aucune plaque sur le sprite d'un autre ennemi (%.0f px²)" % [tag, plate_on_foe])
 	var menu: Array[Rect2] = [ui._root_panel.get_global_rect(), (ui._elan_bars[0]["panel"] as Control).get_global_rect()]
 	var bodies: Array[Rect2] = []
 	var hero_count := 0
