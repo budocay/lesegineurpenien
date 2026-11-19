@@ -44,6 +44,69 @@
 					14,
 					14
 				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					14,
+					11,
+					6,
+					3
+				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					26,
+					14,
+					5,
+					3
+				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					36,
+					9,
+					4,
+					2
+				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					20,
+					10,
+					4,
+					2
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					12,
+					5,
+					8,
+					4
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					28,
+					19,
+					10,
+					3
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					24,
+					5,
+					10,
+					3
+				]
 			}
 		]
 	},
@@ -243,6 +306,335 @@
 			"dialogue": "coffre_pelle",
 			"label": "Ouvrir",
 			"turn": 10
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				23.2,
+				17.1
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				56.8,
+				20.8
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				45.2,
+				5.2
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				19.4,
+				5.2
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				32.8,
+				18.9
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				51.4,
+				9.0
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				57.7,
+				10.8
+			]
+		},
+		{
+			"type": "boulder",
+			"pos": [
+				18.1,
+				17.9
+			]
+		},
+		{
+			"type": "boulder",
+			"pos": [
+				29.0,
+				8.7
+			]
+		},
+		{
+			"type": "boulder",
+			"pos": [
+				38.9,
+				12.8
+			]
+		},
+		{
+			"type": "boulder",
+			"pos": [
+				14.9,
+				13.0
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				50.1,
+				23.4
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				11.0,
+				5.4
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				34.4,
+				11.8
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				29.2,
+				23.1
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				36.3,
+				5.4
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				12.0,
+				24.0
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				23.4,
+				11.9
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				52.2,
+				20.6
+			]
+		},
+		{
+			"type": "log",
+			"pos": [
+				27.4,
+				18.8
+			]
+		},
+		{
+			"type": "log",
+			"pos": [
+				20.7,
+				22.8
+			]
+		},
+		{
+			"type": "log",
+			"pos": [
+				57.1,
+				15.6
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				45.0,
+				23.0
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				53.5,
+				23.8
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				15.8,
+				23.4
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				39.0,
+				22.9
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				39.6,
+				18.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				19.4,
+				10.0
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				49.7,
+				5.6
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				38.0,
+				9.0
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				13.9,
+				5.8
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				44.9,
+				16.5
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				12.6,
+				17.3
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				35.1,
+				15.0
+			]
+		},
+		{
+			"type": "wilted",
+			"pos": [
+				36.3,
+				20.4
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				31.1,
+				11.6
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				35.5,
+				8.4
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				42.4,
+				16.7
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				52.7,
+				13.2
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				47.1,
+				15.4
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				25.1,
+				9.4
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				26.8,
+				11.8
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				16.3,
+				7.2
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				33.1,
+				9.3
+			]
+		},
+		{
+			"type": "grass",
+			"pos": [
+				46.2,
+				9.4
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				26.9,
+				5.2
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				39.7,
+				6.9
+			]
 		},
 		{
 			"type": "encounter_zone",

@@ -220,6 +220,243 @@
 			"height": 3.8
 		},
 		{
+			"type": "bollard",
+			"pos": [
+				8,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				12,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				17,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				23,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				28,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				33,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				38,
+				21.7
+			]
+		},
+		{
+			"type": "bollard",
+			"pos": [
+				43,
+				21.7
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				11.5,
+				13.2
+			]
+		},
+		{
+			"type": "gou_boulets",
+			"pos": [
+				12.6,
+				17.6
+			]
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				12.5,
+				11.0
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				20.8,
+				10.9
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				31.6,
+				17.9
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				39.5,
+				11.1
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				17.3,
+				17.1
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				19.2,
+				13.8
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				34.1,
+				14.1
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				25.4,
+				19.7
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				13.9,
+				20.4
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				43.8,
+				17.2
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				36.2,
+				20.3
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				10.4,
+				15.7
+			]
+		},
+		{
+			"type": "boat",
+			"pos": [
+				8.5,
+				5.0
+			],
+			"variant": 0
+		},
+		{
+			"type": "boat",
+			"pos": [
+				21,
+				2.0
+			],
+			"variant": 1
+		},
+		{
+			"type": "boat",
+			"pos": [
+				44.5,
+				5.5
+			],
+			"variant": 0
+		},
+		{
+			"type": "boat",
+			"pos": [
+				10,
+				24.5
+			],
+			"variant": 1
+		},
+		{
+			"type": "boat",
+			"pos": [
+				32,
+				24.5
+			],
+			"variant": 0
+		},
+		{
+			"type": "boat",
+			"pos": [
+				44,
+				24.0
+			],
+			"variant": 1
+		},
+		{
+			"type": "reeds",
+			"pos": [
+				23.3,
+				23.5
+			]
+		},
+		{
+			"type": "reeds",
+			"pos": [
+				29.6,
+				23.5
+			]
+		},
+		{
+			"type": "reeds",
+			"pos": [
+				26.4,
+				23.0
+			]
+		},
+		{
+			"type": "reeds",
+			"pos": [
+				14.6,
+				23.0
+			]
+		},
+		{
+			"type": "reeds",
+			"pos": [
+				4.0,
+				24.5
+			]
+		},
+		{
 			"type": "encounter_zone",
 			"rect": [
 				3,
