@@ -855,3 +855,15 @@ l'auteur arrivées entre-temps. Aucun identifiant n'a changé : seuls des textes
   donnent des objets de combat ; le compliment de Dénigror est une annexe à part entière.
 - **Conseil de jeu.** « Les postes de la Porte » (`data/tutorials.json`) s'affiche à la première
   marmite d'huile reçue.
+- **Carnet de jeux sur le titre, chapitre 6.** Dits sans sourire : la Garde Dressée (« debout, jamais
+  couché », lance dressée quarante ans et rendue sans faiblir, Chef du Poing Levé, heaume qui se met
+  en position au clairon), l'Aspirant-Doigt rattaché à l'Annulaire, le Héraut-Premier-de-la-Poterne-
+  Étroite-et-Profonde, le Long Pain Dressé de Mie-Dure, la brioche « à tête » à tenir à deux mains,
+  les rampes en pente douce des Doigtistes, le doigté du brassard, l'auriculaire de trop rendu à son
+  propriétaire, la Réserve du Haut-Fourneau, le Fût du Grand Mou (« ne pas secouer »), la fontaine
+  dont le Maire coupa « le ruban, puis le jet », Dame Équité et son plateau de gauche, la farine de
+  première mouture « la plus dure à lever », la cuirasse « ferme à l'ouverture », le tuteur à planter
+  « bien droit, en terre ferme », la cuillère à bout rond de la soupe de siège. Compétences
+  rebaptisées : Gros calibre de cuisine, Salaison bien serrée, Bélier ferré (entrée en force), Rouleau
+  enfoncé jusqu'au gond, Cor au long cours, Jabot gonflé à bloc, Plumes dressées, Piétinement à pleine
+  masse, Coup de défense à l'ivoire. Aucun personnage ne remarque le jeu de mots.
