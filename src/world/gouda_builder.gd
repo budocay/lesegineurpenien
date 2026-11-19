@@ -116,6 +116,8 @@ static func _surround(b, sp: Dictionary) -> void:
 		var p := Vector3.ZERO
 		if i % 4 == 3 and b.map.has("skyline"):
 			continue   # le nord est pris par les étages du fond
+		if i % 4 == 2 and b.map.has("horizon"):
+			continue   # la caméra basse des cartes à horizon se tient au sud : pas d'arbre qui lui masque le bas
 		match i % 4:
 			0: p = Vector3(rng.randf_range(-16.0, -0.9), 0.0, rng.randf_range(-1.0, float(b.h) + 6.0))
 			1: p = Vector3(rng.randf_range(b.w + 0.9, b.w + 16.0), 0.0, rng.randf_range(-1.0, float(b.h) + 6.0))

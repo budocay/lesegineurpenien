@@ -149,6 +149,7 @@ func _ready() -> void:
 	_test_balourd_phase_and_breche_waves()
 	_test_decors_restes()
 	_test_help_texts()
+	_test_horizon()
 	if not OS.has_environment("GLAN_QUICK"):
 		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
@@ -8077,3 +8078,54 @@ func _json_files(dir: String) -> Array:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_json_files(dir + "/" + d))
 	return out
+
+
+## Horizon et caméra par carte : une carte sans `camera.zones` garde l'ancien cadrage ; les
+## données d'horizon sont connues ; sur les cartes réglées le joueur reste dans le cadre.
+func _test_horizon() -> void:
+	print("-- horizon et caméra par carte")
+	var Hz: GDScript = load("res://src/world/horizon.gd")
+	var kinds: Array = ["city", "mountain", "plain", "hills", "ridge"]
+	var tuned: Array = []
+	for f in DirAccess.get_files_at("res://data/maps"):
+		if not f.ends_with(".json"):
+			continue
+		var id := f.get_basename()
+		var mp: Dictionary = Database.get_map(id)
+		var cam: Dictionary = mp.get("camera", {})
+		for z: Variant in cam.get("zones", []):
+			var zd: Dictionary = z
+			var r: Array = zd.get("rect", [])
+			check(r.size() == 4 and float(r[2]) > 0.0 and float(r[3]) > 0.0, "%s : zone de caméra bien formée" % id)
+		if mp.has("horizon"):
+			tuned.append(id)
+			var hz: Dictionary = mp["horizon"]
+			var preset: String = str(hz.get("preset", "cite"))
+			check(Hz.PRESETS.has(preset), "%s : préréglage d'horizon connu (%s)" % [id, preset])
+			var cfg: Dictionary = Hz.PRESETS.get(preset, {})
+			for ld: Variant in hz.get("layers", cfg.get("layers", [])):
+				check(kinds.has(str((ld as Dictionary).get("kind"))), "%s : plan d'horizon de genre connu" % id)
+			var sky: Variant = hz.get("sky", cfg.get("sky", "matin"))
+			check(not (sky is String) or Hz.SKIES.has(sky), "%s : ciel connu" % id)
+	check(tuned.has("minas_croute") and tuned.has("minas_rues") and tuned.has("minas_citadelle"), "les trois cartes de Minas ont un horizon")
+	# cadrage inchangé sans bloc zones ni horizon ; joueur dans le cadre sur les cartes réglées
+	for id: String in ["bittebourg", "minas_rues", "minas_croute", "minas_citadelle", "morbier_antre"]:
+		if Database.get_map(id).is_empty():
+			continue
+		var mp2: Dictionary = Database.get_map(id)
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		world.setup(id, str(mp2.get("spawns", {}).keys()[0]))
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var has_zones: bool = not (mp2.get("camera", {}) as Dictionary).get("zones", []).is_empty()
+		if not has_zones:
+			check(is_equal_approx(world.camera.rotation_degrees.x, -float((mp2.get("camera", {}) as Dictionary).get("pitch", 32.0))), "%s : sans zones, l'inclinaison reste celle de la carte" % id)
+			check(is_equal_approx(world.camera.fov, float((mp2.get("camera", {}) as Dictionary).get("fov", 24.0))), "%s : sans zones, le champ reste celui de la carte" % id)
+		check(not world.camera.is_position_behind(world.player.global_position + Vector3(0, 1, 0)), "%s : le joueur est devant la caméra" % id)
+		var sp: Vector2 = world.camera.unproject_position(world.player.global_position + Vector3(0, 1, 0))
+		var vs: Vector2 = get_viewport().get_visible_rect().size
+		check(sp.x > 0.0 and sp.x < vs.x and sp.y > 0.0 and sp.y < vs.y, "%s : le joueur est dans le cadre" % id)
+		world.queue_free()
+		await get_tree().process_frame

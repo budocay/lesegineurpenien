@@ -11,9 +11,11 @@
 	"arena": "citadelle",
 	"camera": {
 		"distance": 24,
-		"pitch": 20,
-		"fov": 30,
-		"dof": 0.1
+		"pitch": 14,
+		"fov": 36,
+		"dof": 0.05,
+		"far_start": 9,
+		"zones": [{"rect": [6, 4, 24, 12], "pitch": 6, "fov": 40, "feather": 10}]
 	},
 	"ground": {
 		"default": "void",
@@ -55,7 +57,8 @@
 		}
 	},
 	"style": "gouda",
-	"skyline": {"base": 0, "z": -9, "rings": 2, "step": 4.0, "gap": 6, "tower": true},
+	"horizon": {"preset": "cite"},
+	"skyline": {"base": 0, "z": -9, "rings": 2, "step": 2.0, "gap": 6, "tower": false},
 	"objects": [
 		{
 			"type": "gou_maison",
@@ -409,7 +412,7 @@
 				-4.5
 			],
 			"size": 6,
-			"height": 19,
+			"height": 8,
 			"cap": true
 		},
 		{
@@ -419,7 +422,7 @@
 				0.5
 			],
 			"size": 4,
-			"height": 13,
+			"height": 9,
 			"cap": true
 		},
 		{
@@ -429,7 +432,7 @@
 				0.5
 			],
 			"size": 4,
-			"height": 13,
+			"height": 9,
 			"cap": true
 		},
 		{
@@ -440,7 +443,7 @@
 				7,
 				4
 			],
-			"height": 10,
+			"height": 7,
 			"door": -1,
 			"windows": [
 				1.5,
@@ -457,7 +460,7 @@
 				7,
 				4
 			],
-			"height": 10,
+			"height": 7,
 			"door": -1,
 			"windows": [
 				1.5,
