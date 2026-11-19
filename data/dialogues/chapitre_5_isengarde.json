@@ -509,7 +509,18 @@
 			"text": "Les Cavaliers tiennent la plaine. Les Entremets tiennent les fosses. Nous, on tient la porte. Ne reculez pas : derrière nous, il n'y a que du pain qui lève."
 		},
 		{
-			"battle": "breche"
+			"battle": "breche_avant"
+		},
+		{
+			"if": "combat_breche_avant",
+			"then": [
+				{
+					"text": "La première vague s'effondre dans la farine. Le second pétrisseur, au fond, n'a pas bougé : il attendait son tour, par consigne. Il essuie ses mains sur son tablier, et avance."
+				},
+				{
+					"battle": "breche"
+				}
+			]
 		},
 		{
 			"if": "combat_breche",

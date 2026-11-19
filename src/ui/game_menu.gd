@@ -447,14 +447,14 @@ static func _quest_detail(id: String) -> String:
 		kind += "   ·   " + str(q["giver"])
 	lines.append(kind)
 	lines.append("")
-	lines.append(str(q.get("desc", "")))
+	lines.append(Tutorial.expand(str(q.get("desc", ""))))
 	lines.append("")
 	# On ne montre les étapes que jusqu'à la première qui reste à faire.
 	for step: Variant in q.get("steps", []):
 		if not (step is Dictionary):
 			continue
 		var ok := done or GameState.check(str(step.get("done", "")))
-		lines.append("%s  %s" % ["✓" if ok else "•", str(step.get("text", ""))])
+		lines.append("%s  %s" % ["✓" if ok else "•", Tutorial.expand(str(step.get("text", "")))])
 		if not ok:
 			break
 	if done:

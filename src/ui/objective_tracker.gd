@@ -114,7 +114,7 @@ static func step_text_of(id: String) -> String:
 	var steps: Array = Database.get_quest(id).get("steps", [])
 	if steps.is_empty():
 		return str(Database.get_quest(id).get("desc", ""))
-	return str((steps[step_index(id)] as Dictionary).get("text", ""))
+	return Tutorial.expand(str((steps[step_index(id)] as Dictionary).get("text", "")))
 
 
 func _snapshot() -> Dictionary:

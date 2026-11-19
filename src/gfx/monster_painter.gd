@@ -288,6 +288,11 @@ static func _mood(img: Image, ox: int, kind: String, attack: bool) -> void:
 		var y := int(e[1])
 		var w := int(e[2])
 		var h := int(e[3])
+		if K > 1 and not attack:
+			# coup reçu, en définition fine : l'œil se ferme en un arc plissé, sous un petit froncement
+			_ellipse(img, x + w * 0.5, y + h * 0.5, w * 0.5 + 0.2, h * 0.5 + 0.2, _cellpx(img, x + w / 2, y - 1))
+			_curve(img, Vector2(x - 0.1, y + h * 0.35), Vector2(x + w * 0.5, y + h * 1.25), Vector2(x + w + 0.1, y + h * 0.35), dark, 0.42)
+			continue
 		if attack:
 			_rect(img, x, y, w, h, Color.WHITE)
 			_rect(img, x, y, w, 1, dark)                 # paupière basse, regard noir
@@ -310,6 +315,10 @@ static func _mood(img: Image, ox: int, kind: String, attack: bool) -> void:
 			_px(img, mx + i, my, Color.WHITE)
 		if mh >= 3:
 			_px(img, mx + mw / 2, my + mh - 1, _c("#d8506a"))
+	elif K > 1:
+		# bouche tordue : une vague serrée
+		_curve(img, Vector2(mx, my + mh * 0.5), Vector2(mx + mw * 0.3, my - mh * 0.2), Vector2(mx + mw * 0.5, my + mh * 0.5), dark, 0.4)
+		_curve(img, Vector2(mx + mw * 0.5, my + mh * 0.5), Vector2(mx + mw * 0.75, my + mh * 1.2), Vector2(mx + mw, my + mh * 0.4), dark, 0.4)
 	else:
 		for i in mw:
 			_px(img, mx + i, my + 1 - (i % 2), dark)
@@ -460,6 +469,49 @@ static func _line(img: Image, x0: int, y0: int, x1: int, y1: int, c: Color) -> v
 			var t := clampf((p - a).dot(d) / l2, 0.0, 1.0)
 			if (p - (a + d * t)).length() <= r:
 				PA.px(img, x, y, c)
+
+
+## Courbe douce (quadratique a -> b, point de contrôle c) tracée au point rond : bouches, plis, coutures,
+## sourcils. Trait de `r` pixels logiques de rayon ; en petite définition, un pixel par point.
+static func _curve(img: Image, a: Vector2, c: Vector2, b: Vector2, col: Color, r: float = 0.55) -> void:
+	var n := int((a.distance_to(c) + c.distance_to(b)) * 2.0) + 2
+	for i in n + 1:
+		var t := float(i) / float(n)
+		var p := a * (1.0 - t) * (1.0 - t) + c * 2.0 * t * (1.0 - t) + b * t * t
+		if K == 1:
+			PA.px(img, int(floor(p.x)), int(floor(p.y)), col)
+		else:
+			PA.ellipse(img, p.x * K, p.y * K, r * K, r * K, col)
+
+
+## Œil rancunier des brutes (gobelins, orques, troll) : amande jaune, pupille fendue, sourcil lourd
+## penché vers le nez (les brutes regardent à droite). Fermé (coup reçu) : un arc plissé.
+static func _grudge_eye(img: Image, cx: float, cy: float, rx: float, ry: float, closed: bool = false) -> void:
+	var dark := _c("#1c1418")
+	if closed:
+		_curve(img, Vector2(cx - rx, cy - 0.2), Vector2(cx, cy + ry * 1.5), Vector2(cx + rx, cy - 0.2), dark, 0.5)
+		return
+	_ellipse(img, cx, cy, rx + 0.35, ry + 0.35, dark)
+	_ellipse(img, cx, cy, rx, ry, Color("#f0dc50"))
+	_ellipse(img, cx + rx * 0.35, cy + 0.1, maxf(0.45, rx * 0.3), ry * 0.9, dark)
+	_ellipse(img, cx - rx * 0.4, cy - ry * 0.35, 0.4, 0.4, Color("#fffbe0"))
+	_curve(img, Vector2(cx - rx - 0.8, cy - ry - 1.0), Vector2(cx, cy - ry - 0.9), Vector2(cx + rx + 0.7, cy - ry + 0.7), dark, 0.55)
+
+
+## Bouche des brutes : fermée, une moue basse flanquée de deux défenses ; ouverte (attaque), une gueule
+## sombre au palais de sang, crocs en haut et en bas.
+static func _brute_mouth(img: Image, mx: float, my: float, w: float, open: bool) -> void:
+	var dark := _c("#1c1418")
+	if open:
+		_ellipse(img, mx + w * 0.5, my + 1.8, w * 0.5 + 0.4, 2.5, dark)
+		_ellipse(img, mx + w * 0.5, my + 1.9, w * 0.5 - 0.1, 2.0, Color("#4a1424"))
+		_ellipse(img, mx + w * 0.5, my + 2.7, w * 0.28, 0.8, Color("#c8506a"))
+		for t: float in [0.28, 0.72]:
+			_tri(img, Vector2(mx + w * t - 0.7, my - 0.1), Vector2(mx + w * t + 0.7, my - 0.1), Vector2(mx + w * t, my + 1.8), Color.WHITE)
+		return
+	_curve(img, Vector2(mx, my + 0.9), Vector2(mx + w * 0.5, my - 0.9), Vector2(mx + w, my + 0.7), dark, 0.5)
+	for t: float in [0.12, 0.88]:
+		_tri(img, Vector2(mx + w * t - 0.7, my + 0.6), Vector2(mx + w * t + 0.7, my + 0.6), Vector2(mx + w * t, my - 1.2), Color("#f4ecd8"))
 
 
 ## Opacité de la case logique (x, y) : lit le centre du bloc.
@@ -969,12 +1021,16 @@ static func _scarecrow(img: Image, ox: int, f: int) -> void:
 	_trap(img, int(hy) + 5, int(hy) + 8, hx - 4.5, hx + 4.5, hx - 3.5, hx + 3.5, sack, -0.35)
 	# yeux cousus en croix, bouche en zigzag
 	for e: int in [-3, 2]:
-		_px(img, int(hx) + e, int(hy) - 2, dark)
-		_px(img, int(hx) + e + 1, int(hy) - 1, dark)
-		_px(img, int(hx) + e + 1, int(hy) - 2, sack[1])
-		_px(img, int(hx) + e, int(hy) - 1, dark)
-	for i in 5:
-		_px(img, int(hx) - 3 + i, int(hy) + 2 + (i % 2), dark)
+		var ex := float(int(hx) + e)
+		_curve(img, Vector2(ex, hy - 2.5), Vector2(ex + 0.9, hy - 1.6), Vector2(ex + 1.8, hy - 0.7), dark, 0.42)
+		_curve(img, Vector2(ex + 1.8, hy - 2.5), Vector2(ex + 0.9, hy - 1.6), Vector2(ex, hy - 0.7), dark, 0.42)
+	# bouche cousue : un sourire tordu retenu par de petits points de fil
+	_curve(img, Vector2(hx - 3.6, hy + 2.0), Vector2(hx, hy + 4.4), Vector2(hx + 3.8, hy + 1.6), dark, 0.42)
+	for i in 4:
+		var u := (float(i) + 0.5) / 4.0
+		var sx2 := lerpf(hx - 3.2, hx + 3.4, u)
+		var sy2 := lerpf(hy + 2.4, hy + 3.0, 1.0 - absf(u - 0.5) * 2.0) + 0.3
+		_curve(img, Vector2(sx2, sy2 - 1.1), Vector2(sx2, sy2), Vector2(sx2 + 0.2, sy2 + 1.0), sack[1], 0.3)
 	# chapeau cabossé
 	_trap(img, int(hy) - 12, int(hy) - 6, hx - 4.0, hx + 4.5, hx - 5.5, hx + 6.0, hat, 0.05)
 	_ell(img, hx, hy - 5.5, 10.0, 2.4, hat, 0.1)
@@ -1064,8 +1120,8 @@ static func _frog(img: Image, ox: int, f: int, pal: Array, eye_hex: String) -> v
 		_px(img, ox + 22, 6, Color.WHITE)
 		_px(img, ox + 28, 7, Color.WHITE)
 	# bouche large et lasse
-	_line(img, ox + 22, 15, ox + 32, 14, deep[0])
-	_px(img, ox + 21, 16, deep[0])
+	_curve(img, Vector2(ox + 22.0, 15.2), Vector2(ox + 27.0, 17.4), Vector2(ox + 32.5, 14.2), deep[0], 0.5)
+	_curve(img, Vector2(ox + 22.0, 15.2), Vector2(ox + 21.6, 15.8), Vector2(ox + 21.2, 16.6), deep[0], 0.5)
 
 
 ## Feu follet : flamme pâle qui flotte, deux yeux fatigués. Il éclaire à peine.
@@ -1186,8 +1242,13 @@ static func _rat(img: Image, ox: int, f: int) -> void:
 	_eye(img, ox + 30, 12 + dy, 3, 3)
 	_px(img, ox + 38, 16 + dy, pink[1])
 	_px(img, ox + 38, 17 + dy, pink[1])
-	_rect(img, ox + 35, 19 + dy, 2, 2, Color.WHITE)
-	_px(img, ox + 36, 20 + dy, light[1])
+	_curve(img, Vector2(ox + 34.6, 18.6 + dy), Vector2(ox + 36.4, 19.9 + dy), Vector2(ox + 38.2, 18.4 + dy), dark[0], 0.4)
+	if K == 1:
+		_rect(img, ox + 35, 19 + dy, 2, 2, Color.WHITE)
+		_px(img, ox + 36, 20 + dy, light[1])
+	else:
+		_ellipse(img, ox + 35.9, 20.2 + dy, 1.0, 1.35, Color("#f4ecd8"))
+		_curve(img, Vector2(ox + 35.9, 19.2 + dy), Vector2(ox + 35.9, 20.2 + dy), Vector2(ox + 35.9, 21.0 + dy), light[1], 0.18)
 	# moustaches
 	_line(img, ox + 36, 17 + dy, ox + 39, 15 + dy, light[3])
 	_line(img, ox + 36, 18 + dy, ox + 39, 19 + dy, light[3])
@@ -1354,21 +1415,9 @@ static func _goblin(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 	_ell(img, ox + hx + 6.0, hy + 2.0, 3.0, 2.2, skin, 0.15)
 	# œil jaune de rancune, sourcil
 	var eye_y := int(hy) - 2
-	if col == 3:
-		_rect(img, ox + int(hx) + 1, eye_y + 1, 4, 1, Color("#2b1b2e"))
-	else:
-		_rect(img, ox + int(hx) + 1, eye_y, 4, 3, Color("#f0e060"))
-		_rect(img, ox + int(hx) + 3, eye_y, 2, 3, Color("#2b1b2e"))
-		_rect(img, ox + int(hx), eye_y - 1, 6, 1, Color("#2b1b2e"))
+	_grudge_eye(img, ox + int(hx) + 3.0, eye_y + 1.5, 2.3, 1.6, col == 3)
 	# bouche à crocs
-	if col == 2:
-		_rect(img, ox + int(hx) + 1, int(hy) + 3, 7, 3, Color("#4a1424"))
-		_rect(img, ox + int(hx) + 2, int(hy) + 3, 1, 2, Color.WHITE)
-		_rect(img, ox + int(hx) + 6, int(hy) + 3, 1, 2, Color.WHITE)
-	else:
-		_rect(img, ox + int(hx) + 2, int(hy) + 4, 6, 1, Color("#2b1b2e"))
-		_px(img, ox + int(hx) + 3, int(hy) + 5, Color.WHITE)
-		_px(img, ox + int(hx) + 7, int(hy) + 5, Color.WHITE)
+	_brute_mouth(img, ox + int(hx) + 1.5, int(hy) + 3.6, 6.5, col == 2)
 	# casque en croûte de fromage pour le chef, bandeau sale sinon
 	if kind == 2:
 		_ell(img, ox + hx, hy - 5.0, 8.0, 3.8, rind)
@@ -1473,16 +1522,11 @@ static func _troll(img: Image, ox: int, f: int, col: int) -> void:
 	# petite tête, mâchoire en avant, défenses
 	_ell(img, ox + 33.0, 15.0 + dy, 8.5, 7.5, skin, 0.05)
 	_ell(img, ox + 38.0, 19.0 + dy, 5.0, 3.5, skin, 0.15)
-	_rect(img, ox + 39, 16 + dy, 2, 4, Color("#f0e8d0"))
-	_rect(img, ox + 35, 17 + dy, 1, 3, Color("#f0e8d0"))
-	if col == 3:
-		_rect(img, ox + 33, 12 + dy, 4, 1, dark)
-	else:
-		_rect(img, ox + 33, 11 + dy, 5, 3, Color("#f0e8a0"))
-		_rect(img, ox + 36, 11 + dy, 2, 3, dark)
-		_rect(img, ox + 32, 10 + dy, 7, 1, dark)
+	_tri(img, Vector2(ox + 38.4, 21.4 + dy), Vector2(ox + 40.8, 21.4 + dy), Vector2(ox + 39.8, 15.8 + dy), Color("#f0e8d0"))
+	_tri(img, Vector2(ox + 34.6, 21.0 + dy), Vector2(ox + 36.4, 21.0 + dy), Vector2(ox + 35.6, 16.8 + dy), Color("#f0e8d0"))
+	_grudge_eye(img, ox + 35.0, 12.4 + dy, 2.7, 1.8, col == 3)
 	if col == 2:
-		_rect(img, ox + 35, 19 + dy, 6, 3, Color("#4a1424"))
+		_brute_mouth(img, ox + 35.5, 18.6 + dy, 6.0, true)
 	_ell(img, ox + 27.0, 11.0 + dy, 2.5, 2.5, mold)
 	_ell(img, ox + 28.0, 8.0 + dy, 2.5, 2.0, mold)
 
@@ -1575,11 +1619,13 @@ static func _gollum(img: Image, ox: int, f: int, col: int) -> void:
 	else:
 		_eye(img, ox + 14, 8 + dy, 7, 7, _c("#9ad8e8"))
 		_eye(img, ox + 21, 9 + dy, 6, 6, _c("#9ad8e8"))
-	_rect(img, ox + 21, 19 + dy, 5, 1, dark if col != 2 else Color("#4a1424"))
 	if col == 2:
-		_rect(img, ox + 21, 19 + dy, 6, 3, Color("#4a1424"))
-		_px(img, ox + 22, 19 + dy, Color.WHITE)
-		_px(img, ox + 25, 19 + dy, Color.WHITE)
+		_ellipse(img, ox + 24.0, 20.5 + dy, 3.6, 2.4, dark)
+		_ellipse(img, ox + 24.0, 20.7 + dy, 3.0, 1.9, Color("#4a1424"))
+		_tri(img, Vector2(ox + 22.0, 19.2 + dy), Vector2(ox + 23.4, 19.2 + dy), Vector2(ox + 22.7, 20.8 + dy), Color.WHITE)
+		_tri(img, Vector2(ox + 24.8, 19.2 + dy), Vector2(ox + 26.2, 19.2 + dy), Vector2(ox + 25.5, 20.8 + dy), Color.WHITE)
+	else:
+		_curve(img, Vector2(ox + 21.0, 19.8 + dy), Vector2(ox + 23.5, 20.8 + dy), Vector2(ox + 26.0, 19.4 + dy), dark, 0.5)
 
 
 ## Le Balourd : un démon des profondeurs, lourd, noir de suie, crinière de flammes, fouet de braise.
@@ -1596,7 +1642,8 @@ static func _balrog(img: Image, ox: int, f: int, col: int) -> void:
 	# torse, ventre, ligne de cendre en travers (l'âge de la bête)
 	_ell(img, ox + 33.0, 44.0 + dy, 18.0, 17.0, body)
 	_ell(img, ox + 35.0, 50.0 + dy, 12.0, 10.0, _ramp("#5a2a3a"), 0.1)
-	_rect(img, ox + 22, 48 + dy, 24, 2, Color("#14101a"))
+	_curve(img, Vector2(ox + 23.0, 47.0 + dy), Vector2(ox + 33.0, 53.5 + dy), Vector2(ox + 44.0, 46.5 + dy), Color("#14101a"), 0.75)
+	_curve(img, Vector2(ox + 26.0, 49.5 + dy), Vector2(ox + 33.0, 54.0 + dy), Vector2(ox + 41.0, 49.0 + dy), body[3], 0.4)
 	# flammes qui courent le long du dos
 	for i in 7:
 		var fx := 14.0 + float(i) * 3.5
@@ -1623,20 +1670,32 @@ static func _balrog(img: Image, ox: int, f: int, col: int) -> void:
 	_cap(img, ox + 42.0, 16.0 + dy, ox + 51.0, 12.0 + dy, 3.4, 2.0, horn)
 	_cap(img, ox + 51.0, 12.0 + dy, ox + 52.0, 4.0 + dy, 2.0, 0.8, horn)
 	if col == 3:
-		_rect(img, ox + 27, 20 + dy, 5, 1, dark)
-		_rect(img, ox + 36, 20 + dy, 5, 1, dark)
+		_curve(img, Vector2(ox + 26.5, 20.4 + dy), Vector2(ox + 29.0, 21.6 + dy), Vector2(ox + 31.5, 20.0 + dy), dark, 0.6)
+		_curve(img, Vector2(ox + 36.5, 20.0 + dy), Vector2(ox + 39.0, 21.6 + dy), Vector2(ox + 41.5, 20.4 + dy), dark, 0.6)
 	else:
-		_rect(img, ox + 27, 19 + dy, 5, 3, Color("#ffb030"))
-		_rect(img, ox + 36, 19 + dy, 5, 3, Color("#ffb030"))
-		_rect(img, ox + 29, 19 + dy, 2, 3, Color("#fff0a0"))
-		_rect(img, ox + 38, 19 + dy, 2, 3, Color("#fff0a0"))
-		_rect(img, ox + 26, 17 + dy, 7, 1, dark)
-		_rect(img, ox + 35, 17 + dy, 7, 1, dark)
-	_rect(img, ox + 28, 28 + dy, 11, 2, dark if col != 2 else Color("#ff5a20"))
+		for ex: float in [29.5, 38.5]:
+			_ellipse(img, ox + ex, 20.5 + dy, 3.0, 2.0, Color("#ffb030"))
+			_ellipse(img, ox + ex + 0.2, 20.6 + dy, 1.5, 1.3, Color("#fff0a0"))
+			_ellipse(img, ox + ex + 0.4, 20.6 + dy, 0.4, 1.2, dark)
+		# sourcils lourds, baissés vers le nez
+		_curve(img, Vector2(ox + 25.5, 16.2 + dy), Vector2(ox + 28.5, 16.6 + dy), Vector2(ox + 32.5, 18.6 + dy), dark, 0.7)
+		_curve(img, Vector2(ox + 42.0, 16.2 + dy), Vector2(ox + 39.0, 16.6 + dy), Vector2(ox + 35.0, 18.6 + dy), dark, 0.7)
 	if col == 2:
-		_rect(img, ox + 28, 28 + dy, 11, 4, Color("#ff5a20"))
+		# gueule grande ouverte : palais de braise, crocs en haut et en bas
+		_ellipse(img, ox + 33.5, 30.0 + dy, 6.6, 3.8, dark)
+		_ellipse(img, ox + 33.5, 30.2 + dy, 5.8, 3.1, Color("#ff5a20"))
+		_ellipse(img, ox + 33.5, 31.2 + dy, 3.4, 1.4, Color("#ffb030"))
 		for k in 4:
-			_px(img, ox + 29 + k * 3, 28 + dy, Color.WHITE)
+			var tx := 29.6 + float(k) * 2.6
+			_tri(img, Vector2(ox + tx - 0.8, 27.6 + dy), Vector2(ox + tx + 0.8, 27.6 + dy), Vector2(ox + tx, 29.6 + dy), Color.WHITE)
+		for k in 3:
+			var tx2 := 30.9 + float(k) * 2.6
+			_tri(img, Vector2(ox + tx2 - 0.7, 32.8 + dy), Vector2(ox + tx2 + 0.7, 32.8 + dy), Vector2(ox + tx2, 31.0 + dy), Color("#f0e8d8"))
+	else:
+		# bouche basse, en moue, et deux petites défenses qui remontent
+		_curve(img, Vector2(ox + 27.5, 30.6 + dy), Vector2(ox + 33.5, 27.0 + dy), Vector2(ox + 39.5, 30.6 + dy), dark, 0.75)
+		_tri(img, Vector2(ox + 28.2, 30.4 + dy), Vector2(ox + 29.8, 29.4 + dy), Vector2(ox + 28.6, 27.6 + dy), horn[3])
+		_tri(img, Vector2(ox + 38.8, 30.4 + dy), Vector2(ox + 37.2, 29.4 + dy), Vector2(ox + 38.4, 27.6 + dy), horn[3])
 
 
 
@@ -1671,20 +1730,8 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 	_ell(img, ox + hx + 7.0, hy + 3.0, 3.6, 2.8, skin, 0.15)
 	_cap(img, ox + hx - 6.0, hy - 2.0, ox + hx - 12.0, hy - 6.0, 2.0, 0.8, skin)
 	var ey := int(hy) - 2
-	if col == 3:
-		_rect(img, ox + int(hx) + 1, ey + 1, 5, 1, Color("#1c1418"))
-	else:
-		_rect(img, ox + int(hx) + 1, ey, 5, 3, Color("#e8c040"))
-		_rect(img, ox + int(hx) + 4, ey, 2, 3, Color("#1c1418"))
-		_rect(img, ox + int(hx), ey - 1, 7, 1, Color("#1c1418"))
-	if col == 2:
-		_rect(img, ox + int(hx) + 1, int(hy) + 4, 8, 4, Color("#4a1424"))
-		_rect(img, ox + int(hx) + 2, int(hy) + 4, 1, 2, Color.WHITE)
-		_rect(img, ox + int(hx) + 7, int(hy) + 4, 1, 2, Color.WHITE)
-	else:
-		_rect(img, ox + int(hx) + 2, int(hy) + 5, 7, 1, Color("#1c1418"))
-		_px(img, ox + int(hx) + 3, int(hy) + 6, Color.WHITE)
-		_px(img, ox + int(hx) + 8, int(hy) + 6, Color.WHITE)
+	_grudge_eye(img, ox + int(hx) + 3.5, ey + 1.5, 2.6, 1.7, col == 3)
+	_brute_mouth(img, ox + int(hx) + 1.5, int(hy) + 4.6, 8.0, col == 2)
 	match kind:
 		0:   # casque de marmite
 			_ell(img, ox + hx, hy - 5.0, 8.0, 4.4, metal, 0.0, hy - 1.0)
@@ -1753,14 +1800,12 @@ static func _warg(img: Image, ox: int, f: int, col: int) -> void:
 	_ell(img, ox + hx, hy, 6.5, 5.5, fur, 0.05)
 	_ell(img, ox + hx + 6.0, hy + 2.0, 4.0, 2.6, _ramp("#6a6458"))
 	_tri(img, Vector2(ox + hx - 4.0, hy - 4.0), Vector2(ox + hx - 2.0, hy - 10.0), Vector2(ox + hx + 1.0, hy - 4.0), fur[2])
-	_rect(img, ox + int(hx) + 1, int(hy) - 1, 3, 2, Color("#f0c040") if col != 3 else Color("#1c1418"))
-	_px(img, ox + int(hx) + 3, int(hy) - 1, Color("#1c1418"))
+	_grudge_eye(img, ox + hx + 2.5, hy - 0.3, 1.9, 1.3, col == 3)
 	if col == 2:
-		_rect(img, ox + int(hx) + 3, int(hy) + 2, 7, 4, Color("#4a1424"))
-		_px(img, ox + int(hx) + 4, int(hy) + 2, Color.WHITE)
-		_px(img, ox + int(hx) + 8, int(hy) + 2, Color.WHITE)
+		_brute_mouth(img, ox + hx + 3.2, hy + 1.6, 7.0, true)
 	else:
-		_rect(img, ox + int(hx) + 4, int(hy) + 3, 6, 1, Color("#1c1418"))
+		_curve(img, Vector2(ox + hx + 4.0, hy + 3.4), Vector2(ox + hx + 7.0, hy + 4.4), Vector2(ox + hx + 10.0, hy + 3.2), _c("#1c1418"), 0.5)
+		_tri(img, Vector2(ox + hx + 5.6, hy + 3.7), Vector2(ox + hx + 6.8, hy + 3.9), Vector2(ox + hx + 6.2, hy + 5.4), Color("#f4ecd8"))
 	_rect(img, ox + int(hx) - 5, int(hy) + 4, 9, 2, Color("#d8d0b8"))   # collier de moine
 
 
@@ -1797,8 +1842,13 @@ static func _hillman(img: Image, ox: int, f: int, col: int) -> void:
 	_rect(img, ox + 12, 30 + dy, 18, 3, Color("#a83a2a"))
 	_ell(img, ox + 21.0, 14.0 + dy, 7.5, 7.0, skin)
 	_ell(img, ox + 21.0, 20.0 + dy, 8.0, 5.0, _ramp("#7a4a2a"))   # barbe
-	_rect(img, ox + 18, 12 + int(dy), 2, 2, Color("#1c1418") if col != 3 else Color("#1c1418"))
-	_rect(img, ox + 23, 12 + int(dy), 2, 2, Color("#1c1418"))
+	for ex: float in [19.0, 24.0]:
+		if col == 3:
+			_curve(img, Vector2(ex - 1.3, 12.3 + dy), Vector2(ex, 13.8 + dy), Vector2(ex + 1.3, 12.3 + dy), Color("#1c1418"), 0.45)
+		else:
+			_ellipse(img, ox + ex, 12.8 + dy, 1.25, 1.35, Color("#1c1418"))
+			_ellipse(img, ox + ex - 0.4, 12.3 + dy, 0.4, 0.4, Color("#f0e8e0"))
+			_curve(img, Vector2(ex - 1.8, 11.0 + dy), Vector2(ex, 10.6 + dy), Vector2(ex + 1.8, 11.4 + dy), _c("#5a3820"), 0.45)
 	_rect(img, ox + 13, 8 + int(dy), 16, 3, Color("#8a8a90"))   # bonnet de laine
 	var hand_y := 28.0 + dy if col != 2 else 12.0
 	_cap(img, ox + 31.0, 24.0 + dy, ox + 35.0, hand_y, 2.6, 2.2, skin)

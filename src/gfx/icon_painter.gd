@@ -14,7 +14,7 @@ const HAND_H := 12
 const COMMANDS := ["attack", "skills", "items", "defend", "flee", "elan"]
 const ELEMENTS := ["contondant", "tranchant", "feu", "foudre", "plante", "torpeur"]
 const WEAPONS := ["baton", "ustensile", "dague", "serpe", "rapiere", "epee", "arc", "hache"]
-const STATUSES := ["poison", "sommeil", "sonne", "ramolli", "englue", "galvanise", "garde", "ebranle",
+const STATUSES := ["poison", "sommeil", "sonne", "ramolli", "englue", "galvanise", "garde", "ebranle", "gronde",
 		"provocation", "demoralise", "enfume"]
 const SIGNS := ["hand", "coin", "heart", "mana", "unknown", "up"]
 
@@ -73,6 +73,7 @@ static func paint(kind: String) -> Image:
 		"galvanise", "up": _arrow(img, true, YEL)
 		"englue": _web(img)
 		"ebranle": _cracked(img)
+		"gronde": _arrow(img, true, Color("#e0823c"))   # le plafond gronde : la force monte, en orange
 		"provocation": _bang(img)
 		"demoralise": _cloud(img, Color("#9aa0c8"), true)
 		"enfume": _cloud(img, Color("#c8c8d2"), false)

@@ -6,7 +6,7 @@
 		{"who": "glandoulf", "text": "Les épis sont couchés. Les barrières penchent. Et il n'y a pas un souffle de vent..."},
 		{"who": "glandoulf", "text": "Non. Je m'inquiéterai demain. Ce soir : une chope, un fauteuil, et qu'on ne me demande rien."},
 		{"who": "glandoulf", "text": "[i](Trois siècles sans lancer un sort sérieux. J'ai dû perdre la main. Il faudra que je m'y remette. Demain.)[/i]"},
-		{"who": "glandoulf", "text": "Pour la forme : on marche avec les flèches, on parle aux gens en s'approchant d'eux, et l'on ouvre le menu quand on veut savoir ce qu'on est censé faire. Un certain Pépin, dans la maison voisine, a l'air d'avoir des soucis. Je dis ça, je ne dis rien."},
+		{"who": "glandoulf", "text": "Pour la forme : on marche avec {move}, on parle aux gens en s'approchant d'eux ({interact}), et l'on ouvre le menu ({menu}) quand on veut savoir ce qu'on est censé faire. Un certain Pépin, dans la maison voisine, a l'air d'avoir des soucis. Je dis ça, je ne dis rien."},
 		{"set": "intro_vue"}
 	],
 
