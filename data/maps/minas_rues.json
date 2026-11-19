@@ -10,12 +10,12 @@
 	"music": "minas",
 	"arena": "minas_rues",
 	"camera": {
-		"distance": 25,
-		"pitch": 14,
-		"fov": 36,
+		"distance": 19,
+		"pitch": 5,
+		"fov": 46,
 		"dof": 0.05,
 		"far_start": 9,
-		"zones": [{"rect": [8, 2, 20, 14], "pitch": 6, "fov": 40, "feather": 12}]
+		"near_start": 0.55
 	},
 	"ground": {
 		"default": "void",
@@ -185,7 +185,8 @@
 	],
 	"style": "gouda",
 	"horizon": {"preset": "cite"},
-	"skyline": {"base": 3, "z": -8, "rings": 4, "step": 1.4, "gap": 7, "tower": false},
+	"apron": {"from": 43, "depth": 10, "x0": 2, "x1": 34},
+	"skyline": {"base": 3, "z": -8, "rings": 2, "step": 1.4, "gap": 7, "tower": false},
 	"objects": [
 		{
 			"type": "gou_maison",

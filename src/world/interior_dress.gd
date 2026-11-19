@@ -33,8 +33,8 @@ static func dress(b) -> void:
 	var interior := bool(b.map.get("interior", false))
 	# un extérieur dont le sol par défaut est le vide (terrasse suspendue) reçoit lui aussi son hors-carte
 	if not interior:
-		if str((b.map.get("ground", {}) as Dictionary).get("default", "")) == "void":
-			_surround(b)
+		if str((b.map.get("ground", {}) as Dictionary).get("default", "")) == "void" and not b.map.has("belvedere"):
+			_surround(b)   # (un belvédère ouvre le vide sur l'horizon : pas de sol sombre)
 		return
 	_surround(b)
 	var name := str(b.map.get("wall_dress", ""))

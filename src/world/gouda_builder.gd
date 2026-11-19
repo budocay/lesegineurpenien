@@ -101,6 +101,8 @@ static func _restyle_exterior(b, sp: Dictionary) -> void:
 	if cliffs != null:
 		cliffs.material_override = MeshKit.ground_material(Sprites.tile_texture(str(sp["cliff"])), 0.1)
 	_surround(b, sp)
+	_apron(b)
+	_belvedere(b)
 	if str(b.map.get("style", "")) == "gouda":
 		_retaining(b)
 		_skyline(b)
@@ -134,6 +136,57 @@ static func _surround(b, sp: Dictionary) -> void:
 			continue
 		p.y = b._terrace_height(p.x, p.z)
 		b._prop(str(low[i % low.size()]), {"solid": 0.0, "shadow": false}, p)
+
+
+## Parvis au sud d'une carte à horizon (champ `apron`) : la caméra basse voit loin devant le joueur ;
+## plutôt que l'herbe nue des abords, le dallage de la rue se prolonge (aucun mur : la caméra
+## basse le verrait entre elle et le joueur). Champs : `depth` (profondeur, 10), `from` (où le dallage de
+## la carte s'arrête, défaut le bord sud), `x0` et `x1` (étendue du dallage, défaut la largeur de la carte), `tile` (dalle, `gou_pave`). Tout est décor.
+static func _apron(b) -> void:
+	var ap: Variant = b.map.get("apron")
+	if not (ap is Dictionary):
+		return
+	var depth := float((ap as Dictionary).get("depth", 10.0))
+	var x0 := float((ap as Dictionary).get("x0", 0.0))
+	var x1 := float((ap as Dictionary).get("x1", float(b.w)))
+	var z0 := float((ap as Dictionary).get("from", float(b.h)))   # `from` : bord sud du dallage de la carte (les rangées de vide au-delà sont recouvertes)
+	var z1 := float(b.h) + depth
+	var parent := Node3D.new()
+	parent.name = "GoudaParvis"
+	b.world.add_child(parent)
+	var st := MeshKit.begin()
+	MeshKit.quad(st, Vector3(x0, 0.02, z0), Vector3(x1, 0.02, z0), Vector3(x1, 0.02, z1), Vector3(x0, 0.02, z1),
+			Vector2(x0 * 0.5, z0 * 0.5), Vector2(x1 * 0.5, z1 * 0.5))
+	var floor_node := MeshKit.finish(st, MeshKit.ground_material(Sprites.tile_texture(str((ap as Dictionary).get("tile", "gou_pave"))), 0.1), false)
+	parent.add_child(floor_node)
+
+
+## Belvédère (champ `belvedere`) : le nord de la carte s'ouvre sur le vide. L'herbe et les talus
+## qui bouchaient la vue au nord disparaissent (les abords est, ouest et sud restent), et les plans de
+## l'horizon passent sous le sol de la carte : on domine la ville en contrebas et la plaine.
+## Champ : `z` (profondeur du bord, défaut 0).
+static func _belvedere(b) -> void:
+	var bv: Variant = b.map.get("belvedere")
+	if not (bv is Dictionary):
+		return
+	var outer := _node(b, "Outskirts")
+	if outer != null:
+		outer.visible = false
+	var cliffs := _node(b, "Cliffs")
+	if cliffs != null:
+		cliffs.visible = false
+	var zn := float((bv as Dictionary).get("z", 0.0))
+	var far := 70.0
+	var st := MeshKit.begin()
+	for r: Array in [[-far, zn, 0.0, float(b.h)], [float(b.w), zn, float(b.w) + far, float(b.h)], [-far, float(b.h), float(b.w) + far, float(b.h) + far]]:
+		var ax: float = r[0]
+		var az: float = r[1]
+		var bx2: float = r[2]
+		var bz: float = r[3]
+		MeshKit.quad(st, Vector3(ax, 0.0, az), Vector3(bx2, 0.0, az), Vector3(bx2, 0.0, bz), Vector3(ax, 0.0, bz), Vector2(ax * 0.5, az * 0.5), Vector2(bx2 * 0.5, bz * 0.5))
+	var node := MeshKit.finish(st, MeshKit.ground_material(Sprites.tile_texture(str(_spec(b)["outer"]))), false)
+	node.name = "GoudaAbords"
+	b.world.add_child(node)
 
 
 # ===================================================== étages : murs de soutènement

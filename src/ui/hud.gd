@@ -26,11 +26,11 @@ func _ready() -> void:
 	# titre de lieu : voile sombre dégradé en haut, grand nom centré entre deux filets, sous-titre
 	_banner = Control.new()
 	_banner.anchor_right = 1.0
-	_banner.offset_bottom = 230.0
+	_banner.offset_bottom = 190.0
 	_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_banner.modulate.a = 0.0
 	add_child(_banner)
-	var veil := UI.veil(true, 0.7)
+	var veil := UI.veil(true, 0.42)
 	UI.full_rect(veil)
 	_banner.add_child(veil)
 	var margin := MarginContainer.new()   # le titre ne s'étale jamais jusqu'aux bords

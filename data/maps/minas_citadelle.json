@@ -10,12 +10,13 @@
 	"music": "minas_haut",
 	"arena": "citadelle",
 	"camera": {
-		"distance": 24,
-		"pitch": 14,
-		"fov": 36,
+		"distance": 19,
+		"pitch": 6,
+		"fov": 46,
+		"near_start": 0.55,
 		"dof": 0.05,
 		"far_start": 9,
-		"zones": [{"rect": [6, 4, 24, 12], "pitch": 6, "fov": 40, "feather": 10}]
+		"zones": [{"rect": [4, 3, 28, 7], "pitch": 13, "distance": 22, "feather": 7}]
 	},
 	"ground": {
 		"default": "void",
@@ -57,8 +58,9 @@
 		}
 	},
 	"style": "gouda",
-	"horizon": {"preset": "cite"},
-	"skyline": {"base": 0, "z": -9, "rings": 2, "step": 2.0, "gap": 6, "tower": false},
+	"horizon": {"preset": "belvedere"},
+	"apron": {"from": 22, "depth": 10, "x0": 3, "x1": 33},
+	"belvedere": {"z": 2.5},
 	"objects": [
 		{
 			"type": "gou_maison",
@@ -404,70 +406,6 @@
 			"color": "#ffd890",
 			"energy": 1.2,
 			"range": 9
-		},
-		{
-			"type": "gou_tour",
-			"pos": [
-				18,
-				-4.5
-			],
-			"size": 6,
-			"height": 8,
-			"cap": true
-		},
-		{
-			"type": "gou_tour",
-			"pos": [
-				3,
-				0.5
-			],
-			"size": 4,
-			"height": 9,
-			"cap": true
-		},
-		{
-			"type": "gou_tour",
-			"pos": [
-				33,
-				0.5
-			],
-			"size": 4,
-			"height": 9,
-			"cap": true
-		},
-		{
-			"type": "gou_maison",
-			"rect": [
-				1,
-				-4,
-				7,
-				4
-			],
-			"height": 7,
-			"door": -1,
-			"windows": [
-				1.5,
-				3.5,
-				5.5
-			],
-			"chimney": false
-		},
-		{
-			"type": "gou_maison",
-			"rect": [
-				28,
-				-4,
-				7,
-				4
-			],
-			"height": 7,
-			"door": -1,
-			"windows": [
-				1.5,
-				3.5,
-				5.5
-			],
-			"chimney": false
 		}
 	]
 }
