@@ -100,8 +100,9 @@ func _ready() -> void:
 	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_portrait.position = Vector2(3, 3)
-	_portrait.size = Vector2(PORTRAIT - 6.0, PORTRAIT - 6.0)
+	# portraits de 64 px : agrandissement entier (x2) pour des pixels réguliers, centré dans le cadre
+	_portrait.position = Vector2(6, 6)
+	_portrait.size = Vector2(PORTRAIT - 12.0, PORTRAIT - 12.0)
 	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_portrait_frame.add_child(_portrait)
 
@@ -206,7 +207,7 @@ func _advance() -> void:
 				if place == "active":
 					notice.emit("%s rejoint l'équipe" % Database.get_character_name(recruit))
 				else:
-					notice.emit("%s rejoint le groupe, en réserve (quatre au combat : Échap, Équipe, pour l'échanger)" % Database.get_character_name(recruit))
+					notice.emit("%s rejoint le groupe, en réserve (quatre au combat : %s, Équipe, pour l'échanger)" % [Database.get_character_name(recruit), UI.key_text("menu")])
 			continue
 		if n.has("take"):
 			var taken := str(n["take"])
