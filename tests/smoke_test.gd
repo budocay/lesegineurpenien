@@ -5031,6 +5031,9 @@ func _test_battle_layout() -> void:
 		GameState.new_game()
 		for who: String in cs["allies"]:
 			GameState.add_to_party(who)
+		for who: String in GameState.party:   # les boss frappent fort : les héros doivent tenir les quelques tours de la mesure
+			GameState.member(who)["level"] = 30
+		GameState.heal_party()
 		var layer := CanvasLayer.new()
 		add_child(layer)
 		var ui: Control = BattleUI.new()
