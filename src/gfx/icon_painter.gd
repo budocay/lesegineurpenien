@@ -14,7 +14,7 @@ const HAND_H := 12
 const COMMANDS := ["attack", "skills", "items", "defend", "flee", "elan"]
 const ELEMENTS := ["contondant", "tranchant", "feu", "foudre", "plante", "torpeur"]
 const WEAPONS := ["baton", "ustensile", "dague", "serpe", "rapiere", "epee", "arc", "hache"]
-const STATUSES := ["poison", "sommeil", "sonne", "ramolli", "englue", "galvanise", "garde", "ebranle", "gronde",
+const STATUSES := ["poison", "sommeil", "sonne", "ramolli", "englue", "galvanise", "garde", "ebranle", "gronde", "annonce",
 		"provocation", "demoralise", "enfume"]
 const SIGNS := ["hand", "coin", "heart", "mana", "unknown", "up"]
 
@@ -74,6 +74,7 @@ static func paint(kind: String) -> Image:
 		"englue": _web(img)
 		"ebranle": _cracked(img)
 		"gronde": _arrow(img, true, Color("#e0823c"))   # le plafond gronde : la force monte, en orange
+		"annonce": _alert(img)
 		"provocation": _bang(img)
 		"demoralise": _cloud(img, Color("#9aa0c8"), true)
 		"enfume": _cloud(img, Color("#c8c8d2"), false)
@@ -330,6 +331,14 @@ static func _arrow(img: Image, up: bool, c: Color) -> void:
 		for p: Vector2 in [Vector2(4.4, 10.6), Vector2(7.6, 10.6), Vector2(7.6, 6.0), Vector2(10.4, 6.0), Vector2(6, 1.2), Vector2(1.6, 6.0), Vector2(4.4, 6.0)]:
 			pts.append(Vector2(p.x, 11.8 - p.y))
 	_poly(img, pts, c)
+
+
+## Coup annoncé : un triangle d'avertissement rouge, point d'exclamation au milieu.
+static func _alert(img: Image) -> void:
+	_poly(img, [Vector2(6, 0.6), Vector2(11.4, 10.6), Vector2(0.6, 10.6)], Color("#e8463c"))
+	_poly(img, [Vector2(6, 2.8), Vector2(9.4, 9.4), Vector2(2.6, 9.4)], Color("#ffb04a"))
+	_l(img, 6, 4, 6, 7, K)
+	_l(img, 6, 8, 6, 9, K)
 
 
 static func _web(img: Image) -> void:

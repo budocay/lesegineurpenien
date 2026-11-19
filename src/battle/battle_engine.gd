@@ -327,6 +327,7 @@ func start_turn(actor: Combatant) -> Array:
 	var skip := actor.skipping_status()
 	if skip != "":
 		can_act = false
+		actor.next_skill = ""   # un coup annoncé est interrompu : bouclier brisé, étourdissement, sommeil
 		events.append({"type": "skip", "target": actor, "status": id_text(skip)})
 	if actor.side == "party" and can_act:
 		party_turns += 1
@@ -663,6 +664,10 @@ func ai_action(actor: Combatant) -> Dictionary:
 		if e is Dictionary:
 			total += float(e.get("weight", 1))
 	var pick := "attack"
+	if actor.next_skill != "":   # le coup annoncé au tour précédent tombe maintenant
+		pick = actor.next_skill
+		actor.next_skill = ""
+		total = 0.0
 	if total > 0.0:
 		var roll := rng.randf() * total
 		for e: Variant in list:
@@ -671,6 +676,7 @@ func ai_action(actor: Combatant) -> Dictionary:
 			roll -= float(e.get("weight", 1))
 			if roll <= 0.0:
 				pick = str(e.get("skill", "attack"))
+				actor.next_skill = str(e.get("next", ""))   # « next » : cette compétence annonce un coup, lancé au tour suivant
 				break
 	var foes := living(foes_of(actor))
 	var target: Combatant = null

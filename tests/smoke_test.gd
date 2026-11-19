@@ -95,6 +95,11 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_ANNONCE"):   # essai ciblé des coups annoncés
+		_test_telegraphed_attacks()
+		print("%d vérifications, %d échec(s) (coups annoncés seuls)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_STAGING"):   # essai ciblé de la mise en page du combat
 		await _test_battle_staging()
 		print("%d vérifications, %d échec(s) (mise en page du combat seule)." % [checks, failures])
@@ -153,6 +158,7 @@ func _ready() -> void:
 	await _test_gamepad_full()
 	_test_reserve_catch_up()
 	_test_balourd_phase_and_breche_waves()
+	_test_telegraphed_attacks()
 	_test_decors_restes()
 	_test_help_texts()
 	_test_horizon()
@@ -1363,6 +1369,10 @@ func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictio
 				if not top.has_status(st) and not (top.immune as Array).has(st) and foe_hp >= 500:
 					memo["debuff_" + id] = turn
 					return {"type": "skill", "id": id, "target": top}
+	# --- coup annoncé : un joueur attentif se couvre quand il n'est pas en grande forme (se défendre divise le coup)
+	for f: RefCounted in foes:
+		if f.has_status("annonce") and float(actor.hp) / float(actor.max_hp()) < 0.6 and int(f.shield) <= 0:
+			return {"type": "defend"}
 	# --- attaque
 	var target: RefCounted = foes[0]
 	var broken: RefCounted = null
@@ -6676,16 +6686,10 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 			if c == ui._actor or (c.side == "enemy" and not c.alive()):
 				continue
 			mw = maxf(mw, _overlap(r, scene.screen_rect(c).grow(-4.0)))
-			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, scene.screen_rect(c).grow(-4.0)) > 0.0:
-				print("DBG menu ", r, " corps ", c.name, scene.screen_rect(c))
 		for p: Rect2 in plates:
 			mw = maxf(mw, _overlap(r, p))
-			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, p) > 0.0:
-				print("DBG menu ", r, " plaque ", p)
 		for u: Rect2 in ui_rects:
 			mw = maxf(mw, _overlap(r, u))
-			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, u) > 0.0:
-				print("DBG menu ", r, " ui ", u)
 	check(mw < 1.0, "%s : le menu ne couvre ni combattant, ni plaque, ni fiche (%.0f px²)" % [tag, mw])
 	# premier plan : dans les coins bas, sous la borne, devant personne
 	var corner := {"left": 0.0, "right": 0.0}
@@ -8215,3 +8219,48 @@ func _test_boss_presence() -> void:
 			scene.queue_free()
 			layer.queue_free()
 	win.size = old_size
+
+
+## Coups annoncés (champ « next » de « ai », état « annonce ») : Chantecler, Uglouk, le pétrisseur et Goulûm préparent un
+## gros coup un tour avant de le lancer ; un bouclier brisé (ou tout état qui fait passer le tour) l'interrompt.
+func _test_telegraphed_attacks() -> void:
+	check(not Database.get_status("annonce").is_empty() and bool(Database.get_status("annonce").get("telegraph", false)), "coup annoncé : l'état « annonce » existe")
+	check(Sprites.icon("annonce") != null, "coup annoncé : l'état a son icône")
+	var cases := [["chantecler", "chantecler", "crete_dressee", "pietinement"], ["ambuscade_chutes", "uglouk", "bon_de_livraison", "coup_de_louche_o"],
+			["breche", "ouroukouille_petrisseur", "petrin_souleve", "coup_de_petrin"], ["goulum", "goulum", "griffe_a_l_affut", "morsure_de_poisson"]]
+	for c: Array in cases:
+		var tele := str(c[2])
+		var heavy := str(c[3])
+		check(not Database.get_skill(tele).is_empty() and Database.animations.has(tele), "coup annoncé : %s décrit avec son animation" % tele)
+		check(not Database.get_skill(heavy).is_empty() and Database.animations.has(heavy), "coup annoncé : %s (le coup lancé ensuite) a son animation" % heavy)
+		var enc: Dictionary = Database.get_encounter(str(c[0]))
+		GameState.new_game()
+		GameState.party = ["glandoulf", "sam"]
+		var eng: RefCounted = BattleEngine.new()
+		eng.setup(enc, 5)
+		var boss: RefCounted = null
+		for en: RefCounted in eng.enemies:
+			if str(en.source) == str(c[1]):
+				boss = en
+		check(boss != null, "coup annoncé : %s est dans la rencontre %s" % [str(c[1]), str(c[0])])
+		if boss == null:
+			continue
+		var atk0 := float(boss.stat("atk"))
+		eng.perform(boss, {"type": "skill", "id": tele})
+		check(boss.has_status("annonce") and float(boss.stat("atk")) > atk0 * 1.5, "coup annoncé : %s prépare un coup plus lourd (%.0f contre %.0f)" % [tele, float(boss.stat("atk")), atk0])
+		# la liste « ai » mène bien à l'annonce, puis au coup, dans cet ordre
+		var order_ok := false
+		for i in 400:
+			var act: Dictionary = eng.ai_action(boss)
+			if str(act.get("id", "")) == tele:
+				check(boss.next_skill == heavy, "coup annoncé : %s est suivi de %s (suivant : %s)" % [tele, heavy, boss.next_skill])
+				var nxt: Dictionary = eng.ai_action(boss)
+				order_ok = str(nxt.get("id", "")) == heavy and boss.next_skill == ""
+				break
+		check(order_ok, "coup annoncé : %s tombe au tour suivant, sans faute" % heavy)
+		# interruption : un tour perdu (bouclier brisé, sonné...) annule le coup annoncé
+		boss.next_skill = heavy
+		boss.statuses["ebranle"] = {"turns": 1, "fresh": false}
+		eng.start_turn(boss)
+		check(boss.next_skill == "" and not bool(eng.can_act), "coup annoncé : bouclier brisé, le coup de %s est interrompu" % str(c[1]))
+	GameState.new_game()
