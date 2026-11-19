@@ -9,6 +9,7 @@ extends RefCounted
 const PA = preload("res://src/gfx/pixel_art.gd")
 
 const COLUMNS := 4
+const PAD := 2   # marge vide, en pixels logiques, autour de chaque pose de la planche
 const IDLE := [0, 1]
 const POSES := {"attack": 2, "hit": 3}
 
@@ -43,7 +44,9 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"corbeau", "hirsute", "hors_oeuvre",
 	# chapitre 6 : peints dans gouda_monsters.gd
 	"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme",
-	"mammou", "dindon_farce", "grondine"]
+	"mammou", "dindon_farce", "grondine",
+	# boss à taille humaine, peints en grand : boss_painter.gd
+	"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -71,7 +74,7 @@ const SIZES := {
 	"gobelin": Vector2i(34, 38),
 	"gobelin_pic": Vector2i(34, 38),
 	"gobelin_chef": Vector2i(40, 44),
-	"chauve": Vector2i(44, 32),
+	"chauve": Vector2i(56, 32),
 	"troll": Vector2i(60, 66),
 	"guetteur": Vector2i(58, 52),
 	"goulum": Vector2i(38, 46),
@@ -94,8 +97,16 @@ const SIZES := {
 	"gothmoque": Vector2i(96, 108),
 	"naze_supreme": Vector2i(76, 100),
 	"mammou": Vector2i(100, 76),
-	"dindon_farce": Vector2i(88, 88),
+	"dindon_farce": Vector2i(104, 88),
 	"grondine": Vector2i(100, 66),
+	"boss_sarumale": Vector2i(72, 112),
+	"boss_froton": Vector2i(64, 92),
+	"boss_grimace": Vector2i(72, 104),
+	"boss_gardien": Vector2i(72, 108),
+	"boss_sauron": Vector2i(84, 112), "boss_goulum": Vector2i(64, 76),
+	"boss_naze": Vector2i(72, 108),
+	"boss_naze_est": Vector2i(72, 108),
+	"boss_naze_ouest": Vector2i(72, 108),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -120,8 +131,12 @@ static func paint_hd(kind: String) -> Image:
 	return _render(kind, HD_K.get(kind, HD))
 
 
+## Marge ajoutée de chaque côté de la case (le peintre dessine décalé de cette valeur) : le dessin d'origine débordait.
+const SHIFTX := {"chauve": 6, "dindon_farce": 8}
+
 static func _render(kind: String, k: int) -> Image:
 	var size: Vector2i = SIZES.get(kind, Vector2i(24, 24))
+	var shx: int = SHIFTX.get(kind, 0)
 	K = k
 	var gr: Array = GRAIN.get(kind, GRAIN_DEFAULT)
 	_ga = float(gr[0]) if k > 1 else 0.0
@@ -130,7 +145,8 @@ static func _render(kind: String, k: int) -> Image:
 	var img := PA.new_image(size.x * k * COLUMNS, size.y * k)
 	for col in COLUMNS:
 		var f := col if col < 2 else 0
-		var ox := col * size.x
+		var ox := col * size.x + shx
+		var inner := Vector2i(size.x - 2 * shx, size.y)
 		match kind:
 			"limace": _slug(img, ox, f, ["#5f8a3c", "#8fb552", "#c3dc7c", "#e9f2b8"], "#d9732e")
 			"baveuse": _slug(img, ox, f, ["#6a4f8a", "#9a78b8", "#c9a8dc", "#ecd8f4"], "#f0c040")
@@ -172,21 +188,29 @@ static func _render(kind: String, k: int) -> Image:
 			"hirsute": _hillman(img, ox, f, col)
 			"hors_oeuvre": _canape(img, ox, f, col)
 			"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine":
-				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, size)
+				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, inner)
+			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum":
+				load("res://src/gfx/boss_painter.gd").paint(kind, img, ox, f, col, inner)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		if not PAINTED.has(kind):
-			_volume(img, Rect2i(ox * k, 0, size.x * k, size.y * k))
+			_volume(img, Rect2i((ox - shx) * k, 0, size.x * k, size.y * k))
 		if col >= 2:
 			_mood(img, ox, kind, col == 2)
 		if k > 1:
-			var cell := Rect2i(ox * k, 0, size.x * k, size.y * k)
-			_marks(img, cell, kind)
-			_finish_hd(img, cell, kind, col)
-		_outline(img, Rect2i(ox * k, 0, size.x * k, size.y * k))
+			_marks(img, Rect2i(ox * k, 0, inner.x * k, inner.y * k), kind)
+			_finish_hd(img, Rect2i((ox - shx) * k, 0, size.x * k, size.y * k), kind, col)
+	# marge de PAD pixels logiques autour de chaque pose, puis le contour : un dessin qui touche le bord de sa
+	# case n'est plus coupé net (et aucun pixel opaque ne reste à moins d'un pixel du bord : voir le test)
+	var pad := PAD * k
+	var fw := (size.x + 2 * PAD) * k
+	var out := PA.new_image(fw * COLUMNS, (size.y + 2 * PAD) * k)
+	for col in COLUMNS:
+		out.blit_rect(img, Rect2i(col * size.x * k, 0, size.x * k, size.y * k), Vector2i(col * fw + pad, pad))
+		_outline(out, Rect2i(col * fw, 0, fw, out.get_height()))
 	K = 1
 	_ga = 0.0
-	return img
+	return out
 
 
 ## Version agrandie d'une planche de monstre (chaque pose séparément, pour qu'aucune ne
@@ -205,7 +229,9 @@ const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur":
 	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
 	# chapitre 6 (gouda_monsters.gd)
 	"eveille": 6, "eveille_veilleur": 6, "roi_eveille": 6, "boucanier": 6, "saumure": 6, "cassouletain": 6,
-	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6}
+	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6,
+	"boss_sarumale": 6, "boss_froton": 6, "boss_grimace": 6, "boss_gardien": 6, "boss_sauron": 6, "boss_naze": 6,
+	"boss_naze_est": 6, "boss_naze_ouest": 6, "boss_goulum": 6}
 static var K := 1                # facteur de la peinture en cours
 static var _ga := 0.0            # amplitude du grain de matière (0 : aucun)
 static var _gs := 3.0            # taille du grain, en pixels de la grille fine
@@ -215,7 +241,9 @@ const GRAIN_DEFAULT := [0.16, 3.0]
 const GRAIN := {"limace": [0.1, 5.0], "baveuse": [0.1, 5.0], "sangsue": [0.1, 5.0], "asticot": [0.1, 5.0],
 	"vacherin": [0.2, 4.0], "grenouille": [0.2, 3.0], "crapaud": [0.26, 3.0], "rat": [0.2, 2.0],
 	"sanglier": [0.22, 2.0], "solitaire": [0.22, 2.0], "ouargue": [0.22, 2.0], "hirsute": [0.22, 2.0],
-	"troll": [0.24, 4.0], "balourd": [0.24, 4.0], "paton": [0.14, 5.0]}
+	"troll": [0.24, 4.0], "balourd": [0.24, 4.0], "paton": [0.14, 5.0],
+	"boss_sarumale": [0.05, 6.0], "boss_froton": [0.1, 5.0], "boss_grimace": [0.08, 5.0], "boss_gardien": [0.07, 6.0],
+	"boss_sauron": [0.12, 5.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0], "boss_goulum": [0.1, 5.0]}
 ## Espèces luisantes : petits reflets mouillés dans les tons clairs.
 const SHINY := ["limace", "baveuse", "sangsue", "grenouille", "crapaud", "asticot", "vacherin", "paton", "moisi"]
 
@@ -736,6 +764,8 @@ const MARKS := {
 	"cassouletain": [["fleck", 10, 1.0]], "gothmoque": [["crack", 4, 5.0], ["wart", 3, 1.8], ["fleck", 12, 1.0]],
 	"naze_supreme": [["fleck", 6, 1.0]], "mammou": [["hair", 40, 5.0], ["fleck", 10, 1.0]],
 	"dindon_farce": [["hair", 40, 5.0], ["fleck", 8, 1.0]], "grondine": [["crack", 5, 6.0], ["fleck", 12, 1.0]],
+	"boss_sarumale": [["fleck", 5, 1.0]], "boss_froton": [["fleck", 6, 1.0]], "boss_grimace": [["fleck", 6, 1.0]],
+	"boss_gardien": [["fleck", 6, 1.0]], "boss_sauron": [["crack", 2, 4.0], ["fleck", 6, 1.0]],
 }
 
 
@@ -1132,9 +1162,9 @@ static func _wisp(img: Image, ox: int, f: int) -> void:
 	var dark := _c("#1c4a50")
 	var sway := f
 	# pointe de la flamme, qui danse
-	_ell(img, ox + 12.0 + sway, 6.0, 2.5, 4.5, outer, 0.1)
+	_ell(img, ox + 12.0 + sway, 7.0, 2.5, 4.5, outer, 0.1)
 	_ell(img, ox + 12.0 + sway * 0.5, 9.0, 4.0, 5.0, outer, 0.1)
-	_px(img, ox + 12 + sway * 2, 1, mid[2])
+	_px(img, ox + 12 + sway * 2, 2, mid[2])
 	# corps
 	_ell(img, ox + 12.0, 18.0, 8.5, 9.0, outer, 0.1)
 	_ell(img, ox + 12.0, 19.0, 6.0, 7.0, mid, 0.15)
@@ -1224,7 +1254,7 @@ static func _rat(img: Image, ox: int, f: int) -> void:
 	var dy := f
 	# queue en point d'interrogation
 	_cap(img, ox + 8.0, 17.5 + dy, ox + 3.5, 18.5 + dy, 0.8, 0.7, pink)
-	_cap(img, ox + 3.5, 18.5 + dy, ox + 1.8, 14.0 + dy, 0.7, 0.6, pink)
+	_cap(img, ox + 3.5, 18.5 + dy, ox + 2.8, 14.0 + dy, 0.7, 0.6, pink)
 	# pattes
 	for x: int in [12, 15, 23, 26]:
 		var r := _dim(dark) if x < 20 else dark
@@ -1235,14 +1265,14 @@ static func _rat(img: Image, ox: int, f: int) -> void:
 	_ell(img, ox + 12.0, 16.5 + dy, 6.0, 5.2, mid, 0.1)
 	_ell(img, ox + 18.0, 19.8 + dy, 8.0, 2.4, light)
 	_ell(img, ox + 29.0, 15.0 + dy, 6.0, 5.0, mid, 0.05)
-	_ell(img, ox + 35.0, 16.5 + dy, 3.8, 2.7, light, 0.05)
+	_ell(img, ox + 34.0, 16.5 + dy, 3.8, 2.7, light, 0.05)
 	# oreille ronde, œil, nez, dents
 	_ell(img, ox + 26.5, 9.5 + dy, 3.2, 3.2, mid, 0.1)
 	_ell(img, ox + 26.5, 9.8 + dy, 1.7, 1.7, pink)
 	_eye(img, ox + 30, 12 + dy, 3, 3)
-	_px(img, ox + 38, 16 + dy, pink[1])
-	_px(img, ox + 38, 17 + dy, pink[1])
-	_curve(img, Vector2(ox + 34.6, 18.6 + dy), Vector2(ox + 36.4, 19.9 + dy), Vector2(ox + 38.2, 18.4 + dy), dark[0], 0.4)
+	_px(img, ox + 37, 16 + dy, pink[1])
+	_px(img, ox + 37, 17 + dy, pink[1])
+	_curve(img, Vector2(ox + 33.6, 18.6 + dy), Vector2(ox + 35.4, 19.9 + dy), Vector2(ox + 37.2, 18.4 + dy), dark[0], 0.4)
 	if K == 1:
 		_rect(img, ox + 35, 19 + dy, 2, 2, Color.WHITE)
 		_px(img, ox + 36, 20 + dy, light[1])
@@ -1250,8 +1280,8 @@ static func _rat(img: Image, ox: int, f: int) -> void:
 		_ellipse(img, ox + 35.9, 20.2 + dy, 1.0, 1.35, Color("#f4ecd8"))
 		_curve(img, Vector2(ox + 35.9, 19.2 + dy), Vector2(ox + 35.9, 20.2 + dy), Vector2(ox + 35.9, 21.0 + dy), light[1], 0.18)
 	# moustaches
-	_line(img, ox + 36, 17 + dy, ox + 39, 15 + dy, light[3])
-	_line(img, ox + 36, 18 + dy, ox + 39, 19 + dy, light[3])
+	_line(img, ox + 35, 17 + dy, ox + 37, 15 + dy, light[3])
+	_line(img, ox + 35, 18 + dy, ox + 37, 19 + dy, light[3])
 
 
 ## Coq : droit comme un i, crête haute, queue en panache. Rien ne le ramollit.
@@ -1428,15 +1458,15 @@ static func _goblin(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 		_rect(img, ox + int(hx) - 6, int(hy) - 5, 12, 2, Color("#8a3a2a"))
 	# bras et arme
 	var arm_up := col == 2
-	var hand_x := cx + 11.0
-	var hand_y := 20.0 + dy + base if not arm_up else 11.0
+	var hand_x := cx + 8.0
+	var hand_y := 20.0 + dy + base if not arm_up else 14.0
 	_cap(img, ox + cx + 5.0, 20.0 + dy + base, ox + hand_x, hand_y, 2.0, 1.8, skin)
 	if kind == 1:
 		_line(img, ox + int(hand_x), int(hand_y) + 6, ox + int(hand_x) + 1, int(hand_y) - 8, Color("#7a5632"))
-		_cap(img, ox + hand_x - 5.0, hand_y - 8.0, ox + hand_x + 6.0, hand_y - 7.0, 1.2, 1.0, metal)
+		_cap(img, ox + hand_x - 5.0, hand_y - 8.0, ox + hand_x + 4.0, hand_y - 7.0, 1.2, 1.0, metal)
 	else:
 		_line(img, ox + int(hand_x), int(hand_y) + 4, ox + int(hand_x), int(hand_y) - 3, Color("#7a5632"))
-		_ell(img, ox + hand_x + 2.0, hand_y - 6.0, 4.5 if kind == 0 else 5.5, 4.0, metal)
+		_ell(img, ox + hand_x + 1.0, hand_y - 6.0, 4.2 if kind == 0 else 5.0, 4.0, metal)
 		_px(img, ox + int(hand_x) + 1, int(hand_y) - 8, metal[4])
 	_cap(img, ox + cx - 6.0, 21.0 + dy + base, ox + cx - 9.0, 29.0 + dy + base, 2.0, 1.8, _dim(skin))
 
@@ -1459,13 +1489,13 @@ static func _bat(img: Image, ox: int, f: int, col: int) -> void:
 			var ex := 22.0 + sx * (8.0 + 6.0 * float(k))
 			var ey := 22.0 + 1.5 * float(k)
 			_line(img, ox + 22, 14, ox + int(ex), int(ey), r[0])
-		_line(img, ox + 22, 14, ox + int(tip.x), int(tip.y), r[1])
+		_line(img, ox + 22, 14, int(tip.x), int(tip.y), r[1])
 	# corps rond et pâle, tête, grandes oreilles
 	_ell(img, ox + 22.0, 17.0, 5.5, 6.5, body)
 	_ell(img, ox + 22.0, 19.5, 3.5, 3.5, _ramp("#e8dcb4"), 0.1)
 	_ell(img, ox + 22.0, 9.0, 4.5, 4.0, body, 0.05)
-	_tri(img, Vector2(ox + 18.0, 8.0), Vector2(ox + 16.0, 1.0), Vector2(ox + 21.0, 6.0), body[2])
-	_tri(img, Vector2(ox + 26.0, 8.0), Vector2(ox + 28.0, 1.0), Vector2(ox + 23.0, 6.0), body[2])
+	_tri(img, Vector2(ox + 18.0, 8.0), Vector2(ox + 16.0, 3.0), Vector2(ox + 21.0, 6.0), body[2])
+	_tri(img, Vector2(ox + 26.0, 8.0), Vector2(ox + 28.0, 3.0), Vector2(ox + 23.0, 6.0), body[2])
 	if col == 3:
 		_rect(img, ox + 19, 9, 2, 1, dark)
 		_rect(img, ox + 24, 9, 2, 1, dark)
@@ -1506,8 +1536,8 @@ static func _troll(img: Image, ox: int, f: int, col: int) -> void:
 	# bras gauche pendant, bras droit levé avec la massue
 	_cap(img, ox + 16.0, 26.0 + dy, ox + 10.0, 46.0 + dy, 4.5, 4.0, _dim(skin))
 	var raise := col == 2
-	var hx := 47.0 if not raise else 50.0
-	var hy := 28.0 + dy if not raise else 12.0
+	var hx := 47.0 if not raise else 48.0
+	var hy := 28.0 + dy if not raise else 25.0
 	_cap(img, ox + 43.0, 26.0 + dy, ox + hx, hy, 4.5, 3.8, skin)
 	_ell(img, ox + hx, hy, 4.2, 4.2, skin, 0.1)
 	# massue : un coin de cantal troué
@@ -1542,13 +1572,13 @@ static func _watcher(img: Image, ox: int, f: int, col: int) -> void:
 	_ell(img, ox + 29.0, 45.0, 26.0, 5.0, water)
 	_ell(img, ox + 29.0, 44.0, 20.0, 3.0, _ramp("#4a8aaa"))
 	# tentacules
-	var tips: Array = [[6.0, 14.0], [13.0, 6.0], [47.0, 8.0], [52.0, 18.0], [38.0, 4.0]]
+	var tips: Array = [[6.0, 14.0], [13.0, 7.0], [47.0, 10.0], [52.0, 18.0], [38.0, 7.0]]
 	for i in tips.size():
 		var t: Array = tips[i]
 		var tx: float = float(t[0]) + (sway if i % 2 == 0 else -sway)
 		var ty: float = float(t[1])
 		if col == 2 and i >= 2:
-			ty -= 3.0
+			ty -= 2.0
 		var bx := 29.0 + (float(i) - 2.0) * 6.0
 		_cap(img, ox + bx, 44.0, ox + (bx + tx) * 0.5, (44.0 + ty) * 0.5 + 4.0, 3.2, 2.4, flesh if i % 2 == 0 else _dim(flesh))
 		_cap(img, ox + (bx + tx) * 0.5, (44.0 + ty) * 0.5 + 4.0, ox + tx, ty, 2.4, 1.0, flesh if i % 2 == 0 else _dim(flesh))
@@ -1598,8 +1628,8 @@ static func _gollum(img: Image, ox: int, f: int, col: int) -> void:
 	# bras maigres, l'un tend le poisson
 	_cap(img, ox + 11.0, 24.0 + dy, ox + 5.0, 36.0, 1.8, 1.6, _dim(skin))
 	var reach := col == 2
-	var hx := 29.0 if not reach else 33.0
-	var hy := 28.0 if not reach else 24.0
+	var hx := 29.0 if not reach else 30.0
+	var hy := 28.0 if not reach else 25.0
 	_cap(img, ox + 22.0, 24.0 + dy, ox + hx, hy, 1.8, 1.6, skin)
 	_rect(img, ox + int(hx) - 1, int(hy) - 1, 3, 3, skin[3])
 	# poisson cru, argenté, qui frétille
@@ -1653,8 +1683,8 @@ static func _balrog(img: Image, ox: int, f: int, col: int) -> void:
 	# bras de gorille, l'un traîne, l'autre brandit le fouet
 	_cap(img, ox + 18.0, 34.0 + dy, ox + 10.0, 58.0 + dy, 6.0, 5.0, _dim(body))
 	var raise := col == 2
-	var hx := 56.0 if not raise else 60.0
-	var hy := 52.0 + dy if not raise else 20.0
+	var hx := 56.0 if not raise else 57.0
+	var hy := 52.0 + dy if not raise else 34.0
 	_cap(img, ox + 50.0, 36.0 + dy, ox + hx, hy, 6.0, 4.8, body)
 	_ell(img, ox + hx, hy, 5.0, 5.0, body, 0.1)
 	var whip := Color("#ff8a30")
@@ -1710,7 +1740,7 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 	var metal := _ramp("#8a8ea0")
 	var fat := 3.0 if kind == 2 else 0.0
 	var dy := f
-	var base := 4 if kind == 3 else 0
+	var base := 7 if kind == 3 else 0   # (le chef : toque et louche restent dans la case)
 	var cx := 21.0 + (2.0 if kind == 3 else 0.0)
 	_cap(img, ox + cx - 5.0, 33.0 + dy + base, ox + cx - 6.0, 44.0 + base, 3.0, 2.6, _dim(skin))
 	_cap(img, ox + cx + 5.0, 33.0 + dy + base, ox + cx + 6.0, 44.0 + base, 3.0, 2.6, skin)
@@ -1718,10 +1748,17 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 	_rect(img, ox + int(cx) + 3, 44 + base, 7, 3, skin[2])
 	_ell(img, ox + cx, 26.0 + dy + base, 10.0 + fat, 10.5 + fat * 0.6, cloth)
 	if kind == 2:
-		_rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 14, Color("#f0ece0"))
-		_rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 1, Color.WHITE)
-		for k in 5:
-			_px(img, ox + int(cx) - 5 + k * 3, 28 + dy + base + (k % 2) * 3, Color("#c8c2b0"))
+		# tablier de farine : un plastron qui s'évase, plis et traces de doigts, bretelles
+		var apron := _ramp("#e8e2d2")
+		_trap(img, 21 + dy + base, 37 + dy + base, ox + cx - 5.0, ox + cx + 5.0, ox + cx - 8.0, ox + cx + 8.0, apron)
+		_rect(img, ox + int(cx) - 5, 21 + dy + base, 10, 1, apron[4])
+		_line(img, ox + int(cx) - 4, 22 + dy + base, ox + int(cx) - 6, 17 + dy + base, apron[1])
+		_line(img, ox + int(cx) + 4, 22 + dy + base, ox + int(cx) + 6, 17 + dy + base, apron[1])
+		for k in 3:
+			_line(img, ox + int(cx) - 5 + k * 4, 25 + dy + base, ox + int(cx) - 6 + k * 5, 35 + dy + base, apron[1])
+		for k in 4:
+			_px(img, ox + int(cx) - 4 + k * 3, 29 + dy + base + (k % 2) * 3, Color("#b8b09a"))
+		_rect(img, ox + int(cx) - 7, 33 + dy + base, 14, 1, apron[2])
 	else:
 		_rect(img, ox + int(cx) - 8, 32 + dy + base, 17, 2, Color("#c9a24a"))
 	var hx := cx + 3.0
@@ -1745,7 +1782,7 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 			_rect(img, ox + int(hx) - 5, int(hy) - 14, 11, 9, Color("#4a4640"))
 			_ell(img, ox + hx, hy - 14.0, 7.0, 3.5, _ramp("#5a564e"))
 	var hand_x := cx + 13.0
-	var hand_y := 24.0 + dy + base if col != 2 else 12.0
+	var hand_y := 24.0 + dy + base if col != 2 else 16.0 + float(base)
 	_cap(img, ox + cx + 7.0, 22.0 + dy + base, ox + hand_x, hand_y, 2.6, 2.2, skin)
 	match kind:
 		0:
@@ -1852,7 +1889,7 @@ static func _hillman(img: Image, ox: int, f: int, col: int) -> void:
 			_ellipse(img, exx - 0.1, 12.5 + dy, 0.35, 0.35, Color("#ffffff"))
 			_curve(img, Vector2(exx - 2.2, 10.9 + dy), Vector2(exx, 10.3 + dy), Vector2(exx + 2.2, 11.3 + dy), _c("#4a2c18"), 0.55)
 	_rect(img, ox + 13, 8 + int(dy), 16, 3, Color("#8a8a90"))   # bonnet de laine
-	var hand_y := 28.0 + dy if col != 2 else 12.0
+	var hand_y := 28.0 + dy if col != 2 else 22.0
 	_cap(img, ox + 31.0, 24.0 + dy, ox + 35.0, hand_y, 2.6, 2.2, skin)
 	_line(img, ox + 35, int(hand_y) + 8, ox + 36, int(hand_y) - 12, Color("#7a5632"))
 	_ell(img, ox + 36.0, hand_y - 14.0, 4.0, 5.0, _ramp("#8a6a42"))

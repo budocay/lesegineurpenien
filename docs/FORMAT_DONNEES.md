@@ -660,6 +660,36 @@ pâte), `ouargue` (loup de colline), `corbeau` (contrôleur), `hirsute` (bûcher
 `hors_oeuvre` (petit entremets à pattes). Grimace, Froton Anneauté et Sarumâle sont des
 ennemis à `sprite.character`.
 
+### Boss humains peints en grand (`sprite.monster` = `boss_*`, champ `sprite.portrait`)
+
+Un boss de taille humaine garde sa planche de personnage pour l'exploration, mais en combat il
+reçoit sa propre planche HD (`src/gfx/boss_painter.gd`, quatre poses : repos, respiration,
+attaque, coup reçu) : `boss_sarumale`, `boss_froton`, `boss_grimace`, `boss_gardien`,
+`boss_sauron`, `boss_naze`, `boss_naze_est`, `boss_naze_ouest`, `boss_goulum`. Sur la fiche
+d'ennemi : `"sprite": {"monster": "boss_froton", "portrait": "froton_anneaute", "scale": 1.0}` ;
+`portrait` est l'identifiant de personnage dont on affiche le visage dans la frise des tours et
+les plaques (la planche de combat est trop grande pour y être rognée). Chaque pose est dessinée
+dans une case dont les bords restent vides (marge `PAD` ajoutée par `MonsterPainter._render`, et
+`SHIFTX` pour les monstres dont le dessin d'origine débordait) : le test vérifie qu'aucun pixel
+opaque ne touche le bord, pour chaque pose de chaque monstre.
+
+### Coups annoncés (champ `next` d'une entrée de `ai`, état `annonce`)
+
+Une entrée de la liste `ai` (ou `ai_low`) peut annoncer un coup : `{"skill": "crete_dressee",
+"weight": 2, "next": "pietinement"}`. Le tour où elle est choisie, l'ennemi lance la compétence
+d'annonce (une compétence « self » qui pose l'état `annonce` : attaque et magie x1,5, icône de
+triangle rouge) ; à son tour suivant, il lance obligatoirement la compétence `next`. Le joueur a
+donc un tour pour se défendre, provoquer, ou briser le bouclier de l'ennemi (l'état Ébranlé lui
+fait perdre son tour : le coup annoncé est alors annulé). Chaque compétence d'annonce et chaque
+coup lancé ensuite ont leur entrée dans `animations.json`. Utilisé par Chantecler, Uglouk, le
+pétrisseur de la brèche et Goulûm ; le Balourd garde son « plafond qui gronde » (état `gronde`).
+
+### Captures de boss (`tests/capture_boss.tscn`)
+
+À lancer avec fenêtre : `Godot --path . --resolution 1600x900 res://tests/capture_boss.tscn -- /dossier
+[id_de_rencontre ...]`. Sans identifiant, toutes les rencontres de boss (rencontres `flee false` ou
+musique `boss`) sont photographiées, avec la taille du boss exprimée en héros.
+
 ## Groupe scindé (chapitre 5)
 
 L'équipe se sépare, puis se réunit : tout passe par des actions de dialogue, sans code propre

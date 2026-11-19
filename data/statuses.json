@@ -34,6 +34,11 @@
 		"mods": {"atk": 1.5, "mag": 1.5},
 		"desc": "Le prochain coup sera lourd : se défendre, provoquer ou ébranler avant qu'il tombe."
 	},
+	"annonce": {
+		"name": "Coup annoncé", "fx": "up", "color": "#ff5a3c", "negative": false, "turns": 1,
+		"mods": {"atk": 1.5, "mag": 1.5}, "telegraph": true,
+		"desc": "Il prépare un gros coup pour son prochain tour : se défendre, provoquer, ou briser son bouclier (il perd alors son tour) avant qu'il tombe."
+	},
 	"garde": {
 		"name": "Bien calé", "fx": "shield", "color": "#8ab4e8", "negative": false, "turns": 3,
 		"mods": {"def": 1.5, "res": 1.5},
