@@ -136,6 +136,7 @@ func _ready() -> void:
 	await _test_active_party()
 	await _test_arenas()
 	await _test_arena_by_place()
+	_test_decors_6()
 	_test_retouches_2()
 	_test_lanternes_mines()
 	_test_equipment()
@@ -8077,3 +8078,68 @@ func _json_files(dir: String) -> Array:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_json_files(dir + "/" + d))
 	return out
+
+
+func _test_decors_6() -> void:
+	print("== Décors, eau, plaine, enseigne (chantier decors6) ==")
+	# shaders : l'eau (distance à la rive, reflets) et le sol (ombres de nuages) se chargent
+	for sh: String in ["res://src/gfx/shaders/water.gdshader", "res://src/gfx/shaders/ground.gdshader"]:
+		var shader := load(sh) as Shader
+		check(shader != null and shader.code.length() > 200, "shader %s chargé" % sh.get_file())
+	var water_src := FileAccess.get_file_as_string("res://src/gfx/shaders/water.gdshader")
+	check(water_src.contains("shore_tex") and water_src.contains("refl_c"), "eau : carte des rives et reflets alignés présents")
+	# herbes hautes : sprite non vide, trois variantes différentes, déclaré dans PROPS
+	var imgs: Array = []
+	for v in 3:
+		var img: Image = preload("res://src/gfx/prop_painter.gd").tall_grass(v)
+		var opaque := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				if img.get_pixel(x, y).a > 0.5:
+					opaque += 1
+		check(opaque > 80, "herbe haute variante %d : %d pixels peints" % [v, opaque])
+		imgs.append(img.get_data())
+	check(imgs[0] != imgs[1] and imgs[1] != imgs[2], "herbes hautes : trois variantes distinctes")
+	check(preload("res://src/world/map_builder.gd").PROPS.has("tallgrass"), "PROPS : tallgrass déclaré")
+	# plaine et Cabécou : herbes hautes, fleurs, ombres de nuages
+	for id: String in ["plaine_roquefort", "cabecou"]:
+		var m := Database.get_map(id)
+		check(float(m.get("clouds", 0.0)) > 0.0, "%s : ombres de nuages (champ clouds)" % id)
+		var props: Array = []
+		for o: Variant in m.get("objects", []):
+			if o is Dictionary and str((o as Dictionary).get("type", "")) == "scatter":
+				props.append(str((o as Dictionary).get("prop", "")))
+		check(props.has("tallgrass") and props.has("flowers"), "%s : herbes hautes et fleurs semées" % id)
+	# terrasse des Chutes : deux chutes et une balustrade
+	var chutes := Database.get_map("chutes_gratin")
+	var falls := 0
+	var fences := 0
+	for o: Variant in chutes.get("objects", []):
+		if o is Dictionary:
+			match str((o as Dictionary).get("type", "")):
+				"chu_cascade": falls += 1
+				"fence": fences += 1
+	check(falls >= 2, "Chutes : %d chutes (%d barrières)" % [falls, fences])
+	# lac souterrain : rochers et cristaux plantés dans l'eau
+	var antre := Database.get_map("morbier_antre")
+	var in_lake := 0
+	for o: Variant in antre.get("objects", []):
+		if o is Dictionary and ["nain_gravats", "nain_cristal"].has(str((o as Dictionary).get("type", ""))):
+			in_lake += 1
+	check(in_lake >= 7, "lac de l'antre : %d rochers et cristaux" % in_lake)
+	check(float(Database.get_map("salle_conseil").get("ground_variation", 0.0)) > 0.1, "salle du Conseil : sol nuancé (ground_variation)")
+	# enseigne en fer à cheval : branches et pointes, ouverte vers le bas
+	var sign: Image = preload("res://src/gfx/house_painter.gd").sign_board("cheval")
+	var steel := 0
+	var top_row := 0
+	for y in sign.get_height():
+		for x in sign.get_width():
+			var c := sign.get_pixel(x, y)
+			if c.r > 0.78 and c.g > 0.78 and c.b > 0.8:
+				steel += 1
+				if y < 12:
+					top_row += 1
+	check(steel >= 30 and top_row > steel / 3, "enseigne du poney : fer à cheval lisible (%d pixels d'acier)" % steel)
+	# la mise au point suit le héros : rapports lus dans la caméra de la carte
+	var wsrc := FileAccess.get_file_as_string("res://src/world/world.gd")
+	check(wsrc.contains("_focus_on_player()") and wsrc.contains("_dof_near_k"), "caméra : le héros reste toujours dans la zone nette")

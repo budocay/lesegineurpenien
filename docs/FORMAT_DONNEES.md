@@ -273,6 +273,14 @@ Objets (champ `type`) :
 | `table`, `stool`, `counter`, `fireplace`, `stove`, `rug`, `crate` | mobilier | `pos` ou `rect` |
 | `tree`, `bush`, `rock`, `barrel`, `sign`, `bollard`, `monument`, `boat`, `shelf`, `window`… | décor | `pos`, `variant`, `lean`, `height` |
 
+### Champs de carte : eau, nuages, sol nuancé
+
+- `clouds` (nombre, 0 par défaut) : force des ombres de nuages qui dérivent sur le sol (variable globale `cloud_shadow`, lue par `ground.gdshader`, réglée par `MapBuilder.build`). 1,0 pour les plaines.
+- `ground_variation` (0,07 par défaut) : amplitude de la teinte par grandes plaques du sol ; plus haut (0,2) pour briser la répétition des dalles d'une grande salle.
+- Eau : `MapBuilder._shore_texture` calcule pour chaque case d'eau sa distance à la rive (transformée de distance, texture R8) et `water.gdshader` en tire profondeur, écume, hauts-fonds. `MapBuilder._water_reflections` repère les cristaux (`nain_cristal`) et les sources de lumière posées au bord (`glow` de PROPS, torches) et les envoie au shader (tableaux `refl` et `refl_c`, 12 au plus) : un reflet vertical qui ondule sous chacune. Un lac (`lake`) ajoute le reflet de la paroi du fond et des lueurs tramées. Rochers (`nain_gravats`) et cristaux peuvent être plantés dans l'eau.
+- Accessoire `tallgrass` (3 variantes, balance) : herbes hautes avec fleurs sauvages, à semer par `scatter`.
+- Les rails (`rails`) sont épais (quatre pixels : dessus clair, flanc, ombre) ; les flaques d'huile de l'Isengarde ont un bord net, un reflet de flamme et une irisation.
+
 ### Relief
 
 Deux champs facultatifs (extérieurs seulement ; une carte qui n'en a pas se comporte comme

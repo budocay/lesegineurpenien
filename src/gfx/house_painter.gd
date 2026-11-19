@@ -917,12 +917,19 @@ static func sign_board(kind: String) -> Image:
 			PA.rect(img, 9, 16, 11, 4, Color("#4a485a"))
 			PA.px(img, 24, 8, Color("#ffb040"))
 			PA.px(img, 22, 7, Color("#ffd878"))
-		"cheval":   # fer à cheval
-			for a in range(30, 331, 12):
+		"cheval":   # fer à cheval, ouvert vers le bas, sur fond de planche : acier clair, clous sombres, branches épaisses
+			var pts: Array[Vector2i] = []
+			for a in range(-52, 233, 8):
 				var rad := deg_to_rad(float(a))
-				PA.rect(img, 14 + int(cos(rad) * 6.0), 14 - int(sin(rad) * 6.0) + 1, 3, 3, Color("#c4c2d0"))
-			PA.rect(img, 8, 19, 3, 2, Color("#c4c2d0"))
-			PA.rect(img, 19, 19, 3, 2, Color("#c4c2d0"))
+				pts.append(Vector2i(14 + int(round(cos(rad) * 7.0)), 14 - int(round(sin(rad) * 6.0))))
+			for q: Vector2i in pts:
+				PA.rect(img, q.x - 1, q.y - 1, 3, 3, Color("#7a788c"))
+			for q: Vector2i in pts:
+				PA.rect(img, q.x - 1, q.y - 1, 2, 2, Color("#d2d0de"))
+			for i in range(2, pts.size() - 2, 4):
+				PA.px(img, pts[i].x, pts[i].y, Color("#3a384a"))
+			for q: Vector2i in [pts[0], pts[pts.size() - 1]]:
+				PA.rect(img, q.x - 1, q.y, 3, 3, Color("#d2d0de"))
 		"horloge":   # cadran de la mairie
 			PA.ellipse(img, 14.0, 14.0, 7.0, 7.0, Color("#d8b44a"))
 			PA.ellipse(img, 14.0, 14.0, 5.5, 5.5, Color("#f4f0e2"))
