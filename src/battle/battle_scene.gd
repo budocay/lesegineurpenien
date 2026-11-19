@@ -288,10 +288,11 @@ const FOE_K_MAX := 1.2    # idem pour un monstre : un peu plus gros que les hér
 const FOE_K_MIN := 0.4
 const DEFAULT_LIFT := 0.1   # lumière propre des combattants, par défaut (champ « lift » de stage)
 const DEFAULT_RIM := 1.0    # liseré de contre-jour par défaut (champ « rim » de stage)
-const BOSS_MUL_MAX := 3.2    # un boss peut grossir jusqu'à tant de fois la taille des monstres...
-const BOSS_RATIO_MAX := 3.4  # ...sans dépasser tant de fois la hauteur d'un héros
-const BOSS_RATIO_FLOOR := 2.2  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
-const BOSS_HERO_K := 0.88    # part de la taille maximale d'un héros quand il affronte un boss (le boss domine)
+const BOSS_MUL_MAX := 6.0    # un boss peut grossir jusqu'à tant de fois la taille des monstres...
+const BOSS_RATIO_MAX := 5.2  # ...sans dépasser tant de fois la hauteur d'un héros
+const BOSS_RATIO_FLOOR := 3.0  # un boss ne fait jamais moins de tant de fois un héros (l'écran, sa largeur, peuvent l'empêcher d'aller plus haut)
+const MENU_GAP := 340.0   # largeur laissée au menu d'action entre un boss et l'équipe
+const BOSS_HERO_K := 0.52    # part de la taille maximale d'un héros quand il affronte un boss (le boss domine : l'équipe est petite à ses pieds)
 const BOSS_BACK := 0.9       # un boss se tient en retrait de la file normale (vers le fond)...
 const BOSS_FRONT := 1.4      # ...et ses sbires devant lui, de tant plus près de la caméra
 const BOSS_CENTER := 0.4     # centre du camp du boss : un peu plus vers l'équipe que la file ordinaire
@@ -621,7 +622,7 @@ func _view_k(c: RefCounted) -> float:
 
 
 ## Le boss de la rencontre : l'ennemi nommé par son champ « boss » (identifiant d'ennemi ; faux : aucun
-## boss), sinon, pour un combat qu'on ne peut pas fuir ou dont la musique est « boss », l'ennemi seul
+## boss), sinon, pour un combat dont la musique est « boss », l'ennemi seul
 ## ou celui qui a au moins une fois et demie les PV du suivant. Un combat ordinaire n'a pas de boss.
 func find_boss() -> RefCounted:
 	var list: Array = engine.enemies
@@ -633,7 +634,7 @@ func find_boss() -> RefCounted:
 			if c.source == named:
 				return c
 		return null
-	if list.is_empty() or not (str(encounter.get("music", "")) == "boss" or encounter.get("flee", true) == false):
+	if list.is_empty() or str(encounter.get("music", "")) != "boss":   # (« flee false » seul ne fait pas un boss : Morfales de l'auberge, duels de bras de fer)
 		return null
 	var best: RefCounted = null
 	var second := 0
@@ -786,21 +787,38 @@ func layout() -> void:
 		var base_k := foe_k
 		var base_shift := foe_shift
 		var hero_h: float = (actors[engine.party[0].key] as Node3D).height
-		var m := BOSS_MUL_MAX
-		found = false
-		while m >= 1.0 - 0.001 and not found:
-			boss_mul = m
-			var tall := (actors[boss.key] as Node3D)
-			for dz in 20:   # il peut descendre vers la caméra : plus bas, donc plus de place sous la frise
-				_apply_foes(base_k, Vector2(0.0, float(dz) * 0.25))
-				if (tall.height <= BOSS_RATIO_MAX * hero_h or m <= 1.0 + 0.001) and _foes_fit(view):
-					found = true
-					break
-			if not found:
-				m -= 0.05
-		if not found:
+		# la plus grande taille qui tient (recherche par dichotomie : plus il grossit, moins il tient)
+		var lo := 1.0
+		var hi := BOSS_MUL_MAX
+		if _boss_fits(hi, base_k, hero_h, view):
+			lo = hi
+		else:
+			for _i in 8:
+				var mid := (lo + hi) * 0.5
+				if _boss_fits(mid, base_k, hero_h, view):
+					lo = mid
+				else:
+					hi = mid
+		if not _boss_fits(lo, base_k, hero_h, view):
 			boss_mul = 1.0
 			_apply_foes(base_k, base_shift)
+	for c: RefCounted in engine.enemies:   # la flaque de lumière du boss, couleur de son élément
+		(actors[c.key] as Node3D).set_boss(c == boss, _element_color(str(c.element)).lightened(0.15))
+
+
+## Essaie la taille « m » du boss : cherche une place (plus au centre de l'arène, plus près de la caméra) où
+## tout le camp tient. Si oui, la laisse en place et renvoie vrai.
+func _boss_fits(m: float, base_k: float, hero_h: float, view: Vector2) -> bool:
+	boss_mul = m
+	_apply_foes(base_k, Vector2.ZERO)   # règle sa taille, pour en mesurer la hauteur
+	if (actors[boss.key] as Node3D).height > BOSS_RATIO_MAX * hero_h and m > 1.0 + 0.001:
+		return false
+	for dx: float in [0.0, -0.5, -1.0, -1.5, -2.0]:
+		for dz in 26:
+			_apply_foes(base_k, Vector2(dx, float(dz) * 0.25))
+			if _foes_fit(view):
+				return true
+	return false
 
 
 func _party_fits(view: Vector2, zones: Array[Rect2]) -> bool:
@@ -822,6 +840,14 @@ func _foes_fit(view: Vector2) -> bool:
 			return false
 		for h: RefCounted in engine.party:
 			if r.intersects(screen_rect(h).grow(4.0)):
+				return false
+		if boss != null and r.get_center().x - PLATE_W * 0.5 < KEYS_W and r.end.y + PLATE_H > view.y - KEYS_H - 4.0:
+			return false   # (la plaque ne se pose pas sur le bandeau des touches, même sous un sbire)
+		if c == boss:   # le menu d'action doit garder un passage entre le boss et l'équipe
+			var left := view.x
+			for h: RefCounted in engine.party:
+				left = minf(left, screen_rect(h).position.x)
+			if r.end.x > left - MENU_GAP:
 				return false
 	return true
 

@@ -89,6 +89,12 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_BOSSES"):   # essai ciblé des boss du jeu (taille, plaques)
+		await _test_boss_presence()
+		print("%d vérifications, %d échec(s) (boss seuls)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_STAGING"):   # essai ciblé de la mise en page du combat
 		await _test_battle_staging()
 		print("%d vérifications, %d échec(s) (mise en page du combat seule)." % [checks, failures])
@@ -162,6 +168,7 @@ func _ready() -> void:
 	print("== Combat : composition façon Octopath ==")
 	await _test_battle_layout()
 	await _test_battle_staging()
+	await _test_boss_presence()
 	print("== Élan et icônes de combat ==")
 	_test_icons()
 	print("== Cartes ==")
@@ -6585,11 +6592,12 @@ func _test_battle_staging() -> void:
 	win.size = old_size
 
 
-func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
+func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool = true) -> void:
 	var view: Rect2 = ui.get_viewport_rect()
 	# un boss domine la scène : nettement plus haut qu'un héros et que ses sbires, jamais au-delà de la borne
 	var is_boss_fight: bool = str(scene.encounter.get("music", "")) == "boss"
-	check((scene.boss != null) == is_boss_fight, "%s : le boss n'existe que dans un combat de boss" % tag)
+	if strict_boss:
+		check((scene.boss != null) == is_boss_fight, "%s : le boss n'existe que dans un combat de boss" % tag)
 	if scene.boss != null:
 		var hero_h: float = (scene.actors[scene.engine.party[0].key] as Node3D).height
 		var boss_h: float = (scene.actors[scene.boss.key] as Node3D).height
@@ -6625,7 +6633,9 @@ func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 			if c.key != k and c.alive():
 				plate_on_foe = maxf(plate_on_foe, _overlap(root.get_global_rect(), scene.screen_rect(c).grow(-4.0)))
 	check(plate_on_foe < 1.0, "%s : aucune plaque sur le sprite d'un autre ennemi (%.0f px²)" % [tag, plate_on_foe])
-	var menu: Array[Rect2] = [ui._root_panel.get_global_rect(), (ui._elan_bars[0]["panel"] as Control).get_global_rect()]
+	var menu: Array[Rect2] = [ui._root_panel.get_global_rect()]
+	if (ui._elan_bars[0]["panel"] as Control).is_visible_in_tree():   # (la barre d'élan cachée, hors de son tour, reste à l'origine)
+		menu.append((ui._elan_bars[0]["panel"] as Control).get_global_rect())
 	var bodies: Array[Rect2] = []
 	var hero_count := 0
 	var foe_count := 0
@@ -6656,10 +6666,16 @@ func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 			if c == ui._actor or (c.side == "enemy" and not c.alive()):
 				continue
 			mw = maxf(mw, _overlap(r, scene.screen_rect(c).grow(-4.0)))
+			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, scene.screen_rect(c).grow(-4.0)) > 0.0:
+				print("DBG menu ", r, " corps ", c.name, scene.screen_rect(c))
 		for p: Rect2 in plates:
 			mw = maxf(mw, _overlap(r, p))
+			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, p) > 0.0:
+				print("DBG menu ", r, " plaque ", p)
 		for u: Rect2 in ui_rects:
 			mw = maxf(mw, _overlap(r, u))
+			if OS.has_environment("GLAN_DEBUG_MENU") and _overlap(r, u) > 0.0:
+				print("DBG menu ", r, " ui ", u)
 	check(mw < 1.0, "%s : le menu ne couvre ni combattant, ni plaque, ni fiche (%.0f px²)" % [tag, mw])
 	# premier plan : dans les coins bas, sous la borne, devant personne
 	var corner := {"left": 0.0, "right": 0.0}
@@ -8077,3 +8093,64 @@ func _json_files(dir: String) -> Array:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_json_files(dir + "/" + d))
 	return out
+
+
+## Tous les boss du jeu, dans leur vraie rencontre et leur vraie arène, aux deux formats d'écran : chacun doit
+## dominer (au moins BOSS_RATIO_FLOOR fois un héros, plus haut que ses sbires), avoir sa flaque de lumière, et
+## les plaques, la frise, les fiches et le bandeau des touches restent libres (mêmes vérifications que la mise
+## en page). Table : rencontre -> ennemi qui doit être reconnu comme le boss.
+func _test_boss_presence() -> void:
+	print("== Les boss du jeu : ils dominent la scène ==")
+	var expected := {
+		"vacherin": "vacherin", "chantecler": "chantecler", "nazes_nuit": "naze_aine", "prologue_sauron": "sauron_vigueur", "grande_baveuse": "grande_baveuse", "vieux_solitaire": "vieux_solitaire",
+		"crapaud_buffle": "crapaud_buffle", "naze": "naze_fouineur", "gardien_archives": "gardien_archives",
+		"guetteur_du_lac": "guetteur_lac", "gros_bleu": "gros_bleu", "goulum": "goulum", "balourd": "balourd",
+		"ambuscade_chutes": "uglouk", "grimace": "grimace", "froton_anneaute": "froton_anneaute", "breche_avant": "ouroukouille_petrisseur",
+		"breche": "ouroukouille_petrisseur", "sarumale": "sarumale", "roi_eveille": "roi_eveille", "saumure": "saumure",
+		"grondine": "grondine", "gothmoque": "gothmoque", "dindon_farce": "dindon_farce", "naze_supreme": "naze_supreme",
+		"pelle_mammous": "mammou",
+	}
+	var win := get_window()
+	var old_size := win.size
+	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1600, 900)]:
+		win.size = size
+		await get_tree().process_frame
+		for id: String in expected:
+			if OS.has_environment("GLAN_FILTER") and not id.contains(OS.get_environment("GLAN_FILTER")):
+				continue   # (GLAN_FILTER : un seul boss, pour le réglage)
+			if not Database.encounters.has(id):
+				check(false, "boss : la rencontre %s existe" % id)
+				continue
+			var enc: Dictionary = (Database.encounters[id] as Dictionary).duplicate(true)
+			GameState.new_game()
+			for who: String in ["sam", "froton", "pepin"]:
+				GameState.add_to_party(who)
+			var layer := CanvasLayer.new()
+			add_child(layer)
+			var ui: Control = BattleUI.new()
+			layer.add_child(ui)
+			await get_tree().process_frame
+			var scene: Node3D = BattleScene.new()
+			add_child(scene)
+			scene.fast = true
+			scene.setup(enc, ui, 5)
+			scene.run()
+			for _i in 600:
+				await get_tree().process_frame
+				if ui._state == ui.S.ROOT:
+					break
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var tag := "boss %s, %dx%d" % [id, size.x, size.y]
+			check(scene.boss != null and str(scene.boss.source) == str(expected[id]), "%s : %s est reconnu comme le boss" % [tag, str(expected[id])])
+			if scene.boss != null:
+				var hero_h: float = (scene.actors[scene.engine.party[0].key] as Node3D).height
+				var boss_h: float = (scene.actors[scene.boss.key] as Node3D).height
+				check(boss_h / hero_h >= scene.BOSS_RATIO_FLOOR - 0.001, "%s : %.2f fois un héros (au moins %.1f)" % [tag, boss_h / hero_h, scene.BOSS_RATIO_FLOOR])
+				check((scene.actors[scene.boss.key] as Node3D)._halo != null, "%s : le boss a sa flaque de lumière" % tag)
+			_check_staging(scene, ui, tag, false)
+			ui.close()
+			remove_child(scene)
+			scene.queue_free()
+			layer.queue_free()
+	win.size = old_size

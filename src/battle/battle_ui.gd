@@ -436,7 +436,7 @@ func _make_plate(c: RefCounted) -> Dictionary:
 	chips.add_theme_constant_override("separation", 3)
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(chips)
-	var name_label := UI.label(str(c.name), 17, UI.INK, true)
+	var name_label := UI.label(str(c.name), 17 if str(c.name).length() <= 18 else 14, UI.INK, true)
 	name_label.add_theme_constant_override("outline_size", 4)
 	name_label.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.07, 0.9))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -896,6 +896,15 @@ func shatter(at: Vector2) -> void:
 
 func announce(text: String, duration: float = 1.4) -> void:
 	_ribbon_label.text = text
+	# un texte long passe à la ligne plutôt que de déborder sous les fiches de l'équipe (le bandeau est centré)
+	var view := size if size.x > 0.0 else Vector2(1280, 720)
+	var room := view.x - 2.0 * (CARDS_RIGHT + CARD_W + 14.0) - 52.0
+	_ribbon_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_ribbon_label.custom_minimum_size = Vector2.ZERO
+	var natural := _ribbon_label.get_minimum_size().x
+	if natural > room:
+		_ribbon_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_ribbon_label.custom_minimum_size = Vector2(room, 0.0)
 	_ribbon.reset_size()
 	if _ribbon_tween != null and _ribbon_tween.is_valid():
 		_ribbon_tween.kill()
@@ -1379,8 +1388,8 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 		var base: Rect2 = rects[k]
 		var best := base
 		var best_cost := INF
-		for dy in range(-30, 130, 6):
-			for dx in range(-280, 281, 10):
+		for dy in range(-30, 170, 6):
+			for dx in range(-380, 381, 10):
 				var r := Rect2(base.position + Vector2(dx, dy), base.size)
 				var cost := float(dx * dx) * 0.6 + float(dy * dy) * (0.5 if dy < 0 else 1.0)
 				if cost >= best_cost:
