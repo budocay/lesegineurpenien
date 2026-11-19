@@ -534,7 +534,7 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			if target.afflicted():
 				amount *= 1.0 + actor.passive("vs_afflicted")
 			amount *= 1.0 + actor.passive("fury") * (1.0 - float(actor.hp) / actor.max_hp())
-			amount *= maxf(0.2, 1.0 - target.passive("guard"))
+			amount *= maxf(0.2, 1.0 - (0.0 if bool(fx.get("ignore_guard", false)) else target.passive("guard")))   # « ignore_guard » : un coup qui passe la parade des talents
 			amount *= maxf(0.2, 1.0 - target.passive("resist", element))   # résistance à l'élément (équipement)
 			amount *= target.vulnerability()
 			if target.defending:
@@ -682,8 +682,9 @@ func ai_action(actor: Combatant) -> Dictionary:
 	var target: Combatant = null
 	if not foes.is_empty():
 		target = foes[rng.randi() % foes.size()]
+		var pierce := bool(Database.get_skill(pick).get("pierce", false))   # « pierce » : un coup qui ignore la provocation
 		for f: Combatant in foes:   # un provocateur attire les coups
-			if f.status_value("taunt") > 0.0:
+			if not pierce and f.status_value("taunt") > 0.0:
 				target = f
 				break
 	if pick == "attack" or Database.get_skill(pick).is_empty():

@@ -846,7 +846,8 @@ Effet selon l'action (`elan_kind`, aucun cas particulier par compétence) :
 
 Champs facultatifs d'une compétence (`data/skills.json`) : `"elan": false` la rend
 inamplifiable ; `"elan_scale": [1, 1.4, 1.8, 2.2]` remplace la table de multiplicateurs
-(quatre valeurs, pour 0 à 3 points). Le combat automatique des tests engage de l'élan contre
+(quatre valeurs, pour 0 à 3 points) ; `"pierce": true` : lancé par un ennemi, le coup ignore
+la provocation (état `taunt`) et vise au hasard (Goulûm : Morsure de poisson cru). Le combat automatique des tests engage de l'élan contre
 un ennemi ébranlé ou de plus de 600 PV (`ELAN_AUTO_BIG`), et 2 points quand la réserve est pleine.
 `commit()` renvoie aussi `gains` (expérience gagnée par héros) pour l'écran de victoire.
 
@@ -1261,7 +1262,7 @@ rangent dans « Aide » du menu de pause. Le moteur est `src/core/tutorial.gd` (
 | Champ | Rôle |
 |---|---|
 | `id` | identifiant, unique ; c'est lui qui est enregistré dans la sauvegarde (`tutorials`) |
-| `trigger` | événement : `arrive`, `interact_near`, `quest_started`, `equip_item`, `talent_point`, `rest`, `save`, `shop`, `reserve`, `battle_start`, `party_turn`, `weak`, `break`, `ally_down` |
+| `trigger` | événement : `arrive`, `interact_near`, `quest_started`, `equip_item`, `talent_point`, `rest`, `save`, `shop`, `reserve`, `battle_start`, `party_turn`, `weak`, `break`, `ally_down`, `telegraph` (un ennemi vient d'annoncer un grand coup : triangle rouge au-dessus de lui, bandeau « prépare un grand coup ») |
 | `mode` | `note` (défaut) : encart en bas à droite, n'interrompt rien ; `pause` : suspend le combat ou la boutique jusqu'à une touche |
 | `when` | condition facultative, termes liés par `&` : `turn>=N`, `elan`, `shield`, `ally_down`, `boss`, ou une condition de `GameState.check` |
 | `who` | personnage qui explique (identifiant ou liste ; le premier présent dans l'équipe parle) |
