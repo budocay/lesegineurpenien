@@ -321,8 +321,9 @@ func _arena_shots() -> void:
 		await _until_menu()
 		await _frames(50)
 		await _shot(str(entry[0]))
-		main.battle.auto = true
-		await _until_end()
+		# sortie par la fuite : passer le combat en automatique au milieu d'un tour ne le relançait plus,
+		# et toutes les captures suivantes montraient ce combat figé
+		await _flee()
 		await _frames(20)
 		main.battle_ui._on_end("ok")
 		await _frames(120)
