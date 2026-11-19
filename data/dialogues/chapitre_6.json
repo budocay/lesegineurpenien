@@ -102,7 +102,7 @@
 			"else": [
 				{
 					"who": "soldat_minas",
-					"text": "Halte. Qui vient ? … Ah, les renforts. Dénigror m'a prévenu : « il y en aura, et ils seront en dessous de tout ». Entrez. Je ne vous salue pas : je suis au garde-à-vous, et je ne le défais jamais."
+					"text": "Halte. Qui vient ? … Ah, les renforts. Dénigror m'a prévenu : « il y en aura, et ils seront en dessous de tout ». Entrez. Je ne vous salue pas : je suis au garde-à-vous, et je ne le défais jamais. Mon grade ? Aspirant-Doigt, rattaché à l'Annulaire."
 				}
 			]
 		}
@@ -483,7 +483,7 @@
 			"then": [
 				{
 					"who": "heraut_poterne",
-					"text": "Je suis le Héraut de la Poterne. J'annonce ce qui va se passer, pour que ça ait l'air prévu. Pour l'instant, il se passe que vous devez voir l'Intendant, en haut. Il n'aime pas qu'on le double. Il n'aime pas non plus qu'on le simple."
+					"text": "Je suis le Héraut de la Poterne. J'annonce ce qui va se passer, pour que ça ait l'air prévu. Mon titre complet est Héraut-Premier-de-la-Poterne-Étroite-et-Profonde, mais personne n'a jamais pu le faire passer en entier. Pour l'instant, il se passe que vous devez voir l'Intendant, en haut. Il n'aime pas qu'on le double. Il n'aime pas non plus qu'on le simple."
 				}
 			],
 			"else": [
@@ -593,7 +593,7 @@
 			"then": [
 				{
 					"who": "mie_dure",
-					"text": "Mie-Dure, boulangère de la Croûte. Je vends du pain de siège : ça ne s'abîme pas, ça ne se mange pas non plus, mais ça tient. Tenez, je rachète aussi, à moitié prix. L'autre moitié, c'est ce que le siège me prend."
+					"text": "Mie-Dure, boulangère de la Croûte. Je vends du pain de siège : ça ne s'abîme pas, ça ne se mange pas non plus, mais ça tient. Ma spécialité : le Long Pain Dressé, à tenir à deux mains, par temps de guerre. Tenez, je rachète aussi, à moitié prix. L'autre moitié, c'est ce que le siège me prend."
 				},
 				{
 					"choice": [
@@ -699,31 +699,31 @@
 	"doigtiste_croute": [
 		{
 			"who": "doigtiste",
-			"text": "Maître Doigtiste, du Corps des Doigtistes. Nous comptons les doigts de la ville, les garde-doigts, les doigts-de-gant et les doigts d'honneur. Ces derniers sont rangés à part : ils font du bruit."
+			"text": "Maître Doigtiste, du Corps des Doigtistes. Nous comptons les doigts de la ville, les garde-doigts, les doigts-de-gant et les doigts d'honneur. Ces derniers sont rangés à part : ils font du bruit. Le dernier recensement a trouvé un auriculaire de trop au Beurre : on l'a rendu à son propriétaire, avec les excuses du Corps."
 		}
 	],
 	"fourrier_croute": [
 		{
 			"who": "fourrier",
-			"text": "Fourrier Pas-de-Quartier. Je fournis. Rien, en général : c'est ce qui reste quand on a tout fourni. Si vous avez besoin de quelque chose, c'est le moment d'en avoir besoin de moins."
+			"text": "Fourrier Pas-de-Quartier. Je fournis. Rien, en général : c'est ce qui reste quand on a tout fourni. Si vous avez besoin de quelque chose, c'est le moment d'en avoir besoin de moins. Je tiens aussi la Réserve du Haut-Fourneau, où l'on range les armes bien graissées, en position de repos."
 		}
 	],
 	"citoyen_croute": [
 		{
 			"who": "citoyen_mou",
-			"text": "Ma femme dit que la ville est imprenable. Je lui dis : c'est ce qu'on dit toujours avant qu'elle soit prise. Elle me dit : c'est vous qui prenez. Je n'ai pas compris, mais j'ai cédé."
+			"text": "Ma femme dit que la ville est imprenable. Je lui dis : c'est ce qu'on dit toujours avant qu'elle soit prise. Elle me dit : c'est vous qui prenez. Je n'ai pas compris, mais j'ai cédé. Elle me reproche aussi un manque de fermeté. Elle parle de la ville, bien sûr."
 		}
 	],
 	"greviste_croute": [
 		{
 			"who": "greviste",
-			"text": "Je suis en grève du zèle. Je fais exactement ce qu'on me demande, ni plus ni moins. Jusqu'ici, ça a causé trois catastrophes et une promotion."
+			"text": "Je suis en grève du zèle. Je fais exactement ce qu'on me demande, ni plus ni moins. Jusqu'ici, ça a causé trois catastrophes et une promotion. On m'a nommé Chef du Poing Levé : le poste n'existait pas, il a fallu le dresser."
 		}
 	],
 	"soldat_croute": [
 		{
 			"who": "soldat_minas",
-			"text": "Garde Dressée ! Notre devise est : « Toujours debout, jamais couché. » On a eu des plaintes de la caserne : les lits ne servent à rien. On en a fait des lattes pour la porte."
+			"text": "Garde Dressée ! Notre devise est : « Toujours debout, jamais couché. » On a eu des plaintes de la caserne : les lits ne servent à rien. On en a fait des lattes pour la porte. Le Sergent répète : « Ici, on se lève tôt, on se tient droit, et on ne rend les armes qu'à la retraite. »"
 		}
 	],
 	"soldat_porte_haut": [
@@ -754,7 +754,7 @@
 	],
 	"croute_statue": [
 		{
-			"text": "Une statue de pierre : un roi, la main sur le cœur et l'autre sur son chapeau. Socle : « À Fromagier le Premier, fondateur de la ville, qui, voyant la montagne, dit : tartinons. »"
+			"text": "Une statue de pierre : un roi, la main sur le cœur et l'autre sur son chapeau. Socle : « À Fromagier le Premier, fondateur de la ville, qui, voyant la montagne, dit : tartinons. Il tint sa lance dressée quarante ans et la rendit à la Nation sans qu'elle ait faibli. »"
 		}
 	],
 	"minas_camp": [
@@ -854,7 +854,7 @@
 					],
 					"else": [
 						{
-							"text": "Le poste de l'huile. Une marmite grande comme un puits, sur un feu qui ne s'éteint jamais. Doigtiste, de service : « Bouillante, c'est une façon de parler. Elle frémit avec autorité. »"
+							"text": "Le poste de l'huile. Une marmite grande comme un puits, sur un feu qui ne s'éteint jamais. Doigtiste, de service : « Bouillante, c'est une façon de parler. Elle frémit avec autorité. Plaque : « Verser de haut, avec douceur, sans éclabousser le voisin. » »"
 						},
 						{
 							"give": "marmite_d_huile"
@@ -1034,7 +1034,7 @@
 					],
 					"else": [
 						{
-							"text": "La cuisine de siège, côté sud. Mie-Dure y a laissé une soupe de siège : eau, pain dur, un reste de lard, et la volonté de tenir. Une louche, à qui veut. Elle est tiède. Elle se tient."
+							"text": "La cuisine de siège, côté sud. Mie-Dure y a laissé une soupe de siège : eau, pain dur, un reste de lard, et la volonté de tenir. Une louche, à qui veut. Elle est tiède. Elle se tient. Au fond de la marmite, une cuillère à bout rond : « Prière de la ressortir à l'heure. »"
 						},
 						{
 							"give": "soupe_de_siege"
@@ -1250,12 +1250,12 @@
 	],
 	"rues_etal": [
 		{
-			"text": "Un étal de la rue basse. Sur la planche : « Pain, 2 écus. Pain rassis, 1 écu. Pain d'hier, gratuit : prenez-en, c'est de la veille. Pain du jour, pas encore. »"
+			"text": "Un étal de la rue basse. Sur la planche : « Pain, 2 écus. Pain rassis, 1 écu. Pain d'hier, gratuit : prenez-en, c'est de la veille. Pain du jour, pas encore. Brioche à l'Anneau : la plus ronde, la plus dorée, et on la trempe en famille. »"
 		}
 	],
 	"rues_fontaine": [
 		{
-			"text": "Une fontaine du Beurre. Elle coule, très doucement, par un gros pichet de pierre. Un écriteau : « Eau de ville. Elle est, comme la ville, à étages : filtrée, puis tamisée, puis tenue en respect. »"
+			"text": "Une fontaine du Beurre. Elle coule, très doucement, par un gros pichet de pierre. Un écriteau : « Eau de ville. Elle est, comme la ville, à étages : filtrée, puis tamisée, puis tenue en respect. Plaque de l'édile : « Inaugurée par le Maire, qui coupa le ruban, puis le jet. » »"
 		}
 	],
 	"rues_fontaine_haut": [
@@ -1265,12 +1265,12 @@
 	],
 	"rues_statue": [
 		{
-			"text": "Une statue du Miel : une dame qui tient une balance. Plaque : « À Dame Équité de la Mie, qui pesa trente ans le beurre, sans jamais pouvoir peser le pour et le contre. »"
+			"text": "Une statue du Miel : une dame qui tient une balance. Plaque : « À Dame Équité de la Mie, qui pesa trente ans le beurre, sans jamais pouvoir peser le pour et le contre. Dessous, gravé : « Elle tient sa balance à deux mains. Le plateau de gauche a longtemps penché plus bas que l'autre. » »"
 		}
 	],
 	"rues_baril": [
 		{
-			"text": "Un baril : « Farine de siège. Vide. » Sur le fond, griffonné : « Vide aussi à la dernière inspection. »"
+			"text": "Un baril : « Farine de siège. Vide. » Sur le fond, griffonné : « Vide aussi à la dernière inspection. Au dos : « Fût du Grand Mou. Ne pas secouer. » »"
 		}
 	],
 	"citoyen_rues_1": [
@@ -1300,7 +1300,7 @@
 	"soldat_rues_1": [
 		{
 			"who": "soldat_minas",
-			"text": "Les rampes sont toutes à une pente de 1,4. C'est la loi. On l'a votée à la réunion de la Mie. Il y avait un vote contre : celui de ma jambe."
+			"text": "Les rampes sont toutes à une pente de 1,4. C'est la loi. On l'a votée à la réunion de la Mie. Il y avait un vote contre : celui de ma jambe. Les rampes en pente douce sont réservées aux Doigtistes, qui montent sans forcer."
 		}
 	],
 	"soldat_rues_2": [
@@ -1312,13 +1312,13 @@
 	"doigtiste_rues": [
 		{
 			"who": "doigtiste",
-			"text": "Nous, les Doigtistes, enregistrons les doigts de la ville. Dix doigts par habitant, plus ou moins. Moins, c'est un sinistre. Plus, un miracle."
+			"text": "Nous, les Doigtistes, enregistrons les doigts de la ville. Dix doigts par habitant, plus ou moins. Moins, c'est un sinistre. Plus, un miracle. Leur devise, brodée sur le brassard : « Le compte y est. Le doigté aussi. »"
 		}
 	],
 	"fourrier_rues": [
 		{
 			"who": "fourrier",
-			"text": "Le ravitaillement tient : il y a de la farine, du lard, du sel. Il y a de tout. Il n'y a surtout pas de quoi faire une ration convenable, mais de tout."
+			"text": "Le ravitaillement tient : il y a de la farine, du lard, du sel. Il y a de tout. Il n'y a surtout pas de quoi faire une ration convenable, mais de tout. Les rations vont par ordre de grade : les plus hauts gradés reçoivent le plus gros, et le gardent bien droit."
 		}
 	],
 	"farine_1": [

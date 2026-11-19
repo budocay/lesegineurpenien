@@ -10,9 +10,9 @@
 	"music": "minas",
 	"arena": "minas_rues",
 	"camera": {
-		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
+		"distance": 25,
+		"pitch": 22,
+		"fov": 30,
 		"dof": 0.1
 	},
 	"ground": {
@@ -182,6 +182,7 @@
 		}
 	],
 	"style": "gouda",
+	"skyline": {"base": 7.8, "z": -8, "rings": 4, "step": 3.2, "gap": 7, "tower": true},
 	"objects": [
 		{
 			"type": "gou_maison",

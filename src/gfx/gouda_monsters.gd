@@ -244,7 +244,8 @@ static func _king(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void
 		_tri(img, Vector2(tx, h * 0.84), Vector2(tx + 7.0, h * 0.84), Vector2(tx + 3.2 + sway * 0.4, h * 0.97), cape[1])
 	# robe : volutes de fantôme en bas
 	_tail(img, cx + 0.5, h * 0.74, h * 0.99, 20.0, sway, robe)
-	_tp(img, h * 0.34 + dy, h * 0.76, cx - 12.0, cx + 13.0, cx - 20.0, cx + 21.0, robe)
+	_tp(img, h * 0.34 + dy, h * 0.76, cx - 12.0, cx + 13.0, cx - 17.0, cx + 18.0, robe)
+	_o(img, cx + 0.5, h * 0.56 + dy, 17.5, h * 0.21, robe, 0.05)   # ventre rond : fini le tronc carré
 	_o(img, cx - 11.0, h * 0.38 + dy, 7.0, 5.0, robe, 0.1)   # épaules rondes
 	_o(img, cx + 12.0, h * 0.38 + dy, 7.0, 5.0, robe, 0.1)
 	_folds(img, [cx - 14.0, cx - 7.0, cx + 3.0, cx + 10.0, cx + 16.0], h * 0.5 + dy, h * 0.74, robe, sway * 0.3)
@@ -257,7 +258,7 @@ static func _king(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void
 	_tp(img, h * 0.6 + dy, h * 0.635 + dy, cx - 16.0, cx + 17.0, cx - 16.5, cx + 17.5, gold)
 	_o(img, cx + 1.0, h * 0.62 + dy, 2.6, 2.2, gold, 0.1)
 	# collet d'hermine avec mouchetures
-	_tp(img, h * 0.32 + dy, h * 0.43 + dy, cx - 14.0, cx + 15.0, cx - 17.0, cx + 18.0, fur)
+	_o(img, cx + 0.5, h * 0.385 + dy, 17.0, h * 0.075, fur, 0.1)
 	for i in 6:
 		_tri(img, Vector2(cx - 12.0 + float(i) * 5.0, h * 0.42 + dy), Vector2(cx - 12.0 + float(i) * 5.0 + 1.2, h * 0.42 + dy + 3.0), Vector2(cx - 12.0 + float(i) * 5.0 + 2.4, h * 0.42 + dy), Color("#2a2a34"))
 	# bras arrière : tient un oreiller
@@ -302,8 +303,10 @@ static func _king(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void
 	_mouth(img, hcx + 2.5, hcy + 8.0, 5.5, col)
 	_o(img, hcx - 1.5, hcy + 6.2, 5.0, 1.8, MP._ramp("#e8e4d8"), 0.1)   # moustache en deux moitiés
 	_o(img, hcx + 6.5, hcy + 6.2, 5.0, 1.8, MP._ramp("#e8e4d8"), 0.1)
-	_tp(img, hcy + 8.0, hcy + 17.0, hcx - 6.0, hcx + 8.0, hcx - 1.5, hcx + 3.5, MP._ramp("#e8e4d8"))
-	_tri(img, Vector2(hcx - 1.8, hcy + 16.5), Vector2(hcx + 3.8, hcy + 16.5), Vector2(hcx + 1.0, hcy + 22.0), (MP._ramp("#e8e4d8")[2] as Color))
+	_o(img, hcx + 1.5, hcy + 12.0, 7.2, 5.4, MP._ramp("#e8e4d8"), 0.1)   # barbe en nuage, plus d'entonnoir
+	_o(img, hcx + 1.0, hcy + 17.5, 5.0, 4.4, MP._ramp("#e8e4d8"), 0.05)
+	_o(img, hcx + 1.0, hcy + 21.5, 2.8, 2.6, MP._ramp("#e8e4d8"), 0.0)
+	_mouth(img, hcx + 2.5, hcy + 8.0, 5.5, col)
 	# cheveux blancs qui dépassent de la couronne
 	for i in 4:
 		_cp(img, hcx - 10.0, hcy - 5.0 + float(i) * 3.0, hcx - 15.0 - float(i % 2) * 2.0 + sway * 0.4, hcy - 1.0 + float(i) * 4.5, 2.0, 0.7, MP._ramp("#ece8dc"))
@@ -515,16 +518,13 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	var inner := MP._ramp("#14141c")
 	var iron := MP._ramp("#8a8a9c")
 	# traîne du manteau, déchirée, soulevée par un vent qui n'existe pas
-	_tp(img, h * 0.3 + dy, h * 0.88, cx - w * 0.22, cx + w * 0.22, cx - w * 0.42 + sway, cx + w * 0.3, MP._dim(cloak))
-	for i in 7:
-		var tx := cx - w * 0.42 + sway + float(i) * w * 0.12
-		_tri(img, Vector2(tx, h * 0.87), Vector2(tx + w * 0.12, h * 0.87), Vector2(tx + w * 0.05 - sway * 0.3, h * 0.99 - float(i % 2) * 3.0), (MP._dim(cloak)[1] as Color))
+	_tp(img, h * 0.3 + dy, h * 0.88, cx - w * 0.22, cx + w * 0.22, cx - w * 0.34 + sway, cx + w * 0.3, MP._dim(cloak))
 	# manteau de face
 	_tp(img, h * 0.3 + dy, h * 0.9, cx - w * 0.17, cx + w * 0.19, cx - w * 0.3 + sway * 0.4, cx + w * 0.3 - sway * 0.3, cloak)
 	_folds(img, [cx - w * 0.2, cx - w * 0.1, cx + w * 0.02, cx + w * 0.13, cx + w * 0.22], h * 0.45 + dy, h * 0.88, cloak, sway * 0.3)
-	for i in 6:
-		var tx2 := cx - w * 0.3 + sway * 0.4 + float(i) * w * 0.1
-		_tri(img, Vector2(tx2, h * 0.89), Vector2(tx2 + w * 0.1, h * 0.89), Vector2(tx2 + w * 0.05, h * 0.99 - float((i + 1) % 2) * 3.0), cloak[1])
+	for i in 7:   # lisière en dents régulières, deux hauteurs alternées
+		var tx2 := cx - w * 0.3 + sway * 0.4 + float(i) * w * 0.0857
+		_tri(img, Vector2(tx2, h * 0.89), Vector2(tx2 + w * 0.0857, h * 0.89), Vector2(tx2 + w * 0.043, h * 0.975 - float(i % 2) * 3.0), cloak[1])
 	# fermoir : une griffe de fer
 	_o(img, cx + w * 0.02, h * 0.37 + dy, 2.4, 2.4, iron, 0.1)
 	# épaulières de fer
@@ -797,6 +797,12 @@ static func _ram(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void:
 			if i > 0:
 				_cp(img, prev.x, prev.y, q.x, q.y, w * lerpf(0.05, 0.01, t), w * lerpf(0.05, 0.01, t + 0.08), r)
 			prev = q
+	_o(img, hx - w * 0.04, hy - h * 0.2, w * 0.035, h * 0.06, MP._dim(iron), 0.0)   # oreille
+	_o(img, hx + w * 0.02, hy + h * 0.1, w * 0.1, h * 0.06, MP._dim(iron), 0.1)   # mâchoire
+	_o(img, hx - w * 0.01, hy - h * 0.15, w * 0.1, h * 0.06, MP._ramp("#eee6d2"), 0.1)   # toison du front
+	for k in 4:
+		_disc(img, hx - w * 0.06 + float(k) * w * 0.035, hy - h * 0.17 + float(k % 2) * 1.5, 1.1, Color("#d8cfb8"))
+	_cp(img, hx + w * 0.03, hy - h * 0.1, hx + w * 0.15, hy + h * 0.0, w * 0.03, w * 0.04, iron)   # chanfrein
 	var mode := 0
 	if col == 3:
 		mode = 1

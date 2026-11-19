@@ -61,9 +61,9 @@ const MOTTLE := {
 	"gou_herbe": ["#4a5a22", "#a8a040", 0.6, 0.12],
 	"gou_quai": ["#2a2a34", "#6a6258", 0.55, 0.12, [24, 12]],
 	"gou_veille": ["#1a3a32", "#4a7a62", 0.5, 0.1, [24, 12]],
-	"gou_pave": ["#8a8478", "#ece6d8", 0.4, 0.06, [24, 12]],
-	"gou_dalle": ["#9a968c", "#f0ece0", 0.4, 0.06, [24, 24]],
-	"gou_marbre": ["#a8a4a0", "#f6f2ea", 0.35, 0.05, [48, 48]],
+	"gou_pave": ["#e2d8c2", "#fffaee", 0.4, 0.06, [24, 12]],
+	"gou_dalle": ["#e8dfca", "#fffaf0", 0.4, 0.06, [24, 24]],
+	"gou_marbre": ["#ece6d8", "#fffcf4", 0.35, 0.05, [48, 48]],
 }
 
 ## Accessoires affichés comme des sprites debout.

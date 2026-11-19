@@ -11,8 +11,8 @@
 	"arena": "citadelle",
 	"camera": {
 		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
+		"pitch": 20,
+		"fov": 30,
 		"dof": 0.1
 	},
 	"ground": {
@@ -55,6 +55,7 @@
 		}
 	},
 	"style": "gouda",
+	"skyline": {"base": 0, "z": -9, "rings": 2, "step": 4.0, "gap": 6, "tower": true},
 	"objects": [
 		{
 			"type": "gou_maison",

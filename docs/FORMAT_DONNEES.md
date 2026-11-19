@@ -1249,6 +1249,7 @@ règle les couleurs d'une carte dont le sol est `water` (Port-Salé).
 `gou_marbre` (marbre des places), `gou_herbe`, `gou_boue` (champ de bataille), `gou_veille`
 (dalles verdâtres du Sentier), `gou_quai` (planches et pierre mouillée). Tuiles de murs et de
 bords, pas des sols : `gou_rempart` (pierre blanche à joints), `gou_mur`, `gou_mur_veille`, `gou_ardoise` (toits).
+Autres tuiles de la cité blanche : `gou_marche` (volée de marches, escaliers des étages) et `gou_roche` (éperon de roc de l'arrière-plan). Champs de carte du style `gouda` : `skyline {base,z,rings,step,gap,tower}` (étages et tour blanche en décor), `siege {fires,depth}` (camp du siège au nord), `hole_tile` (sol des cases `void`).
 
 **Accessoires (par leur nom, comme tout `PROPS` ; avec `dialogue` ils s'examinent) :**
 `gou_creneau`, `gou_banniere` (2 variantes, ondule), `gou_trebuchet`, `gou_poirier` (le Poirier
