@@ -1395,7 +1395,10 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 				if bad:
 					continue
 				for o: String in keys:
-					if o != k and r.intersects((own[o] as Rect2).grow(-4.0)):
+					var orect: Rect2 = own[o]
+					if minf(orect.size.x, orect.size.y) > 8.0:
+						orect = orect.grow(-4.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
+					if o != k and r.intersects(orect):
 						bad = true
 						break
 				if bad:
@@ -1659,6 +1662,6 @@ func show_defeat(before_slot: String = "") -> String:
 		if chosen != "":
 			value = "load:" + chosen
 			break
-		load_btn.grab_focus.call_deferred()
+		(load_btn if load_btn.focus_mode != Control.FOCUS_NONE else retry).grab_focus.call_deferred()
 	_end_layer.visible = false
 	return value
