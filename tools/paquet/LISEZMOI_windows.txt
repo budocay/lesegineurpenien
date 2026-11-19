@@ -1,0 +1,31 @@
+Le Seigneur des Anneaux Péniens - version {VERSION} (Windows)
+=============================================================
+
+LANCER LE JEU
+  Double-cliquer sur SeigneurDesAnneauxPeniens.exe.
+  Les trois fichiers du dossier doivent rester ensemble (le .exe et le .pck).
+  Ne pas lancer le jeu depuis l'intérieur du zip : extraire d'abord le dossier.
+
+PREMIER LANCEMENT : AVERTISSEMENT WINDOWS
+  Le jeu n'est pas signé par un éditeur payant. Windows SmartScreen peut afficher
+  « Windows a protégé votre ordinateur ». Cliquer sur « Informations complémentaires »,
+  puis « Exécuter quand même ». Cela n'arrive qu'une fois. Un antivirus peut aussi
+  hésiter : le programme est le moteur Godot sans modification, avec le fichier de jeu à côté.
+
+MANETTE
+  Une manette Xbox branchée avant le lancement est reconnue toute seule.
+  L'aide à l'écran indique les boutons. Touche F : plein écran / fenêtre.
+
+SAUVEGARDES
+  Dossier : %APPDATA%\Godot\app_userdata\Le Seigneur des Anneaux Péniens
+  (coller ce chemin dans la barre d'adresse de l'Explorateur de fichiers).
+  Pour changer d'ordinateur, copier ce dossier.
+
+EN CAS DE PROBLÈME
+  Double-cliquer sur jouer_avec_journal.bat : le jeu se lance et écrit tout ce qu'il
+  dit dans le fichier journal.txt, à côté. Envoyer ce fichier à la personne qui a fait le jeu.
+  Le jeu garde aussi ses 5 derniers journaux dans le dossier des sauvegardes, sous-dossier logs.
+  SeigneurDesAnneauxPeniens.console.exe lance le jeu avec une fenêtre de texte (pour les curieux).
+
+CONTACT
+  https://github.com/budocay/lesegineurpenien (rubrique « Issues »)

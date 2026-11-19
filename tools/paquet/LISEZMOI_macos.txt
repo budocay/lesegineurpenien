@@ -1,0 +1,33 @@
+Le Seigneur des Anneaux Péniens - version {VERSION} (macOS)
+===========================================================
+
+INSTALLER
+  1. Double-cliquer sur le zip pour obtenir « Le Seigneur des Anneaux Péniens.app ».
+  2. La glisser dans le dossier Applications (ou n'importe où ailleurs).
+
+PREMIER LANCEMENT : AVERTISSEMENT DE macOS
+  Le jeu n'est pas « notarisé » par Apple (cela demande un compte développeur payant).
+  Un double-clic affiche donc « ne peut pas être ouvert » ou « développeur non identifié ».
+  Pour l'ouvrir une fois pour toutes :
+    - clic droit (ou Ctrl + clic) sur l'application, puis « Ouvrir », puis « Ouvrir » ;
+    - ou, sur macOS 15 et plus récent : double-cliquer, fermer l'avertissement, ouvrir
+      Réglages Système > Confidentialité et sécurité, descendre jusqu'à
+      « Le Seigneur des Anneaux Péniens a été bloqué », cliquer « Ouvrir quand même ».
+  Si macOS affirme que l'application est « endommagée » (zip reçu par messagerie ou
+  navigateur), taper dans le Terminal :
+    xattr -cr "/Applications/Le Seigneur des Anneaux Péniens.app"
+
+MANETTE
+  Une manette Xbox ou PlayStation branchée (ou en Bluetooth) avant le lancement est reconnue.
+  Touche F : plein écran / fenêtre.
+
+SAUVEGARDES
+  Dossier : ~/Library/Application Support/Godot/app_userdata/Le Seigneur des Anneaux Péniens
+  (Finder > Aller > Aller au dossier..., coller le chemin).
+
+EN CAS DE PROBLÈME
+  Le jeu écrit un journal : le sous-dossier logs du dossier des sauvegardes, fichier godot.log.
+  Envoyer ce fichier à la personne qui a fait le jeu.
+
+CONTACT
+  https://github.com/budocay/lesegineurpenien (rubrique « Issues »)

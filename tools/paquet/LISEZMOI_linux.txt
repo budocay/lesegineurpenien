@@ -1,0 +1,26 @@
+Le Seigneur des Anneaux Péniens - version {VERSION} (Linux, x86_64)
+===================================================================
+
+LANCER LE JEU
+  Extraire l'archive (tar xzf), puis dans le dossier :
+    chmod +x SeigneurDesAnneauxPeniens.x86_64     (inutile si le droit est déjà là)
+    ./SeigneurDesAnneauxPeniens.x86_64
+  Le .x86_64 et le .pck doivent rester ensemble.
+  Il faut un processeur graphique avec pilote Vulkan 1.3 à jour.
+
+RACCOURCI DANS LE MENU DES APPLICATIONS
+  ./installer_raccourci.sh  crée le raccourci et l'icône pour votre session
+  (dans ~/.local/share/applications et ~/.local/share/icons). Rien d'autre n'est modifié.
+
+MANETTE
+  Une manette branchée avant le lancement est reconnue. Touche F : plein écran / fenêtre.
+
+SAUVEGARDES
+  Dossier : ~/.local/share/godot/app_userdata/Le Seigneur des Anneaux Péniens
+
+EN CAS DE PROBLÈME
+  Lancer le jeu depuis un terminal et envoyer ce qu'il affiche, ou le fichier
+  logs/godot.log du dossier des sauvegardes.
+
+CONTACT
+  https://github.com/budocay/lesegineurpenien (rubrique « Issues »)

@@ -4,3 +4,8 @@
 # scripts Windows : fins de ligne Windows, quels que soient les réglages de git
 *.bat -text
 *.ps1 -text
+
+# fichiers binaires et scripts shell : jamais retouchés
+*.png binary
+*.sh text eol=lf
+*.desktop text eol=lf
