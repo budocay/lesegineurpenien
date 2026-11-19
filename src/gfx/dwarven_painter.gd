@@ -244,12 +244,12 @@ static func _cheese_floor() -> Image:
 
 
 ## Roche humide du bord d'un lac souterrain : ardoise bleutée, taches mouillées plus sombres,
-## flaques qui reflètent le plafond, fines fissures ; `pebbles` : le bord de l'eau, couvert de galets.
+## fines fissures (les flaques sont semées à part, sur toute la carte) ; `pebbles` : le bord de l'eau, couvert de galets.
 static func _wet_rock(pebbles: bool) -> Image:
 	var img := PA.new_image(T, T)
 	var sd := 861 if pebbles else 851
 	img.fill(Color("#3a4a5e"))
-	TP._blotches(img, sd, 9, Color("#2e3c50"), 5.0, 11.0)
+	TP._blotches(img, sd, 9, Color("#33425a") if not pebbles else Color("#2e3c50"), 5.0, 11.0)
 	TP._blotches(img, sd + 1, 8, Color("#4a5e76"), 3.5, 8.0)
 	TP._blotches(img, sd + 2, 5, Color("#26324a"), 4.0, 7.0)
 	_specks_in(img, sd + 3, 70, Color("#566c86"))
@@ -265,14 +265,8 @@ static func _wet_rock(pebbles: bool) -> Image:
 				x += cos(dir) * 1.1
 				y += sin(dir) * 1.1
 				dir += (PA.rnd(k, i, sd + 6) - 0.5) * 0.9
-	# flaques : ovale sombre, reflet bleu clair en haut, point de brillance
-	for i in (3 if not pebbles else 2):
-		var cx := PA.rnd(i, 1, sd + 7) * T
-		var cy := PA.rnd(i, 2, sd + 7) * T
-		var rx := 4.5 + PA.rnd(i, 3, sd + 7) * 3.5
-		TP._wrap_ellipse(img, cx, cy, rx, rx * 0.5, Color("#1c2c46"))
-		TP._wrap_ellipse(img, cx - 0.5, cy - 0.7, rx * 0.8, rx * 0.3, Color("#3e6a92"))
-		TP._wrap_ellipse(img, cx - rx * 0.3, cy - rx * 0.22, rx * 0.3, 0.9, Color("#a8d4f4"))
+	# pas de flaques dans la tuile : motif répété, il dessinerait une grille. Elles sont semées sur toute
+	# la carte par `MapBuilder._scatter_puddles` (flag `puddles` de la table GROUND).
 	if pebbles:
 		var tones := [Color("#8a94a0"), Color("#6e7a8a"), Color("#a4a090"), Color("#5c6c80"), Color("#7a8c88")]
 		for i in 30:
@@ -309,9 +303,11 @@ static func _abyss() -> Image:
 static func _snow() -> Image:
 	var img := PA.new_image(T, T)
 	img.fill(Color("#e4ecf8"))
-	TP._blotches(img, 841, 9, SN, 6.0, 12.0)
-	TP._blotches(img, 842, 8, Color("#d2deef"), 5.0, 10.0)
-	TP._blotches(img, 843, 4, SN_S, 3.0, 6.0)
+	# grandes ondulations douces, peu contrastées (de petites taches rapprochées dessinaient des « pattes »
+	# répétées toutes les deux cases) ; le relief vient du semis de plaques teintées de la carte
+	TP._blotches(img, 841, 7, SN, 8.0, 15.0)
+	TP._blotches(img, 842, 6, Color("#dde7f4"), 7.0, 13.0)
+	TP._blotches(img, 843, 3, Color("#d2deef"), 6.0, 10.0)
 	_specks_in(img, 844, 40, Color("#ffffff"))
 	_specks_in(img, 845, 26, Color("#c0cfe6"))
 	for i in 5:
@@ -325,9 +321,14 @@ static func _snow() -> Image:
 static func _trodden() -> Image:
 	var img := PA.new_image(T, T)
 	img.fill(Color("#b4adab"))
-	TP._blotches(img, 851, 12, Color("#a29b9b"), 4.0, 8.0)
-	TP._blotches(img, 852, 9, Color("#c9c3c2"), 3.0, 7.0)
-	TP._blotches(img, 853, 5, Color("#e2e8f2"), 3.0, 6.0)
+	# pas de taches rondes (elles dessinaient une grille de ronds) : grain fin, la plaque de teinte vient de la carte
+	for y in T:
+		for x in T:
+			var g := PA.rnd(x, y, 851)
+			if g < 0.22:
+				img.set_pixel(x, y, Color("#a8a1a1"))
+			elif g > 0.82:
+				img.set_pixel(x, y, Color("#c2bcbb"))
 	_specks_in(img, 854, 60, Color("#8a8386"))
 	_specks_in(img, 855, 30, Color("#f0f4fa"))
 	return img

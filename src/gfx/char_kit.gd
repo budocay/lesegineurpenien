@@ -195,6 +195,51 @@ static func _trap(y0: float, y1: float, xl0: float, xr0: float, xl1: float, xr1:
 			_put(x, y, ramp[tone])
 
 
+## Cape ou robe vue de dos : comme _trap, mais l'ourlet est une ligne ondulée, plus haute du côté
+## du pied levé (lift_l côté gauche de l'écran, lift_r côté droit), avec une fente au milieu
+## qui s'ouvre quand on marche (slit_w) : les jambes et les talons, peints avant, apparaissent.
+## y1 est le point le plus bas de l'ourlet, hem_h l'amplitude de l'ondulation.
+static func _drape(y0: float, y1: float, xl0: float, xr0: float, xl1: float, xr1: float, ramp: Array,
+		bias: float, folds: Array, sway: float, hem_h: float, slit_w: float, lift_l: float, lift_r: float,
+		phase: float) -> void:
+	var h := y1 - y0
+	if h <= 0.0:
+		return
+	var mid := (xl0 + xr0) * 0.5 + sway * 0.8
+	for y in range(int(round(y0)), int(ceil(y1)) + 1):
+		var t := clampf((y + 0.5 - y0) / h, 0.0, 1.0)
+		var off := sway * t * t
+		var xl := lerpf(xl0, xl1, t) + off
+		var xr := lerpf(xr0, xr1, t) + off
+		var w := xr - xl
+		if w <= 0.01:
+			continue
+		for x in range(int(round(xl)), maxi(int(round(xr)), int(round(xl)) + 1)):
+			var hem_y := y1 - hem_h * 0.5 * (1.0 + sin(float(x) * 0.62 + phase)) - (lift_l if float(x) < mid else lift_r) * 0.85
+			if y + 0.5 > hem_y:
+				continue
+			var gap := absf(float(x) + 0.5 - mid)
+			var in_slit := slit_w > 0.5 and gap < slit_w * 0.5 and y + 0.5 > y1 - 24.0
+			if in_slit:
+				continue
+			var u := clampf(((x + 0.5 - xl) / w) * 2.0 - 1.0, -0.99, 0.99)
+			var tone := _tone(u, (t * 2.0 - 1.0) * 0.35, bias)
+			for f: Vector2 in folds:
+				if t >= f.y:
+					var fx := int(floor(xl + f.x * w))
+					if x == fx:
+						tone = mini(tone, 1)
+					elif x == fx - 1 and tone <= 2:
+						tone = 3
+					elif x == fx + 1 and tone >= 3:
+						tone = 2
+			if y + 1.5 > hem_y:
+				tone = mini(tone, 1)
+			if slit_w > 0.5 and gap < slit_w * 0.5 + 1.2 and y + 0.5 > y1 - 24.0:
+				tone = mini(tone, 1)
+			_put(x, y, ramp[tone])
+
+
 ## Polygone rempli (convexe ou presque), éclairé comme un trapèze : cape, mèche, pan de robe.
 static func _poly(pts: Array, ramp: Array, bias: float = 0.0, hem: bool = false) -> void:
 	var y_min := 1000.0

@@ -117,7 +117,7 @@ static var _painter_stamp := ""
 func _painted_sheet(look: Dictionary) -> Image:
 	if _painter_stamp == "":
 		var src := ""
-		for f in ["char_kit", "character_head", "character_painter", "character_species", "pixel_art"]:
+		for f in ["char_kit", "character_items", "character_head", "character_painter", "character_species", "pixel_art"]:
 			src += FileAccess.get_file_as_string("res://src/gfx/%s.gd" % f)
 		_painter_stamp = src.md5_text()
 	var path := "user://cache_persos/%s.png" % (_painter_stamp + JSON.stringify(look, "", true)).md5_text()
@@ -185,11 +185,34 @@ func monster(kind: String) -> Dictionary:
 	sheet["image"] = img
 	# la planche peinte par code est affichée repeinte plus fin (voir MonsterPainter.upscale) ;
 	# image, frame_w et frame_h restent ceux du dessin d'origine (taille dans le monde, vignettes)
-	sheet["texture"] = PA.texture(MonsterPainter.upscale(img, int(sheet["columns"])) if overridden == null else img)
+	sheet["texture"] = PA.texture(_monster_hd(kind) if overridden == null else img)
 	sheet["frame_w"] = img.get_width() / int(sheet["columns"])
 	sheet["frame_h"] = img.get_height()
 	_cache[key] = sheet
 	return sheet
+
+
+static var _monster_stamp := ""
+
+
+## Planche HD d'un monstre peint par code (MonsterPainter.paint_hd), avec cache disque
+## (user://cache_monstres/) : la peinture à la définition des héros prend jusqu'à quelques
+## secondes pour un gros monstre, le PNG se relit en quelques millisecondes. La clé contient le
+## texte des peintres : toute retouche repeint.
+func _monster_hd(kind: String) -> Image:
+	if _monster_stamp == "":
+		_monster_stamp = (FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
+			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")).md5_text()
+	var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
+	if FileAccess.file_exists(path):
+		var cached := Image.new()
+		if cached.load(path) == OK:
+			cached.convert(Image.FORMAT_RGBA8)
+			return cached
+	var hd := MonsterPainter.paint_hd(kind)
+	DirAccess.make_dir_recursive_absolute("user://cache_monstres")
+	hd.save_png(path)
+	return hd
 
 
 ## Vignette carrée d'un combattant pour la file des tours.

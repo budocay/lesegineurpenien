@@ -1,4 +1,4 @@
-extends "res://src/gfx/char_kit.gd"
+extends "res://src/gfx/character_items.gd"
 ## Têtes des personnages : visage, cheveux, barbes, chapeaux, capuches.
 ## Vues : 0 face, 1 profil (regard vers la gauche), 2 dos.
 ## Tout est en pixels réels de la planche (voir char_kit.gd).
@@ -78,7 +78,7 @@ static func _face(look: Dictionary, cx: float, hcy: float) -> void:
 		var by := ey - 3
 		var thick := 2 if (old or _fk == "bourru") else 1
 		match mood:
-			"angry":
+			"angry", "focus":
 				for i in 5:
 					var inner := i if s < 0 else 4 - i
 					_put(x0 - 1 + i, by + 1 + inner / 2, brow_col)
@@ -89,7 +89,9 @@ static func _face(look: Dictionary, cx: float, hcy: float) -> void:
 					var inner := i if s < 0 else 4 - i
 					_put(x0 - 1 + i, by + 2 - inner / 2, brow_col)
 			"ko":
-				pass
+				for i in 5:
+					var inner := i if s < 0 else 4 - i
+					_put(x0 - 1 + i, by + 1 - (1 if inner > 2 else 0), brow_col)
 			_:
 				for i in 5:
 					var lift := 1 if (i == 0 or i == 4) else 0
@@ -160,10 +162,18 @@ static func _eye(x0: int, ey: int, mood: String, side: int, fem: bool, old: bool
 			_put(x0 + q, ey + 2, lash)
 			_put(x0 + o + (1 if side < 0 else -1), ey + 3, lash)
 			_put(x0 + o, ey + 4, lash)
-		"ko":
+		"focus":
 			for i in 4:
-				_put(x0 + i, ey + 1 + i, lash)
-				_put(x0 + 3 - i, ey + 1 + i, lash)
+				_put(x0 + i, ey + 2, lash)
+			_put(x0 + 1, ey + 3, skin[1])
+			_put(x0 + 2, ey + 3, skin[1])
+		"ko":
+			_put(x0, ey + 3, lash)
+			_put(x0 + 1, ey + 2, lash)
+			_put(x0 + 2, ey + 2, lash)
+			_put(x0 + 3, ey + 3, lash)
+			_put(x0 + 1, ey + 4, skin[1])
+			_put(x0 + 2, ey + 4, skin[1])
 		_:
 			var drop := 1 if mood == "angry" else 0
 			# paupière haute
@@ -209,6 +219,12 @@ static func _mouth(cx: float, my: float, mode: String, hidden: bool) -> void:
 			_rect(x - 2.0, y + 2.0, 4.0, 1.0, RED)
 			_put(x - 3, y - 1, MOUTH)
 			_put(x + 2, y - 1, MOUTH)
+		"o":
+			_rect(x - 1.0, y, 3.0, 3.0, MOUTH)
+			_put(x, y + 1, RED)
+		"slack":
+			_rect(x - 2.0, y, 5.0, 3.0, MOUTH)
+			_rect(x - 1.0, y + 2.0, 3.0, 1.0, RED)
 		"grit":
 			_rect(x - 3.0, y - 1.0, 6.0, 3.0, SCLERA)
 			for i in 6:
@@ -383,6 +399,16 @@ static func _hair_back(hx: float, hcy: float, rx: float, ry: float, view: int, s
 		_line(hx + rx + 1.0, hcy + 1.0, hx + rx + 4.0 + sway * 0.5, hcy + ry + 14.0, hr[3])
 		return
 	_ell(hx, hcy, rx + 3.0, ry + 2.5, hr, -0.3)
+	if view == 2:
+		# de dos : un rideau net qui se resserre et finit en arrondi, quelques mèches dessinées dedans
+		var end_y := hcy + ry + 15.0
+		_trap(hcy, end_y, hx - rx - 3.0, hx + rx + 3.0, hx - rx + 0.5, hx + rx - 0.5, hr, -0.3,
+			[Vector2(0.28, 0.2), Vector2(0.5, 0.3), Vector2(0.74, 0.25)], false, sway)
+		_ell(hx + sway * 0.9, end_y, rx - 0.3, 2.8, hr, -0.3)
+		for k in 4:
+			var lx2 := hx - rx + 1.5 + float(k) * (rx * 2.0 - 3.0) / 3.0
+			_line(lx2, hcy + ry - 1.0, lx2 + sway * 0.7, end_y + 1.0, hr[1])
+		return
 	_trap(hcy, hcy + ry + 14.0, hx - rx - 3.0, hx + rx + 3.0, hx - rx - 4.5, hx + rx + 4.5, hr, -0.3,
 		[Vector2(0.28, 0.2), Vector2(0.5, 0.3), Vector2(0.74, 0.25)], false, sway)
 	# mèches effilées de longueurs inégales, qui se chevauchent
@@ -647,20 +673,20 @@ static func _hat(look: Dictionary, hx: float, hcy: float, rx: float, ry: float, 
 			_line(hx - rx * 0.8, top_y + 5.0, hx + rx * 0.8, top_y + 5.0, g[0])
 		"heaume":
 			var dome_top := top_y - 2.5
-			_ell(hx, hcy - 2.5, rx + 2.2, ry + 1.8, h, 0.0, hcy - 1.5)
-			_rect(hx - rx - 2.0, hcy - 3.5, (rx + 2.0) * 2.0, 3.5, h[1])
-			_rect(hx - rx - 2.0, hcy - 3.5, (rx + 2.0) * 2.0, 1.0, h[4])
-			_rect(hx - rx - 2.0, hcy - 0.5, (rx + 2.0) * 2.0, 1.0, h[0])
+			_ell(hx, hcy - 2.5, rx + 2.2, ry + 1.8, h, 0.0, hcy - 3.5)
+			_rect(hx - rx - 2.0, hcy - 5.5, (rx + 2.0) * 2.0, 3.0, h[1])
+			_rect(hx - rx - 2.0, hcy - 5.5, (rx + 2.0) * 2.0, 1.0, h[4])
+			_rect(hx - rx - 2.0, hcy - 2.5, (rx + 2.0) * 2.0, 1.0, h[0])
 			if view == 0:
-				_trap(hcy - 2.0, hcy + 12.0, hx - 2.4, hx + 2.4, hx - 2.2, hx + 2.2, h, 0.1)
+				_trap(hcy - 3.0, hcy + 7.5, hx - 1.6, hx + 1.6, hx - 1.4, hx + 1.4, h, 0.1)
 				for s: int in [-1, 1]:
 					var bx := hx + float(s) * (rx - 2.5)
-					_trap(hcy - 2.0, hcy + ry - 5.0, bx - 2.0, bx + 2.0, bx - 2.0, bx + 2.0, h, -0.1)
+					_trap(hcy - 3.0, hcy + ry - 5.0, bx - 1.5, bx + 1.5, bx - 1.5, bx + 1.5, h, -0.1)
 				_put(ix - 10, int(hcy) - 8, WHITE)
 				_put(ix + 9, int(hcy) - 8, h[4])
 			elif view == 1:
-				_trap(hcy - 2.0, hcy + 10.0, hx - rx + 1.0, hx - rx + 4.5, hx - rx + 1.5, hx - rx + 4.5, h, 0.1)
-				_trap(hcy - 2.0, hcy + ry - 2.0, hx + 2.0, hx + 10.0, hx + 2.0, hx + 10.0, h, -0.1)
+				_trap(hcy - 3.0, hcy + 6.0, hx - rx + 1.0, hx - rx + 3.5, hx - rx + 1.5, hx - rx + 3.5, h, 0.1)
+				_trap(hcy - 3.0, hcy + ry - 2.0, hx + 2.0, hx + 10.0, hx + 2.0, hx + 10.0, h, -0.1)
 			if str(look.get("crest", "")) == "cornes":
 				for s: int in [-1, 1]:
 					_cap(hx + float(s) * (rx - 2.0), dome_top + 7.0, hx + float(s) * (rx + 8.0), dome_top - 8.0, 4.4, 1.4, h)

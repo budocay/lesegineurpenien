@@ -6,6 +6,7 @@ extends PanelContainer
 
 const UI = preload("res://src/ui/ui_kit.gd")
 
+const PAD_NAMES := ["Start", "Croix", "Stick gauche", "LB", "RB", "dpad_ud", "dpad_lr"]
 const WIDTH_NOTE := 430.0
 const WIDTH_MODAL := 700.0
 
@@ -24,7 +25,8 @@ func build(view: Dictionary) -> void:
 	st.shadow_size = 12
 	add_theme_stylebox_override("panel", st)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(WIDTH_MODAL if modal else WIDTH_NOTE, 0)
+	var width: float = float(view.get("width", WIDTH_MODAL if modal else WIDTH_NOTE))
+	custom_minimum_size = Vector2(width, 0)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 7)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -47,10 +49,14 @@ func build(view: Dictionary) -> void:
 	box.add_child(UI.rule())
 	var body := UI.label(str(view.get("text", "")), 17 if modal else 18, UI.INK)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.custom_minimum_size = Vector2((WIDTH_MODAL if modal else WIDTH_NOTE) - 40.0, 0)
+	body.custom_minimum_size = Vector2(width - 40.0, 0)
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(body)
-	var rows: Array = view.get("rows", [])
+	var rows: Array = []
+	for r: Variant in view.get("rows", []):
+		if modal and str((r as Dictionary).get("verb", "")) == "continuer":
+			continue   # déjà dit par « pour continuer »
+		rows.append(r)
 	var foot_row: HBoxContainer = null
 	if modal:
 		# touches à presser à gauche, « pour continuer » à droite : une seule ligne, pour rester bas
@@ -117,15 +123,17 @@ static func caps_nodes(caps: Array, size: int) -> Array[Control]:
 			l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			out.append(l)
 			continue
+		if PAD_NAMES.has(text) or UI.PAD_COLORS.has(text):
+			out.append(UI.pad_glyph(text, size))
+			continue
 		var cap := PanelContainer.new()
 		var cs := StyleBoxFlat.new()
 		cs.bg_color = Color(UI.GOLD, 0.14)
 		cs.border_color = UI.GOLD
 		cs.set_border_width_all(1)
-		var round_pad: bool = text.length() == 1 and "ABXY".contains(text)   # boutons de manette : ronds
-		cs.set_corner_radius_all(14 if round_pad else 4)
-		cs.content_margin_left = 10 if round_pad else 8
-		cs.content_margin_right = 10 if round_pad else 8
+		cs.set_corner_radius_all(4)
+		cs.content_margin_left = 8
+		cs.content_margin_right = 8
 		cs.content_margin_top = 1
 		cs.content_margin_bottom = 2
 		cap.add_theme_stylebox_override("panel", cs)

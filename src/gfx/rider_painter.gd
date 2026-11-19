@@ -49,7 +49,7 @@ static func has_prop(kind: String) -> bool:
 
 static func paint_tile(kind: String) -> Image:
 	match kind:
-		"cav_herbe": return _noise(["#a89a44", "#b6a850", "#948a3a", "#c0b25c"], 1101, 52, Color("#d8cc78"))
+		"cav_herbe": return _noise(["#9a9c46", "#a8ae54", "#868c3c", "#b6b862"], 1101, 52, Color("#d4d880"))
 		"cav_chemin": return _noise(["#b89a62", "#a88a54", "#c4a870", "#9a7c48"], 1102, 40, Color("#ddc690"))
 		"cav_planches": return _planks()
 		"cav_mur": return _wood_wall()

@@ -18,7 +18,7 @@ const ROOF_PAL := {
 	"vert": ["#5f7d4c", "#536f44", "#6d8c56", "#2f4232", "#86a468"],
 	"ardoise": ["#5c6684", "#4f5874", "#6b7594", "#30364e", "#8690ad"],
 	"chaume": ["#c2a25a", "#b3924c", "#cfb06a", "#7c6234", "#e2c884"],
-	"herbe": ["#8aae4c", "#7a9e42", "#9ec25a", "#46682f", "#bcd878"],
+	"herbe": ["#a4c84c", "#92b842", "#bad862", "#46682f", "#dcf08a"],
 }
 
 
@@ -377,7 +377,7 @@ static func front(spec: Dictionary, w_units: float, h_units: float, door_x: floa
 	for k in range(spots.size() - 1):
 		if spots[k + 1] - spots[k] >= 44.0:
 			posts.append(int((spots[k] + spots[k + 1]) * 0.5))
-	eave_shadow(img, 0, 11, 0.34)
+	eave_shadow(img, 0, 14 if str(spec["style"]) == "grobitte" else 11, 0.5 if str(spec["style"]) == "grobitte" else 0.34)
 	if floor_y > 0:
 		eave_shadow(img, floor_y + 4, 10, 0.3)   # dessous de l'encorbellement
 	wall_trim(img, wall_kind, sd, 9)
@@ -407,7 +407,7 @@ static func front(spec: Dictionary, w_units: float, h_units: float, door_x: floa
 		if round_style:
 			TP._window(img, emi, wx, float(ground_cy), lit, shutter, left_ok, right_ok, sd)
 		else:
-			window(img, emi, int(wx), ground_cy - 3, lit, shutter, str(spec["window"]), left_ok, right_ok, bool(spec["flowers"]), sd)
+			window(img, emi, int(wx), ground_cy - 3, lit, shutter, str(spec["window"]), left_ok, right_ok, false, sd)   # jardinières : en volume (HouseBuilder)
 		if floor_y > 0:
 			var ucy := floor_y / 2 + 1
 			window(img, emi, int(wx), ucy, lit, shutter, "croisillons", left_ok, right_ok, false, sd + 5)
@@ -419,9 +419,7 @@ static func front(spec: Dictionary, w_units: float, h_units: float, door_x: floa
 			TP._door(img, door_x * PPU, door_color, h)
 		else:
 			door(img, int(door_x * PPU), door_color, h, str(spec["door"]), sd)
-	if bool(spec["ivy"]):
-		TP._ivy(img, sd % 2 == 0, sd)
-	return {"albedo": img, "emission": emi}
+	return {"albedo": img, "emission": emi}   # lierre : en volume (HouseBuilder), plus peint à plat
 
 
 static func _timber_frame(img: Image, posts: Array[int], floor_y: int, sd: int, braces: bool) -> void:
@@ -535,24 +533,46 @@ static func roof(spec: Dictionary, w_units: float, len_units: float) -> Image:
 	return img
 
 
-## Toit en tonneau des Grobittes : l'herbe s'éclaircit vers la crête (le milieu de la texture),
-## s'assombrit vers les avant-toits (haut et bas), et des raies de gazon suivent la courbe.
+## Toit en tonneau des Grobittes : l'herbe s'éclaircit nettement vers la crête (le milieu de la
+## texture), s'assombrit vers les avant-toits (haut et bas), des raies de gazon suivent la courbe, et
+## un liseré de gazon plus sombre, ourlé d'un fil clair, borde les pignons : le toit se détache du sol.
 static func _turf_curve(img: Image) -> void:
 	var w := img.get_width()
 	var h := img.get_height()
 	for y in h:
 		var v := float(y) / float(maxi(h - 1, 1))
 		var k := 1.0 - absf(v - 0.5) * 2.0          # 0 aux avant-toits, 1 à la crête
-		var d := -0.04 + 0.3 * k * k + 0.12 * k
+		var d := -0.3 + 0.52 * k * k + 0.2 * k
 		for x in w:
-			img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), d))
+			var c := PA.shade(img.get_pixel(x, y), d)
+			if k > 0.55:
+				c = c.lerp(Color("#e6f08a"), 0.22 * (k - 0.55) / 0.45)   # la crête, dorée par le soleil
+			elif k < 0.3:
+				c = c.lerp(Color("#2e5a3a"), 0.25 * (0.3 - k) / 0.3)    # le dessous, vert profond
+			img.set_pixel(x, y, c)
 	# raies de gazon, plus serrées près des bords (la courbe fuit)
 	for i in range(1, 9):
 		var y := int(round(float(h - 1) * (0.5 - 0.5 * cos(PI * float(i) / 9.0))))
 		for x in w:
-			img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.14))
+			img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.2))
 			if y + 1 < h:
-				img.set_pixel(x, y + 1, PA.shade(img.get_pixel(x, y + 1), 0.07))
+				img.set_pixel(x, y + 1, PA.shade(img.get_pixel(x, y + 1), 0.1))
+	# liseré des rives : deux colonnes sombres, un fil clair à l'intérieur
+	for y in h:
+		for i in 2:
+			for x: int in [i, w - 1 - i]:
+				img.set_pixel(x, y, PA.shade(img.get_pixel(x, y), -0.34 + 0.1 * float(i)))
+		img.set_pixel(2, y, PA.shade(img.get_pixel(2, y), 0.14))
+		img.set_pixel(w - 3, y, PA.shade(img.get_pixel(w - 3, y), 0.14))
+	# frange d'herbe pendante le long des deux avant-toits
+	for x in w:
+		if PA.rnd(x, 3, 71) < 0.55:
+			var c := PA.shade(img.get_pixel(x, 3), -0.1)
+			img.set_pixel(x, 1, c)
+			img.set_pixel(x, h - 2, PA.shade(img.get_pixel(x, h - 3), -0.1))
+		if PA.rnd(x, 4, 71) < 0.3:
+			img.set_pixel(x, 0, PA.shade(img.get_pixel(x, 2), -0.25))
+			img.set_pixel(x, h - 1, PA.shade(img.get_pixel(x, h - 3), -0.3))
 
 
 ## Vieillissement d'un toit de tuiles, d'ardoises ou de chaume vu de face : la teinte dérive d'une
@@ -571,23 +591,32 @@ static func _weather(img: Image, spec: Dictionary, w_units: float, sd: int) -> v
 			var c := img.get_pixel(x, y)
 			c.h = fposmod(c.h + dh, 1.0)
 			img.set_pixel(x, y, PA.shade(c, dv))
-	# 2. mousse : taches lentes, surtout dans la moitié basse
-	for y in h:
-		var vy := float(y) / float(h)
-		for x in w:
-			var m := vnoise(float(x), float(y), sd + 50, 7.0)
-			if m > 0.8 - 0.06 * vy and vy > 0.4:
-				var c := img.get_pixel(x, y)
-				var moss := Color("#5e8a3c").lerp(Color("#82a850"), PA.rnd(x, y, sd + 51))
-				img.set_pixel(x, y, c.lerp(moss, 0.4))
-	# 3. tuiles manquantes : le liteau sombre apparaît
-	var n_miss := 2 + int(PA.rnd(1, 3, sd + 60) * 3.0)
-	for i in n_miss:
-		var mx := int(PA.rnd(i, 1, sd + 61) * float(w - 14)) + 2
-		var my := int(PA.rnd(i, 2, sd + 61) * float(h - 18)) + 6
-		PA.rect(img, mx, my, 9, 6, Color("#2a1e1a"))
-		PA.rect(img, mx, my + 3, 9, 1, Color("#4a3426"))
-		PA.rect(img, mx, my, 9, 1, Color("#1a1210"))
+	# 2. mousse : petites touffes posées sur le bord bas des assises, plus nombreuses dans des zones
+	# lentes et vers le faîtage (le nord du pan, à l'abri du soleil) ; jamais de grande tache
+	var kind := str(spec["roof"])
+	var course := 14 if kind == "chaume" else (6 if kind == "ardoise" else 7)
+	var base_moss := Color("#5e8a3c") if kind != "chaume" else Color("#7a8a3a")
+	var r := 0
+	while (r + 1) * course <= h + course:
+		var yb := mini((r + 1) * course - 1, h - 6)
+		var vy := float(yb) / float(h)
+		var n_try := maxi(2, w / 9)
+		for k in n_try:
+			var cx := int(PA.rnd(k, r, sd + 52) * float(w))
+			var zone := vnoise(float(cx), float(yb), sd + 50, 40.0)
+			var p := 0.04 + 0.5 * maxf(0.0, zone - 0.58) + (0.14 if vy < 0.3 else 0.0)
+			if PA.rnd(k, r, sd + 53) >= p:
+				continue
+			var cw := 3 + int(PA.rnd(k, r, sd + 54) * 3.0)
+			for i in cw:
+				var hgt := 1 + (1 if (i > 0 and i < cw - 1) else 0) + (1 if (PA.rnd(i, k + r * 31, sd + 55) < 0.3) else 0)
+				for j in hgt:
+					var c := base_moss.lerp(Color("#8fb25a"), PA.rnd(cx + i, yb - j, sd + 56) * 0.8)
+					if j == hgt - 1:
+						c = PA.shade(c, 0.16)
+					PA.px(img, cx + i, yb - j, c)
+				PA.px(img, cx + i, yb + 1, PA.shade(base_moss, -0.5))
+		r += 1
 	# 4. ombre des lucarnes (lumière venue du haut et de la gauche : l'ombre tombe en bas à droite)
 	var dn := int(spec.get("dormers", 0))
 	if dn > 0:
@@ -657,6 +686,8 @@ static func _tiles(img: Image, tones: Array[Color], slate: bool, sd: int) -> voi
 					elif PA.rnd(xx, yy, sd + 4) < 0.06:
 						c = tone.darkened(0.1)
 					img.set_pixel(xx, yy, c)
+			if age > 0.62 and age < 0.637 and y0 >= rh and y0 < h - 2 * rh:
+				_lath(img, x0, y0, tw_i, rh, sd + r * 7 + c_i)
 			if age > 0.52 and age < 0.6:
 				for k in 5:
 					PA.px(img, x0 + 2 + k * 2, y0 + 2 + (k % 2), Color("#6f9a50"))
@@ -664,6 +695,31 @@ static func _tiles(img: Image, tones: Array[Color], slate: bool, sd: int) -> voi
 			c_i += 1
 		y0 += rh
 		r += 1
+
+
+## Tuile manquante : on voit la volige brune et un lattis, sous l'ombre fine de l'assise du dessus
+## (jamais un trou noir : le brun reste proche des tons du toit).
+static func _lath(img: Image, x0: int, y0: int, tw: int, rh: int, sd: int) -> void:
+	var board := Color("#7a5636")
+	for y in rh:
+		for x in tw:
+			var c := board
+			if y == 0:
+				c = Color("#3c281c")          # ombre portée de l'assise du dessus
+			elif y == 1:
+				c = board.darkened(0.35)
+			elif y == rh - 2 and rh > 5:
+				c = Color("#4a3322")          # jeu entre deux planches
+			elif y == rh - 1:
+				c = board.lightened(0.12)     # chant du lattis
+			else:
+				c = board.lerp(Color("#9a6e44"), PA.rnd(x, y, sd) * 0.35)
+			if x == 0 or x == tw - 1:
+				c = c.darkened(0.25)          # tuiles voisines : ombre latérale
+			PA.px(img, x0 + x, y0 + y, c)
+	# un clou et une fibre de bois
+	PA.px(img, x0 + 2 + int(PA.rnd(1, 1, sd) * float(tw - 4)), y0 + 2, Color("#2a1c14"))
+	PA.px(img, x0 + 1 + int(PA.rnd(2, 1, sd) * float(tw - 3)), y0 + 3, Color("#5a3e28"))
 
 
 static func _thatch(img: Image, tones: Array[Color], sd: int) -> void:
@@ -708,33 +764,47 @@ static func _turf(img: Image, tones: Array[Color], sd: int) -> void:
 	var c_hi := tones[1].lerp(tones[2], 0.55)
 	var c_lo := tones[1].lerp(tones[3], 0.28)
 	var c_dk := tones[1].lerp(tones[3], 0.5)
-	var nm := noise_map(w, h, sd, 9.0)
+	var nm := noise_map(w, h, sd, 4.0)
+	var nm2 := noise_map(w, h, sd + 9, 13.0)
 	for y in h:
 		for x in w:
-			var n := nm[y * w + x]
+			var n := nm[y * w + x] * 0.7 + nm2[y * w + x] * 0.3
 			var c := c_mid
-			if n > 0.64:
+			if n > 0.6:
 				c = c_hi
-			elif n < 0.34:
+			elif n < 0.4:
 				c = c_lo
 			if PA.rnd(x, y, sd) < 0.018:
 				c = c_dk
 			img.set_pixel(x, y, c)
-	# touffes d'herbe : traits clairs verticaux
-	for i in int(w * h / 60):
+	# touffes d'herbe : traits clairs verticaux, plus hauts
+	for i in int(w * h / 48):
 		var x := int(PA.rnd(i, 1, sd + 3) * float(w))
 		var y := int(PA.rnd(i, 2, sd + 3) * float(h))
-		var hh := 2 + int(PA.rnd(i, 3, sd + 3) * 3.0)
+		var hh := 2 + int(PA.rnd(i, 3, sd + 3) * 4.0)
 		for k in hh:
 			PA.px(img, x, y - k, tones[4] if k == hh - 1 else tones[2])
-	# fleurs des champs et plaque de terre nue
-	var blooms := [Color("#f4f0e2"), Color("#f2d55c"), Color("#e86a7a"), Color("#b98ae0")]
-	for i in 18 + int(w * h / 500):
-		var x := int(PA.rnd(i, 4, sd + 4) * float(w - 2)) + 1
-		var y := int(PA.rnd(i, 5, sd + 4) * float(h - 2)) + 1
-		var bc: Color = blooms[int(PA.rnd(i, 6, sd + 4) * 4.0) % 4]
-		PA.px(img, x, y, bc)
-		PA.px(img, x + 1, y + 1, bc.darkened(0.25))
+			if hh >= 4 and k == hh - 2:
+				PA.px(img, x + 1, y - k - 1, tones[4])
+	# fleurs des champs : petites corolles en croix et points, regroupées en bouquets
+	var blooms := [Color("#f4f0e2"), Color("#f2d55c"), Color("#e86a7a"), Color("#b98ae0"), Color("#ff9a3c")]
+	for i in 26 + int(w * h / 300):
+		var x := int(PA.rnd(i, 4, sd + 4) * float(w - 6)) + 3
+		var y := int(PA.rnd(i, 5, sd + 4) * float(h - 6)) + 3
+		var bc: Color = blooms[int(PA.rnd(i, 6, sd + 4) * 5.0) % 5]
+		var cross := PA.rnd(i, 7, sd + 4) < 0.45
+		for j in (3 if cross else 2):
+			var bx := x + int(PA.rnd(i, 10 + j, sd + 4) * 5.0) - 2
+			var by := y + int(PA.rnd(i, 20 + j, sd + 4) * 3.0) - 1
+			PA.px(img, bx, by, bc)
+			if cross:
+				PA.px(img, bx - 1, by, bc)
+				PA.px(img, bx + 1, by, bc)
+				PA.px(img, bx, by - 1, bc)
+				PA.px(img, bx, by + 1, bc)
+				PA.px(img, bx, by, Color("#f2d55c") if bc != blooms[1] else Color("#d9822a"))
+			else:
+				PA.px(img, bx + 1, by + 1, bc.darkened(0.3))
 	# ombre vers l'avant-toit
 	for y in range(h - 5, h):
 		for x in w:
@@ -761,6 +831,47 @@ static func dormer(spec: Dictionary, lit: bool) -> Dictionary:
 	PA.rect(emi, 6, 19, 12, 1, Color.BLACK)
 	PA.rect(img, 4, 27, 16, 2, Color("#a8a39c"))
 	return {"albedo": img, "emission": emi}
+
+
+# ------------------------------------------------------------------ lierre
+
+## Carte de lierre (grimpant sur un angle de mur) : `couche` 0 = base collée au mur, dense ; 1 = feuilles
+## qui dépassent, plus claires ; 2 = rameaux pendants. Peinte à plat avec transparence franche
+## (le constructeur les pose en couches successives, légèrement décollées du mur, pour donner du volume).
+static func ivy_card(w: int, h: int, layer: int, sd: int) -> Image:
+	var img := PA.new_image(w, h)
+	var greens := [Color("#2f5a34"), Color("#3f7d43"), Color("#4f9148"), Color("#6aac58")]
+	if layer == 1:
+		greens = [Color("#3f7d43"), Color("#4f9148"), Color("#6aac58"), Color("#88c46a")]
+	var vx := float(w) * (0.3 if layer == 0 else 0.45)
+	var n := int(float(w * h) / (11.0 if layer == 0 else 22.0))
+	for i in n:
+		# la tige monte en serpentant ; les feuilles s'écartent d'elle, moins nombreuses vers le haut
+		var t := PA.rnd(i, 1, sd)                       # 0 = bas, 1 = haut
+		var y := int((1.0 - t * t) * float(h - 4)) + 1
+		if layer == 2:
+			y = int(PA.rnd(i, 2, sd) * float(h * 3 / 4))
+		var spread := float(w) * (0.5 - 0.22 * t) if layer != 2 else float(w) * 0.3
+		var cx := vx + sin(float(y) * 0.21 + float(sd)) * 2.0 + (PA.rnd(i, 3, sd) - 0.5) * 2.0 * spread
+		var lx := int(clampf(cx, 1.0, float(w) - 4.0))
+		var lc: Color = greens[int(PA.rnd(i, 4, sd) * 4.0) % 4]
+		# feuille : losange de 3 x 3 à 4 x 3 pixels, un reflet, une ombre
+		var lw := 3 + (1 if PA.rnd(i, 5, sd) < 0.4 else 0)
+		for yy in 3:
+			for xx in lw:
+				if (yy == 0 or yy == 2) and (xx == 0 or xx == lw - 1) and PA.rnd(xx, yy + i, sd) < 0.8:
+					continue
+				PA.px(img, lx + xx, y + yy, PA.shade(lc, -0.35) if yy == 2 else lc)
+		PA.px(img, lx + 1, y, PA.shade(lc, 0.3))
+		if PA.rnd(i, 6, sd) < 0.05 and layer == 1:
+			PA.px(img, lx + 2, y + 1, Color("#f4f0e2"))   # une petite fleur
+	# tige sombre, visible entre les feuilles
+	var x := vx
+	for y in range(h - 1, 0, -1):
+		x = vx + sin(float(y) * 0.21 + float(sd)) * 2.0
+		if layer != 2 and PA.rnd(y, 7, sd) < 0.85:
+			PA.px(img, int(x), y, Color("#243f28"))
+	return img
 
 
 # ------------------------------------------------------------------ enseigne

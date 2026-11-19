@@ -947,7 +947,7 @@ func _update_keys() -> void:
 		_keys.remove_child(n)
 		n.queue_free()
 	if _state == S.ROOT:
-		_keys.add_child(UI.hints([["Haut/Bas", "choisir"], ["Gauche/Droite", "élan"], ["Entrée", "valider"]], 14))
+		_keys.add_child(UI.hints([["ud", "choisir"], ["lr", "élan"], ["ok", "valider"]], 14))
 	elif _state == S.LIST or _state == S.TARGET:
 		_keys.add_child(UI.hints(UI.KEYS_MENU, 14))
 	_keys.visible = _state in [S.ROOT, S.LIST, S.TARGET]

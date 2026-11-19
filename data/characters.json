@@ -1,15 +1,15 @@
 {
-	"lambert": {"name": "Lambert", "full_name": "Lambert, garde de la porte de Brie", "look": {"build": "grand", "outfit": "tunique", "skin": "#d9a27c", "top": "#4a5a7a", "bottom": "#3a3430", "belt": "#6a4a2a", "hair": "#5a4a3a", "hair_style": "court", "beard": "courte", "beard_color": "#5a4a3a", "hat": "casquette", "hat_color": "#3a4a6a"}},
+	"lambert": {"name": "Lambert", "full_name": "Lambert, garde de la porte de Brie", "look": {"build": "grand", "outfit": "tunique", "skin": "#d9a27c", "top": "#4a5a7a", "bottom": "#3a3430", "belt": "#6a4a2a", "hair": "#5a4a3a", "hair_style": "court", "beard": "courte", "beard_color": "#5a4a3a", "hat": "casquette", "hat_color": "#3a4a6a", "held": "lance"}},
 	"hermine": {"name": "Dame Hermine", "full_name": "Hermine Lactée, doyenne de la place", "look": {"build": "petit", "outfit": "jupe", "skin": "#e6b896", "top": "#7a6a8a", "bottom": "#5a4a5a", "hair": "#cfcfd4", "hair_style": "chignon", "hat": "foulard", "hat_color": "#b89a5a"}},
 	"colin": {"name": "Colin", "full_name": "Colin, qui reste debout", "look": {"build": "enfant", "outfit": "tunique", "skin": "#e8b890", "top": "#5a8a5a", "bottom": "#6a5a3a", "hair": "#b06a2a", "hair_style": "boucles"}},
 	"sidonie": {"name": "Sidonie", "full_name": "Sidonie Rissole, marchande", "look": {"build": "grand", "outfit": "jupe", "skin": "#e0a888", "top": "#c0603a", "bottom": "#4a3a5a", "belt": "#c9a24a", "hair": "#3a2a22", "hair_style": "chignon", "hat": "foulard", "hat_color": "#d8b84a"}},
 	"barnabe": {"name": "Barnabé", "full_name": "Barnabé Brisemotte, aubergiste du Poney Flagada", "look": {"build": "grand", "outfit": "tablier", "skin": "#e2a882", "top": "#7a4a30", "bottom": "#3a3028", "hair": "#7a5a3a", "hair_style": "chauve", "beard": "moustache", "beard_color": "#7a5a3a"}},
 	"persille": {"name": "Anatole", "full_name": "Anatole Persillé, fromager", "look": {"build": "grand", "outfit": "tablier", "skin": "#e6b08c", "top": "#e8e2cc", "bottom": "#4a4034", "hair": "#8a8a8e", "hair_style": "court", "beard": "moustache", "beard_color": "#8a8a8e", "hat": "toque", "hat_color": "#f0ece0"}},
-	"gaston": {"name": "Gaston", "full_name": "Gaston Gros-Bras, bûcheron", "look": {"build": "grand", "outfit": "tunique", "skin": "#d89a72", "top": "#9a3a2a", "bottom": "#4a3a2a", "belt": "#2a2018", "hair": "#3a2a1c", "hair_style": "court", "beard": "longue", "beard_color": "#3a2a1c"}},
+	"gaston": {"name": "Gaston", "full_name": "Gaston Gros-Bras, bûcheron", "look": {"build": "grand", "outfit": "tunique", "skin": "#d89a72", "top": "#9a3a2a", "bottom": "#4a3a2a", "belt": "#2a2018", "hair": "#3a2a1c", "hair_style": "court", "beard": "longue", "beard_color": "#3a2a1c", "held": "hache"}},
 	"veuve": {"name": "Veuve Poignet", "full_name": "La Veuve Poignet, championne", "look": {"build": "grand", "outfit": "jupe", "skin": "#e8c4a8", "top": "#2a2630", "bottom": "#1c1a22", "belt": "#6a6a76", "hair": "#c8c8d0", "hair_style": "chignon"}},
-	"pinard": {"name": "Pinard", "full_name": "Mathurin Pinard, fermier", "look": {"build": "grand", "outfit": "tunique", "skin": "#dc9c74", "top": "#7a8a4a", "bottom": "#5a4a30", "belt": "#4a3a22", "hair": "#6a4a2a", "hair_style": "court", "hat": "chapeau_paille", "hat_color": "#d8c070"}},
-	"naze_aine": {"name": "Le Naze de l'Est", "full_name": "Un des Neuf Nazes, ancien roi de l'Est", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#2a1c26", "belt": "#a08a8a", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#1c1218", "feet": "bottes", "boots": "#0c0a10"}},
-	"naze_cadet": {"name": "Le Naze de l'Ouest", "full_name": "Un des Neuf Nazes, ancien roi de l'Ouest", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c2430", "belt": "#8a9ab0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#121a24", "feet": "bottes", "boots": "#0c0a10"}},
+	"pinard": {"name": "Pinard", "full_name": "Mathurin Pinard, fermier", "look": {"build": "grand", "outfit": "tunique", "skin": "#dc9c74", "top": "#7a8a4a", "bottom": "#5a4a30", "belt": "#4a3a22", "hair": "#6a4a2a", "hair_style": "court", "hat": "chapeau_paille", "hat_color": "#d8c070", "held": "fourche"}},
+	"naze_aine": {"name": "Le Naze de l'Est", "full_name": "Un des Neuf Nazes, ancien roi de l'Est", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#2a1c26", "belt": "#a08a8a", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#1c1218", "glow": "#ff8a5a", "feet": "bottes", "boots": "#0c0a10"}},
+	"naze_cadet": {"name": "Le Naze de l'Ouest", "full_name": "Un des Neuf Nazes, ancien roi de l'Ouest", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c2430", "belt": "#8a9ab0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#121a24", "glow": "#9aff8a", "feet": "bottes", "boots": "#0c0a10"}},
 	"glandoulf": {
 		"name": "Glandoulf",
 		"full_name": "Glandoulf le Gris",
@@ -47,7 +47,7 @@
 			"build": "petit", "outfit": "tablier", "skin": "#eab98f",
 			"top": "#b5654a", "bottom": "#6b5238",
 			"hair": "#b5763a", "hair_style": "boucles",
-			"hat": "toque", "hat_color": "#f2ecdc"
+			"hat": "toque", "hat_color": "#f2ecdc", "held": "poele"
 		}
 	},
 	"froton": {
@@ -67,7 +67,7 @@
 			"top": "#4a5a7a", "bottom": "#3d3a48",
 			"hair": "#3a2c2a", "hair_style": "court",
 			"hat": "capuche", "hat_color": "#5a4a6a",
-			"item": "pipe"
+			"item": "pipe", "held": "dague"
 		}
 	},
 	"pepin": {
@@ -85,7 +85,7 @@
 			"build": "petit", "outfit": "tunique", "skin": "#edc09a",
 			"top": "#e8dcc0", "bottom": "#5f8a52", "belt": "#8a5a34",
 			"hair": "#a8482e", "hair_style": "court",
-			"hat": "chapeau_paille", "hat_color": "#d9c078", "band": "#c8556a"
+			"hat": "chapeau_paille", "hat_color": "#d9c078", "band": "#c8556a", "held": "serpe"
 		}
 	},
 	"merri": {		"name": "Merri Brandemou",
@@ -105,7 +105,7 @@
 			"top": "#3f5a7a", "bottom": "#6a5236", "belt": "#c9a24a",
 			"hair": "#7a4a26", "hair_style": "boucles",
 			"hat": "casquette", "hat_color": "#6a4a2a",
-			"feet": "bottes", "boots": "#3a2a20"
+			"feet": "bottes", "boots": "#3a2a20", "held": "rapiere"
 		}
 	},
 	"isidur": {
@@ -124,7 +124,7 @@
 			"hair": "#3a2c22", "hair_style": "long",
 			"beard": "courte", "beard_color": "#3a2c22",
 			"hat": "couronne", "hat_color": "#e2c27c", "band": "#c8324a",
-			"feet": "bottes", "boots": "#3a2a24"
+			"feet": "bottes", "boots": "#3a2a24", "held": "epee"
 		}
 	},
 	"aragrogne": {
@@ -145,7 +145,7 @@
 			"hair": "#2e2620", "hair_style": "long",
 			"beard": "courte", "beard_color": "#2e2620",
 			"hat": "capuche", "hat_color": "#3e4636",
-			"feet": "bottes", "boots": "#2a221c"
+			"feet": "bottes", "boots": "#2a221c", "held": "epee"
 		}
 	},
 	"digoulasse": {
@@ -164,7 +164,7 @@
 			"build": "grand", "outfit": "tunique", "skin": "#f0d2b8",
 			"top": "#6a8a6a", "bottom": "#4a5a4a", "belt": "#c9a24a",
 			"hair": "#e8dca8", "hair_style": "long",
-			"feet": "bottes", "boots": "#4a3a2a"
+			"feet": "bottes", "boots": "#4a3a2a", "held": "arc"
 		}
 	},
 	"grimli": {
@@ -184,7 +184,7 @@
 			"top": "#7a4a3a", "bottom": "#4a4248", "belt": "#c9a24a",
 			"hair": "#b8502a", "hair_style": "chignon",
 			"hat": "heaume", "hat_color": "#8a8a96",
-			"feet": "bottes", "boots": "#2a221c"
+			"feet": "bottes", "boots": "#2a221c", "held": "hache"
 		}
 	},
 	"sauron": {
@@ -224,7 +224,7 @@
 			"build": "petit", "outfit": "jupe", "skin": "#e4b596",
 			"top": "#7a5a8a", "bottom": "#4a4458", "belt": "#3a3444",
 			"hair": "#d6d6de", "hair_style": "court",
-			"hat": "foulard", "hat_color": "#b0483c"
+			"hat": "foulard", "hat_color": "#b0483c", "held": "balai"
 		}
 	},
 	"anselme": {
@@ -235,7 +235,7 @@
 			"top": "#6a7a4a", "bottom": "#5a4a38", "belt": "#3a2a20",
 			"hair": "#5a3a24", "hair_style": "court",
 			"beard": "courte", "beard_color": "#5a3a24",
-			"hat": "casquette", "hat_color": "#4a5a34"
+			"hat": "casquette", "hat_color": "#4a5a34", "held": "balai"
 		}
 	},
 	"berthe": {
@@ -264,36 +264,36 @@
 	},
 	"nestor": {"name": "Nestor", "full_name": "Nestor Boutdebois, patron de barque", "look": {"build": "petit", "outfit": "tunique", "skin": "#d9a078", "top": "#b0483c", "bottom": "#e2d8c0", "belt": "#3a2a20", "hair": "#2a2420", "hair_style": "court", "beard": "courte", "beard_color": "#2a2420", "hat": "casquette", "hat_color": "#2f4a6e"}},
 	"basile": {"name": "Basile", "full_name": "Basile Trempette, pêcheur de la Roselière", "look": {"build": "petit", "outfit": "tunique", "skin": "#dba884", "top": "#5a7a6a", "bottom": "#4a4438", "belt": "#3a2a20", "hair": "#8a8a82", "hair_style": "court", "beard": "moustache", "beard_color": "#9a9a92", "hat": "chapeau_paille", "hat_color": "#c8b070", "band": "#4a6a5a"}},
-	"morfale_eclaireur": {"name": "Morfale", "full_name": "Morfale éclaireur", "look": {"species": "morfale", "build": "grand", "outfit": "tunique", "skin": "#8a9a6a", "top": "#5a3a34", "bottom": "#3a3430", "belt": "#c9a24a", "hair": "#1c1a18", "hair_style": "chauve", "hat": "capuche", "hat_color": "#4a3a30", "feet": "bottes", "boots": "#241c18"}},
-	"morfale_goinfre": {"name": "Morfale", "full_name": "Morfale goinfre", "look": {"species": "morfale", "build": "grand", "outfit": "tablier", "skin": "#7a8a5a", "top": "#6a4a3a", "bottom": "#3a3430", "hair": "#1c1a18", "hair_style": "chauve", "hat": "toque", "hat_color": "#b8ac94", "feet": "bottes", "boots": "#241c18"}},
+	"morfale_eclaireur": {"name": "Morfale", "full_name": "Morfale éclaireur", "look": {"species": "morfale", "build": "grand", "outfit": "tunique", "skin": "#8a9a6a", "top": "#5a3a34", "bottom": "#3a3430", "belt": "#c9a24a", "hair": "#1c1a18", "hair_style": "chauve", "hat": "capuche", "hat_color": "#4a3a30", "feet": "bottes", "boots": "#241c18", "held": "hache"}},
+	"morfale_goinfre": {"name": "Morfale", "full_name": "Morfale goinfre", "look": {"species": "morfale", "build": "grand", "outfit": "tablier", "skin": "#7a8a5a", "top": "#6a4a3a", "bottom": "#3a3430", "hair": "#1c1a18", "hair_style": "chauve", "hat": "toque", "hat_color": "#b8ac94", "feet": "bottes", "boots": "#241c18", "held": "gigot"}},
 	"naze": {"name": "Le Naze", "full_name": "Un des Neuf Nazes", "look": {"species": "naze", "build": "grand", "outfit": "robe", "skin": "#2a2634", "top": "#1c1a26", "belt": "#8a8aa0", "hair": "#121018", "hair_style": "chauve", "hat": "capuche", "hat_color": "#15131c", "feet": "bottes", "boots": "#0c0a10"}},
 	"elrond": {"name": "Elrond", "full_name": "Elrond de Cuir, président du Conseil", "look": {"ears": "elfe", "build": "grand", "outfit": "robe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#6a5a3a", "top": "#7a4a2e", "bottom": "#5a3a22", "hair": "#6a4a32", "hair_style": "long", "hat": "couronne", "hat_color": "#a8884a"}},
 	"bromure": {"name": "Bromure", "full_name": "Bromure du Gouda, fils de l'Intendant", "look": {"cape": "#8a2e2e", "eye": "#4a5a6a", "build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#d6b04a", "bottom": "#4a4a5a", "belt": "#c9a24a", "hair": "#7a5a30", "hair_style": "court", "feet": "bottes", "boots": "#3a2a24"}},
-	"huissier": {"name": "Huissier", "full_name": "L'huissier du Conseil", "look": {"ears": "elfe", "build": "grand", "outfit": "robe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#4a6a8a", "top": "#3a4a6a", "bottom": "#2a3248", "hair": "#a8a8b4", "hair_style": "court", "hat": "casquette", "hat_color": "#2a3248"}},
-	"greffier": {"name": "Greffier Tamponnel", "full_name": "Greffier Tamponnel, chancelier", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#5a7a5a", "top": "#5a7a52", "bottom": "#3a4a38", "hair": "#d8d0a0", "hair_style": "court", "hat": "casquette", "hat_color": "#3a4a38"}},
+	"huissier": {"name": "Huissier", "full_name": "L'huissier du Conseil", "look": {"ears": "elfe", "build": "grand", "outfit": "robe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#4a6a8a", "top": "#3a4a6a", "bottom": "#2a3248", "hair": "#a8a8b4", "hair_style": "court", "hat": "casquette", "hat_color": "#2a3248", "held": "lance"}},
+	"greffier": {"name": "Greffier Tamponnel", "full_name": "Greffier Tamponnel, chancelier", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#5a7a5a", "top": "#5a7a52", "bottom": "#3a4a38", "hair": "#d8d0a0", "hair_style": "court", "hat": "casquette", "hat_color": "#3a4a38", "held": "registre"}},
 	"lorelia": {"name": "Lorélia", "full_name": "Lorélia, chanteuse des neuf heures", "look": {"ears": "elfe", "build": "grand", "outfit": "jupe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#6a8aa8", "top": "#a86a8a", "bottom": "#6a4a7a", "hair": "#e8c878", "hair_style": "chignon"}},
 	"buisson": {"name": "Maître Buisson", "full_name": "Maître Buisson, jardinier de la Combe", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#5a8a5a", "top": "#6a8a4a", "bottom": "#4a5a3a", "hair": "#f0f0e0", "hair_style": "long", "hat": "chapeau_paille", "hat_color": "#d8c07a"}},
-	"sylvanor": {"name": "Sylvanor", "full_name": "Sylvanor, marchand d'armes", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#3a8a6a", "top": "#4a6a5a", "bottom": "#3a4a40", "hair": "#c8a860", "hair_style": "long"}},
+	"sylvanor": {"name": "Sylvanor", "full_name": "Sylvanor, marchand d'armes", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#3a8a6a", "top": "#4a6a5a", "bottom": "#3a4a40", "hair": "#c8a860", "hair_style": "long", "held": "epee"}},
 	"clairefontaine": {"name": "Dame Clairefontaine", "full_name": "Dame Clairefontaine, aubergiste", "look": {"ears": "elfe", "build": "grand", "outfit": "tablier", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#6a6aa8", "top": "#8aa8c8", "bottom": "#5a6a8a", "hair": "#e8e0c0", "hair_style": "chignon"}},
 	"elfe_pressee": {"name": "Elfe pressée", "full_name": "Une elfe qui a quatre siècles de retard", "look": {"ears": "elfe", "build": "grand", "outfit": "jupe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#a86a3a", "top": "#c87a4a", "bottom": "#7a4a3a", "hair": "#8a4a2a", "hair_style": "chignon"}},
 	"elfe_lente": {"name": "Elfe tranquille", "full_name": "Un elfe qui n'est pas pressé", "look": {"ears": "elfe", "build": "grand", "outfit": "tunique", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#4a4a8a", "top": "#8a8ac8", "bottom": "#5a5a8a", "hair": "#b8c8e8", "hair_style": "long"}},
-	"gardien_archives": {"name": "Le Gardien des Archives", "full_name": "Le Gardien des Archives, bibliothécaire éternel", "look": {"ears": "elfe", "build": "grand", "outfit": "robe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#c8c8ff", "top": "#6a6a8e", "bottom": "#4a4a66", "hair": "#dcdce8", "hair_style": "long", "hat": "capuche", "hat_color": "#4a4a66"}},
-	"rondin": {"name": "Rondin", "full_name": "Rondin Piochard, forgeron resté en arrière", "look": {"build": "petit", "outfit": "tablier", "skin": "#d89a78", "belt": "#8a6a3a", "feet": "bottes", "boots": "#2a221c", "eye": "#4a3a2a", "top": "#6a5a4a", "bottom": "#3a3a42", "hair": "#8a8a90", "hair_style": "court", "beard": "longue", "beard_color": "#9a9aa2", "hat": "casquette", "hat_color": "#5a4a3a"}},
+	"gardien_archives": {"name": "Le Gardien des Archives", "full_name": "Le Gardien des Archives, bibliothécaire éternel", "look": {"ears": "elfe", "build": "grand", "outfit": "robe", "skin": "#f0d6bc", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a3a2a", "eye": "#c8c8ff", "top": "#6a6a8e", "bottom": "#4a4a66", "hair": "#dcdce8", "hair_style": "long", "hat": "capuche", "hat_color": "#4a4a66", "held": "registre"}},
+	"rondin": {"name": "Rondin", "full_name": "Rondin Piochard, forgeron resté en arrière", "look": {"build": "petit", "outfit": "tablier", "skin": "#d89a78", "belt": "#8a6a3a", "feet": "bottes", "boots": "#2a221c", "eye": "#4a3a2a", "top": "#6a5a4a", "bottom": "#3a3a42", "hair": "#8a8a90", "hair_style": "court", "beard": "longue", "beard_color": "#9a9aa2", "hat": "casquette", "hat_color": "#5a4a3a", "held": "marteau"}},
 	"goulum": {"name": "Goulûm", "full_name": "Goulûm, dit Trempette, pêcheur de Bittebourg", "look": {"build": "petit", "outfit": "tunique", "skin": "#cfd8c8", "belt": "#6a6a5a", "feet": "nus", "boots": "#cfd8c8", "eye": "#9ad8e8", "top": "#7a8a7a", "bottom": "#5a6a5a", "hair": "#cfd8c8", "hair_style": "chauve"}},
 	"balourd": {"name": "Le Balourd", "full_name": "Le Balourd des profondeurs", "look": {"build": "grand", "outfit": "robe", "skin": "#8a2a1a", "belt": "#3a1a14", "feet": "nus", "boots": "#3a1a14", "eye": "#ffb030", "top": "#4a1810", "bottom": "#2a0e0a", "hair": "#ff6a20", "hair_style": "long"}},
 	"roi_ballot": {"name": "Roi Ballot", "full_name": "Ballot, fils de Pic, fils de Gras, roi de Morbier", "look": {"build": "petit", "outfit": "robe", "skin": "#c8c8d0", "belt": "#c9a24a", "feet": "bottes", "boots": "#4a4a52", "eye": "#9ac8ff", "top": "#5a5a7a", "bottom": "#3a3a52", "hair": "#e0e0ea", "hair_style": "long", "beard": "longue", "beard_color": "#e0e0ea", "hat": "couronne", "hat_color": "#c9a24a"}},
-	"eolaine": {"name": "Éolaine", "full_name": "Éolaine, cavalière de la Plaine à Brebis", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#3a7a4a", "bottom": "#3a3a42", "belt": "#e8c050", "hair": "#e8c860", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "cape": "#3a7a4a"}},
-	"eomeche": {"name": "Éomèche", "full_name": "Éomèche, intendant de Cabécou", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#7a5a2a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#8a5a30", "hair_style": "court", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "beard": "courte", "beard_color": "#8a5a30", "hat": "casquette", "hat_color": "#5a4a2a"}},
+	"eolaine": {"name": "Éolaine", "full_name": "Éolaine, cavalière de la Plaine à Brebis", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#3a7a4a", "bottom": "#3a3a42", "belt": "#e8c050", "hair": "#e8c860", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "cape": "#3a7a4a", "held": "lance"}},
+	"eomeche": {"name": "Éomèche", "full_name": "Éomèche, intendant de Cabécou", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#7a5a2a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#8a5a30", "hair_style": "court", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "beard": "courte", "beard_color": "#8a5a30", "hat": "casquette", "hat_color": "#5a4a2a", "held": "registre"}},
 	"theodort": {"name": "Théodort", "full_name": "Théodort, roi endormi de la Plaine à Brebis", "look": {"build": "petit", "outfit": "robe", "skin": "#d8b090", "top": "#8a2a2a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#e8e0d0", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "beard": "longue", "beard_color": "#e8e0d0", "hat": "couronne", "hat_color": "#e0b048"}},
 	"grimace": {"name": "Grimace Langue-de-Bois", "full_name": "Grimace Langue-de-Bois, conseiller du roi", "look": {"build": "petit", "outfit": "robe", "skin": "#c8b8a8", "top": "#4a4a52", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#6a6a70", "hair_style": "chauve", "feet": "bottes", "boots": "#3a2a20", "eye": "#8a8a98", "beard": "moustache", "beard_color": "#6a6a70", "hat": "toque", "hat_color": "#2a2a30"}},
 	"barbe_molle": {"name": "Barbe-Molle", "full_name": "Barbe-Molle, doyen des Entremets", "look": {"build": "grand", "outfit": "robe", "skin": "#8a6a42", "top": "#4a6a34", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#6a8a44", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#c8a838", "beard": "longue", "beard_color": "#7aa04a"}},
-	"entremet_mousse": {"name": "Mousse-Fine", "full_name": "Mousse-Fine, Entremet", "look": {"build": "grand", "outfit": "robe", "skin": "#7a5a38", "top": "#5a7a3a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#8aa04a", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#c8a838", "beard": "longue", "beard_color": "#6a8a3a"}},
+	"entremet_mousse": {"name": "Mousse-Fine", "full_name": "Mousse-Fine, Entremet", "look": {"build": "grand", "outfit": "robe", "skin": "#7a5a38", "top": "#7a9a48", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#8aa04a", "hair_style": "long", "hat": "foulard", "hat_color": "#e8a8cc", "feet": "bottes", "boots": "#3a2a20", "eye": "#c8a838", "beard": "longue", "beard_color": "#6a8a3a"}},
 	"entremet_ecorce": {"name": "Vieille-Écorce", "full_name": "Vieille-Écorce, Entremet", "look": {"build": "grand", "outfit": "robe", "skin": "#6a4a2a", "top": "#4a3a24", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#5a4a2a", "hair_style": "chauve", "feet": "bottes", "boots": "#3a2a20", "eye": "#a89838", "beard": "longue", "beard_color": "#6a5a34"}},
 	"entremet_rejet": {"name": "Petit-Rejet", "full_name": "Petit-Rejet, Entremet (le jeune)", "look": {"build": "petit", "outfit": "tunique", "skin": "#8a6a42", "top": "#6a9a44", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#a8c050", "hair_style": "boucles", "feet": "bottes", "boots": "#3a2a20", "eye": "#c8b838"}},
 	"sarumale": {"name": "Sarumâle", "full_name": "Sarumâle le Blanc-Cassé, directeur de l'Office", "look": {"build": "grand", "outfit": "robe", "skin": "#e0b898", "top": "#f0f0f4", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#e8e8ee", "hair_style": "long", "feet": "bottes", "boots": "#3a2a20", "eye": "#6a8aa8", "beard": "longue", "beard_color": "#f0f0f4", "hat": "magicien", "hat_color": "#f0f0f4", "item": "baton"}},
 	"boulangere": {"name": "Brioche", "full_name": "Brioche, boulangère de Cabécou", "look": {"build": "petit", "outfit": "tablier", "skin": "#e8b898", "top": "#e8e0d0", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#a86a3a", "hair_style": "chignon", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a"}},
 	"chambellan": {"name": "Hâtefort", "full_name": "Hâtefort, chambellan de la Bergerie d'Or", "look": {"build": "grand", "outfit": "robe", "skin": "#e0b08a", "top": "#5a3a1a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#8a8a90", "hair_style": "chauve", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "beard": "longue", "beard_color": "#8a8a90", "hat": "toque", "hat_color": "#8a2a2a"}},
-	"cavalier": {"name": "Cavalier de la Plaine", "full_name": "Un cavalier du peuple de la Plaine à Brebis", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#6a5a2a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#a87a3a", "hair_style": "court", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "hat": "heaume", "hat_color": "#c9a24a"}},
+	"cavalier": {"name": "Cavalier de la Plaine", "full_name": "Un cavalier du peuple de la Plaine à Brebis", "look": {"build": "grand", "outfit": "tunique", "skin": "#e0b08a", "top": "#6a5a2a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#a87a3a", "hair_style": "court", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "hat": "heaume", "hat_color": "#c9a24a", "held": "lance"}},
 	"cavaliere": {"name": "Bergère", "full_name": "Une bergère de Cabécou", "look": {"build": "petit", "outfit": "jupe", "skin": "#e8b898", "top": "#8a5a3a", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#7a4a2a", "hair_style": "boucles", "feet": "bottes", "boots": "#3a2a20", "eye": "#4a5a6a", "hat": "chapeau_paille", "hat_color": "#d8b868"}},
-	"uglouk_pnj": {"name": "Uglouk", "full_name": "Uglouk, chef de brigade de la Maison", "look": {"build": "grand", "outfit": "tunique", "skin": "#4a4a46", "top": "#d8d2c0", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#2a2a2a", "hair_style": "chauve", "feet": "bottes", "boots": "#3a2a20", "eye": "#e8c040", "hat": "toque", "hat_color": "#d8d8d0"}}
+	"uglouk_pnj": {"name": "Uglouk", "full_name": "Uglouk, chef de brigade de la Maison", "look": {"build": "grand", "outfit": "tunique", "skin": "#4a4a46", "top": "#d8d2c0", "bottom": "#3a3a42", "belt": "#c9a24a", "hair": "#2a2a2a", "hair_style": "chauve", "feet": "bottes", "boots": "#3a2a20", "eye": "#e8c040", "hat": "toque", "hat_color": "#d8d8d0", "held": "hache"}}
 }
