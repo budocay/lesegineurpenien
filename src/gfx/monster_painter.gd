@@ -46,7 +46,7 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme",
 	"mammou", "dindon_farce", "grondine",
 	# boss à taille humaine, peints en grand : boss_painter.gd
-	"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest"]
+	"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum"]
 
 const SIZES := {
 	"limace": Vector2i(42, 26),
@@ -103,7 +103,7 @@ const SIZES := {
 	"boss_froton": Vector2i(64, 92),
 	"boss_grimace": Vector2i(72, 104),
 	"boss_gardien": Vector2i(72, 108),
-	"boss_sauron": Vector2i(84, 112),
+	"boss_sauron": Vector2i(84, 112), "boss_goulum": Vector2i(64, 76),
 	"boss_naze": Vector2i(72, 108),
 	"boss_naze_est": Vector2i(72, 108),
 	"boss_naze_ouest": Vector2i(72, 108),
@@ -189,7 +189,7 @@ static func _render(kind: String, k: int) -> Image:
 			"hors_oeuvre": _canape(img, ox, f, col)
 			"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine":
 				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, inner)
-			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest":
+			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum":
 				load("res://src/gfx/boss_painter.gd").paint(kind, img, ox, f, col, inner)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
@@ -231,7 +231,7 @@ const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur":
 	"eveille": 6, "eveille_veilleur": 6, "roi_eveille": 6, "boucanier": 6, "saumure": 6, "cassouletain": 6,
 	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6,
 	"boss_sarumale": 6, "boss_froton": 6, "boss_grimace": 6, "boss_gardien": 6, "boss_sauron": 6, "boss_naze": 6,
-	"boss_naze_est": 6, "boss_naze_ouest": 6}
+	"boss_naze_est": 6, "boss_naze_ouest": 6, "boss_goulum": 6}
 static var K := 1                # facteur de la peinture en cours
 static var _ga := 0.0            # amplitude du grain de matière (0 : aucun)
 static var _gs := 3.0            # taille du grain, en pixels de la grille fine
@@ -243,7 +243,7 @@ const GRAIN := {"limace": [0.1, 5.0], "baveuse": [0.1, 5.0], "sangsue": [0.1, 5.
 	"sanglier": [0.22, 2.0], "solitaire": [0.22, 2.0], "ouargue": [0.22, 2.0], "hirsute": [0.22, 2.0],
 	"troll": [0.24, 4.0], "balourd": [0.24, 4.0], "paton": [0.14, 5.0],
 	"boss_sarumale": [0.05, 6.0], "boss_froton": [0.1, 5.0], "boss_grimace": [0.08, 5.0], "boss_gardien": [0.07, 6.0],
-	"boss_sauron": [0.12, 5.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0]}
+	"boss_sauron": [0.12, 5.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0], "boss_goulum": [0.1, 5.0]}
 ## Espèces luisantes : petits reflets mouillés dans les tons clairs.
 const SHINY := ["limace", "baveuse", "sangsue", "grenouille", "crapaud", "asticot", "vacherin", "paton", "moisi"]
 
@@ -1748,10 +1748,17 @@ static func _orc(img: Image, ox: int, f: int, col: int, kind: int) -> void:
 	_rect(img, ox + int(cx) + 3, 44 + base, 7, 3, skin[2])
 	_ell(img, ox + cx, 26.0 + dy + base, 10.0 + fat, 10.5 + fat * 0.6, cloth)
 	if kind == 2:
-		_rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 14, Color("#f0ece0"))
-		_rect(img, ox + int(cx) - 6, 22 + dy + base, 13, 1, Color.WHITE)
-		for k in 5:
-			_px(img, ox + int(cx) - 5 + k * 3, 28 + dy + base + (k % 2) * 3, Color("#c8c2b0"))
+		# tablier de farine : un plastron qui s'évase, plis et traces de doigts, bretelles
+		var apron := _ramp("#e8e2d2")
+		_trap(img, 21 + dy + base, 37 + dy + base, ox + cx - 5.0, ox + cx + 5.0, ox + cx - 8.0, ox + cx + 8.0, apron)
+		_rect(img, ox + int(cx) - 5, 21 + dy + base, 10, 1, apron[4])
+		_line(img, ox + int(cx) - 4, 22 + dy + base, ox + int(cx) - 6, 17 + dy + base, apron[1])
+		_line(img, ox + int(cx) + 4, 22 + dy + base, ox + int(cx) + 6, 17 + dy + base, apron[1])
+		for k in 3:
+			_line(img, ox + int(cx) - 5 + k * 4, 25 + dy + base, ox + int(cx) - 6 + k * 5, 35 + dy + base, apron[1])
+		for k in 4:
+			_px(img, ox + int(cx) - 4 + k * 3, 29 + dy + base + (k % 2) * 3, Color("#b8b09a"))
+		_rect(img, ox + int(cx) - 7, 33 + dy + base, 14, 1, apron[2])
 	else:
 		_rect(img, ox + int(cx) - 8, 32 + dy + base, 17, 2, Color("#c9a24a"))
 	var hx := cx + 3.0

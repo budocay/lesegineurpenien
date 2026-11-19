@@ -15,12 +15,12 @@ const MP = preload("res://src/gfx/monster_painter.gd")
 const GM = preload("res://src/gfx/gouda_monsters.gd")
 
 const KINDS: Array[String] = ["boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron",
-		"boss_naze", "boss_naze_est", "boss_naze_ouest"]
+		"boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum"]
 
 const SIZES := {
 	"boss_sarumale": Vector2i(72, 112), "boss_froton": Vector2i(64, 92), "boss_grimace": Vector2i(72, 104),
 	"boss_gardien": Vector2i(72, 108), "boss_sauron": Vector2i(84, 112), "boss_naze": Vector2i(72, 108),
-	"boss_naze_est": Vector2i(72, 108), "boss_naze_ouest": Vector2i(72, 108),
+	"boss_naze_est": Vector2i(72, 108), "boss_naze_ouest": Vector2i(72, 108), "boss_goulum": Vector2i(64, 76),
 }
 
 const INK := Color("#1c1222")
@@ -58,6 +58,8 @@ static func paint(kind: String, img: Image, ox: int, f: int, col: int, size: Vec
 					"boots": "#0c0a10", "glow": "#9aff8a", "tatters": true, "crown": true})
 		"boss_froton":
 			_thief(img, ox, f, col, size)
+		"boss_goulum":
+			_goulum(img, ox, f, col, size)
 		_:
 			MP._rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 
@@ -521,3 +523,105 @@ static func _thief(img: Image, ox: int, f: int, col: int, size: Vector2i) -> voi
 	GM._cp(img, hcx - hr * 1.3, hcy + hv * 0.7, hcx - hr * 0.8, hcy - hv * 1.0, hr * 0.17, hr * 0.2, cloak)
 	GM._cp(img, hcx - hr * 0.8, hcy - hv * 1.0, hcx + hr * 0.8, hcy - hv * 0.9, hr * 0.2, hr * 0.1, cloak)
 	GM._tri(img, Vector2(hcx - hr * 1.1, hcy - hv * 1.05), Vector2(hcx - hr * 0.1, hcy - hv * 1.0), Vector2(hcx - hr * 1.5, hcy - hv * 1.75), cloak[3])
+
+
+## Goulûm, dit Trempette : maigre, voûté, pâle comme une endive, des yeux énormes, un poisson cru dans une main,
+## et contre la poitrine, l'objet de toutes ses attentions. Quatre poses : repos, respiration, attaque, coup reçu.
+static func _goulum(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void:
+	var w := float(size.x)
+	var h := float(size.y)
+	var cx := ox + w * 0.42 + (-w * 0.03 if col == 3 else 0.0)
+	var dy := float(f) * 0.9
+	var skin := MP._ramp("#b9c3a6")
+	var shade := MP._ramp("#8e9c8c")
+	var rag := MP._ramp("#6e5a44")
+	var gold := MP._ramp("#d8aa44")
+	var dark := Color("#2b1b2e")
+	var eye_c := Color("#d8f0f4")
+	# jambes de grenouille, genoux hauts, longs pieds plats aux orteils écartés
+	GM._cp(img, cx - w * 0.06, h * 0.66 + dy, cx - w * 0.2, h * 0.74, w * 0.05, w * 0.04, MP._dim(skin))
+	GM._cp(img, cx - w * 0.2, h * 0.74, cx - w * 0.15, h * 0.93, w * 0.04, w * 0.032, MP._dim(skin))
+	GM._cp(img, cx + w * 0.05, h * 0.66 + dy, cx + w * 0.2, h * 0.73, w * 0.052, w * 0.042, skin)
+	GM._cp(img, cx + w * 0.2, h * 0.73, cx + w * 0.22, h * 0.93, w * 0.042, w * 0.034, skin)
+	GM._o(img, cx - w * 0.17, h * 0.955, w * 0.11, h * 0.028, MP._dim(skin), 0.1)
+	GM._o(img, cx + w * 0.27, h * 0.955, w * 0.12, h * 0.03, skin, 0.1)
+	for t in 3:
+		GM._o(img, cx + w * (0.35 + float(t) * 0.035), h * (0.945 + float(t) * 0.01), w * 0.03, h * 0.016, skin, 0.2)
+		GM._o(img, cx - w * (0.05 + float(t) * 0.035), h * (0.945 + float(t) * 0.01), w * 0.03, h * 0.016, MP._dim(skin), 0.2)
+	# bras de derrière : traîne jusqu'au sol, longue main à griffes
+	GM._cp(img, cx - w * 0.1, h * 0.42 + dy, cx - w * 0.24, h * 0.62, w * 0.04, w * 0.032, MP._dim(skin))
+	GM._cp(img, cx - w * 0.24, h * 0.62, cx - w * 0.22, h * 0.8, w * 0.032, w * 0.026, MP._dim(skin))
+	GM._o(img, cx - w * 0.22, h * 0.82, w * 0.05, h * 0.026, MP._dim(skin), 0.1)
+	# tronc voûté : l'épine saille, les côtes se comptent, le ventre est creux
+	GM._o(img, cx, h * 0.52 + dy, w * 0.17, h * 0.19, skin, -0.1)
+	GM._o(img, cx + w * 0.05, h * 0.57 + dy, w * 0.1, h * 0.085, skin, 0.3)
+	for i in 5:
+		var by := h * (0.3 + float(i) * 0.075) + dy
+		GM._tri(img, Vector2(cx - w * 0.15, by - h * 0.022), Vector2(cx - w * 0.15, by + h * 0.022), Vector2(cx - w * (0.2 - float(i % 2) * 0.012), by), shade[1])
+	for i in 4:
+		var ry := h * (0.42 + float(i) * 0.04) + dy
+		_stroke(img, Vector2(cx - w * 0.02, ry), Vector2(cx + w * 0.07, ry + h * 0.012), Vector2(cx + w * 0.13, ry - h * 0.004), shade[0], 0.34)
+	# pagne de chiffon
+	GM._tp(img, h * 0.64 + dy, h * 0.77 + dy, cx - w * 0.14, cx + w * 0.15, cx - w * 0.15, cx + w * 0.12, rag)
+	GM._tri(img, Vector2(cx - w * 0.15, h * 0.77 + dy), Vector2(cx - w * 0.07, h * 0.77 + dy), Vector2(cx - w * 0.11, h * 0.83 + dy), rag[1])
+	GM._tri(img, Vector2(cx + w * 0.02, h * 0.77 + dy), Vector2(cx + w * 0.12, h * 0.77 + dy), Vector2(cx + w * 0.08, h * 0.82 + dy), rag[2])
+	# tête : trop grosse pour le cou, quelques cheveux, deux grandes oreilles
+	var hx := cx + w * 0.12
+	var hy := h * 0.24 + dy
+	var rx := w * 0.17
+	var ry2 := h * 0.125
+	GM._cp(img, cx + w * 0.02, h * 0.38 + dy, hx - w * 0.02, hy + ry2 * 0.6, w * 0.045, w * 0.05, skin)
+	GM._tri(img, Vector2(hx - rx * 0.7, hy - ry2 * 0.1), Vector2(hx - rx * 0.6, hy + ry2 * 0.55), Vector2(hx - rx * 1.9, hy - ry2 * 0.75), shade[2])
+	GM._tri(img, Vector2(hx - rx * 0.55, hy - ry2 * 0.05), Vector2(hx - rx * 0.5, hy + ry2 * 0.4), Vector2(hx - rx * 1.45, hy - ry2 * 0.5), skin[2])
+	GM._o(img, hx, hy, rx, ry2, skin, 0.05)
+	GM._o(img, hx + rx * 0.8, hy + ry2 * 0.28, w * 0.05, h * 0.045, skin, 0.15)   # nez en pointe
+	for i in 4:
+		var hxx := hx - rx * 0.5 + float(i) * rx * 0.3
+		_stroke(img, Vector2(hxx, hy - ry2 * 0.88), Vector2(hxx - w * 0.015, hy - ry2 * 1.35), Vector2(hxx - w * 0.04, hy - ry2 * 1.55 + float(i % 2) * 2.0), Color("#4a4034"), 0.3)
+	var look := 0.0
+	if col == 3:
+		# coup reçu : yeux fermés, grimace
+		for e in 2:
+			var ex := hx - rx * 0.1 + float(e) * rx * 0.62
+			_stroke(img, Vector2(ex - w * 0.045, hy - ry2 * 0.2), Vector2(ex, hy + ry2 * 0.15), Vector2(ex + w * 0.045, hy - ry2 * 0.2), dark, 0.45)
+		_stroke(img, Vector2(hx + rx * 0.1, hy + ry2 * 0.62), Vector2(hx + rx * 0.45, hy + ry2 * 0.4), Vector2(hx + rx * 0.8, hy + ry2 * 0.66), dark, 0.45)
+	else:
+		for e in 2:
+			var ex := hx - rx * 0.1 + float(e) * rx * 0.62
+			var er := w * (0.062 if e == 0 else 0.056)
+			GM._o(img, ex, hy - ry2 * 0.05, er, er * 1.08, MP._ramp("#e6f4f6"), 0.0)
+			MP._ellipse(img, ex + er * 0.28 + look, hy - ry2 * 0.02, er * 0.5, er * 0.56, Color("#7fc8e0") if col != 2 else Color("#ffd870"))
+			MP._ellipse(img, ex + er * 0.34 + look, hy - ry2 * 0.02, er * 0.22, er * 0.46, dark)
+			MP._ellipse(img, ex + er * 0.05, hy - ry2 * 0.28, er * 0.2, er * 0.16, Color.WHITE)
+		_stroke(img, Vector2(hx - rx * 0.4, hy - ry2 * 0.62), Vector2(hx + rx * 0.1, hy - ry2 * 0.5), Vector2(hx + rx * 0.45, hy - ry2 * (0.62 if col != 2 else 0.4)), dark, 0.38)
+		if col == 2:
+			# bouche grande ouverte : palais sombre, crocs
+			GM._o(img, hx + rx * 0.42, hy + ry2 * 0.6, rx * 0.34, ry2 * 0.3, MP._ramp("#4a1424"), 0.0)
+			for k in 4:
+				var tx := hx + rx * (0.18 + float(k) * 0.14)
+				GM._tri(img, Vector2(tx - 0.8, hy + ry2 * 0.44), Vector2(tx + 0.8, hy + ry2 * 0.44), Vector2(tx, hy + ry2 * 0.72), Color.WHITE)
+		else:
+			_stroke(img, Vector2(hx + rx * 0.1, hy + ry2 * 0.6), Vector2(hx + rx * 0.45, hy + ry2 * 0.8), Vector2(hx + rx * 0.8, hy + ry2 * 0.6), dark, 0.4)
+			GM._tri(img, Vector2(hx + rx * 0.35, hy + ry2 * 0.64), Vector2(hx + rx * 0.45, hy + ry2 * 0.64), Vector2(hx + rx * 0.4, hy + ry2 * 0.84), Color("#f0ead8"))
+	# bras de devant : serre le poisson ; à l'attaque, la griffe jaillit
+	var sh := Vector2(cx + w * 0.1, h * 0.4 + dy)
+	var fh := Vector2(cx + w * 0.3, h * 0.54 + dy * 0.5)
+	if col == 2:
+		fh = Vector2(cx + w * 0.27, h * 0.42)
+	elif col == 3:
+		fh = Vector2(cx + w * 0.22, h * 0.58)
+	var el := Vector2((sh.x + fh.x) * 0.5 + w * 0.01, (sh.y + fh.y) * 0.5 + h * 0.06)
+	GM._cp(img, sh.x, sh.y, el.x, el.y, w * 0.04, w * 0.034, skin)
+	GM._cp(img, el.x, el.y, fh.x, fh.y, w * 0.034, w * 0.028, skin)
+	# poisson cru, argenté, qui frétille
+	var fish := Vector2(fh.x + w * 0.04, fh.y - h * (0.02 if col != 2 else -0.02) - dy * 0.4)
+	GM._o(img, fish.x, fish.y, w * 0.13, h * 0.05, MP._ramp("#c8d4e0"), 0.1)
+	GM._tri(img, Vector2(fish.x + w * 0.11, fish.y), Vector2(fish.x + w * 0.2, fish.y - h * 0.045), Vector2(fish.x + w * 0.2, fish.y + h * 0.045), Color("#9aa8b8"))
+	GM._o(img, fish.x - w * 0.07, fish.y - h * 0.008, w * 0.014, h * 0.012, MP._ramp("#2b1b2e"), 0.0)
+	_stroke(img, Vector2(fish.x - w * 0.02, fish.y - h * 0.035), Vector2(fish.x + w * 0.03, fish.y - h * 0.045), Vector2(fish.x + w * 0.08, fish.y - h * 0.03), Color("#f0f4f8"), 0.3)
+	GM._o(img, fh.x, fh.y, w * 0.045, w * 0.04, skin, 0.1)
+	for g in 3:
+		GM._tri(img, Vector2(fh.x + float(g) * 1.2 - 1.0, fh.y + h * 0.02), Vector2(fh.x + float(g) * 1.2 + 0.2, fh.y + h * 0.02), Vector2(fh.x + float(g) * 1.2 + 0.4, fh.y + h * 0.065), skin[3])
+	# l'anneau, à son cou : un petit éclat d'or contre la poitrine
+	GM._o(img, cx + w * 0.1, h * 0.44 + dy, w * 0.022, w * 0.022, gold, 0.3)
+	_star(img, cx + w * 0.1, h * 0.44 + dy, w * 0.07, Color("#fff0a0"))
