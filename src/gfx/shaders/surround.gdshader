@@ -9,6 +9,7 @@ uniform vec3 tint : source_color = vec3(1.0, 1.0, 1.0);
 uniform float fade = 9.0;
 uniform float near_level = 0.62;
 uniform float far_level = 0.1;
+uniform float glow = 0.45;   // part de la teinte rendue même sans lumière : jamais noir franc
 
 varying vec3 wpos;
 
@@ -35,7 +36,9 @@ void fragment() {
 	float d = length(vec2(dx, dz));
 	float k = 1.0 - smoothstep(0.0, fade, d);
 	float n = vnoise(wpos.xz * 0.45) * 0.6 + vnoise(wpos.xz * 1.3 + 9.0) * 0.4;
-	ALBEDO = c.rgb * tint * mix(far_level, near_level, k) * (0.75 + 0.5 * n);
+	vec3 col = c.rgb * tint * mix(far_level, near_level, k) * (0.6 + 0.8 * n);
+	ALBEDO = col;
+	EMISSION = col * glow;
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;
 }
