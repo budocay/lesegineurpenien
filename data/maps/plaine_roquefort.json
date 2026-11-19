@@ -94,7 +94,10 @@
 		}
 	],
 	"style": "cavalier",
+	"clouds": 1.0,
 	"objects": [
+		{"type": "scatter", "prop": "tallgrass", "rect": [0, 3, 56, 22], "count": 150, "min_dist": 0.9, "seed": 200, "on": ["cav_herbe"]},
+		{"type": "scatter", "prop": "flowers", "rect": [0, 3, 56, 22], "count": 45, "min_dist": 1.6, "seed": 201, "on": ["cav_herbe"]},
 		{
 			"type": "warp",
 			"rect": [

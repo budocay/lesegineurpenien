@@ -101,6 +101,7 @@
 		"glint": "#fff4c0"
 	},
 	"objects": [
+		{"type": "chu_cascade", "pos": [27.0, 4.2], "height": 4.6, "width": 3.4},
 		{
 			"type": "warp",
 			"rect": [
