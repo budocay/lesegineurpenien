@@ -42,6 +42,9 @@ var input_enabled := false
 var attract := false
 
 var cam_distance := 24.0
+# rapports de mise au point (voir _focus_on_player) : le héros reste toujours dans la zone nette
+var _dof_near_k := 0.87
+var _dof_far_k := 1.15
 var cam_pitch := 32.0
 var _cam_bounds := Rect2()
 var _cam_target := Vector3.ZERO
@@ -248,6 +251,8 @@ func _setup_camera() -> void:
 	attr.dof_blur_near_transition = cam_distance * 0.14
 	attr.dof_blur_amount = float(cam.get("dof", 0.1))
 	camera.attributes = attr
+	_dof_near_k = float(cam.get("near_start", 0.87))
+	_dof_far_k = float(cam.get("far_start", 1.15))
 	Settings.apply_camera(attr)
 	add_child(camera)
 	camera.make_current()
@@ -277,6 +282,21 @@ func _desired_target() -> Vector3:
 			fz = float(focus_a[1]) + 0.5
 		return Vector3(lerpf(b.position.x, b.end.x, k), 0.0, fz)
 	return Vector3(clampf(player.position.x, b.position.x, b.end.x), player.position.y, clampf(player.position.z, b.position.y, b.end.y))
+
+
+## Mise au point : la zone nette suit la profondeur réelle du héros (quand la caméra bute sur le bord de la
+## carte, il n'est plus à la distance nominale et sortait de la zone nette). Ni l'angle ni le zoom ne changent.
+func _focus_on_player() -> void:
+	var attr := camera.attributes as CameraAttributesPractical
+	if attr == null:
+		return
+	var depth := (player.global_position + Vector3(0.0, 0.7, 0.0) - camera.global_position).dot(-camera.global_transform.basis.z)
+	if depth < 1.0:
+		return
+	attr.dof_blur_near_distance = depth * _dof_near_k
+	attr.dof_blur_far_distance = depth * _dof_far_k
+	attr.dof_blur_near_transition = depth * 0.14
+	attr.dof_blur_far_transition = depth * 0.45
 
 
 func _apply_camera() -> void:
@@ -318,6 +338,7 @@ func _process(delta: float) -> void:
 		return
 	# les décors placés devant le héros s'ajourent autour de lui (voir sprite.gdshader)
 	RenderingServer.global_shader_parameter_set("focus_world", player.global_position + Vector3(0.0, 0.75, 0.0))
+	_focus_on_player()
 	_update_focus()
 	if input_enabled:
 		_check_warps()
