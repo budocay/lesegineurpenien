@@ -33,6 +33,8 @@ var _scale0 := Vector3.ONE   # échelle, hover et hauteur à la taille de base (
 var _height0 := 1.6
 var _hover0 := 0.0
 var _shadow: MeshInstance3D = null
+var _shadow_w := 1.0         # largeur de l'ombre de contact à la taille de base
+var _halo: MeshInstance3D = null   # flaque de lumière au sol d'un boss (voir set_boss)
 var heavy := 1.0             # 1 : penche et bondit à pleine amplitude ; un boss, bien plus massif, bouge moins (voir BattleScene.BOSS_HEAVY)
 
 
@@ -103,6 +105,8 @@ func set_view_scale(k: float) -> void:
 	_hover = _hover0 * k
 	if _shadow != null:
 		_shadow.scale = Vector3(k, 1.0, k)
+	if _halo != null:
+		_halo.scale = Vector3(k, 1.0, k)
 	if not posing():
 		_body.position.y = _hover
 
@@ -125,6 +129,7 @@ static var _shadow_tex: Texture2D = null
 
 ## Ombre de contact franche sous les pieds : ovale sombre à bord net, au sol, sous chaque combattant.
 func _contact_shadow(width: float) -> void:
+	_shadow_w = width
 	if _shadow_tex == null:
 		var img := Image.create(32, 12, false, Image.FORMAT_RGBA8)
 		for y in 12:
@@ -151,6 +156,45 @@ func _contact_shadow(width: float) -> void:
 	blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(blob)
 	_shadow = blob
+
+
+static var _halo_tex: Texture2D = null
+
+
+## Présence d'un boss : une large flaque de lumière colorée au sol, sous lui (additive, très douce), qui
+## l'ancre dans l'arène et le détache du fond. « color » : couleur de son élément. Appelé par la scène à
+## chaque mise en page ; faux retire la flaque.
+func set_boss(on: bool, color: Color = Color.WHITE) -> void:
+	if not on:
+		if _halo != null:
+			_halo.queue_free()
+			_halo = null
+		return
+	if _halo == null:
+		if _halo_tex == null:
+			var img := Image.create(64, 32, false, Image.FORMAT_RGBA8)
+			for y in 32:
+				for x in 64:
+					var d := Vector2((x - 31.5) / 31.5, (y - 15.5) / 15.5).length()
+					var a := clampf(1.0 - d, 0.0, 1.0)
+					img.set_pixel(x, y, Color(1, 1, 1, a * a))
+			_halo_tex = ImageTexture.create_from_image(img)
+		_halo = MeshInstance3D.new()
+		var plane := PlaneMesh.new()
+		plane.size = Vector2(_shadow_w * 2.3, _shadow_w * 2.3 * 0.5)
+		_halo.mesh = plane
+		var mat := StandardMaterial3D.new()
+		mat.albedo_texture = _halo_tex
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.no_depth_test = false
+		_halo.material_override = mat
+		_halo.position = Vector3(0.0, 0.015, 0.05)
+		_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(_halo)
+		_halo.scale = Vector3(view_k, 1.0, view_k)
+	(_halo.material_override as StandardMaterial3D).albedo_color = Color(color.r, color.g, color.b, 0.55)
 
 
 var _mpose := ""   # pose imposée à un monstre ("attack", "hit")

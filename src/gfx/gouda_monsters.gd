@@ -96,7 +96,7 @@ static func _folds(img: Image, xs: Array, y0: float, y1: float, ramp: Array, swa
 static func _tail(img: Image, cx: float, y0: float, y1: float, hw: float, sway: float, ramp: Array) -> void:
 	var dr := MP._dim(ramp)
 	var ym := y0 + (y1 - y0) * 0.35
-	_tp(img, y0 - 0.5, ym, cx - hw, cx + hw, cx - hw * 0.7, cx + hw * 0.7, dr)
+	MP._trap(img, int(round(y0 - 0.5)), int(round(ym)), cx - hw, cx + hw, cx - hw * 0.7, cx + hw * 0.7, dr)   # sans liseré : il traçait une ligne sous le ventre
 	for i in 3:
 		var u := float(i) - 1.0
 		var bx := cx + u * hw * 0.5
@@ -243,9 +243,9 @@ static func _king(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void
 		var tx := cx - 31.0 + float(i) * 7.2
 		_tri(img, Vector2(tx, h * 0.84), Vector2(tx + 7.0, h * 0.84), Vector2(tx + 3.2 + sway * 0.4, h * 0.97), cape[1])
 	# robe : volutes de fantôme en bas
-	_tail(img, cx + 0.5, h * 0.74, h * 0.99, 20.0, sway, robe)
 	_tp(img, h * 0.34 + dy, h * 0.76, cx - 12.0, cx + 13.0, cx - 17.0, cx + 18.0, robe)
-	_o(img, cx + 0.5, h * 0.56 + dy, 17.5, h * 0.21, robe, 0.05)   # ventre rond : fini le tronc carré
+	_tail(img, cx + 0.5, h * 0.74, h * 0.99, 20.0, sway, robe)   # (après la robe : son liseré du bas ne traverse plus le tissu)
+	MP._ell(img, cx + 0.5, h * 0.55 + dy, 17.0, h * 0.2, robe, 0.05)   # ventre rond, sans liseré (il traçait une ligne sous le ventre)
 	_o(img, cx - 11.0, h * 0.38 + dy, 7.0, 5.0, robe, 0.1)   # épaules rondes
 	_o(img, cx + 12.0, h * 0.38 + dy, 7.0, 5.0, robe, 0.1)
 	_folds(img, [cx - 14.0, cx - 7.0, cx + 3.0, cx + 10.0, cx + 16.0], h * 0.5 + dy, h * 0.74, robe, sway * 0.3)
@@ -356,14 +356,15 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 	var t1 := h * 0.7 + dy
 	var xl0 := cx - w * wide
 	var xr0 := cx + w * wide
-	var xl1 := cx - w * (wide - 0.05)
-	var xr1 := cx + w * (wide - 0.05)
+	var xl1 := cx - w * (wide - 0.1)   # taille marquée : un torse en V, plus un bloc
+	var xr1 := cx + w * (wide - 0.1)
 	if bool(p.get("coat", false)):   # redingote jusqu'aux genoux
 		_tp(img, h * 0.66 + dy, h * 0.86, xl1 - 1.0, xr1 + 1.0, cx - w * 0.3, cx + w * 0.3, cloth)
 		_tp(img, h * 0.66 + dy, h * 0.86, cx - 0.4, cx + 0.4, cx - 0.8, cx + 0.8, _flat(cloth[0]))
 		_b(img, cx - w * 0.3, h * 0.855, w * 0.6, 1.0, trim[2])
-	_tp(img, t0 + (t1 - t0) * 0.4, t1, xl0 + w * 0.02, xr0 - w * 0.02, xl1, xr1, cloth)
-	_o(img, cx, t0 + (t1 - t0) * 0.38, w * wide, (t1 - t0) * 0.5, cloth, 0.05)   # poitrail arrondi
+	_tp(img, t0 + (t1 - t0) * 0.4, t1, xl0 + w * 0.03, xr0 - w * 0.03, xl1, xr1, cloth)
+	_o(img, cx, t0 + (t1 - t0) * 0.36, w * (wide - 0.01), (t1 - t0) * 0.46, cloth, 0.05)   # poitrail arrondi
+	_o(img, cx, t1 - (t1 - t0) * 0.08, w * (wide - 0.09), (t1 - t0) * 0.14, cloth, 0.0)   # hanches arrondies (le bas du torse n'est plus une arête)
 	_folds(img, [cx - w * 0.14, cx + w * 0.12], t0 + 6.0, t1 - 2.0, cloth)
 	if bool(p.get("stripe", false)):
 		var y := t0 + 3.0

@@ -1843,12 +1843,14 @@ static func _hillman(img: Image, ox: int, f: int, col: int) -> void:
 	_ell(img, ox + 21.0, 14.0 + dy, 7.5, 7.0, skin)
 	_ell(img, ox + 21.0, 20.0 + dy, 8.0, 5.0, _ramp("#7a4a2a"))   # barbe
 	for ex: float in [19.0, 24.0]:
-		if col == 3:
-			_curve(img, Vector2(ex - 1.3, 12.3 + dy), Vector2(ex, 13.8 + dy), Vector2(ex + 1.3, 12.3 + dy), Color("#1c1418"), 0.45)
+		var exx := ox + ex   # (les arcs oubliaient « ox » : yeux fermés et sourcils tombaient dans la première pose)
+		if col == 3:   # yeux plissés, bien visibles
+			_curve(img, Vector2(exx - 1.9, 12.0 + dy), Vector2(exx, 14.4 + dy), Vector2(exx + 1.9, 12.0 + dy), Color("#1c1418"), 0.6)
 		else:
-			_ellipse(img, ox + ex, 12.8 + dy, 1.25, 1.35, Color("#1c1418"))
-			_ellipse(img, ox + ex - 0.4, 12.3 + dy, 0.4, 0.4, Color("#f0e8e0"))
-			_curve(img, Vector2(ex - 1.8, 11.0 + dy), Vector2(ex, 10.6 + dy), Vector2(ex + 1.8, 11.4 + dy), _c("#5a3820"), 0.45)
+			_ellipse(img, exx, 12.8 + dy, 1.7, 1.8, Color("#f0e8e0"))
+			_ellipse(img, exx + 0.2, 13.0 + dy, 1.05, 1.15, Color("#1c1418"))
+			_ellipse(img, exx - 0.1, 12.5 + dy, 0.35, 0.35, Color("#ffffff"))
+			_curve(img, Vector2(exx - 2.2, 10.9 + dy), Vector2(exx, 10.3 + dy), Vector2(exx + 2.2, 11.3 + dy), _c("#4a2c18"), 0.55)
 	_rect(img, ox + 13, 8 + int(dy), 16, 3, Color("#8a8a90"))   # bonnet de laine
 	var hand_y := 28.0 + dy if col != 2 else 12.0
 	_cap(img, ox + 31.0, 24.0 + dy, ox + 35.0, hand_y, 2.6, 2.2, skin)

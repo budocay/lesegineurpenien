@@ -182,10 +182,15 @@ lancé : `Actor.pose_reach`), ils ne touchent ni les fiches, ni la frise, ni le 
 au besoin leur colonne descend vers la caméra. Les monstres prennent ensuite la plus grande taille
 (au plus `FOE_K_MAX`) qui tient entre la frise, le bas de l'écran (leur plaque comprise) et les
 héros ; un ennemi dessiné comme un personnage (`character`) prend la taille des héros. Un boss
-large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique est `boss` ou la fuite impossible, l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
-la place qui reste, jusqu'à `BOSS_RATIO_MAX` (3,4) fois la hauteur d'un héros (plancher vérifié
-par le test : 2,2), en descendant au besoin vers la caméra ; face à un boss, les héros sont un peu
-plus petits (`BOSS_HERO_K`). Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
+large se réduit donc tout seul s'il le faut. Un boss (repéré par `BattleScene.find_boss` : l'ennemi nommé par le champ `boss` de la rencontre ; sinon, si la musique de la rencontre est `boss` (la fuite impossible ne suffit plus : Morfales, duels), l'ennemi seul ou celui qui a au moins 1,5 fois les PV du suivant ; un combat ordinaire n'en a pas) prend ensuite toute
+la place qui reste, jusqu'à `BOSS_RATIO_MAX` (5,2) fois la hauteur d'un héros (plancher vérifié
+par le test `_test_boss_presence`, pour tous les boss des chapitres 1 à 6 : `BOSS_RATIO_FLOOR`, 3,0), en cherchant la
+plus grande taille qui tient (dichotomie sur `boss_mul`, jusqu'à `BOSS_MUL_MAX`) et, pour chacune, la place
+(décalage vers la caméra et vers le bord) où tout le camp tient, où un passage de `MENU_GAP` px reste libre entre
+le boss et l'équipe pour le menu, et où aucune plaque ne tombe sur le bandeau des touches ; face à un boss, les héros
+sont plus petits (`BOSS_HERO_K`). Une flaque de lumière à la couleur de l'élément du boss (`Actor.set_boss`,
+additive, au sol) souligne sa stature, aussi pour un boss de taille humaine.
+Le bandeau d'annonce du haut passe à la ligne au lieu de passer sous les fiches de l'équipe. Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
 se tient en retrait (`BOSS_BACK`), au centre de son camp et jamais collé au bord (`BOSS_AIR`) ; ses
 sbires, plus petits (`MINION_K`), sont devant lui (`BOSS_FRONT`), de part et d'autre, sur deux rangs
 au besoin. Il penche et bondit moins qu'un petit monstre (`Actor.heavy`, `BOSS_HEAVY`). Les monstres
@@ -1031,7 +1036,7 @@ moteur (`src/battle/battle_fx.gd`) ne connaît aucune compétence : il lit ce fi
 ### `data/encounters.json`
 
 - `encounters` : rencontres nommées, lancées par un dialogue. `enemies` (liste), `arena`,
-  `flee` (faux pour un boss), `boss` (identifiant d'un ennemi de la liste qui domine la scène ;
+  `flee` (faux pour un boss), `boss` (identifiant d'un ennemi de la liste qui domine la scène, même si la musique n'est pas `boss` (Balourd, Mammou) ;
   `false` : aucun boss), `intro` (phrase d'ouverture), et pour un combat scénarisé :
   `party` (équipe imposée, avec niveaux ; rien n'est alors conservé après le combat),
   `inventory` (objets prêtés), `hints` (conseils affichés tour après tour).
