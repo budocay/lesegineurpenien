@@ -249,7 +249,9 @@ Champs principaux :
   physiques perdue par tout le monde dans les combats lancés depuis cette carte ; un
   témoin s'affiche en haut à gauche ;
 - `camera` : `distance`, `pitch` (inclinaison en degrés), `fov`, `dof` (force du flou),
-  `bounds` facultatif ;
+  `bounds` facultatif, `far_start` et `near_start` (distances du flou), `zones` facultatif
+  (voir « Horizon et caméra par carte ») ;
+  `horizon` facultatif (ciel et plans lointains, même section) ;
 - `ground` : `default` (sol par défaut) puis `fills`, une liste de rectangles peints dans
   l'ordre. Sols : `grass`, `path`, `cobble`, `planks`, `soil`, `floor`, `water`
   (infranchissable), `void` (vide, infranchissable) ;
@@ -1292,3 +1294,39 @@ Appliqué à la fin de la construction de toute carte `interior`, sans effet sur
 - `wall_dress` : jeu de décors plaqués contre les murs du fond, parmi `cave` (étagères, crochets, niches à bougie, tonneaux, tentures, poutres), `garde` (casseroles, crochets, grilles, appliques), `auberge` (tentures, étagères, appliques, lumière de fenêtres) et `mine` (boucliers, plaques, niches, tentures). Tirage stable selon l'identifiant de la carte ; rien n'est posé devant une porte, une fenêtre ou un meuble.
 - `wall_tile` accepte aussi `cave_pierre` et `cave_pierre_noire` (moellons appareillés de cave) ; `wall_tint` (couleur multipliée) et `wall_cap` (dessus des murs) retouchent la matière.
 - Les bougies, niches et fenêtres éclairent sans projeter d'ombre supplémentaire.
+
+
+## Horizon et caméra par carte
+
+Par défaut la caméra plonge sur la carte et ne montre aucun ciel. Deux champs facultatifs de
+la carte changent cela, sans toucher aux autres cartes (sans eux, le cadrage est exactement
+l'ancien).
+
+**`camera.zones`** : liste de rectangles où la caméra se relève en douceur quand le joueur y
+entre (belvédère, haut d'un escalier, porte de la cité).
+
+```json
+"camera": {"pitch": 14, "fov": 36, "dof": 0.05, "far_start": 9,
+  "zones": [{"rect": [8, 2, 20, 14], "pitch": 6, "fov": 40, "distance": 24, "feather": 12}]}
+```
+
+`rect` : `[x, z, largeur, profondeur]` en cases. `pitch`, `fov`, `distance` : valeurs atteintes
+dans le rectangle (chacune facultative : absente, elle reste celle de la carte). `feather` :
+distance de fondu autour du rectangle (défaut 4). Une inclinaison basse (6 à 8) découvre le ciel ;
+le haut du cadre se tient à `fov/2 - pitch` degrés au-dessus de l'horizon.
+
+**`horizon`** : `{"preset": "cite"}` (ou `plaine`, `collines`), complété au besoin par `sky` et
+`layers` qui remplacent ceux du préréglage. Absent ou carte d'intérieur : rien n'est construit.
+
+- `sky` : nom d'un ciel (`matin`, `siege`, `col`) ou dictionnaire de couleurs (`top`, `mid`, `low`,
+  `below`, `sun`, `sun_col`, `clouds`, `cloud_lit`, `cloud_shade`, `speed`). Dégradé, nuages
+  peints qui dérivent, lueur du soleil bas.
+- `layers` : plans peints dressés au nord, du plus lointain au plus proche. Champs : `kind`
+  (`city`, `mountain`, `plain`, `hills`, `ridge`), `z` (négatif : au nord), `y` (pied), `height`
+  (mètres), `k` (part du mouvement de la caméra suivie : 1 colle au ciel), `res` (réduction de la
+  peinture), `seed`, `w` (largeur de la toile, défaut 1200), `off`, `peak`, `tiers` (cité),
+  `fires` (plaine), `haze`, `haze_top`, `haze_bottom` (brume), `light`, `x` (décalage).
+- `ground` : `{from, to, y, near, far, haze}`, sol lointain qui prolonge la carte jusqu'à l'horizon.
+
+Un plan n'est ni solide ni cliquable. Les cartes à `horizon` portent une caméra à 600 de portée.
+Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (cité).

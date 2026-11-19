@@ -9,6 +9,7 @@ signal encounter_requested(table_id: String)
 
 const MapBuilder = preload("res://src/world/map_builder.gd")
 const Player = preload("res://src/world/player.gd")
+const Horizon = preload("res://src/world/horizon.gd")
 
 var map_id: String = ""
 var map: Dictionary = {}
@@ -45,6 +46,14 @@ var cam_distance := 24.0
 var cam_pitch := 32.0
 var _cam_bounds := Rect2()
 var _cam_target := Vector3.ZERO
+var horizon: Node3D = null            # ciel et plans d'arrière-plan (champ `horizon`), s'il y en a
+var _zones: Array = []                # zones de caméra (camera.zones) : {rect, pitch, distance, fov, feather}
+var _base_pitch := 32.0
+var _base_dist := 24.0
+var _base_fov := 24.0
+var _cam_attr: CameraAttributesPractical = null
+var _dof_far_k := 1.15
+var _dof_near_k := 0.87
 var _warp_lock := true
 var _inside: Dictionary = {}
 var _cooldown := 0.0
@@ -73,6 +82,7 @@ func setup(p_map_id: String, spawn_id: String = "", pos: Array = [], facing: Str
 	var builder := MapBuilder.new()
 	builder.build(self, map)
 	_setup_camera()
+	horizon = Horizon.build(self, map)
 	if not attract:
 		player = Player.new()
 		player.name = "Player"
@@ -230,24 +240,36 @@ func nearest_free(start: Vector3) -> Vector3:
 # -------------------------------------------------------------------- caméra
 
 func _setup_camera() -> void:
-	var cam: Dictionary = map.get("camera", {})
+	var cam: Dictionary = map.get("camera", {}).duplicate()
 	cam_distance = float(cam.get("distance", 24.0)) * (1.0 if bool(map.get("interior", false)) else ZOOM)
 	cam_pitch = float(cam.get("pitch", 32.0))
 	camera = Camera3D.new()
 	camera.fov = float(cam.get("fov", 24.0))
 	camera.near = 0.5
-	camera.far = 220.0
+	camera.far = 600.0 if map.has("horizon") else 220.0
 	camera.rotation_degrees = Vector3(-cam_pitch, 0.0, 0.0)
 	# Flou de profondeur « maquette » : net à la distance du héros, flou devant et derrière.
 	var attr := CameraAttributesPractical.new()
 	attr.dof_blur_far_enabled = true
-	attr.dof_blur_far_distance = cam_distance * float(cam.get("far_start", 1.15))
+	_dof_far_k = float(cam.get("far_start", 1.15))
+	_dof_near_k = float(cam.get("near_start", 0.87))
+	attr.dof_blur_far_distance = cam_distance * _dof_far_k
 	attr.dof_blur_far_transition = cam_distance * 0.45
 	attr.dof_blur_near_enabled = true
-	attr.dof_blur_near_distance = cam_distance * float(cam.get("near_start", 0.87))
+	attr.dof_blur_near_distance = cam_distance * _dof_near_k
 	attr.dof_blur_near_transition = cam_distance * 0.14
 	attr.dof_blur_amount = float(cam.get("dof", 0.1))
 	camera.attributes = attr
+	_cam_attr = attr
+	_base_pitch = cam_pitch
+	_base_dist = cam_distance
+	_base_fov = camera.fov
+	_zones = []
+	var zl: Variant = cam.get("zones")
+	if zl is Array:
+		for zd: Variant in zl:
+			var r: Array = (zd as Dictionary).get("rect", [0, 0, 1, 1])
+			_zones.append({"rect": Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3])), "spec": zd})
 	Settings.apply_camera(attr)
 	add_child(camera)
 	camera.make_current()
@@ -279,7 +301,44 @@ func _desired_target() -> Vector3:
 	return Vector3(clampf(player.position.x, b.position.x, b.end.x), player.position.y, clampf(player.position.z, b.position.y, b.end.y))
 
 
+## Zones de caméra : quand le joueur entre dans le rectangle d'une zone, l'inclinaison, la
+## distance et le champ de vision glissent vers ceux de la zone (sur `feather` cases autour du
+## rectangle). Hors zone, ou sans zone, le cadrage est celui du bloc `camera` de la carte.
+func _blend_zones() -> void:
+	var pitch := _base_pitch
+	var dist := _base_dist
+	var fov := _base_fov
+	if player != null:
+		var pp := Vector2(player.position.x, player.position.z)
+		for z: Dictionary in _zones:
+			var r: Rect2 = z["rect"]
+			var spec: Dictionary = z["spec"]
+			var dx := maxf(maxf(r.position.x - pp.x, 0.0), pp.x - r.end.x)
+			var dy := maxf(maxf(r.position.y - pp.y, 0.0), pp.y - r.end.y)
+			var f := maxf(float(spec.get("feather", 4.0)), 0.01)
+			var w := 1.0 - smoothstep(0.0, f, sqrt(dx * dx + dy * dy))
+			if w <= 0.0:
+				continue
+			pitch = lerpf(pitch, float(spec.get("pitch", pitch)), w)
+			fov = lerpf(fov, float(spec.get("fov", fov)), w)
+			dist = lerpf(dist, float(spec.get("distance", dist / ZOOM)) * ZOOM, w)
+	if is_equal_approx(pitch, cam_pitch) and is_equal_approx(dist, cam_distance) and is_equal_approx(fov, camera.fov):
+		return
+	cam_pitch = pitch
+	cam_distance = dist
+	camera.fov = fov
+	camera.rotation_degrees = Vector3(-cam_pitch, 0.0, 0.0)
+	_cam_attr.dof_blur_far_distance = cam_distance * _dof_far_k
+	_cam_attr.dof_blur_far_transition = cam_distance * 0.45
+	_cam_attr.dof_blur_near_distance = cam_distance * _dof_near_k
+	_cam_attr.dof_blur_near_transition = cam_distance * 0.14
+
+
 func _apply_camera() -> void:
+	if not _zones.is_empty():
+		_blend_zones()
+	if horizon != null:
+		horizon.follow(_cam_target.x)
 	var pitch := deg_to_rad(cam_pitch)
 	camera.position = _cam_target + Vector3(0.0, 0.8, 0.0) + Vector3(0.0, sin(pitch), cos(pitch)) * cam_distance
 	for f: Node3D in followers:

@@ -11,9 +11,11 @@
 	"arena": "minas_remparts",
 	"camera": {
 		"distance": 24,
-		"pitch": 30,
-		"fov": 25,
-		"dof": 0.1
+		"pitch": 18,
+		"fov": 34,
+		"dof": 0.05,
+		"far_start": 9,
+		"zones": [{"rect": [2, 19, 44, 12], "pitch": 8, "fov": 38, "feather": 6}, {"rect": [2, 2, 44, 16], "pitch": 8, "fov": 38, "feather": 6}]
 	},
 	"ground": {
 		"default": "void",
@@ -125,6 +127,7 @@
 		}
 	],
 	"style": "gouda",
+	"horizon": {"preset": "plaine"},
 	"hole_tile": "gou_boue",
 	"siege": {"fires": 8, "depth": 30},
 	"objects": [
