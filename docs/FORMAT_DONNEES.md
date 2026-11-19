@@ -1227,8 +1227,50 @@ Rappel de quête (`src/ui/objective_tracker.gd`) : montre la quête principale a
 doré). La touche `journal` (J au clavier, Y à la manette) ouvre le journal de quêtes directement ;
 elle est rappelée par le rappel et par le conseil « journal ».
 
+## Styles du chapitre 6 (Minas Tartine, Sentier, Port-Salé, Pelle-à-Tarte)
+
+Quatre styles d'architecture, choisis par le champ `style` d'une carte, servis par un seul
+constructeur (`src/world/gouda_builder.gd`, textures et accessoires dans
+`src/gfx/gouda_painter.gd`). Une carte sans l'un de ces styles n'est pas touchée.
+
+| `style` | Lieu | Sol des abords | Falaises et parois | Décor planté autour |
+|---|---|---|---|---|
+| `"gouda"` | Minas Tartine : pierre blanche, ardoise, bannières bleu nuit | `gou_herbe` | `gou_rempart` | pins |
+| `"veille"` | Sentier des Insomniaques : galerie sombre, lits de pierre | `gou_veille` | `gou_mur_veille` | quelques lits de pierre |
+| `"port"` | Port-Salé : quais, barils, voiles de torchon noir | `gou_quai` | `gou_rempart` | voiles, barils, ancres |
+| `"champ"` | Pelle-à-Tarte : champs de boue, pieux, boulets | `gou_herbe` | `gou_boue` | arbres, pieux |
+
+Dans les intérieurs (`"interior": true`) les murs prennent `wall_tile` (`gou_mur` ou
+`gou_mur_veille` par défaut selon le style) ; `water` (`deep`, `shallow`, `ripple`, `glint`)
+règle les couleurs d'une carte dont le sol est `water` (Port-Salé).
+
+**Sols (`ground.fills[].type`) :** `gou_pave` (pavés de la ville), `gou_dalle` (dalles claires),
+`gou_marbre` (marbre des places), `gou_herbe`, `gou_boue` (champ de bataille), `gou_veille`
+(dalles verdâtres du Sentier), `gou_quai` (planches et pierre mouillée). Tuiles de murs et de
+bords, pas des sols : `gou_rempart` (pierre blanche à joints), `gou_mur`, `gou_mur_veille`, `gou_ardoise` (toits).
+
+**Accessoires (par leur nom, comme tout `PROPS` ; avec `dialogue` ils s'examinent) :**
+`gou_creneau`, `gou_banniere` (2 variantes, ondule), `gou_trebuchet`, `gou_poirier` (le Poirier
+Blanc, légèrement lumineux), `gou_lit_pierre` (2 variantes), `gou_voile` (2 variantes),
+`gou_baril`, `gou_boulets`, `gou_fontaine`, `gou_statue`, `gou_echelle`, `gou_etal`
+(2 variantes), `gou_pieux`, `gou_tente` (2 variantes), `gou_brasier` (lumineux), `gou_ancre`.
+
+**Objets propres aux styles :**
+
+| `type` | Champs | Rôle |
+|---|---|---|
+| `gou_maison` | `rect` [x, z, largeur, profondeur], `height` (4,2), `door` (abscisse de la porte dans la façade ; -1 : sans), `windows` (abscisses), `lit`, `to` {map, spawn} ou `dialogue`, `chimney` | maison blanche à toit d'ardoise ; la façade est peinte avec porte et fenêtres allumées ; une porte `to` est un passage, une porte `dialogue` se lit ; le dessus s'efface quand le joueur passe derrière |
+| `gou_tour` | `pos` (centre du pied), `size` (3), `height` (7), `cap` (vrai : toit pointu ; faux : terrasse crénelée) | tour carrée à créneaux et meurtrières |
+| `gou_rempart` | `points` (ligne brisée de segments horizontaux ou verticaux), `height` (2,4), `thick` (0,9) | rempart crénelé qui bloque le passage |
+| `gou_porte` | `pos`, `gap` (largeur du passage, 3), `height` (6) | Grande Porte : deux piles, un linteau, une herse relevée, une bannière ; le passage est **dans le sens nord-sud** (le rempart qui l'entoure court d'est en ouest) ; seules les deux piles bloquent |
+
+Conseils : placer les murs d'une ville à `thick` près de la ligne de la porte pour ne pas fermer
+le passage ; laisser une case libre devant chaque porte (le test de dégagement le vérifie).
+Les cartes de l'étape suivante réutilisent ces objets sans code : tout passe par `data/maps/`.
+=======
 
 ### Sols : mouchetage et décor des maisons
 
 - `MapBuilder.MOTTLE` : par type de sol, `[teinte sombre, teinte claire, force, luminosité]`, appliqué après la peinture du sol (bruit à deux échelles, interpolé) pour casser la répétition des cases. Sans entrée, le sol n'est pas touché.
 - Maisons au style par défaut : jardinières sous les fenêtres du rez-de-chaussée (`flowers`) et lierre (`ivy`) sont en volume (cartes à feuilles découpées, tirages stables selon la carte et la maison).
+>>>>>>> main

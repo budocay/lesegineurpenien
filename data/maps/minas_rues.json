@@ -1,0 +1,607 @@
+{
+	"id": "minas_rues",
+	"name": "Minas Tartine, les rues hautes",
+	"region": "Gouda",
+	"size": [
+		36,
+		44
+	],
+	"ambiance": "minas",
+	"music": "minas",
+	"arena": "minas_rues",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_pave",
+				"rect": [
+					2,
+					32,
+					32,
+					11
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					4,
+					24,
+					28,
+					8
+				]
+			},
+			{
+				"type": "gou_pave",
+				"rect": [
+					4,
+					14,
+					28,
+					8
+				]
+			},
+			{
+				"type": "gou_marbre",
+				"rect": [
+					6,
+					4,
+					24,
+					8
+				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					2,
+					14,
+					2,
+					18
+				]
+			},
+			{
+				"type": "gou_herbe",
+				"rect": [
+					32,
+					14,
+					2,
+					18
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					16,
+					32,
+					2,
+					2
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					10,
+					22,
+					2,
+					2
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					24,
+					12,
+					2,
+					2
+				]
+			}
+		]
+	},
+	"spawns": {
+		"bas": {
+			"pos": [
+				17.0,
+				41.0
+			],
+			"facing": "up"
+		},
+		"haut": {
+			"pos": [
+				18.0,
+				6.2
+			],
+			"facing": "down"
+		}
+	},
+	"heights": [
+		{
+			"rect": [
+				4,
+				24,
+				28,
+				8
+			],
+			"h": 1.4
+		},
+		{
+			"rect": [
+				4,
+				14,
+				28,
+				8
+			],
+			"h": 2.8
+		},
+		{
+			"rect": [
+				6,
+				4,
+				24,
+				8
+			],
+			"h": 4.2
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				16,
+				32,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 1.4
+		},
+		{
+			"rect": [
+				10,
+				22,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 1.4,
+			"to": 2.8
+		},
+		{
+			"rect": [
+				24,
+				12,
+				2,
+				2
+			],
+			"dir": "up",
+			"from": 2.8,
+			"to": 4.2
+		}
+	],
+	"style": "gouda",
+	"objects": [
+		{
+			"type": "gou_maison",
+			"rect": [
+				4,
+				35,
+				7,
+				4
+			],
+			"door": 3.5,
+			"windows": [
+				1.3,
+				5.5
+			],
+			"dialogue": "rues_maison_1"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				22,
+				35,
+				8,
+				4
+			],
+			"door": 4,
+			"windows": [
+				1.5,
+				6.5
+			],
+			"dialogue": "rues_maison_2"
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				14,
+				40
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "citoyen_rues_1",
+			"wander": 2.0
+		},
+		{
+			"type": "npc",
+			"id": "greviste",
+			"pos": [
+				24,
+				41
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "greviste_rues"
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				7.5,
+				41
+			],
+			"dialogue": "farine_1",
+			"label": "Fouiller",
+			"reach": 1.7
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				19.5,
+				36.8
+			],
+			"dialogue": "rues_etal",
+			"label": "Examiner"
+		},
+		{
+			"type": "gou_fontaine",
+			"pos": [
+				17,
+				39.5
+			],
+			"dialogue": "rues_fontaine",
+			"label": "Examiner",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				12,
+				34.6
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				20.5,
+				34.6
+			]
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				3,
+				38,
+				30,
+				5
+			],
+			"table": "minas_rues"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				6,
+				25,
+				7,
+				3
+			],
+			"door": 3.5,
+			"windows": [
+				1.3,
+				5.5
+			],
+			"dialogue": "rues_maison_3"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				22,
+				25,
+				8,
+				3
+			],
+			"door": 4,
+			"windows": [
+				1.5,
+				6.5
+			],
+			"dialogue": "rues_maison_4"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				20,
+				29.4
+			],
+			"facing": "up",
+			"reach": 1.9,
+			"dialogue": "soldat_rues_1"
+		},
+		{
+			"type": "npc",
+			"id": "doigtiste",
+			"pos": [
+				9,
+				29.6
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "doigtiste_rues"
+		},
+		{
+			"type": "crate",
+			"pos": [
+				29.5,
+				30
+			],
+			"dialogue": "tuteur_caisse",
+			"label": "Fouiller",
+			"turn": 14
+		},
+		{
+			"type": "gou_creneau",
+			"pos": [
+				4.8,
+				31
+			]
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				27,
+				29.6
+			],
+			"dialogue": "rues_baril",
+			"label": "Examiner"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				6,
+				15,
+				7,
+				3
+			],
+			"door": 3.5,
+			"windows": [
+				1.3,
+				5.5
+			],
+			"dialogue": "rues_maison_5"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				16,
+				15,
+				7,
+				3
+			],
+			"door": 3.5,
+			"windows": [
+				1.3,
+				5.5
+			],
+			"dialogue": "rues_maison_6"
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				27,
+				19.6
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "citoyen_rues_2",
+			"wander": 1.5
+		},
+		{
+			"type": "npc",
+			"id": "fourrier",
+			"pos": [
+				8,
+				20
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "fourrier_rues"
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				15.5,
+				20.4
+			],
+			"dialogue": "farine_2",
+			"label": "Fouiller",
+			"reach": 1.7
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				20.5,
+				20
+			],
+			"dialogue": "rues_statue",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				29.4,
+				15.2
+			]
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				14,
+				9.2
+			],
+			"facing": "down",
+			"reach": 1.9,
+			"dialogue": "soldat_rues_2"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				22,
+				9.2
+			],
+			"facing": "down",
+			"reach": 1.9,
+			"dialogue": "soldat_rues_2"
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				26.5,
+				7.5
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "citoyen_rues_3"
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				8.5,
+				9.8
+			],
+			"dialogue": "farine_3",
+			"label": "Fouiller",
+			"reach": 1.7
+		},
+		{
+			"type": "gou_fontaine",
+			"pos": [
+				11,
+				8.4
+			],
+			"dialogue": "rues_fontaine_haut",
+			"label": "Examiner",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				12.5,
+				4.8
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				24.5,
+				4.8
+			]
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				8,
+				5.5
+			],
+			"size": 3,
+			"height": 5,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				28,
+				5.5
+			],
+			"size": 3,
+			"height": 5,
+			"cap": true
+		},
+		{
+			"type": "warp",
+			"rect": [
+				15,
+				42.3,
+				4,
+				0.9
+			],
+			"to": {
+				"map": "minas_croute",
+				"spawn": "haut"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				16,
+				3.6,
+				4,
+				1.0
+			],
+			"to": {
+				"map": "minas_citadelle",
+				"spawn": "bas"
+			}
+		},
+		{
+			"type": "light",
+			"pos": [
+				16,
+				38
+			],
+			"height": 2.6,
+			"color": "#ffe4ae",
+			"energy": 1.4,
+			"range": 11
+		},
+		{
+			"type": "light",
+			"pos": [
+				17,
+				28
+			],
+			"height": 2.6,
+			"color": "#ffe4ae",
+			"energy": 1.4,
+			"range": 11
+		},
+		{
+			"type": "light",
+			"pos": [
+				17,
+				18
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.4,
+			"range": 11
+		},
+		{
+			"type": "light",
+			"pos": [
+				18,
+				8
+			],
+			"height": 2.6,
+			"color": "#fff0d0",
+			"energy": 1.4,
+			"range": 11
+		}
+	]
+}

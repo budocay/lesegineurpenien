@@ -1,0 +1,2220 @@
+{
+	"minas_arrivee": [
+		{
+			"music": "minas"
+		},
+		{
+			"text": "L'aigle vous dépose sur une terrasse blanche, sans cérémonie, comme on pose un colis dont on a signé la décharge. Elle repart en grommelant quelque chose sur le « service des colis non réclamés ». Vous n'avez rien à réclamer. Vous êtes déjà arrivés."
+		},
+		{
+			"text": "Minas Tartine. Une ville taillée dans la montagne, étage après étage, comme sept tartines empilées par un géant qui n'aurait pas su s'arrêter : la Croûte, le Beurre, la Confiture, le Miel, la Mie, et plus haut deux étages que l'on ne voit pas d'ici. Tout est de pierre blanche. Au sommet, dans le dernier étage, un arbre blanc, très droit, que personne n'a le droit de toucher."
+		},
+		{
+			"text": "Derrière la Grande Porte, à l'est, la plaine est noire de monde. Tambours, catapultes, tentes, odeur de haricots. L'armée du Seigneur des Anneaux frappe aux portes de la ville, doucement, pour l'instant, par politesse. Elle compte frapper plus fort ensuite."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Voilà donc la plus grande ville du Gouda. Elle a l'air fière. Elle a aussi l'air de n'avoir pas ouvert depuis longtemps."
+		},
+		{
+			"who": "sam",
+			"text": "Elle sent le pain. Du pain pas frais. Du pain qui tient bon, par obstination."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Minas Tartine. Mes ancêtres l'ont fondée, et je n'y suis jamais venu. On finit toujours par visiter ce qu'on a hérité."
+		},
+		{
+			"text": "Un homme sec, vêtu d'un manteau couleur de papier, attend devant la porte de la ville, une liasse sous le bras. Il vous regarde monter le sentier comme on regarde un retard."
+		},
+		{
+			"set": "minas_vu"
+		},
+		{
+			"action": "groupe:glandoulf,froton,sam,pepin"
+		},
+		{
+			"text": "(Les chasseurs montent en ville avec Glandoulf, Sam, Froton et Pépin ; Aragrogne, Digoulasse et Grimli attendent à l'ombre de la Poterne. L'équipe se reforme à volonté, au Héraut. Parlez à l'homme au manteau.)"
+		}
+	],
+	"denigror_porte": [
+		{
+			"if": "accueil_fait",
+			"then": [
+				{
+					"who": "denigror",
+					"text": "Je vous ai déjà dit : l'Intendance, tout en haut. Montez par les rues, étage par étage. Il n'y a pas d'ascenseur : je l'ai refusé en réunion."
+				}
+			],
+			"else": [
+				{
+					"who": "denigror",
+					"text": "Vous êtes les renforts. Je n'avais pas demandé de renforts. J'avais demandé des renforts convenables. Il y a une nuance, et elle est de taille."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Nous venons du nord-ouest, avec des lettres de la Fondue-Combe et le soutien des Cavaliers du Roquefort."
+				},
+				{
+					"who": "denigror",
+					"text": "Je vois. Un vieillard, un jardinier, deux petits hommes et une dame qui pèse. C'est cela, votre aide ?"
+				},
+				{
+					"who": "glandoulf",
+					"text": "Oui."
+				},
+				{
+					"who": "denigror",
+					"text": "Je note. Je note en marge, d'une écriture un peu méprisante. Je suis Dénigror, Intendant de Minas Tartine, fils de Dénigror, père de Bromure. Bromure n'est pas avec vous ?"
+				},
+				{
+					"text": "Un silence. Pépin regarde ses pieds. Sam regarde la cape, pliée sur son bras. Froton regarde le ciel, qui n'a rien demandé."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Nous devons vous parler de lui, Intendant. Pas ici."
+				},
+				{
+					"who": "denigror",
+					"text": "Pas ici. Bien. À l'Intendance, alors, tout en haut, au dernier étage. Montez par la Croûte, le Beurre, la Confiture, le Miel et la Mie. Prenez les rampes. Ne parlez à personne : tous ont quelque chose à se plaindre, et ce n'est pas votre problème. C'est le mien. Je me plains à leur place."
+				},
+				{
+					"text": "Il vous tourne le dos, une liasse sous le bras, pour aller se plaindre de quelque chose, un peu plus loin."
+				},
+				{
+					"set": "accueil_fait"
+				},
+				{
+					"text": "(Journal : montez par la porte au nord de la Croûte, puis par les rues hautes, jusqu'à la Cour du Poirier Blanc et à l'Intendance.)"
+				}
+			]
+		}
+	],
+	"soldat_gag": [
+		{
+			"if": "accueil_fait",
+			"then": [
+				{
+					"who": "soldat_minas",
+					"text": "La Garde Dressée est toujours au garde-à-vous. C'est ce qui fait mal au dos."
+				}
+			],
+			"else": [
+				{
+					"who": "soldat_minas",
+					"text": "Halte. Qui vient ? … Ah, les renforts. Dénigror m'a prévenu : « il y en aura, et ils seront en dessous de tout ». Entrez. Je ne vous salue pas : je suis au garde-à-vous, et je ne le défais jamais."
+				}
+			]
+		}
+	],
+	"denigror_bureau": [
+		{
+			"if": "!bromure_annonce",
+			"then": [
+				{
+					"text": "L'Intendance occupe le plus haut étage de la ville. Au fond d'une salle de marbre, un bureau grand comme un champ. Quarante-deux piles de papiers : chaque pile est une catégorie de choses dont l'Intendant se plaint. Il signe. Il signe sans lever les yeux, par habitude, comme d'autres respirent."
+				},
+				{
+					"who": "denigror",
+					"text": "Posez cela sur la pile « Divers ». Vous êtes en retard. Mon fils l'est aussi, d'ailleurs. Il aurait dû arriver avant vous. Il est toujours en retard : c'est de famille. Moi, je suis en retard sur ma propre vie."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Intendant. Nous devons vous parler de Bromure."
+				},
+				{
+					"who": "denigror",
+					"text": "Il est en retard."
+				},
+				{
+					"who": "sam",
+					"text": "Non."
+				},
+				{
+					"who": "denigror",
+					"text": "Ah."
+				},
+				{
+					"text": "La plume de l'Intendant poursuit son paraphe. On entend, dans le silence de la salle, le grattement du paraphe. Il dure un peu trop. Il se termine."
+				},
+				{
+					"who": "denigror",
+					"text": "Quand ?"
+				},
+				{
+					"who": "froton",
+					"text": "Aux Portes de l'Est. Il y a quelques jours."
+				},
+				{
+					"who": "denigror",
+					"text": "Comment ?"
+				},
+				{
+					"who": "glandoulf",
+					"text": "Un glaçon. Un grand."
+				},
+				{
+					"who": "denigror",
+					"text": "Un glaçon. Et il faisait quoi, au moment du glaçon ?"
+				},
+				{
+					"who": "pepin",
+					"text": "Il parlait. Il disait : « Ni aux ordres, ni aux anneaux, ni les… »"
+				},
+				{
+					"who": "denigror",
+					"text": "… ni les ?"
+				},
+				{
+					"who": "pepin",
+					"text": "Il n'a pas fini."
+				},
+				{
+					"text": "L'Intendant prend son tampon, regarde le papier, regarde sa main, et tamponne sa main. L'encre, sur le dos de la main, dit : REFUSÉ. Il ne s'en aperçoit pas tout de suite."
+				},
+				{
+					"who": "denigror",
+					"text": "Médiocre. C'est la mort la plus médiocre qu'on m'ait jamais annoncée. Un glaçon. Au milieu d'une phrase. Il faisait toujours cela : des phrases sans fin. Je lui disais : conclus, Bromure, conclus. On ne laisse pas les gens sur une virgule."
+				},
+				{
+					"text": "Il pose le tampon. Il pose la plume. Il pose, l'un après l'autre, les objets de son bureau, comme s'ils pouvaient, mis bout à bout, former une réponse."
+				},
+				{
+					"who": "pepin",
+					"text": "Grimli a gravé sa tombe. Il a écrit : « Ci-gît Bromure du Gouda, mort à la suite d'une phrase. Il ne l'a pas finie. »"
+				},
+				{
+					"who": "denigror",
+					"text": "C'est exact. C'est la seule chose exacte qu'on m'ait remise cette semaine. … Ni aux ordres, ni aux anneaux, ni les mains dans les poches. C'était le dicton de ma mère. Elle ne le finissait jamais non plus. C'est de famille. Moi-même, je n'ai jamais fini d'être content."
+				},
+				{
+					"text": "Sam s'avance. Il dépose sur le bureau, entre la pile « Divers » et la pile « Reproches », la cape de Bromure. Douze trous. Bromure en avait compté onze : il arrondissait toujours à l'entier inférieur."
+				},
+				{
+					"who": "sam",
+					"text": "Elle est à lui. Il y tenait. Il disait qu'elle lui allait mal, mais qu'elle lui allait."
+				},
+				{
+					"text": "Dénigror prend la cape. Il la tient à bout de bras, comme un document douteux. Il compte les trous, du bout du doigt, à voix basse. Il en trouve douze. Il ne dit rien."
+				},
+				{
+					"who": "denigror",
+					"text": "Elle est mal faite."
+				},
+				{
+					"who": "sam",
+					"text": "Oui."
+				},
+				{
+					"who": "denigror",
+					"text": "Portez-la. Elle vous ira : elle ne va à personne."
+				},
+				{
+					"text": "Il la tend à Sam, sans le regarder. Sam la reprend. Elle ne pèse rien, et elle pèse."
+				},
+				{
+					"who": "sam",
+					"text": "Merci."
+				},
+				{
+					"who": "denigror",
+					"text": "Ne me remerciez pas. Un remerciement, ça se facture."
+				},
+				{
+					"text": "Il reprend sa plume. Il la pose sur une feuille vierge. Il écrit, lentement, en capitales, « BROMURE ». Puis il s'arrête."
+				},
+				{
+					"who": "denigror",
+					"text": "Je le classerai. Sous B, pour Bromure. … Sous F, pour « Fils ». … Je ferai deux dossiers."
+				},
+				{
+					"text": "La plume hésite. Elle ne gratte plus."
+				},
+				{
+					"who": "denigror",
+					"text": "Non. Un seul."
+				},
+				{
+					"text": "Le silence dure le temps qu'il faut. Dehors, très bas, les tambours de l'armée battent à la porte, avec la régularité des mauvaises nouvelles."
+				},
+				{
+					"who": "denigror",
+					"text": "Il y a un plan. Le Héraut de la Poterne, à la Croûte, en a un. Je n'y crois pas, mais « un plan médiocre vaut mieux que l'absence de plan » : article trois du règlement. Je l'ai rédigé en pleurant, la nuit. … Je n'ai pas pleuré. J'ai rédigé. Allez."
+				},
+				{
+					"set": "bromure_annonce"
+				},
+				{
+					"text": "(Journal : le Héraut de la Poterne, à la Croûte, vous attend. Dénigror se remet à signer. Il signe un peu moins vite.)"
+				}
+			],
+			"else": [
+				{
+					"if": "compliment_obtenu",
+					"then": [
+						{
+							"who": "denigror",
+							"text": "Je n'ai rien à ajouter. J'ai déjà été aimable une fois : il faut laisser aux gens le temps de s'en remettre."
+						}
+					],
+					"else": [
+						{
+							"if": "porte_tenue&compliment_defie",
+							"then": [
+								{
+									"who": "denigror",
+									"text": "Vous voilà. Vous avez tenu la porte. Je m'attendais à ce qu'elle cède : elle était de médiocre qualité. Ce n'est pas la porte qui a tenu. C'est vous."
+								},
+								{
+									"who": "denigror",
+									"text": "… Je vais devoir le dire à voix haute. Vous avez fait du bon travail. Un travail correct. Un travail dont je ne rougirais pas, si je rougissais."
+								},
+								{
+									"set": "compliment_obtenu"
+								},
+								{
+									"give": "doigt_de_gant"
+								},
+								{
+									"text": "Il vous tend, du bout des doigts, un Doigt de Gant du Corps des Doigtistes. « Ça s'appelle un pourboire. Ne le dites à personne. »"
+								}
+							],
+							"else": [
+								{
+									"if": "bromure_annonce&!compliment_defie",
+									"then": [
+										{
+											"who": "denigror",
+											"text": "Vous êtes encore là. Vous attendez un remerciement ? Il n'y en aura pas. Je n'en ai jamais fait. Je n'en ai pas en stock."
+										},
+										{
+											"choice": [
+												{
+													"text": "Vous n'avez jamais complimenté personne ?",
+													"then": [
+														{
+															"who": "denigror",
+															"text": "Jamais. Pas même ma signature. Elle est de travers."
+														},
+														{
+															"who": "glandoulf",
+															"text": "Un jour, vous le ferez."
+														},
+														{
+															"who": "denigror",
+															"text": "Quand j'en verrai la raison. Elle ne s'est pas encore présentée. Revenez quand vous aurez tenu la Grande Porte, et je verrai si je peux trouver un mot. Un seul. Il sera court."
+														},
+														{
+															"set": "compliment_defie"
+														}
+													]
+												},
+												{
+													"text": "Nous vous laissons travailler.",
+													"then": [
+														{
+															"who": "denigror",
+															"text": "Faites. Le travail, c'est ce qui reste quand on n'a plus de fils à qui le laisser."
+														}
+													]
+												}
+											]
+										}
+									],
+									"else": [
+										{
+											"who": "denigror",
+											"text": "Je signe. Cela m'occupe. L'armée est à la porte, et je signe : si la ville tombe, au moins, elle tombera en règle."
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"soldat_intendance": [
+		{
+			"who": "soldat_minas",
+			"text": "Je garde l'Intendant. Il me demande de le garder de lui-même. C'est le poste le plus difficile."
+		}
+	],
+	"doigtiste_intendance": [
+		{
+			"who": "doigtiste",
+			"text": "Le Corps des Doigtistes tient le registre des doigts. Ils sont dix par personne : nous les comptons, tous, en commençant par l'index. Il faut bien commencer par quelque chose."
+		}
+	],
+	"intendance_dossiers": [
+		{
+			"text": "Un meuble à tiroirs, étiqueté par ordre alphabétique : Abandon, Abus, Absence, Acrimonie… Les tiroirs de la lettre D débordent. La lettre D, « Dénigror », contient quarante-deux dossiers sur la même personne. Aucun n'est flatteur. Tous sont signés."
+		}
+	],
+	"intendance_buste": [
+		{
+			"text": "Un buste de marbre, sévère. Sur le socle : « Dénigror le Premier, Intendant de Minas Tartine, qui trouvait que le marbre était trop clair. » Quelqu'un a repeint le buste en gris. Le grincheux, au fond, doit se plaire."
+		}
+	],
+	"minas_repos": [
+		{
+			"text": "Un lit de pierre, étonnamment chaud, dans un coin de l'Intendance. Une plaque : « Réservé aux invités. Ne pas en abuser. Ne pas non plus s'en priver. »"
+		},
+		{
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe dort, d'un sommeil de pierre, sous le regard du buste de marbre. Au matin, l'Intendant a rajouté une ligne à son règlement : « Les invités reposés sont plus longs à partir. »"
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Pas maintenant",
+					"then": []
+				}
+			]
+		}
+	],
+	"coffre_intendance_1": [
+		{
+			"if": "coffre_intendance_1_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Dans un coffre de l'Intendance, étiqueté « Divers », une couronne de carton doré et un mot : « En remplacement. »"
+				},
+				{
+					"give": "couronne_en_remplacement"
+				},
+				{
+					"text": "(Une couronne en remplacement rejoint le sac. Elle est un peu juste.)"
+				},
+				{
+					"set": "coffre_intendance_1_pris"
+				}
+			]
+		}
+	],
+	"coffre_intendance_2": [
+		{
+			"if": "coffre_intendance_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre « Reproches », qui contient surtout des reproches, et au fond, une bourse. L'Intendant l'avait classée par erreur sous « Cadeaux »."
+				},
+				{
+					"money": 200
+				},
+				{
+					"give": "brioche_de_la_croute",
+					"count": 2
+				},
+				{
+					"text": "(200 écus et deux brioches de la Croûte.)"
+				},
+				{
+					"set": "coffre_intendance_2_pris"
+				}
+			]
+		}
+	],
+	"denigror_croute2": [
+		{
+			"if": "compliment_obtenu",
+			"then": [
+				{
+					"who": "denigror",
+					"text": "Je suis descendu voir si la porte tenait. Elle tient. Je ne m'en réjouis pas. C'est un principe."
+				}
+			],
+			"else": [
+				{
+					"if": "porte_tenue&compliment_defie",
+					"then": [
+						{
+							"who": "denigror",
+							"text": "Ah, vous. La porte a tenu. Je m'attendais à ce qu'elle cède : elle était de médiocre qualité. Ce n'est pas la porte qui a tenu, c'est vous."
+						},
+						{
+							"who": "denigror",
+							"text": "… Je vais devoir le dire à voix haute. Vous avez fait du bon travail. Un travail correct. Un travail dont je ne rougirais pas, si je rougissais."
+						},
+						{
+							"set": "compliment_obtenu"
+						},
+						{
+							"give": "doigt_de_gant"
+						},
+						{
+							"text": "Il vous tend, du bout des doigts, un Doigt de Gant du Corps des Doigtistes. « Ça s'appelle un pourboire. Ne le dites à personne. »"
+						}
+					],
+					"else": [
+						{
+							"who": "denigror",
+							"text": "Je suis descendu constater les dégâts. Ils sont moindres que prévu. C'est décevant."
+						}
+					]
+				}
+			]
+		}
+	],
+	"heraut_poterne": [
+		{
+			"if": "!bromure_annonce",
+			"then": [
+				{
+					"who": "heraut_poterne",
+					"text": "Je suis le Héraut de la Poterne. J'annonce ce qui va se passer, pour que ça ait l'air prévu. Pour l'instant, il se passe que vous devez voir l'Intendant, en haut. Il n'aime pas qu'on le double. Il n'aime pas non plus qu'on le simple."
+				}
+			],
+			"else": [
+				{
+					"if": "sentier_envoye",
+					"then": [
+						{
+							"if": "combat_saumure",
+							"then": [
+								{
+									"if": "manoeuvres_ok",
+									"then": [
+										{
+											"if": "porte_tenue",
+											"then": [
+												{
+													"who": "heraut_poterne",
+													"text": "La porte a tenu. J'avais annoncé qu'elle tiendrait. J'avais annoncé le contraire aussi, au cas où : ça fait deux annonces, une de juste. Les champs du Pelle-à-Tarte, à l'est : la dernière charge."
+												}
+											],
+											"else": [
+												{
+													"who": "heraut_poterne",
+													"text": "Tout est prêt. À la Grande Porte : la Grondine, puis Gothmoque. J'annonce qu'ils frapperont. Je ne sais pas encore comment."
+												}
+											]
+										}
+									],
+									"else": [
+										{
+											"who": "heraut_poterne",
+											"text": "Il reste les cinq manœuvres : l'huile, la braise, le couvercle, l'échelle, la soupe. Cinq postes autour de la porte. Une manœuvre, c'est ce qu'on fait avant de se battre pour avoir l'air d'avoir déjà gagné."
+										}
+									]
+								}
+							],
+							"else": [
+								{
+									"who": "heraut_poterne",
+									"text": "Le Sentier est au nord-est, par la Poterne. Le Roi des Éveillés au bout, la flotte de Port-Salé ensuite. J'ai annoncé que vous reviendriez. Ne me faites pas mentir."
+								}
+							]
+						}
+					],
+					"else": [
+						{
+							"who": "heraut_poterne",
+							"text": "Voici le plan, annoncé par mes soins, donc officiel. Un : la ville tiendra la Grande Porte. Deux : pour la tenir, il faut deux choses qu'elle n'a pas. Des renforts de l'intérieur, et une flotte."
+						},
+						{
+							"who": "heraut_poterne",
+							"text": "La Poterne ouvre sur le Sentier des Insomniaques. C'est un long couloir de lits de pierre, où campe ce qu'il reste de l'armée du Roi des Éveillés. Le Roi n'a pas fermé l'œil depuis la bataille des Champs du Pelle-à-Tarte. Son armée non plus. Personne n'a de bonne humeur, là-bas. Après le Sentier, le port : Port-Salé, où les Boucaniers de l'Ombrine préparent la remontée du fleuve, pour prendre la ville par-derrière, par la cuisine."
+						},
+						{
+							"who": "aragrogne",
+							"text": "Je prendrai le Sentier. Les Éveillés sont de ma lignée, et ils ont un décret qui les attend : on l'appelle le Décret de la Lignée. Il dit « dormez ». Il a toujours été difficile à faire appliquer."
+						},
+						{
+							"who": "heraut_poterne",
+							"text": "Le Corps des Doigtistes vous le remet. Prenez Digoulasse et Grimli. Le reste de l'équipe tiendra la Croûte en vous attendant. Vous reviendrez avec la flotte, ou en bonne forme, ou vous ne reviendrez pas, et ce sera consigné."
+						},
+						{
+							"choice": [
+								{
+									"text": "En route",
+									"then": [
+										{
+											"set": "sentier_envoye"
+										},
+										{
+											"give": "decret_de_la_lignee"
+										},
+										{
+											"action": "groupe:aragrogne,digoulasse,grimli"
+										},
+										{
+											"action": "equipe:aragrogne:decret_de_la_lignee"
+										},
+										{
+											"who": "heraut_poterne",
+											"text": "Bonne route. J'annonce que vous passerez par la Poterne. Ça tombe bien : c'est là que je vous envoie."
+										},
+										{
+											"action": "va:sentier_insomniaques:entree"
+										}
+									]
+								},
+								{
+									"text": "Pas encore",
+									"then": [
+										{
+											"who": "heraut_poterne",
+											"text": "Je n'ai aucune hâte. L'armée, si."
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"mie_dure_etal": [
+		{
+			"if": "!pain_demande",
+			"then": [
+				{
+					"who": "mie_dure",
+					"text": "Mie-Dure, boulangère de la Croûte. Je vends du pain de siège : ça ne s'abîme pas, ça ne se mange pas non plus, mais ça tient. Tenez, je rachète aussi, à moitié prix. L'autre moitié, c'est ce que le siège me prend."
+				},
+				{
+					"choice": [
+						{
+							"text": "Voir l'étal",
+							"then": [
+								{
+									"shop": "minas_marche"
+								},
+								{
+									"who": "mie_dure",
+									"text": "Revenez. Je ne bouge pas : je suis le seul commerce qui reste ouvert, et la seule boulangerie qui a perdu la mie."
+								}
+							]
+						},
+						{
+							"text": "Un souci, Mie-Dure ?",
+							"then": [
+								{
+									"who": "mie_dure",
+									"text": "Plus de farine propre. La farine de siège, celle qui reste, est cachée dans des tonneaux partout en ville, aux étages. Trois tonneaux, trois sacs. Rapportez-les-moi."
+								},
+								{
+									"who": "sam",
+									"text": "Donnez-moi une pelle et un four, et je vous fais un pain qui tient jusqu'à l'automne."
+								},
+								{
+									"who": "mie_dure",
+									"text": "C'est ce que je voulais entendre. Je ne l'ai pas entendu depuis la Mie de mon père."
+								},
+								{
+									"set": "pain_demande"
+								}
+							]
+						},
+						{
+							"text": "Rien, merci",
+							"then": []
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"if": "pain_fait",
+					"then": [
+						{
+							"who": "mie_dure",
+							"text": "Le pain de Sam, c'est l'honneur de la Croûte. Je l'ai accroché au mur. On le sent toujours. Il tient."
+						}
+					],
+					"else": [
+						{
+							"if": "item:farine_de_siege:3",
+							"then": [
+								{
+									"who": "mie_dure",
+									"text": "Trois sacs ! Posez-les là. Sam, au pétrin. La Croûte a faim."
+								},
+								{
+									"take": "farine_de_siege",
+									"count": 3
+								},
+								{
+									"text": "Sam relève ses manches. Il pétrit. Il pétrit sans un mot, avec une application grave, comme on dirait un office. La pâte, d'abord rétive, se rend au troisième tour de poignet. Le four ronfle. Le pain sort, doré, avec la croûte qu'il faut et la mie qu'on n'espérait plus. Les ouvriers du rempart défilent, un à un, hument, et repartent plus droits."
+								},
+								{
+									"who": "mie_dure",
+									"text": "Il est parfait. Ne le dites à personne : ça me coûterait la réputation de n'être jamais contente."
+								},
+								{
+									"set": "pain_fait"
+								}
+							],
+							"else": [
+								{
+									"who": "mie_dure",
+									"text": "Trois sacs de farine de siège : un en bas, au Beurre ; un au Miel ; un tout en haut, à la Mie. Je les attends. Mon four aussi."
+								}
+							]
+						}
+					]
+				},
+				{
+					"choice": [
+						{
+							"text": "Voir l'étal",
+							"then": [
+								{
+									"shop": "minas_marche"
+								}
+							]
+						},
+						{
+							"text": "Rien, merci",
+							"then": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"doigtiste_croute": [
+		{
+			"who": "doigtiste",
+			"text": "Maître Doigtiste, du Corps des Doigtistes. Nous comptons les doigts de la ville, les garde-doigts, les doigts-de-gant et les doigts d'honneur. Ces derniers sont rangés à part : ils font du bruit."
+		}
+	],
+	"fourrier_croute": [
+		{
+			"who": "fourrier",
+			"text": "Fourrier Pas-de-Quartier. Je fournis. Rien, en général : c'est ce qui reste quand on a tout fourni. Si vous avez besoin de quelque chose, c'est le moment d'en avoir besoin de moins."
+		}
+	],
+	"citoyen_croute": [
+		{
+			"who": "citoyen_mou",
+			"text": "Ma femme dit que la ville est imprenable. Je lui dis : c'est ce qu'on dit toujours avant qu'elle soit prise. Elle me dit : c'est vous qui prenez. Je n'ai pas compris, mais j'ai cédé."
+		}
+	],
+	"greviste_croute": [
+		{
+			"who": "greviste",
+			"text": "Je suis en grève du zèle. Je fais exactement ce qu'on me demande, ni plus ni moins. Jusqu'ici, ça a causé trois catastrophes et une promotion."
+		}
+	],
+	"soldat_croute": [
+		{
+			"who": "soldat_minas",
+			"text": "Garde Dressée ! Notre devise est : « Toujours debout, jamais couché. » On a eu des plaintes de la caserne : les lits ne servent à rien. On en a fait des lattes pour la porte."
+		}
+	],
+	"soldat_porte_haut": [
+		{
+			"who": "soldat_minas",
+			"text": "La porte a tenu. Je tenais la porte. C'est à dire que je tenais le battant, et que le battant tenait la porte. Le battant a eu une médaille."
+		}
+	],
+	"croute_mairie": [
+		{
+			"text": "Une grande maison blanche, ornée d'un fronton : « MAIRIE. Fermée pour cause d'ouverture. » La porte est entrouverte depuis sept ans. Nul n'ose la refermer : ce serait un précédent."
+		}
+	],
+	"croute_caserne": [
+		{
+			"text": "La caserne de la Garde Dressée. Sur la porte, un avis : « Ici, tout le monde se tient bien. Ceux qui se tiennent mal sont dehors. Ceux qui sont dehors tiennent la porte. »"
+		}
+	],
+	"croute_grenier": [
+		{
+			"text": "Un grenier à grains, désert. Un écriteau : « Plus de grains. Reste la paille. Reste aussi le grain de folie, mais il n'est pas à vendre. »"
+		}
+	],
+	"croute_fontaine": [
+		{
+			"text": "Une fontaine blanche, au centre de la place. Elle crache de l'eau par la bouche d'un fromage de pierre, un petit gouda fendu en quatre, très souriant. Une plaque : « Le Gouda donne à boire. Le Gouda ne fait pas la tête. » Quelqu'un a barré le dernier mot et écrit « croûte »."
+		}
+	],
+	"croute_statue": [
+		{
+			"text": "Une statue de pierre : un roi, la main sur le cœur et l'autre sur son chapeau. Socle : « À Fromagier le Premier, fondateur de la ville, qui, voyant la montagne, dit : tartinons. »"
+		}
+	],
+	"minas_camp": [
+		{
+			"text": "Un coin de la Croûte où les tentes de la Garde Dressée se serrent contre le rempart. On y dort tout équipé, la lance au pied. Un caporal vous fait de la place sans lâcher sa lance."
+		},
+		{
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'allonge, tout équipée, sous la veille des tambours. On entend, très loin, l'armée du Seigneur qui répète pour demain. Le caporal ronfle, au garde-à-vous."
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Pas maintenant",
+					"then": []
+				}
+			]
+		}
+	],
+	"coffre_croute": [
+		{
+			"if": "coffre_croute_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre à munitions sous le rempart, plein de boulets et, tout au fond, d'un couvre-chef de campagne de la Garde Dressée."
+				},
+				{
+					"give": "toque_de_marmite"
+				},
+				{
+					"text": "(Une toque de marmite rejoint le sac : un casque de cuisine, parfaitement convenable.)"
+				},
+				{
+					"set": "coffre_croute_pris"
+				}
+			]
+		}
+	],
+	"coffre_croute_2": [
+		{
+			"if": "coffre_croute_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Une caisse de ravitaillement, derrière la tour sud. Quelqu'un y a rangé un pain de siège, un pain de siège, et la monnaie de la ration."
+				},
+				{
+					"give": "pain_de_siege",
+					"count": 2
+				},
+				{
+					"money": 60
+				},
+				{
+					"text": "(Deux pains de siège et 60 écus.)"
+				},
+				{
+					"set": "coffre_croute_2_pris"
+				}
+			]
+		}
+	],
+	"manoeuvre_huile": [
+		{
+			"if": "!combat_saumure",
+			"then": [
+				{
+					"text": "Un poste de manœuvre, pour l'instant désert. Un papier cloué : « Ouverture à la fin de la mission du Sentier. Merci de patienter. »"
+				}
+			],
+			"else": [
+				{
+					"if": "m_huile",
+					"then": [
+						{
+							"text": "Ce poste est prêt. Les hommes y attendent l'ordre, très droits."
+						}
+					],
+					"else": [
+						{
+							"text": "Le poste de l'huile. Une marmite grande comme un puits, sur un feu qui ne s'éteint jamais. Doigtiste, de service : « Bouillante, c'est une façon de parler. Elle frémit avec autorité. »"
+						},
+						{
+							"give": "marmite_d_huile"
+						},
+						{
+							"set": "m_huile"
+						},
+						{
+							"text": "(Une marmite d'huile bouillante, à jeter du haut du mur. Mieux vaut ne pas la renverser sur soi.)"
+						},
+						{
+							"if": "m_huile&m_braise&m_couvercle&m_echelle&m_soupe",
+							"then": [
+								{
+									"text": "Les cinq postes sont prêts : l'huile bout, la braise couve, le couvercle est levé, l'échelle est renversée et la soupe est chaude. Le Héraut de la Poterne, du haut du mur, annonce : « La Grande Porte est parée ! » Il ne précise pas pour quoi."
+								},
+								{
+									"set": "manoeuvres_ok"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"manoeuvre_braise": [
+		{
+			"if": "!combat_saumure",
+			"then": [
+				{
+					"text": "Un poste de manœuvre, pour l'instant désert. Un papier cloué : « Ouverture à la fin de la mission du Sentier. Merci de patienter. »"
+				}
+			],
+			"else": [
+				{
+					"if": "m_braise",
+					"then": [
+						{
+							"text": "Ce poste est prêt. Les hommes y attendent l'ordre, très droits."
+						}
+					],
+					"else": [
+						{
+							"text": "Le poste de la braise. Un brasero de pierre, et des pots qu'on emplit de braise rouge. Un soldat de la Garde Dressée : « On l'appelle la Braise de Siège. Ça brûle plus qu'un reproche. »"
+						},
+						{
+							"give": "pot_de_braise"
+						},
+						{
+							"set": "m_braise"
+						},
+						{
+							"text": "(Un pot de braise, bien fermé, qu'on lance à la volée.)"
+						},
+						{
+							"if": "m_huile&m_braise&m_couvercle&m_echelle&m_soupe",
+							"then": [
+								{
+									"text": "Les cinq postes sont prêts : l'huile bout, la braise couve, le couvercle est levé, l'échelle est renversée et la soupe est chaude. Le Héraut de la Poterne, du haut du mur, annonce : « La Grande Porte est parée ! » Il ne précise pas pour quoi."
+								},
+								{
+									"set": "manoeuvres_ok"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"manoeuvre_couvercle": [
+		{
+			"if": "!combat_saumure",
+			"then": [
+				{
+					"text": "Un poste de manœuvre, pour l'instant désert. Un papier cloué : « Ouverture à la fin de la mission du Sentier. Merci de patienter. »"
+				}
+			],
+			"else": [
+				{
+					"if": "m_couvercle",
+					"then": [
+						{
+							"text": "Ce poste est prêt. Les hommes y attendent l'ordre, très droits."
+						}
+					],
+					"else": [
+						{
+							"text": "Le poste du couvercle. Un couvercle de rempart, en fonte, grand comme une porte, posé de chant contre le mur. Un fourrier : « On s'en sert pour fermer les marmites. Et pour parer. On parle de parer le coup ; je parle de parer le couvercle. »"
+						},
+						{
+							"give": "couvercle_de_rempart"
+						},
+						{
+							"set": "m_couvercle"
+						},
+						{
+							"text": "(Un couvercle de rempart, qu'on interpose entre soi et le mauvais sort.)"
+						},
+						{
+							"if": "m_huile&m_braise&m_couvercle&m_echelle&m_soupe",
+							"then": [
+								{
+									"text": "Les cinq postes sont prêts : l'huile bout, la braise couve, le couvercle est levé, l'échelle est renversée et la soupe est chaude. Le Héraut de la Poterne, du haut du mur, annonce : « La Grande Porte est parée ! » Il ne précise pas pour quoi."
+								},
+								{
+									"set": "manoeuvres_ok"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"manoeuvre_echelle": [
+		{
+			"if": "!combat_saumure",
+			"then": [
+				{
+					"text": "Un poste de manœuvre, pour l'instant désert. Un papier cloué : « Ouverture à la fin de la mission du Sentier. Merci de patienter. »"
+				}
+			],
+			"else": [
+				{
+					"if": "m_echelle",
+					"then": [
+						{
+							"text": "Ce poste est prêt. Les hommes y attendent l'ordre, très droits."
+						}
+					],
+					"else": [
+						{
+							"text": "Le poste de l'échelle. Une échelle de bois, appuyée par l'ennemi, qu'on renverse d'un coup de fourche. Un soldat : « Il y a une technique : on pousse, et on dit « pardon ». »"
+						},
+						{
+							"give": "echelle_renversee"
+						},
+						{
+							"set": "m_echelle"
+						},
+						{
+							"text": "(Une échelle renversée, utilisable une fois par assaut. Elle fait un grand bruit en tombant.)"
+						},
+						{
+							"if": "m_huile&m_braise&m_couvercle&m_echelle&m_soupe",
+							"then": [
+								{
+									"text": "Les cinq postes sont prêts : l'huile bout, la braise couve, le couvercle est levé, l'échelle est renversée et la soupe est chaude. Le Héraut de la Poterne, du haut du mur, annonce : « La Grande Porte est parée ! » Il ne précise pas pour quoi."
+								},
+								{
+									"set": "manoeuvres_ok"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"manoeuvre_soupe": [
+		{
+			"if": "!combat_saumure",
+			"then": [
+				{
+					"text": "Un poste de manœuvre, pour l'instant désert. Un papier cloué : « Ouverture à la fin de la mission du Sentier. Merci de patienter. »"
+				}
+			],
+			"else": [
+				{
+					"if": "m_soupe",
+					"then": [
+						{
+							"text": "Ce poste est prêt. Les hommes y attendent l'ordre, très droits."
+						}
+					],
+					"else": [
+						{
+							"text": "La cuisine de siège, côté sud. Mie-Dure y a laissé une soupe de siège : eau, pain dur, un reste de lard, et la volonté de tenir. Une louche, à qui veut. Elle est tiède. Elle se tient."
+						},
+						{
+							"give": "soupe_de_siege"
+						},
+						{
+							"set": "m_soupe"
+						},
+						{
+							"text": "(Une soupe de siège, fumante. On s'y réchauffe plus qu'on n'y mange.)"
+						},
+						{
+							"if": "m_huile&m_braise&m_couvercle&m_echelle&m_soupe",
+							"then": [
+								{
+									"text": "Les cinq postes sont prêts : l'huile bout, la braise couve, le couvercle est levé, l'échelle est renversée et la soupe est chaude. Le Héraut de la Poterne, du haut du mur, annonce : « La Grande Porte est parée ! » Il ne précise pas pour quoi."
+								},
+								{
+									"set": "manoeuvres_ok"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"nuit_blanche_scene": [
+		{
+			"music": "minas_haut"
+		},
+		{
+			"text": "La nuit tombe sur Minas Tartine. On ne dort pas, en ville. La Garde Dressée ne dort pas non plus, par principe, et les tambours de l'armée adverse martèlent la nuit, à intervalles réguliers, comme un cœur qu'on aurait emprunté."
+		},
+		{
+			"text": "Sur le rempart, une lampe. Sam a fait chauffer de l'eau, des herbes, un peu de miel, une louche de ce qui lui restait. Il tend à chacun une tasse. L'odeur est forte, honnête, un peu inquiète."
+		},
+		{
+			"who": "sam",
+			"text": "Ma tisane des veillées. Maman la servait la nuit avant les foires, quand la veille ne pouvait plus rien arranger."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Elle sent... beaucoup."
+		},
+		{
+			"choice": [
+				{
+					"text": "C'est trop fort.",
+					"then": [
+						{
+							"who": "sam",
+							"text": "Je sais. Je l'ai dosée pour tenir debout. Demain, personne ne s'assoira avant midi."
+						},
+						{
+							"who": "froton",
+							"text": "Je m'assoirai, moi. Mais debout. Si ça se peut."
+						}
+					]
+				},
+				{
+					"text": "C'est de la camomille.",
+					"then": [
+						{
+							"who": "sam",
+							"text": "Alors pourquoi êtes-vous tous éveillés ?"
+						},
+						{
+							"who": "glandoulf",
+							"text": "… Parce que la camomille n'a pas de pouvoir sur l'angoisse. Elle ne fait que la ralentir."
+						},
+						{
+							"who": "sam",
+							"text": "C'est déjà ça. Ralentir, c'est la moitié d'un courage."
+						}
+					]
+				}
+			]
+		},
+		{
+			"text": "Ils boivent, en silence. Au loin, le feu des catapultes dessine des étoiles qui n'en sont pas."
+		},
+		{
+			"who": "froton",
+			"text": "Je pense à lui, parfois. À Bromure. Il avait cette manie de ne pas finir. Aujourd'hui je comprends. Ne pas finir, c'est garder la possibilité qu'une autre fin existe."
+		},
+		{
+			"who": "pepin",
+			"text": "Il disait que les phrases étaient comme les villes : on les construit étage par étage, et on ne sait jamais lequel tiendra."
+		},
+		{
+			"who": "sam",
+			"text": "Il aurait aimé celle-ci. Sept étages, une belle vue. Une armée à la porte. Il aurait trouvé quelque chose à en dire. Il n'aurait pas fini."
+		},
+		{
+			"text": "Un moment passe. La lampe vacille, puis se redresse, comme tenue par une autre main que la sienne. Dans la ville, les lumières s'éteignent, l'une après l'autre, sauf une, tout en haut, dans l'Intendance, où quelqu'un signe encore des papiers pour que la nuit ait l'air administrée."
+		},
+		{
+			"give": "remontant_du_gouda",
+			"count": 2
+		},
+		{
+			"set": "nuit_vue"
+		},
+		{
+			"text": "(Le groupe est reposé et prêt. Les cinq postes de manœuvre de la Grande Porte attendent. Deux remontants du Gouda rejoignent le sac.)"
+		},
+		{
+			"action": "rest"
+		}
+	],
+	"gothmoque_face": [
+		{
+			"if": "!manoeuvres_ok",
+			"then": [
+				{
+					"text": "Devant la Grande Porte, à l'est, une masse de bois et de fer attend : la Grondine, un bélier de siège de douze cerclages, qu'on a fait grimper sur un charroi. Derrière, Gothmoque, géant à massue, mâche son cor. Ils ont l'air patients : ils attendent un signal."
+				},
+				{
+					"who": "heraut_poterne",
+					"text": "Pas encore ! Les cinq postes de manœuvre : l'huile, la braise, le couvercle, l'échelle et la soupe. Sinon, ce sera une défaite, mais en retard."
+				}
+			],
+			"else": [
+				{
+					"text": "Le Héraut de la Poterne, du haut de la porte, annonce d'une voix solennelle : « L'ennemi charge ! La ville tient ! Je l'avais annoncé ! »"
+				},
+				{
+					"if": "!combat_grondine",
+					"then": [
+						{
+							"text": "Le bélier avance. Le bois grince. La porte répond, d'un grondement."
+						},
+						{
+							"battle": "grondine"
+						}
+					]
+				},
+				{
+					"if": "combat_grondine",
+					"then": [
+						{
+							"if": "!combat_gothmoque",
+							"then": [
+								{
+									"text": "La Grondine s'effondre, en morceaux fumants, cerclages en l'air. Dans un silence assez long pour qu'on entende la marmite refroidir, le géant descend de sa tour."
+								},
+								{
+									"action": "rest"
+								},
+								{
+									"text": "(Une soupe fumante circule sur le rempart : l'équipe reprend souffle.)"
+								},
+								{
+									"battle": "gothmoque"
+								}
+							]
+						}
+					]
+				},
+				{
+					"if": "combat_gothmoque",
+					"then": [
+						{
+							"text": "Gothmoque tombe à genoux, la massue lui échappe, roule dans la poussière. Il lève les yeux vers les remparts, et les redescend lentement vers la porte. Il se redresse, hoche la tête, ramasse son cor, et le range."
+						},
+						{
+							"text": "Autour de lui, ses troupes reculent. Ce n'est pas encore une fuite. C'est un recul administratif : ils vont voir leur chef de service."
+						},
+						{
+							"who": "heraut_poterne",
+							"text": "La porte a tenu ! Je l'avais annoncé ! Je l'avais aussi annoncé dans l'autre sens, au cas où !"
+						},
+						{
+							"set": "porte_tenue"
+						},
+						{
+							"text": "(La route de l'est est ouverte. Les champs du Pelle-à-Tarte vous attendent. Si vous avez défié l'Intendant, passez le voir.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"rues_maison_1": [
+		{
+			"text": "Une maison blanche, volets clos. Sur la porte : « Famille Bonne-Mine. Absents pour cause de siège. Pour les colis, voir le voisin. Pour les reproches, voir l'Intendant. »"
+		}
+	],
+	"rues_maison_2": [
+		{
+			"text": "La boulangerie du Beurre. Fermée. Sur la vitrine, un pain unique, en cire, sous cloche : « Pain d'exposition. Interdit de le manger. Interdit aussi de le regarder trop longtemps. »"
+		}
+	],
+	"rues_maison_3": [
+		{
+			"text": "Une maison de la Confiture. À la fenêtre, un écriteau : « Ici, on ne parle pas de la guerre. On parle de confiture. Cassis, groseille, framboise. La guerre ne vient qu'en cinquième : elle est amère. »"
+		}
+	],
+	"rues_maison_4": [
+		{
+			"text": "Une façade lisse, sans fenêtre. Sur la porte : « Cabinet du Corps des Doigtistes. Merci d'essuyer vos mains. Merci aussi de les compter. »"
+		}
+	],
+	"rues_maison_5": [
+		{
+			"text": "Maison du Miel, au toit d'ardoise bien tenu. On entend du dedans une horloge, qui tique sans jamais tac. Elle attend, en vain, que quelqu'un lui réponde."
+		}
+	],
+	"rues_maison_6": [
+		{
+			"text": "La demeure d'un notable du Miel. Le heurtoir est une main de bronze, qui tient un gant ; le gant, une main ; la main, un gant. On cesse de compter au quatrième."
+		}
+	],
+	"rues_etal": [
+		{
+			"text": "Un étal de la rue basse. Sur la planche : « Pain, 2 écus. Pain rassis, 1 écu. Pain d'hier, gratuit : prenez-en, c'est de la veille. Pain du jour, pas encore. »"
+		}
+	],
+	"rues_fontaine": [
+		{
+			"text": "Une fontaine du Beurre. Elle coule, très doucement, par un gros pichet de pierre. Un écriteau : « Eau de ville. Elle est, comme la ville, à étages : filtrée, puis tamisée, puis tenue en respect. »"
+		}
+	],
+	"rues_fontaine_haut": [
+		{
+			"text": "La fontaine de la Mie, tout en haut. L'eau vient de la montagne, et se sent, d'ailleurs, plus fière que celle d'en bas. Elle ne coule pas : elle descend."
+		}
+	],
+	"rues_statue": [
+		{
+			"text": "Une statue du Miel : une dame qui tient une balance. Plaque : « À Dame Équité de la Mie, qui pesa trente ans le beurre, sans jamais pouvoir peser le pour et le contre. »"
+		}
+	],
+	"rues_baril": [
+		{
+			"text": "Un baril : « Farine de siège. Vide. » Sur le fond, griffonné : « Vide aussi à la dernière inspection. »"
+		}
+	],
+	"citoyen_rues_1": [
+		{
+			"who": "citoyen_mou",
+			"text": "J'habite la Croûte depuis soixante ans. La Croûte, c'est comme la peau : elle n'a pas d'avis. Elle protège. Ça lui suffit."
+		}
+	],
+	"citoyen_rues_2": [
+		{
+			"who": "citoyen_mou",
+			"text": "Au Miel, nous avons l'habitude de coller. De coller aux ordres, de coller aux murs, de coller au plafond, parfois. Pardonnez la poisse."
+		}
+	],
+	"citoyen_rues_3": [
+		{
+			"who": "citoyen_mou",
+			"text": "Je suis de la Mie. On dit que la Mie est tendre. Elle l'est. Ça n'empêche pas de tenir : c'est la croûte qui fait la mine, mais c'est la mie qui fait le pain."
+		}
+	],
+	"greviste_rues": [
+		{
+			"who": "greviste",
+			"text": "En grève du zèle depuis mardi. J'applique le règlement à la lettre. À la lettre : Il y a trois lettres en trop, d'ailleurs, dans le règlement. Je fais la grève des trois."
+		}
+	],
+	"soldat_rues_1": [
+		{
+			"who": "soldat_minas",
+			"text": "Les rampes sont toutes à une pente de 1,4. C'est la loi. On l'a votée à la réunion de la Mie. Il y avait un vote contre : celui de ma jambe."
+		}
+	],
+	"soldat_rues_2": [
+		{
+			"who": "soldat_minas",
+			"text": "Ici, c'est le dernier étage de la ville ouverte. Après, c'est l'Intendance, puis le Poirier Blanc. Et après, le ciel : il n'est pas encore à nous."
+		}
+	],
+	"doigtiste_rues": [
+		{
+			"who": "doigtiste",
+			"text": "Nous, les Doigtistes, enregistrons les doigts de la ville. Dix doigts par habitant, plus ou moins. Moins, c'est un sinistre. Plus, un miracle."
+		}
+	],
+	"fourrier_rues": [
+		{
+			"who": "fourrier",
+			"text": "Le ravitaillement tient : il y a de la farine, du lard, du sel. Il y a de tout. Il n'y a surtout pas de quoi faire une ration convenable, mais de tout."
+		}
+	],
+	"farine_1": [
+		{
+			"if": "!pain_demande",
+			"then": [
+				{
+					"text": "Un baril de bois. Il sent la farine. Ce n'est pas à vous : vous n'avez pas de raison de le fouiller. Mie-Dure, à la Croûte, en aurait peut-être une."
+				}
+			],
+			"else": [
+				{
+					"if": "farine_1_prise",
+					"then": [
+						{
+							"text": "Le baril est vide. La farine de siège se fait rare, et celle-là est partie dans un sac."
+						}
+					],
+					"else": [
+						{
+							"text": "Un tonneau bien caché derrière l'étal du Beurre. Au fond, sous une couche de poussière blanche, un sac de farine de siège, serré avec du fil de boulanger."
+						},
+						{
+							"give": "farine_de_siege"
+						},
+						{
+							"set": "farine_1_prise"
+						},
+						{
+							"text": "(Un sac de farine de siège.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"farine_2": [
+		{
+			"if": "!pain_demande",
+			"then": [
+				{
+					"text": "Un baril de bois. Il sent la farine. Ce n'est pas à vous : vous n'avez pas de raison de le fouiller. Mie-Dure, à la Croûte, en aurait peut-être une."
+				}
+			],
+			"else": [
+				{
+					"if": "farine_2_prise",
+					"then": [
+						{
+							"text": "Le baril est vide. La farine de siège se fait rare, et celle-là est partie dans un sac."
+						}
+					],
+					"else": [
+						{
+							"text": "Un tonneau du Miel, qui sent la farine et un peu le miel. Au fond, un deuxième sac de farine de siège, tenu au chaud depuis plusieurs semaines."
+						},
+						{
+							"give": "farine_de_siege"
+						},
+						{
+							"set": "farine_2_prise"
+						},
+						{
+							"text": "(Un sac de farine de siège.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"farine_3": [
+		{
+			"if": "!pain_demande",
+			"then": [
+				{
+					"text": "Un baril de bois. Il sent la farine. Ce n'est pas à vous : vous n'avez pas de raison de le fouiller. Mie-Dure, à la Croûte, en aurait peut-être une."
+				}
+			],
+			"else": [
+				{
+					"if": "farine_3_prise",
+					"then": [
+						{
+							"text": "Le baril est vide. La farine de siège se fait rare, et celle-là est partie dans un sac."
+						}
+					],
+					"else": [
+						{
+							"text": "Un fût de la Mie, tout en haut. Sous le couvercle, un troisième sac de farine. Il est marqué « Dernier ». Il n'avait pas compris qu'il en restait deux autres à trouver."
+						},
+						{
+							"give": "farine_de_siege"
+						},
+						{
+							"set": "farine_3_prise"
+						},
+						{
+							"text": "(Un sac de farine de siège.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"tuteur_caisse": [
+		{
+			"if": "!poirier_demande",
+			"then": [
+				{
+					"text": "Une caisse de matériel, au Beurre, remplie de gourdins, de chevilles, de piquets, et d'un très beau tuteur de frêne, droit comme un « i ». Il y a un papier : « Réservé à un usage qui n'a pas encore été défini. » Verjus, à la Cour du Poirier Blanc, en aurait peut-être l'usage."
+				}
+			],
+			"else": [
+				{
+					"if": "item:tuteur_neuf",
+					"then": [
+						{
+							"text": "La caisse est vide, et le tuteur est dans votre sac. Droit comme un « i »."
+						}
+					],
+					"else": [
+						{
+							"text": "Dans la caisse, parmi les gourdins et les piquets, un tuteur de frêne parfaitement droit, signé « Garde Dressée » (c'est la devise). Il se tient tout seul."
+						},
+						{
+							"give": "tuteur_neuf"
+						},
+						{
+							"text": "(Un tuteur neuf en frêne. Il se tient droit : c'est sa raison d'être.)"
+						}
+					]
+				}
+			]
+		}
+	],
+	"verjus_poirier": [
+		{
+			"if": "!poirier_demande",
+			"then": [
+				{
+					"who": "jardinier_poirier",
+					"text": "Verjus, jardinier du Poirier Blanc. Je suis le seul homme de la ville qu'on laisse approcher de l'arbre. Il ne fleurit plus depuis la mort du dernier roi. Les poires attendent. Moi aussi."
+				},
+				{
+					"who": "jardinier_poirier",
+					"text": "Son tuteur est tordu. Je voudrais le remplacer. Je n'ose pas le dire à l'arbre. Il a l'air de tenir à son tuteur : c'est la seule chose qui le tienne debout. Si vous trouviez un tuteur droit, quelque part en ville…"
+				},
+				{
+					"set": "poirier_demande"
+				}
+			],
+			"else": [
+				{
+					"if": "tuteur_essaye",
+					"then": [
+						{
+							"who": "jardinier_poirier",
+							"text": "Le Poirier se tient droit. Il n'a rien dit. Il a fait une poire, une seule, ce matin. Je n'ose pas la cueillir : elle a l'air d'un mot."
+						}
+					],
+					"else": [
+						{
+							"if": "item:tuteur_neuf",
+							"then": [
+								{
+									"who": "jardinier_poirier",
+									"text": "Un tuteur neuf ! Posez-le à côté de l'arbre, doucement. Et parlez-lui avant. Il aime qu'on lui parle avant."
+								}
+							],
+							"else": [
+								{
+									"who": "jardinier_poirier",
+									"text": "Un tuteur droit, quelque part en ville. Je n'en demande pas plus. Un tuteur, un seul, droit."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"poirier_tuteur": [
+		{
+			"if": "!poirier_demande",
+			"then": [
+				{
+					"text": "Le Poirier Blanc. Blanc de la tête aux racines, très droit dans ses feuilles, très tordu dans son tuteur. Un panonceau : « Défense de toucher à l'arbre. Défense aussi de le regarder de travers. Il est déjà de travers. »"
+				}
+			],
+			"else": [
+				{
+					"if": "tuteur_essaye",
+					"then": [
+						{
+							"text": "Le Poirier Blanc se tient droit dans son tuteur neuf. Une seule poire, tout en haut, brille dans le soir. Personne n'ose la cueillir."
+						}
+					],
+					"else": [
+						{
+							"if": "item:tuteur_neuf",
+							"then": [
+								{
+									"text": "Vous vous approchez du Poirier Blanc. Vous lui parlez, à voix basse, de la ville, du siège, de la nécessité d'un tuteur. L'arbre ne répond pas. Une feuille tombe : c'est son consentement."
+								},
+								{
+									"take": "tuteur_neuf"
+								},
+								{
+									"text": "Vous plantez le tuteur neuf, très doucement, à côté de l'ancien. L'arbre le regarde sans rien dire. Il se redresse, d'un cran, comme un fonctionnaire qui vient de comprendre qu'on le décore."
+								},
+								{
+									"who": "jardinier_poirier",
+									"text": "Il se tient. Il tient. Merci. La ville vous doit quelque chose : je vous ferai porter le vieux tuteur, il a du caractère. Il vous servira mieux qu'à l'arbre."
+								},
+								{
+									"set": "tuteur_essaye"
+								}
+							],
+							"else": [
+								{
+									"text": "Le Poirier Blanc, si droit qu'il en est tordu. Son tuteur est de travers. Il lui faudrait un tuteur neuf. Verjus en connaît le besoin."
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"soldat_citadelle": [
+		{
+			"who": "soldat_minas",
+			"text": "Cour du Poirier Blanc : chacun s'y tait. Le Poirier a de l'oreille. Il n'aime pas qu'on lui parle de poires."
+		}
+	],
+	"doigtiste_citadelle": [
+		{
+			"who": "doigtiste",
+			"text": "Dans la Cour, nous enregistrons les doigts qui montrent le Poirier. Montrer l'arbre du doigt est un délit. Le doigt est compté. L'arbre aussi."
+		}
+	],
+	"citoyen_citadelle": [
+		{
+			"who": "citoyen_mou",
+			"text": "On dit que, si le Poirier Blanc refleurit, la ville sera sauvée. On dit aussi, à la Mie, que c'est l'Intendant qui l'a inventé, pour qu'on se tienne tranquille. Je ne sais pas quoi croire. Je crois les deux."
+		}
+	],
+	"citadelle_statue": [
+		{
+			"text": "La statue d'un roi, la tête inclinée. Le socle : « Pour le dernier roi du Gouda, mort sans enfant, sans héritier, sans testament, avec, tout de même, un très beau fromage. »"
+		}
+	],
+	"citadelle_statue_2": [
+		{
+			"text": "Une statue de reine, voilée. Le socle : « À la dernière reine, qui, dit-on, avait une bonne mine, et plus d'une pomme de discorde. »"
+		}
+	],
+	"citadelle_fontaine": [
+		{
+			"text": "La fontaine du Poirier : une vasque de marbre, dont l'eau, très claire, reflète l'arbre à l'envers. Dans l'eau, le Poirier est droit. Hors de l'eau, il est tordu. On ne sait pas lequel des deux a raison."
+		}
+	],
+	"coffre_citadelle": [
+		{
+			"if": "coffre_citadelle_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de jardinier, derrière la tour est. Sous les cisailles et les sécateurs, un gant de cuir étrange, à six doigts."
+				},
+				{
+					"give": "doigt_de_gant"
+				},
+				{
+					"text": "(Un doigt de gant, du Corps des Doigtistes. Il est à la fois trop long et trop court.)"
+				},
+				{
+					"set": "coffre_citadelle_pris"
+				}
+			]
+		}
+	],
+	"eveille_1": [
+		{
+			"text": "Dans un lit de pierre, un Éveillé, les yeux écarquillés, vous regarde passer. Il n'a pas l'air d'avoir clos les paupières depuis un siècle. Il murmure : « Si je ferme les yeux, c'est fini. Je ne rouvrirai pas. » Il se lève, très calme, et l'on comprend que le sommeil, pour lui, est un ennemi à abattre."
+		},
+		{
+			"battle": "eveilles_1"
+		},
+		{
+			"if": "combat_eveilles_1",
+			"then": [
+				{
+					"text": "L'Éveillé retombe sur sa couche de pierre. Il referme un œil, par erreur, puis l'autre. Il ronfle déjà. « C'est donc ça, murmure-t-il. Ce n'est pas si terrible. »"
+				}
+			]
+		}
+	],
+	"eveille_2": [
+		{
+			"text": "Un veilleur de nuit, une bougie à la main, hoche la tête à votre passage. « Veille perpétuelle, dit-il. Personne ne dort, ici. C'est la règle. Si vous êtes fatigués, c'est personnel. » Il lève la bougie."
+		},
+		{
+			"battle": "eveilles_2"
+		},
+		{
+			"if": "combat_eveilles_2",
+			"then": [
+				{
+					"text": "La bougie s'éteint. Le veilleur s'affaisse, doucement, contre son lit. « Ce n'était pas dans le règlement, souffle-t-il. Mais c'était bon. »"
+				}
+			]
+		}
+	],
+	"eveille_3": [
+		{
+			"text": "Une rangée de lits, et dans chaque lit, un Éveillé aux yeux larges. Celui du milieu se redresse : « Je n'ai pas dormi depuis la bataille du Pelle-à-Tarte. J'ai compté les moutons. Il n'en reste plus. J'ai compté les haricots. Il y en a trop. »"
+		},
+		{
+			"battle": "eveilles_3"
+		},
+		{
+			"if": "combat_eveilles_3",
+			"then": [
+				{
+					"text": "Les lits se ferment, l'un après l'autre, comme des paupières. On entend le sommeil monter, mais très doucement, par respect du règlement."
+				}
+			]
+		}
+	],
+	"eveille_4": [
+		{
+			"text": "Au fond du couloir, un dernier groupe d'Éveillés monte la garde devant la salle du trône. Ils vous regardent, d'un œil qui n'a pas cligné depuis la dernière guerre : « Passez. À vos risques. Et à nos périls. Nous sommes trop fatigués pour être polis. »"
+		},
+		{
+			"battle": "eveilles_4"
+		},
+		{
+			"if": "combat_eveilles_4",
+			"then": [
+				{
+					"text": "Les gardes s'écartent. L'un d'eux murmure : « Dites au Roi qu'il peut… » et il s'endort sur le dernier mot. On ne sait pas ce que le Roi pouvait."
+				}
+			]
+		}
+	],
+	"sentier_panneau": [
+		{
+			"text": "Un panneau planté à l'entrée du couloir : « SENTIER DES INSOMNIAQUES. Défense de dormir. Défense de le laisser faire. Défense de bâiller : c'est contagieux. »"
+		}
+	],
+	"sentier_brasier": [
+		{
+			"text": "Un brasier de veille, qu'on entretient pour qu'il ne s'éteigne jamais. Il vacille, mais on ne l'a jamais vu s'endormir. Une plaque : « Ici, même le feu fait attention. »"
+		}
+	],
+	"sentier_statue": [
+		{
+			"text": "Une statue d'ancien roi, en pierre, très droite, qui dort debout. Un des seuls dormeurs du couloir. Plaque : « Aucun roi n'a jamais dormi plus tranquillement que celui-ci. Il est de pierre. »"
+		}
+	],
+	"coffre_sentier": [
+		{
+			"if": "coffre_sentier_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Sous un lit de pierre, un coffre de bois noir, plein de bonnets de nuit et d'un plastron de la Garde éveillée."
+				},
+				{
+					"give": "cuirasse_de_croute"
+				},
+				{
+					"text": "(Une cuirasse de croûte : solide, dorée, un peu craquante.)"
+				},
+				{
+					"set": "coffre_sentier_pris"
+				}
+			]
+		}
+	],
+	"coffre_sentier_2": [
+		{
+			"if": "coffre_sentier_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffret sous le dernier lit, avec une étiquette : « Pour le cas où. » Il y en a deux, de cas, dans le coffret."
+				},
+				{
+					"give": "remontant_du_gouda",
+					"count": 2
+				},
+				{
+					"text": "(Deux remontants du Gouda.)"
+				},
+				{
+					"set": "coffre_sentier_2_pris"
+				}
+			]
+		}
+	],
+	"roi_eveille_face": [
+		{
+			"text": "Au bout du couloir, une salle ronde. Au centre, sur une estrade, un lit à baldaquin, immense, très bien fait, que personne n'a jamais utilisé. Assis à côté, la bassinoire à la main, le Roi des Éveillés regarde le plafond. Ses yeux sont rouges, ouverts, très grands. Sur sa tête, un bonnet de nuit, qu'il porte comme une couronne."
+		},
+		{
+			"text": "Le Roi des Éveillés : « Enfin, de la visite. Je n'ai pas fermé l'œil depuis la bataille des Champs du Pelle-à-Tarte. Il y a longtemps. Je ne saurais dire combien. Je n'ai pas pu compter : je m'endors en comptant. Ou alors, non, justement. »"
+		},
+		{
+			"who": "aragrogne",
+			"text": "Roi des Éveillés. Je suis Aragrogne, héritier d'Isidur. Je viens renouveler le vieux pacte : votre armée contre la reconnaissance du trône, en échange de la paix, et d'un peu de repos."
+		},
+		{
+			"text": "Le Roi : « Du repos. Le mot est cruel. Je vous en prie, ne le prononcez pas à voix haute. Je suis le dernier à tenir debout, et je tiens parce que je ne m'assois pas. »"
+		},
+		{
+			"who": "aragrogne",
+			"text": "Je ne vous demande pas de vous asseoir. Je vous le décrète."
+		},
+		{
+			"text": "Aragrogne tire un parchemin de sa poche. Un très vieux parchemin, scellé de cire blanche. Il le déplie, lentement, et lit, d'une voix d'héritier : « Par décret de la Lignée : dormez. »"
+		},
+		{
+			"text": "Le Roi se redresse, comme piqué. Il est sec d'un rire qui n'en est pas un. « Dormir ? Moi ? Après tout ce temps, vous voudriez que je cède à ce décret ? Soit. Je me lève. Vous ne passerez pas : on ne désobéit à un roi qu'une fois, et on n'y gagne qu'une couronne de rechange. »"
+		},
+		{
+			"battle": "roi_eveille"
+		},
+		{
+			"if": "combat_roi_eveille",
+			"then": [
+				{
+					"text": "Le Roi des Éveillés chancelle. Il s'assied, enfin, sur l'estrade, puis sur le lit. Il pose sa bassinoire, lentement, et son bonnet de nuit sur sa propre tête. Ses yeux se ferment, d'abord un, puis l'autre. Il murmure : « C'est donc ça, fermer les yeux. C'est… agréable. J'ai manqué quelque chose. »"
+				},
+				{
+					"text": "Autour de lui, dans les salles voisines, un grand soupir remonte les couloirs. Les Éveillés dorment. Pour la première fois depuis une longue guerre, la salle est silencieuse. Elle en est presque gênée."
+				},
+				{
+					"who": "digoulasse",
+					"text": "Il dort. Il ronfle. J'ai vu des seigneurs plus bruyants, mais à l'envers : ceux-là se réveillent."
+				},
+				{
+					"who": "grimli",
+					"text": "On n'a pas gagné contre lui. On l'a couché. Ce n'est pas la même chose."
+				},
+				{
+					"text": "Une ombre vive franchit la salle : Merri, qui vous suivait depuis la Poterne, par les toits, sans prévenir personne, se glisse à côté d'Aragrogne, un peu essoufflé."
+				},
+				{
+					"who": "merri",
+					"text": "Je vous ai suivis. Vous alliez au port. Je n'avais pas envie de rester en ville à compter les tartines. Pépin dit que je ne suis pas utile. Il dit ça, mais c'est mon cousin. Je viens."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Bienvenue, Merri. Le chemin du port est au bout du couloir."
+				},
+				{
+					"action": "groupe:aragrogne,digoulasse,grimli,merri"
+				},
+				{
+					"text": "(Merri rejoint l'équipe. Le couloir du fond mène à Port-Salé.)"
+				}
+			]
+		}
+	],
+	"port_panneau": [
+		{
+			"text": "Un panneau de la capitainerie : « PORT-SALÉ. Ici, on ne sale que ce qu'on mange. Pour les autres sels, voir l'amiral. L'amiral est absent. L'amiral est un chien. »"
+		}
+	],
+	"port_baril": [
+		{
+			"text": "Un baril de salaison. Dedans, des harengs : on les dit « de la brigade, car ils sont toujours bien rangés ». L'un d'eux a le regard fixe. Il a vu quelque chose. Il n'ose pas le dire."
+		}
+	],
+	"port_tente": [
+		{
+			"text": "Une tente de marin, tendue entre deux barriques. Un hamac. Un tonnelet de grog. Un portrait d'une femme à poigne, sans doute la maman du capitaine."
+		},
+		{
+			"choice": [
+				{
+					"text": "Se reposer",
+					"then": [
+						{
+							"action": "rest"
+						},
+						{
+							"text": "L'équipe s'allonge sur les cordages, bercée par le clapotis. On entend, loin, des mouettes qui parlent mal. Une chanson de pirates se répète à l'infini : « Quinze hommes sur le coffre du mort… on n'a que quatorze, il en manque un ! »"
+						},
+						{
+							"action": "save"
+						}
+					]
+				},
+				{
+					"text": "Pas maintenant",
+					"then": []
+				}
+			]
+		}
+	],
+	"port_taverne": [
+		{
+			"text": "La taverne du port, fermée. Sur la porte : « Fermée pour cause d'abordage. Pour cause de reconstruction. Pour cause de ce qu'on voudra. Revenez quand l'Ombrine sera en cale. »"
+		}
+	],
+	"cambusier_port": [
+		{
+			"who": "cambusier",
+			"text": "Maître cambusier de Port-Salé. Je fournis le grog, la toque, la braise. Ce que les Boucaniers n'ont pas pillé. Ils ont pillé tout le reste, sauf le grog : ils en ont besoin pour piller."
+		},
+		{
+			"shop": "port_cambuse"
+		}
+	],
+	"fourrier_port": [
+		{
+			"who": "fourrier",
+			"text": "Le Corps des Doigtistes m'a envoyé compter les doigts de pied. Les marins n'en ont que huit. On dit que les autres sont à l'eau, sous bonne garde."
+		}
+	],
+	"citoyen_port": [
+		{
+			"who": "citoyen_mou",
+			"text": "Ils sont arrivés de nuit, avec leurs voiles de torchon noir, et ils ont tout pris. Tout, sauf le mal de mer : ça, ils l'avaient déjà."
+		}
+	],
+	"coffre_port": [
+		{
+			"if": "coffre_port_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de cale, ferré, à demi enfoui sous un filet. Dedans, un canif de poche très aiguisé, une corde, et un message : « À l'abordage ! Merci de ne pas déranger. »"
+				},
+				{
+					"give": "canif_de_la_poterne"
+				},
+				{
+					"text": "(Un canif de la Poterne. Il coupe tout, sauf la parole.)"
+				},
+				{
+					"set": "coffre_port_pris"
+				}
+			]
+		}
+	],
+	"coffre_port_2": [
+		{
+			"if": "coffre_port_2_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Une cassette sous un tonneau de harengs. Elle contient une poignée de pièces, un dé pipé et une dent."
+				},
+				{
+					"money": 120
+				},
+				{
+					"text": "(120 écus. La dent n'est pas à vous.)"
+				},
+				{
+					"set": "coffre_port_2_pris"
+				}
+			]
+		}
+	],
+	"saumure_face": [
+		{
+			"text": "Au bout du quai, une grande barque noire aux voiles de torchon, et debout dessus, un capitaine à tricorne rapiécé, une moustache de varech, un sabre de bois peint en fer. Il est entouré de deux Boucaniers, et chacun d'eux a l'air d'une chose pas finie."
+		},
+		{
+			"text": "Saumure, d'une voix de morue : « Halte ! Au nom de l'Ombrine, je vous saisis. Les marchandises, les passagers, et cette façon de marcher : elle est trop propre pour un quai. »"
+		},
+		{
+			"who": "aragrogne",
+			"text": "Capitaine Saumure. Je suis Aragrogne, héritier d'Isidur. Je vous demande la flotte, pour la défense de Minas Tartine."
+		},
+		{
+			"text": "Saumure : « La flotte est à moi. Elle est à l'Ombrine, à la rigueur. Pour la flotte, il faudra me battre, et boire un coup, et si possible dans cet ordre. »"
+		},
+		{
+			"battle": "saumure"
+		},
+		{
+			"if": "combat_saumure",
+			"then": [
+				{
+					"text": "Saumure s'affale sur un cabestan. Son tricorne glisse. Il le rattrape, d'un geste très noble, qui n'a rien à voir avec la situation."
+				},
+				{
+					"text": "Saumure : « Soit. La flotte est à vous. Douze barques, quatre voiles de torchon, une vraie. Faites-en bon usage. Et si vous croisez l'Ombrine, dites-lui que j'ai été battu par des gens trop propres. Elle comprendra. »"
+				},
+				{
+					"who": "digoulasse",
+					"text": "On a la flotte. Ça fait un peu moins de bateaux que prévu."
+				},
+				{
+					"who": "grimli",
+					"text": "Un vrai, c'est déjà beaucoup."
+				},
+				{
+					"text": "Sur le quai, la flotte appareille, voile de torchon au vent. Elle est lente, mais elle est à vous, et les cales sont pleines de ce que les Boucaniers n'ont pas encore mangé."
+				},
+				{
+					"action": "groupe:glandoulf,sam,froton,aragrogne"
+				},
+				{
+					"text": "(Le groupe se reforme à la Grande Porte : Glandoulf, Sam, Froton, Aragrogne. Les autres attendent sur le banc.)"
+				},
+				{
+					"action": "va:minas_croute:porte"
+				}
+			]
+		}
+	],
+	"pelle_panneau": [
+		{
+			"text": "Un panneau planté en plein champ : « CHAMPS DU PELLE-À-TARTE. Ici, on ne laboure plus. On enterre. Défense de marcher sur les tartes : elles ont eu une journée difficile. »"
+		}
+	],
+	"coffre_pelle": [
+		{
+			"if": "coffre_pelle_pris",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il a l'air d'en être soulagé."
+				}
+			],
+			"else": [
+				{
+					"text": "Un coffre de l'intendance militaire, enfoui sous des sacs de haricots. À l'intérieur, une médaille, que quelqu'un a gravée « Au garde-à-vous »."
+				},
+				{
+					"give": "medaille_du_garde_a_vous"
+				},
+				{
+					"text": "(Une médaille du garde-à-vous. Elle est sérieuse.)"
+				},
+				{
+					"set": "coffre_pelle_pris"
+				}
+			]
+		}
+	],
+	"soldat_champ": [
+		{
+			"who": "soldat_minas",
+			"text": "On a eu chaud. On a eu faim. On a eu peur. On a tenu. La Garde Dressée n'a pas dit un mot : ses dents claquaient trop fort."
+		}
+	],
+	"pelle_charge": [
+		{
+			"text": "Les champs du Pelle-à-Tarte. À l'est, la plaine est noire de monde, et la nuit tombe. Une rumeur de haricots, de cors, de grosses bêtes. L'armée du Seigneur des Anneaux a décidé de ne plus frapper : elle charge."
+		},
+		{
+			"music": "bataille"
+		},
+		{
+			"who": "heraut_poterne",
+			"text": "Je l'avais annoncé ! Elle charge ! Elle charge, et elle n'est pas contente !"
+		},
+		{
+			"who": "aragrogne",
+			"text": "À moi, la Garde. À moi, la Lignée. Pour Minas Tartine et pour ce qui reste de la tartine !"
+		},
+		{
+			"action": "groupe:glandoulf,sam,froton,aragrogne"
+		},
+		{
+			"battle": "pelle_cassouletains"
+		},
+		{
+			"if": "combat_pelle_cassouletains",
+			"then": [
+				{
+					"text": "Les Cassoulétains refluent en chantant. Ce n'est pas un chant de guerre, c'est un chant de haricots, qui reste en travers."
+				},
+				{
+					"action": "rest"
+				},
+				{
+					"text": "Mais derrière eux, la terre tremble. Quelque chose, de très gros, s'avance au pas. C'est un éléphant. Plus exactement un Mammou, avec une serviette en guise de bannière. La relève prend le relais."
+				},
+				{
+					"action": "groupe:pepin,merri,digoulasse,grimli"
+				},
+				{
+					"who": "pepin",
+					"text": "Je n'ai jamais fait ça sans Glandoulf. J'ai l'impression d'être en retard sur mon propre courage."
+				},
+				{
+					"battle": "pelle_mammous"
+				}
+			]
+		},
+		{
+			"if": "combat_pelle_mammous",
+			"then": [
+				{
+					"text": "Le Mammou s'agenouille, très digne, sur le champ. Il pousse un barrissement, qui est aussi un dernier mot, et il s'étend. Les Cassoulétains survivants se replient, lance en bandoulière."
+				},
+				{
+					"action": "rest"
+				},
+				{
+					"text": "Et le Dindon de la Farce paraît, plus haut que les autres, farci jusqu'au jabot. Derrière lui, on entend, très loin, un cor : il sonne la charge, mais très en retard."
+				},
+				{
+					"action": "groupe:glandoulf,sam,aragrogne,grimli"
+				},
+				{
+					"battle": "dindon_farce"
+				}
+			]
+		},
+		{
+			"if": "combat_dindon_farce",
+			"then": [
+				{
+					"text": "Le Dindon de la Farce s'effondre, avec un grand bruit de plumes. Il en sort, très doucement, une odeur de sauge et de marrons. Les Cassoulétains, voyant leur grand dindon à terre, abandonnent leurs lances, pour recueillir les marrons."
+				},
+				{
+					"who": "glandoulf",
+					"text": "On a gagné. On a surtout gagné le droit de mourir dans un instant."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Regardez."
+				},
+				{
+					"text": "Au loin, sur la plaine noircie, une silhouette sans visage s'avance, drapée de noir, une lame dans une main, un anneau minuscule pendu au bout d'une chaîne. Elle ne marche pas : elle glisse. Autour d'elle, la nuit a l'air d'un vêtement qu'on aurait mal repassé."
+				},
+				{
+					"who": "heraut_poterne",
+					"text": "Je n'avais pas annoncé celui-là."
+				}
+			]
+		}
+	],
+	"naze_face": [
+		{
+			"text": "Le Naze Suprême se tient au milieu du champ, drapé de noir, la lame au poing. Au-dessus de ses épaules, il n'y a que de l'air, et dans cet air, une voix. Il y a une odeur de nuit et de haricots refroidis. Au bout de son doigt, un petit anneau tourne, très lentement, sur lui-même."
+		},
+		{
+			"text": "Le Naze Suprême : « Nul homme du Gouda ne peut me blesser. »"
+		},
+		{
+			"who": "aragrogne",
+			"text": "Alors ce n'est pas à un homme du Gouda de le faire."
+		},
+		{
+			"who": "merri",
+			"text": "Je suis du Brie. J'ai le même dialecte, mais pas la même carte d'identité."
+		},
+		{
+			"who": "pepin",
+			"text": "Moi, je suis un homme. Je ne suis pas du Gouda. Je suis de ses abords."
+		},
+		{
+			"give": "dague_de_dos"
+		},
+		{
+			"action": "groupe:aragrogne,merri,glandoulf,pepin"
+		},
+		{
+			"action": "equipe:merri:dague_de_dos"
+		},
+		{
+			"text": "(Merri sort la dague de dos de sa ceinture : une lame plate, très mal élevée, qui ne frappe que par derrière. Les coups ordinaires glissent sur le Naze Suprême ; le « Coup dans le dos final » de Merri est la clef.)"
+		},
+		{
+			"battle": "naze_supreme"
+		},
+		{
+			"if": "combat_naze_supreme",
+			"then": [
+				{
+					"text": "Le Naze Suprême s'effondre. Il ne tombe pas comme un homme : il s'affaisse, comme un vêtement dont on aurait lâché le portemanteau. La lame roule, très loin, dans le blé écrasé. L'anneau, au bout de sa chaîne, tinte contre la pierre, une fois, deux fois, et se tait."
+				},
+				{
+					"who": "merri",
+					"text": "Il avait raison. Il n'a pas été blessé par un homme du Gouda. Il l'a été par un hobbit du Brie. Il n'avait rien prévu pour ça."
+				},
+				{
+					"who": "aragrogne",
+					"text": "C'est le principe des prophéties. On ne les lit jamais jusqu'à la fin."
+				},
+				{
+					"text": "Sur le champ, les derniers Cassoulétains lâchent leurs lances. Un très long silence tombe, que le Héraut de la Poterne, du haut des remparts, brise d'un cri : « La ville tient ! La ville a gagné ! Je l'avais annoncé ! Ça fait trois fois ! »"
+				},
+				{
+					"text": "Un homme sec, vêtu d'un manteau couleur de papier, descend du rempart, une liasse sous le bras, et vient vous rejoindre dans le champ, très lentement, comme on s'approche d'un document qu'on n'ose pas signer."
+				},
+				{
+					"text": "(Retrouvez Dénigror, au bout du champ, pour le couronnement.)"
+				}
+			]
+		}
+	],
+	"denigror_champ": [
+		{
+			"if": "chapitre_6_fini",
+			"then": [
+				{
+					"who": "denigror",
+					"text": "Je n'ai plus rien à dire. J'ai rédigé le reste."
+				}
+			],
+			"else": [
+				{
+					"who": "denigror",
+					"text": "Je suis descendu constater les dégâts. Ils sont moindres que prévu. C'est décevant. Sur le champ, il y a quelqu'un à qui je dois remettre un papier."
+				},
+				{
+					"text": "Il se tourne vers Aragrogne. De sous son manteau, il tire une couronne : une couronne de carton doré, de bonne facture, un peu juste, dont la dorure s'écaille déjà."
+				},
+				{
+					"who": "denigror",
+					"text": "Modèle de remplacement. L'original est en réparation depuis la dernière Ère. Elle est un peu étroite. Elle sera étroite toute votre vie. Voici l'acte. Prière de ne pas le lire. Signer en bas."
+				},
+				{
+					"who": "aragrogne",
+					"text": "Je n'ai pas demandé de couronne."
+				},
+				{
+					"who": "denigror",
+					"text": "C'est ce qui fait un bon roi. Je n'ai jamais demandé non plus à être Intendant, et regardez où j'en suis. Signez."
+				},
+				{
+					"text": "Aragrogne prend la plume. Il signe, en bas, sans lire, comme on fait pour la seule vraie chose de sa vie. La plume gratte. L'encre sèche. La foule hurle. Les soldats de la Garde Dressée se mettent au garde-à-vous, et pour la première fois ils paraissent heureux d'y être."
+				},
+				{
+					"give": "couronne_en_remplacement"
+				},
+				{
+					"text": "Dénigror contemple la signature. Il en tire, un à un, ses défauts : l'a mal liée, le g trop penché, le t sans barre. Puis il lâche, très bas, quelque chose, qui ressemble à du respect."
+				},
+				{
+					"who": "denigror",
+					"text": "… C'est lisible. Je ne vous le dirai pas deux fois."
+				},
+				{
+					"text": "Derrière eux, dans la nuit, la ville allume sept lumières, une par étage, de bas en haut. Quand la dernière s'allume, au sommet, une brise passe sur le champ. C'est un vent noir. Il vient de l'est, et il a quelque chose à dire."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Les routes du pays noir passent par là. Elles ne sont pas belles. Elles ne sont même pas droites."
+				},
+				{
+					"who": "sam",
+					"text": "Alors on marchera de travers. Ce sera comme à la maison."
+				},
+				{
+					"text": "Au loin, très loin, sous les nuages, une lueur rouge s'étire sur la ligne d'horizon : la Montagne du Fatal. On ne voit pas encore son sommet. On devine qu'il fait chaud."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Un chapitre de moins. Il en reste un."
+				},
+				{
+					"banner": "Chapitre 6 terminé",
+					"sub": "Minas Tartine"
+				},
+				{
+					"set": "chapitre_6_fini"
+				},
+				{
+					"chapter": "chapitre_7"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	]
+}

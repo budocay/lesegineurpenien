@@ -40,7 +40,10 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"solitaire", "grenouille", "crapaud", "follet", "epouvantail", "rat", "coq", "asticot", "vacherin",
 	"mouche", "moisi", "gobelin", "gobelin_pic", "gobelin_chef", "chauve", "troll", "guetteur", "goulum", "balourd",
 	"ouroukouille", "ouroukouille_brocheur", "ouroukouille_petrisseur", "ouroukouille_chef", "paton", "ouargue",
-	"corbeau", "hirsute", "hors_oeuvre"]
+	"corbeau", "hirsute", "hors_oeuvre",
+	# chapitre 6 : peints dans gouda_monsters.gd
+	"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme",
+	"mammou", "dindon_farce", "grondine"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -82,6 +85,17 @@ const SIZES := {
 	"corbeau": Vector2i(40, 36),
 	"hirsute": Vector2i(42, 50),
 	"hors_oeuvre": Vector2i(32, 36),
+	"eveille": Vector2i(48, 64),
+	"eveille_veilleur": Vector2i(56, 72),
+	"roi_eveille": Vector2i(84, 100),
+	"boucanier": Vector2i(52, 64),
+	"saumure": Vector2i(76, 92),
+	"cassouletain": Vector2i(56, 68),
+	"gothmoque": Vector2i(96, 108),
+	"naze_supreme": Vector2i(76, 100),
+	"mammou": Vector2i(100, 76),
+	"dindon_farce": Vector2i(88, 88),
+	"grondine": Vector2i(100, 66),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -157,6 +171,8 @@ static func _render(kind: String, k: int) -> Image:
 			"corbeau": _crow(img, ox, f, col)
 			"hirsute": _hillman(img, ox, f, col)
 			"hors_oeuvre": _canape(img, ox, f, col)
+			"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine":
+				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, size)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		if not PAINTED.has(kind):

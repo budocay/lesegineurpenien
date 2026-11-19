@@ -1,0 +1,298 @@
+{
+	"id": "minas_citadelle",
+	"name": "La Cour du Poirier Blanc",
+	"region": "Gouda",
+	"size": [
+		36,
+		24
+	],
+	"ambiance": "minas",
+	"music": "minas_haut",
+	"arena": "citadelle",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_marbre",
+				"rect": [
+					3,
+					9,
+					30,
+					13
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					4,
+					3,
+					28,
+					6
+				]
+			}
+		]
+	},
+	"spawns": {
+		"bas": {
+			"pos": [
+				18.0,
+				19.6
+			],
+			"facing": "up"
+		},
+		"porte": {
+			"pos": [
+				18.0,
+				10.4
+			],
+			"facing": "down"
+		}
+	},
+	"style": "gouda",
+	"objects": [
+		{
+			"type": "gou_maison",
+			"rect": [
+				11,
+				3,
+				14,
+				6
+			],
+			"height": 5.4,
+			"door": 7,
+			"windows": [
+				2,
+				5,
+				9,
+				12
+			],
+			"lit": true,
+			"to": {
+				"map": "minas_intendance",
+				"spawn": "entree"
+			}
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				7,
+				6
+			],
+			"size": 3.4,
+			"height": 8,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				29,
+				6
+			],
+			"size": 3.4,
+			"height": 8,
+			"cap": true
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					2.5,
+					10.5
+				],
+				[
+					2.5,
+					21.5
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					33.5,
+					10.5
+				],
+				[
+					33.5,
+					21.5
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_poirier",
+			"pos": [
+				18,
+				13.5
+			],
+			"dialogue": "poirier_tuteur",
+			"label": "Examiner",
+			"reach": 2.6,
+			"scale": 1.5
+		},
+		{
+			"type": "npc",
+			"id": "jardinier_poirier",
+			"pos": [
+				14.6,
+				14.4
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "verjus_poirier"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				14.5,
+				10.4
+			],
+			"facing": "down",
+			"reach": 1.9,
+			"dialogue": "soldat_citadelle"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				21.5,
+				10.4
+			],
+			"facing": "down",
+			"reach": 1.9,
+			"dialogue": "soldat_citadelle"
+		},
+		{
+			"type": "npc",
+			"id": "doigtiste",
+			"pos": [
+				30,
+				13.5
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "doigtiste_citadelle"
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				7,
+				17
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "citoyen_citadelle",
+			"wander": 1.5
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				10,
+				12.5
+			],
+			"dialogue": "citadelle_statue",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				26,
+				12.5
+			],
+			"dialogue": "citadelle_statue_2",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_fontaine",
+			"pos": [
+				27,
+				18
+			],
+			"dialogue": "citadelle_fontaine",
+			"label": "Examiner",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				11,
+				9.8
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				25,
+				9.8
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				12,
+				19.5
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				24,
+				19.5
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				31.5,
+				20
+			],
+			"dialogue": "coffre_citadelle",
+			"label": "Ouvrir",
+			"turn": 10
+		},
+		{
+			"type": "warp",
+			"rect": [
+				16,
+				21.0,
+				4,
+				0.9
+			],
+			"to": {
+				"map": "minas_rues",
+				"spawn": "haut"
+			}
+		},
+		{
+			"type": "light",
+			"pos": [
+				18,
+				12
+			],
+			"height": 2.6,
+			"color": "#fff0d0",
+			"energy": 1.4,
+			"range": 14
+		},
+		{
+			"type": "light",
+			"pos": [
+				18,
+				19
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.2,
+			"range": 9
+		}
+	]
+}

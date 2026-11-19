@@ -834,3 +834,24 @@ l'auteur arrivées entre-temps. Aucun identifiant n'a changé : seuls des textes
   Sarumâle ont été resserrés ; les chiffres avant et après sont dans le compte rendu du chantier.
   `GLAN_ONLY_MEASURE=1` (voir `tests/smoke_test.gd`) imprime le tableau de tous les combats
   obligatoires.
+
+### Chapitre 6 (construit) — Minas Tartine (18 novembre 2026)
+
+- **Parcours.** Terrasse de l'Office, puis la croûte de Minas Tartine : Grande Porte, camp de siège,
+  ville blanche à trois niveaux (rues, citadelle, Intendance). Dénigror, l'Intendant, reçoit
+  Glandoulf et apprend la mort de son fils Bromure (une stalactite, au milieu de « ni les… »).
+  Décret de la lignée d'Isidur pour Aragrogne, Sentier des Insomniaques (Roi des Éveillés),
+  Port-Salé (Saumure), nuit blanche, cinq manœuvres de défense, Grondine et Gothmoque devant la
+  porte, puis la charge de Pelle-à-Tarte : Dindon de la Farce et Naze Suprême, abattu par la dague
+  de dos de Merri. Couronnement de Dénigror, passage au chapitre 7.
+- **Cartes.** minas_croute, minas_rues, minas_citadelle, minas_intendance, sentier_insomniaques,
+  port_sale, pelle_a_tarte ; styles `gouda`, `veille`, `port`, `champ` (voir `docs/FORMAT_DONNEES.md`).
+- **Quêtes secondes.** Étal de Mie-Dure, trois barils de farine, le poirier de Verjus.
+- **Équilibre.** Mesuré avec `GLAN_ONLY_MEASURE_C6=1` : ordinaires ~90-95 % avec talents, boss
+  65-80 %, Naze Suprême réglé autour de la dague de Merri (dégâts fixes, la défense étant énorme).
+- **Écarts avec le scénario.** Le groupe se scinde deux fois (chasseurs en ville, cavaliers au Sentier
+  puis au port) au lieu d'un seul bloc ; Merri rejoint Aragrogne après le Roi des Éveillés ; les cinq
+  manœuvres de la Grande Porte sont des postes à visiter (huile, braise, couvercle, échelle, soupe) qui
+  donnent des objets de combat ; le compliment de Dénigror est une annexe à part entière.
+- **Conseil de jeu.** « Les postes de la Porte » (`data/tutorials.json`) s'affiche à la première
+  marmite d'huile reçue.

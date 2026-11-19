@@ -54,6 +54,9 @@ static func paint(kind: String) -> Image:
 	var rider: GDScript = load("res://src/gfx/rider_painter.gd")
 	if rider.has_tile(kind):
 		return rider.paint_tile(kind)
+	var gouda: GDScript = load("res://src/gfx/gouda_painter.gd")
+	if gouda.has_tile(kind):
+		return gouda.paint_tile(kind)
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img

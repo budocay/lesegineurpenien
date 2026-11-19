@@ -1,0 +1,728 @@
+{
+	"id": "minas_croute",
+	"name": "Minas Tartine, la Croûte",
+	"region": "Gouda",
+	"size": [
+		48,
+		44
+	],
+	"ambiance": "minas",
+	"music": "minas",
+	"arena": "minas_remparts",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_pave",
+				"rect": [
+					2,
+					19,
+					44,
+					22
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					8,
+					41,
+					4,
+					2
+				]
+			},
+			{
+				"type": "gou_marbre",
+				"rect": [
+					18,
+					28,
+					12,
+					7
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					20,
+					19,
+					8,
+					8
+				]
+			},
+			{
+				"type": "gou_boue",
+				"rect": [
+					2,
+					3,
+					44,
+					15
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					20,
+					17,
+					8,
+					3
+				]
+			},
+			{
+				"type": "gou_dalle",
+				"rect": [
+					20,
+					3,
+					8,
+					2
+				]
+			}
+		]
+	},
+	"spawns": {
+		"aigle": {
+			"pos": [
+				5.0,
+				26.5
+			],
+			"facing": "right"
+		},
+		"porte": {
+			"pos": [
+				24.0,
+				23.2
+			],
+			"facing": "up"
+		},
+		"haut": {
+			"pos": [
+				10.0,
+				38.6
+			],
+			"facing": "up"
+		},
+		"pelle": {
+			"pos": [
+				24.0,
+				6.0
+			],
+			"facing": "down"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "minas_arrivee",
+			"unless": "minas_vu"
+		},
+		{
+			"dialogue": "nuit_blanche_scene",
+			"unless": "nuit_vue",
+			"if": "combat_saumure"
+		}
+	],
+	"style": "gouda",
+	"objects": [
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					1.5,
+					19
+				],
+				[
+					1.5,
+					41
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					46.5,
+					19
+				],
+				[
+					46.5,
+					41
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					1.5,
+					41
+				],
+				[
+					5.5,
+					41
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					14.5,
+					41
+				],
+				[
+					46.5,
+					41
+				]
+			],
+			"height": 2.4
+		},
+		{
+			"type": "gou_porte",
+			"pos": [
+				10,
+				41
+			],
+			"gap": 3,
+			"height": 5
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					1.5,
+					18
+				],
+				[
+					19,
+					18
+				]
+			],
+			"height": 3
+		},
+		{
+			"type": "gou_rempart",
+			"points": [
+				[
+					29,
+					18
+				],
+				[
+					46.5,
+					18
+				]
+			],
+			"height": 3
+		},
+		{
+			"type": "gou_porte",
+			"pos": [
+				24,
+				18
+			],
+			"gap": 4,
+			"height": 6.5
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				16,
+				18
+			],
+			"size": 3,
+			"height": 7,
+			"cap": true
+		},
+		{
+			"type": "gou_tour",
+			"pos": [
+				32,
+				18
+			],
+			"size": 3,
+			"height": 7,
+			"cap": true
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				36,
+				22,
+				8,
+				4
+			],
+			"door": 4,
+			"windows": [
+				1.5,
+				6.5
+			],
+			"lit": true,
+			"dialogue": "croute_mairie"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				3,
+				34,
+				7,
+				3
+			],
+			"door": 3.5,
+			"windows": [
+				1.3,
+				5.5
+			],
+			"lit": true,
+			"dialogue": "croute_caserne"
+		},
+		{
+			"type": "gou_maison",
+			"rect": [
+				33,
+				32,
+				8,
+				4
+			],
+			"door": 4,
+			"windows": [
+				1.5,
+				6.5
+			],
+			"lit": false,
+			"dialogue": "croute_grenier"
+		},
+		{
+			"type": "npc",
+			"id": "denigror",
+			"pos": [
+				26.5,
+				21.4
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "denigror_porte",
+			"unless": "accueil_fait"
+		},
+		{
+			"type": "npc",
+			"id": "denigror",
+			"pos": [
+				22,
+				29
+			],
+			"facing": "down",
+			"reach": 1.9,
+			"dialogue": "denigror_croute2",
+			"if": "porte_tenue"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				21.4,
+				21.2
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "soldat_gag",
+			"unless": "accueil_fait"
+		},
+		{
+			"type": "npc",
+			"id": "heraut_poterne",
+			"pos": [
+				29.5,
+				27
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "heraut_poterne"
+		},
+		{
+			"type": "npc",
+			"id": "mie_dure",
+			"pos": [
+				14,
+				33
+			],
+			"facing": "right",
+			"reach": 2.2,
+			"dialogue": "mie_dure_etal"
+		},
+		{
+			"type": "npc",
+			"id": "doigtiste",
+			"pos": [
+				36,
+				29.6
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "doigtiste_croute"
+		},
+		{
+			"type": "npc",
+			"id": "fourrier",
+			"pos": [
+				41,
+				36
+			],
+			"facing": "up",
+			"reach": 1.9,
+			"dialogue": "fourrier_croute",
+			"wander": 1.2
+		},
+		{
+			"type": "npc",
+			"id": "citoyen_mou",
+			"pos": [
+				12,
+				27
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "citoyen_croute",
+			"wander": 1.8
+		},
+		{
+			"type": "npc",
+			"id": "greviste",
+			"pos": [
+				18.5,
+				24.5
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "greviste_croute"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				20,
+				36.5
+			],
+			"facing": "up",
+			"reach": 1.9,
+			"dialogue": "soldat_croute"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				28,
+				21.2
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "soldat_porte_haut",
+			"if": "porte_tenue"
+		},
+		{
+			"type": "gou_baril",
+			"pos": [
+				18,
+				21.2
+			],
+			"dialogue": "manoeuvre_huile",
+			"label": "Préparer",
+			"reach": 1.9
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				17.4,
+				23.2
+			],
+			"dialogue": "manoeuvre_braise",
+			"label": "Préparer",
+			"reach": 1.9
+		},
+		{
+			"type": "gou_creneau",
+			"pos": [
+				31,
+				21.0
+			],
+			"dialogue": "manoeuvre_couvercle",
+			"label": "Préparer",
+			"reach": 1.9
+		},
+		{
+			"type": "gou_echelle",
+			"pos": [
+				32,
+				23.4
+			],
+			"dialogue": "manoeuvre_echelle",
+			"label": "Préparer",
+			"reach": 1.9
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				24,
+				25.4
+			],
+			"dialogue": "manoeuvre_soupe",
+			"label": "Préparer",
+			"reach": 2.0
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				8,
+				30.5
+			],
+			"dialogue": "minas_camp",
+			"label": "Se reposer",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_fontaine",
+			"pos": [
+				24,
+				31.5
+			],
+			"dialogue": "croute_fontaine",
+			"label": "Examiner",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				14,
+				23.6
+			],
+			"dialogue": "croute_statue",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				17.2,
+				19.6
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				30.8,
+				19.6
+			]
+		},
+		{
+			"type": "gou_trebuchet",
+			"pos": [
+				10,
+				11
+			]
+		},
+		{
+			"type": "gou_trebuchet",
+			"pos": [
+				38,
+				10
+			]
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				7,
+				7
+			]
+		},
+		{
+			"type": "gou_tente",
+			"pos": [
+				41,
+				6
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				14,
+				15
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				34,
+				15
+			]
+		},
+		{
+			"type": "gou_boulets",
+			"pos": [
+				8,
+				14.5
+			]
+		},
+		{
+			"type": "gou_pieux",
+			"pos": [
+				40,
+				14
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				17,
+				8.5
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				31,
+				8.5
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				3.6,
+				21.6
+			],
+			"dialogue": "coffre_croute",
+			"label": "Ouvrir",
+			"turn": 8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				43.5,
+				38.2
+			],
+			"dialogue": "coffre_croute_2",
+			"label": "Ouvrir",
+			"turn": -12
+		},
+		{
+			"type": "monster",
+			"id": "grondine",
+			"pos": [
+				24,
+				14.5
+			],
+			"dialogue": "gothmoque_face",
+			"solid": 1.6,
+			"label": "Affronter",
+			"reach": 3.0,
+			"unless": "porte_tenue"
+		},
+		{
+			"type": "monster",
+			"id": "gothmoque",
+			"pos": [
+				28.5,
+				11
+			],
+			"dialogue": "gothmoque_face",
+			"solid": 1.2,
+			"label": "Affronter",
+			"reach": 3.0,
+			"unless": "porte_tenue"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				8.6,
+				42.0,
+				2.8,
+				0.8
+			],
+			"to": {
+				"map": "minas_rues",
+				"spawn": "bas"
+			}
+		},
+		{
+			"type": "warp",
+			"rect": [
+				21,
+				3.1,
+				6,
+				0.8
+			],
+			"to": {
+				"map": "pelle_a_tarte",
+				"spawn": "entree"
+			},
+			"if": "porte_tenue"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				3,
+				4,
+				42,
+				13
+			],
+			"table": "minas_croute"
+		},
+		{
+			"type": "light",
+			"pos": [
+				24,
+				28
+			],
+			"height": 2.6,
+			"color": "#fff0d0",
+			"energy": 1.2,
+			"range": 14
+		},
+		{
+			"type": "light",
+			"pos": [
+				24,
+				21
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.4,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				24,
+				10
+			],
+			"height": 2.6,
+			"color": "#ff9a50",
+			"energy": 1.4,
+			"range": 12
+		},
+		{
+			"type": "light",
+			"pos": [
+				8,
+				28
+			],
+			"height": 2.6,
+			"color": "#ffe4ae",
+			"energy": 1.0,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				10,
+				38
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.0,
+			"range": 7
+		}
+	]
+}
