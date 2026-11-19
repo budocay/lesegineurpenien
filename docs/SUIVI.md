@@ -842,6 +842,50 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      déroulés des chapitres 3 et 4 se jouent au niveau 30 pour ne plus dépendre du hasard.
      Seuils du Gardien des Archives abaissés pour l'équipe sans soigneur (15 %) : à revoir.
 
+145. **Manette** (demande urgente de l'auteur, qui joue à la manette Xbox sous Windows) : les
+     boutons n'étaient liés qu'à la manette numéro 0 et les menus (`ui_accept`, `ui_cancel`)
+     n'avaient aucun bouton. `Controls` accepte toute manette (`device = -1`) : A valide, B
+     annule, Start ouvre le menu, Y le journal, X efface une sauvegarde, LB et RB changent de
+     page. L'aide des touches suit le dernier périphérique utilisé (`Controls.pad`, signal
+     `device_changed`, pastilles dessinées par `ui_kit.gd`). `_test_gamepad_full` joue le titre,
+     le prologue, les menus et un combat entier avec une manette numéro 3. Jamais essayé avec
+     une vraie manette : à confirmer par l'auteur.
+146. **Monstres à la définition des héros** : `MonsterPainter` peint directement en grand
+     (grille `K` de 4, 6 pour les gros) au lieu d'agrandir un petit dessin ; cache disque
+     `user://cache_monstres/`. La première peinture de tous les monstres coûte 25 secondes :
+     un fil d'arrière-plan la prépare dès le lancement (`Sprites._warm_monsters`). Ce fil
+     travaille sur une copie du peintre : un peintre qui lit un état statique d'un autre script
+     y dessine faux (cas des monstres du chapitre 6, exclus du préchauffage).
+147. **Boss dominants** : boss en retrait au centre de son camp, sbires devant et plus petits,
+     héros réduits à 0,88 face à un boss ; il fait au moins 2,2 fois un héros
+     (`BOSS_RATIO_FLOOR`). Plaques des sbires placées sur une grille, hors du bandeau des
+     touches, à dix pixels au moins l'une de l'autre. Halos (`halos`), ombres de nuages
+     (`clouds`), feuillage (`dapple`), pierres (`stones`) dans `data/arenas.json`.
+148. **Objets tenus** : champ `look.held` (poêle de Sam, arc, hache, épée, fourche...) peint par
+     `character_items.gd` : rangé au repos, en main à la marche, utilisé à l'attaque, lâché au
+     KO. Expressions de combat ; `look.glow` (Nazes), `look.hair_lift`.
+149. **Intérieurs habillés** : `interior_dress.gd` et `interior_painter.gd` posent murs
+     appareillés, étagères, tonneaux, tentures à la fin de la construction de toute carte
+     `interior` ; un plan `Surround` prolonge la roche hors de la carte, jamais noir franc.
+     Sols mouchetés par la table `MOTTLE`. Enseignes placées par `HouseBuilder.sign_spot`
+     (ni sur une fenêtre ni sur la porte). Lierre et jardinières en volume.
+150. **Chapitre 6 jouable** (Minas Tartine) : styles `gouda`, `veille`, `port`, `champ`
+     (`gouda_painter.gd`, `gouda_builder.gd`, monstres dans `gouda_monsters.gd`) ; sept cartes ;
+     l'Intendant Dénigror, père de Bromure ; groupe scindé deux fois ; cinq postes de la Grande
+     Porte qui donnent des objets de combat ; six boss ; la partie passe à `chapitre_7`. Écarts
+     avec la bible notés dans « Chapitre 6 (construit) ». Joué par le test seulement.
+151. **Équilibre resserré** : le simulateur des tests joue désormais les talents (zone,
+     provocation, soin, élan gardé pour le bouclier, faiblesse visée). Avec ce joueur attentif,
+     les boss des chapitres 1 à 5 passent de 100 % à 68-89 % de victoires en 9 à 14 tours ; la
+     pire équipe raisonnable (sans soigneur) reste au-dessus de 45 %. Contrepartie : un joueur
+     naïf sans talents perd souvent (39 % contre le premier boss) : à adoucir pour les premiers
+     chapitres. Tests `_test_forced_balance` et `_test_progression`.
+152. **Interface** : lignes de sauvegarde avec portraits, lieu, chapitre, temps et date ;
+     confirmation avant d'écraser, de quitter ou de revenir au titre (`confirm_box.gd`) ;
+     conseils de combat fléchés ; fondu de fermeture (`UI.ghost_fade`) ; écran
+     « Chargement… » ; fiche d'équipement sans doublon. Les textes d'aide passent par
+     `Tutorial.expand` (marqueurs `{interact}`, `{cancel}`, `{menu}`).
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :

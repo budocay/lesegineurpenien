@@ -133,7 +133,26 @@ faibles : monstres peints petits, boss accompagnés de sbires, rayons timides, t
 tuiles manquantes), aide des touches à la manette, intérieurs peu revus. Suite : relief
 jouable, chapitres 6 et 7.
 
+19 novembre (décisions 145 à 152) : manette Xbox reconnue et aide des touches adaptée,
+monstres peints en haute définition avec cache préparé en arrière-plan, boss dominants,
+objets tenus (`look.held`), intérieurs habillés (`interior_dress.gd`), chapitre 6 jouable
+(Minas Tartine, styles `gouda`, `veille`, `port`, `champ`), équilibre resserré (le simulateur
+joue les talents), sauvegardes avec portraits. Suite : chapitre 7, relief jouable, essai à la
+vraie manette par l'auteur.
+
 ## Pièges connus
+
+- L'auteur joue à la manette Xbox : tout écran nouveau doit se piloter à la manette
+  (`_test_gamepad_full`) et tout texte d'aide passe par `Tutorial.expand`, jamais de nom de
+  touche en dur.
+- Un peintre de monstres ne doit pas lire l'état statique d'un autre script : le fil de
+  préchauffage (`Sprites._warm_monsters`) travaille sur une copie et écrirait une planche
+  fausse en cache.
+- Un agent arrêté laisse parfois des boucles d'attente (`until ...; do sleep 3; done`) :
+  vérifier avec `ps` et les arrêter par numéro, jamais par `pkill` sur un nom (cela tue les
+  tests des autres agents).
+- Après la fusion d'un agent, chercher les marqueurs de conflit oubliés
+  (`git grep -nE "^(<<<<<<<|=======|>>>>>>>)"`).
 
 - Une faiblesse listée dans le rapport d'un agent devient une tâche : l'auteur veut qu'elles
   soient corrigées, pas seulement notées.
