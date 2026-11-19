@@ -140,7 +140,21 @@ objets tenus (`look.held`), intérieurs habillés (`interior_dress.gd`), chapitr
 joue les talents), sauvegardes avec portraits. Suite : chapitre 7, relief jouable, essai à la
 vraie manette par l'auteur.
 
+19 novembre, suite (décisions 153 à 161) : manette testée de bout en bout, cité blanche à
+étages et camp du siège, premiers boss adoucis, Balourd en deux phases, brèche en deux
+vagues, rattrapage de la réserve, enseignes en potence, textes d'aide vérifiés partout.
+Restent : silhouette de Minas Tartine invisible (caméra trop plongeante, à décider avec
+l'auteur), torses trapus de monstres du chapitre 6, Chantecler et Balourd durs pour un
+débutant, brèche trop facile. Suite : chapitre 7, relief jouable.
+
 ## Pièges connus
+
+- Un test de déroulé qui échoue en chaîne après un combat : d'abord relancer, c'est souvent
+  un combat perdu par hasard ; alors monter le niveau de l'équipe de test, pas toucher au jeu.
+- Après des captures, lire le journal : des luminosités identiques d'une ligne à l'autre
+  veulent dire que l'écran est resté figé (combat non terminé).
+- `GLAN_ONLY_FLOW` seul échoue (il lui faut la sauvegarde de fin de chapitre 3) : ne pas
+  s'en servir pour trancher.
 
 - L'auteur joue à la manette Xbox : tout écran nouveau doit se piloter à la manette
   (`_test_gamepad_full`) et tout texte d'aide passe par `Tutorial.expand`, jamais de nom de

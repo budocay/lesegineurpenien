@@ -886,6 +886,54 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      « Chargement… » ; fiche d'équipement sans doublon. Les textes d'aide passent par
      `Tutorial.expand` (marqueurs `{interact}`, `{cancel}`, `{menu}`).
 
+153. **Manette de bout en bout** : `_test_gamepad_full` joue le titre, le prologue, les
+     menus, la boutique, les talents, les sauvegardes et un combat complet avec une manette
+     simulée. Corrigés au passage : curseur perdu sur une ligne grisée, curseur donné à un
+     bouton inactif à la défaite, stick qui sautait deux lignes. Confirmation avant « Quitter »
+     et « Retour au titre », « Non » par défaut : une touche de trop ne doit rien faire perdre.
+154. **Cité blanche de Minas Tartine** : le bleu-gris venait de l'ambiance de la carte (fond
+     violet sombre, soleil trop bas : le sol ne recevait que 41 % de la lumière), pas de la
+     pierre. Ambiance `minas` refaite, pierre crème, étages à murs de soutènement crénelés et
+     escaliers (`gou_marche`), camp du siège au nord de la Croûte (champ `siege`). La
+     silhouette de la ville (`skyline`) est construite mais presque invisible : la caméra
+     plonge trop pour montrer l'horizon. La relever toucherait tout le jeu : laissé à l'avis
+     de l'auteur.
+155. **Jeux sur le titre au chapitre 6** : 38 ajoutés (répliques, écriteaux, objets, noms de
+     compétences), reportés au carnet de la bible. Les compétences n'ont pas de description :
+     le jeu de mots n'y passe que par le nom.
+156. **Premiers boss adoucis** (le chapitre 1 sert de tutoriel) : un joueur naïf sans talents
+     gagne le Naze à 60-73 % (40 % avant), les Nazes de nuit à 41 %, le Vacherin à 66 %, le
+     Gardien à 45 %. Contrepartie mesurée : la pire équipe raisonnable descend à 37-40 % sur le
+     Vacherin et Chantecler (plancher fixé à 35 %). Restent hors cible : Chantecler naïf 33 %,
+     Balourd naïf 16 %, brèche de l'Isengarde à 96-100 % pour l'équipe type.
+157. **Balourd en deux phases** par les données (`ai_low`, état « Le plafond gronde » qui
+     annonce l'éboulement) ; **brèche de l'Isengarde en deux vagues** (`breche_avant` puis
+     `breche`) pour rapprocher l'équipe type de la pire (98/46 devient environ 97/58).
+158. **Réserve** : un personnage échangé à la main reçoit le même rattrapage de niveau que par
+     le récit (`GameState._catch_up`, commun à `swap_members` et `set_group`) : personne ne
+     revient de la réserve trop faible pour servir.
+159. **Façades étroites** : quand `sign_spot` ne trouve pas de place, l'enseigne se pose en
+     potence (`sign_bracket`, panneau tourné de 40 degrés pour rester lisible de face) : écurie
+     de Brie. Lac de Maroilles piloté par la carte (`lake`, `glow`, `glow_power`) ; sol de
+     l'Isengarde sali (suie, huile, champ `rails`).
+160. **Textes d'aide** : dialogues, choix, journal et repère de quête passent par
+     `Tutorial.expand` ; `_test_help_texts` parcourt toutes les données et refuse un nom de
+     touche en dur ou un marqueur inconnu.
+161. **Tests plus sûrs** : le déroulé du chapitre 4 se joue au niveau 40 (à 30 le Gros Bleu
+     gagnait encore de temps en temps et faisait échouer sept vérifications en chaîne) ;
+     `_test_warm_matches_demand` compare la planche du fil de préchauffage à celle peinte à la
+     demande. Dans `tests/capture.gd`, les arènes de démonstration se quittent par la fuite :
+     passer un combat en automatique au milieu d'un tour ne le relançait plus et toutes les
+     captures suivantes montraient ce combat figé.
+
+162. **Relecture des captures du 19 novembre** (114 images sur 135 ouvertes par un agent) :
+     plus aucune image figée. À corriger à la prochaine étape, par ordre de gêne : Goulûm,
+     Froton Anneauté et Sarumâle à peine plus grands qu'un héros en combat ; lac de Maroilles
+     encore sans reflet ni profondeur lisibles (eau visible seulement sur les bords) ;
+     `24_etal_ursule` montre le quai et non l'étal ; flaques d'huile de l'Isengarde lues comme
+     de la suie ; terrasse des Chutes et enclos de la plaine plats ; aucune capture de Brie ne
+     montre l'écurie, donc l'enseigne en potence n'a été vue que par l'agent qui l'a faite.
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :
