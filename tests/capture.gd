@@ -29,6 +29,9 @@ func _ready() -> void:
 	if args.size() > 1 and args[1] == "chap6":
 		await _gouda_only(args.size() > 2 and args[2] == "arenes")
 		return
+	if args.size() > 1 and args[1] == "vues":
+		await _vues_only()
+		return
 	await _shot("1_titre")
 
 	main.start_new_game()
@@ -741,3 +744,49 @@ func _gouda_arenas() -> void:
 		await _flee()
 		main.battle_ui._on_end("ok")
 		await _frames(120)
+
+
+## Mode « vues » : prises de vue libres, pour régler une carte. Variable GLAN_VUES :
+## « carte@arrivée:x,y,hauteur,direction;... » (une prise par morceau, « carte@arrivée »
+## change de carte), et GLAN_ARENES : « arène:ennemi,ennemi;... » pour des combats.
+func _vues_only() -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["glandoulf", "sam", "froton", "aragrogne"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 24
+	GameState.set_flag("chapitre_5_fini")
+	GameState.set_flag("minas_vu")
+	GameState.set_flag("combat_dindon_farce")
+	GameState.map_id = "minas_croute"
+	GameState.spawn_id = "aigle"
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	var n := 0
+	for part: String in OS.get_environment("GLAN_VUES").split(";", false):
+		if part.contains(":"):
+			var q := part.split(":")
+			var c := q[1].split(",")
+			await _goto(Vector3(float(c[0]), float(c[2]), float(c[1])), c[3])
+			await _shot("v%02d_%s" % [n, q[0].replace("@", "_")])
+			n += 1
+		else:
+			var q := part.split("@")
+			main.change_map(q[0], q[1])
+			await _frames(150)
+			await _idle()
+	for part: String in OS.get_environment("GLAN_ARENES").split(";", false):
+		var q := part.split(":")
+		main.start_battle({"enemies": q[1].split(","), "arena": q[0], "flee": true})
+		await _until_menu()
+		await _frames(50)
+		await _shot("a%02d_%s" % [n, q[0]])
+		n += 1
+		await _flee()
+		main.battle_ui._on_end("ok")
+		await _frames(120)
+	SaveManager.delete_save()
+	get_tree().quit()

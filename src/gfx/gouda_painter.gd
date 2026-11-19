@@ -14,9 +14,9 @@ const RP = preload("res://src/gfx/rider_painter.gd")
 const T := 48
 
 const INK := Color("#1d1a2b")
-const STONE := Color("#d8d4c8")
-const STONE_L := Color("#efece2")
-const STONE_D := Color("#9a968a")
+const STONE := Color("#f0e9d8")
+const STONE_L := Color("#fffaf0")
+const STONE_D := Color("#b8ae98")
 const SLATE := Color("#3c4658")
 const SLATE_L := Color("#5a6a82")
 const NAVY := Color("#27365e")
@@ -27,7 +27,7 @@ const GHOST := Color("#8adcb4")
 const SOOT := Color("#26232e")
 
 const TILES: Array[String] = ["gou_pave", "gou_dalle", "gou_marbre", "gou_rempart", "gou_mur", "gou_herbe", "gou_boue",
-		"gou_veille", "gou_mur_veille", "gou_quai", "gou_ardoise"]
+		"gou_veille", "gou_mur_veille", "gou_quai", "gou_ardoise", "gou_marche", "gou_roche"]
 
 ## Décors-sprites : nom -> nombre de variantes.
 const PROP_VARIANTS := {
@@ -47,7 +47,7 @@ static func has_prop(kind: String) -> bool:
 
 static func paint_tile(kind: String) -> Image:
 	match kind:
-		"gou_pave": return TP._stones(["#d8d4c8", "#cfcabd", "#e2dfd4", "#c6c1b4"], Color("#8c887c"), 16, 12)
+		"gou_pave": return TP._stones(["#ece3ce", "#e2d8c0", "#f2ebdb", "#dbd0b6"], Color("#a89e86"), 16, 12)
 		"gou_dalle": return _slabs()
 		"gou_marbre": return _marble()
 		"gou_rempart": return _ashlar(false)
@@ -58,6 +58,8 @@ static func paint_tile(kind: String) -> Image:
 		"gou_mur_veille": return _vigil_wall()
 		"gou_quai": return _quay()
 		"gou_ardoise": return _slate()
+		"gou_marche": return _steps()
+		"gou_roche": return _spur()
 	var img := PA.new_image(T, T)
 	img.fill(Color.MAGENTA)
 	return img
@@ -90,11 +92,11 @@ static func paint_prop(kind: String, v: int) -> Image:
 
 static func _slabs() -> Image:
 	var img := PA.new_image(T, T)
-	img.fill(Color("#a8a498"))
+	img.fill(Color("#c4baa4"))
 	for r in 2:
 		for c in 2:
 			var off := 0 if r == 0 else 6
-			var tone := PA.shade(Color("#e6e2d6"), (PA.rnd(c, r, 1611) - 0.5) * 0.08)
+			var tone := PA.shade(Color("#f6f0e2"), (PA.rnd(c, r, 1611) - 0.5) * 0.08)
 			var xs := posmod(c * 24 + off, T)
 			PA.rect(img, xs + 1, r * 24 + 1, 22, 22, tone)
 			PA.rect(img, xs + 1, r * 24 + 1, 22, 1, PA.shade(tone, 0.14))
@@ -104,21 +106,46 @@ static func _slabs() -> Image:
 	return img
 
 
+## Marches de pierre claire : quatre contremarches par case, nez éclairé, ombre dessous.
+static func _steps() -> Image:
+	var img := PA.new_image(T, T)
+	for r in 4:
+		var y0 := r * 12
+		var tone := PA.shade(Color("#f6f0e2"), (PA.rnd(r, 7, 1701) - 0.5) * 0.06)
+		PA.rect(img, 0, y0, T, 12, tone)
+		PA.rect(img, 0, y0, T, 2, Color("#fffcf2"))
+		PA.rect(img, 0, y0 + 9, T, 3, Color("#c8bea8"))
+		PA.rect(img, 0, y0 + 11, T, 1, Color("#a89e88"))
+	RP._specks_in(img, 1702, 10, Color("#fffaf0"))
+	return img
+
+
+## Éperon de roche sous la tour blanche : strates beige gris et fissures.
+static func _spur() -> Image:
+	var img := RP._noise(["#8a8272", "#7c7464", "#968e7c", "#6e6656"], 1711, 52, Color("#b4ac98"))
+	for i in 7:
+		var y := 4 + i * 7
+		for x in T:
+			if int(PA.rnd(x / 5, i, 1712) * 5.0) != 0:
+				RP._wrap_px(img, x, y + int(sin(float(x) * 0.3 + i) * 1.5), Color("#5e5646"))
+	return img
+
+
 static func _marble() -> Image:
 	var img := PA.new_image(T, T)
 	for y in T:
 		for x in T:
 			var chk := ((x / 24) + (y / 24)) % 2
-			img.set_pixel(x, y, Color("#ece8de") if chk == 0 else Color("#dcd8cc"))
+			img.set_pixel(x, y, Color("#f8f3e8") if chk == 0 else Color("#eee7d8"))
 	for i in 5:
 		var x := int(PA.rnd(i, 3, 1621) * T)
 		var y := int(PA.rnd(i, 4, 1621) * T)
 		for k in 14:
-			RP._wrap_px(img, x + k, y + int(k * 0.6 + sin(float(k + i)) * 1.5), Color("#b4b4bc"))
-	PA.rect(img, 0, 0, T, 1, Color("#9a968a"))
-	PA.rect(img, 0, 24, T, 1, Color("#b8b4a8"))
-	PA.rect(img, 0, 0, 1, T, Color("#9a968a"))
-	PA.rect(img, 24, 0, 1, T, Color("#b8b4a8"))
+			RP._wrap_px(img, x + k, y + int(k * 0.6 + sin(float(k + i)) * 1.5), Color("#c4c8d4"))
+	PA.rect(img, 0, 0, T, 1, Color("#c4baa4"))
+	PA.rect(img, 0, 24, T, 1, Color("#d8d0bc"))
+	PA.rect(img, 0, 0, 1, T, Color("#c4baa4"))
+	PA.rect(img, 24, 0, 1, T, Color("#d8d0bc"))
 	return img
 
 
@@ -127,12 +154,12 @@ static func _marble() -> Image:
 static func _ashlar(wall: bool) -> Image:
 	var h := 72 if wall else T
 	var img := PA.new_image(T, h)
-	img.fill(Color("#8c887c"))
+	img.fill(Color("#aa9f88"))
 	var rows := 0
 	for y in range(1, h - 2, 12):
 		var off := 12 if rows % 2 == 1 else 0
 		for x in range(-24, T + 24, 24):
-			var tone := PA.shade(Color("#d6d2c6"), (PA.rnd(x + off, y, 1631) - 0.5) * 0.12)
+			var tone := PA.shade(Color("#eee6d2"), (PA.rnd(x + off, y, 1631) - 0.5) * 0.12)
 			PA.rect(img, x + off + 1, y, 22, 11, tone)
 			PA.rect(img, x + off + 1, y, 22, 1, PA.shade(tone, 0.16))
 			PA.rect(img, x + off + 1, y + 10, 22, 1, PA.shade(tone, -0.18))
@@ -142,7 +169,7 @@ static func _ashlar(wall: bool) -> Image:
 		PA.rect(img, 0, 7, T, 1, GOLD)
 		for x in range(4, T, 12):
 			PA.rect(img, x, 2, 4, 3, PA.shade(NAVY, 0.3))
-		PA.rect(img, 0, h - 8, T, 8, Color("#b8b4a8"))
+		PA.rect(img, 0, h - 8, T, 8, Color("#d8d0bc"))
 		PA.rect(img, 0, h - 8, T, 1, STONE_L)
 	else:
 		for i in 14:   # mousse au pied
@@ -226,20 +253,20 @@ static func facade(wd: float, ht: float, door_x: float, windows: Array, lit: boo
 	var h := maxi(24, int(round(ht * 24.0)))
 	var img := PA.new_image(w, h)
 	var emi := PA.new_image(w, h)
-	img.fill(Color("#8c887c"))
+	img.fill(Color("#aa9f88"))
 	var rows := 0
 	for y in range(1, h - 2, 12):
 		var off := 12 if rows % 2 == 1 else 0
 		for x in range(-24, w + 24, 24):
-			var tone := PA.shade(Color("#dedacd"), (PA.rnd(x + off, y, 1691) - 0.5) * 0.1)
+			var tone := PA.shade(Color("#efe8d6"), (PA.rnd(x + off, y, 1691) - 0.5) * 0.1)
 			PA.rect(img, x + off + 1, y, 22, 11, tone)
 			PA.rect(img, x + off + 1, y, 22, 1, PA.shade(tone, 0.16))
 			PA.rect(img, x + off + 1, y + 10, 22, 1, PA.shade(tone, -0.16))
 		rows += 1
 	if h > 80:   # bandeau d'étage
-		PA.rect(img, 0, h / 2 - 3, w, 4, Color("#b8b4a8"))
+		PA.rect(img, 0, h / 2 - 3, w, 4, Color("#d8d0bc"))
 		PA.rect(img, 0, h / 2 - 3, w, 1, STONE_L)
-	PA.rect(img, 0, h - 5, w, 5, Color("#a8a498"))
+	PA.rect(img, 0, h - 5, w, 5, Color("#c8bea8"))
 	PA.rect(img, 0, h - 5, w, 1, STONE_L)
 	var sill := h - 40 if h < 90 else h - 40
 	var upper := h / 2 - 34

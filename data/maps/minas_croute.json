@@ -11,8 +11,8 @@
 	"arena": "minas_remparts",
 	"camera": {
 		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
+		"pitch": 30,
+		"fov": 25,
 		"dof": 0.1
 	},
 	"ground": {
@@ -125,6 +125,8 @@
 		}
 	],
 	"style": "gouda",
+	"hole_tile": "gou_boue",
+	"siege": {"fires": 8, "depth": 30},
 	"objects": [
 		{
 			"type": "gou_rempart",
