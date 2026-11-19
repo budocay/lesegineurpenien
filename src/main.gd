@@ -13,6 +13,7 @@ const GameMenu = preload("res://src/ui/game_menu.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const SaveScreen = preload("res://src/ui/save_screen.gd")
 const SettingsScreen = preload("res://src/ui/settings_screen.gd")
+const ConfirmBox = preload("res://src/ui/confirm_box.gd")
 const LoadingUI = preload("res://src/ui/ui_kit.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
@@ -36,6 +37,7 @@ var talents: Control            # écran de talents
 var _talents_from := ""         # "pause" ou "team" : où revenir quand il se ferme
 var saves: Control             # liste des sauvegardes (charger, sauvegarder)
 var settings_screen: Control    # écran des paramètres
+var confirm: Control            # « Quitter le jeu ? », « Retour au titre ? » : Non par défaut
 var _fade: ColorRect
 var _loading: Label
 var _pending_load := ""         # emplacement choisi depuis l'écran de défaite
@@ -76,6 +78,8 @@ func _ready() -> void:
 	battle_ui.save_screen = saves
 	settings_screen = SettingsScreen.new()
 	ui.add_child(settings_screen)
+	confirm = ConfirmBox.new()
+	ui.add_child(confirm)
 
 	var top := CanvasLayer.new()
 	top.layer = 10
@@ -110,13 +114,11 @@ func _ready() -> void:
 		settings_screen.open("pause"))
 	saves.saved.connect(_on_slot_saved)
 	pause.load_requested.connect(func() -> void: _open_saves("load", "pause"))
-	title.quit_requested.connect(func() -> void: get_tree().quit())
+	title.quit_requested.connect(_on_title_quit)
 	pause.resumed.connect(_on_pause_closed)
 	pause.save_requested.connect(_on_save_requested)
-	pause.title_requested.connect(func() -> void:
-		pause.close(true)
-		show_title())
-	pause.quit_requested.connect(func() -> void: get_tree().quit())
+	pause.title_requested.connect(_on_pause_title)
+	pause.quit_requested.connect(_on_pause_quit)
 	dialogue.action_requested.connect(_on_dialogue_action)
 	dialogue.battle_requested.connect(_on_dialogue_battle)
 	dialogue.notice.connect(func(text: String) -> void: hud.toast(text))
@@ -635,6 +637,33 @@ func _open_saves(which: String, from: String) -> void:
 	if from == "pause":
 		pause.close(true)
 	saves.open(which, from)
+
+
+## Écran-titre, « Quitter » : on confirme (Non par défaut), le titre garde la main si on renonce.
+func _on_title_quit() -> void:
+	if await confirm.ask("Quitter le jeu ?", "Quitter"):
+		get_tree().quit()
+	elif mode == Mode.TITLE:
+		title.refocus()
+
+
+## Pause, « Retour à l'écran-titre » : la partie non sauvegardée serait perdue, donc on demande.
+func _on_pause_title() -> void:
+	pause.close(true)
+	if await confirm.ask("Revenir à l'écran-titre ?\nCe qui n'a pas été sauvegardé sera perdu.", "Revenir au titre"):
+		pause.forget()
+		show_title()
+	elif mode == Mode.PLAY and world != null and not busy:
+		_open_pause()
+
+
+## Pause, « Quitter le jeu ».
+func _on_pause_quit() -> void:
+	pause.close(true)
+	if await confirm.ask("Quitter le jeu ?\nCe qui n'a pas été sauvegardé sera perdu.", "Quitter"):
+		get_tree().quit()
+	elif mode == Mode.PLAY and world != null and not busy:
+		_open_pause()
 
 
 func _on_settings_closed() -> void:

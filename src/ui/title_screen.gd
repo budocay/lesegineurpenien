@@ -158,6 +158,14 @@ func open() -> void:
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.3)
 
 
+## Rend le curseur à la dernière ligne choisie, sans refaire l'apparition (retour d'une confirmation).
+func refocus() -> void:
+	if _remember != null and is_instance_valid(_remember) and not _remember.disabled:
+		_remember.grab_focus()
+	else:
+		_new.grab_focus()
+
+
 func close() -> void:
 	visible = false
 
