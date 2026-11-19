@@ -70,6 +70,11 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_WARM"):   # seulement le test du préchauffage des monstres
+		await _test_warm_matches_demand()
+		print("%d vérifications, %d échec(s)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_MEASURE_C6"):   # tableau d'équilibre du chapitre 6
 		_measure_ch6()
 		get_tree().quit(0)
@@ -142,6 +147,8 @@ func _ready() -> void:
 	await _test_gamepad_full()
 	_test_reserve_catch_up()
 	_test_balourd_phase_and_breche_waves()
+	if not OS.has_environment("GLAN_QUICK"):
+		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -7945,3 +7952,36 @@ func _test_balourd_phase_and_breche_waves() -> void:
 	var dlg: Array = Database.get_dialogue("isengarde_breche")
 	check(_dialogue_has(dlg, "battle", "breche_avant") and _dialogue_has(dlg, "battle", "breche"), "brèche : le dialogue enchaîne les deux combats")
 	GameState.new_game()
+
+
+## Le fil de préchauffage peint avec une copie du peintre (variables statiques à lui) : sa planche doit être
+## identique, pixel pour pixel, à celle peinte à la demande sur le fil principal. Les monstres de
+## gouda_monsters.gd n'y passent pas (exclus du préchauffage).
+func _test_warm_matches_demand() -> void:
+	print("-- préchauffage des monstres : fil d'arrière-plan contre peinture à la demande")
+	var mp: GDScript = load("res://src/gfx/monster_painter.gd")
+	var painter := GDScript.new()
+	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
+	check(painter.reload() == OK, "copie du peintre : se recharge")
+	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS
+	var kinds: Array = []
+	for k: String in mp.SIZES.keys():
+		if not gouda.has(k):
+			kinds.append(k)
+	kinds.sort()
+	var out: Dictionary = {}
+	var th := Thread.new()
+	th.start(func() -> void:
+		for k: String in kinds:
+			out[k] = (painter.call("paint_hd", k) as Image).get_data())
+	while th.is_alive():
+		await get_tree().process_frame
+	th.wait_to_finish()
+	var t0 := Time.get_ticks_msec()
+	var bad: Array = []
+	for k: String in kinds:
+		var demand: PackedByteArray = (mp.paint_hd(k) as Image).get_data()
+		if not out.has(k) or out[k] != demand:
+			bad.append(k)
+	print("   %d monstres comparés, peinture à la demande : %d ms" % [kinds.size(), Time.get_ticks_msec() - t0])
+	check(bad.is_empty(), "planche du fil = planche à la demande (écarts : %s)" % str(bad))
