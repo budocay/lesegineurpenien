@@ -533,6 +533,15 @@ func _test_sprites() -> void:
 		for col in int(sheet["columns"]):
 			var b := Sprites.PA.opaque_bounds(mimg, Rect2i(col * int(sheet["frame_w"]), 0, int(sheet["frame_w"]), int(sheet["frame_h"])))
 			check(b.size.x > 10 and b.size.y > 10 and b.size.y <= int(sheet["frame_h"]), "monstre %s : pose %d dessinée" % [kind, col])
+			# aucun pixel opaque à moins d'un pixel du bord de sa case : rien n'est coupé net
+			var fw_m := int(sheet["frame_w"])
+			var fh_m := int(sheet["frame_h"])
+			var touching := 0
+			for y in fh_m:
+				for x in fw_m:
+					if (x == 0 or y == 0 or x == fw_m - 1 or y == fh_m - 1) and mimg.get_pixel(col * fw_m + x, y).a > 0.5:
+						touching += 1
+			check(touching == 0, "monstre %s : pose %d à plus d'un pixel du bord de sa case (%d pixels touchent)" % [kind, col, touching])
 		check(Sprites.battler_icon({"monster": kind}) != null, "monstre %s : vignette" % kind)
 	for kind: String in ["tree", "bush", "flowers", "grass", "wheat", "wilted", "barrel", "sign", "rock", "bollard", "monument", "boat", "shelf", "window"]:
 		check(Sprites.prop(kind, 0).get_width() > 4, "sprite de décor %s" % kind)
@@ -7989,7 +7998,7 @@ func _test_warm_matches_demand() -> void:
 	var painter := GDScript.new()
 	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
 	check(painter.reload() == OK, "copie du peintre : se recharge")
-	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS
+	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS + load("res://src/gfx/boss_painter.gd").KINDS
 	var kinds: Array = []
 	for k: String in mp.SIZES.keys():
 		if not gouda.has(k):

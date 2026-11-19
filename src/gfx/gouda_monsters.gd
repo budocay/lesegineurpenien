@@ -270,23 +270,24 @@ static func _king(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void
 	var hx := cx + 25.0
 	var hy := h * 0.5 + dy
 	if col == 2:
-		hx = cx + 22.0
-		hy = h * 0.22
+		hx = cx + 20.0
+		hy = h * 0.34
 	elif col == 3:
 		hx = cx + 17.0
 		hy = h * 0.55
 	_cp(img, cx + 13.0, h * 0.44 + dy, hx - 2.0, hy, 4.4, 3.6, robe)
 	_o(img, hx, hy, 3.2, 3.0, skin, 0.05)
-	_cp(img, hx, hy + 6.0, hx + 2.0, hy - 25.0, 1.1, 1.1, MP._ramp("#7a5632"))   # long manche
-	_o(img, hx + 2.6, hy - 29.0, 8.4, 8.0, copper, 0.1)
-	_o(img, hx + 2.6, hy - 29.0, 6.0, 5.6, MP._ramp("#a8602a"), 0.0)
+	var reach := 25.0 if col != 2 else 17.0   # levée à l'attaque, la bassinoire reste dans la case
+	_cp(img, hx, hy + 6.0, hx + 2.0, hy - reach, 1.1, 1.1, MP._ramp("#7a5632"))   # long manche
+	_o(img, hx + 2.6, hy - reach - 4.0, 8.4, 8.0, copper, 0.1)
+	_o(img, hx + 2.6, hy - reach - 4.0, 6.0, 5.6, MP._ramp("#a8602a"), 0.0)
 	for i in 8:   # couvercle percé
 		var a := float(i) * TAU / 8.0
-		_disc(img, hx + 2.6 + cos(a) * 3.8, hy - 29.0 + sin(a) * 3.4, 0.7, Color("#3a1e12"))
-	_disc(img, hx + 2.6, hy - 29.0, 1.4, copper[4])
+		_disc(img, hx + 2.6 + cos(a) * 3.8, hy - reach - 4.0 + sin(a) * 3.4, 0.7, Color("#3a1e12"))
+	_disc(img, hx + 2.6, hy - reach - 4.0, 1.4, copper[4])
 	# tête
 	var hcx := cx + 2.0
-	var hcy := h * 0.21 + dy
+	var hcy := h * 0.25 + dy
 	_o(img, hcx, hcy, 11.5, 12.0, skin, 0.05)
 	_o(img, hcx + 10.5, hcy + 2.5, 2.4, 2.0, skin, 0.1)   # nez
 	var mode := 0
@@ -394,8 +395,8 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 	var wy := h * 0.57
 	var wx := cx + w * 0.33
 	if col == 2:
-		wy = h * 0.14
-		wx = cx + w * 0.34
+		wy = h * 0.27
+		wx = cx + w * 0.3
 	elif col == 3:
 		wy = h * 0.62
 		wx = cx + w * 0.22
@@ -404,7 +405,7 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 	# arme
 	match str(p["weapon"]):
 		"sabre":
-			var tip := Vector2(wx + w * 0.16, wy - h * 0.3)
+			var tip := Vector2(wx + w * 0.16, maxf(wy - h * 0.3, h * 0.07))
 			if col == 3:
 				tip = Vector2(wx + w * 0.12, wy - h * 0.18)
 			MP._cap(img, wx, wy, tip.x, tip.y, w * 0.022, w * 0.012, steel)
@@ -412,7 +413,7 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 			_o(img, wx, wy - h * 0.025, w * 0.07, h * 0.012, gold, 0.1)
 			_o(img, wx - 0.5, wy + h * 0.03, w * 0.022, h * 0.03, MP._ramp("#5a3a24"))
 		"lance":
-			var tip2 := Vector2(wx + w * 0.07, wy - h * 0.5)
+			var tip2 := Vector2(wx + w * 0.07, maxf(wy - h * 0.5, h * 0.17))
 			if col == 3:
 				tip2 = Vector2(wx + w * 0.05, wy - h * 0.34)
 			MP._cap(img, wx - 1.0, wy + h * 0.16, tip2.x, tip2.y, w * 0.022, w * 0.018, wood)
@@ -420,7 +421,7 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 			_tri(img, Vector2(tip2.x - w * 0.035, tip2.y + h * 0.015), Vector2(tip2.x, tip2.y + h * 0.015), Vector2(tip2.x, tip2.y - h * 0.1), steel[1])
 			_b(img, tip2.x - w * 0.05, tip2.y + h * 0.03, w * 0.1, 1.0, Color("#b8321a"))   # fanion
 		"massue":
-			var head := Vector2(wx + w * 0.07, wy - h * 0.27)
+			var head := Vector2(wx + w * 0.07, maxf(wy - h * 0.27, h * 0.16))
 			if col == 3:
 				head = Vector2(wx + w * 0.05, wy - h * 0.12)
 			MP._cap(img, wx, wy + h * 0.06, head.x, head.y, w * 0.026, w * 0.022, wood)
@@ -442,7 +443,7 @@ static func _man(img: Image, ox: int, f: int, col: int, size: Vector2i, p: Dicti
 		_disc(img, sx, sy, 1.3, gold[3])
 	# tête
 	var hcx := cx + lean + w * 0.04
-	var hcy := h * 0.235 + dy
+	var hcy := h * (0.29 if str(p["head"]) in ["tricorne", "marmite"] else 0.262) + dy   # plume du tricorne et sommets dégagés du bord
 	var hr := w * 0.135
 	var hv := h * 0.105
 	_cp(img, hcx - hr * 0.3, hcy + hv * 0.6, cx + lean * 0.5, t0 + 3.0, w * 0.045, w * 0.055, MP._dim(skin))
@@ -540,7 +541,7 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	var hx := cx + w * 0.36
 	var hy := h * 0.56
 	if col == 2:
-		hy = h * 0.2
+		hy = h * 0.4
 		hx = cx + w * 0.34
 	elif col == 3:
 		hx = cx + w * 0.25
@@ -549,15 +550,17 @@ static func _wraith(img: Image, ox: int, f: int, col: int, size: Vector2i) -> vo
 	_o(img, hx, hy, w * 0.055, w * 0.055, iron, 0.05)
 	MP._ellipse(img, hx + 1.2, hy + 1.4, 1.5, 1.5, Color("#fff0a0"))   # le petit anneau, bien en vue
 	MP._ellipse(img, hx + 1.2, hy + 1.4, 0.9, 0.9, Color("#ffd070"))
-	var tip := Vector2(hx + w * 0.07, hy - h * 0.46)
-	if col == 3:
-		tip = Vector2(hx + w * 0.07, hy - h * 0.28)
+	var tip := Vector2(hx + w * 0.07, hy - h * 0.44)
+	if col == 2:
+		tip = Vector2(hx + w * 0.07, hy - h * 0.34)
+	elif col == 3:
+		tip = Vector2(hx + w * 0.07, hy - h * 0.26)
 	MP._cap(img, hx, hy - 1.0, tip.x, tip.y, w * 0.026, w * 0.008, MP._ramp("#c8d0e0"))
 	MP._cap(img, hx + 0.4, hy - 3.0, tip.x - 0.3, tip.y + 2.0, 0.3, 0.2, _flat(Color("#ffffff")))
 	_o(img, hx, hy - 2.5, w * 0.075, 1.3, iron, 0.1)
 	# capuchon : un vide, deux lueurs
 	var hcx := cx + w * 0.02
-	var hcy := h * 0.21 + dy
+	var hcy := h * 0.25 + dy
 	_o(img, hcx, hcy + 1.0, w * 0.16, h * 0.14, cloak, 0.0)
 	_o(img, hcx + 2.0, hcy + 2.0, w * 0.11, h * 0.1, inner, -0.2)
 	var glow := Color("#ff5a4a") if col != 3 else Color("#8a2a28")
@@ -614,16 +617,16 @@ static func _mammoth(img: Image, ox: int, f: int, col: int, size: Vector2i) -> v
 	_b(img, ox + w * 0.31, h * 0.06 + dy, 1.6, h * 0.09, Color("#5a3a1e"))
 	_b(img, ox + w * 0.58, h * 0.06 + dy, 1.6, h * 0.09, Color("#5a3a1e"))
 	_tp(img, h * 0.05 + dy, h * 0.09 + dy, ox + w * 0.29, ox + w * 0.61, ox + w * 0.3, ox + w * 0.6, MP._ramp("#c9a24a"))
-	_cp(img, ox + w * 0.45, h * 0.05 + dy, ox + w * 0.45, -1.0, 0.6, 0.6, MP._ramp("#5a4226"))
-	_tri(img, Vector2(ox + w * 0.45, 0.5), Vector2(ox + w * 0.64, 4.0 + float(f)), Vector2(ox + w * 0.45, 8.5), Color("#ece8dc"))
-	_b(img, ox + w * 0.46, 2.2, w * 0.1, 0.8, Color("#b8322a"))
-	_b(img, ox + w * 0.46, 4.4, w * 0.12, 0.8, Color("#b8322a"))
+	_cp(img, ox + w * 0.45, h * 0.05 + dy, ox + w * 0.45, 3.0, 0.6, 0.6, MP._ramp("#5a4226"))
+	_tri(img, Vector2(ox + w * 0.45, 2.5), Vector2(ox + w * 0.62, 5.5 + float(f)), Vector2(ox + w * 0.45, 10.0), Color("#ece8dc"))
+	_b(img, ox + w * 0.46, 4.0, w * 0.1, 0.8, Color("#b8322a"))
+	_b(img, ox + w * 0.46, 6.2, w * 0.12, 0.8, Color("#b8322a"))
 	# queue
 	_cp(img, ox + w * 0.16, h * 0.42 + dy, ox + w * 0.13, h * 0.56, w * 0.022, w * 0.012, hide)
 	_o(img, ox + w * 0.125, h * 0.58, w * 0.022, h * 0.04, fur)
 	# tête : front bombé, oreille, œil, peinture de guerre
-	var hx := ox + w * 0.7 + lean
-	var hy := h * 0.34 + dy
+	var hx := ox + w * 0.65 + lean
+	var hy := h * 0.36 + dy
 	_o(img, hx, hy, w * 0.15, h * 0.22, hide, 0.05)
 	_o(img, hx - w * 0.01, hy - h * 0.14, w * 0.13, h * 0.1, fur, 0.1)   # houppe
 	_o(img, hx - w * 0.1, hy + h * 0.02, w * 0.075, h * 0.19, MP._ramp("#6a5444"), 0.0)   # oreille
@@ -640,8 +643,8 @@ static func _mammoth(img: Image, ox: int, f: int, col: int, size: Vector2i) -> v
 	var tipx := hx + w * 0.16
 	var tipy := h * 0.8
 	if col == 2:
-		tipx = hx + w * 0.22
-		tipy = h * 0.12
+		tipx = hx + w * 0.2
+		tipy = h * 0.16
 	elif col == 3:
 		tipx = hx + w * 0.06
 		tipy = h * 0.74
@@ -655,9 +658,9 @@ static func _mammoth(img: Image, ox: int, f: int, col: int, size: Vector2i) -> v
 		MP._cap(img, lerpf(midx, tipx, t) - w * 0.03, lerpf(midy, tipy, t), lerpf(midx, tipx, t) + w * 0.03, lerpf(midy, tipy, t), 0.25, 0.25, _flat(hide[1]))
 	# défense recourbée
 	var d0 := Vector2(hx + w * 0.07, hy + h * 0.1)
-	var d1 := Vector2(hx + w * 0.2, hy + h * 0.22)
-	var d2 := Vector2(hx + w * 0.3, hy + h * 0.14)
-	var d3 := Vector2(hx + w * 0.32, hy + h * 0.0)
+	var d1 := Vector2(hx + w * 0.18, hy + h * 0.22)
+	var d2 := Vector2(hx + w * 0.26, hy + h * 0.14)
+	var d3 := Vector2(hx + w * 0.28, hy + h * 0.0)
 	_cp(img, d0.x, d0.y, d1.x, d1.y, w * 0.032, w * 0.026, ivory)
 	_cp(img, d1.x, d1.y, d2.x, d2.y, w * 0.026, w * 0.018, ivory)
 	_cp(img, d2.x, d2.y, d3.x, d3.y, w * 0.018, w * 0.006, ivory)
@@ -750,7 +753,7 @@ static func _ram(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void:
 	if col == 2:
 		push = w * 0.07
 	elif col == 3:
-		push = -w * 0.04
+		push = -w * 0.02
 	# affût : deux flasques de bois et deux roues cerclées de fer
 	_tp(img, h * 0.66, h * 0.74, ox + w * 0.14, ox + w * 0.68, ox + w * 0.14, ox + w * 0.68, MP._ramp("#5a4226"))
 	for wx in [0.24, 0.58]:
@@ -767,19 +770,19 @@ static func _ram(img: Image, ox: int, f: int, col: int, size: Vector2i) -> void:
 		var rx := ox + w * (0.3 + float(k) * 0.28) + push
 		MP._cap(img, ox + w * (0.28 + float(k) * 0.3), h * 0.68, rx, h * 0.44 + dy, 0.4, 0.4, _flat(Color("#c8b080")))
 	# tronc : écorce, cernes de coupe, trois frettes de fer
-	_cp(img, ox + w * 0.08 + push, h * 0.44 + dy, ox + w * 0.68 + push, h * 0.44 + dy, h * 0.14, h * 0.14, wood)
-	_o(img, ox + w * 0.075 + push, h * 0.44 + dy, h * 0.045, h * 0.12, MP._ramp("#d8b078"), 0.1)   # bout scié
-	_o(img, ox + w * 0.075 + push, h * 0.44 + dy, h * 0.025, h * 0.07, MP._ramp("#b88a50"), 0.1)
+	_cp(img, ox + w * 0.15 + push, h * 0.44 + dy, ox + w * 0.64 + push, h * 0.44 + dy, h * 0.14, h * 0.14, wood)
+	_o(img, ox + w * 0.145 + push, h * 0.44 + dy, h * 0.045, h * 0.12, MP._ramp("#d8b078"), 0.1)   # bout scié
+	_o(img, ox + w * 0.145 + push, h * 0.44 + dy, h * 0.025, h * 0.07, MP._ramp("#b88a50"), 0.1)
 	for k in 5:   # écorce
-		var kx := ox + w * (0.14 + float(k) * 0.11) + push
+		var kx := ox + w * (0.2 + float(k) * 0.09) + push
 		MP._cap(img, kx, h * 0.36 + dy, kx + 3.0, h * 0.5 + dy, 0.4, 0.4, _flat(wood[0]))
 	for k in 3:
-		var bx := ox + w * (0.2 + float(k) * 0.16) + push
+		var bx := ox + w * (0.23 + float(k) * 0.14) + push
 		_tp(img, h * 0.3 + dy, h * 0.58 + dy, bx, bx + w * 0.045, bx, bx + w * 0.045, iron)
 		for j in 3:
 			_disc(img, bx + w * 0.022, h * 0.34 + dy + float(j) * h * 0.09, 0.7, iron[4])
 	# tête de bélier en fonte : crâne, museau, cornes spiralées
-	var hx := ox + w * 0.78 + push
+	var hx := ox + w * 0.7 + push
 	var hy := h * 0.44 + dy
 	_o(img, hx, hy, w * 0.14, h * 0.2, iron, 0.0)
 	_o(img, hx + w * 0.1, hy + h * 0.07, w * 0.08, h * 0.1, iron, 0.1)   # museau
