@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Le Seigneur des Anneaux Péniens
+Comment=RPG parodique HD-2D
+Exec=sh -c 'cd "$(dirname "%k")" && ./SeigneurDesAnneauxPeniens.x86_64'
+Icon=SeigneurDesAnneauxPeniens
+Terminal=false
+Categories=Game;RolePlaying;

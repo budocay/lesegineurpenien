@@ -11,3 +11,8 @@ tools/godot/
 
 # jeux construits par build.sh / build.bat
 /build/
+
+# journaux de diagnostic (installation Windows, jouer_avec_journal.bat)
+/installation_journal.txt
+/journal.txt
+__pycache__/

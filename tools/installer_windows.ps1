@@ -5,48 +5,54 @@
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+. (Join-Path $PSScriptRoot "outils_godot.ps1")
 
 $version = "4.7.2-stable"
 $racine = Split-Path -Parent $PSScriptRoot
 $dossier = Join-Path $PSScriptRoot "godot"
 $exe = Join-Path $dossier "Godot_v${version}_win64.exe"
-$console = Join-Path $dossier "Godot_v${version}_win64_console.exe"
 $url = "https://github.com/godotengine/godot/releases/download/$version/Godot_v${version}_win64.exe.zip"
 
-if (-not (Test-Path (Join-Path $racine "project.godot"))) {
+if (-not (Test-Path -LiteralPath (Join-Path $racine "project.godot"))) {
     Write-Host "project.godot introuvable : ce script doit rester dans le dossier tools du jeu." -ForegroundColor Red
     exit 1
 }
 
-if (Test-Path $exe) {
+# Un fichier présent mais incomplet (téléchargement coupé, antivirus) donne « CreateProcess failed, error 193 » :
+# on ne s'en contente pas, on le vérifie.
+if ((Test-Path -LiteralPath $exe) -and -not (Test-ExeWindows $exe)) {
+    Write-Host "Le Godot déjà présent est incomplet ou corrompu : il est remplacé." -ForegroundColor Yellow
+    Remove-Item -LiteralPath $exe -Force
+}
+
+if (Test-Path -LiteralPath $exe) {
     Write-Host "Godot $version est déjà installé."
 } else {
     New-Item -ItemType Directory -Force -Path $dossier | Out-Null
     $zip = Join-Path $dossier "godot.zip"
     Write-Host "Téléchargement de Godot $version (environ 70 Mo)..."
-    # curl.exe (fourni avec Windows 10 et 11) affiche une barre de progression ; sinon repli silencieux
-    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-        & curl.exe -L --fail --progress-bar -o $zip $url
-        if ($LASTEXITCODE -ne 0) { Write-Host "Le téléchargement a échoué." -ForegroundColor Red; exit 1 }
-    } else {
-        Write-Host "(pas de barre de progression sur cette machine : patienter, la fenêtre ne bouge pas pendant le téléchargement)"
-        Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
+    try { Get-Telechargement $url $zip } catch { Write-Host $_.Exception.Message -ForegroundColor Red; exit 1 }
+    if ((Get-Item -LiteralPath $zip).Length -lt 30000000) {
+        Write-Host "Le téléchargement est incomplet ($((Get-Item -LiteralPath $zip).Length) octets). Vérifier la connexion et relancer." -ForegroundColor Red
+        Remove-Item -LiteralPath $zip -Force
+        exit 1
     }
     Write-Host "Décompression..."
-    Expand-Archive -Path $zip -DestinationPath $dossier -Force
-    Remove-Item $zip
-    if (-not (Test-Path $exe)) {
-        Write-Host "Godot n'a pas été trouvé après décompression dans $dossier." -ForegroundColor Red
+    Expand-Archive -LiteralPath $zip -DestinationPath $dossier -Force
+    Remove-Item -LiteralPath $zip
+    if (-not (Test-ExeWindows $exe)) {
+        Write-Host "Godot a été décompressé dans $dossier mais le fichier n'est pas un programme Windows valide." -ForegroundColor Red
+        Write-Host "Causes possibles : antivirus qui a mis le fichier en quarantaine, disque plein. Supprimer le dossier tools\godot, vérifier l'antivirus, relancer." -ForegroundColor Red
         exit 1
     }
 }
 
 Write-Host "Préparation du jeu (une minute environ la première fois)..."
-# Programme principal, pas la variante « console » : celle-ci échoue quand le chemin contient une espace.
-$outil = $exe
-$p = Start-Process -FilePath $outil -ArgumentList @("--headless", "--path", "`"$racine`"", "--import") -Wait -PassThru -NoNewWindow
-if ($p.ExitCode -ne 0) {
-    Write-Host "La préparation a renvoyé le code $($p.ExitCode). Le jeu se lancera peut-être quand même." -ForegroundColor Yellow
+# Programme principal, pas la variante « console » (celle-ci relance le principal par son chemin et
+# échoue avec « error 193 » si ce chemin pose problème). Dossier de travail = le jeu, chemins sans espace.
+$code = Invoke-Godot $exe $racine @("--headless", "--path", ".", "--import") "installation_journal.txt"
+if ($code -ne 0) {
+    Write-Host "La préparation a renvoyé le code $code (détails dans installation_journal.txt). Le jeu se lancera peut-être quand même." -ForegroundColor Yellow
 }
 
 Write-Host ""
