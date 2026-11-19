@@ -36,7 +36,7 @@ const GROUND := {
 	"ent_mousse": {}, "ent_sentier": {}, "ent_racines": {},
 	"isen_dalle": {"hard": true}, "isen_fonte": {"hard": true}, "isen_farine": {},
 	"isen_fosse": {"hard": true, "solid": true},
-	"chu_roche": {"hard": true, "puddles": true}, "chu_gravier": {},
+	"chu_roche": {"hard": true, "puddles": true}, "chu_gravier": {}, "chu_dalle": {"hard": true, "puddles": true},
 	# styles du chapitre 6 : gouda, veille, port, champ (voir docs/FORMAT_DONNEES.md)
 	"gou_pave": {"hard": true}, "gou_dalle": {"hard": true}, "gou_marbre": {"hard": true}, "gou_rempart": {"hard": true}, "gou_mur": {"hard": true},
 	"gou_herbe": {}, "gou_boue": {"puddles": true}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
@@ -208,6 +208,7 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		_build_interior_walls()
 		if not DwarvenBuilder.is_dwarven(self):
 			_build_interior_apron()
+			_build_interior_void()
 	else:
 		_build_outskirts()
 	if ElvenBuilder.is_elven(self):
@@ -466,11 +467,43 @@ func _cell_at_pixel(gx: float, gy: float) -> String:
 	return _cell(int(floor(gx / PPU)), int(floor(gy / PPU)))
 
 
+## Sols de terre et sols d'herbe : leur frontière est déchiquetée, bordée de terre battue qui déborde, de
+## touffes et de cailloux (voir `_paint_ground`).
+const SOFT_PATH := ["path", "cav_chemin", "ent_sentier", "nain_sentier", "soil", "elf_path", "gou_boue"]
+const SOFT_GRASS := ["grass", "cav_herbe", "ent_mousse", "elf_lawn", "gou_herbe", "chu_gravier", "humus"]
+
+
+func _soft_class(t: String) -> int:
+	if SOFT_PATH.has(t):
+		return 1
+	if SOFT_GRASS.has(t):
+		return 2
+	return 0
+
+
 func _paint_ground() -> ImageTexture:
 	var img := PA.new_image(w * PPU, h * PPU)
 	var noise := FastNoiseLite.new()
 	noise.seed = 7
 	noise.frequency = 0.055
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM   # deux octaves : grandes ondulations et petits accrocs du bord
+	noise.fractal_octaves = 2
+	noise.fractal_lacunarity = 4.0
+	noise.fractal_gain = 0.45
+	var edge_spots: Array[Vector3i] = []
+	var soft := PackedByteArray()   # classe de chaque case : 0 autre, 1 terre, 2 herbe (voir `_soft_class`)
+	var hard_c := PackedByteArray()   # 1 si le sol de la case est « dur » (bord net)
+	var hole_c := PackedByteArray()   # 1 si la case n'a pas de sol dessiné
+	var has_water := false
+	soft.resize(w * h)
+	hard_c.resize(w * h)
+	hole_c.resize(w * h)
+	for ci in w * h:
+		soft[ci] = _soft_class(cells[ci])
+		hard_c[ci] = 1 if _flag(cells[ci], "hard") else 0
+		hole_c[ci] = 1 if _flag(cells[ci], "hole") else 0
+		if cells[ci] == "water":
+			has_water = true
 	for ty in h:
 		for tx in w:
 			var t := cells[ty * w + tx]
@@ -480,33 +513,174 @@ func _paint_ground() -> ImageTexture:
 					if _cell(tx + dx, ty + dy) != t:
 						uniform = false
 			if uniform:
-				if not _flag(t, "hole"):
+				if hole_c[ty * w + tx] == 0:
 					img.blit_rect(Sprites.tile_image(t), Rect2i((tx % 2) * PPU, (ty % 2) * PPU, PPU, PPU), Vector2i(tx * PPU, ty * PPU))
 				continue
-			# tuile de bordure : frontière irrégulière entre les matières
+			# tuile de bordure : frontière irrégulière entre les matières. Le bruit de déformation est calculé par blocs
+			# de 2 x 2 pixels (quatre fois moins d'appels) ; une tuile de sol dur ne se déforme pas.
+			var t_hard := hard_c[ty * w + tx] == 1
+			var warp := PackedFloat32Array()
+			if not t_hard:
+				var hb := PPU / 2
+				warp.resize(hb * hb * 2)
+				for by in hb:
+					for bx in hb:
+						var gx2 := float(tx * PPU + bx * 2)
+						var gy2 := float(ty * PPU + by * 2)
+						warp[(by * hb + bx) * 2] = noise.get_noise_2d(gx2, gy2) * 9.0
+						warp[(by * hb + bx) * 2 + 1] = noise.get_noise_2d(gx2 + 300.0, gy2 + 170.0) * 9.0
+			var last_use := ""
+			var last_img: Image = null
 			for py in PPU:
 				for px in PPU:
 					var gx := tx * PPU + px
 					var gy := ty * PPU + py
-					var wx := gx + noise.get_noise_2d(gx, gy) * 7.0
-					var wy := gy + noise.get_noise_2d(gx + 300.0, gy + 170.0) * 7.0
-					var use := _cell_at_pixel(wx, wy)
-					if _flag(t, "hard") or _flag(use, "hard"):
-						use = t
-					if _flag(use, "hole"):
+					var wx := float(gx)
+					var wy := float(gy)
+					var use := t
+					var ui := ty * w + tx
+					var cxm := tx
+					var cym := ty
+					if not t_hard:
+						var wi := ((py >> 1) * (PPU / 2) + (px >> 1)) * 2
+						wx += warp[wi]
+						wy += warp[wi + 1]
+						cxm = clampi(int(floorf(wx / PPU)), 0, w - 1)
+						cym = clampi(int(floorf(wy / PPU)), 0, h - 1)
+						ui = cym * w + cxm
+						if hard_c[ui] == 1:
+							ui = ty * w + tx   # le sol dur voisin ne mord pas sur celui-ci
+							cxm = tx
+							cym = ty
+						use = cells[ui]
+					if hole_c[ui] == 1:
 						continue
-					var c := Sprites.tile_image(use).get_pixel(gx % 48, gy % 48)
-					if not _flag(use, "hard"):
-						if _cell_at_pixel(wx, wy + 3.0) == "water" or _cell_at_pixel(wx, wy - 3.0) == "water" \
-								or _cell_at_pixel(wx + 3.0, wy) == "water" or _cell_at_pixel(wx - 3.0, wy) == "water":
+					if use != last_use:
+						last_use = use
+						last_img = Sprites.tile_image(use)
+					var c := last_img.get_pixel(gx % 48, gy % 48)
+					if hard_c[ui] == 0:
+						if has_water and (_cell_at_pixel(wx, wy + 3.0) == "water" or _cell_at_pixel(wx, wy - 3.0) == "water" \
+								or _cell_at_pixel(wx + 3.0, wy) == "water" or _cell_at_pixel(wx - 3.0, wy) == "water"):
 							c = PA.shade(c, -0.35)
 						elif use == "grass" and (_cell_at_pixel(wx, wy + 2.0) != "grass" or _cell_at_pixel(wx + 2.0, wy) != "grass"):
 							c = PA.shade(c, -0.14)
+						# bord de chemin : liseré de terre battue côté chemin, herbe foulée côté herbe, touffes et cailloux
+						var kc := soft[ui]
+						if kc != 0:
+							var other := 3 - kc
+							var cx0 := clampi(int(floorf((wx - 2.5) / PPU)), 0, w - 1)
+							var cx1 := clampi(int(floorf((wx + 2.5) / PPU)), 0, w - 1)
+							var cy0 := clampi(int(floorf((wy - 2.5) / PPU)), 0, h - 1)
+							var cy1 := clampi(int(floorf((wy + 2.5) / PPU)), 0, h - 1)
+							if soft[cym * w + cx0] == other or soft[cym * w + cx1] == other or soft[cy0 * w + cxm] == other or soft[cy1 * w + cxm] == other:
+								var dr := PA.rnd(gx, gy, 990)
+								if kc == 1:
+									c = PA.shade(c, -0.07 - 0.1 * dr)
+								elif dr < 0.45:
+									c = PA.shade(c, -0.12)
+								if dr > 0.972:
+									edge_spots.append(Vector3i(gx, gy, kc))
 					img.set_pixel(gx, gy, c)
+	_edge_details(img, edge_spots)
 	_mottle(img)
+	_slabs(img)
 	_scatter_puddles(img)
 	_wear(img)
 	return PA.texture(img)
+
+
+## Touffes d'herbe qui avancent sur la terre et cailloux qui roulent au bord du chemin, posés aux points relevés
+## par `_paint_ground` (x, y, 1 : côté chemin, 2 : côté herbe).
+func _edge_details(img: Image, spots: Array[Vector3i]) -> void:
+	var gw := img.get_width()
+	var gh := img.get_height()
+	for sp: Vector3i in spots:
+		if sp.y < 8 or sp.y > gh - 3 or sp.x < 3 or sp.x > gw - 4:
+			continue
+		if _flag(_cell_at_pixel(float(sp.x), float(sp.y - 4)), "hard"):
+			continue
+		var base := img.get_pixel(sp.x, sp.y)
+		if sp.z == 2:
+			var dark := PA.shade(base, -0.28)
+			var light := PA.shade(base, 0.22)
+			for k in 3:
+				var bx := sp.x - 2 + k * 2
+				var blen := 3 + int(PA.rnd(sp.x, sp.y, 992 + k) * 3.0)
+				for j in blen:
+					PA.px(img, bx + (j * (k - 1)) / 3, sp.y - j, dark if j < blen - 1 else light)
+		else:
+			var stone := Color("#8c8473").lerp(base, 0.25)
+			PA.rect(img, sp.x, sp.y, 3, 2, PA.shade(stone, -0.2))
+			PA.rect(img, sp.x, sp.y, 2, 1, PA.shade(stone, 0.18))
+			PA.px(img, sp.x + 1, sp.y + 1, stone)
+
+
+## Dalles à teinte propre (table SLABS : largeur, hauteur de la dalle, force de la teinte, chance de fêlure) : chaque
+## dalle est un peu plus claire ou plus sombre que sa voisine, certaines sont fêlées ou ébréchées. La tuile du sol,
+## répétée toutes les deux cases, ne dessine plus de rayures ni de grille.
+const SLABS := {
+	"elf_flag": [24, 16, 0.12, 0.5], "elf_flag_dim": [24, 16, 0.1, 0.45], "elf_floor_dark": [24, 16, 0.1, 0.4],
+	"chu_dalle": [24, 16, 0.14, 0.6],
+}   # largeur et hauteur : toujours 24 x 16 (les tuiles de ces sols)
+
+
+func _slabs(img: Image) -> void:
+	var kinds := {}
+	for t: String in cells:
+		if SLABS.has(t):
+			kinds[t] = true
+	if kinds.is_empty():
+		return
+	var patches := {}
+	for t: String in kinds:
+		var sp: Array = SLABS[t]
+		var arr: Array[Image] = []
+		for lv in 7:
+			var k := float(lv - 3) / 3.0
+			var pi := PA.new_image(int(sp[0]), int(sp[1]))
+			pi.fill(Color(0.0, 0.0, 0.06, absf(k) * float(sp[2]) * 1.6) if k < 0.0 else Color(1.0, 0.97, 0.85, absf(k) * float(sp[2]) * 1.1))
+			arr.append(pi)
+		patches[t] = arr
+	var gw := w * PPU
+	var gh := h * PPU
+	# toutes les tuiles de dalles ont la même taille (24 x 16) : un seul parcours
+	var sw := 24
+	var sh := 16
+	for r in gh / sh:
+		var off := (sw / 2) if (r % (48 / sh)) % 2 == 1 else 0
+		var y0 := r * sh
+		for c in range(0, gw / sw):
+			var x0 := c * sw + off
+			if x0 + sw > gw:
+				continue
+			var t := _cell(x0 / PPU, y0 / PPU)
+			if not kinds.has(t):
+				continue
+			if _cell((x0 + sw - 1) / PPU, y0 / PPU) != t or _cell(x0 / PPU, (y0 + sh - 1) / PPU) != t or _cell((x0 + sw - 1) / PPU, (y0 + sh - 1) / PPU) != t:
+				continue
+			var sp: Array = SLABS[t]
+			var lv := int(PA.rnd(c, r, 977) * 7.0)
+			img.blend_rect(patches[t][lv], Rect2i(0, 0, sw, sh), Vector2i(x0, y0))
+			# fêlure : petit éclair sombre qui part d'un bord de la dalle
+			if PA.rnd(c, r, 978) < float(sp[3]):
+				var cx := x0 + 3 + int(PA.rnd(c, r, 979) * float(sw - 6))
+				var cy := y0 + 1
+				var dir := 1 if PA.rnd(c, r, 980) < 0.5 else -1
+				var steps := 4 + int(PA.rnd(c, r, 981) * float(sh - 6))
+				for k in steps:
+					cx += dir if (k % 3 == 2) else 0
+					cy += 1
+					if cy >= y0 + sh - 1 or cx <= x0 + 1 or cx >= x0 + sw - 2:
+						break
+					img.set_pixel(cx, cy, PA.shade(img.get_pixel(cx, cy), -0.34))
+			# coin ébréché
+			if PA.rnd(c, r, 982) < 0.22:
+				var left := PA.rnd(c, r, 983) < 0.5
+				var ex := x0 + 1 if left else x0 + sw - 3
+				for k in 3:
+					for j in 3 - k:
+						img.set_pixel(ex + (k if left else 2 - k), y0 + sh - 2 - j, PA.shade(img.get_pixel(ex, y0 + sh - 2), -0.45))
 
 
 ## Teintes de grandes plaques, par type de sol (table MOTTLE) : `[teinte sombre, teinte claire, force,
@@ -604,32 +778,30 @@ func _wear(img: Image) -> void:
 			var ix := gx / cs
 			var iy := gy / cs
 			var zone := hp.vnoise(float(gx), float(gy), 961, 80.0)
-			var p := clampf((zone - 0.36) * 1.9, 0.0, 0.7)
+			var p := clampf((zone - 0.4) * 1.5, 0.0, 0.5)
 			if PA.rnd(ix, iy, 962) >= p:
 				continue
 			var cx := float(gx) + PA.rnd(ix, iy, 963) * float(cs)
 			var cy := float(gy) + PA.rnd(ix, iy, 964) * float(cs)
 			var big := PA.rnd(ix, iy, 965)
-			var rx := 4.5 + 9.0 * big
-			var ry := rx * (0.45 + 0.3 * PA.rnd(ix, iy, 966))
+			var rx := 3.5 + 6.5 * big * big
+			var ry := rx * (0.4 + 0.3 * PA.rnd(ix, iy, 966))
 			var ok := true
 			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry)]:
 				if not WEAR.has(_cell_at_pixel(cx + q.x, cy + q.y)):
 					ok = false
 			if not ok:
 				continue
-			PA.ellipse(img, cx, cy, rx, ry, Color("#0a080c"))
-			PA.ellipse(img, cx - 0.4, cy - 0.5, rx * 0.84, ry * 0.76, Color("#17121a"))
-			# bord net et luisant : un liseré clair sur le haut de la flaque, comme un liquide épais
-			PA.ellipse(img, cx - 0.2, cy - ry * 0.2, rx * 0.97, ry * 0.26, Color("#5a4a78"))
-			PA.ellipse(img, cx + rx * 0.1, cy + ry * 0.35, rx * 0.6, ry * 0.18, Color("#2a3a6a"))
-			if rx > 4.0:
-				# reflet des flammes (trait orangé, cœur jaune), irisation froide et violette sur la nappe
-				PA.ellipse(img, cx - rx * 0.28, cy - ry * 0.4, rx * 0.5, 1.3, Color("#e07a3a"))
-				PA.ellipse(img, cx - rx * 0.32, cy - ry * 0.42, rx * 0.26, 0.9, Color("#fff0b0"))
-				for k in int(rx * 0.7):
-					PA.px(img, int(cx - rx * 0.2) + k, int(cy + ry * 0.25) + (k % 2), Color("#3e5a9a") if k % 3 != 1 else Color("#7a4a9a"))
-				PA.px(img, int(cx + rx * 0.5), int(cy - ry * 0.1), Color("#7a9ae0"))
+			# flaque d'huile noire, de forme irrégulière (deux lobes), liseré luisant très discret
+			var lobe := 0.55 + 0.3 * PA.rnd(ix, iy, 967)
+			var sgn := 1.0 if PA.rnd(ix, iy, 968) < 0.5 else -1.0
+			PA.ellipse(img, cx, cy, rx, ry, Color("#0c0a0f"))
+			PA.ellipse(img, cx + sgn * rx * 0.5, cy + ry * 0.25, rx * lobe, ry * lobe, Color("#0c0a0f"))
+			PA.ellipse(img, cx - 0.4, cy - 0.3, rx * 0.8, ry * 0.7, Color("#14101a"))
+			if rx > 5.0:
+				PA.ellipse(img, cx - rx * 0.15, cy - ry * 0.45, rx * 0.55, maxf(0.9, ry * 0.12), Color("#3a3050"))
+				PA.px(img, int(cx - rx * 0.35), int(cy - ry * 0.45), Color("#c06a38"))
+				PA.px(img, int(cx + rx * 0.2), int(cy + ry * 0.2), Color("#2a3a64"))
 	# rails de chariots
 	for r: Variant in map.get("rails", []):
 		if not (r is Array) or (r as Array).size() < 4:
@@ -1028,6 +1200,22 @@ func _build_interior_apron() -> void:
 	world.add_child(fade)
 
 
+## Noir plein au-delà des murs : un grand plan noir sous le plancher, sans lumière ni brume, ferme tout ce que la
+## caméra verrait par-dessus les murs ou à côté de la pièce (plus de demi-vide étoilé jusqu'au bord de l'écran).
+func _build_interior_void() -> void:
+	var st := MeshKit.begin()
+	MeshKit.quad(st, Vector3(-90, -0.07, -90), Vector3(w + 90, -0.07, -90), Vector3(w + 90, -0.07, h + 90), Vector3(-90, -0.07, h + 90))
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color.BLACK
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.disable_fog = true
+	var node := MeshKit.finish(st, mat, false)
+	node.name = "InteriorVoid"
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	world.add_child(node)
+
+
 ## Vrai si la case d'indice i laisse un vide contre lequel bâtir un mur. Dans le style nain,
 ## l'eau d'un lac souterrain n'en est pas un : on la longe sans mur, le lac s'étend dans le noir.
 func _wall_gap(i: int) -> bool:
@@ -1084,6 +1272,7 @@ func _object(o: Dictionary) -> void:
 		"table": _table(o)
 		"stool": _stool(o)
 		"counter": _counter(o)
+		"bed": _bed(o)
 		"fireplace": _fireplace(o)
 		"stove": _stove(o)
 		"rug": _rug(o)
@@ -1549,6 +1738,20 @@ func _counter(o: Dictionary) -> void:
 	MeshKit.box(st, c + Vector3(0, hgt * 0.5, 0), Vector3(r.size.x, hgt, r.size.y))
 	_textured(st, "wood")
 	_mesh_box(c + Vector3(0, hgt + 0.035, 0), Vector3(r.size.x + 0.12, 0.07, r.size.y + 0.12), MeshKit.flat_material(Color("#b5834e")))
+	world.rects.append(r)
+
+
+## Lit : cadre de bois, matelas, couverture colorée (`color`) et oreiller du côté gauche. `rect` [x, z, l, p].
+func _bed(o: Dictionary) -> void:
+	var r := _rect2(o)
+	var c := Vector3(r.position.x + r.size.x * 0.5, 0.0, r.position.y + r.size.y * 0.5)
+	var st := MeshKit.begin()
+	MeshKit.box(st, c + Vector3(0, 0.2, 0), Vector3(r.size.x, 0.4, r.size.y))
+	MeshKit.box(st, c + Vector3(-r.size.x * 0.5 + 0.06, 0.55, 0), Vector3(0.12, 1.1, r.size.y))
+	_textured(st, "wood")
+	_mesh_box(c + Vector3(0.0, 0.46, 0), Vector3(r.size.x - 0.14, 0.12, r.size.y - 0.1), MeshKit.flat_material(Color("#e8dcc0")))
+	_mesh_box(c + Vector3(0.3, 0.53, 0), Vector3(r.size.x - 0.7, 0.07, r.size.y - 0.08), MeshKit.flat_material(Color(str(o.get("color", "#8a3a3a")))))
+	_mesh_box(c + Vector3(-r.size.x * 0.5 + 0.4, 0.56, 0), Vector3(0.4, 0.12, r.size.y * 0.6), MeshKit.flat_material(Color("#f4eee0")))
 	world.rects.append(r)
 
 

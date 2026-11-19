@@ -7,7 +7,7 @@
 	"music": "campagne",
 	"arena": "route",
 	"ramollissement": 0.15,
-	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"camera": {"near_start": 0.7, "distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {
 		"default": "grass",
 		"fills": [

@@ -164,7 +164,9 @@ func _ready() -> void:
 	await _frames(60)
 	await _idle()
 	# Ursule est en (20,3 ; 23,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
-	await _goto(Vector3(22.6, 0.0, 25.9), "up")
+	await _goto(Vector3(22.8, 0.0, 26.0), "up")
+	# on attend que le titre du lieu et les bandeaux de quête s'effacent : la vue ne montre que l'étal
+	await get_tree().create_timer(8.0).timeout
 	await _shot("24_etal_ursule")
 	main._open_pause()
 	await _frames(20)
@@ -206,6 +208,7 @@ func _ready() -> void:
 	await _shot("33_talents_sam")
 	main.talents.close(true)
 	await _frames(10)
+	await get_tree().create_timer(6.0).timeout
 	main.menus.open_shop("etal_ursule")
 	await _frames(10)
 	main.menus.press(0)
@@ -797,7 +800,16 @@ func _vues_only() -> void:
 	await _idle()
 	var n := 0
 	for part: String in OS.get_environment("GLAN_VUES").split(";", false):
-		if part.contains(":"):
+		if part == "!":
+			# prise de vue à l'endroit d'arrivée, sans déplacer le héros
+			main.world.input_enabled = false
+			main.hud.visible = false
+			var t_end := Time.get_ticks_msec() + 3000
+			while Time.get_ticks_msec() < t_end:
+				await get_tree().process_frame
+			await _shot("v%02d_%s_arrivee" % [n, str(main.world.map.get("id"))])
+			n += 1
+		elif part.contains(":"):
 			var q := part.split(":")
 			var c := q[1].split(",")
 			await _view_goto(Vector3(float(c[0]), float(c[2]), float(c[1])), c[3])

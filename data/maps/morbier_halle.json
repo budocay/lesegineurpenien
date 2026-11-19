@@ -12,6 +12,7 @@
 	"music": "morbier_forge",
 	"arena": "halle_piliers",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 20,
 		"pitch": 36,
 		"fov": 24,

@@ -6,7 +6,7 @@
 	"ambiance": "fondue_combe",
 	"music": "campagne",
 	"arena": "col",
-	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"camera": {"near_start": 0.7, "distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {"default": "elf_lawn", "fills": [{"type": "elf_path", "rect": [0, 10, 56, 3]}, {"type": "elf_path", "rect": [36, 7, 2, 3]}, {"type": "elf_flag", "rect": [30, 2, 14, 5]}]},
 	"heights": [{"rect": [30, 2, 14, 5], "h": 1.2}],
 	"stairs": [{"rect": [36, 7, 2, 2], "dir": "up", "from": 0.0, "to": 1.2}],

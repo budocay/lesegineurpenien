@@ -7,7 +7,7 @@
 	"music": "marais",
 	"arena": "marais",
 	"ramollissement": 0.2,
-	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"camera": {"near_start": 0.7, "distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {
 		"default": "grass",
 		"fills": [
@@ -62,13 +62,13 @@
 		{"type": "scatter", "prop": "rock", "rect": [0, 0, 40, 19], "count": 4, "min_dist": 4.0, "seed": 55},
 		{"type": "scatter", "prop": "flowers", "rect": [0, 0, 40, 19], "count": 22, "min_dist": 0.9, "seed": 56},
 		{"type": "scatter", "prop": "grass", "rect": [0, 0, 40, 19], "count": 120, "min_dist": 0.55, "seed": 57},
-		{"type": "scatter", "prop": "wheat", "rect": [0, 17, 40, 2], "count": 70, "min_dist": 0.5, "seed": 58},
-		{"type": "scatter", "prop": "wheat", "rect": [10, 13, 12, 5], "count": 40, "min_dist": 0.5, "seed": 59},
+		{"type": "scatter", "prop": "reeds", "rect": [0, 17, 40, 2], "count": 34, "min_dist": 0.5, "seed": 58},
+		{"type": "scatter", "prop": "reeds", "rect": [10, 13, 12, 5], "count": 16, "min_dist": 0.5, "seed": 59},
 		{"type": "scatter", "prop": "wheat", "rect": [8, 4, 12, 6], "count": 110, "min_dist": 0.55, "seed": 60, "on": ["soil"]},
 		{"type": "scatter", "prop": "wilted", "rect": [8, 4, 12, 6], "count": 16, "min_dist": 0.8, "seed": 61, "on": ["soil"]},
 		{"type": "scatter", "prop": "wheat", "rect": [24, 13, 12, 5], "count": 100, "min_dist": 0.55, "seed": 62, "on": ["soil"]},
 		{"type": "scatter", "prop": "wilted", "rect": [24, 13, 12, 5], "count": 14, "min_dist": 0.8, "seed": 63, "on": ["soil"]},
 		{"type": "scatter", "prop": "wheat", "rect": [32, 4, 5, 5], "count": 22, "min_dist": 0.6, "seed": 64, "on": ["soil"]},
-		{"type": "scatter", "prop": "wheat", "rect": [26, 0, 14, 12], "count": 40, "min_dist": 0.5, "seed": 65}
+		{"type": "scatter", "prop": "reeds", "rect": [26, 0, 14, 12], "count": 20, "min_dist": 0.5, "seed": 65}
 	]
 }

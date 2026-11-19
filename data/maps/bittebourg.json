@@ -14,7 +14,7 @@
 	],
 	"ramollissement": 0.1,
 	"title_focus": [23, 14],
-	"camera": {"distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
+	"camera": {"near_start": 0.7, "distance": 24, "pitch": 32, "fov": 24, "dof": 0.1},
 	"ground": {
 		"default": "grass",
 		"fills": [

@@ -12,6 +12,7 @@
 	"music": "auberge",
 	"arena": "taverne",
 	"camera": {
+		"near_start": 0.7,
 		"distance": 21,
 		"pitch": 34,
 		"fov": 24,
@@ -19,7 +20,7 @@
 		"bounds": [
 			11,
 			6.0,
-			9,
+			11,
 			7.0
 		]
 	},
