@@ -148,6 +148,7 @@ func _ready() -> void:
 	_test_reserve_catch_up()
 	_test_balourd_phase_and_breche_waves()
 	_test_decors_restes()
+	_test_help_texts()
 	if not OS.has_environment("GLAN_QUICK"):
 		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
@@ -8011,3 +8012,68 @@ func _test_decors_restes() -> void:
 		if ok:
 			var ra: Array = r
 			check(float(ra[0]) >= 0.0 and float(ra[2]) <= float(sz[0]) and float(ra[1]) >= 0.0 and float(ra[3]) <= float(sz[1]), "Isengarde : rail %s dans la carte" % str(r))
+
+
+## Textes d'aide : aucune touche écrite en dur dans les données (elles changent avec le clavier ou la manette) ;
+## on écrit {move}, {interact}, {cancel}, {menu}, {journal}, {elan} ou {choose}, que Tutorial.expand remplace à
+## l'affichage (dialogues, choix, journal, repère de quête, conseils, combats). Parcourt tout `data/` ; les
+## fichiers du chapitre 6 sont comptés à part, sans faire échouer le test.
+func _test_help_texts() -> void:
+	print("-- textes d'aide : pas de touche écrite en dur")
+	var rx := RegEx.new()
+	rx.compile("(?i)touches?\\s+(?:sur\\s+)?(?:la\\s+|le\\s+)?(?:entrée|espace|échap|tab|maj|retour|[a-z](?![a-zA-Z'’]))\\b|\\bÉchap\\b|Retour arrière|barre d'espace|\\bCtrl\\b|\\bShift\\b|avec les flèches|les flèches du clavier|clic gauche|clic droit")
+	var mk := RegEx.new()
+	mk.compile("\\{([a-z_]+)\\}")
+	var known := ["move", "interact", "cancel", "menu", "journal", "elan", "choose"]
+	var found: Array = []
+	var found6: Array = []
+	var strings := 0
+	var stack: Array = []
+	for f: String in _json_files("res://data"):
+		stack.append([f, JSON.parse_string(FileAccess.get_file_as_string(f))])
+	while not stack.is_empty():
+		var it: Array = stack.pop_back()
+		var v: Variant = it[1]
+		if v is Dictionary:
+			for k: Variant in (v as Dictionary):
+				stack.append([it[0], (v as Dictionary)[k]])
+		elif v is Array:
+			for e: Variant in (v as Array):
+				stack.append([it[0], e])
+		elif v is String:
+			strings += 1
+			var t: String = v
+			var m := rx.search(t)
+			if m != null:
+				(found6 if (it[0] as String).contains("chapitre_6") else found).append("%s : « %s »" % [(it[0] as String).get_file(), m.get_string()])
+			for mm in mk.search_all(t):
+				if not (it[0] as String).contains("chapitre_6") or true:
+					var name := mm.get_string(1)
+					if t.contains("{" + name + "}") and not known.has(name) and name.length() < 12 and not t.begins_with("{"):
+						# des accolades qui ne sont pas des marqueurs d'aide (ex. variables de texte) seraient signalées ici
+						found.append("%s : marqueur inconnu {%s}" % [(it[0] as String).get_file(), name])
+	print("   %d textes parcourus, %d touche(s) en dur, %d dans le chapitre 6 (non modifié)" % [strings, found.size(), found6.size()])
+	for x: String in found6:
+		print("   chapitre 6 : ", x)
+	check(found.is_empty(), "textes d'aide : aucune touche écrite en dur (%s)" % str(found))
+	# le remplacement : plus aucune accolade après expand, sur clavier comme sur manette
+	for pad_on: bool in [false, true]:
+		var was: bool = Tutorial.pad
+		Tutorial.pad = pad_on
+		for name: String in known:
+			var out: String = Tutorial.expand("a {%s} b" % name)
+			check(not out.contains("{") and out.length() >= 5, "Tutorial.expand {%s} (%s) : « %s »" % [name, "manette" if pad_on else "clavier", out])
+		Tutorial.pad = was
+	# l'aide de Bittebourg passe bien par les marqueurs
+	var raw := FileAccess.get_file_as_string("res://data/dialogues/chapitre_1_bittebourg.json")
+	check(raw.contains("{move}") and raw.contains("{interact}") and raw.contains("{menu}"), "Bittebourg : l'aide des commandes utilise {move}, {interact}, {menu}")
+
+
+func _json_files(dir: String) -> Array:
+	var out: Array = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".json"):
+			out.append(dir + "/" + f)
+	for d in DirAccess.get_directories_at(dir):
+		out.append_array(_json_files(dir + "/" + d))
+	return out

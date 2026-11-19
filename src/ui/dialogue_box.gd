@@ -250,7 +250,7 @@ func _advance() -> void:
 func _show_line(n: Dictionary) -> void:
 	_open_box()
 	var who := str(n.get("who", ""))
-	var body := str(n.get("text", ""))
+	var body := Tutorial.expand(str(n.get("text", "")))   # {interact}, {menu}… : touches du clavier ou de la manette
 	var portrait: Texture2D = null
 	var speaker := ""
 	if who != "":
@@ -301,7 +301,7 @@ func _show_choices() -> void:
 		if not (opt is Dictionary):
 			continue
 		var d: Dictionary = opt
-		var b := UI.menu_button(str(d.get("text", "...")), 23)
+		var b := UI.menu_button(Tutorial.expand(str(d.get("text", "..."))), 23)
 		b.pressed.connect(_on_choice.bind(d))
 		_choice_list.add_child(b)
 		if first == null:
