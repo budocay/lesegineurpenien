@@ -14,12 +14,12 @@
 			"party": [{"id": "glandoulf", "level": 20}, {"id": "isidur", "level": 20}],
 			"inventory": {"tisane": 3, "cidre": 2, "racine": 1},
 			"hints": [
-				"Chacun agit à son tour, selon sa vitesse : l'ordre est affiché en haut à gauche. Choisissez « Attaquer » avec Entrée, Espace ou E.",
+				"Chacun agit à son tour, selon sa vitesse : l'ordre est affiché en haut à gauche. Choisissez « Attaquer » avec {interact}.",
 				"Les cases sous l'ennemi sont ses faiblesses, d'abord inconnues. Sauron craint le tranchant : l'épée d'Isidur fait mouche.",
 				"Chaque coup sur une faiblesse entame le bouclier (le chiffre). À zéro, l'ennemi est Ébranlé : il passe son tour et encaisse davantage.",
 				"Les compétences coûtent du mana (PM). Essayez « Bâillement contagieux » : Sauron ne dort jamais, la torpeur lui fait très mal.",
 				"« Objets » : une tisane rend des PV, une chope de cidre du mana. « Défendre » réduit les dégâts de moitié et rend un peu de mana.",
-				"Retour arrière ou X annule un choix. Quand la vie de Sauron tombe à zéro, c'est gagné."
+				"{cancel} annule un choix. Quand la vie de Sauron tombe à zéro, c'est gagné."
 			]
 		},
 		"grande_baveuse": {

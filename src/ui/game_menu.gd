@@ -404,7 +404,8 @@ static func _member_line(id: String) -> String:
 
 
 ## Fiche d'un personnage en BBCode : niveau, PV, caractéristiques (équipement compris), emplacements, compétences.
-static func _member_detail(id: String) -> String:
+## Sans `with_slots` : la liste des emplacements n'y figure pas (l'écran d'équipement la montre déjà à gauche).
+static func _member_detail(id: String, with_slots: bool = true) -> String:
 	var ch := Database.get_character(id)
 	var m := GameState.member(id)
 	var stats := GameState.member_stats(id)
@@ -431,9 +432,9 @@ static func _member_detail(id: String) -> String:
 	var skills: Array = []
 	for s: Variant in GameState.member_skills(id):
 		skills.append(str(Database.get_skill(str(s)).get("name", s)))
-	var tail := "\n".join(slots)
+	var tail := "\n".join(slots) if with_slots else ""
 	if not skills.is_empty():
-		tail += "\n\nCompétences : " + ", ".join(skills)
+		tail += ("\n\n" if with_slots else "\n") + "Compétences : " + ", ".join(skills)
 	return UI.title_markup(str(ch.get("full_name", ch.get("name", id))), body + UI.escape_bb(tail))
 
 
@@ -687,7 +688,7 @@ func _gear(who: String, from: int, focus: int = 0) -> void:
 ## Détail d'un emplacement : l'objet porté, puis les caractéristiques du personnage.
 func _slot_markup(who: String, slot: String) -> String:
 	var worn := GameState.equipped(who, slot)
-	var sheet := _member_detail(who)
+	var sheet := _member_detail(who, false)   # les emplacements sont déjà dans la liste de gauche
 	var cut := sheet.find("\n")
 	var sheet_body := sheet.substr(cut + 1)
 	if worn == "":

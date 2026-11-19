@@ -53,9 +53,7 @@ func _ready() -> void:
 	add_entry("Sauvegarder", func() -> void: save_requested.emit(), false)
 	add_entry("Charger", func() -> void: load_requested.emit(), false)
 	add_entry("Plein écran", func() -> void: toggle_fullscreen(), false)
-	add_entry("Retour à l'écran-titre", func() -> void:
-		_remember = null
-		title_requested.emit(), false)
+	add_entry("Retour à l'écran-titre", func() -> void: title_requested.emit(), false)
 	add_entry("Quitter le jeu", func() -> void: quit_requested.emit(), false)
 
 	_message = UI.label("", 18, UI.GOLD, false, true)
@@ -109,6 +107,11 @@ func close(silent: bool = false) -> void:
 		_remember = null
 		Sfx.play("cancel")
 		resumed.emit()
+
+
+## Oublie la ligne mémorisée : la prochaine ouverture du menu repart de « Reprendre ».
+func forget() -> void:
+	_remember = null
 
 
 func notify(text: String) -> void:

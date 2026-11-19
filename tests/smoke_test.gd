@@ -64,6 +64,12 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_PAD"):   # essai ciblé de l'interface à la manette
+		await _test_gamepad_full()
+		print("%d vérifications, %d échec(s) (manette seule)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_MEASURE_C6"):   # tableau d'équilibre du chapitre 6
 		_measure_ch6()
 		get_tree().quit(0)
@@ -133,6 +139,7 @@ func _ready() -> void:
 	_test_arena_mood()
 	_test_door_clearance()
 	await _test_interior_dress()
+	await _test_gamepad_full()
 	if OS.has_environment("GLAN_QUICK"):
 		print("%d vérifications, %d échec(s) (passage rapide : règles et équilibre seulement)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
@@ -5381,7 +5388,10 @@ func _test_settings() -> void:
 	S.reset_values()
 	check(S.load_file() and S.get_value("echelle") == 70 and S.get_value("ombres") == 3 and S.get_value("musique") == 40 and S.get_value("mise_echelle") == "fsr1" and S.get_value("qualite") == "perso", "réglages : relecture à l'identique")
 	var f := FileAccess.open(test_file, FileAccess.WRITE)
-	f.store_string("[[[ pas un fichier \u0000 de réglages = = \n{{{")
+	var broken := "[[[ pas un fichier ".to_utf8_buffer()   # octet nul ajouté à la main : le littéral « \u0000 » faisait protester le compilateur à chaque lancement du test
+	broken.append(0)
+	broken.append_array(" de réglages = = \n{{{".to_utf8_buffer())
+	f.store_buffer(broken)
 	f.close()
 	check(not S.load_file() and S.get_value("echelle") == 100 and S.get_value("ombres") == 2, "réglages : fichier abîmé toléré, retour aux défauts")
 	f = FileAccess.open(test_file, FileAccess.WRITE)
@@ -7080,4 +7090,747 @@ func _test_chapter_6() -> void:
 	check(GameState.money > money_before and GameState.item_count("tartine_eternelle") >= 1, "récompenses reçues")
 	main.queue_free()
 	await get_tree().process_frame
+	GameState.new_game()
+
+
+# ------------------------------------------------- manette de bout en bout (interface 5)
+
+const PAD_DEV := 3   # numéro de manette volontairement différent de 0 (un clavier « de jeu » prend souvent le 0 sous Windows)
+
+
+## Un appui complet sur un bouton de la manette numéro 3, par la file d'entrées réelle (Input).
+func _pb(button: int, hold: int = 1) -> void:
+	var down := InputEventJoypadButton.new()
+	down.device = PAD_DEV
+	down.button_index = button as JoyButton
+	down.pressed = true
+	Input.parse_input_event(down)
+	for _i in hold:
+		await get_tree().process_frame
+	var up := InputEventJoypadButton.new()
+	up.device = PAD_DEV
+	up.button_index = button as JoyButton
+	up.pressed = false
+	Input.parse_input_event(up)
+	await get_tree().process_frame
+	await get_tree().process_frame   # l'appui agit au début de l'image, les appels différés (curseur) à sa fin : une image de plus
+
+
+## Le stick gauche poussé à `value` sur un axe, puis relâché (`hold` images entre les deux).
+func _stick(axis: int, value: float, hold: int = 2, release: bool = true) -> void:
+	var ev := InputEventJoypadMotion.new()
+	ev.device = PAD_DEV
+	ev.axis = axis as JoyAxis
+	ev.axis_value = value
+	Input.parse_input_event(ev)
+	for _i in hold:
+		await get_tree().process_frame
+	if release:
+		var rel := InputEventJoypadMotion.new()
+		rel.device = PAD_DEV
+		rel.axis = axis as JoyAxis
+		rel.axis_value = 0.0
+		Input.parse_input_event(rel)
+		await get_tree().process_frame
+
+
+func _focus_label(f: Control) -> String:
+	if f.has_meta("label"):
+		return str(f.get_meta("label"))
+	if f is Button:
+		return (f as Button).text
+	return str(f.name)
+
+
+func _focus_name() -> String:
+	var f := get_viewport().gui_get_focus_owner()
+	if f == null:
+		return "(aucun)"
+	if f.has_meta("label"):
+		return str(f.get_meta("label"))   # boutons de combat : le texte est dessiné, pas écrit
+	if f is Button:
+		return (f as Button).text
+	return str(f.name)
+
+
+## Mène le curseur, à la croix seule, sur une ligne dont le texte commence par `prefix` : vers le bas,
+## puis vers le haut si le bas ne l'a pas donnée (échec : faux).
+func _pad_to(prefix: String, limit: int = 30) -> bool:
+	for direction in [JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_UP]:
+		var last := ""
+		for _i in limit:
+			var now := _focus_name()
+			if now.begins_with(prefix):
+				return true
+			if now == last:
+				break   # au bout de la liste
+			last = now
+			await _pb(direction)
+	return _focus_name().begins_with(prefix)
+
+
+## Ce que la manette seule sait faire à l'écran-titre, aux paramètres, aux confirmations.
+func _test_pad_title(main: Node) -> void:
+	print("== Manette seule : titre, paramètres, confirmation ==")
+	Controls.set_pad(true)
+	check(_focus_name() == "Nouvelle partie", "manette : au titre sans sauvegarde, le curseur est sur « Nouvelle partie » (%s)" % _focus_name())
+	check(await _pad_to("Paramètres", 4), "manette : la croix mène à « Paramètres » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(main.settings_screen.visible, "manette : A ouvre les paramètres")
+	var first_row := _focus_name()
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() != first_row, "manette : la croix descend dans les paramètres")
+	await _pb(JOY_BUTTON_DPAD_RIGHT)
+	await _pb(JOY_BUTTON_DPAD_LEFT)
+	await _pb(JOY_BUTTON_B)
+	check(not main.settings_screen.visible and main.title.visible, "manette : B ferme les paramètres, un seul écran à la fois")
+	check(_focus_name() == "Paramètres", "manette : le curseur retrouve « Paramètres » au titre (%s)" % _focus_name())
+	check(main.title.quit_requested.is_connected(main._on_title_quit), "titre : « Quitter » passe par la confirmation")
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == "Quitter", "manette : « Quitter » sous « Paramètres » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.confirm.visible and _focus_name() == "Non", "manette : « Quitter » demande confirmation, « Non » par défaut (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == "Non", "manette : le curseur de la confirmation reste dans la confirmation")
+	await _pb(JOY_BUTTON_B)
+	check(not main.confirm.visible and main.title.visible and _focus_name() == "Quitter", "manette : B répond « non », le jeu continue (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)   # A sur « Non » : même résultat que B
+	check(not main.confirm.visible and main.title.visible, "manette : A sur « Non » referme sans quitter")
+	# « oui » : le vrai get_tree().quit() est remplacé le temps du test
+	main.title.quit_requested.disconnect(main._on_title_quit)
+	var answers: Array = []
+	main.title.quit_requested.connect(func() -> void:
+		answers.append(await main.confirm.ask("Quitter le jeu ?", "Quitter"))
+		main.title.refocus())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	check(_focus_name() == "Quitter", "manette : la croix monte sur « Oui » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(answers == [true] and not main.confirm.visible, "manette : A sur « Oui » répond oui, une seule fois (%s)" % str(answers))
+	main.title.quit_requested.get_connections().map(func(c: Dictionary) -> void: main.title.quit_requested.disconnect(c["callable"]))
+	main.title.quit_requested.connect(main._on_title_quit)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	check(_focus_name() == "Nouvelle partie", "manette : retour sur « Nouvelle partie » (%s)" % _focus_name())
+
+
+## Joue seul, à la manette, ce qui se présente (dialogue, combat, conseil) jusqu'à ce que `done` soit vrai.
+## Renvoie le nombre d'appuis donnés (un bouton par image au plus : jamais deux fois le même appui).
+func _pad_drive(main: Node, done: Callable, max_frames: int = 20000, attack_only: bool = true) -> int:
+	var presses := 0
+	for _i in max_frames:
+		if done.call():
+			return presses
+		if Tutorial._modal and Tutorial._guard <= 0.0:
+			await _pb(JOY_BUTTON_A)
+			presses += 1
+		elif main.battle != null and main.battle_ui.visible and main.battle_ui._state in [main.battle_ui.S.ROOT, main.battle_ui.S.TARGET]:
+			await _pb(JOY_BUTTON_A)   # « Attaquer », puis la cible proposée
+			presses += 1
+		elif main.battle != null and main.battle_ui.visible and main.battle_ui._state == main.battle_ui.S.LIST:
+			await _pb(JOY_BUTTON_B)
+			presses += 1
+		elif main.battle != null and main.battle_ui._end_layer.visible and main.battle_ui._state == main.battle_ui.S.END:
+			await _pb(JOY_BUTTON_A)   # « Continuer »
+			presses += 1
+		elif main.dialogue.active and main.dialogue.visible and not main.dialogue.waiting:
+			await _pb(JOY_BUTTON_A)
+			presses += 1
+		else:
+			await get_tree().process_frame
+	return presses
+
+
+## Marche au stick, zone morte, dialogue qui avance d'une réplique par appui, menu de pause et journal.
+func _test_pad_world(main: Node) -> void:
+	print("== Manette seule : exploration, dialogue, pause, journal ==")
+	GameState.add_to_party("sam")
+	GameState.add_item("baton_ferre")
+	GameState.add_item("tisane", 2)
+	GameState.money = 600
+	GameState.set_flag("intro_vue")
+	var w: Node3D = main.world
+	var x0: float = w.player.position.x
+	await _stick(JOY_AXIS_LEFT_X, -0.2, 30)
+	check(absf(w.player.position.x - x0) < 0.05, "stick : en dessous de la zone morte, le personnage ne bouge pas (%.3f)" % (w.player.position.x - x0))
+	await _stick(JOY_AXIS_LEFT_X, -0.9, 30)
+	var x1: float = w.player.position.x
+	check(x1 < x0 - 0.3, "stick : poussé à gauche, le personnage avance (%.2f -> %.2f)" % [x0, x1])
+	for _i in 6:
+		await get_tree().process_frame
+	check(absf(w.player.position.x - w.player.position.x) < 0.01 and absf(w.player.position.x - x1) < 1.2, "stick : relâché, le personnage s'arrête")
+	var x2: float = w.player.position.x
+	for _i in 20:
+		await get_tree().process_frame
+	check(absf(w.player.position.x - x2) < 0.02, "stick : relâché, il ne reste pas collé (%.3f)" % (w.player.position.x - x2))
+	await _pb(JOY_BUTTON_DPAD_RIGHT, 20)
+	check(w.player.position.x > x2 + 0.2, "croix : la croix directionnelle marche aussi")
+	# un dialogue sur mesure : trois répliques puis un choix ; un appui sur A = une seule chose
+	Database.dialogues["_pad"] = [
+		{"text": "Réplique un, assez longue pour taper un moment sur le clavier de la boîte."},
+		{"text": "Réplique deux."},
+		{"text": "Réplique trois."},
+		{"choice": [
+			{"text": "Premier choix", "then": [{"set": "pad_choix_a"}, {"text": "Après le premier."}]},
+			{"text": "Second choix", "then": [{"set": "pad_choix_b"}, {"text": "Après le second."}, {"text": "Fin."}]},
+		]},
+		{"text": "Dernière."},
+	]
+	main.run_dialogue("_pad")
+	await get_tree().process_frame
+	var d: Control = main.dialogue
+	check(d.active and d._text.get_parsed_text().begins_with("Réplique un"), "dialogue : la première réplique s'affiche")
+	await _pb(JOY_BUTTON_A)
+	check(d._text.get_parsed_text().begins_with("Réplique un") and not d._typing, "dialogue : A pendant la frappe affiche la réplique entière, sans passer à la suivante")
+	await _pb(JOY_BUTTON_A)
+	check(d._text.get_parsed_text().begins_with("Réplique deux"), "dialogue : le deuxième A passe à la réplique deux, une seule (%s)" % d._text.get_parsed_text())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(d._text.get_parsed_text().begins_with("Réplique trois"), "dialogue : encore un appui complet = la réplique trois (%s)" % d._text.get_parsed_text())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(d._choosing and d._choice_panel.visible, "dialogue : le choix s'affiche")
+	var focus_a := _focus_name()
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() != focus_a and _focus_name() == "Second choix", "dialogue : la croix passe au second choix (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	await _pb(JOY_BUTTON_A)
+	check(GameState.has_flag("pad_choix_b") and not GameState.has_flag("pad_choix_a"), "dialogue : A valide le choix sous le curseur")
+	check(d._text.get_parsed_text().begins_with("Après le second"), "dialogue : A sur un choix ne passe pas la réplique suivante (%s)" % d._text.get_parsed_text())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(d._text.get_parsed_text().begins_with("Fin"), "dialogue : la réplique suivante vient à l'appui suivant (%s)" % d._text.get_parsed_text())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(d._text.get_parsed_text().begins_with("Dernière"), "dialogue : la suite du dialogue reprend après le choix (%s)" % d._text.get_parsed_text())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(not d.active and w.input_enabled, "dialogue : le dernier A le ferme et rend la main, sans rouvrir de dialogue")
+	check(not d.visible, "dialogue : la boîte est refermée")
+	# interaction : A devant un personnage ouvre son dialogue
+	var talked := false
+	for it: Dictionary in w.interactables:
+		if not Database.has_dialogue(str(it.get("dialogue", ""))):
+			continue
+		w.player.position = w.interactable_position(it) + Vector3(-1.0, 0.0, 0.0)
+		w.player.set_facing("right")
+		for _i in 3:
+			await get_tree().process_frame
+		if w.focus.is_empty():
+			continue
+		await get_tree().create_timer(0.4).timeout   # le jeu laisse passer un quart de seconde après un dialogue avant d'écouter A
+		await _pb(JOY_BUTTON_A)
+		talked = main.dialogue.active
+		break
+	check(talked, "interaction : A devant un personnage ouvre son dialogue")
+	var guard := 0
+	while main.dialogue.active and guard < 400:
+		guard += 1
+		if main.menus.visible:
+			main.menus.close()
+		if main.battle != null:
+			break
+		await _pb(JOY_BUTTON_A)
+	await _wait_idle(main, 10.0)
+	main.world.set_input(true)
+	# pause : Start ouvre, Start referme, B referme ; Y ouvre le journal, Y ou B le referme
+	await _pb(JOY_BUTTON_START)
+	check(main.pause.visible, "Start : ouvre le menu de pause")
+	await _pb(JOY_BUTTON_START)
+	check(not main.pause.visible and main.world.input_enabled, "Start : le referme, la main revient au jeu")
+	await _pb(JOY_BUTTON_START)
+	await _pb(JOY_BUTTON_B)
+	check(not main.pause.visible and main.world.input_enabled, "B : ferme le menu de pause (un seul écran, jeu repris)")
+	await _pb(JOY_BUTTON_Y)
+	check(main.menus.visible and main.menus._title.text == "Journal de quêtes", "Y : ouvre le journal des quêtes (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_Y)
+	check(not main.menus.visible and not main.pause.visible and main.world.input_enabled, "Y : referme le journal et rend la main")
+	await _pb(JOY_BUTTON_Y)
+	await _pb(JOY_BUTTON_B)
+	check(not main.menus.visible and not main.pause.visible and main.world.input_enabled, "B : ferme le journal, une seule fois (pas de pause derrière)")
+	await _pb(JOY_BUTTON_START)
+	check(main.pause.visible and _focus_name() == "Reprendre", "pause : le curseur est sur « Reprendre » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(not main.pause.visible and main.world.input_enabled, "pause : A sur « Reprendre » rend la main, une seule fois")
+	await get_tree().process_frame
+
+
+func _pad_settle(main: Node, frames: int = 600) -> void:
+	for _i in frames:
+		await get_tree().process_frame
+		if not main.busy:
+			return
+
+
+## Équipe, équipement, « Retirer », inventaire, boutique, talents, sauvegardes : tout à la manette.
+func _test_pad_menus(main: Node) -> void:
+	print("== Manette seule : équipe, équipement, inventaire, boutique, talents, sauvegardes ==")
+	var slot0: String = GameState.SLOTS[0]
+	GameState.unequip("glandoulf", slot0)
+	GameState.member("glandoulf")["level"] = 4
+	GameState.member("sam")["level"] = 3
+	await _pb(JOY_BUTTON_START)
+	check(main.pause.visible, "menus : la pause est ouverte")
+	check(await _pad_to("Équipe", 6), "pause : la croix mène à « Équipe » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.menus.visible and str(main.menus._title.text).begins_with("Équipe") and not main.pause.visible, "pause : A ouvre l'équipe, la pause se range")
+	check(_focus_name().begins_with("Glandoulf"), "équipe : le curseur est sur Glandoulf (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.menus._title.text == "Glandoulf", "équipe : A ouvre la fiche (%s)" % main.menus._title.text)
+	check(_focus_name() == "Équipement", "fiche : le curseur est sur « Équipement » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).begins_with("Équipement de"), "fiche : A ouvre l'équipement (%s)" % main.menus._title.text)
+	check(_focus_name().begins_with("Arme"), "équipement : le curseur est sur l'arme (%s)" % _focus_name())
+	var detail_plain: String = main.menus._detail.get_parsed_text()
+	var shown := 0
+	for slot: String in GameState.SLOTS:
+		if detail_plain.contains(str(GameState.SLOT_NAMES[slot]) + " :"):
+			shown += 1
+	check(shown == 0, "équipement : la liste des emplacements n'est pas répétée dans le détail (%d répétés)" % shown)
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).begins_with("Arme de"), "équipement : A sur l'arme ouvre le choix (%s)" % main.menus._title.text)
+	check(_focus_name().begins_with("Bâton ferré") or _focus_name().begins_with("Bâton"), "équipement : le sac propose un bâton (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(GameState.equipped("glandoulf", slot0) != "" and str(main.menus._title.text).begins_with("Équipement de"), "équipement : A équipe l'objet et revient à la liste (%s)" % GameState.equipped("glandoulf", slot0))
+	var worn := GameState.equipped("glandoulf", slot0)
+	await _pb(JOY_BUTTON_A)
+	check(await _pad_to("Retirer", 12), "équipement : « Retirer » est dans la liste, atteignable à la croix (%s)" % _focus_name())
+	var bag_before := GameState.item_count(worn)
+	await _pb(JOY_BUTTON_A)
+	check(GameState.equipped("glandoulf", slot0) == "" and GameState.item_count(worn) == bag_before + 1, "équipement : A sur « Retirer » remet l'objet dans le sac, une seule fois")
+	check(str(main.menus._title.text).begins_with("Équipement de"), "équipement : retour à la liste après « Retirer »")
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_B)
+	check(str(main.menus._title.text).begins_with("Équipement de"), "B : du choix d'objet à la liste, un seul niveau (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_B)
+	check(main.menus._title.text == "Glandoulf", "B : de la liste à la fiche (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_B)
+	check(str(main.menus._title.text).begins_with("Équipe"), "B : de la fiche à l'équipe (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_B)
+	check(not main.menus.visible and main.pause.visible, "B : de l'équipe à la pause, sans fermer la pause (%s)" % str(main.pause.visible))
+	# inventaire : utiliser un objet sur un allié
+	GameState.member("glandoulf")["hp"] = 3
+	var tisanes := GameState.item_count("tisane")
+	check(await _pad_to("Inventaire"), "pause : « Inventaire » à la croix")
+	await _pb(JOY_BUTTON_A)
+	check(main.menus._title.text == "Inventaire", "inventaire : ouvert (%s)" % main.menus._title.text)
+	check(await _pad_to("Tisane", 12), "inventaire : la croix mène à la tisane (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.menus._title.text == "Pour qui ?", "inventaire : A demande pour qui (%s)" % main.menus._title.text)
+	check(_focus_name().begins_with("Glandoulf"), "inventaire : le curseur est sur le premier allié (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(GameState.item_count("tisane") == tisanes - 1 and int(GameState.member("glandoulf")["hp"]) > 3, "inventaire : A utilise une tisane sur Glandoulf, une seule (%d -> %d)" % [tisanes, GameState.item_count("tisane")])
+	await _pb(JOY_BUTTON_B)
+	check(main.menus._title.text == "Inventaire", "inventaire : B revient à la liste (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_B)
+	check(not main.menus.visible and main.pause.visible, "inventaire : B revient à la pause")
+	# talents
+	var okt: bool = await _pad_to("Talents")
+	check(okt, "pause : « Talents » à la croix (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.talents.visible and not main.pause.visible, "talents : A ouvre l'écran des talents")
+	var who0: String = main.talents.who
+	await _pb(JOY_BUTTON_RIGHT_SHOULDER)
+	check(main.talents.who != who0, "talents : RB passe au personnage suivant, d'un seul cran (%s -> %s)" % [who0, main.talents.who])
+	await _pb(JOY_BUTTON_LEFT_SHOULDER)
+	check(main.talents.who == who0, "talents : LB revient au précédent (%s)" % main.talents.who)
+	var points_before := GameState.talent_points(main.talents.who)
+	var learned := false
+	for _i in 12:
+		var id := str(main.talents._focused)
+		if id != "" and main.talents.state_of(id) == "available":
+			await _pb(JOY_BUTTON_A)
+			learned = true
+			break
+		await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(learned and GameState.talent_points(main.talents.who) < points_before, "talents : la croix parcourt les voies, A apprend un talent (%d -> %d points)" % [points_before, GameState.talent_points(main.talents.who)])
+	await _pb(JOY_BUTTON_B)
+	check(not main.talents.visible and main.pause.visible, "talents : B revient à la pause")
+	await _pb(JOY_BUTTON_B)
+	check(not main.pause.visible and main.world.input_enabled, "pause : B referme (un seul écran à la fois)")
+	# boutique
+	main.world.set_input(false)
+	main.menus.open_shop("marche_sidonie")
+	await get_tree().process_frame
+	check(main.menus._title.text == "L'étal de Sidonie" and _focus_name() == "Acheter", "boutique : ouverte sur « Acheter » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).ends_with("acheter"), "boutique : A ouvre la liste d'achat (%s)" % main.menus._title.text)
+	var money := GameState.money
+	var first := _focus_name()
+	await _pb(JOY_BUTTON_DPAD_RIGHT)
+	await _pb(JOY_BUTTON_DPAD_LEFT)
+	check(_focus_name() == first, "boutique : gauche / droite changent de personnage sans déplacer le curseur")
+	var tisane_buy := GameState.item_count("tisane")
+	await _pb(JOY_BUTTON_A)
+	check(GameState.money < money and money - GameState.money < 200, "boutique : A achète, une seule fois (%d -> %d écus)" % [money, GameState.money])
+	var after_buy := GameState.money
+	await _pb(JOY_BUTTON_B)
+	check(main.menus._title.text == "L'étal de Sidonie", "boutique : B revient à l'accueil (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == "Vendre", "boutique : la croix mène à « Vendre » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).ends_with("vendre"), "boutique : A ouvre la vente (%s)" % main.menus._title.text)
+	var stock_sell := GameState.item_count("tisane")
+	var before_sell := GameState.money
+	await _pb(JOY_BUTTON_A)
+	check(GameState.money > before_sell, "boutique : A vend, une seule fois (%d -> %d écus)" % [before_sell, GameState.money])
+	await _pb(JOY_BUTTON_B)
+	check(await _pad_to("Partir", 4), "boutique : « Partir » à la croix")
+	await _pb(JOY_BUTTON_A)
+	check(not main.menus.visible, "boutique : A sur « Partir » ferme la boutique")
+	main.world.set_input(true)
+	if tisane_buy < 0 or stock_sell < 0 or after_buy < 0:
+		check(false, "inutile")
+	# sauvegardes : sauver, écraser, effacer avec X
+	var sv: Control = main.saves
+	await _pb(JOY_BUTTON_START)
+	check(await _pad_to("Sauvegarder"), "pause : « Sauvegarder » à la croix (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(sv.visible and sv.mode == "save" and not main.pause.visible, "sauvegardes : A ouvre la liste")
+	var slot_id: String = sv._focused_id()
+	check(slot_id != "", "sauvegardes : le curseur est sur un emplacement (%s)" % slot_id)
+	SaveManager.delete_slot(slot_id)
+	sv._rebuild(slot_id)
+	await get_tree().process_frame
+	await _pb(JOY_BUTTON_A)
+	check(FileAccess.file_exists(SaveManager.slot_path(slot_id)) and not sv.visible and main.pause.visible, "sauvegardes : A sur un emplacement libre sauvegarde et rend la pause")
+	await _pad_to("Sauvegarder")
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(sv.is_modal_open() and _focus_name() == "Annuler", "sauvegardes : A sur un emplacement occupé demande confirmation, « Annuler » d'abord (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	check(not sv.is_modal_open() and sv.visible, "sauvegardes : B ferme la confirmation seule, la liste reste")
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	check(_focus_name() == "Écraser", "sauvegardes : la croix monte sur « Écraser » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(not sv.visible and main.pause.visible, "sauvegardes : A sur « Écraser » sauvegarde et rend la pause, une seule fois")
+	await _pad_to("Sauvegarder")
+	await _pb(JOY_BUTTON_A)
+	slot_id = sv._focused_id()
+	await _pb(JOY_BUTTON_X)
+	check(sv.is_modal_open() and _focus_name() == "Annuler", "sauvegardes : X propose d'effacer, « Annuler » d'abord (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(not sv.is_modal_open() and FileAccess.file_exists(SaveManager.slot_path(slot_id)), "sauvegardes : A sur « Annuler » n'efface rien")
+	await _pb(JOY_BUTTON_X)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_A)
+	check(not FileAccess.file_exists(SaveManager.slot_path(slot_id)) and sv.visible and not sv.is_modal_open(), "sauvegardes : X, haut, A efface l'emplacement et laisse la liste")
+	await _pb(JOY_BUTTON_B)
+	check(not sv.visible and main.pause.visible, "sauvegardes : B revient à la pause")
+	await _pb(JOY_BUTTON_B)
+	check(not main.pause.visible and main.world.input_enabled, "pause : B referme")
+
+
+## Quitter, retour au titre (avec confirmation), « Continuer » et « Charger » à la manette.
+func _test_pad_leave(main: Node) -> void:
+	print("== Manette seule : confirmations, titre, continuer, charger ==")
+	SaveManager.save_game("m2")
+	await _pb(JOY_BUTTON_START)
+	await _pad_to("Reprendre")
+	# stick : zone morte, un cran à la fois, répétition régulière tenu, relâché il s'arrête
+	var names: Array = []
+	var list_ctl: Control = get_viewport().gui_get_focus_owner().get_parent()
+	for c in list_ctl.get_children():
+		if c is Button and c.focus_mode != Control.FOCUS_NONE:
+			names.append(_focus_label(c))
+	var start := _focus_name()
+	await _stick(JOY_AXIS_LEFT_Y, 0.2, 6)   # sous la zone morte : rien
+	check(_focus_name() == start, "stick : sous la zone morte, rien ne bouge (%s)" % _focus_name())
+	await _stick(JOY_AXIS_LEFT_Y, 0.9, 3)   # appui bref : un seul cran
+	var one := _focus_name()
+	check(names.find(one) == (names.find(start) + 1) % names.size(), "stick : un appui bref avance d'un seul cran (%s -> %s)" % [start, one])
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 1)
+	var moves := 0
+	var prev := _focus_name()
+	var big_jump := false
+	await _stick(JOY_AXIS_LEFT_Y, 0.9, 0, false)
+	for _i in 90:   # une seconde et demie tenue
+		await get_tree().process_frame
+		var now := _focus_name()
+		if now != prev:
+			moves += 1
+			if (names.find(now) - names.find(prev) + names.size()) % names.size() != 1:
+				big_jump = true
+			prev = now
+	await _stick(JOY_AXIS_LEFT_Y, 0.0, 2)
+	var at_release := _focus_name()
+	for _i in 30:
+		await get_tree().process_frame
+	check(not big_jump, "stick : tenu, il ne saute jamais deux lignes à la fois")
+	check(moves >= 1 and moves <= 12, "stick : tenu, répétition régulière sans emballement (%d crans en 1,5 s)" % moves)
+	check(_focus_name() == at_release, "stick : relâché, il s'arrête net")
+	await _pad_to("Reprendre")
+	check(await _pad_to("Quitter le jeu"), "pause : « Quitter le jeu » à la croix (%s)" % _focus_name())
+	check(main.pause.quit_requested.is_connected(main._on_pause_quit), "pause : « Quitter le jeu » passe par la confirmation")
+	await _pb(JOY_BUTTON_A)
+	check(main.confirm.visible and not main.pause.visible and _focus_name() == "Non", "pause : « Quitter » demande confirmation, « Non » par défaut (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	check(not main.confirm.visible and main.pause.visible and _focus_name().begins_with("Quitter le jeu"), "pause : B répond « non », la pause revient sur la même ligne (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	check(not main.confirm.visible and main.pause.visible, "pause : A sur « Non » revient à la pause sans quitter")
+	# « oui » à « Quitter » : le vrai get_tree().quit() est remplacé le temps du test
+	main.pause.quit_requested.disconnect(main._on_pause_quit)
+	var answers: Array = []
+	main.pause.quit_requested.connect(func() -> void:
+		main.pause.close(true)
+		answers.append(await main.confirm.ask("Quitter le jeu ?", "Quitter")))
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_A)
+	check(answers == [true], "pause : A sur « Oui » répond oui, une seule fois (%s)" % str(answers))
+	main.pause.open("Test")
+	await get_tree().process_frame
+	# retour à l'écran-titre
+	check(await _pad_to("Retour à l'écran-titre"), "pause : « Retour à l'écran-titre » à la croix (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.confirm.visible and _focus_name() == "Non", "titre : le retour demande confirmation, « Non » par défaut (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	check(main.mode == main.Mode.PLAY and main.pause.visible, "titre : « non » garde la partie en cours")
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_A)
+	await _wait_idle(main, 30.0)
+	check(main.mode == main.Mode.TITLE and main.title.visible, "titre : A sur « Oui » revient à l'écran-titre")
+	check(_focus_name() == "Continuer", "titre : avec une sauvegarde, le curseur est sur « Continuer » (%s)" % _focus_name())
+	check(await _pad_to("Charger"), "titre : « Charger » à la croix (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.saves.visible and main.saves.mode == "load", "titre : A ouvre la liste des sauvegardes")
+	await _pb(JOY_BUTTON_B)
+	check(not main.saves.visible and main.title.visible and _focus_name() == "Charger", "titre : B revient au titre sur « Charger » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_A)
+	await _pad_settle(main)
+	await _wait_idle(main, 30.0)
+	check(main.mode == main.Mode.PLAY and main.world != null, "titre : A sur une sauvegarde reprend la partie")
+	check(not main.title.visible and not main.saves.visible, "titre : plus d'écran de trop après le chargement")
+	await _pb(JOY_BUTTON_START)
+	await _pb(JOY_BUTTON_B)
+
+
+## Un combat entier à la manette : attaque, choix de cible, annulation, compétence, élan, objet, défense, victoire, fuite, défaite.
+func _test_pad_battle() -> void:
+	print("== Manette seule : combat entier ==")
+	Controls.set_pad(true)
+	GameState.new_game()
+	GameState.add_to_party("sam")
+	GameState.member("glandoulf")["level"] = 5
+	GameState.member("sam")["level"] = 5
+	GameState.add_item("tisane", 3)
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var ui: Control = BattleUI.new()
+	layer.add_child(ui)
+	await get_tree().process_frame
+	var scene: Node3D = BattleScene.new()
+	add_child(scene)
+	scene.fast = true
+	scene.setup({"enemies": ["limace_molle", "guepe_cidre", "limace_molle"], "arena": "pre"}, ui, 11)
+	scene.run()
+	var S: Dictionary = {}
+	for name: String in ["IDLE", "ROOT", "LIST", "TARGET", "END"]:
+		S[name] = ui.S[name]
+	var turn := 0
+	var saw := {"cancel_target": false, "cycle": false, "stick": false, "list": false, "cancel_list": false, "item": false, "defend": false, "elan": false}
+	for _i in 12000:
+		await get_tree().process_frame
+		if str(scene.outcome) != "":
+			break
+		if ui._state == S["END"] and ui._end_layer.visible:
+			await get_tree().process_frame
+			await get_tree().process_frame
+			saw["victory"] = _focus_name() == "Continuer"
+			if not saw["victory"]:
+					await _pb(JOY_BUTTON_A)
+			continue
+		if ui._state != S["ROOT"] or ui._actor == null or not ui._menu_box.visible:
+			continue
+		await get_tree().process_frame
+		turn += 1
+		if turn == 1:
+			check(_focus_name() == "Attaquer", "combat : le menu s'ouvre sur « Attaquer » (%s)" % _focus_name())
+			await _pb(JOY_BUTTON_A)
+			check(ui._state == S["TARGET"], "combat : A sur « Attaquer » demande la cible")
+			var n: int = ui._cands.size()
+			var i0: int = ui._index
+			await _pb(JOY_BUTTON_DPAD_RIGHT)
+			saw["cycle"] = n > 1 and ui._index == posmod(i0 + 1, n)
+			var i1: int = ui._index
+			await _stick(JOY_AXIS_LEFT_X, 0.9, 4)
+			saw["stick"] = n > 1 and ui._index == posmod(i1 + 1, n)
+			await _pb(JOY_BUTTON_B)
+			saw["cancel_target"] = ui._state == S["ROOT"] and _focus_name() == "Attaquer"
+			await _pb(JOY_BUTTON_A)
+			await _pb(JOY_BUTTON_A)
+		elif turn == 2:
+			await _pb(JOY_BUTTON_DPAD_DOWN)
+			check(_focus_name() == "Compétences", "combat : la croix descend sur « Compétences » (%s)" % _focus_name())
+			await _pb(JOY_BUTTON_A)
+			saw["list"] = ui._state == S["LIST"]
+			await _pb(JOY_BUTTON_B)
+			saw["cancel_list"] = ui._state == S["ROOT"] and _focus_name() == "Compétences"
+			await _pb(JOY_BUTTON_A)
+			for _k in 6:
+				var f := get_viewport().gui_get_focus_owner()
+				if f is Button and not (f as Button).disabled:
+					break
+				await _pb(JOY_BUTTON_DPAD_DOWN)
+			await _pb(JOY_BUTTON_A)
+			if ui._state == S["TARGET"]:
+				await _pb(JOY_BUTTON_A)
+		elif turn == 3:
+			var before: int = ui._elan_commit
+			await _pb(JOY_BUTTON_DPAD_RIGHT)
+			saw["elan"] = ui._elan_commit - before <= 1
+			await _pb(JOY_BUTTON_DPAD_LEFT)
+			check(ui._elan_commit == before, "combat : droite puis gauche reviennent au même élan (%d)" % ui._elan_commit)
+			await _pb(JOY_BUTTON_A)
+			await _pb(JOY_BUTTON_A)
+		elif turn == 4:
+			if await _pad_to("Objets"):
+				await _pb(JOY_BUTTON_A)
+				if ui._state == S["LIST"]:
+					await _pb(JOY_BUTTON_A)
+					if ui._state == S["TARGET"]:
+						await _pb(JOY_BUTTON_A)
+						saw["item"] = true
+		elif turn == 5:
+			if await _pad_to("Défendre"):
+				await _pb(JOY_BUTTON_A)
+				saw["defend"] = true
+		else:
+			await _pb(JOY_BUTTON_A)
+			await _pb(JOY_BUTTON_A)
+	for key: String in saw:
+		check(bool(saw[key]), "combat à la manette : « %s » fonctionne" % key)
+	check(str(scene.outcome) in ["victory"], "combat à la manette : victoire (issue : %s, %d tours d'équipe)" % [str(scene.outcome), turn])
+	ui.close()
+	remove_child(scene)
+	scene.queue_free()
+	# fuite
+	scene = BattleScene.new()
+	add_child(scene)
+	scene.fast = true
+	scene.setup({"enemies": ["limace_molle"], "arena": "pre", "flee": true}, ui, 5)
+	scene.run()
+	for _i in 600:
+		await get_tree().process_frame
+		if ui._state == S["ROOT"] and ui._menu_box.visible:
+			break
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(await _pad_to("Fuir"), "combat : « Fuir » à la croix (%s)" % _focus_name())
+	for _try in 20:   # la fuite réussit au hasard : on retente
+		await _pb(JOY_BUTTON_A)
+		for _i in 300:
+			await get_tree().process_frame
+			if str(scene.outcome) != "" or (ui._state == S["ROOT"] and ui._menu_box.visible):
+				break
+		if str(scene.outcome) != "":
+			break
+		await _pad_to("Fuir")
+	check(str(scene.outcome) == "fled", "combat : A sur « Fuir » fait fuir (issue : %s)" % str(scene.outcome))
+	ui.close()
+	remove_child(scene)
+	scene.queue_free()
+	# défaite : « Recommencer » par défaut, la croix descend, A valide
+	ui.visible = true
+	var vres := [false]
+	var vshow := func() -> void:
+		await ui.show_victory({"xp": 12, "money": 4, "drops": {"tisane": 1}}, false)
+		vres[0] = true
+	vshow.call()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(_focus_name() == "Continuer", "victoire : le curseur est sur « Continuer » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(vres[0] and not ui._end_layer.visible, "victoire : A sur « Continuer » referme l'écran, une seule fois")
+	var res := [""]
+	var show := func() -> void: res[0] = await ui.show_defeat()
+	show.call()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(_focus_name() == "Recommencer le combat", "défaite : le curseur est sur « Recommencer le combat » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() != "Recommencer le combat", "défaite : la croix descend (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_DPAD_UP)
+	await _pb(JOY_BUTTON_A)
+	check(res[0] == "retry", "défaite : A sur « Recommencer » renvoie « retry » (%s)" % res[0])
+	ui.close()
+	layer.queue_free()
+	await get_tree().process_frame
+
+
+## Conseils de jeu : aucun nom de touche du clavier à la manette, et A referme un conseil qui suspend le jeu.
+func _test_pad_tips(main: Node) -> void:
+	print("== Manette seule : conseils de jeu ==")
+	Controls.set_pad(true)
+	var keyboard_words := ["Entrée", "Échap", "Espace", "Tab ", "Flèches", "Retour arrière", "touche ", "clic", "souris"]
+	var offenders: Array = []
+	for id: Variant in Tutorial.by_id:
+		var view: Dictionary = Tutorial.resolve(Tutorial.by_id[id])
+		var blob := str(view.get("text", "")) + " " + str(view.get("title", ""))
+		for w: String in keyboard_words:
+			if blob.contains(w):
+				offenders.append("%s (%s)" % [str(id), w])
+	check(offenders.is_empty(), "conseils : à la manette, aucun nom de touche du clavier (%s)" % str(offenders))
+	var closed := [false]
+	var tip: Dictionary = Tutorial.by_id["boutique"]
+	var run := func() -> void:
+		await Tutorial._show_modal(tip)
+		closed[0] = true
+	run.call()
+	await get_tree().process_frame
+	check(Tutorial._modal, "conseils : le conseil suspend le jeu")
+	var t0 := Time.get_ticks_msec()
+	while Tutorial._guard > 0.0 and Time.get_ticks_msec() - t0 < 3000:
+		await get_tree().process_frame
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(closed[0] and not Tutorial._modal, "conseils : A referme le conseil, une seule fois")
+
+
+func _test_gamepad_full() -> void:
+	var pad_before := Controls.pad
+	SaveManager.delete_save()
+	var main: Node = MAIN.instantiate()
+	add_child(main)
+	await _wait_idle(main)
+	await _test_pad_title(main)
+	# Nouvelle partie à la manette : le prologue (dialogues, puis combat) se joue sans clavier
+	await _pb(JOY_BUTTON_A)
+	var t0 := Time.get_ticks_msec()
+	var presses := await _pad_drive(main, func() -> bool: return main.mode == main.Mode.PLAY and main.world != null and main.world.input_enabled and not main.busy and not main.dialogue.active)
+	check(main.mode == main.Mode.PLAY and GameState.has_flag("prologue_vu"), "manette : le prologue se joue à la manette seule (%d appuis, %.0f s)" % [presses, (Time.get_ticks_msec() - t0) / 1000.0])
+	check(GameState.has_flag("combat_prologue_sauron"), "manette : le combat du prologue est gagné par attaques à la manette")
+	await _test_pad_world(main)
+	await _test_pad_menus(main)
+	await _test_pad_leave(main)
+	await _test_pad_tips(main)
+	main.queue_free()
+	await get_tree().process_frame
+	await _test_pad_battle()
+	# fichier de sauvegarde plein d'octets nuls : lecture sans message ni plantage
+	var nul := PackedByteArray([123, 0, 0, 0, 125])
+	var nf := FileAccess.open(SaveManager.slot_path("nul_test"), FileAccess.WRITE)
+	nf.store_buffer(nul)
+	nf.close()
+	check(SaveManager._read_file(SaveManager.slot_path("nul_test")).is_empty(), "sauvegarde : un fichier à octets nuls se lit comme vide")
+	DirAccess.remove_absolute(SaveManager.slot_path("nul_test"))
+	# textes d'aide : jamais de nom de touche du clavier quand la manette est active
+	Controls.set_pad(true)
+	var hints_txt := Tutorial.expand("avec {interact}, {cancel} annule")
+	check(hints_txt == "avec A, B annule", "aide : les indications du combat parlent des boutons de la manette (%s)" % hints_txt)
+	check(not Settings.help("mode").contains("touche F"), "aide : pas de « touche F » à la manette")
+	Controls.set_pad(false)
+	check(not Tutorial.expand("{interact}").contains("A"), "aide : au clavier, une touche (%s)" % Tutorial.expand("{interact}"))
+	check(Settings.help("mode").contains("touche F"), "aide : au clavier, « touche F » reste")
+	Controls.set_pad(pad_before)
+	await get_tree().process_frame
+	Controls.set_pad(pad_before)
 	GameState.new_game()

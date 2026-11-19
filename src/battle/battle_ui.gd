@@ -907,7 +907,7 @@ func announce(text: String, duration: float = 1.4) -> void:
 
 func show_hint(text: String) -> void:
 	_hint.visible = text != ""
-	_hint_label.text = text
+	_hint_label.text = Tutorial.expand(text)   # {interact}, {cancel} : touches du clavier ou de la manette
 	_hint.reset_size()
 
 
@@ -1389,13 +1389,16 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 					continue
 				var bad := false
 				for t: Rect2 in taken:
-					if r.grow(3.0).intersects(t):
+					if r.grow(10.0).intersects(t):   # le contour du nom ajoute 2 px de chaque côté : deux noms jumeaux ne se touchent jamais
 						bad = true
 						break
 				if bad:
 					continue
 				for o: String in keys:
-					if o != k and r.intersects((own[o] as Rect2).grow(-4.0)):
+					var orect: Rect2 = own[o]
+					if minf(orect.size.x, orect.size.y) > 8.0:
+						orect = orect.grow(-4.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
+					if o != k and r.intersects(orect):
 						bad = true
 						break
 				if bad:
@@ -1641,6 +1644,8 @@ func show_defeat(before_slot: String = "") -> String:
 		_end_button(box, "Revenir avant le combat", "before")
 	var load_btn := _end_button(box, "Charger une sauvegarde", "load")
 	load_btn.disabled = not SaveManager.has_save() or save_screen == null
+	if load_btn.disabled:
+		load_btn.focus_mode = Control.FOCUS_NONE   # une ligne grisée ne reçoit pas le curseur
 	_end_button(box, "Retour à l'écran-titre", "title")
 	retry.grab_focus.call_deferred()
 	var value := ""
@@ -1657,6 +1662,6 @@ func show_defeat(before_slot: String = "") -> String:
 		if chosen != "":
 			value = "load:" + chosen
 			break
-		load_btn.grab_focus.call_deferred()
+		(load_btn if load_btn.focus_mode != Control.FOCUS_NONE else retry).grab_focus.call_deferred()
 	_end_layer.visible = false
 	return value

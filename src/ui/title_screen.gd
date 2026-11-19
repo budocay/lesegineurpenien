@@ -122,7 +122,7 @@ func _ready() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 26)
 	box.add_child(gap)
-	box.add_child(UI.hints([["walk", "se déplacer"], ["talk", "parler, valider"], ["menu", "menu"], ["fullscreen", "plein écran"]], 15))
+	box.add_child(UI.hints([["nav", "choisir"], ["ok", "valider"], ["fullscreen", "plein écran"]], 15))
 
 
 ## Ajoute une ligne au menu (avant « Quitter » par défaut) et la renvoie.
@@ -156,6 +156,14 @@ func open() -> void:
 		_new.grab_focus()
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.3)
+
+
+## Rend le curseur à la dernière ligne choisie, sans refaire l'apparition (retour d'une confirmation).
+func refocus() -> void:
+	if _remember != null and is_instance_valid(_remember) and not _remember.disabled:
+		_remember.grab_focus()
+	else:
+		_new.grab_focus()
 
 
 func close() -> void:

@@ -55,8 +55,11 @@ func slot_label(id: String) -> String:
 func _read_file(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
+	var bytes := FileAccess.get_file_as_bytes(path)
+	if bytes.has(0):
+		return {}   # fichier abîmé (octets nuls laissés par une écriture interrompue) : illisible sans bruit en console
 	var json := JSON.new()
-	if json.parse(FileAccess.get_file_as_string(path)) != OK:
+	if json.parse(bytes.get_string_from_utf8()) != OK:
 		return {}
 	if not (json.data is Dictionary):
 		return {}

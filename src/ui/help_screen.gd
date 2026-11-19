@@ -45,10 +45,10 @@ func _ready() -> void:
 	row.add_child(side)
 	_tag = UI.caps("", 13, UI.GOLD_DIM)
 	side.add_child(_tag)
-	_title = UI.label("", 26, UI.GOLD, true)
+	_title = UI.label("", 26, UI.GOLD, true, false, true)
 	side.add_child(_title)
 	side.add_child(UI.rule())
-	_text = UI.label("", 18, UI.INK)
+	_text = UI.label("", 18, UI.INK, false, false, true)
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text.custom_minimum_size = Vector2(460, 0)
 	side.add_child(_text)
