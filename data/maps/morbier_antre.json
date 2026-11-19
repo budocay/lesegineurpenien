@@ -272,7 +272,10 @@
 		"deep": "#101c34",
 		"shallow": "#2a4a6a",
 		"ripple": "#8ab4d8",
-		"glint": "#e8f4ff"
+		"glint": "#e8f4ff",
+		"lake": [6, 2, 28, 9],
+		"glow": "#33d9c8",
+		"glow_power": 0.45
 	},
 	"wall_tile": "nain_mur_morbier"
 }

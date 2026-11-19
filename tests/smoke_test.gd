@@ -147,6 +147,7 @@ func _ready() -> void:
 	await _test_gamepad_full()
 	_test_reserve_catch_up()
 	_test_balourd_phase_and_breche_waves()
+	_test_decors_restes()
 	if not OS.has_environment("GLAN_QUICK"):
 		await _test_warm_matches_demand()
 	if OS.has_environment("GLAN_QUICK"):
@@ -6120,6 +6121,13 @@ func _test_interior_dress() -> void:
 			var wins: Array = (o as Dictionary).get("windows", [])
 			var spot: Vector2 = HB.sign_spot(x0, float(r[2]), xd, wins)
 			if spot.x < 0.0:
+				# façade trop étroite pour une enseigne à plat : l'enseigne en drapeau doit trouver sa place
+				var bx: float = HB.sign_bracket(x0, float(r[2]), xd, wins)
+				check(bx >= 0.0, "enseigne en drapeau %s %s : une place existe" % [id, str(r)])
+				if bx >= 0.0:
+					check(absf(bx - xd) >= 0.55 + 0.2 - 0.001, "enseigne en drapeau %s %s : ne touche pas la porte" % [id, str(r)])
+					for wv: Variant in wins:
+						check(absf(bx - (x0 + float(wv))) >= 0.6 + 0.2 - 0.001, "enseigne en drapeau %s %s : ne touche pas la fenêtre en %s" % [id, str(r), str(wv)])
 				continue
 			var half := 0.58 * spot.y
 			check(absf(spot.x - xd) >= half + 0.55 - 0.001, "enseigne %s %s : ne touche pas la porte" % [id, str(r)])
@@ -7985,3 +7993,21 @@ func _test_warm_matches_demand() -> void:
 			bad.append(k)
 	print("   %d monstres comparés, peinture à la demande : %d ms" % [kinds.size(), Time.get_ticks_msec() - t0])
 	check(bad.is_empty(), "planche du fil = planche à la demande (écarts : %s)" % str(bad))
+
+
+## Lac de Maroilles (profondeur, lueur) et sols usés de l'Isengarde (rails) : données présentes et cohérentes.
+func _test_decors_restes() -> void:
+	var lake: Variant = Database.get_map("morbier_antre").get("water", {}).get("lake")
+	check(lake is Array and (lake as Array).size() == 4 and float((lake as Array)[2]) > 0.0, "lac de Maroilles : champ lake [x, z, largeur, profondeur]")
+	var sh: Shader = load("res://src/gfx/shaders/water.gdshader")
+	check(sh != null and sh.code.contains("uniform vec4 lake"), "eau : le shader connaît le lac profond")
+	var mp: Dictionary = Database.get_map("isengarde")
+	var rails: Array = mp.get("rails", [])
+	check(rails.size() >= 3, "Isengarde : des rails posés sur le sol")
+	var sz: Array = mp["size"]
+	for r: Variant in rails:
+		var ok: bool = r is Array and (r as Array).size() == 4
+		check(ok, "Isengarde : rail bien formé %s" % str(r))
+		if ok:
+			var ra: Array = r
+			check(float(ra[0]) >= 0.0 and float(ra[2]) <= float(sz[0]) and float(ra[1]) >= 0.0 and float(ra[3]) <= float(sz[1]), "Isengarde : rail %s dans la carte" % str(r))

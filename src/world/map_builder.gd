@@ -502,6 +502,7 @@ func _paint_ground() -> ImageTexture:
 					img.set_pixel(gx, gy, c)
 	_mottle(img)
 	_scatter_puddles(img)
+	_wear(img)
 	return PA.texture(img)
 
 
@@ -549,6 +550,110 @@ func _mottle(img: Image) -> void:
 					elif k > 0.12:
 						c = c.lerp(pm[1], minf(1.0, (k - 0.12) * 1.3) * float(pm[2]))
 					img.set_pixel(gx, gy, PA.shade(c, (vs - 0.5) * float(pm[3])))
+
+
+## Sols usés par la cuisine (table WEAR : force de la suie) : taches de suie en grandes plaques irrégulières,
+## flaques d'huile noire qui reflètent les flammes, et rails de chariots (champ `rails` de la carte : liste de
+## [x0, z0, x1, z1] en cases, horizontaux ou verticaux, posés seulement sur ces sols). Sans ces sols, ne fait rien.
+const WEAR := {"isen_dalle": 0.55, "isen_fonte": 0.4}
+
+
+func _wear(img: Image) -> void:
+	var any := false
+	for t: String in cells:
+		if WEAR.has(t):
+			any = true
+			break
+	if not any:
+		return
+	var hp := preload("res://src/gfx/house_painter.gd")
+	var lw := w * PPU / 4 + 3
+	var lh := h * PPU / 4 + 3
+	var nl: PackedFloat32Array = hp.noise_map(lw, lh, 951, 8.0)
+	var ns: PackedFloat32Array = hp.noise_map(lw, lh, 952, 2.6)
+	for ty in h:
+		for tx in w:
+			var t := cells[ty * w + tx]
+			if not WEAR.has(t):
+				continue
+			var strength: float = WEAR[t]
+			for py in PPU:
+				for px in PPU:
+					var gx := tx * PPU + px
+					var gy := ty * PPU + py
+					var fx := float(gx & 3) * 0.25
+					var fy := float(gy & 3) * 0.25
+					var i := (gy >> 2) * lw + (gx >> 2)
+					var vl := lerpf(lerpf(nl[i], nl[i + 1], fx), lerpf(nl[i + lw], nl[i + lw + 1], fx), fy)
+					var vs := lerpf(lerpf(ns[i], ns[i + 1], fx), lerpf(ns[i + lw], ns[i + lw + 1], fx), fy)
+					var k := (vl - 0.5) * 2.0 + (vs - 0.5) * 0.7
+					var c := img.get_pixel(gx, gy)
+					if k > 0.12:
+						# suie : plus sombre, un peu tirée vers le brun-noir, bord irrégulier grâce au petit bruit
+						c = PA.shade(c.lerp(Color("#120e0e"), minf(0.5, (k - 0.12) * 0.9) * strength), -minf(0.4, (k - 0.12) * 0.7) * strength)
+					elif k < -0.45:
+						c = PA.shade(c, (-k - 0.45) * 0.22)   # quelques plaques plus claires, frottées par les chariots
+					img.set_pixel(gx, gy, c)
+	# flaques d'huile : amas et vides, tirage par case de 17 pixels, jamais de grille
+	var cs := 17
+	for gy in range(0, h * PPU, cs):
+		for gx in range(0, w * PPU, cs):
+			var ix := gx / cs
+			var iy := gy / cs
+			var zone := hp.vnoise(float(gx), float(gy), 961, 80.0)
+			var p := clampf((zone - 0.42) * 1.6, 0.0, 0.55)
+			if PA.rnd(ix, iy, 962) >= p:
+				continue
+			var cx := float(gx) + PA.rnd(ix, iy, 963) * float(cs)
+			var cy := float(gy) + PA.rnd(ix, iy, 964) * float(cs)
+			var big := PA.rnd(ix, iy, 965)
+			var rx := 3.0 + 7.0 * big * big
+			var ry := rx * (0.4 + 0.3 * PA.rnd(ix, iy, 966))
+			var ok := true
+			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry)]:
+				if not WEAR.has(_cell_at_pixel(cx + q.x, cy + q.y)):
+					ok = false
+			if not ok:
+				continue
+			PA.ellipse(img, cx, cy, rx, ry, Color("#0a080c"))
+			PA.ellipse(img, cx - 0.4, cy - 0.5, rx * 0.84, ry * 0.76, Color("#17121a"))
+			if rx > 4.5:
+				# reflet des flammes, un trait orangé, et un reflet irisé froid
+				PA.ellipse(img, cx - rx * 0.25, cy - ry * 0.35, rx * 0.4, 0.8, Color("#a85a34"))
+				PA.px(img, int(cx + rx * 0.3), int(cy + ry * 0.2), Color("#4a5a8a"))
+	# rails de chariots
+	for r: Variant in map.get("rails", []):
+		if not (r is Array) or (r as Array).size() < 4:
+			continue
+		var ra: Array = r
+		var x0 := int(float(ra[0]) * PPU)
+		var y0 := int(float(ra[1]) * PPU)
+		var x1 := int(float(ra[2]) * PPU)
+		var y1 := int(float(ra[3]) * PPU)
+		var horiz := absi(x1 - x0) >= absi(y1 - y0)
+		var n := (absi(x1 - x0) if horiz else absi(y1 - y0))
+		for a in n:
+			var gx := (mini(x0, x1) + a) if horiz else x0
+			var gy := y0 if horiz else (mini(y0, y1) + a)
+			if not WEAR.has(_cell_at_pixel(float(gx), float(gy))):
+				continue
+			# traverses tous les 9 pixels, légèrement inégales ; deux rails de fer, ombre dessous
+			if a % 9 < 3:
+				var sl := 8 + int(PA.rnd(a / 9, gx / 97, 971) * 2.0)
+				for o in range(-sl, sl + 1):
+					var tx2 := gx if horiz else gx + o
+					var ty2 := gy + o if horiz else gy
+					var base := Color("#2a1c16") if (a % 9) != 0 else Color("#4a3426")
+					img.set_pixel(clampi(tx2, 0, w * PPU - 1), clampi(ty2, 0, h * PPU - 1), base)
+			for rail: int in [-5, 5]:
+				var rx2 := gx if horiz else gx + rail
+				var ry2 := gy + rail if horiz else gy
+				var cxl := clampi(rx2, 0, w * PPU - 1)
+				var cyl := clampi(ry2, 0, h * PPU - 1)
+				img.set_pixel(cxl, cyl, Color("#8a8a9a"))
+				var sx2 := clampi(rx2 if horiz else rx2 + 1, 0, w * PPU - 1)
+				var sy2 := clampi(ry2 + 1 if horiz else ry2, 0, h * PPU - 1)
+				img.set_pixel(sx2, sy2, Color("#2a2a34"))
 
 
 ## Flaques semées sur les sols qui portent le flag `puddles` (roche mouillée des lacs souterrains). Positions,

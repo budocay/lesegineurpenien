@@ -46,6 +46,12 @@ static func restyle(b) -> void:
 			wm.set_shader_parameter("shallow", Color(str(spec.get("shallow", "#2a6a8a"))))
 			wm.set_shader_parameter("ripple", Color(str(spec.get("ripple", "#a8d8f0"))))
 			wm.set_shader_parameter("glint", Color(str(spec.get("glint", "#e8f4ff"))))
+			var lk: Variant = spec.get("lake")
+			if lk is Array and (lk as Array).size() == 4:
+				var la: Array = lk
+				wm.set_shader_parameter("lake", Vector4(float(la[0]), float(la[1]), float(la[2]), float(la[3])))
+				wm.set_shader_parameter("glow", Color(str(spec.get("glow", "#33d9c8"))))
+				wm.set_shader_parameter("glow_power", float(spec.get("glow_power", 0.5)))
 	if bool(b.map.get("interior", false)):
 		_restyle_interior(b)
 	else:

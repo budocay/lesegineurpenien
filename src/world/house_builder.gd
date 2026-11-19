@@ -423,6 +423,25 @@ static func house(b, o: Dictionary) -> void:
 				var sst := MeshKit.begin()
 				MeshKit.quad(sst, Vector3(best - 0.58 * ss, sy + 0.55, z1 + 0.7), Vector3(best + 0.58 * ss, sy + 0.55, z1 + 0.7), Vector3(best + 0.58 * ss, sy + 0.55 - 0.95 * ss, z1 + 0.7), Vector3(best - 0.58 * ss, sy + 0.55 - 0.95 * ss, z1 + 0.7))
 				node.add_child(MeshKit.finish(sst, _double(stex), false))
+			else:
+				# façade étroite, rien de libre pour une enseigne à plat : enseigne en drapeau, perpendiculaire au
+				# mur, pendue à une potence qui sort de la façade dans le plus large vide entre porte et fenêtres
+				var bx := sign_bracket(x0, hw, xd, windows)
+				if bx >= 0.0:
+					var btex: Texture2D = Sprites.cached("hsg:" + str(sp["sign"]), func() -> Texture2D:
+						return PA.texture(HP.sign_board(str(sp["sign"]))))
+					var by := clampf(wh - 0.5, 1.4, 2.0)
+					_tb(trim, "#2f2c38", Vector3(bx, by + 0.12, z1 + 0.4), Vector3(0.07, 0.07, 0.8))
+					_tb(trim, "#2f2c38", Vector3(bx, by + 0.02, z1 + 0.16), Vector3(0.05, 0.2, 0.05))
+					var bst := MeshKit.begin()
+					var ca := cos(deg_to_rad(40.0))
+					var sa := sin(deg_to_rad(40.0))
+					var hwd := 0.4
+					var zc := z1 + 0.75
+					var pl := Vector3(bx - hwd * sa, 0.0, zc - hwd * ca)
+					var pr := Vector3(bx + hwd * sa, 0.0, zc + hwd * ca)
+					MeshKit.quad(bst, Vector3(pl.x, by, pl.z), Vector3(pr.x, by, pr.z), Vector3(pr.x, by - 0.66, pr.z), Vector3(pl.x, by - 0.66, pl.z))
+					node.add_child(MeshKit.finish(bst, _double(btex), false))
 
 	# ---- jardinières sous les fenêtres et lierre d'angle, en volume
 	if not grobitte:
@@ -486,6 +505,24 @@ static func sign_spot(x0: float, hw: float, xd: float, windows: Array) -> Vector
 		if best_d >= hs + 0.04:
 			return Vector2(best, try_s)
 	return Vector2(-1.0, 1.0)
+
+
+## Où pendre une enseigne en drapeau (potence perpendiculaire à la façade, panneau tourné de 40 degrés pour se
+## lire de face) : x du vide le plus proche de la porte qui laisse 0,2 de part et d'autre (porte : demi-largeur
+## 0,55 ; fenêtres : 0,6 ; bords de la façade), ou -1 s'il n'y en a pas.
+static func sign_bracket(x0: float, hw: float, xd: float, windows: Array) -> float:
+	var best := -1.0
+	var best_gap := 99.0
+	var cxs := x0 + 0.3
+	while cxs <= x0 + hw - 0.3:
+		var dmin := absf(cxs - xd) - 0.55
+		for wv: Variant in windows:
+			dmin = minf(dmin, absf(cxs - (x0 + float(wv))) - 0.6)
+		if dmin >= 0.2 and absf(cxs - xd) < best_gap:
+			best_gap = absf(cxs - xd)
+			best = cxs
+		cxs += 0.05
+	return best
 
 
 static func _planters(trim: Dictionary, sp: Dictionary, windows: Array, x0: float, z1: float) -> void:
