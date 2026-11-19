@@ -301,6 +301,8 @@ const BOSS_HEAVY := 0.4      # un boss penche beaucoup moins qu'un petit monstre
 const FOOT_MARGIN := 76.0  # place laissée sous les pieds d'un héros (ombre, bord de l'écran)
 const PLATE_H := 66.0      # plaque d'un ennemi sous ses pieds (états, nom)
 const PLATE_W := 190.0
+const KEYS_H := 44.0       # bandeau des rappels de touches, en bas à gauche : aucune plaque dessous
+const KEYS_W := 480.0
 const FG_DIM := 0.5        # le premier plan est sombre
 const FG_BLUR := 14.0      # le flou déborde du sprite
 const FG_MAX_SHARE := 0.06 # part de l'écran qu'un coin de premier plan peut couvrir au plus
@@ -822,6 +824,11 @@ func _foes_fit(view: Vector2) -> bool:
 			if r.intersects(screen_rect(h).grow(4.0)):
 				return false
 	return true
+
+
+## Bandeau des rappels de touches (bas gauche de l'écran) : aucune plaque ne s'y pose.
+static func keys_band(view: Vector2) -> Rect2:
+	return Rect2(0.0, view.y - KEYS_H, KEYS_W, KEYS_H)
 
 
 ## Zone approchée sous un ennemi où se pose sa plaque.

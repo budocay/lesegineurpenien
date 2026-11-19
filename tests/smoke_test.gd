@@ -5952,6 +5952,23 @@ func _check_staging(scene: Node3D, ui: Control, tag: String) -> void:
 		var root: Control = ui._plates[k]["root"]
 		if root.visible:
 			plates.append(root.get_global_rect())
+	# plaques des ennemis : lisibles (ni l'une sur l'autre, ni sur le sprite d'un autre ennemi), et au-dessus
+	# du bandeau des rappels de touches (bas de l'écran), même avec des sbires devant un boss
+	var plate_worst := 0.0
+	for i in plates.size():
+		for j in range(i + 1, plates.size()):
+			plate_worst = maxf(plate_worst, _overlap(plates[i], plates[j]))
+		check(_overlap(plates[i], scene.keys_band(view.size)) < 1.0, "%s : plaque hors du bandeau des touches (bas à %.0f sur %.0f)" % [tag, plates[i].end.y, view.size.y])
+	check(plate_worst < 1.0, "%s : les plaques ne se chevauchent pas (%.0f px²)" % [tag, plate_worst])
+	var plate_on_foe := 0.0
+	for k: String in ui._plates:
+		var root: Control = ui._plates[k]["root"]
+		if not root.visible:
+			continue
+		for c: RefCounted in scene.engine.enemies:
+			if c.key != k and c.alive():
+				plate_on_foe = maxf(plate_on_foe, _overlap(root.get_global_rect(), scene.screen_rect(c).grow(-4.0)))
+	check(plate_on_foe < 1.0, "%s : aucune plaque sur le sprite d'un autre ennemi (%.0f px²)" % [tag, plate_on_foe])
 	var menu: Array[Rect2] = [ui._root_panel.get_global_rect(), (ui._elan_bars[0]["panel"] as Control).get_global_rect()]
 	var bodies: Array[Rect2] = []
 	var hero_count := 0
