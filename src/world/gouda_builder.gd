@@ -15,6 +15,10 @@ const PA = preload("res://src/gfx/pixel_art.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Gouda = preload("res://src/gfx/gouda_painter.gd")
+const Tower = preload("res://src/world/gouda_tower.gd")
+const SMOKE_SHADER = preload("res://src/gfx/shaders/fumee.gdshader")
+const HALO_SHADER = preload("res://src/gfx/shaders/halo_feu.gdshader")
+const FLAG_SHADER = preload("res://src/gfx/shaders/tour_etendard.gdshader")
 
 const OBJECTS: Array[String] = ["gou_maison", "gou_tour", "gou_rempart", "gou_porte"]
 
@@ -100,6 +104,7 @@ static func _restyle_exterior(b, sp: Dictionary) -> void:
 	var cliffs := _node(b, "Cliffs")
 	if cliffs != null:
 		cliffs.material_override = MeshKit.ground_material(Sprites.tile_texture(str(sp["cliff"])), 0.1)
+	var t0 := Time.get_ticks_msec()
 	_surround(b, sp)
 	_apron(b)
 	_belvedere(b)
@@ -107,6 +112,9 @@ static func _restyle_exterior(b, sp: Dictionary) -> void:
 		_retaining(b)
 		_skyline(b)
 		_siege(b)
+		_white_tower(b)
+		if OS.get_environment("GLAN_HZ_TIME") != "":
+			print("GOUDA %s : %d ms" % [str(b.map.get("id", "?")), Time.get_ticks_msec() - t0])
 
 
 ## Arbres ou décors plantés autour de la carte, puis un sous-bois bas.
@@ -134,6 +142,8 @@ static func _surround(b, sp: Dictionary) -> void:
 			continue
 		if p.z < 0.0 and b.map.has("skyline"):
 			continue
+		if b.map.has("apron") and p.z > float(b.h) - 2.0:
+			continue   # le parvis reste dégagé : un rocher posé devant la caméra basse serait un gros flou gris
 		p.y = b._terrace_height(p.x, p.z)
 		b._prop(str(low[i % low.size()]), {"solid": 0.0, "shadow": false}, p)
 
@@ -187,6 +197,72 @@ static func _belvedere(b) -> void:
 	var node := MeshKit.finish(st, MeshKit.ground_material(Sprites.tile_texture(str(_spec(b)["outer"]))), false)
 	node.name = "GoudaAbords"
 	b.world.add_child(node)
+	if (bv as Dictionary).has("terraces"):
+		_terraces(b, (bv as Dictionary)["terraces"] as Dictionary, zn)
+
+
+## Les terrasses de la ville en contrebas du belvédère (champ `terraces` de `belvedere` : `rings` (3), `step` (hauteur
+## perdue par étage, 3), `gap` (profondeur d'un étage, 9), `scale` (taille des maisons, 1,7)) : de vrais murs de
+## soutènement, des toits d'ardoise bleue, des murs crème, des jardins, des fenêtres allumées et des fumées de
+## cheminée, qui descendent vers la plaine. Décor sans collision.
+static func _terraces(b, tr: Dictionary, zn: float) -> void:
+	var rings := int(tr.get("rings", 3))
+	var step := float(tr.get("step", 3.0))
+	var gap := float(tr.get("gap", 9.0))
+	var sc := float(tr.get("scale", 1.7))
+	var x0 := -36.0
+	var x1 := float(b.w) + 36.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(b.map.get("id", "")) + "terrasses")
+	var parent := Node3D.new()
+	parent.name = "GoudaTerrasses"
+	b.world.add_child(parent)
+	var walls := MeshKit.begin()
+	var tops := MeshKit.begin()
+	var roofs := MeshKit.begin()
+	var glass := MeshKit.begin()
+	var green := MeshKit.begin()
+	var chim: Array[Vector3] = []
+	for k in rings:
+		var ht := -2.0 - step * float(k)
+		var zf := zn - 2.5 - float(k) * gap
+		# mur de soutènement et sol de l'étage
+		MeshKit.box(walls, Vector3((x0 + x1) * 0.5, ht - step * 0.5 - 0.5, zf), Vector3(x1 - x0, step + 1.0, 1.4))
+		MeshKit.box(tops, Vector3((x0 + x1) * 0.5, ht - 0.15, zf - gap * 0.5), Vector3(x1 - x0, 0.3, gap))
+		var cx := x0
+		while cx < x1:   # créneaux
+			MeshKit.box(tops, Vector3(cx, ht + 0.3, zf + 0.5), Vector3(0.9, 0.6, 0.5))
+			cx += 2.2
+		var hx := x0 + rng.randf_range(0.0, 3.0)
+		while hx < x1 - 6.0:
+			var hw := rng.randf_range(3.2, 5.8) * sc
+			var hd := rng.randf_range(2.6, 3.4) * sc
+			var hh := rng.randf_range(2.2, 3.4) * sc
+			var r := rng.randf()
+			var base := Vector3(hx + hw * 0.5, ht, zf - gap * 0.5 - hd * 0.1)
+			if r < 0.78:
+				_deco_house(walls, roofs, glass, base, Vector3(hw, hh, hd), rng)
+				if rng.randf() < 0.45:
+					var cxp := base.x + rng.randf_range(-hw * 0.3, hw * 0.3)
+					MeshKit.box(walls, Vector3(cxp, ht + hh + hd * 0.3 + 0.8, base.z - hd * 0.15), Vector3(0.7, 1.6, 0.7))
+					chim.append(Vector3(cxp, ht + hh + hd * 0.3 + 1.7, base.z - hd * 0.15))
+			else:
+				# un jardin : un massif bas et deux arbres taillés
+				MeshKit.box(green, Vector3(base.x, ht + 0.25, base.z), Vector3(hw, 0.5, hd))
+				for tj in 2:
+					MeshKit.box(green, Vector3(base.x - hw * 0.25 + float(tj) * hw * 0.5, ht + 1.8, base.z), Vector3(1.9, 2.8, 1.9))
+			hx += hw + rng.randf_range(0.8, 2.4) * sc
+	var stone := MeshKit.pixel_material(Sprites.tile_texture("gou_rempart"))
+	var slate := MeshKit.pixel_material(Sprites.tile_texture("gou_ardoise"))
+	slate.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var lit := MeshKit.flat_material(Color("#f6d68a"), 1.4)
+	var leaf := MeshKit.flat_material(Color("#5c8a52"))
+	for pair: Array in [[walls, stone], [tops, stone], [roofs, slate], [glass, lit], [green, leaf]]:
+		var node := MeshKit.finish(pair[0], pair[1], false)
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		parent.add_child(node)
+	for i in chim.size():
+		smoke(parent, chim[i], 4, 1.3, 6.0, 2.5, 0.14, Color(0.88, 0.88, 0.92, 0.5), 100 + i)
 
 
 # ===================================================== étages : murs de soutènement
@@ -269,31 +345,98 @@ static func _siege(b) -> void:
 		b._prop(kind, {"solid": 0.0, "shadow": false}, p)
 		if kind == "gou_brasier":
 			fires.append(p)
-	var puff := GradientTexture2D.new()
-	var grad := Gradient.new()
-	grad.colors = PackedColorArray([Color(0.30, 0.27, 0.26, 0.55), Color(0.30, 0.27, 0.26, 0.0)])
-	puff.gradient = grad
-	puff.fill = GradientTexture2D.FILL_RADIAL
-	puff.fill_from = Vector2(0.5, 0.5)
-	puff.fill_to = Vector2(1.0, 0.5)
-	puff.width = 64
-	puff.height = 64
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_texture = puff
-	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	var halo_mat := ShaderMaterial.new()
+	halo_mat.shader = HALO_SHADER
+	var halo_q := QuadMesh.new()
+	halo_q.size = Vector2(7.0, 7.0)
+	var fi := 0
 	for fp: Vector3 in fires:
-		for k in 7:
-			var q := QuadMesh.new()
-			var sz := 1.2 + float(k) * 0.7
-			q.size = Vector2(sz, sz)
-			var n := MeshInstance3D.new()
-			n.mesh = q
-			n.material_override = mat
-			n.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			n.position = fp + Vector3(float(k) * 0.35 + rng.randf_range(-0.3, 0.3), 1.6 + float(k) * 1.5, rng.randf_range(-0.3, 0.3))
-			parent.add_child(n)
+		fi += 1
+		# colonne de fumée sombre qui monte et dérive avec le vent
+		smoke(parent, fp + Vector3(0.0, 1.2, 0.0), 10, 1.8, 17.0, 6.0, 0.05, Color(0.22, 0.20, 0.20, 0.62), fi * 31)
+		# braises : petites bouffées orange qui montent vite
+		smoke(parent, fp + Vector3(0.0, 0.9, 0.0), 6, 0.22, 3.2, 0.8, 0.45, Color(1.0, 0.55, 0.16, 0.95), fi * 57)
+		var hl := MeshInstance3D.new()
+		hl.mesh = halo_q
+		hl.material_override = halo_mat
+		hl.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		hl.position = fp + Vector3(0.0, 0.9, 0.3)
+		hl.set_instance_shader_parameter("phase", float(fi) * 0.37)
+		parent.add_child(hl)
+	# étendards ennemis : fanions rouge sombre qui flottent au vent, plantés dans le camp
+	var ban_tex := ImageTexture.create_from_image(_enemy_banner_image())
+	for i in 7:
+		var bp := Vector3(rng.randf_range(-12.0, float(b.w) + 12.0), 0.06, rng.randf_range(-depth + 6.0, -5.0))
+		var pole := MeshKit.begin()
+		MeshKit.box(pole, Vector3(0.0, 2.6, 0.0), Vector3(0.12, 5.2, 0.12))
+		var pn := MeshKit.finish(pole, MeshKit.flat_material(Color(0.25, 0.17, 0.12)), false)
+		pn.position = bp
+		parent.add_child(pn)
+		var fl := MeshKit.begin()
+		for sgi in 8:
+			var u0 := float(sgi) / 8.0
+			var u1 := float(sgi + 1) / 8.0
+			MeshKit.quad(fl, Vector3(1.8 * u0, 0.8, 0), Vector3(1.8 * u1, 0.8, 0), Vector3(1.8 * u1, -0.8, 0), Vector3(1.8 * u0, -0.8, 0), Vector2(u0, 0), Vector2(u1, 1))
+		var fm := ShaderMaterial.new()
+		fm.shader = FLAG_SHADER
+		fm.set_shader_parameter("tex", ban_tex)
+		fm.set_shader_parameter("amp", 0.25)
+		var fnode := MeshKit.finish(fl, fm, false)
+		fnode.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		fnode.position = bp + Vector3(0.1, 4.4, 0.0)
+		parent.add_child(fnode)
+
+
+## Fanion ennemi : rouge sombre, bordure noire, crâne cornu stylisé.
+static func _enemy_banner_image() -> Image:
+	var im := Image.create(64, 40, false, Image.FORMAT_RGBA8)
+	im.fill(Color(0.52, 0.09, 0.08))
+	for x in 64:
+		for y in 40:
+			if x < 2 or x > 61 or y < 2 or y > 37:
+				im.set_pixel(x, y, Color(0.12, 0.05, 0.05))
+	im.fill_rect(Rect2i(24, 12, 16, 14), Color(0.92, 0.88, 0.8))
+	im.fill_rect(Rect2i(28, 26, 8, 5), Color(0.92, 0.88, 0.8))
+	im.fill_rect(Rect2i(27, 17, 3, 4), Color(0.12, 0.05, 0.05))
+	im.fill_rect(Rect2i(34, 17, 3, 4), Color(0.12, 0.05, 0.05))
+	im.fill_rect(Rect2i(20, 8, 4, 8), Color(0.92, 0.88, 0.8))
+	im.fill_rect(Rect2i(40, 8, 4, 8), Color(0.92, 0.88, 0.8))
+	return im
+
+
+# ================================================================ fumées
+
+## Colonne de fumée animée : `n` bouffées étalées sur toute la montée. `size` : diamètre au départ, `rise` : hauteur
+## atteinte, `drift` : dérive du vent, `speed` : vitesse (1 / durée en secondes), `col` : couleur et opacité.
+static func smoke(parent: Node3D, at: Vector3, n: int, size: float, rise: float, drift: float, speed: float, col: Color, seed_v: int) -> void:
+	var mat := ShaderMaterial.new()
+	mat.shader = SMOKE_SHADER
+	mat.set_shader_parameter("col", col)
+	mat.set_shader_parameter("speed", speed)
+	mat.set_shader_parameter("rise", rise)
+	mat.set_shader_parameter("drift", drift)
+	var q := QuadMesh.new()
+	q.size = Vector2(size, size)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_v
+	for k in n:
+		var mi := MeshInstance3D.new()
+		mi.mesh = q
+		mi.material_override = mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position = at
+		mi.set_instance_shader_parameter("phase", float(k) / float(n) + rng.randf_range(0.0, 0.05))
+		parent.add_child(mi)
+
+
+# ================================================================ la Tour Blanche
+
+## La Tour Blanche en trois dimensions (champ `white_tower`, voir gouda_tower.gd).
+static func _white_tower(b) -> void:
+	var wt: Variant = b.map.get("white_tower")
+	if not (wt is Dictionary):
+		return
+	Tower.build(b.world, Sprites.tile_texture("gou_rempart"), Sprites.tile_texture("gou_ardoise"), Sprites.tile_texture("gou_roche"), wt as Dictionary)
 
 
 # ================================================================ étages du fond
@@ -423,8 +566,143 @@ static func object(b, type: String, o: Dictionary) -> bool:
 		"gou_tour": _tower(b, o)
 		"gou_rempart": _wall(b, o)
 		"gou_porte": _gate(b, o)
+		"gou_deco": _deco(b, o)
+		"gou_pavage": _paving(b, o)
 		_: return false
 	return true
+
+
+## Décor de rue posé par les données : `kind` (un décor `gou_...` de gouda_painter.gd : charrette, pots, fromages,
+## caisses, banc, lunette, panneau, lampadaire, tonneaux, linge, buisson), `pos`, `variant`, `scale`, `solid`
+## (rayon qui bloque, 0 par défaut), `glow` (lueur), `shadow`, et au besoin `dialogue` et `label`.
+static func _deco(b, o: Dictionary) -> void:
+	var o2: Dictionary = o.duplicate()
+	if not o2.has("solid"):
+		o2["solid"] = 0.0
+	b._prop(str(o.get("kind", "gou_pots")), o2, b._p(o))
+
+
+## Pavage varié (objet `gou_pavage`, à placer en dernier dans la liste des objets) : un calque de décalques posé sur les
+## dalles dures, sans toucher au sol ni aux collisions. Champs : `gutter` (liste de `{x, z0, z1}` : caniveau central
+## d'une rue, en cases), `wear` (dalles usées ou claires, par case, 0,35), `moss` (mousse et ombre de contact au pied des
+## bâtiments, vrai), `seed`. Les cases d'escalier sont laissées nues.
+static func _paving(b, o: Dictionary) -> void:
+	const PX := 24
+	var seed_v := int(o.get("seed", 1))
+	var ap: Variant = b.map.get("apron")
+	var rows: int = b.h + (int((ap as Dictionary).get("depth", 10)) if ap is Dictionary else 0)
+	var ap_x0: int = int((ap as Dictionary).get("x0", 0)) if ap is Dictionary else 0
+	var ap_x1: int = int((ap as Dictionary).get("x1", b.w)) if ap is Dictionary else 0
+	var ap_from: int = int((ap as Dictionary).get("from", b.h)) if ap is Dictionary else b.h
+	var img := Image.create(b.w * PX, rows * PX, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var wear := float(o.get("wear", 0.35))
+	var relief: bool = b.world.has_relief
+	var ok := PackedByteArray()
+	ok.resize(b.w * rows)
+	for ty in rows:
+		for tx in b.w:
+			var i: int = ty * b.w + tx
+			if ty >= ap_from:
+				if tx < ap_x0 or tx >= ap_x1:
+					continue
+			elif ty >= b.h or not b._flag(b.cells[i], "hard") or b._flag(b.cells[i], "hole"):
+				continue
+			elif relief and b.world.stair_idx[i] >= 0:
+				continue
+			ok[i] = 1
+			var r := PA.rnd(tx, ty, seed_v * 13 + 5)
+			if r < wear:
+				var tone := Color(0.42, 0.36, 0.26, 0.10 + 0.12 * PA.rnd(tx, ty, seed_v + 71)) if PA.rnd(tx, ty, seed_v + 3) < 0.6 else Color(1, 1, 0.95, 0.16)
+				var gx := (int(PA.rnd(tx, ty, seed_v + 9) * 2.0)) * 12
+				var gy := (int(PA.rnd(tx, ty, seed_v + 17) * 2.0)) * 12
+				img.fill_rect(Rect2i(tx * PX + gx + 1, ty * PX + gy + 1, 11, 11), tone)
+			if PA.rnd(tx, ty, seed_v + 29) < 0.22:   # fissure
+				var cx: int = tx * PX + int(PA.rnd(tx, ty, seed_v + 31) * 16.0) + 3
+				var cy: int = ty * PX + int(PA.rnd(tx, ty, seed_v + 37) * 16.0) + 3
+				for k in 7:
+					img.set_pixel(cx + k, cy + (k * 5 / 7) % 3, Color(0.3, 0.26, 0.2, 0.55))
+			if PA.rnd(tx, ty, seed_v + 43) < 0.28:   # cailloux
+				var px_: int = tx * PX + int(PA.rnd(tx, ty, seed_v + 47) * 20.0) + 1
+				var py: int = ty * PX + int(PA.rnd(tx, ty, seed_v + 53) * 20.0) + 1
+				img.fill_rect(Rect2i(px_, py, 2, 1), Color(0.62, 0.58, 0.5, 0.8))
+				img.set_pixel(px_, py + 1, Color(0.4, 0.36, 0.3, 0.7))
+	# caniveau : une rigole creusée au milieu de la rue, bord de pierre sombre, filet d'eau clair
+	for gd: Variant in o.get("gutter", []):
+		var g: Dictionary = gd
+		var gx0 := int(float(g.get("x", 0.0)) * PX) - 5
+		for ty in range(int(g.get("z0", 0)), mini(int(g.get("z1", b.h)), rows)):
+			for tx in range(int(float(g.get("x", 0.0))) - 1, int(float(g.get("x", 0.0))) + 1):
+				if tx < 0 or tx >= b.w or ty < 0 or ty >= rows or ok[ty * b.w + tx] == 0:
+					continue
+				var rx := maxi(tx * PX, gx0)
+				var rx2 := mini((tx + 1) * PX, gx0 + 10)
+				if rx2 <= rx:
+					continue
+				img.fill_rect(Rect2i(rx, ty * PX, rx2 - rx, PX), Color(0.5, 0.45, 0.37, 0.8))
+				var ix := maxi(tx * PX, gx0 + 2)
+				var ix2 := mini((tx + 1) * PX, gx0 + 8)
+				if ix2 > ix:
+					img.fill_rect(Rect2i(ix, ty * PX, ix2 - ix, PX), Color(0.56, 0.63, 0.66, 0.85))
+					var hx := maxi(tx * PX, gx0 + 3)
+					if hx < ix2:
+						img.fill_rect(Rect2i(hx, ty * PX + int(PA.rnd(tx, ty, seed_v + 61) * 18.0), 1, 4), Color(0.85, 0.94, 1.0, 0.9))
+	# mousse et ombre de contact au pied des bâtiments (les rectangles pleins déjà posés)
+	if bool(o.get("moss", true)):
+		for rc: Variant in b.world.rects:
+			var rr: Rect2 = rc
+			var x0 := int(floor(rr.position.x)) - 1
+			var x1 := int(ceil(rr.end.x)) + 1
+			var z0 := int(floor(rr.position.y)) - 1
+			var z1 := int(ceil(rr.end.y)) + 1
+			for ty in range(maxi(z0, 0), mini(z1 + 1, rows)):
+				for tx in range(maxi(x0, 0), mini(x1 + 1, b.w)):
+					if ok[ty * b.w + tx] == 0:
+						continue
+					var cell := Rect2(float(tx), float(ty), 1.0, 1.0)
+					var near := rr.grow(0.45)
+					if not cell.intersects(near) or cell.intersects(rr.grow(-0.02)):
+						continue
+					# ombre de contact : la bande sombre sur le côté nord du bâtiment est cachée, on la veut au sud et aux flancs
+					for yy in PX:
+						for xx in PX:
+							var wx := float(tx) + (float(xx) + 0.5) / float(PX)
+							var wz := float(ty) + (float(yy) + 0.5) / float(PX)
+							var dx := maxf(maxf(rr.position.x - wx, 0.0), wx - rr.end.x)
+							var dz := maxf(maxf(rr.position.y - wz, 0.0), wz - rr.end.y)
+							var d := sqrt(dx * dx + dz * dz)
+							if d < 0.4:
+								var a := (0.4 - d) / 0.4
+								var cur := img.get_pixel(tx * PX + xx, ty * PX + yy)
+								if PA.rnd(tx * PX + xx, ty * PX + yy, seed_v + 83) < 0.32 * a + 0.04 and d > 0.05 and d < 0.3:
+									img.set_pixel(tx * PX + xx, ty * PX + yy, Color(0.36, 0.52, 0.28, 0.75) if PA.rnd(xx, yy, seed_v + 89) < 0.7 else Color(0.5, 0.64, 0.36, 0.75))
+								elif cur.a < 0.3:
+									img.set_pixel(tx * PX + xx, ty * PX + yy, Color(0.3, 0.26, 0.2, 0.3 * a))
+	var tex := ImageTexture.create_from_image(img)
+	var st := MeshKit.begin()
+	var any := false
+	for ty in rows:
+		for tx in b.w:
+			var i: int = ty * b.w + tx
+			if ok[i] == 0:
+				continue
+			any = true
+			var y: float = (b.world.cell_h[i] if relief and ty < b.h else 0.0) + (0.045 if ty >= ap_from else 0.03)
+			var u0 := Vector2(float(tx) / float(b.w), float(ty) / float(rows))
+			var u1 := Vector2(float(tx + 1) / float(b.w), float(ty + 1) / float(rows))
+			MeshKit.quad(st, Vector3(tx, y, ty), Vector3(tx + 1, y, ty), Vector3(tx + 1, y, ty + 1), Vector3(tx, y, ty + 1), u0, u1)
+	if not any:
+		return
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.roughness = 1.0
+	m.metallic_specular = 0.0
+	var node := MeshKit.finish(st, m, false)
+	node.name = "GoudaPavage"
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	b.world.add_child(node)
 
 
 static func _box_in(parent: Node3D, center: Vector3, size: Vector3, mat: Material) -> MeshInstance3D:

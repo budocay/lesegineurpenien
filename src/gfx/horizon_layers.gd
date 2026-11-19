@@ -408,40 +408,58 @@ static func _ridge_h(x: int, sd: int, cx: int, peak: float) -> float:
 	return float(H) * (0.2 + peak * 0.74 * maxf(mass, side * peak)) + jag * (0.35 + mass)
 
 
-## Un massif enneigé, éclairé par la droite : faces claires et sombres selon la pente, strates
-## obliques, langues de neige qui descendent dans les ravins, pied noyé dans l'ombre.
+## Bruit de valeur lissé (continu en x) : pas de couture entre deux cases de bruit.
+static func _vn(fx: float, y: int, sd: int) -> float:
+	var i := int(floorf(fx))
+	var t := smoothstep(0.0, 1.0, fx - floorf(fx))
+	return lerpf(_n(i, y, sd), _n(i + 1, y, sd), t)
+
+
+## Un massif enneigé, éclairé par la droite : crêtes et ravins obliques à arêtes franches (cinq tons de roche,
+## cinq de neige), calotte de neige qui descend en langues dans les ravins, pied noyé dans l'ombre bleutée.
+## Pas de bandes verticales : l'éclairage vient de la pente lissée, puis des facettes qui suivent la crête.
 static func _mountain(img: Image, sd: int, off: int, peak: float) -> void:
 	var cx := W / 2 + off
-	var rock_l := Color("#8fa0c4")
-	var rock_d := Color("#44506f")
-	var snow_l := Color("#fcfeff")
-	var snow_d := Color("#aebfe2")
-	var snow_line := H - int(float(H) * 0.5)
+	var rock: Array[Color] = []
+	var snow: Array[Color] = []
+	for i in 5:
+		var k := float(i) / 4.0
+		rock.append(Color("#3f4b6c").lerp(Color("#93a4c8"), k))
+		snow.append(Color("#a4b6de").lerp(Color("#fbfdff"), k))
+	var valley := Color("#586a96")
+	var snow_line := int(float(H) * 0.5)
 	for x in W:
 		var h := _ridge_h(x, sd, cx, peak)
 		var top := H - int(h)
-		var slope := _ridge_h(x + 16, sd, cx, peak) - _ridge_h(x - 16, sd, cx, peak)   # < 0 : pente qui descend vers la droite = face au soleil
-		var lit := clampf(0.5 - slope * 0.02, 0.0, 1.0)
-		lit = floorf(lit * 5.0 + 0.5) / 5.0
-		var base := rock_d.lerp(rock_l, lit)
-		var tongue := _n(x / 5, 3, sd) * 24.0 + _n(x / 13, 4, sd) * 26.0
+		var slope := (_ridge_h(x + 36, sd, cx, peak) - _ridge_h(x - 36, sd, cx, peak)) * 0.5   # < 0 : descend vers la droite = face au soleil
+		var l0 := clampf(0.5 - slope * 0.012, 0.1, 0.9)
+		# longueur d'onde des facettes : change par tronçon de crête
+		var per := 50.0
+		var tongue := _vn(float(x) / 14.0, 3, sd) * 30.0 + _vn(float(x) / 40.0, 4, sd) * 34.0
 		var snow_to := top
 		if top < snow_line:
 			snow_to = mini(H, top + int((float(snow_line) - float(top)) * 0.85 + tongue - 16.0))
-		_r(img, x, top, 1, H - top, base)
-		if snow_to > top:
-			var sc := snow_d.lerp(snow_l, lit)
-			_r(img, x, top, 1, snow_to - top, sc)
-			_r(img, x, snow_to - 2, 1, 2, sc.darkened(0.12))
-		# strates obliques
-		var y := maxi(snow_to + 4, top) + (x * 3 / 10) % 12
-		while y < H:
-			_r(img, x, y, 1, 2, base.darkened(0.13))
-			y += 12
+		for y in range(maxi(top, 0), H):
+			var d := y - top
+			var u := float(x) + float(d) * 1.35
+			var f := fposmod(u / per + _vn(u / 160.0, 11, sd) * 1.6 + _vn(float(d) / 60.0, 12, sd) * 0.5, 1.0)
+			var tri := 1.0 - absf(f * 2.0 - 1.0)   # 0..1 : flanc éclairé puis flanc à l'ombre
+			var facet := 0.26 if f < 0.5 else -0.26
+			facet *= clampf(0.35 + tri, 0.0, 1.0)
+			var lit := clampf(l0 + facet, 0.0, 1.0)
+			var q := int(floorf(lit * 4.0 + 0.5))
+			var c: Color = rock[q]
+			if y < snow_to:
+				c = snow[q]
+				if y >= snow_to - 2:
+					c = c.darkened(0.1)
+			# pied : ombre bleutée de la vallée, de plus en plus marquée vers le bas
+			var foot := clampf(float(y - (H - 120)) / 120.0, 0.0, 1.0)
+			c = c.lerp(valley, 0.1 + foot * 0.35)
+			img.set_pixel(x, y, c)
 		# arête éclairée
-		_r(img, x, top, 1, 1, snow_l if top < snow_line else base.lightened(0.2))
-		# pied : ombre bleutée de la vallée
-		_r(img, x, H - 70, 1, 70, base.darkened(0.12).lerp(Color("#586a96"), 0.25))
+		if top >= 0 and top < H:
+			img.set_pixel(x, top, snow[4] if top < snow_line else rock[4])
 
 
 ## Rang de collines : champs, bosquets sombres, toits de hameau, pente éclairée à droite.
@@ -547,16 +565,27 @@ static func _pikes(img: Image, x: int, y: int, sc: float, sd: int) -> void:
 
 ## Un feu de camp et sa colonne de fumée, en gros pixels ombrés (pas de points épars).
 static func _fire(img: Image, x: int, y: int, sd: int, scale: float) -> void:
-	var smoke_d := Color("#4a4448")
-	var smoke_l := Color("#8b8588")
 	var hgt := int((110.0 + _n(x, y, sd) * 110.0) * scale)
-	var k := 8
+	var k := 6
 	while k < hgt:
 		var t := float(k) / float(hgt)
-		var r := 3 + int(t * 15.0 * scale)
+		var r := 3 + int(t * 13.0 * scale)
 		var cxk := x + int(t * t * 50.0 + sin(t * 8.0 + float(sd)) * 3.0)
-		_puff(img, cxk, y - 6 - k, r, smoke_d.lerp(Color("#6a6468"), t * 0.7), smoke_l.lerp(Color("#a6a1a2"), t))
-		k += maxi(r / 2, 3)
+		# fumée fondue : plus on monte, plus elle est large, claire et transparente (pas de boules)
+		var a := 0.55 * pow(1.0 - t, 1.3)
+		var tone := Color("#3e383c").lerp(Color("#9a9498"), t)
+		var cy := y - 6 - k
+		for yy in range(maxi(cy - r, 0), mini(cy + r + 1, H)):
+			for xx in range(maxi(cxk - r, 0), mini(cxk + r + 1, W)):
+				var dx := float(xx - cxk)
+				var dy := float(yy - cy)
+				var f := 1.0 - sqrt(dx * dx + dy * dy) / float(r)
+				if f <= 0.0:
+					continue
+				var al := a * minf(f * 2.2, 1.0) * 0.8
+				var o := img.get_pixel(xx, yy)
+				img.set_pixel(xx, yy, Color(o.r + (tone.r - o.r) * al, o.g + (tone.g - o.g) * al, o.b + (tone.b - o.b) * al, maxf(o.a, al)))
+		k += maxi(r / 3, 2)
 	_r(img, x - 2, y - 3, 6, 3, Color("#ff6a14"))
 	_r(img, x - 1, y - 6, 4, 4, Color("#ffd24a"))
 	_r(img, x, y - 8, 2, 3, Color("#fff2a0"))

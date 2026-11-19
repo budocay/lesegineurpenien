@@ -34,6 +34,9 @@ const PROP_VARIANTS := {
 	"gou_creneau": 1, "gou_banniere": 2, "gou_trebuchet": 1, "gou_poirier": 1, "gou_lit_pierre": 2, "gou_voile": 2,
 	"gou_baril": 1, "gou_boulets": 1, "gou_fontaine": 1, "gou_statue": 1, "gou_echelle": 1, "gou_etal": 2,
 	"gou_pieux": 1, "gou_tente": 2, "gou_brasier": 1, "gou_ancre": 1,
+	# habillage des rues de Minas Tartine (objet `gou_deco`)
+	"gou_charrette": 2, "gou_pots": 3, "gou_fromages": 1, "gou_caisses": 1, "gou_banc": 1, "gou_lunette": 1, "gou_panneau": 1,
+	"gou_lampadaire": 1, "gou_tonneaux": 1, "gou_linge": 2, "gou_buisson": 1,
 }
 
 
@@ -83,6 +86,17 @@ static func paint_prop(kind: String, v: int) -> Image:
 		"gou_tente": return _tent(v)
 		"gou_brasier": return _brazier()
 		"gou_ancre": return _anchor()
+		"gou_charrette": return _cart(v)
+		"gou_pots": return _pots(v)
+		"gou_fromages": return _cheeses()
+		"gou_caisses": return _crates()
+		"gou_banc": return _bench()
+		"gou_lunette": return _telescope()
+		"gou_panneau": return _signpost()
+		"gou_lampadaire": return _lamppost()
+		"gou_tonneaux": return _barrels()
+		"gou_linge": return _washing(v)
+		"gou_buisson": return _topiary()
 	var img := PA.new_image(16, 16)
 	img.fill(Color.MAGENTA)
 	return img
@@ -541,4 +555,240 @@ static func _anchor() -> Image:
 	PP._poly(img, [Vector2(4, 28), Vector2(17, 42), Vector2(30, 28), Vector2(26, 28), Vector2(17, 36), Vector2(8, 28)], Color("#4a4a56"))
 	PA.relief(img)
 	PA.outline(img, Rect2i(0, 0, 34, 44), INK)
+	return img
+
+
+## Étendard de la Tour Blanche : toile bleu nuit, bordure d'or, le champignon blanc du Poirier,
+## deux queues en bas ; le bord gauche touche le mât. 128 x 80 pixels.
+static func paint_standard() -> Image:
+	var w := 128
+	var h := 80
+	var img := PA.new_image(w, h)
+	for x in w:
+		var tail := 0
+		if x > w - 34:
+			tail = int(float(x - (w - 34)) * 0.5)
+		for y in h:
+			var tri_cut := false
+			if x > w - 34 and y > h - 6 - tail * 1:
+				tri_cut = true
+			if x > w - 34 and absf(float(y) - float(h) * 0.5) < float(x - (w - 34)) * 0.6 and y > h / 2:
+				tri_cut = true
+			if tri_cut:
+				continue
+			var c := NAVY.lerp(Color("#3c4f82"), 0.2 + 0.2 * sin(float(x) * 0.11 + float(y) * 0.05))
+			if y < 5 or y > h - 6 or x < 4:
+				c = GOLD if (y < 3 or y > h - 4 or x < 2) else Color("#b8903a")
+			img.set_pixel(x, y, c)
+	var cx := 52
+	PA.ellipse(img, float(cx), 36.0, 26.0, 20.0, Color("#f4f0e4"))
+	PA.rect(img, cx - 27, 36, 55, 3, Color("#d8d2c0"))
+	PA.rect(img, cx - 8, 40, 17, 26, Color("#f4f0e4"))
+	PA.rect(img, cx + 4, 40, 5, 26, Color("#d8d2c0"))
+	PA.ellipse(img, float(cx - 9), 30.0, 5.0, 3.0, Color("#ffffff"))
+	for k in 3:
+		PA.px(img, cx + 12 + k * 3, 26 + k * 2, Color("#d8d2c0"))
+	return img
+
+
+# ------------------------------------------------- habillage des rues de Minas Tartine
+
+## Charrette à bras : plateau, deux roues, ridelles, chargement de sacs de farine (0) ou de pains (1).
+static func _cart(v: int) -> Image:
+	var img := PA.new_image(72, 52)
+	PA.rect(img, 6, 30, 52, 4, WOOD)   # plateau
+	PA.rect(img, 6, 30, 52, 1, Color("#b08a4c"))
+	PA.rect(img, 6, 22, 2, 9, WOOD_D)
+	PA.rect(img, 56, 22, 2, 9, WOOD_D)
+	PA.rect(img, 6, 22, 52, 2, WOOD)
+	PA.line(img, 58, 31, 70, 38, WOOD_D)   # brancards
+	PA.line(img, 58, 33, 70, 40, WOOD_D)
+	if v == 0:
+		for k in 4:   # sacs de farine
+			var x := 12.0 + float(k) * 11.0
+			PA.ellipse(img, x, 20.0 - float(k % 2) * 2.0, 6.0, 7.0, Color("#e8e0cc"))
+			PA.rect(img, int(x) - 3, 12 - (k % 2) * 2, 6, 2, Color("#c8b890"))
+			PA.px(img, int(x) + 2, 17, Color("#fffaf0"))
+	else:
+		for k in 5:   # miches
+			var x2 := 11.0 + float(k) * 9.0
+			PA.ellipse(img, x2, 22.0 - float(k % 2) * 3.0, 5.5, 4.5, Color("#c8903c"))
+			PA.ellipse(img, x2 - 1.0, 21.0 - float(k % 2) * 3.0, 3.0, 2.0, Color("#e8b862"))
+	for wx in [16, 46]:   # roues
+		PA.ellipse(img, float(wx), 38.0, 10.0, 10.0, WOOD_D)
+		PA.ellipse(img, float(wx), 38.0, 7.0, 7.0, Color(0, 0, 0, 0))
+		PA.ellipse(img, float(wx), 38.0, 6.0, 6.0, Color("#a88450"))
+		PA.ellipse(img, float(wx), 38.0, 2.0, 2.0, WOOD_D)
+		PA.line(img, wx - 6, 38, wx + 6, 38, WOOD_D)
+		PA.line(img, wx, 32, wx, 44, WOOD_D)
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 72, 52), INK)
+	return img
+
+
+## Pots de terre cuite fleuris : géraniums rouges (0), lavande (1), pensées jaunes (2).
+static func _pots(v: int) -> Image:
+	var img := PA.new_image(44, 34)
+	var bloom: Array = [Color("#d84a4a"), Color("#9a7ad0"), Color("#f0c84a")]
+	for k in 3:
+		var x := 8 + k * 13
+		var hgt := 12 - (k % 2) * 3
+		PP._poly(img, [Vector2(x - 5, 33 - hgt), Vector2(x + 5, 33 - hgt), Vector2(x + 4, 33), Vector2(x - 4, 33)], Color("#b8603a"))
+		PA.rect(img, x - 6, 31 - hgt, 12, 3, Color("#d07a4a"))
+		PA.ellipse(img, float(x), float(28 - hgt), 7.0, 5.0, Color("#4f8a42"))
+		for j in 5:
+			PA.px(img, x - 4 + j * 2, 25 - hgt - (j % 2) * 2, bloom[v])
+			PA.px(img, x - 3 + j * 2, 26 - hgt - (j % 2), PA.shade(bloom[v], 0.2))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 44, 34), INK)
+	return img
+
+
+## Pile de meules de fromage : croûte dorée, entaille pâle, une meule entamée.
+static func _cheeses() -> Image:
+	var img := PA.new_image(40, 38)
+	for lvl in 3:
+		var n := 3 - lvl
+		for k in n:
+			var x := 20.0 + (float(k) - float(n - 1) * 0.5) * 15.0
+			var y := 31.0 - float(lvl) * 10.0
+			PA.ellipse(img, x, y, 9.0, 5.0, Color("#c8963c"))
+			PA.rect(img, int(x) - 9, int(y) - 2, 18, 6, Color("#d8a84c"))
+			PA.ellipse(img, x, y - 3.0, 9.0, 4.0, Color("#f0cc6a"))
+			PA.px(img, int(x) - 3, int(y) - 4, Color("#fff0a8"))
+			PA.px(img, int(x) + 3, int(y) - 3, Color("#b88a30"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 40, 38), INK)
+	return img
+
+
+## Piles de caisses de poires et de pommes vertes.
+static func _crates() -> Image:
+	var img := PA.new_image(44, 42)
+	for b in [[2, 22, 22, 18], [22, 22, 20, 18], [10, 6, 22, 16]]:
+		PA.rect(img, b[0], b[1], b[2], b[3], WOOD)
+		PA.rect(img, b[0], b[1], b[2], 2, Color("#b08a4c"))
+		PA.rect(img, b[0], b[1] + b[3] / 2, b[2], 1, WOOD_D)
+		PA.rect(img, b[0] + 2, b[1] - 3, b[2] - 4, 4, Color("#8ab84a"))
+		for j in 4:
+			PA.ellipse(img, float(b[0] + 5 + j * 4), float(b[1] - 3), 2.5, 2.2, Color("#a8d060") if j % 2 == 0 else Color("#e8d868"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 44, 42), INK)
+	return img
+
+
+## Banc de pierre blanche à pieds pleins.
+static func _bench() -> Image:
+	var img := PA.new_image(52, 28)
+	PA.rect(img, 4, 8, 44, 6, STONE)
+	PA.rect(img, 4, 8, 44, 2, STONE_L)
+	PA.rect(img, 6, 14, 7, 12, STONE_D)
+	PA.rect(img, 39, 14, 7, 12, STONE_D)
+	PA.rect(img, 6, 14, 2, 12, STONE)
+	PA.rect(img, 39, 14, 2, 12, STONE)
+	PA.rect(img, 4, 6, 44, 2, Color("#6a7a52"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 52, 28), INK)
+	return img
+
+
+## Lunette d'observation en laiton sur trépied, braquée vers la plaine.
+static func _telescope() -> Image:
+	var img := PA.new_image(34, 48)
+	PA.line(img, 17, 22, 7, 46, WOOD_D)
+	PA.line(img, 17, 22, 27, 46, WOOD_D)
+	PA.line(img, 17, 22, 17, 46, WOOD)
+	PP._poly(img, [Vector2(6, 22), Vector2(10, 16), Vector2(27, 6), Vector2(30, 10), Vector2(12, 24)], Color("#c8a040"))
+	PP._poly(img, [Vector2(10, 16), Vector2(27, 6), Vector2(28, 8), Vector2(11, 18)], Color("#f0d070"))
+	PA.rect(img, 27, 4, 5, 7, Color("#8a6a28"))
+	PA.ellipse(img, 8.0, 21.0, 4.0, 4.0, Color("#3a3a44"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 34, 48), INK)
+	return img
+
+
+## Panneau de bois sur poteau : planche peinte du champignon, deux flèches.
+static func _signpost() -> Image:
+	var img := PA.new_image(36, 58)
+	PA.rect(img, 16, 6, 4, 50, WOOD_D)
+	PA.rect(img, 4, 8, 28, 16, WOOD)
+	PA.rect(img, 4, 8, 28, 2, Color("#b08a4c"))
+	PA.ellipse(img, 18.0, 15.0, 6.0, 4.0, Color("#f4f0e4"))
+	PA.rect(img, 16, 17, 4, 5, Color("#f4f0e4"))
+	PP._poly(img, [Vector2(6, 30), Vector2(26, 30), Vector2(32, 34), Vector2(26, 38), Vector2(6, 38)], Color("#a88450"))
+	for k in 4:
+		PA.rect(img, 9 + k * 5, 33, 3, 1, WOOD_D)
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 36, 58), INK)
+	return img
+
+
+## Lampadaire de fer forgé : lanterne de verre allumée, console ouvragée.
+static func _lamppost() -> Image:
+	var img := PA.new_image(24, 70)
+	PA.rect(img, 10, 22, 3, 46, Color("#2e2e3a"))
+	PA.rect(img, 6, 64, 11, 4, Color("#3a3a46"))
+	PA.rect(img, 8, 58, 7, 6, Color("#34343f"))
+	PA.line(img, 11, 26, 4, 22, Color("#2e2e3a"))
+	PA.line(img, 11, 26, 18, 22, Color("#2e2e3a"))
+	PP._poly(img, [Vector2(6, 4), Vector2(17, 4), Vector2(19, 10), Vector2(4, 10)], Color("#2e2e3a"))
+	PA.rect(img, 6, 10, 11, 13, Color("#ffe29a"))
+	PA.rect(img, 8, 12, 7, 9, Color("#fff6c8"))
+	PA.rect(img, 5, 22, 13, 2, Color("#2e2e3a"))
+	PA.rect(img, 11, 0, 1, 5, Color("#2e2e3a"))
+	PA.outline(img, Rect2i(0, 0, 24, 70), INK)
+	return img
+
+
+## Trois tonneaux cerclés de fer : deux debout, un couché.
+static func _barrels() -> Image:
+	var img := PA.new_image(52, 40)
+	for pos in [[14, 24], [34, 24]]:
+		PA.ellipse(img, float(pos[0]), float(pos[1]), 10.0, 13.0, WOOD)
+		PA.rect(img, pos[0] - 10, pos[1] - 7, 20, 2, Color("#3a3a44"))
+		PA.rect(img, pos[0] - 10, pos[1] + 5, 20, 2, Color("#3a3a44"))
+		PA.ellipse(img, float(pos[0]), float(pos[1]) - 11.0, 8.0, 3.0, Color("#a88450"))
+	PA.ellipse(img, 26.0, 12.0, 11.0, 7.0, Color("#8a5a32"))
+	PA.rect(img, 15, 9, 22, 2, Color("#3a3a44"))
+	PA.ellipse(img, 26.0, 9.0, 8.0, 2.5, Color("#c09a5a"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 52, 40), INK)
+	return img
+
+
+## Linge qui sèche sur une corde tendue : draps blancs, chemises bleues (0) ou torchons rayés (1).
+static func _washing(v: int) -> Image:
+	var img := PA.new_image(84, 46)
+	PA.rect(img, 2, 2, 2, 44, WOOD_D)
+	PA.rect(img, 80, 2, 2, 44, WOOD_D)
+	PA.line(img, 3, 4, 81, 7, Color("#4a3a24"))
+	var cols: Array = [Color("#f4f0e4"), Color("#7a9ad0"), Color("#e8c8c0"), Color("#f4f0e4")] if v == 0 else [Color("#c85a5a"), Color("#f4f0e4"), Color("#5a7ab0"), Color("#f4f0e4")]
+	for k in 4:
+		var x := 8 + k * 18
+		var y0 := 5 + int(float(k) * 0.9)
+		var ln := 22 + (k * 5) % 9
+		PA.rect(img, x, y0, 13, ln, cols[k])
+		PA.rect(img, x, y0, 13, 2, PA.shade(cols[k], -0.15))
+		PA.rect(img, x + 10, y0 + 2, 3, ln - 2, PA.shade(cols[k], -0.1))
+		PA.px(img, x + 2, y0 + ln - 1, Color(0, 0, 0, 0))
+		PA.px(img, x + 7, y0 + ln - 2, Color(0, 0, 0, 0))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 84, 46), INK)
+	return img
+
+
+## Buisson taillé en boule dans un bac de pierre.
+static func _topiary() -> Image:
+	var img := PA.new_image(36, 50)
+	PA.rect(img, 6, 36, 24, 12, STONE)
+	PA.rect(img, 4, 34, 28, 4, STONE_L)
+	PA.rect(img, 6, 44, 24, 4, STONE_D)
+	PA.rect(img, 16, 28, 4, 8, WOOD_D)
+	PA.ellipse(img, 18.0, 18.0, 14.0, 14.0, Color("#3f7a40"))
+	PA.ellipse(img, 20.0, 15.0, 10.0, 10.0, Color("#5c9a52"))
+	PA.ellipse(img, 22.0, 11.0, 5.0, 4.0, Color("#86bc6a"))
+	for j in 6:
+		PA.px(img, 8 + j * 4, 12 + (j * 5) % 14, Color("#f4d85a") if j % 2 == 0 else Color("#e8887a"))
+	PA.relief(img)
+	PA.outline(img, Rect2i(0, 0, 36, 50), INK)
 	return img
