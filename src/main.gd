@@ -92,14 +92,18 @@ func _ready() -> void:
 	_loading = Label.new()   # « Chargement » : visible pendant la construction d'une carte, sur le fondu noir
 	_loading.text = "Chargement…"
 	_loading.add_theme_font_override("font", LoadingUI.font(false, true))
-	_loading.add_theme_font_size_override("font_size", 22)
+	_loading.add_theme_font_size_override("font_size", 26)
 	_loading.add_theme_color_override("font_color", LoadingUI.GOLD_DIM)
-	_loading.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	_loading.offset_left = -260.0
-	_loading.offset_top = -64.0
-	_loading.offset_right = -36.0
-	_loading.offset_bottom = -28.0
-	_loading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_loading.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)   # centré, dans le tiers bas de l'écran
+	_loading.anchor_top = 0.8
+	_loading.anchor_bottom = 0.8
+	_loading.offset_left = -200.0
+	_loading.offset_right = 200.0
+	_loading.offset_top = -20.0
+	_loading.offset_bottom = 20.0
+	_loading.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_loading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_loading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_loading.visible = false
 	top.add_child(_loading)
 
