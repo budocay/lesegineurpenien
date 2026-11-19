@@ -3684,7 +3684,7 @@ func _test_chapter_3_data() -> void:
 	check(without >= 0.3, "Gardien des Archives, quatre niv. 11, sans talents : %d %%" % int(without * 100.0))
 	print("  Gardien des Archives : %d %% avec talents, %d %% sans" % [int(with_talents * 100.0), int(without * 100.0)])
 	var alt := _c2_rate(["glandoulf", "sam", "aragrogne", "merri"], 11, boss, 0)
-	check(alt >= 0.15, "Gardien des Archives, autre équipe de quatre (sans soigneur : réglé pour le boss à 60-95 %) : %d %%" % int(alt * 100.0))
+	check(alt >= 0.15, "Gardien des Archives, autre équipe de quatre (sans soigneur : réglé pour le boss à 60-95 %%) : %d %%" % int(alt * 100.0))
 	var digrim := _c2_rate(["glandoulf", "digoulasse", "grimli", "pepin"], 11, boss, 0)
 	check(digrim >= 0.45, "Gardien des Archives, avec Digoulasse et Grimli : %d %%" % int(digrim * 100.0))
 	print("  Gardien, autre équipe %d %%, avec Digoulasse et Grimli %d %%" % [int(alt * 100.0), int(digrim * 100.0)])

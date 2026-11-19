@@ -1389,7 +1389,7 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 					continue
 				var bad := false
 				for t: Rect2 in taken:
-					if r.grow(3.0).intersects(t):
+					if r.grow(10.0).intersects(t):   # le contour du nom ajoute 2 px de chaque côté : deux noms jumeaux ne se touchent jamais
 						bad = true
 						break
 				if bad:
