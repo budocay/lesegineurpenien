@@ -10,7 +10,7 @@
 			"text": "Minas Tartine. Une ville taillée dans la montagne, étage après étage, comme sept tartines empilées par un géant qui n'aurait pas su s'arrêter : la Croûte, le Beurre, la Confiture, le Miel, la Mie, et plus haut deux étages que l'on ne voit pas d'ici. Tout est de pierre blanche. Au sommet, dans le dernier étage, un arbre blanc, très droit, que personne n'a le droit de toucher."
 		},
 		{
-			"text": "Derrière la Grande Porte, à l'est, la plaine est noire de monde. Tambours, catapultes, tentes, odeur de haricots. L'armée du Seigneur des Anneaux frappe aux portes de la ville, doucement, pour l'instant, par politesse. Elle compte frapper plus fort ensuite."
+			"text": "Derrière la Grande Porte, à l'est, la plaine est noire de monde. Tambours, catapultes, tentes, odeur de haricots. L'armée du Seigneur des Anneaux, Ouroukouilles en tête et Gobelardons en queue, frappe aux portes de la ville, doucement, pour l'instant, par politesse. Elle compte frapper plus fort ensuite."
 		},
 		{
 			"who": "glandoulf",
@@ -57,7 +57,7 @@
 				},
 				{
 					"who": "denigror",
-					"text": "Je vois. Un vieillard, un jardinier, deux petits hommes et une dame qui pèse. C'est cela, votre aide ?"
+					"text": "Je vois. Un vieillard, un jardinier, deux petits hommes et, plus loin, un grand qui regarde ses pieds. C'est cela, votre aide ?"
 				},
 				{
 					"who": "glandoulf",
@@ -151,7 +151,7 @@
 				},
 				{
 					"who": "glandoulf",
-					"text": "Un glaçon. Un grand."
+					"text": "Une stalactite. Un glaçon, si l'on veut. Un grand."
 				},
 				{
 					"who": "denigror",
@@ -729,7 +729,7 @@
 	"soldat_porte_haut": [
 		{
 			"who": "soldat_minas",
-			"text": "La porte a tenu. Je tenais la porte. C'est à dire que je tenais le battant, et que le battant tenait la porte. Le battant a eu une médaille."
+			"text": "La porte a tenu. Je tenais la porte. C'est-à-dire que je tenais le battant, et que le battant tenait la porte. Le battant a eu une médaille."
 		}
 	],
 	"croute_mairie": [
@@ -818,7 +818,7 @@
 			],
 			"else": [
 				{
-					"text": "Une caisse de ravitaillement, derrière la tour sud. Quelqu'un y a rangé un pain de siège, un pain de siège, et la monnaie de la ration."
+					"text": "Une caisse de ravitaillement, derrière la tour sud. Quelqu'un y a rangé un pain de siège, puis un second, par prudence, et la monnaie de la ration."
 				},
 				{
 					"give": "pain_de_siege",
@@ -1294,7 +1294,7 @@
 	"greviste_rues": [
 		{
 			"who": "greviste",
-			"text": "En grève du zèle depuis mardi. J'applique le règlement à la lettre. À la lettre : Il y a trois lettres en trop, d'ailleurs, dans le règlement. Je fais la grève des trois."
+			"text": "En grève du zèle depuis mardi. J'applique le règlement à la lettre. À la lettre, c'est-à-dire qu'il y a trois lettres en trop, d'ailleurs, dans le règlement. Je fais la grève des trois."
 		}
 	],
 	"soldat_rues_1": [
@@ -1755,7 +1755,7 @@
 			"text": "Aragrogne tire un parchemin de sa poche. Un très vieux parchemin, scellé de cire blanche. Il le déplie, lentement, et lit, d'une voix d'héritier : « Par décret de la Lignée : dormez. »"
 		},
 		{
-			"text": "Le Roi se redresse, comme piqué. Il est sec d'un rire qui n'en est pas un. « Dormir ? Moi ? Après tout ce temps, vous voudriez que je cède à ce décret ? Soit. Je me lève. Vous ne passerez pas : on ne désobéit à un roi qu'une fois, et on n'y gagne qu'une couronne de rechange. »"
+			"text": "Le Roi se redresse, comme piqué. Il rit sec, d'un rire qui n'en est pas un. « Dormir ? Moi ? Après tout ce temps, vous voudriez que je cède à ce décret ? Soit. Je me lève. Vous ne passerez pas : on ne désobéit à un roi qu'une fois, et on n'y gagne qu'une couronne de rechange. »"
 		},
 		{
 			"battle": "roi_eveille"
@@ -1771,7 +1771,7 @@
 				},
 				{
 					"who": "digoulasse",
-					"text": "Il dort. Il ronfle. J'ai vu des seigneurs plus bruyants, mais à l'envers : ceux-là se réveillent."
+					"text": "Il dort. Il ronfle. J'ai connu des seigneurs plus bruyants, jamais des seigneurs plus reposés."
 				},
 				{
 					"who": "grimli",
@@ -2017,7 +2017,7 @@
 			"if": "combat_pelle_cassouletains",
 			"then": [
 				{
-					"text": "Les Cassoulétains refluent en chantant. Ce n'est pas un chant de guerre, c'est un chant de haricots, qui reste en travers."
+					"text": "Les Cassoulétains et leurs Gobelardons refluent en chantant. Ce n'est pas un chant de guerre, c'est un chant de haricots, qui reste en travers."
 				},
 				{
 					"action": "rest"
@@ -2123,7 +2123,7 @@
 				},
 				{
 					"who": "merri",
-					"text": "Il avait raison. Il n'a pas été blessé par un homme du Gouda. Il l'a été par un hobbit du Brie. Il n'avait rien prévu pour ça."
+					"text": "Il avait raison. Il n'a pas été blessé par un homme du Gouda. Il l'a été par un petit homme du Brie. Il n'avait rien prévu pour ça."
 				},
 				{
 					"who": "aragrogne",
@@ -2177,7 +2177,7 @@
 					"give": "couronne_en_remplacement"
 				},
 				{
-					"text": "Dénigror contemple la signature. Il en tire, un à un, ses défauts : l'a mal liée, le g trop penché, le t sans barre. Puis il lâche, très bas, quelque chose, qui ressemble à du respect."
+					"text": "Dénigror contemple la signature. Il en tire, un à un, les défauts : le a mal lié, le g trop penché, le t sans barre. Puis il lâche, très bas, quelque chose, qui ressemble à du respect."
 				},
 				{
 					"who": "denigror",
@@ -2199,7 +2199,7 @@
 				},
 				{
 					"who": "glandoulf",
-					"text": "Un chapitre de moins. Il en reste un."
+					"text": "Un siège levé. Il reste une montagne, et elle est chaude."
 				},
 				{
 					"banner": "Chapitre 6 terminé",
