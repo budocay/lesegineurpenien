@@ -303,6 +303,8 @@ func metalfx_temporal_available() -> bool:
 ## les défauts restent en place pour ce qui manque.
 func load_file() -> bool:
 	reset_values()
+	if not _looks_like_cfg(path):
+		return false   # absent ou abîmé : on ne le donne pas à ConfigFile, qui s'en plaindrait dans la console
 	var cfg := ConfigFile.new()
 	if cfg.load(path) != OK:
 		return false
@@ -318,6 +320,25 @@ func load_file() -> bool:
 	elif values["qualite"] != "perso" and PRESETS.has(values["qualite"]):
 		if _matching_preset() != values["qualite"]:
 			values["qualite"] = _matching_preset()
+	return true
+
+
+## Le fichier a-t-il la forme d'un fichier de réglages (lignes « [section] » ou « clé=valeur » ) ?
+func _looks_like_cfg(file: String) -> bool:
+	if not FileAccess.file_exists(file):
+		return false
+	var bytes := FileAccess.get_file_as_bytes(file)
+	if bytes.has(0):
+		return false
+	var text := bytes.get_string_from_utf8()
+	var line_re := RegEx.new()
+	line_re.compile("^(\\[[A-Za-z0-9_./ -]+\\]|[A-Za-z0-9_./-]+ *=.*)$")
+	for line: String in text.split("\n"):
+		var l := line.strip_edges()
+		if l == "" or l.begins_with(";"):
+			continue
+		if line_re.search(l) == null:
+			return false
 	return true
 
 

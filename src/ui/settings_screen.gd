@@ -42,7 +42,7 @@ func _ready() -> void:
 	_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_help.custom_minimum_size = Vector2(0, 48)
 	body.add_child(_help)
-	(frame["foot"] as HBoxContainer).add_child(UI.hints([["Haut / bas", "ligne"], ["Gauche / droite", "valeur"], ["Entrée", "changer"], ["Échap", "retour"]]))
+	(frame["foot"] as HBoxContainer).add_child(UI.hints([["ud", "ligne"], ["lr", "valeur"], ["ok", "changer"], ["back", "retour"]]))
 	_build()
 
 
@@ -192,6 +192,8 @@ func close(silent: bool = false) -> void:
 		return
 	var f := get_viewport().gui_get_focus_owner()
 	_remember = f if f is Button and _ordered.has(f) else null
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	Settings.save()
 	if not silent:

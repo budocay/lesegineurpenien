@@ -82,7 +82,7 @@ func _ready() -> void:
 	_message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_message.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	footer.add_child(_message)
-	(frame["foot"] as HBoxContainer).add_child(UI.hints([["Flèches", "se déplacer"], ["Entrée", "apprendre"], ["Page préc. / suiv.", "changer de personnage"], ["Échap", "retour"]]))
+	(frame["foot"] as HBoxContainer).add_child(UI.hints([["nav", "se déplacer"], ["ok", "apprendre"], ["pages", "changer de personnage"], ["back", "retour"]]))
 
 
 # ------------------------------------------------------------------ ouverture
@@ -109,6 +109,8 @@ func open(member_id: String = "") -> void:
 func close(silent: bool = false) -> void:
 	if not visible:
 		return
+	if not silent:
+		UI.ghost_fade(self)
 	visible = false
 	if not silent:
 		Sfx.play("cancel")
@@ -422,7 +424,7 @@ func _show_status(talent: String) -> void:
 			text = "Déjà appris."
 			color = LEARNED
 		"available":
-			text = "Entrée : apprendre ce talent."
+			text = "%s : apprendre ce talent." % UI.key_text("ok")
 			color = OPEN
 		"locked":
 			var need := Rules.talent_def(who, Rules.talent_requirement(who, talent))
