@@ -324,6 +324,86 @@
 			"color": "#d8f0a0",
 			"energy": 1.2,
 			"range": 10.0
+		},
+		{
+			"type": "scatter",
+			"prop": "fern",
+			"rect": [
+				0,
+				0,
+				56,
+				30
+			],
+			"count": 40,
+			"min_dist": 1.1,
+			"seed": 86,
+			"on": [
+				"ent_mousse"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "flowers",
+			"rect": [
+				0,
+				3,
+				56,
+				24
+			],
+			"count": 10,
+			"min_dist": 1.8,
+			"seed": 87,
+			"on": [
+				"ent_mousse"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "log",
+			"rect": [
+				0,
+				3,
+				56,
+				24
+			],
+			"count": 5,
+			"min_dist": 3.0,
+			"seed": 88,
+			"on": [
+				"ent_mousse"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				0,
+				3,
+				56,
+				24
+			],
+			"count": 6,
+			"min_dist": 2.4,
+			"seed": 89,
+			"on": [
+				"ent_mousse"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "grass",
+			"rect": [
+				0,
+				0,
+				56,
+				30
+			],
+			"count": 26,
+			"min_dist": 1.0,
+			"seed": 90,
+			"on": [
+				"ent_mousse"
+			]
 		}
 	]
 }

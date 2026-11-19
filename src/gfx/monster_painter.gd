@@ -40,7 +40,10 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"solitaire", "grenouille", "crapaud", "follet", "epouvantail", "rat", "coq", "asticot", "vacherin",
 	"mouche", "moisi", "gobelin", "gobelin_pic", "gobelin_chef", "chauve", "troll", "guetteur", "goulum", "balourd",
 	"ouroukouille", "ouroukouille_brocheur", "ouroukouille_petrisseur", "ouroukouille_chef", "paton", "ouargue",
-	"corbeau", "hirsute", "hors_oeuvre"]
+	"corbeau", "hirsute", "hors_oeuvre",
+	# chapitre 6 : peints dans gouda_monsters.gd
+	"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme",
+	"mammou", "dindon_farce", "grondine"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -82,6 +85,17 @@ const SIZES := {
 	"corbeau": Vector2i(40, 36),
 	"hirsute": Vector2i(42, 50),
 	"hors_oeuvre": Vector2i(32, 36),
+	"eveille": Vector2i(48, 64),
+	"eveille_veilleur": Vector2i(56, 72),
+	"roi_eveille": Vector2i(84, 100),
+	"boucanier": Vector2i(52, 64),
+	"saumure": Vector2i(76, 92),
+	"cassouletain": Vector2i(56, 68),
+	"gothmoque": Vector2i(96, 108),
+	"naze_supreme": Vector2i(76, 100),
+	"mammou": Vector2i(100, 76),
+	"dindon_farce": Vector2i(88, 88),
+	"grondine": Vector2i(100, 66),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -157,6 +171,8 @@ static func _render(kind: String, k: int) -> Image:
 			"corbeau": _crow(img, ox, f, col)
 			"hirsute": _hillman(img, ox, f, col)
 			"hors_oeuvre": _canape(img, ox, f, col)
+			"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine":
+				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, size)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
 		if not PAINTED.has(kind):
@@ -470,6 +486,25 @@ static func _ell(img: Image, cx: float, cy: float, rx: float, ry: float, ramp: A
 			PA.px(img, x, y, ramp[_tone(nx, ny, bias + _grain(x, y))])
 
 
+## Ellipsoïde rayé (guêpes) : même éclairage que `_ell`, mais bandes courbes de la rampe `b`
+## (largeur `pw`, période `period`, en pixels logiques depuis `x0`), calculées pixel HD par pixel HD.
+static func _ell_stripes(img: Image, cx: float, cy: float, rx: float, ry: float, a: Array, b: Array,
+		x0: float, period: float, pw: float) -> void:
+	var gcx := cx * K
+	var gcy := cy * K
+	var grx := rx * K
+	var gry := ry * K
+	for y in range(int(floor(gcy - gry)), int(ceil(gcy + gry)) + 1):
+		for x in range(int(floor(gcx - grx)), int(ceil(gcx + grx)) + 1):
+			var nx := (x + 0.5 - gcx) / grx
+			var ny := (y + 0.5 - gcy) / gry
+			if nx * nx + ny * ny > 1.0:
+				continue
+			var xs := (x + 0.5) / K - x0 + ny * ny * 1.2
+			var ramp: Array = b if fposmod(xs, period) < pw else a
+			PA.px(img, x, y, ramp[_tone(nx, ny, _grain(x, y))])
+
+
 ## Capsule éclairée d'un point à un autre (pattes, tiges, antennes).
 static func _cap(img: Image, x0: float, y0: float, x1: float, y1: float, r0: float, r1: float, ramp: Array,
 		bias: float = 0.0) -> void:
@@ -744,9 +779,10 @@ static func _slug(img: Image, ox: int, f: int, pal: Array, eye_hex: String) -> v
 	_ell(img, ox + 17.5, by + 4.4, 13.5 + sq, 2.0, belly, 0.1)
 	# manteau sombre sur le dos, taches
 	_ell(img, ox + 14.0, by - 2.6, 7.5, 3.4, back, -0.05)
-	for p: Vector2i in [Vector2i(10, -2), Vector2i(15, -3), Vector2i(18, -1), Vector2i(12, 0)]:
-		_px(img, ox + p.x, int(by) + p.y, back[0])
-		_px(img, ox + p.x + 1, int(by) + p.y, back[0])
+	# taches rondes de la coquille, tons du manteau, plus claires au bord
+	for sp: Array in [[10.0, -2.6, 1.7, 1.2], [15.0, -3.6, 1.3, 1.0], [18.5, -1.4, 1.5, 1.1], [12.5, -0.1, 1.0, 0.8]]:
+		_ell(img, ox + float(sp[0]), by + float(sp[1]), float(sp[2]), float(sp[3]), _dim(back), -0.1)
+		_ellipse(img, ox + float(sp[0]) - 0.4, by + float(sp[1]) - 0.4, float(sp[2]) * 0.35, float(sp[3]) * 0.3, back[3])
 	# éclats de bave luisante
 	_rect(img, ox + 10, int(by) - 5, 3, 1, shine)
 	_px(img, ox + 9, int(by) - 4, shine)
@@ -779,20 +815,8 @@ static func _wasp(img: Image, ox: int, f: int, pal: Array) -> void:
 		_ell(img, ox + 9.0, 12.0 + dy, 5.0, 1.5, wing_d)
 	# dard
 	_cap(img, ox + 4.0, 20.0 + dy, ox + 0.8, 23.0 + dy, 1.2, 0.5, brown)
-	# abdomen rayé
-	var cx := ox + 10.0
-	var cy := 18.0 + dy
-	for y in range(int(cy) - 6, int(cy) + 7):
-		for x in range(ox + 2, ox + 18):
-			var ddx := (x + 0.5 - cx) / 7.0
-			var ddy := (y + 0.5 - cy) / 5.0
-			if ddx * ddx + ddy * ddy > 1.0:
-				continue
-			var t := _tone(ddx, ddy)
-			if (x - ox) % 5 < 2:
-				_px(img, x, y, brown[t])
-			else:
-				_px(img, x, y, yellow[t])
+	# abdomen rayé (bandes courbes, dessinées à la définition fine)
+	_ell_stripes(img, ox + 10.0, 18.0 + dy, 7.0, 5.0, yellow, brown, float(ox) + 0.0, 5.0, 2.0)
 	# pattes
 	_cap(img, ox + 17.0, 21.0 + dy, ox + 15.5, 25.0 + dy, 0.7, 0.5, brown)
 	_cap(img, ox + 20.0, 21.0 + dy, ox + 21.5, 25.0 + dy, 0.7, 0.5, brown)
@@ -982,13 +1006,12 @@ static func _boar(img: Image, ox: int, f: int, pal: Array) -> void:
 	_ell(img, ox + 41.0, 20.5 + dy, 3.4, 3.2, light, 0.1)
 	_px(img, ox + 43, 20 + dy, deep[0])
 	_px(img, ox + 43, 22 + dy, deep[0])
-	_px(img, ox + 39, 23 + dy, Color.WHITE)
-	_px(img, ox + 40, 24 + dy, Color.WHITE)
-	_px(img, ox + 40, 23 + dy, Color.WHITE)
-	_rect(img, ox + 35, 15 + dy, 3, 1, deep[0])
-	_px(img, ox + 35, 16 + dy, Color.WHITE)
-	_px(img, ox + 36, 16 + dy, Color.WHITE)
-	_px(img, ox + 37, 16 + dy, _c("#2b1b2e"))
+	var ivory := _ramp("#efe4c4")
+	_cap(img, ox + 38.6, 22.4 + dy, ox + 40.4, 25.8 + dy, 0.85, 0.35, ivory)   # défense recourbée
+	_cap(img, ox + 41.2, 22.8 + dy, ox + 42.0, 25.0 + dy, 0.6, 0.3, ivory)
+	_ellipse(img, ox + 36.2, 16.2 + dy, 1.7, 1.2, Color("#f0ead8"))
+	_ellipse(img, ox + 36.9, 16.4 + dy, 0.85, 0.85, _c("#2b1b2e"))
+	_cap(img, ox + 34.2, 14.9 + dy, ox + 37.8, 15.8 + dy, 0.55, 0.55, deep)   # paupière lourde
 
 
 ## Grenouille bouffie : accroupie, gros yeux, gorge qui se gonfle à la seconde pose.
@@ -1223,9 +1246,9 @@ static func _chamois(img: Image, ox: int, f: int) -> void:
 	_line(img, ox + 34, 10 + dy, ox + 36, 4 + dy, dark)
 	_line(img, ox + 36, 4 + dy, ox + 39, 4 + dy, dark)
 	_ellipse(img, ox + 29.0, 9.5 + dy, 2.0, 1.4, light)
-	_rect(img, ox + 34, 12 + dy, 3, 3, Color.WHITE)
-	_rect(img, ox + 34, 12 + dy, 3, 1, dark)
-	_px(img, ox + 36, 14 + dy, dark)
+	_ellipse(img, ox + 35.5, 13.6 + dy, 1.9, 1.5, Color.WHITE)
+	_ellipse(img, ox + 36.2, 13.9 + dy, 0.85, 0.85, dark)
+	_ellipse(img, ox + 35.4, 12.5 + dy, 2.0, 0.55, dark)
 	_px(img, ox + 41, 17 + dy, dark)
 
 
@@ -1483,16 +1506,24 @@ static func _watcher(img: Image, ox: int, f: int, col: int) -> void:
 	_ell(img, ox + 29.0, 34.0 + sway * 0.5, 9.0, 7.0, belly, 0.1)
 	_ellipse(img, ox + 29.0, 30.0, 9.0, 7.0, Color("#f4f0d8") if col != 3 else Color("#c8c4a8"))
 	if col == 3:
-		_rect(img, ox + 21, 30, 17, 2, dark)
+		# œil clos : paupière pleine, un pli sombre au bord
+		_ellipse(img, ox + 29.0, 30.6, 9.4, 7.6, dark)
+		_ell(img, ox + 29.0, 29.6, 9.0, 7.0, flesh, 0.05)
 	else:
 		_ellipse(img, ox + 31.0, 30.0, 4.5, 5.0, Color("#e8c820"))
-		_rect(img, ox + 30, 26, 3, 9, dark)
+		_ellipse(img, ox + 31.0, 30.0, 1.5, 4.2, dark)
 		_px(img, ox + 28, 27, Color.WHITE)
-	_rect(img, ox + 19, 24, 21, 2, flesh[0])
+		# paupière lourde : calotte de chair qui retombe en arc sur le haut du globe
+		_ellipse(img, ox + 29.0, 23.2, 9.9, 5.6, dark)
+		_ell(img, ox + 29.0, 22.2, 9.8, 5.4, flesh, 0.05)
 	if col == 2:
-		_rect(img, ox + 21, 38, 17, 4, Color("#4a1424"))
-		for k in 5:
-			_px(img, ox + 22 + k * 4, 38, Color.WHITE)
+		var cxm := ox + 29.5
+		_ellipse(img, cxm, 40.0, 9.6, 3.4, dark)
+		_ellipse(img, cxm, 40.0, 9.0, 2.8, Color("#5a1426"))
+		_ellipse(img, cxm, 41.2, 5.0, 1.4, Color("#d8506a"))
+		for k in 7:
+			var tx := cxm - 7.5 + float(k) * 2.5
+			_tri(img, Vector2(tx - 0.7, 37.4), Vector2(tx + 0.7, 37.4), Vector2(tx, 39.2), Color.WHITE)
 
 
 ## Goulûm (Trempette, pêcheur de Bittebourg) : maigre, pâle, de grands yeux, un poisson cru.
@@ -1533,10 +1564,8 @@ static func _gollum(img: Image, ox: int, f: int, col: int) -> void:
 		_rect(img, ox + 16, 12 + dy, 4, 1, dark)
 		_rect(img, ox + 22, 12 + dy, 3, 1, dark)
 	else:
-		_ellipse(img, ox + 18.0, 12.0 + dy, 3.4, 3.4, Color("#e8f4d0"))
-		_ellipse(img, ox + 24.0, 13.0 + dy, 3.0, 3.0, Color("#e8f4d0"))
-		_rect(img, ox + 18, 11 + dy, 2, 3, dark)
-		_rect(img, ox + 24, 12 + dy, 2, 3, dark)
+		_eye(img, ox + 14, 8 + dy, 7, 7, _c("#9ad8e8"))
+		_eye(img, ox + 21, 9 + dy, 6, 6, _c("#9ad8e8"))
 	_rect(img, ox + 21, 19 + dy, 5, 1, dark if col != 2 else Color("#4a1424"))
 	if col == 2:
 		_rect(img, ox + 21, 19 + dy, 6, 3, Color("#4a1424"))
@@ -1690,14 +1719,14 @@ static func _dough(img: Image, ox: int, f: int, col: int) -> void:
 	for k in 4:
 		_px(img, ox + 10 + k * 5, 18 + (k % 2) * 3, Color("#f8f0d8"))
 	var ey := 20 if col != 3 else 22
-	_rect(img, ox + 14, ey, 3, 3, Color("#4a5a2a"))
-	_rect(img, ox + 22, ey, 3, 3, Color("#4a5a2a"))
-	_px(img, ox + 14, ey, Color("#e8f0b0"))
-	_px(img, ox + 22, ey, Color("#e8f0b0"))
+	for ex: float in [15.5, 23.5]:
+		_ellipse(img, ox + ex, ey + 1.5, 1.9, 1.9, Color("#4a5a2a"))
+		_ellipse(img, ox + ex - 0.6, ey + 0.8, 0.7, 0.7, Color("#e8f0b0"))
 	if col == 2:
-		_rect(img, ox + 15, 27, 10, 4, Color("#5a2a1c"))
+		_ellipse(img, ox + 20.0, 29.0, 5.4, 2.4, Color("#5a2a1c"))
+		_ellipse(img, ox + 20.0, 30.0, 3.0, 1.0, Color("#c0506a"))
 	else:
-		_rect(img, ox + 16, 28, 7, 1, Color("#5a2a1c"))
+		_ellipse(img, ox + 19.5, 28.5, 3.2, 0.55, Color("#5a2a1c"))
 
 
 ## Ouargue-Garou : loup maigre à collier de moine, gueule ouverte, regard sur les restes.
@@ -1738,8 +1767,9 @@ static func _crow(img: Image, ox: int, f: int, col: int) -> void:
 	_cap(img, ox + 15.0, 20.0 + dy, ox + 7.0, wing_y, 3.5, 1.4, _ramp("#3a3a4c"))
 	_ell(img, ox + 29.0, 13.0 + dy, 5.5, 5.0, fe, 0.05)
 	_tri(img, Vector2(ox + 33.0, 11.0 + dy), Vector2(ox + 38.0, 14.0 + dy), Vector2(ox + 33.0, 16.0 + dy), Color("#e8a830"))
-	_rect(img, ox + 28, 10 + int(dy), 5, 4, Color("#e8e0c8"))   # lunettes
-	_rect(img, ox + 29, 11 + int(dy), 2, 2, Color("#1c1418") if col != 3 else Color("#8a3a3a"))
+	_ellipse(img, ox + 30.5, 12.0 + dy, 3.1, 2.6, Color("#6a5a40"))   # lunettes cerclées
+	_ellipse(img, ox + 30.5, 12.0 + dy, 2.5, 2.0, Color("#e8e0c8"))
+	_ellipse(img, ox + 31.0, 12.2 + dy, 1.0, 1.0, Color("#1c1418") if col != 3 else Color("#8a3a3a"))
 	_rect(img, ox + 23, 24 + int(dy), 6, 5, Color("#d8d0b0"))   # carnet
 	_rect(img, ox + 24, 26 + int(dy), 4, 1, Color("#6a5a40"))
 

@@ -1,0 +1,230 @@
+{
+	"id": "minas_intendance",
+	"name": "L'Intendance",
+	"region": "Gouda",
+	"size": [
+		28,
+		14
+	],
+	"interior": true,
+	"wall_height": 4.4,
+	"ambiance": "minas",
+	"music": "minas_haut",
+	"arena": "citadelle",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_marbre",
+				"rect": [
+					2,
+					3,
+					24,
+					9
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				14.0,
+				9.9
+			],
+			"facing": "up"
+		}
+	},
+	"style": "gouda",
+	"wall_tile": "gou_mur",
+	"objects": [
+		{
+			"type": "table",
+			"pos": [
+				14,
+				6.4
+			],
+			"size": [
+				2.6,
+				1.2
+			]
+		},
+		{
+			"type": "npc",
+			"id": "denigror",
+			"pos": [
+				14,
+				5.0
+			],
+			"facing": "down",
+			"reach": 2.2,
+			"dialogue": "denigror_bureau"
+		},
+		{
+			"type": "npc",
+			"id": "soldat_minas",
+			"pos": [
+				6,
+				8.5
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "soldat_intendance"
+		},
+		{
+			"type": "npc",
+			"id": "doigtiste",
+			"pos": [
+				22,
+				9.6
+			],
+			"facing": "left",
+			"reach": 1.9,
+			"dialogue": "doigtiste_intendance"
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				5.2,
+				4.2
+			],
+			"dialogue": "intendance_dossiers",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				23.5,
+				4.4
+			],
+			"dialogue": "minas_repos",
+			"label": "Se reposer",
+			"reach": 2.2
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				8.5,
+				4.2
+			],
+			"dialogue": "intendance_buste",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				19.5,
+				4.0
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				11,
+				3.6
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				17.5,
+				3.6
+			]
+		},
+		{
+			"type": "rug",
+			"rect": [
+				9.5,
+				7.5,
+				9,
+				3.2
+			],
+			"color": "#2a3560",
+			"border": "#e8d8a0"
+		},
+		{
+			"type": "crate",
+			"pos": [
+				3.8,
+				11.4
+			],
+			"dialogue": "coffre_intendance_1",
+			"label": "Ouvrir",
+			"turn": 6
+		},
+		{
+			"type": "crate",
+			"pos": [
+				24.2,
+				11.6
+			],
+			"dialogue": "coffre_intendance_2",
+			"label": "Ouvrir",
+			"turn": -6
+		},
+		{
+			"type": "npc",
+			"id": "mie_dure",
+			"pos": [
+				4.6,
+				7.6
+			],
+			"facing": "right",
+			"reach": 1.9,
+			"dialogue": "mie_dure_etal",
+			"if": "pain_demande"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				12,
+				11.1,
+				4,
+				0.8
+			],
+			"to": {
+				"map": "minas_citadelle",
+				"spawn": "porte"
+			}
+		},
+		{
+			"type": "light",
+			"pos": [
+				14,
+				6
+			],
+			"height": 2.6,
+			"color": "#ffe4ae",
+			"energy": 1.6,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				5,
+				10
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.0,
+			"range": 6
+		},
+		{
+			"type": "light",
+			"pos": [
+				23,
+				10
+			],
+			"height": 2.6,
+			"color": "#ffd890",
+			"energy": 1.0,
+			"range": 6
+		}
+	]
+}

@@ -58,6 +58,8 @@ var _last_list := {}        # "skill"/"item" -> dernier identifiant choisi
 var _last_enemy := ""
 var _target_frame := -1
 var _time := 0.0
+var _plate_in_sig := 0           # signature des entrées du placement des plaques
+var _plate_spots: Dictionary = {}   # dernières places trouvées
 var _plate_sig := 0           # signature des places de plaques au dernier réglage du premier plan
 var _menu_sig := 0           # signature de la scène au dernier placement des menus
 var _root_pos := Vector2.ZERO
@@ -1342,40 +1344,16 @@ func _layout_plates() -> void:
 		rects[c.key] = Rect2((Vector2(body.get_center().x - root.size.x * 0.5, body.end.y + 8.0)).round(), root.size)
 		own[c.key] = body
 		keys.append(c.key)
-	for _pass in 12:
-		var moved := false
-		for i in keys.size():
-			var ka: String = keys[i]
-			var ra: Rect2 = rects[ka]
-			for j in range(i + 1, keys.size()):
-				var kb: String = keys[j]
-				var rb: Rect2 = rects[kb]
-				var ov := ra.grow(3.0).intersection(rb.grow(3.0))
-				if not ra.grow(3.0).intersects(rb.grow(3.0)):
-					continue
-				moved = true
-				if ov.size.x <= ov.size.y:
-					var sign_a := 1.0 if ra.get_center().x >= rb.get_center().x else -1.0
-					ra.position.x += sign_a * (ov.size.x * 0.5 + 1.0)
-					rb.position.x -= sign_a * (ov.size.x * 0.5 + 1.0)
-				elif ra.get_center().y >= rb.get_center().y:
-					ra.position.y += ov.size.y + 1.0
-				else:
-					rb.position.y += ov.size.y + 1.0
-				rects[kb] = rb
-			# jamais sur le sprite d'un autre ennemi : on descend sous lui
-			for kc: String in keys:
-				if kc == ka:
-					continue
-				var sp: Rect2 = own[kc]
-				if ra.intersects(sp):
-					ra.position.y = sp.end.y + 2.0
-					moved = true
-			ra.position.x = clampf(ra.position.x, 6.0, maxf(6.0, view.x - ra.size.x - 6.0))
-			ra.position.y = clampf(ra.position.y, 6.0, maxf(6.0, view.y - ra.size.y - 6.0))
-			rects[ka] = ra
-		if not moved:
-			break
+	# les ennemis les plus proches de la caméra choisissent d'abord ; chaque plaque prend la place libre la plus
+	# proche de son point d'attache (sous les pieds) : ni sur une plaque déjà posée, ni sur un sprite, ni sous le
+	# bandeau des rappels de touches (recherche refaite seulement quand les entrées changent)
+	var isig := hash([keys, rects.values(), own.values(), view])
+	if isig != _plate_in_sig:
+		_plate_in_sig = isig
+		_plate_spots = _spread_plates(keys, rects, own, view)
+	for k: String in keys:
+		if _plate_spots.has(k):
+			rects[k] = _plate_spots[k]
 	var placed: Array[Rect2] = []
 	for k: String in keys:
 		((_plates[k] as Dictionary)["root"] as Control).position = (rects[k] as Rect2).position.round()
@@ -1385,6 +1363,56 @@ func _layout_plates() -> void:
 	if sig != _plate_sig:
 		_plate_sig = sig
 		scene.refit_foreground(placed)
+
+
+## Place les plaques des ennemis (voir _layout_plates) : recherche sur une grille de la place libre la plus proche.
+func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vector2) -> Dictionary:
+	var order: Array = keys.duplicate()
+	order.sort_custom(func(a: String, b: String) -> bool: return (own[a] as Rect2).end.y > (own[b] as Rect2).end.y)
+	var heroes: Array[Rect2] = []
+	for h: RefCounted in engine.party:
+		heroes.append(scene.screen_rect(h))
+	var keys_zone: Rect2 = scene.keys_band(view)
+	var out: Dictionary = {}
+	var taken: Array[Rect2] = []
+	for k: String in order:
+		var base: Rect2 = rects[k]
+		var best := base
+		var best_cost := INF
+		for dy in range(-30, 130, 6):
+			for dx in range(-280, 281, 10):
+				var r := Rect2(base.position + Vector2(dx, dy), base.size)
+				var cost := float(dx * dx) * 0.6 + float(dy * dy) * (0.5 if dy < 0 else 1.0)
+				if cost >= best_cost:
+					continue
+				if r.position.x < 6.0 or r.end.x > view.x - 6.0 or r.position.y < 6.0 or r.end.y > view.y - 6.0 or r.intersects(keys_zone):
+					continue
+				var bad := false
+				for t: Rect2 in taken:
+					if r.grow(3.0).intersects(t):
+						bad = true
+						break
+				if bad:
+					continue
+				for o: String in keys:
+					if o != k and r.intersects((own[o] as Rect2).grow(-4.0)):
+						bad = true
+						break
+				if bad:
+					continue
+				for hr: Rect2 in heroes:
+					if r.intersects(hr):
+						bad = true
+						break
+				if bad:
+					continue
+				best = r
+				best_cost = cost
+		best.position.x = clampf(best.position.x, 6.0, maxf(6.0, view.x - best.size.x - 6.0))
+		best.position.y = clampf(best.position.y, 6.0, maxf(6.0, view.y - best.size.y - 6.0))
+		out[k] = best
+		taken.append(best)
+	return out
 
 
 func _input(event: InputEvent) -> void:

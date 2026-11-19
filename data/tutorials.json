@@ -88,6 +88,12 @@
 			"title": "Pas d'issue de secours",
 			"text": "Ce combat-là ne se fuit pas. La partie vient d'être sauvegardée : en cas de défaite, on pourra reprendre juste avant. Profitez-en pour y croire.",
 			"keys": [["interact", "continuer"]]
+		},
+		{
+			"id": "manoeuvres", "trigger": "item", "when": "item:marmite_d_huile", "who": ["sam", "glandoulf"],
+			"title": "Les postes de la Porte",
+			"text": "Une marmite d'huile, de la soupe de siège : chaque poste prépare un objet de combat. Menu « Objets » en combat : l'huile ébouillante tous les ennemis, la soupe requinque toute l'équipe. À doser, comme les compliments.",
+			"keys": [["menu", "ouvrir le menu"]]
 		}
 	]
 }

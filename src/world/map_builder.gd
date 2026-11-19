@@ -11,6 +11,8 @@ const ElvenBuilder = preload("res://src/world/elven_builder.gd")
 const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
 const HouseBuilder = preload("res://src/world/house_builder.gd")
 const RiderBuilder = preload("res://src/world/rider_builder.gd")
+const GoudaBuilder = preload("res://src/world/gouda_builder.gd")
+const InteriorDress = preload("res://src/world/interior_dress.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
 const PPU := 24
@@ -35,6 +37,9 @@ const GROUND := {
 	"isen_dalle": {"hard": true}, "isen_fonte": {"hard": true}, "isen_farine": {},
 	"isen_fosse": {"hard": true, "solid": true},
 	"chu_roche": {"hard": true}, "chu_gravier": {},
+	# styles du chapitre 6 : gouda, veille, port, champ (voir docs/FORMAT_DONNEES.md)
+	"gou_pave": {"hard": true}, "gou_dalle": {"hard": true}, "gou_marbre": {"hard": true}, "gou_rempart": {"hard": true}, "gou_mur": {"hard": true},
+	"gou_herbe": {}, "gou_boue": {}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
 }
 
 ## Sols dont les grandes plaques sont teintées (voir `_mottle`) : [sombre, clair, force, clarté].
@@ -43,7 +48,12 @@ const MOTTLE := {
 	"cav_chemin": ["#8a6c40", "#d8bc82", 0.5, 0.1],
 	"nain_neige": ["#9db2d8", "#f4f2ee", 0.5, 0.08],
 	"nain_sentier": ["#8a8590", "#d4cec8", 0.5, 0.1],
-	"nain_roche_humide": ["#223048", "#4e6684", 0.42, 0.14],
+	"nain_roche_humide": ["#1c2c3e", "#58769a", 0.58, 0.16],
+	# cinquième valeur : [largeur, hauteur] des dalles, pour que chacune ait sa propre teinte (voir `_mottle`)
+	"nain_dalle": ["#262f52", "#5c5a80", 0.55, 0.1, [24, 16]],
+	"nain_pont": ["#6a6580", "#aaa2bc", 0.5, 0.08, [16, 12]],
+	"isen_dalle": ["#1e1c28", "#504b5c", 0.55, 0.1, [16, 12]],
+	"floor": ["#6a4222", "#bc8a52", 0.5, 0.1],
 	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
 	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
 }
@@ -139,6 +149,10 @@ const PROPS := {
 	# habillage des villages et des écuries (src/gfx/decor_painter.gd) : presque sans obstacle
 	"vil_puits": {"solid": 0.55}, "vil_banc": {"solid": 0.3}, "vil_brouette": {"solid": 0.25}, "vil_potager": {"variants": 3, "solid": 0.3},
 	"vil_linge": {"variants": 2, "solid": 0.2}, "vil_boite": {"solid": 0.12}, "vil_butte": {"variants": 2},
+	"gou_creneau": {"solid": 0.3}, "gou_banniere": {"variants": 2, "solid": 0.3, "sway": 0.015}, "gou_trebuchet": {"solid": 1.2},
+	"gou_poirier": {"solid": 0.5, "sway": 0.01, "glow": 0.2}, "gou_lit_pierre": {"variants": 2, "solid": 0.6}, "gou_voile": {"variants": 2, "solid": 0.3, "sway": 0.02},
+	"gou_baril": {"solid": 0.4}, "gou_boulets": {"solid": 0.4}, "gou_fontaine": {"solid": 1.0}, "gou_statue": {"solid": 0.5}, "gou_echelle": {"solid": 0.2},
+	"gou_etal": {"variants": 2, "solid": 0.8}, "gou_pieux": {"solid": 0.5}, "gou_tente": {"variants": 2, "solid": 0.9}, "gou_brasier": {"solid": 0.3, "glow": 0.5}, "gou_ancre": {"solid": 0.3},
 	"cav_ratelier": {"solid": 0.3}, "cav_abreuvoir": {"solid": 0.3}, "cav_cheval_bois": {"solid": 0.35}, "cav_brasero": {"solid": 0.25, "glow": 0.4},
 }
 
@@ -191,6 +205,8 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		DwarvenBuilder.restyle(self)
 	elif RiderBuilder.is_rider(self):
 		RiderBuilder.restyle(self)
+	elif GoudaBuilder.is_gouda(self):
+		GoudaBuilder.restyle(self)
 
 	var spawns: Dictionary = map.get("spawns", {})
 	for key: String in spawns:
@@ -206,6 +222,7 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		if str(o.get("type", "")) == "scatter":
 			_scatter(o)
 	_undergrowth()
+	InteriorDress.dress(self)
 
 	var amb := Database.get_ambiance(str(map.get("ambiance", "crepuscule")))
 	world.followers = Atmosphere.build(world, amb, Rect2(0.0, 0.0, w, h))
@@ -225,7 +242,7 @@ func _build_relief() -> void:
 	var hs: Array = map.get("heights", [])
 	var ss: Array = map.get("stairs", [])
 	world.has_relief = false
-	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self)) or (hs.is_empty() and ss.is_empty()):
+	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self)) or (hs.is_empty() and ss.is_empty()):
 		return
 	world.cell_h = PackedFloat32Array()
 	world.cell_h.resize(w * h)
@@ -505,7 +522,7 @@ func _mottle(img: Image) -> void:
 				continue
 			if not parsed.has(t):
 				var m: Array = MOTTLE[t]
-				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3])]
+				parsed[t] = [Color(str(m[0])), Color(str(m[1])), float(m[2]), float(m[3]), m[4] if m.size() > 4 else null]
 			var pm: Array = parsed[t]
 			for py in PPU:
 				for px in PPU:
@@ -641,7 +658,7 @@ func _build_outskirts() -> void:
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
-	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self)   # les styles elfe et nain plantent les leurs
+	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self)   # les styles elfe et nain plantent les leurs
 	for i in (120 if rustic else 0):
 		var p := Vector3.ZERO
 		if i < 76:
@@ -739,7 +756,7 @@ func _build_interior_walls() -> void:
 				any = true
 	if not any:
 		return
-	var walls := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture("interior_wall")))
+	var walls := MeshKit.finish(st, MeshKit.pixel_material(Sprites.tile_texture(str(map.get("wall_tile", "interior_wall")))))
 	walls.name = "Walls"
 	world.add_child(walls)
 	var caps := MeshKit.finish(cap, MeshKit.flat_material(Color("#0d0a12")))
@@ -859,7 +876,7 @@ func _object(o: Dictionary) -> void:
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
-			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o) or RiderBuilder.object(self, type, o):
+			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o) or RiderBuilder.object(self, type, o) or GoudaBuilder.object(self, type, o):
 				pass
 			else:
 				push_warning("Type d'objet inconnu dans la carte %s : %s" % [str(map.get("id", "")), type])

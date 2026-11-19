@@ -1,0 +1,331 @@
+{
+	"id": "sentier_insomniaques",
+	"name": "Le Sentier des Insomniaques",
+	"region": "Gouda",
+	"size": [
+		58,
+		20
+	],
+	"interior": true,
+	"wall_height": 4.0,
+	"ambiance": "sentier",
+	"music": "eveilles",
+	"arena": "sentier_insomniaques",
+	"camera": {
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "gou_veille",
+				"rect": [
+					2,
+					4,
+					54,
+					13
+				]
+			}
+		]
+	},
+	"spawns": {
+		"entree": {
+			"pos": [
+				4.0,
+				10.0
+			],
+			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				53.4,
+				10.0
+			],
+			"facing": "left"
+		}
+	},
+	"style": "veille",
+	"wall_tile": "gou_mur_veille",
+	"objects": [
+		{
+			"type": "monster",
+			"id": "eveille",
+			"pos": [
+				12,
+				10.6
+			],
+			"dialogue": "eveille_1",
+			"solid": 0.9,
+			"label": "Réveiller",
+			"reach": 2.4,
+			"unless": "combat_eveilles_1"
+		},
+		{
+			"type": "monster",
+			"id": "eveille",
+			"pos": [
+				20,
+				7.4
+			],
+			"dialogue": "eveille_2",
+			"solid": 0.9,
+			"label": "Réveiller",
+			"reach": 2.4,
+			"unless": "combat_eveilles_2"
+		},
+		{
+			"type": "monster",
+			"id": "eveille",
+			"pos": [
+				27,
+				12.6
+			],
+			"dialogue": "eveille_3",
+			"solid": 0.9,
+			"label": "Réveiller",
+			"reach": 2.4,
+			"unless": "combat_eveilles_3"
+		},
+		{
+			"type": "monster",
+			"id": "eveille",
+			"pos": [
+				33,
+				9.4
+			],
+			"dialogue": "eveille_4",
+			"solid": 0.9,
+			"label": "Réveiller",
+			"reach": 2.4,
+			"unless": "combat_eveilles_4"
+		},
+		{
+			"type": "monster",
+			"id": "roi_eveille",
+			"pos": [
+				47.5,
+				10.2
+			],
+			"dialogue": "roi_eveille_face",
+			"solid": 1.3,
+			"label": "Approcher",
+			"reach": 3.0,
+			"unless": "combat_roi_eveille",
+			"scale": 1.0
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				5,
+				5,
+				36,
+				11
+			],
+			"table": "sentier"
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				8,
+				5.2
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				8,
+				15.6
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				16,
+				4.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				16,
+				15.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				24,
+				4.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				24,
+				15.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				31,
+				4.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				31,
+				15.8
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				38,
+				5.2
+			]
+		},
+		{
+			"type": "gou_lit_pierre",
+			"pos": [
+				38,
+				15.6
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				44,
+				4.2
+			]
+		},
+		{
+			"type": "gou_banniere",
+			"pos": [
+				50,
+				4.2
+			]
+		},
+		{
+			"type": "gou_brasier",
+			"pos": [
+				43.5,
+				15.2
+			],
+			"dialogue": "sentier_brasier",
+			"label": "Examiner"
+		},
+		{
+			"type": "gou_statue",
+			"pos": [
+				52.5,
+				15
+			],
+			"dialogue": "sentier_statue",
+			"label": "Lire"
+		},
+		{
+			"type": "gou_etal",
+			"pos": [
+				4.5,
+				9.0
+			],
+			"dialogue": "sentier_panneau",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				53,
+				6
+			],
+			"dialogue": "coffre_sentier",
+			"label": "Ouvrir",
+			"turn": 8
+		},
+		{
+			"type": "crate",
+			"pos": [
+				21,
+				16.2
+			],
+			"dialogue": "coffre_sentier_2",
+			"label": "Ouvrir",
+			"turn": -8
+		},
+		{
+			"type": "warp",
+			"rect": [
+				54.4,
+				8.6,
+				0.8,
+				3
+			],
+			"to": {
+				"map": "port_sale",
+				"spawn": "entree"
+			},
+			"if": "combat_roi_eveille"
+		},
+		{
+			"type": "light",
+			"pos": [
+				7,
+				10
+			],
+			"height": 2.2,
+			"color": "#bff0d8",
+			"energy": 1.2,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				18,
+				10
+			],
+			"height": 2.2,
+			"color": "#bff0d8",
+			"energy": 1.2,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				30,
+				10
+			],
+			"height": 2.2,
+			"color": "#bff0d8",
+			"energy": 1.2,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				41,
+				10
+			],
+			"height": 2.2,
+			"color": "#d8ffe0",
+			"energy": 1.3,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				51,
+				10
+			],
+			"height": 2.4,
+			"color": "#fff0c0",
+			"energy": 1.8,
+			"range": 9
+		}
+	]
+}

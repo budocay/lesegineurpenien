@@ -60,6 +60,20 @@
 			}
 		},
 		{
+			"type": "warp",
+			"rect": [
+				25.8,
+				7.0,
+				0.8,
+				4.0
+			],
+			"to": {
+				"map": "minas_croute",
+				"spawn": "aigle"
+			},
+			"if": "chapitre_5_fini"
+		},
+		{
 			"type": "npc",
 			"id": "sarumale",
 			"pos": [
@@ -113,5 +127,8 @@
 			"energy": 1.8,
 			"range": 14.0
 		}
-	]
+	],
+	"surround_tile": "isen_dalle",
+	"surround_tint": "#9a8a96",
+	"surround_fade": 14
 }

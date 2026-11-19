@@ -678,17 +678,30 @@ static func _side(look: Dictionary) -> void:
 			_rect(tx - hs - belly - 1.0, belt_y - 2.5, 5.0, 1.0, _c["gold"][4])
 			if outfit == "tablier":
 				var ap: Array = _c["apron"]
+				# en profil le tablier est un plan mince, teinté par la lumière ambiante et le haut qu'il recouvre
+				var apm: Array = []
+				for ci in ap.size():
+					apm.append((ap[ci] as Color).lerp((top[ci] as Color), 0.4))
 				var by2 := minf(_hip + _lh * 0.28, _foot - 9.0)
 				var fxa := tx - hs - belly
 				# bavette collée au buste, jupon qui s'évase et ondule avec le pas ; nœud dans le dos
-				_trap(ny + 6.0, belt_y, fxa + 0.4, fxa + 3.6, fxa - 0.6, fxa + 4.4, ap, 0.0, [], true)
-				_trap(belt_y - 0.5, by2, fxa - 0.6, fxa + 4.4, fxa - 3.6 - sway * 0.4, fxa + 4.8 + sway * 0.2, ap, -0.05,
+				_trap(ny + 6.0, belt_y, fxa + 0.4, fxa + 3.6, fxa - 0.6, fxa + 4.4, apm, -0.2, [], true)
+				_trap(belt_y - 0.5, by2, fxa - 0.6, fxa + 4.4, fxa - 3.6 - sway * 0.4, fxa + 4.8 + sway * 0.2, _dim(apm), -0.1,
 					[Vector2(0.45, 0.25)], true, sway * 0.5)
-				_line(fxa - 2.0, belt_y + 4.5, fxa + 2.5, belt_y + 4.5, ap[1])
-				_line(fxa - 1.0, belt_y + 4.5, fxa - 1.0, belt_y + 9.0, ap[1])
-				_rect(tx + hs - 3.0, belt_y - 1.0, 3.0, 2.0, ap[2])
-				_cap(tx + hs - 1.5, belt_y + 1.0, tx + hs + 0.5 + sway * 0.3, belt_y + 6.0, 1.0, 0.7, ap)
-				_cap(tx - 0.5, ny + 2.5, fxa + 1.5, ny + 7.5, 1.4, 1.2, ap)
+				# le tablier ne doit pas se lire comme une bande pâle : flanc dans l'ombre (il épouse la hanche),
+				# pli, poche et ourlet de la couleur du haut
+				_trap(ny + 7.0, belt_y, fxa + 2.4, fxa + 4.6, fxa + 2.4, fxa + 5.0, _dim(apm), 0.0, [], false)
+				_trap(belt_y + 0.5, by2 - 0.5, fxa + 2.2, fxa + 5.0, fxa + 1.0, fxa + 5.2 + sway * 0.2, _dim(apm), 0.0, [], false)
+				_line(fxa + 1.4, belt_y + 3.0, fxa + 0.6, by2 - 2.0, apm[1])
+				_line(fxa + 5.0, belt_y - 1.0, fxa + 5.2 + sway * 0.2, by2 - 1.0, apm[0])
+				_rect(fxa - 0.6, belt_y + 5.5, 3.6, 3.2, apm[1])
+				_rect(fxa - 0.6, belt_y + 5.5, 3.6, 0.8, apm[3])
+				_line(fxa - 3.2 - sway * 0.4, by2 - 1.0, fxa + 4.4 + sway * 0.2, by2 - 1.0, top[2])
+				_line(fxa - 2.0, belt_y + 4.5, fxa + 2.5, belt_y + 4.5, apm[1])
+				_line(fxa - 1.0, belt_y + 4.5, fxa - 1.0, belt_y + 9.0, apm[1])
+				_rect(tx + hs - 3.0, belt_y - 1.0, 3.0, 2.0, apm[2])
+				_cap(tx + hs - 1.5, belt_y + 1.0, tx + hs + 0.5 + sway * 0.3, belt_y + 6.0, 1.0, 0.7, apm)
+				_cap(tx - 0.5, ny + 2.5, fxa + 1.5, ny + 7.5, 1.4, 1.2, apm)
 	_ell(tx - 0.5, ny + 4.6, 5.4, 4.6, top if not has_cape else _c["cape"])
 	_cast(tx - 1.0, _hcy + _ry + 0.5, _rx - 2.0, 4.6, -0.24)
 	if held != "" and not pole and hmode == "rest":
@@ -823,6 +836,7 @@ static func _head_side(look: Dictionary, hx: float, item: String) -> void:
 	var mood := str(_p["eyes"])
 	var old := _elder(look)
 	_fk = str(look.get("face", ""))
+	_lift = float(look.get("hair_lift", 0.0))
 	var heavy := _fk in ["las", "hautain", "sournois", "renfrogne", "bourru"]
 	if hat == "capuche":
 		_hood_back(hx, hcy, rx, ry, 1)
