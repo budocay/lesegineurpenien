@@ -22,6 +22,49 @@ const MONSTER_PPU := 28.0   # les monstres, un cran plus petits : les personnage
 
 var _cache: Dictionary = {}
 var _materials: Dictionary = {}
+var _warm_thread: Thread = null
+var _warm_stop := false
+
+
+## Préchauffage du cache des monstres : un fil d'arrière-plan peint, du plus petit au plus
+## gros, les planches HD qui ne sont pas encore en cache disque (un gros monstre met plusieurs
+## secondes). Le jeu n'attend jamais : si le fil principal a besoin d'un monstre, il le peint
+## lui-même (ou attend la fin de celui en cours).
+func _ready() -> void:
+	if DisplayServer.get_name() == "headless" and not OS.has_environment("GLAN_WARM"):
+		return   # les tests peignent à la demande
+	_warm_thread = Thread.new()
+	_warm_thread.start(_warm_monsters)
+
+
+func _exit_tree() -> void:
+	_warm_stop = true
+	if _warm_thread != null and _warm_thread.is_started():
+		_warm_thread.wait_to_finish()
+
+
+func _warm_monsters() -> void:
+	OS.delay_msec(1500)   # laisse l'écran de titre s'afficher d'abord
+	# le peintre garde son état dans des variables statiques : le fil d'arrière-plan en utilise une
+	# copie à lui (même texte, autres variables), pour ne jamais gêner le fil principal
+	var painter := GDScript.new()
+	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
+	if painter.reload() != OK:
+		return
+	var kinds: Array = MonsterPainter.SIZES.keys()
+	kinds.sort_custom(func(a: String, b: String) -> bool:
+		var sa: Vector2i = MonsterPainter.SIZES[a]
+		var sb: Vector2i = MonsterPainter.SIZES[b]
+		return sa.x * sa.y < sb.x * sb.y)
+	for kind: String in kinds:
+		if _warm_stop:
+			return
+		if ResourceLoader.exists(ASSET_DIR + "monsters/%s.png" % kind):
+			continue
+		_monster_stamp_init()
+		var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
+		if not FileAccess.file_exists(path):
+			_store_monster(kind, path, painter.call("paint_hd", kind))
 
 
 # ------------------------------------------------------------------ fichiers
@@ -195,23 +238,34 @@ func monster(kind: String) -> Dictionary:
 static var _monster_stamp := ""
 
 
+func _monster_stamp_init() -> void:
+	if _monster_stamp == "":
+		_monster_stamp = (FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
+			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")).md5_text()
+
+
 ## Planche HD d'un monstre peint par code (MonsterPainter.paint_hd), avec cache disque
 ## (user://cache_monstres/) : la peinture à la définition des héros prend jusqu'à quelques
 ## secondes pour un gros monstre, le PNG se relit en quelques millisecondes. La clé contient le
 ## texte des peintres : toute retouche repeint.
 func _monster_hd(kind: String) -> Image:
-	if _monster_stamp == "":
-		_monster_stamp = (FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
-			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")).md5_text()
+	_monster_stamp_init()
 	var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
 	if FileAccess.file_exists(path):
 		var cached := Image.new()
 		if cached.load(path) == OK:
 			cached.convert(Image.FORMAT_RGBA8)
 			return cached
-	var hd := MonsterPainter.paint_hd(kind)
+	return _store_monster(kind, path, MonsterPainter.paint_hd(kind))
+
+
+## Écrit la planche en cache sous un nom provisoire puis la renomme : le fil principal ne lit
+## jamais un fichier à moitié écrit.
+func _store_monster(_kind: String, path: String, hd: Image) -> Image:
 	DirAccess.make_dir_recursive_absolute("user://cache_monstres")
-	hd.save_png(path)
+	var tmp := path + ".%d.tmp" % OS.get_thread_caller_id()
+	if hd.save_png(tmp) == OK:
+		DirAccess.rename_absolute(tmp, path)
 	return hd
 
 
