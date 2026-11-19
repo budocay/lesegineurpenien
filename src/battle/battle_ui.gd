@@ -1522,7 +1522,7 @@ func _plates_in_row(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 
 ## Place les plaques des ennemis (voir _layout_plates) : recherche sur une grille de la place libre la plus proche.
 func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vector2) -> Dictionary:
-	if scene.boss == null and keys.size() >= 2:
+	if scene.boss == null and keys.size() >= 2 and keys.size() <= 4:
 		var row := _plates_in_row(keys, rects, own, view)
 		if not row.is_empty():
 			return row
