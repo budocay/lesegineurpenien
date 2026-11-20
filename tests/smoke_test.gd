@@ -8669,7 +8669,7 @@ func _test_warm_matches_demand() -> void:
 	var painter := GDScript.new()
 	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
 	check(painter.reload() == OK, "copie du peintre : se recharge")
-	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS + load("res://src/gfx/boss_painter.gd").KINDS
+	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS + load("res://src/gfx/boss_painter.gd").KINDS + load("res://src/gfx/mordgras_monsters.gd").KINDS
 	var kinds: Array = []
 	for k: String in mp.SIZES.keys():
 		if not gouda.has(k):
