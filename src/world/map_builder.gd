@@ -25,7 +25,7 @@ const GROUND := {
 	"water": {"hole": true, "solid": true},
 	"void": {"hole": true, "solid": true, "hard": true},
 	# style elfe (voir docs/FORMAT_DONNEES.md)
-	"elf_flag": {}, "elf_flag_dim": {}, "elf_path": {}, "elf_lawn": {},
+	"elf_flag": {}, "elf_flag_dim": {"hard": true}, "elf_path": {}, "elf_lawn": {},
 	"elf_bridge": {"hard": true}, "elf_parquet": {"hard": true}, "elf_floor_dark": {"hard": true},
 	# style nain (voir docs/FORMAT_DONNEES.md)
 	"nain_dalle": {"hard": true}, "nain_veine": {"hard": true}, "nain_voie": {"hard": true}, "nain_voie_v": {"hard": true},
@@ -56,6 +56,9 @@ const MOTTLE := {
 	"floor": ["#6a4222", "#bc8a52", 0.5, 0.1],
 	"chu_gravier": ["#56706e", "#a4b4a2", 0.5, 0.12],
 	"ent_mousse": ["#2c5a2c", "#6a8a34", 0.5, 0.12],
+	"isen_fosse": ["#0a0608", "#5a2214", 0.75, 0.2],
+	"elf_flag": ["#9a9684", "#f4eeda", 0.6, 0.12, [24, 16]],
+	"ent_racines": ["#1c3a1c", "#5a6a30", 0.6, 0.14],
 	# chapitre 6 : mêmes plaques teintées pour que la boue, le quai ou la dalle ne soient plus d'une seule couleur
 	"gou_boue": ["#3a2414", "#9a6a3a", 0.7, 0.14],
 	"gou_herbe": ["#4a5a22", "#a8a040", 0.6, 0.12],
@@ -181,6 +184,13 @@ const TERRACES: Array[Vector2] = [Vector2(-2.4, 1.4), Vector2(-8.5, 2.9)]
 
 
 func build(p_world: Node3D, p_map: Dictionary) -> void:
+	var t_start := Time.get_ticks_usec()
+	_build(p_world, p_map)
+	if OS.get_environment("GLAN_FPS") != "":
+		print("CONSTRUCTION ", p_map.get("id", "?"), " : ", (Time.get_ticks_usec() - t_start) / 1000, " ms")
+
+
+func _build(p_world: Node3D, p_map: Dictionary) -> void:
 	world = p_world
 	map = p_map
 	var size: Array = map.get("size", [20, 15])
@@ -209,6 +219,9 @@ func build(p_world: Node3D, p_map: Dictionary) -> void:
 		if not DwarvenBuilder.is_dwarven(self):
 			_build_interior_apron()
 			_build_interior_void()
+		else:
+			# plan noir sous le lac souterrain (-0,22) : plus de ciel étoilé visible au-delà de la roche
+			_build_interior_void(-0.45)
 	else:
 		_build_outskirts()
 	if ElvenBuilder.is_elven(self):
@@ -365,7 +378,10 @@ func _build_relief() -> void:
 		world.add_child(wall_node)
 		var lip_node := MeshKit.finish(lips, MeshKit.ground_material(Sprites.tile_texture("cliff_lip"), 0.05), false)
 		lip_node.name = "ReliefLips"
-		world.add_child(lip_node)
+		if bool(map.get("relief_lip", true)):   # `relief_lip` : faux, pas de liseré d'herbe au bord des estrades (salle de trône)
+			world.add_child(lip_node)
+		else:
+			lip_node.free()
 		var sm := StandardMaterial3D.new()
 		sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -469,6 +485,8 @@ func _cell_at_pixel(gx: float, gy: float) -> String:
 
 ## Sols de terre et sols d'herbe : leur frontière est déchiquetée, bordée de terre battue qui déborde, de
 ## touffes et de cailloux (voir `_paint_ground`).
+## Sols dont la tuile est retournée bloc par bloc (voir `_paint_ground`).
+const VARY_TILES := ["ent_racines", "ent_mousse", "isen_fosse"]
 const SOFT_PATH := ["path", "cav_chemin", "ent_sentier", "nain_sentier", "soil", "elf_path", "gou_boue"]
 const SOFT_GRASS := ["grass", "cav_herbe", "ent_mousse", "elf_lawn", "gou_herbe", "chu_gravier", "humus"]
 
@@ -514,21 +532,42 @@ func _paint_ground() -> ImageTexture:
 						uniform = false
 			if uniform:
 				if hole_c[ty * w + tx] == 0:
-					img.blit_rect(Sprites.tile_image(t), Rect2i((tx % 2) * PPU, (ty % 2) * PPU, PPU, PPU), Vector2i(tx * PPU, ty * PPU))
+					if VARY_TILES.has(t):
+						# sol de forêt : chaque bloc de 2 x 2 cases est retourné au hasard, pour que le motif de la tuile
+						# (racines, brindilles) ne se répète jamais en rangées régulières
+						var blk := PA.rnd(tx >> 1, ty >> 1, 1207)
+						var cell_img := Sprites.tile_image(t).get_region(Rect2i((tx % 2) * PPU, (ty % 2) * PPU, PPU, PPU))
+						if blk < 0.5:
+							cell_img.flip_x()
+							cell_img.flip_y()
+						elif blk < 0.75:
+							cell_img.flip_y()
+						img.blit_rect(cell_img, Rect2i(0, 0, PPU, PPU), Vector2i(tx * PPU, ty * PPU))
+					else:
+						img.blit_rect(Sprites.tile_image(t), Rect2i((tx % 2) * PPU, (ty % 2) * PPU, PPU, PPU), Vector2i(tx * PPU, ty * PPU))
 				continue
 			# tuile de bordure : frontière irrégulière entre les matières. Le bruit de déformation est calculé par blocs
 			# de 2 x 2 pixels (quatre fois moins d'appels) ; une tuile de sol dur ne se déforme pas.
 			var t_hard := hard_c[ty * w + tx] == 1
+			# tuile au bord de l'eau : le bord se déforme plus fort, même sur un sol dur (qui ne fait alors que céder
+			# du terrain à l'eau), pour que la berge ne soit jamais une ligne droite à angles vifs
+			var water_edge := false
+			if has_water:
+				for dy2: int in [-1, 0, 1]:
+					for dx2: int in [-1, 0, 1]:
+						if _cell(tx + dx2, ty + dy2) == "water":
+							water_edge = true
+			var amp := 17.0 if water_edge else 9.0
 			var warp := PackedFloat32Array()
-			if not t_hard:
+			if not t_hard or water_edge:
 				var hb := PPU / 2
 				warp.resize(hb * hb * 2)
 				for by in hb:
 					for bx in hb:
 						var gx2 := float(tx * PPU + bx * 2)
 						var gy2 := float(ty * PPU + by * 2)
-						warp[(by * hb + bx) * 2] = noise.get_noise_2d(gx2, gy2) * 9.0
-						warp[(by * hb + bx) * 2 + 1] = noise.get_noise_2d(gx2 + 300.0, gy2 + 170.0) * 9.0
+						warp[(by * hb + bx) * 2] = noise.get_noise_2d(gx2, gy2) * amp
+						warp[(by * hb + bx) * 2 + 1] = noise.get_noise_2d(gx2 + 300.0, gy2 + 170.0) * amp
 			var last_use := ""
 			var last_img: Image = null
 			for py in PPU:
@@ -553,6 +592,10 @@ func _paint_ground() -> ImageTexture:
 							cxm = tx
 							cym = ty
 						use = cells[ui]
+					elif water_edge:
+						var wi2 := ((py >> 1) * (PPU / 2) + (px >> 1)) * 2
+						if _cell_at_pixel(wx + warp[wi2], wy + warp[wi2 + 1]) == "water":
+							continue
 					if hole_c[ui] == 1:
 						continue
 					if use != last_use:
@@ -562,24 +605,26 @@ func _paint_ground() -> ImageTexture:
 					if hard_c[ui] == 0:
 						if has_water and (_cell_at_pixel(wx, wy + 3.0) == "water" or _cell_at_pixel(wx, wy - 3.0) == "water" \
 								or _cell_at_pixel(wx + 3.0, wy) == "water" or _cell_at_pixel(wx - 3.0, wy) == "water"):
-							c = PA.shade(c, -0.35)
+							c = PA.shade(c, -0.22)
 						elif use == "grass" and (_cell_at_pixel(wx, wy + 2.0) != "grass" or _cell_at_pixel(wx + 2.0, wy) != "grass"):
 							c = PA.shade(c, -0.14)
 						# bord de chemin : liseré de terre battue côté chemin, herbe foulée côté herbe, touffes et cailloux
 						var kc := soft[ui]
 						if kc != 0:
 							var other := 3 - kc
-							var cx0 := clampi(int(floorf((wx - 2.5) / PPU)), 0, w - 1)
-							var cx1 := clampi(int(floorf((wx + 2.5) / PPU)), 0, w - 1)
-							var cy0 := clampi(int(floorf((wy - 2.5) / PPU)), 0, h - 1)
-							var cy1 := clampi(int(floorf((wy + 2.5) / PPU)), 0, h - 1)
+							var cx0 := clampi(int(floorf((wx - 3.5) / PPU)), 0, w - 1)
+							var cx1 := clampi(int(floorf((wx + 3.5) / PPU)), 0, w - 1)
+							var cy0 := clampi(int(floorf((wy - 3.5) / PPU)), 0, h - 1)
+							var cy1 := clampi(int(floorf((wy + 3.5) / PPU)), 0, h - 1)
 							if soft[cym * w + cx0] == other or soft[cym * w + cx1] == other or soft[cy0 * w + cxm] == other or soft[cy1 * w + cxm] == other:
 								var dr := PA.rnd(gx, gy, 990)
 								if kc == 1:
-									c = PA.shade(c, -0.07 - 0.1 * dr)
-								elif dr < 0.45:
-									c = PA.shade(c, -0.12)
-								if dr > 0.972:
+									c = PA.shade(c, -0.16 - 0.12 * dr)   # liseré sombre côté chemin, lisible de loin
+								elif dr < 0.6:
+									c = PA.shade(c, -0.2)               # herbe foulée côté herbe
+								else:
+									c = PA.shade(c, 0.08)
+								if dr > 0.955:
 									edge_spots.append(Vector3i(gx, gy, kc))
 					img.set_pixel(gx, gy, c)
 	_edge_details(img, edge_spots)
@@ -687,10 +732,19 @@ func _slabs(img: Image) -> void:
 ## variation de clarté]`. Un bruit lent (plaques de 38 pixels, puis de 12) mélange le sol vers l'une ou
 ## l'autre teinte : la tuile, répétée toutes les deux cases, ne dessine plus de grille, et une plaine
 ## n'est plus d'une seule couleur. Calculé sur une grille au quart de la définition (rapide).
+## Les sols de MOTTLE_OPTIN ne reçoivent leurs plaques teintées que si la carte porte `"mottle": true` (le calcul
+## coûte cher sur les grandes cartes : il est réservé aux salles où le sol est un décor à part entière).
+const MOTTLE_OPTIN := ["elf_flag"]
+
+
+func _mottle_on(t: String) -> bool:
+	return not MOTTLE_OPTIN.has(t) or bool(map.get("mottle", false))
+
+
 func _mottle(img: Image) -> void:
 	var any := false
 	for t: String in cells:
-		if MOTTLE.has(t):
+		if MOTTLE.has(t) and _mottle_on(t):
 			any = true
 			break
 	if not any:
@@ -704,7 +758,7 @@ func _mottle(img: Image) -> void:
 	for ty in h:
 		for tx in w:
 			var t := cells[ty * w + tx]
-			if not MOTTLE.has(t):
+			if not MOTTLE.has(t) or not _mottle_on(t):
 				continue
 			if not parsed.has(t):
 				var m: Array = MOTTLE[t]
@@ -771,37 +825,45 @@ func _wear(img: Image) -> void:
 					elif k < -0.45:
 						c = PA.shade(c, (-k - 0.45) * 0.22)   # quelques plaques plus claires, frottées par les chariots
 					img.set_pixel(gx, gy, c)
-	# flaques d'huile : amas et vides, tirage par case de 17 pixels, jamais de grille
-	var cs := 17
-	for gy in range(0, h * PPU, cs):
-		for gx in range(0, w * PPU, cs):
-			var ix := gx / cs
-			var iy := gy / cs
-			var zone := hp.vnoise(float(gx), float(gy), 961, 80.0)
-			var p := clampf((zone - 0.4) * 1.5, 0.0, 0.5)
-			if PA.rnd(ix, iy, 962) >= p:
-				continue
-			var cx := float(gx) + PA.rnd(ix, iy, 963) * float(cs)
-			var cy := float(gy) + PA.rnd(ix, iy, 964) * float(cs)
-			var big := PA.rnd(ix, iy, 965)
-			var rx := 3.5 + 6.5 * big * big
-			var ry := rx * (0.4 + 0.3 * PA.rnd(ix, iy, 966))
-			var ok := true
-			for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry)]:
-				if not WEAR.has(_cell_at_pixel(cx + q.x, cy + q.y)):
-					ok = false
-			if not ok:
-				continue
-			# flaque d'huile noire, de forme irrégulière (deux lobes), liseré luisant très discret
-			var lobe := 0.55 + 0.3 * PA.rnd(ix, iy, 967)
-			var sgn := 1.0 if PA.rnd(ix, iy, 968) < 0.5 else -1.0
-			PA.ellipse(img, cx, cy, rx, ry, Color("#0c0a0f"))
-			PA.ellipse(img, cx + sgn * rx * 0.5, cy + ry * 0.25, rx * lobe, ry * lobe, Color("#0c0a0f"))
-			PA.ellipse(img, cx - 0.4, cy - 0.3, rx * 0.8, ry * 0.7, Color("#14101a"))
-			if rx > 5.0:
-				PA.ellipse(img, cx - rx * 0.15, cy - ry * 0.45, rx * 0.55, maxf(0.9, ry * 0.12), Color("#3a3050"))
-				PA.px(img, int(cx - rx * 0.35), int(cy - ry * 0.45), Color("#c06a38"))
-				PA.px(img, int(cx + rx * 0.2), int(cy + ry * 0.2), Color("#2a3a64"))
+	# flaques d'huile : positions tirées au hasard (ni grille ni grappes serrées), beaucoup de petites et quelques
+	# grandes, un espacement minimal entre deux flaques ; une grande zone de bruit crée amas et vides
+	var oil: Array[Vector3] = []
+	var tries := w * h * PPU * PPU / 420
+	for i in tries:
+		var cx := PA.rnd(i, 1, 963) * float(w * PPU)
+		var cy := PA.rnd(i, 2, 963) * float(h * PPU)
+		var zone := hp.vnoise(cx, cy, 961, 110.0)
+		var p := clampf((zone - 0.36) * 1.3, 0.0, 0.5)
+		if PA.rnd(i, 3, 962) >= p:
+			continue
+		var big := pow(PA.rnd(i, 4, 965), 2.4)
+		var rx := 2.6 + 9.5 * big
+		var ry := rx * (0.32 + 0.38 * PA.rnd(i, 5, 966))
+		var ok := true
+		for o: Vector3 in oil:
+			if Vector2(cx - o.x, cy - o.y).length() < (rx + o.z) * 1.9 + 6.0:
+				ok = false
+				break
+		if not ok:
+			continue
+		for q: Vector2 in [Vector2(-rx, 0), Vector2(rx, 0), Vector2(0, -ry), Vector2(0, ry)]:
+			if not WEAR.has(_cell_at_pixel(cx + q.x, cy + q.y)):
+				ok = false
+		if not ok:
+			continue
+		oil.append(Vector3(cx, cy, rx))
+		var ix := i
+		var iy := 0
+		# flaque d'huile noire, de forme irrégulière (deux lobes), liseré luisant très discret
+		var lobe := 0.55 + 0.3 * PA.rnd(ix, iy, 967)
+		var sgn := 1.0 if PA.rnd(ix, iy, 968) < 0.5 else -1.0
+		PA.ellipse(img, cx, cy, rx, ry, Color("#0c0a0f"))
+		PA.ellipse(img, cx + sgn * rx * 0.5, cy + ry * 0.25, rx * lobe, ry * lobe, Color("#0c0a0f"))
+		PA.ellipse(img, cx - 0.4, cy - 0.3, rx * 0.8, ry * 0.7, Color("#14101a"))
+		if rx > 5.0:
+			PA.ellipse(img, cx - rx * 0.15, cy - ry * 0.45, rx * 0.55, maxf(0.9, ry * 0.12), Color("#3a3050"))
+			PA.px(img, int(cx - rx * 0.35), int(cy - ry * 0.45), Color("#c06a38"))
+			PA.px(img, int(cx + rx * 0.2), int(cy + ry * 0.2), Color("#2a3a64"))
 	# rails de chariots
 	for r: Variant in map.get("rails", []):
 		if not (r is Array) or (r as Array).size() < 4:
@@ -880,6 +942,12 @@ func _scatter_puddles(img: Image) -> void:
 func _build_ground() -> void:
 	var tex: Texture2D = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
 	var mat := MeshKit.ground_material(tex, float(map.get("ground_variation", 0.07)))
+	for ci in w * h:
+		if cells[ci] == "water":
+			# le sol se mouille, se parsème de galets et de mousse au bord de l'eau (voir ground.gdshader)
+			mat.set_shader_parameter("shore_tex", _shore_texture())
+			mat.set_shader_parameter("shore_rect", Vector4(0.0, 0.0, float(w), float(h)))
+			break
 	var st := MeshKit.begin()
 	if world.has_relief:
 		# sol en dalles : chacune à la hauteur de sa case (les rampes ont leur propre maillage)
@@ -1004,20 +1072,90 @@ func _undergrowth() -> void:
 			_prop(str(kinds[rng.randi() % kinds.size()]), {"shadow": false}, Vector3(p.x, world.ground_y(p.x, p.y), p.y))
 
 
-## Carte des distances à la rive (R : distance en cases divisée par 8), quatre échantillons par case. Les cases
-## d'eau sont l'eau ; tout le reste est de la terre. L'eau lit cette carte pour s'éclaircir près du bord, y
-## faire son écume et s'assombrir vers le large (voir water.gdshader).
+## Carte des distances à la rive, quatre échantillons par case : R, côté eau, distance à la rive divisée par 8 ;
+## G, côté terre, distance à l'eau divisée par 2. La rive est celle du sol dessiné (son trou irrégulier), pas la
+## frontière des cases : le liseré d'écume suit donc exactement la berge. L'eau lit R pour s'éclaircir près du bord,
+## y faire son écume et s'assombrir vers le large (water.gdshader) ; le sol lit G pour se mouiller, se parsemer de
+## galets et de mousse au bord de l'eau (ground.gdshader).
+var _shore_cache: ImageTexture
+
+
 func _shore_texture() -> ImageTexture:
+	if _shore_cache != null:
+		return _shore_cache
 	var res := 4
 	var gw := w * res
 	var gh := h * res
+	var gimg: Image = null
+	var gtex: Variant = Sprites.cached("ground:" + str(map.get("id", "")), _paint_ground)
+	if gtex is Texture2D:
+		gimg = (gtex as Texture2D).get_image()
+	# cases d'eau ou voisines d'une case d'eau : seules elles peuvent porter l'eau
+	var nearw := PackedByteArray()
+	nearw.resize(w * h)
+	for ty in h:
+		for tx in w:
+			if cells[ty * w + tx] == "water":
+				for dy in range(-1, 2):
+					for dx in range(-1, 2):
+						var nx := tx + dx
+						var ny := ty + dy
+						if nx >= 0 and ny >= 0 and nx < w and ny < h:
+							nearw[ny * w + nx] = 1
+	# les distances se calculent seulement sur la boîte qui entoure l'eau (plus neuf cases de marge : au-delà, elles
+	# valent le maximum) ; hors de la boîte, tout reste à 255
+	var bx0 := w
+	var by0 := h
+	var bx1 := -1
+	var by1 := -1
+	for ty in h:
+		for tx in w:
+			if cells[ty * w + tx] == "water":
+				bx0 = mini(bx0, tx)
+				bx1 = maxi(bx1, tx)
+				by0 = mini(by0, ty)
+				by1 = maxi(by1, ty)
+	bx0 = maxi(0, bx0 - 9)
+	by0 = maxi(0, by0 - 9)
+	bx1 = mini(w - 1, bx1 + 9)
+	by1 = mini(h - 1, by1 + 9)
+	var cw := (bx1 - bx0 + 1) * res
+	var ch := (by1 - by0 + 1) * res
+	var wet := PackedByteArray()   # 1 : eau
+	wet.resize(cw * ch)
+	for y in ch:
+		var cy := by0 + y / res
+		for x in cw:
+			var ci := cy * w + bx0 + x / res
+			var is_w := cells[ci] == "water"
+			if gimg != null and nearw[ci] == 1:
+				var gx := (bx0 * res + x) * PPU / res + PPU / (2 * res)
+				var gy := (by0 * res + y) * PPU / res + PPU / (2 * res)
+				is_w = gimg.get_pixel(gx, gy).a < 0.5
+			wet[y * cw + x] = 1 if is_w else 0
+	var to_land := _chamfer(wet, cw, ch, 0)      # côté eau : distance à la terre
+	var to_water := _chamfer(wet, cw, ch, 1)     # côté terre : distance à l'eau
+	var data := PackedByteArray()
+	data.resize(gw * gh * 2)
+	data.fill(255)
+	for y in ch:
+		for x in cw:
+			var i := y * cw + x
+			var o := ((by0 * res + y) * gw + bx0 * res + x) * 2
+			data[o] = int(clampf(to_land[i] / float(res) / 8.0, 0.0, 1.0) * 255.0)
+			data[o + 1] = int(clampf(to_water[i] / float(res) / 2.0, 0.0, 1.0) * 255.0)
+	_shore_cache = ImageTexture.create_from_image(Image.create_from_data(gw, gh, false, Image.FORMAT_RG8, data))
+	return _shore_cache
+
+
+## Distance (en échantillons, chanfrein 1 / 1,414) de chaque échantillon à l'échantillon le plus proche dont la valeur
+## de `mask` est `target` ; 0 sur ceux-là. Deux passes.
+func _chamfer(mask: PackedByteArray, gw: int, gh: int, target: int) -> PackedFloat32Array:
+	var big := 1000.0
 	var dist := PackedFloat32Array()
 	dist.resize(gw * gh)
-	var big := 1000.0
-	for y in gh:
-		for x in gw:
-			dist[y * gw + x] = big if cells[(y / res) * w + (x / res)] == "water" else 0.0
-	# deux passes de distance (chanfrein 1 / 1,414), en échantillons
+	for i in gw * gh:
+		dist[i] = 0.0 if mask[i] == target else big
 	for y in gh:
 		for x in gw:
 			var i := y * gw + x
@@ -1044,11 +1182,7 @@ func _shore_texture() -> ImageTexture:
 				if x > 0:
 					v = minf(v, dist[i + gw - 1] + 1.414)
 			dist[i] = v
-	var data := PackedByteArray()
-	data.resize(gw * gh)
-	for i in gw * gh:
-		data[i] = int(clampf(dist[i] / float(res) / 8.0, 0.0, 1.0) * 255.0)
-	return ImageTexture.create_from_image(Image.create_from_data(gw, gh, false, Image.FORMAT_R8, data))
+	return dist
 
 
 ## Les sources de lumière posées près de l'eau (cristaux, torches, braseros) s'y reflètent : un trait vertical
@@ -1101,7 +1235,11 @@ func _build_water() -> void:
 	mat.set_shader_parameter("shore_rect", Vector4(0.0, 0.0, float(w), float(h)))
 	_water_reflections(mat)
 	var st := MeshKit.begin()
-	MeshKit.quad(st, Vector3(-80, 0, -10), Vector3(w + 80, 0, -10), Vector3(w + 80, 0, h + 80), Vector3(-80, 0, h + 80))
+	if bool(map.get("interior", false)):
+		# dans une salle, l'eau s'arrête aux murs : au-delà, le plan noir (sinon elle se voit de l'autre côté des parois)
+		MeshKit.quad(st, Vector3(0, 0, 0), Vector3(w, 0, 0), Vector3(w, 0, h), Vector3(0, 0, h))
+	else:
+		MeshKit.quad(st, Vector3(-80, 0, -10), Vector3(w + 80, 0, -10), Vector3(w + 80, 0, h + 80), Vector3(-80, 0, h + 80))
 	var node := MeshKit.finish(st, mat, false)
 	node.position.y = -0.22
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -1202,9 +1340,9 @@ func _build_interior_apron() -> void:
 
 ## Noir plein au-delà des murs : un grand plan noir sous le plancher, sans lumière ni brume, ferme tout ce que la
 ## caméra verrait par-dessus les murs ou à côté de la pièce (plus de demi-vide étoilé jusqu'au bord de l'écran).
-func _build_interior_void() -> void:
+func _build_interior_void(y: float = -0.07) -> void:
 	var st := MeshKit.begin()
-	MeshKit.quad(st, Vector3(-90, -0.07, -90), Vector3(w + 90, -0.07, -90), Vector3(w + 90, -0.07, h + 90), Vector3(-90, -0.07, h + 90))
+	MeshKit.quad(st, Vector3(-90, y, -90), Vector3(w + 90, y, -90), Vector3(w + 90, y, h + 90), Vector3(-90, y, h + 90))
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color.BLACK
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -1277,6 +1415,7 @@ func _object(o: Dictionary) -> void:
 		"stove": _stove(o)
 		"rug": _rug(o)
 		"crate": _crate(o)
+		"market_stall": _market_stall(o)
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
@@ -1739,6 +1878,74 @@ func _counter(o: Dictionary) -> void:
 	_textured(st, "wood")
 	_mesh_box(c + Vector3(0, hgt + 0.035, 0), Vector3(r.size.x + 0.12, 0.07, r.size.y + 0.12), MeshKit.flat_material(Color("#b5834e")))
 	world.rects.append(r)
+
+
+## Étal de marché : comptoir de bois, quatre poteaux, auvent de toile rayée en pente (haut derrière, bas devant, pour
+## ne jamais cacher la marchande), marchandises posées (meules, flacons, cageot) et saucissons pendus.
+## `pos` [x, z] : coin nord-ouest du comptoir ; `width` (3 par défaut) ; `colors` : deux teintes de l'auvent ;
+## `goods` : "fromage" (meules, par défaut), "bouteilles" ou "mixte".
+func _market_stall(o: Dictionary) -> void:
+	var p: Array = o.get("pos", [0, 0])
+	var wd := float(o.get("width", 3.0))
+	var x0 := float(p[0])
+	var z0 := float(p[1])
+	var cx := x0 + wd * 0.5
+	var wood := MeshKit.flat_material(Color("#5a3e26"))
+	var plank := MeshKit.flat_material(Color("#8a6038"))
+	# comptoir et plateau
+	_mesh_box(Vector3(cx, 0.4, z0 + 0.4), Vector3(wd, 0.8, 0.8), plank)
+	_mesh_box(Vector3(cx, 0.83, z0 + 0.4), Vector3(wd + 0.14, 0.07, 0.92), MeshKit.flat_material(Color("#b5834e")))
+	_mesh_box(Vector3(cx, 0.22, z0 + 0.82), Vector3(wd - 0.1, 0.34, 0.04), wood, false)
+	# poteaux : deux devant (au bord du comptoir), deux derrière
+	for sx: float in [x0 + 0.08, x0 + wd - 0.08]:
+		_mesh_box(Vector3(sx, 1.35, z0 + 0.86), Vector3(0.1, 2.7, 0.1), wood)
+		_mesh_box(Vector3(sx, 1.5, z0 - 1.1), Vector3(0.1, 3.0, 0.1), wood)
+	# auvent : bandes alternées rouge et crème, du haut (derrière) vers le bas (devant)
+	var ca := Color(str((o.get("colors", ["#a8382e", "#efe2c0"]) as Array)[0]))
+	var cb := Color(str((o.get("colors", ["#a8382e", "#efe2c0"]) as Array)[1]))
+	var nb := maxi(4, int(round(wd / 0.5)))
+	var bw := wd / float(nb)
+	for i in nb:
+		var st := MeshKit.begin()
+		var xa := x0 + bw * i
+		var xb := xa + bw
+		MeshKit.quad(st, Vector3(xa, 3.0, z0 - 1.1), Vector3(xb, 3.0, z0 - 1.1), Vector3(xb, 2.55, z0 + 0.95), Vector3(xa, 2.55, z0 + 0.95))
+		var band := MeshKit.finish(st, MeshKit.flat_material(ca if i % 2 == 0 else cb), false)
+		world.add_child(band)
+	# volant festonné au bord bas de l'auvent
+	for i in nb:
+		_mesh_box(Vector3(x0 + bw * (i + 0.5), 2.47, z0 + 0.97), Vector3(bw * 0.92, 0.16, 0.03), MeshKit.flat_material(ca if i % 2 == 0 else cb), false)
+	# marchandises sur le plateau
+	var kind := str(o.get("goods", "fromage"))
+	var gx := x0 + 0.35
+	var k := 0
+	while gx < x0 + wd - 0.3:
+		var pick := (k + (0 if kind == "mixte" else (0 if kind == "fromage" else 1))) % 2
+		if kind == "bouteilles":
+			pick = 1
+		if pick == 0:
+			# meule de fromage (deux disques empilés) avec sa part entamée
+			_mesh_box(Vector3(gx, 0.92, z0 + 0.36), Vector3(0.42, 0.16, 0.42), MeshKit.flat_material(Color("#e8c050")))
+			_mesh_box(Vector3(gx, 1.06, z0 + 0.36), Vector3(0.34, 0.14, 0.34), MeshKit.flat_material(Color("#f0cc62")))
+			_mesh_box(Vector3(gx + 0.12, 1.0, z0 + 0.58), Vector3(0.14, 0.1, 0.14), MeshKit.flat_material(Color("#c89a38")), false)
+		else:
+			# flacons : un grand vert, un petit ambré
+			_mesh_box(Vector3(gx, 1.0, z0 + 0.36), Vector3(0.14, 0.3, 0.14), MeshKit.flat_material(Color("#3c7a4a")))
+			_mesh_box(Vector3(gx + 0.2, 0.95, z0 + 0.5), Vector3(0.12, 0.2, 0.12), MeshKit.flat_material(Color("#c8842c")))
+		gx += 0.62
+		k += 1
+	# saucissons pendus sous l'auvent (le bas de l'auvent est à 2,5)
+	for i in 3:
+		var sx2 := x0 + wd * (0.25 + 0.25 * i)
+		_mesh_box(Vector3(sx2, 2.22, z0 - 0.35), Vector3(0.06, 0.5, 0.06), MeshKit.flat_material(Color("#8a3a30")), false)
+		_mesh_box(Vector3(sx2 + 0.09, 2.3, z0 - 0.35), Vector3(0.06, 0.34, 0.06), MeshKit.flat_material(Color("#9a4a36")), false)
+	# cageot au flanc du comptoir et lanterne pendue
+	_mesh_box(Vector3(x0 + wd + 0.4, 0.3, z0 + 0.45), Vector3(0.6, 0.6, 0.6), plank)
+	_mesh_box(Vector3(x0 + wd + 0.4, 0.66, z0 + 0.45), Vector3(0.44, 0.12, 0.44), MeshKit.flat_material(Color("#d8a040")), false)
+	_mesh_box(Vector3(x0 + 0.3, 2.3, z0 + 0.75), Vector3(0.16, 0.22, 0.16), MeshKit.flat_material(Color("#ffcf82"), 4.0), false)
+	_add_light(Vector3(x0 + 0.3, 2.2, z0 + 0.8), Color("#ffb45e"), 1.4, 4.0, false, 0.08)
+	world.rects.append(Rect2(x0, z0, wd, 0.9))
+	world.circles.append(Vector3(x0 + wd + 0.4, z0 + 0.45, 0.45))
 
 
 ## Lit : cadre de bois, matelas, couverture colorée (`color`) et oreiller du côté gauche. `rect` [x, z, l, p].

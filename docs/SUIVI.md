@@ -1102,3 +1102,12 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      Conseil : `ground_variation` 0,2. Enseigne du poney redessinée (le fer s'ouvrait sur le côté).
      Captures : `24_etal_ursule` recadrée, `110_brie_ecurie` ajoutée.
 
+
+162. **Décors 9** (eau, mines, forêt, étal). Eau : berges déformées plus fort et suivant le trou du sol, texture de
+     distance au rivage (`shore_tex`) pour un liseré d'écume fin et une bande mouillée côté terre ; cascade réécrite
+     (nappes verticales qui défilent, bord tramé, écume au pied). Mines : murs du Morbier teintés (`wall_tint`, `wall_glow`
+     bas), émission des murs nains noire (les panneaux blancs venaient de là), plan noir sous le lac. Forêt : tuiles
+     retournées bloc par bloc (`VARY_TILES`), racines moins régulières. Salle du Conseil : cadre bleuté, plaques teintées
+     (`"mottle": true`, réservé car coûteux : +150 ms à Fondue-Combe sinon). Isengarde : flaques d'huile tirées au hasard
+     avec espacement. Bittebourg : vrai étal d'Ursule (`market_stall`). Restent faibles : sol crème des Galeries,
+     bande verte au bas de Fongorn, mesure d'images par seconde bornée à 120 par l'écran.

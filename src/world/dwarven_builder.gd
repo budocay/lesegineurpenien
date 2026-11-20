@@ -65,7 +65,9 @@ static func _restyle_interior(b) -> void:
 		var tex: Texture2D = Sprites.tile_texture(tile)
 		var m := MeshKit.pixel_material(tex)
 		m.emission_enabled = true
-		m.emission = Color.WHITE
+		# (en mode « ajout », Godot additionne la couleur d'émission ET la texture : avec du blanc, tout le mur
+		# se voilait de gris clair ; avec du noir il ne reste que la texture, à la force `wall_glow`)
+		m.emission = Color.BLACK
 		m.emission_operator = BaseMaterial3D.EMISSION_OP_ADD
 		m.emission_texture = tex
 		m.emission_energy_multiplier = float(b.map.get("wall_glow", 0.22))

@@ -37,6 +37,11 @@ static func dress(b) -> void:
 			_surround(b)   # (un belvédère ouvre le vide sur l'horizon : pas de sol sombre)
 		return
 	_surround(b)
+	var walls0 := b.world.get_node_or_null("Walls") as MeshInstance3D
+	if walls0 != null and b.map.has("wall_tint"):
+		var m0 := walls0.material_override as StandardMaterial3D
+		if m0 != null:
+			m0.albedo_color = Color(str(b.map["wall_tint"]))
 	var name := str(b.map.get("wall_dress", ""))
 	if name == "" or not SETS.has(name):
 		return
@@ -239,7 +244,7 @@ static func _material(kind: String, v: int) -> StandardMaterial3D:
 			m.emission = Color.WHITE
 			m.emission_operator = BaseMaterial3D.EMISSION_OP_ADD
 			m.emission_texture = t["emission"]
-			m.emission_energy_multiplier = 0.9
+			m.emission_energy_multiplier = 0.65
 		return m)
 
 

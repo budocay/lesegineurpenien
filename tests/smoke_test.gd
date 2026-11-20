@@ -169,6 +169,7 @@ func _ready() -> void:
 	_test_telegraphed_attacks()
 	await _test_annonce_cues()
 	_test_decors_restes()
+	_test_decors_9()
 	_test_help_texts()
 	await _test_horizon()
 	if not OS.has_environment("GLAN_QUICK"):
@@ -4818,7 +4819,7 @@ func _test_dwarven_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence"] \
 					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
@@ -4894,7 +4895,7 @@ func _test_rider_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "balustrade", "tree"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree"] \
 					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
@@ -5053,7 +5054,7 @@ func _test_elven_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "house", "lantern", "fence", "npc", "light", "warp", "trigger", "table", "stool", "counter",
-					"fireplace", "stove", "rug", "crate", "bed", "scatter"] or MapBuilder.PROPS.has(t) or ElvenBuilder.OBJECTS.has(t)
+					"fireplace", "stove", "rug", "crate", "market_stall", "bed", "scatter"] or MapBuilder.PROPS.has(t) or ElvenBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
@@ -6999,7 +7000,7 @@ func _test_gouda_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "tree", "table", "rug"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "tree", "table", "rug"] \
 					or MapBuilder.PROPS.has(t) or GoudaBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
@@ -8830,3 +8831,24 @@ func _test_decors_8() -> void:
 		if cam.has("near_start"):
 			var ns := float(cam["near_start"])
 			check(ns <= f_min + 0.005, "carte %s : near_start %.2f ne floute pas le héros (plan le plus proche %.2f)" % [id, ns, f_min])
+
+
+## Décors 9 : étal d'Ursule, tuiles de forêt retournées, plaques de la salle du conseil, eau et mines.
+func _test_decors_9() -> void:
+	print("== Décors 9 : étal, forêt, eau, mines ==")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var btb: Dictionary = Database.get_map("bittebourg")
+	var stall := false
+	for o: Dictionary in btb.get("objects", []):
+		if str(o.get("type", "")) == "market_stall":
+			stall = true
+	check(stall, "Bittebourg : l'étal d'Ursule est posé")
+	for k: String in ["ent_racines", "ent_mousse", "isen_fosse"]:
+		check(MapBuilder.VARY_TILES.has(k) and MapBuilder.GROUND.has(k), "tuile %s retournée bloc par bloc" % k)
+	check(bool(Database.get_map("salle_conseil").get("mottle", false)) and MapBuilder.MOTTLE.has("elf_flag"), "salle du conseil : plaques teintées activées")
+	for id in ["morbier_profondeurs", "morbier_antre", "morbier_galeries"]:
+		check(Database.get_map(id).has("wall_tint"), "carte %s : murs accordés au sol (wall_tint)" % id)
+	for sh in ["water", "waterfall", "waterfall_foam", "ground"]:
+		var res: Shader = load("res://src/gfx/shaders/%s.gdshader" % sh)
+		check(res != null and res.code.length() > 100, "shader %s chargé" % sh)
+	check((load("res://src/gfx/shaders/water.gdshader") as Shader).code.contains("pool_rect"), "water.gdshader : uniforme pool_rect")

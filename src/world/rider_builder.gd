@@ -235,19 +235,22 @@ static func _cascade(b, o: Dictionary) -> void:
 		colors["body"] = Color(str(spec["shallow"])).lightened(0.25)
 		colors["deep"] = Color(str(spec.get("deep", spec["shallow"]))).lerp(Color(str(spec["shallow"])), 0.45)
 		colors["foam"] = Color(str(spec.get("glint", "#ffffff"))).lerp(Color.WHITE, 0.4)
-	ElvenBuilder._waterfall(b, p, hgt, wd, bool(o.get("pool", true)), colors)
+	# la cascade qui tombe dans l'eau de la carte n'a pas besoin de bassin posé : l'eau est déjà là
+	var in_water: bool = b._cell_at_pixel(p.x * b.PPU, (p.z + 0.6) * b.PPU) == "water"
+	ElvenBuilder._waterfall(b, p, hgt, wd, bool(o.get("pool", true)) and not in_water, colors)
 	var parent := Node3D.new()
 	parent.name = "CascadeDecor"
 	b.world.add_child(parent)
 	# paroi de roche derrière l'eau, plus large et plus haute qu'elle
 	var rock := MeshKit.pixel_material(Sprites.tile_texture("chu_roche"))
 	rock.uv1_scale = Vector3((wd + 4.0) / 2.0, (hgt + 1.0) / 2.0, 1.0)
-	rock.albedo_color = Color(0.62, 0.66, 0.72)
+	rock.albedo_color = Color(0.36, 0.4, 0.5)   # roche mouillée, sombre : elle détache l'eau claire
 	_box_in(parent, p + Vector3(0.0, (hgt + 1.0) * 0.5, -0.32), Vector3(wd + 4.0, hgt + 1.0, 0.5), rock)
 	# nappe d'écume et reflet au pied de la chute
 	var foam := ShaderMaterial.new()
 	foam.shader = FOAM_SHADER
 	foam.set_shader_parameter("tint", Color(colors.get("foam", Color.WHITE)))
+	foam.set_shader_parameter("size", Vector2(wd * 1.3, 2.0))
 	var quad := QuadMesh.new()
 	quad.size = Vector2(wd * 1.3, 2.0)
 	var mi := MeshInstance3D.new()

@@ -286,6 +286,7 @@ Objets (champ `type`) :
 - `clouds` (nombre, 0 par défaut) : force des ombres de nuages qui dérivent sur le sol (variable globale `cloud_shadow`, lue par `ground.gdshader`, réglée par `MapBuilder.build`). 1,0 pour les plaines.
 - `ground_variation` (0,07 par défaut) : amplitude de la teinte par grandes plaques du sol ; plus haut (0,2) pour briser la répétition des dalles d'une grande salle.
 - Eau : `MapBuilder._shore_texture` calcule pour chaque case d'eau sa distance à la rive (transformée de distance, texture R8) et `water.gdshader` en tire profondeur, écume, hauts-fonds. `MapBuilder._water_reflections` repère les cristaux (`nain_cristal`) et les sources de lumière posées au bord (`glow` de PROPS, torches) et les envoie au shader (tableaux `refl` et `refl_c`, 12 au plus) : un reflet vertical qui ondule sous chacune. Un lac (`lake`) ajoute le reflet de la paroi du fond et des lueurs tramées. Rochers (`nain_gravats`) et cristaux peuvent être plantés dans l'eau.
+- `relief_lip` (vrai par défaut) : faux supprime le liseré d'herbe au bord des estrades et gradins (Bergerie d'Or : une estrade de trône n'a pas d'herbe).
 - Accessoire `tallgrass` (3 variantes, balance) : herbes hautes avec fleurs sauvages, à semer par `scatter`.
 - Les rails (`rails`) sont épais (quatre pixels : dessus clair, flanc, ombre) ; les flaques d'huile de l'Isengarde ont un bord net, un reflet de flamme et une irisation.
 
@@ -1434,3 +1435,25 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
   coins ébréchés (table `SLABS` de `map_builder.gd`).
 - Intérieurs (hors nains) : un plan noir opaque (`InteriorVoid`) couvre le vide au-delà des murs.
 - Objet `bed` : voir la ligne du mobilier ci-dessus.
+
+
+## Décors 9 : eau, mines, forêt, étal
+
+- Eau : la berge suit le trou du sol (alpha de la texture peinte, déformée plus fort au bord de l'eau) ; une texture
+  de distance au rivage (`shore_tex`, RG8, quatre échantillons par case, calculée sur la boîte qui entoure l'eau)
+  donne à `water.gdshader` un liseré d'écume fin et une dentelle irrégulière, et à `ground.gdshader` une bande
+  mouillée, de la mousse et des galets sur la terre. Aucun champ à régler.
+- `water.gdshader` : uniforme `pool_rect` (x0, z0, x1, z1 en mètres) : bassin à bord arrondi et irrégulier
+  (posé par `elven_builder` au pied des cascades). `waterfall.gdshader` : nappes verticales qui défilent, filets
+  clairs, bord tramé, écume en tête et brume au pied ; `waterfall_foam.gdshader` : uniforme `size`.
+- Murs nains : `wall_tint` s'applique désormais même sans `wall_dress` ; `wall_glow` règle l'éclat de la texture
+  (l'émission des murs nains est noire : seule la texture brille). Un plan noir (`InteriorVoid`, y = -0,45) passe
+  sous le lac des intérieurs nains.
+- Carte : `"mottle": true` active les plaques teintées des sols de `MOTTLE_OPTIN` (`elf_flag`), réservées aux
+  salles où le sol est un décor (calcul coûteux). `VARY_TILES` : les tuiles de `ent_mousse`, `ent_racines` et
+  `isen_fosse` sont retournées bloc par bloc de 2 x 2 cases (plus de motif en rangées).
+- Flaques d'huile (`WEAR`) : positions tirées au hasard avec espacement minimal, beaucoup de petites, quelques
+  grandes, une zone de bruit crée amas et vides.
+- Objet `market_stall` : `pos` [x, z] (coin nord-ouest du comptoir), `width` (3), `colors` (deux teintes de
+  l'auvent), `goods` ("fromage", "bouteilles" ou "mixte") ; comptoir, poteaux, auvent rayé en pente, marchandises,
+  saucissons pendus, cageot et lanterne ; `if` / `unless` comme les autres objets. Posé à Bittebourg pour Ursule.

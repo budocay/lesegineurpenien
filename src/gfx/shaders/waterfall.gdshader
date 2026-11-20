@@ -1,8 +1,9 @@
 shader_type spatial;
-// Cascade en pixels : de larges filets lisses qui coulent chacun à sa vitesse, plus clairs au centre qu'aux bords,
-// traversés de longues coulées brillantes et de rares bulles, avec un épais liseré d'écume au seuil et des
-// bouffées d'écume au pied. Bords déchiquetés mais sans trous. Opaque (découpe franche) pour ne pas être
-// floutée par le flou de profondeur. À poser sur un quad vertical ; `size` est sa taille en unités.
+// Cascade en pixels : une nappe d'eau qui tombe. Trois couches de coulées verticales douces défilent à des
+// vitesses différentes (plus claires au centre, plus sombres et plus minces vers les bords), des filets brillants
+// les traversent, bord franc ondulé avec liseré sombre, crêtes qui dévalent, un liseré d'écume la coiffe au seuil et une brume d'écume l'enveloppe au pied.
+// Opaque (découpe franche) pour ne pas être floutée par le flou de profondeur. À poser sur un quad vertical ;
+// `size` est sa taille en unités.
 render_mode unshaded, cull_disabled, depth_draw_opaque;
 
 uniform vec3 body : source_color = vec3(0.70, 0.86, 0.95);
@@ -17,37 +18,72 @@ float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+			mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+float bayer(vec2 px) {
+	ivec2 i = ivec2(mod(px, 4.0));
+	int idx = i.x + i.y * 4;
+	float m[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+	return m[idx] / 16.0 - 0.47;
+}
+
 void fragment() {
-	vec2 p = floor(UV * size * texels_per_unit);
-	float x = p.x;
-	float y = p.y;
-	float dx = abs(UV.x - 0.5);
-	float ragged = 0.465 + 0.035 * hash(vec2(floor(y / 4.0), 7.0)) - 0.02 * (1.0 - UV.y);
-	if (dx > ragged) {
-		discard;
+	vec2 px = floor(vec2(UV.x * size.x, UV.y * size.y) * texels_per_unit);
+	vec2 p = px / texels_per_unit;           // x : 0 à size.x ; y : distance sous le seuil, en unités
+	float t = TIME * speed * 0.42;
+	float dith = bayer(px);
+	float ex = abs(UV.x - 0.5) * 2.0;        // 0 au centre, 1 au bord
+	float side = step(0.5, UV.x) * 5.0;
+
+	// bord : la nappe s'amincit et se troue ; plus large au pied où elle s'étale
+	float spread = smoothstep(size.y - 1.6, size.y, p.y) * 0.12;
+	float wob = vnoise(vec2(p.y * 0.8 - t * 0.35, 3.0 + side)) - 0.5;
+	float edge = 0.92 + spread * 0.12 + wob * 0.05;
+	if (ex > edge) {
+		discard;   // bord franc, légèrement ondulé : pas de trame sur les côtés
 	}
-	// filets de 5 texels de large : chacun sa vitesse et son rythme
-	float g = floor(x / 5.0);
-	float gh = hash(vec2(g, 3.0));
-	float across = fract(x / 5.0);
-	float rim = smoothstep(0.0, 0.28, across) * (1.0 - smoothstep(0.72, 1.0, across));
-	float spd = speed * (0.45 + gh * 0.75);
-	float v = fract(y / (18.0 + gh * 16.0) - TIME * spd * 0.22 + gh * 9.0);
-	float band = smoothstep(0.55, 0.62, v) * (1.0 - smoothstep(0.86, 0.95, v));
-	float gleam = step(0.88, v) * step(0.4, rim);
-	vec3 c = mix(deep, body, 0.7 + 0.3 * rim);
-	c = mix(c, body * 1.1, band * 0.55 * rim);
-	c = mix(c, foam, gleam * 0.7);
-	// rares bulles qui montent dans la masse
-	float bub = step(0.992, hash(vec2(x, floor(y / 3.0) + floor(TIME * 1.5 * (0.5 + gh)))));
-	c = mix(c, foam, bub * 0.9);
-	// épais liseré d'écume au seuil, bouffées d'écume au pied
-	float top = 1.0 - smoothstep(0.0, 0.09, UV.y);
-	float bottom = smoothstep(0.84, 0.97, UV.y);
-	float puff = step(0.4, hash(vec2(x + floor(TIME * 3.0), floor(y / 2.0) + 5.0)));
-	c = mix(c, foam, clamp(top, 0.0, 1.0));
-	c = mix(c, foam, bottom * puff);
-	if (bottom > 0.9 && puff < 0.5 && hash(vec2(x * 3.0, floor(TIME * 4.0))) < 0.5) {
+
+	// trois couches de coulées : fines et rapides, moyennes, larges et lentes
+	float s1 = vnoise(vec2(p.x * 3.4, p.y * 0.5 - t * 2.3));
+	float s2 = vnoise(vec2(p.x * 7.5 + 11.0, p.y * 0.8 - t * 3.5));
+	float s3 = vnoise(vec2(p.x * 1.5 + 23.0, p.y * 0.28 - t * 1.5));
+	float flow = s1 * 0.38 + s2 * 0.27 + s3 * 0.35;
+	float mid = 1.0 - ex;
+	float tone = clamp((flow - 0.45) * 2.8 + mid * 0.3 + 0.38 + dith * 0.16, 0.0, 1.0);
+	float tq = floor(tone * 5.0) / 4.0;
+	vec3 c = mix(deep * 0.5, body, clamp(tq, 0.0, 1.0));
+	c = mix(c, body * 1.12, smoothstep(0.7, 1.0, tq) * 0.4);
+	// vers les bords l'eau s'amincit et fonce
+	c *= mix(1.0, 0.7, smoothstep(0.5, 1.0, ex));
+
+	// filets brillants : de longs traits verticaux plus clairs
+	float fil = smoothstep(0.55, 0.7, vnoise(vec2(p.x * 12.0 + 5.0, p.y * 0.33 - t * 4.4)));
+	float fil2 = smoothstep(0.66, 0.8, vnoise(vec2(p.x * 6.0 + 40.0, p.y * 0.45 - t * 3.0)));
+	float shine = max(fil, fil2 * 0.7) * (0.5 + 0.5 * mid);
+	c = mix(c, mix(body, foam, 0.85), step(0.5, shine + dith * 0.25) * 0.9);
+
+	// crêtes de vagues qui dévalent : donnent le sens de la chute
+	float crest = vnoise(vec2(p.x * 2.4 + 7.0, p.y * 1.3 - t * 6.5));
+	c = mix(c, body * 1.15, step(0.7, crest) * 0.3 * (0.4 + 0.6 * mid));
+	// liseré sombre le long des bords : l'eau s'épaissit et se détache de la roche
+	c = mix(c, deep * 0.4, smoothstep(edge - 0.09, edge, ex) * 0.75);
+
+	// seuil : liseré d'écume qui déborde, tramé vers le bas
+	float lip = 1.0 - smoothstep(0.0, 0.5, p.y);
+	float lace = 0.55 + 0.45 * vnoise(vec2(p.x * 7.0, t * 2.0));
+	c = mix(c, foam, step(0.45 + dith * 0.5, lip * lace) * 0.9);
+
+	// pied : brume d'écume qui monte et se déchire
+	float low = smoothstep(size.y - 1.5, size.y - 0.1, p.y);
+	float puff = vnoise(vec2(p.x * 3.2, p.y * 2.4 + TIME * 1.3));
+	c = mix(c, foam, step(0.52 + dith * 0.5, low * (0.4 + 0.9 * puff)) * 0.92);
+	if (p.y > size.y - 0.3 && vnoise(vec2(p.x * 5.0, p.y * 6.0 + TIME * 2.0)) < 0.42 + dith * 0.2) {
 		discard;
 	}
 	ALBEDO = c * brightness;

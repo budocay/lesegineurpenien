@@ -10,6 +10,10 @@ uniform vec2 uv_scale = vec2(1.0, 1.0);
 // ombres de nuages (force réglée par la carte, voir `clouds` dans FORMAT_DONNEES.md) : grandes plaques qui dérivent lentement
 global uniform float cloud_shadow;
 
+// bord de l'eau (cartes qui en ont) : G de `shore_tex` = distance à l'eau côté terre, en cases divisée par 2
+uniform sampler2D shore_tex : filter_linear, repeat_disable;
+uniform vec4 shore_rect = vec4(0.0, 0.0, 1.0, 1.0);
+
 varying vec3 wpos;
 
 float hash(vec2 p) {
@@ -22,6 +26,13 @@ float vnoise(vec2 p) {
 	f = f * f * (3.0 - 2.0 * f);
 	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
 			mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+float bayer(vec2 px) {
+	ivec2 i = ivec2(mod(px, 4.0));
+	int idx = i.x + i.y * 4;
+	float m[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
+	return m[idx] / 16.0 - 0.47;
 }
 
 void vertex() {
@@ -50,6 +61,26 @@ void fragment() {
 		float dith = (hash(floor(q * texels_per_unit * 0.5)) - 0.5) * 0.35;
 		float shade_q = floor(clamp(edge + dith * edge * (1.0 - edge) * 3.0, 0.0, 1.0) * 3.0 + 0.5) / 3.0;
 		col *= mix(vec3(1.0), vec3(0.8, 0.86, 0.98), shade_q * cloud_shadow * 0.3);
+	}
+	if (shore_rect.z > 1.0) {
+		float land = texture(shore_tex, (wpos.xz - shore_rect.xy) / shore_rect.zw).g * 2.0;
+		if (land < 0.9) {
+			vec2 px = floor(wpos.xz * texels_per_unit);
+			float ord = bayer(px);
+			float lj = land + (vnoise(q * 2.3) - 0.5) * 0.14 + ord * 0.05;
+			// berge mouillée : sombre et fraîche au contact, elle sèche en trois paliers tramés
+			float wet = floor(clamp(1.0 - smoothstep(0.0, 0.62, lj), 0.0, 1.0) * 4.0 + 0.5) / 4.0;
+			col *= 1.0 - wet * 0.34;
+			col = mix(col, col * vec3(0.8, 0.95, 1.05), wet);
+			// mousse en plaques sur la berge humide
+			float moss = step(0.56, vnoise(q * 1.3 + 3.0)) * step(0.35, vnoise(q * 3.7)) * (1.0 - smoothstep(0.12, 0.5, lj)) * step(0.1, lj);
+			col = mix(col, col * vec3(0.72, 1.12, 0.62), moss * 0.7);
+			// galets : quelques pixels clairs et sombres, plus serrés tout au bord
+			float h1 = hash(floor(q * texels_per_unit * 0.5));
+			float pebble = step(0.9, h1) * (1.0 - smoothstep(0.2, 0.55, lj)) * step(0.06, lj);
+			float lit = step(0.5, hash(floor(q * texels_per_unit * 0.5) + 7.0));
+			col = mix(col, mix(col * 0.55, vec3(0.62, 0.62, 0.58) * (0.85 + 0.3 * h1), lit), pebble * 0.85);
+		}
 	}
 	ALBEDO = col;
 	ROUGHNESS = 1.0;

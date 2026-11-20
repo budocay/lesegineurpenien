@@ -8,6 +8,8 @@
 	],
 	"interior": true,
 	"wall_height": 5.0,
+	"relief_lip": false,
+	"ground_variation": 0.14,
 	"ambiance": "bergerie",
 	"music": "bergerie_or",
 	"arena": "bergerie_or",

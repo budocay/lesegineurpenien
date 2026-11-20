@@ -174,15 +174,30 @@ static func _wood_wall() -> Image:
 
 static func _roots() -> Image:
 	var img := _noise(["#2e4a2a", "#264022", "#385a30"], 1161, 30, Color("#78a860"))
-	for k in 4:
+	# deux racines seulement, de cap différent, qui serpentent ; un coussin de mousse claire et quelques champignons
+	for k in 2:
 		var x := PA.rnd(k, 1, 1162) * T
 		var y := PA.rnd(k, 2, 1162) * T
-		for s in 26:
-			x += 1.0 if PA.rnd(s, k, 1163) < 0.7 else 0.0
-			y += (PA.rnd(s, k, 1164) - 0.5) * 1.6
+		var ang := PA.rnd(k, 3, 1162) * TAU
+		for s in 22:
+			ang += (PA.rnd(s, k, 1164) - 0.5) * 0.9
+			x += cos(ang)
+			y += sin(ang)
 			_wrap_px(img, int(x), int(y), Color("#4c3a22"))
-			_wrap_px(img, int(x), int(y) + 1, Color("#2c2214"))
+			_wrap_px(img, int(x) + 1, int(y) + 1, Color("#2c2214"))
 			_wrap_px(img, int(x), int(y) - 1, Color("#6a5232"))
+	for k in 3:
+		var mx := PA.rnd(k, 5, 1165) * T
+		var my := PA.rnd(k, 6, 1165) * T
+		for j in 14:
+			_wrap_px(img, int(mx + (PA.rnd(j, k, 1166) - 0.5) * 9.0), int(my + (PA.rnd(j, k, 1167) - 0.5) * 5.0), Color("#6a9a48"))
+	for k in 2:
+		var cx := int(PA.rnd(k, 7, 1168) * (T - 4)) + 2
+		var cy := int(PA.rnd(k, 8, 1168) * (T - 4)) + 2
+		_wrap_px(img, cx, cy, Color("#e8d8b8"))
+		_wrap_px(img, cx - 1, cy - 1, Color("#b8503a"))
+		_wrap_px(img, cx, cy - 1, Color("#b8503a"))
+		_wrap_px(img, cx + 1, cy - 1, Color("#b8503a"))
 	return img
 
 
@@ -210,7 +225,7 @@ static func _pit() -> Image:
 	var img := PA.new_image(T, T)
 	img.fill(Color("#120d10"))
 	TP._blotches(img, 1181, 10, Color("#241418"), 6.0, 12.0)
-	TP._blotches(img, 1182, 6, Color("#5a1c10"), 4.0, 8.0)
+	TP._blotches(img, 1182, 4, Color("#5a1c10"), 3.0, 11.0)
 	for i in 14:
 		_wrap_px(img, int(PA.rnd(i, 1, 1183) * T), int(PA.rnd(i, 2, 1183) * T), EMBER if i % 3 == 0 else Color("#b83c18"))
 	return img

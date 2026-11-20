@@ -229,17 +229,26 @@ static func _cheese_floor() -> Image:
 	TP._blotches(img, 821, 9, CH_S, 5.0, 11.0)
 	TP._blotches(img, 822, 7, CH_L, 4.0, 8.0)
 	_specks_in(img, 823, 60, CH_S)
-	# raie de cendre, irrégulière, en travers de la tuile
-	for x in T:
-		var yy := 22 + int(round(sin(float(x) * 0.35) * 1.5)) + (1 if PA.rnd(x, 1, 824) < 0.3 else 0)
-		var th := 3 + (1 if PA.rnd(x, 2, 824) < 0.4 else 0)
-		for k in th:
-			_wrap_px(img, x, yy + k, ASH if k != 0 else Color("#5a5650"))
+	# traces de cendre : deux traits courts et brisés, jamais une raie continue (elle dessinerait des rayures de tuile en tuile)
+	for i in 2:
+		var x0 := int(PA.rnd(i, 5, 824) * T)
+		var yy := int(PA.rnd(i, 6, 824) * T)
+		var ln := 9 + int(PA.rnd(i, 7, 824) * 14.0)
+		for x in ln:
+			var y2 := yy + int(round(sin(float(x) * 0.5 + float(i)) * 1.2))
+			_wrap_px(img, x0 + x, y2, ASH if x % 5 != 4 else Color("#5a5650"))
+			if PA.rnd(x, i, 826) < 0.5:
+				_wrap_px(img, x0 + x, y2 + 1, Color("#5a5650"))
 	for i in 5:
 		var cx := PA.rnd(i, 1, 825) * T
 		var cy := PA.rnd(i, 2, 825) * T
 		TP._wrap_ellipse(img, cx, cy, 2.6 + PA.rnd(i, 3, 825) * 2.0, 1.8 + PA.rnd(i, 4, 825) * 1.4, CH_D)
 		TP._wrap_ellipse(img, cx, cy + 0.6, 1.8, 1.0, Color("#6a5a30"))
+	# sol plus sombre que les murs de fromage : il ne doit pas éclater sur le reste de la mine
+	for y in T:
+		for x in T:
+			var c := img.get_pixel(x, y)
+			img.set_pixel(x, y, Color(c.r * 0.6, c.g * 0.57, c.b * 0.56, c.a))
 	return img
 
 

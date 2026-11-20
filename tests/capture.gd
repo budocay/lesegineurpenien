@@ -163,8 +163,8 @@ func _ready() -> void:
 	main.change_map("bittebourg", "route_est")
 	await _frames(60)
 	await _idle()
-	# Ursule est en (20,3 ; 23,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
-	await _goto(Vector3(22.8, 0.0, 26.0), "up")
+	# Ursule est en (19,1 ; 22,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
+	await _goto(Vector3(20.4, 0.0, 26.2), "up")
 	# on attend que le titre du lieu et les bandeaux de quête s'effacent : la vue ne montre que l'étal
 	await get_tree().create_timer(8.0).timeout
 	await _shot("24_etal_ursule")
@@ -817,9 +817,19 @@ func _vues_only() -> void:
 			n += 1
 		else:
 			var q := part.split("@")
+			if OS.get_environment("GLAN_FPS") != "":
+				Engine.max_fps = 0
+				DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)   # sinon l'image est bornée à 120 par seconde
 			main.change_map(q[0], q[1])
 			await _frames(150)
 			await _idle()
+			if OS.get_environment("GLAN_FPS") != "":
+				# temps d'image moyen sur trois secondes
+				var f0 := Engine.get_frames_drawn()
+				var tm0 := Time.get_ticks_msec()
+				while Time.get_ticks_msec() - tm0 < 3000:
+					await get_tree().process_frame
+				print("IMAGE ", q[0], " : ", snappedf(3000.0 / float(Engine.get_frames_drawn() - f0), 0.01), " ms")
 			# une scène d'arrivée peut lancer un combat : on le joue tout seul, puis on rend la main
 			for _k in 3:
 				if main.battle == null:

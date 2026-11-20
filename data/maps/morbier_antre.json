@@ -327,5 +327,7 @@
 		"glow": "#3aa8d8",
 		"glow_power": 0.55
 	},
-	"wall_tile": "nain_mur_morbier"
+	"wall_tile": "nain_mur_morbier",
+	"wall_glow": 0.015,
+	"wall_tint": "#8a7a68"
 }
