@@ -22,5 +22,11 @@ EN CAS DE PROBLÈME
   Lancer le jeu depuis un terminal et envoyer ce qu'il affiche, ou le fichier
   logs/godot.log du dossier des sauvegardes.
 
+CREDITS
+  Polices : Alegreya (c) 2011 The Alegreya Project Authors, SIL Open Font License 1.1.
+            Cinzel (c) 2020 The Cinzel Project Authors, SIL Open Font License 1.1.
+  Sons d'interface, de coups et de portes : Kenney (www.kenney.nl), CC0.
+  Le choix « Sons » des Paramètres permet de revenir aux sons synthétisés par le jeu.
+
 CONTACT
   https://github.com/budocay/lesegineurpenien (rubrique « Issues »)

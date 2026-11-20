@@ -52,15 +52,70 @@ static var _cache: Dictionary = {}
 
 # ------------------------------------------------------------------ polices
 
+## Police du jeu : Alegreya (assets/fonts/, licence OFL) pour tout le texte, la même sur Mac et sur Windows.
+## Si le fichier manque, ou pour un glyphe qu'elle n'a pas (− → ✓ ▲ • ◄ ► ‹ ›), le jeu se rabat sur une
+## police du système (Palatino, Georgia...).
+const FONT_TEXT := "res://assets/fonts/Alegreya.ttf"
+const FONT_TEXT_ITALIC := "res://assets/fonts/Alegreya-Italique.ttf"
+const FONT_TITLE := "res://assets/fonts/Cinzel.ttf"
+const TAG_WGHT := 2003265652    # étiquette OpenType « wght » (graisse)
+const TAG_LNUM := 1819178349    # étiquette OpenType « lnum » (chiffres alignés)
+const FONT_LINE_TIGHTEN := -3   # interligne resserré (Alegreya est haute de ligne), en pixels haut et bas
+
+
 static func font(bold: bool = false, italic: bool = false) -> Font:
 	var key := (1 if bold else 0) + (2 if italic else 0)
 	if _fonts.has(key):
 		return _fonts[key]
+	var f: Font = file_font(FONT_TEXT_ITALIC if italic else FONT_TEXT, 700 if bold else 500, FONT_LINE_TIGHTEN, 3 if italic else 1)   # l'italique a une espace étroite : on l'élargit
+	if f == null:
+		f = _sys_fallback(bold, italic)
+	_fonts[key] = f
+	return f
+
+
+## Police du système, repli quand le fichier manque ou qu'un glyphe n'existe pas dans Alegreya.
+static func _sys_fallback(bold: bool = false, italic: bool = false) -> SystemFont:
 	var f := SystemFont.new()
 	f.font_names = PackedStringArray(["Palatino", "Palatino Linotype", "Book Antiqua", "Georgia", "Times New Roman", "serif"])
 	f.font_weight = 700 if bold else 400
 	f.font_italic = italic
-	_fonts[key] = f
+	return f
+
+
+## Charge une police variable du jeu à la graisse voulue ; null si le fichier est absent ou illisible.
+static func file_font(path: String, weight: int, tighten: int = FONT_LINE_TIGHTEN, word_gap: int = 0) -> Font:
+	var base: Variant = null
+	if ResourceLoader.exists(path):
+		base = load(path)
+	elif FileAccess.file_exists(path):   # fichier posé sans avoir été importé (premier lancement hors éditeur)
+		var raw := FontFile.new()
+		raw.load_dynamic_font(path)
+		base = raw
+	if not (base is FontFile):
+		return null
+	var ff: FontFile = base
+	ff.fallbacks = [_sys_fallback()]
+	ff.hinting = TextServer.HINTING_NONE                                  # sans ajustement à la grille : espacement régulier
+	ff.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_ONE_HALF    # lettres posées au demi-pixel, pas à l'entier
+	var v := FontVariation.new()
+	v.base_font = base
+	v.variation_opentype = {TAG_WGHT: weight}
+	v.opentype_features = {TAG_LNUM: 1}      # chiffres alignés sur la ligne (pas de 3 ni de 9 qui descendent)
+	v.spacing_space = word_gap
+	v.spacing_top = tighten
+	v.spacing_bottom = tighten
+	return v
+
+
+## Police des titres (écran-titre, bandeaux de lieu) : Cinzel, repli sur la police de texte.
+static func font_title() -> Font:
+	if _fonts.has("title"):
+		return _fonts["title"]
+	var f: Font = file_font(FONT_TITLE, 500, 0)
+	if f == null:
+		f = font(false)
+	_fonts["title"] = f
 	return f
 
 

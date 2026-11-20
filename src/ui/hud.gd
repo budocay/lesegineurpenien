@@ -51,6 +51,7 @@ func _ready() -> void:
 	col.add_child(_banner_row)
 	_banner_row.add_child(UI.rule(150.0, "in"))
 	_banner_title = UI.label("", 54, UI.INK)
+	_banner_title.add_theme_font_override("font", UI.font_title())   # nom de lieu en Cinzel
 	_banner_title.add_theme_constant_override("shadow_offset_y", 2)
 	_banner_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_banner_row.add_child(_banner_title)
@@ -164,7 +165,7 @@ func banner(title: String, subtitle: String = "") -> void:
 	# un nom long rapetisse plutôt que de déborder
 	var avail := maxf(size.x, 1280.0) - 340.0 - 300.0 - 44.0
 	var fs := 54
-	while fs > 30 and UI.font().get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > avail:
+	while fs > 30 and UI.font_title().get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > avail:
 		fs -= 2
 	_banner_title.add_theme_font_size_override("font_size", fs)
 	_banner_sub.text = subtitle.to_upper()

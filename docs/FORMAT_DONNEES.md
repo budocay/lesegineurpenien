@@ -1465,3 +1465,15 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
 - Objet `market_stall` : `pos` [x, z] (coin nord-ouest du comptoir), `width` (3), `colors` (deux teintes de
   l'auvent), `goods` ("fromage", "bouteilles" ou "mixte") ; comptoir, poteaux, auvent rayé en pente, marchandises,
   saucissons pendus, cageot et lanterne ; `if` / `unless` comme les autres objets. Posé à Bittebourg pour Ursule.
+
+## Polices et sons enregistrés — `assets/fonts/`, `assets/sfx/`
+
+- `assets/fonts/` : `Alegreya.ttf` et `Alegreya-Italique.ttf` (texte), `Cinzel.ttf` (titre de l'écran-titre),
+  polices variables (graisse réglée par `UI.file_font`, `src/ui/ui_kit.gd`). Si un fichier manque, le jeu
+  se rabat sur une police du système ; les glyphes absents (✓ ◄ ►) y sont aussi pris. Les licences
+  `LICENCE_*_OFL` partent dans le paquet (champ `include_filter` de `export_presets.cfg`).
+- `assets/sfx/<identifiant>.wav` (ou `.ogg`) : remplace le son généré du même identifiant de `src/core/sfx.gd`
+  quand le réglage « Sons » (`sons`) vaut « enregistrés ». Court, mono, sans silence de tête, au niveau du son
+  généré. Supprimer le fichier rend le son généré. Magie, soins, feu, cris, rots restent synthétisés.
+  Crédits : `docs/CREDITS.md`.
+- `tests/_dump_sfx.gd` écrit les sons générés en .wav (pour mesurer durée et niveau avant de remplacer).

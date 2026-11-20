@@ -86,7 +86,8 @@ func _ready() -> void:
 	lord_rule.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	lord_row.add_child(lord_rule)
 	box.add_child(lord_row)
-	var title := UI.label("des Anneaux Péniens", 88, UI.GOLD)
+	var title := UI.label("des Anneaux Péniens", 78, UI.GOLD)
+	title.add_theme_font_override("font", UI.font_title())
 	title.add_theme_constant_override("shadow_offset_y", 4)
 	title.add_theme_constant_override("shadow_offset_x", 2)
 	title.add_theme_constant_override("outline_size", 6)

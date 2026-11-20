@@ -122,6 +122,11 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_FONTS"):   # essai ciblé de la police embarquée et des sons enregistrés
+		_test_fonts_and_sounds()
+		print("%d vérifications, %d échec(s) (police et sons seuls)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_STAGING"):   # essai ciblé de la mise en page du combat
 		await _test_battle_staging()
 		print("%d vérifications, %d échec(s) (mise en page du combat seule)." % [checks, failures])
@@ -176,6 +181,7 @@ func _ready() -> void:
 	_test_lanternes_mines()
 	_test_equipment()
 	await _test_settings()
+	_test_fonts_and_sounds()
 	await _test_houses()
 	_test_arena_mood()
 	_test_door_clearance()
@@ -5497,6 +5503,77 @@ func _ui_action(action: String) -> void:
 		Input.parse_input_event(e)
 		await get_tree().process_frame
 		await get_tree().process_frame
+
+
+func _test_fonts_and_sounds() -> void:
+	print("== Police embarquée et sons enregistrés ==")
+	var UIk = preload("res://src/ui/ui_kit.gd")
+	# police : chargée depuis le fichier, tous les caractères français présents
+	for path: String in [UIk.FONT_TEXT, UIk.FONT_TEXT_ITALIC, UIk.FONT_TITLE]:
+		check(ResourceLoader.exists(path), "police : %s est dans le projet" % path)
+	for bold in [false, true]:
+		for italic in [false, true]:
+			var f: Font = UIk.font(bold, italic)
+			check(f is FontVariation and (f as FontVariation).base_font is FontFile, "police : texte (gras %s, italique %s) tiré d'un fichier" % [bold, italic])
+	var base: FontFile = (UIk.font() as FontVariation).base_font
+	check(base.resource_path.ends_with("Alegreya.ttf"), "police : le texte est en Alegreya (%s)" % base.resource_path)
+	var missing: PackedStringArray = []
+	for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789àâäéèêëîïôöùûüÿçœæÀÂÄÉÈÊËÎÏÔÖÙÛÜŸÇŒÆ«»’‘“”…—–°€%&?!:;,.'()[]/+=*":
+		if not base.has_char(c.unicode_at(0)):
+			missing.append(c)
+	check(missing.is_empty(), "police : tous les caractères du français présents dans Alegreya (manque : %s)" % "".join(missing))
+	var title_base: FontFile = (UIk.font_title() as FontVariation).base_font
+	var title_missing: PackedStringArray = []
+	for c in "des Anneaux Péniens ÉÈÀÔÇ'":
+		if not title_base.has_char(c.unicode_at(0)):
+			title_missing.append(c)
+	check(title_base.resource_path.ends_with("Cinzel.ttf") and title_missing.is_empty(), "police : le titre est en Cinzel, accents compris (manque : %s)" % "".join(title_missing))
+	check(base.fallbacks.size() == 1 and base.fallbacks[0] is SystemFont, "police : repli sur une police du système pour les glyphes absents (− → ✓ ▲ • ◄ ► ‹ ›)")
+	check(UIk.font().get_string_size("− → ✓ ▲ • ◄ ► ‹ ›", HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x > 20.0, "police : les symboles sont mesurables (repli)")
+	check(UIk.file_font("res://assets/fonts/absente.ttf", 400) == null, "police : fichier absent = null, le jeu se rabat sur la police du système")
+	check(UIk._sys_fallback() is SystemFont, "police : le repli est une police du système")
+	var lic_ok := FileAccess.file_exists("res://assets/fonts/LICENCE_Alegreya_OFL") and FileAccess.file_exists("res://assets/fonts/LICENCE_Cinzel_OFL") and FileAccess.file_exists("res://assets/sfx/LICENCE_Kenney")
+	check(lic_ok and FileAccess.file_exists("res://docs/CREDITS.md"), "crédits : licences des polices et des sons, et docs/CREDITS.md")
+	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
+	check(presets.contains("assets/fonts/LICENCE*") and presets.contains("assets/sfx/LICENCE*") and not presets.contains("assets/fonts/*, ") , "export : les licences de polices et de sons partent dans le paquet")
+
+	# sons : un fichier enregistré remplace le son généré, selon le réglage
+	var S: Node = Settings
+	var swapped := ["confirm", "cancel", "move", "blip", "save", "door", "coin", "hit", "thud", "stomp", "clang", "shatter", "bell"]
+	var kept := ["magic", "heal", "fire", "roar", "burp", "ko", "victory", "level"]
+	var old_sons: Variant = S.get_value("sons")
+	check(S.default_of("sons") == "enregistres", "sons : enregistrés par défaut")
+	S.set_value("sons", "enregistres")
+	for id: String in swapped:
+		check(Sfx.is_recorded(id) and Sfx.stream_for(id) != Sfx._streams[id], "sons : « %s » vient du fichier quand le réglage est « enregistrés »" % id)
+	for id: String in kept:
+		check(not Sfx.is_recorded(id) and Sfx.stream_for(id) == Sfx._streams[id], "sons : « %s » reste synthétisé (identité du jeu)" % id)
+	check((Sfx.stream_for("move") as AudioStream).get_length() < 0.06 and (Sfx.stream_for("blip") as AudioStream).get_length() < 0.06, "sons : un tic de curseur dure moins de 60 ms")
+	for id: String in swapped:
+		check((Sfx.stream_for(id) as AudioStream).get_length() <= 1.0 and (Sfx.stream_for(id) as AudioStream).get_length() > 0.02, "sons : « %s » a une durée raisonnable" % id)
+	S.set_value("sons", "synthetises")
+	for id: String in swapped:
+		check(Sfx.stream_for(id) == Sfx._streams[id], "sons : « %s » redevient synthétisé tout de suite" % id)
+	var ok_all := true
+	for id: String in Sfx._streams:
+		ok_all = ok_all and Sfx.stream_for(id) != null
+	check(ok_all, "sons : chaque identifiant a un son dans les deux réglages")
+	# le réglage s'enregistre et se relit
+	var old_path: String = S.path
+	var old_persist: bool = S.persist
+	var test_file := "user://test_sons_%d.cfg" % OS.get_process_id()
+	S.path = test_file
+	S.persist = true
+	S.set_value("sons", "synthetises")
+	check(S.save(), "sons : le réglage s'enregistre")
+	S.reset_values()
+	check(S.get_value("sons") == "enregistres", "sons : valeurs remises à zéro = enregistrés")
+	check(S.load_file() and S.get_value("sons") == "synthetises", "sons : le réglage est relu à l'identique")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_file))
+	S.path = old_path
+	S.persist = old_persist
+	S.set_value("sons", old_sons)
+	check(not S.help("sons").is_empty() and not S.help("sons").contains("touche"), "sons : le réglage a une aide sans nom de touche")
 
 
 func _test_settings() -> void:

@@ -29,5 +29,11 @@ EN CAS DE PROBLÈME
   Le jeu écrit un journal : le sous-dossier logs du dossier des sauvegardes, fichier godot.log.
   Envoyer ce fichier à la personne qui a fait le jeu.
 
+CREDITS
+  Polices : Alegreya (c) 2011 The Alegreya Project Authors, SIL Open Font License 1.1.
+            Cinzel (c) 2020 The Cinzel Project Authors, SIL Open Font License 1.1.
+  Sons d'interface, de coups et de portes : Kenney (www.kenney.nl), CC0.
+  Le choix « Sons » des Paramètres permet de revenir aux sons synthétisés par le jeu.
+
 CONTACT
   https://github.com/budocay/lesegineurpenien (rubrique « Issues »)
