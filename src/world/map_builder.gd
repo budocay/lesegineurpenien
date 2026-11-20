@@ -183,6 +183,18 @@ var _tree_spots: Array[Vector2] = []
 const TERRACES: Array[Vector2] = [Vector2(-2.4, 1.4), Vector2(-8.5, 2.9)]
 
 
+## Construction étalée (fluidité) : si `staged`, `build` rend la main au moteur (une image) dès qu'une étape a duré
+## plus de 20 ms, pour que l'écran de chargement reste animé. Sans `staged` (tests), tout reste synchrone.
+var staged := false
+var _last_yield := 0
+
+
+func _due() -> void:
+	if staged and Time.get_ticks_usec() - _last_yield > 20000:
+		await world.get_tree().process_frame
+		_last_yield = Time.get_ticks_usec()
+
+
 func build(p_world: Node3D, p_map: Dictionary) -> void:
 	var t_start := Time.get_ticks_usec()
 	_build(p_world, p_map)
@@ -200,6 +212,7 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 	rng.seed = hash(str(map.get("id", "carte")))
 	# ombres de nuages sur le sol (champ `clouds`, 0 : aucune)
 	RenderingServer.global_shader_parameter_set("cloud_shadow", float(map.get("clouds", 0.0)))
+	_last_yield = Time.get_ticks_usec()
 	_build_cells()
 	world.grid_w = w
 	world.grid_h = h
@@ -211,9 +224,12 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 		if cells[i] == "water":
 			has_water = true
 	_build_relief()
+	await _due()
 	_build_ground()
+	await _due()
 	if has_water:
 		_build_water()
+		await _due()
 	if bool(map.get("interior", false)):
 		_build_interior_walls()
 		if not DwarvenBuilder.is_dwarven(self):
@@ -224,6 +240,7 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 			_build_interior_void(-0.45)
 	else:
 		_build_outskirts()
+	await _due()
 	if ElvenBuilder.is_elven(self):
 		ElvenBuilder.restyle(self)
 	elif DwarvenBuilder.is_dwarven(self):
@@ -232,6 +249,7 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 		RiderBuilder.restyle(self)
 	elif GoudaBuilder.is_gouda(self):
 		GoudaBuilder.restyle(self)
+	await _due()
 
 	var spawns: Dictionary = map.get("spawns", {})
 	for key: String in spawns:
@@ -243,11 +261,15 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 	for o: Dictionary in objects:
 		if str(o.get("type", "")) != "scatter":
 			_object(o)
+			await _due()
 	for o: Dictionary in objects:
 		if str(o.get("type", "")) == "scatter":
 			_scatter(o)
+			await _due()
 	_undergrowth()
+	await _due()
 	InteriorDress.dress(self)
+	await _due()
 
 	var amb := Database.get_ambiance(str(map.get("ambiance", "crepuscule")))
 	world.followers = Atmosphere.build(world, amb, Rect2(0.0, 0.0, w, h))
@@ -500,6 +522,10 @@ func _soft_class(t: String) -> int:
 
 
 func _paint_ground() -> ImageTexture:
+	var disk_key := "ground:%s:%dx%d:%s" % [str(map.get("id", "")), w, h, ("\n".join(cells) + JSON.stringify(map)).md5_text()]
+	var from_disk := Sprites.disk_load(disk_key)   # cache disque (fluidité) : la peinture dure de 0,1 à 1 s
+	if from_disk != null and from_disk.get_width() == w * PPU and from_disk.get_height() == h * PPU:   # sinon : fichier abîmé, on repeint
+		return PA.texture(from_disk)
 	var img := PA.new_image(w * PPU, h * PPU)
 	var noise := FastNoiseLite.new()
 	noise.seed = 7
@@ -632,6 +658,7 @@ func _paint_ground() -> ImageTexture:
 	_slabs(img)
 	_scatter_puddles(img)
 	_wear(img)
+	Sprites.disk_store(disk_key, img)
 	return PA.texture(img)
 
 

@@ -16,6 +16,8 @@ const SettingsScreen = preload("res://src/ui/settings_screen.gd")
 const PadScreen = preload("res://src/ui/pad_screen.gd")
 const ConfirmBox = preload("res://src/ui/confirm_box.gd")
 const LoadingUI = preload("res://src/ui/ui_kit.gd")
+const LoadingSpinner = preload("res://src/ui/loading_spinner.gd")
+const Prewarm = preload("res://src/gfx/prewarm.gd")
 
 enum Mode { BOOT, TITLE, PLAY }
 
@@ -42,6 +44,7 @@ var pad_screen: Control         # diagnostic de la manette
 var confirm: Control            # « Quitter le jeu ? », « Retour au titre ? » : Non par défaut
 var _fade: ColorRect
 var _loading: Label
+var _spinner: Control
 var _pending_load := ""         # emplacement choisi depuis l'écran de défaite
 
 
@@ -110,6 +113,16 @@ func _ready() -> void:
 	_loading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_loading.visible = false
 	top.add_child(_loading)
+	_spinner = LoadingSpinner.new()   # un arc qui tourne au-dessus du mot : preuve que le jeu n'est pas figé
+	_spinner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_spinner.anchor_top = 0.8
+	_spinner.anchor_bottom = 0.8
+	_spinner.offset_left = -22.0
+	_spinner.offset_right = 22.0
+	_spinner.offset_top = -78.0
+	_spinner.offset_bottom = -34.0
+	_spinner.visible = false
+	top.add_child(_spinner)
 
 	title.new_game_requested.connect(start_new_game)
 	title.continue_requested.connect(func() -> void: continue_game())
@@ -149,7 +162,14 @@ func _ready() -> void:
 	Tutorial.install(self, ui)   # conseils de jeu : page « Aide » du menu de pause
 	SaveManager.before_save.connect(_sync_state)
 
-	show_title()
+	# Préchauffage des shaders sous l'écran noir de lancement (voir docs/PERFORMANCE.md) : ensuite aucun
+	# à-coup de compilation pendant le jeu.
+	if not Prewarm.done and DisplayServer.get_name() != "headless" and not OS.has_environment("GLAN_NO_PREWARM"):
+		_set_loading(true)
+		await Prewarm.run(self)
+		_set_loading(false)
+	await show_title()
+	Sprites.start_background()   # caches de personnages et de monstres remplis en arrière-plan, titre affiché
 
 
 # ----------------------------------------------------------------- transitions
@@ -170,23 +190,33 @@ func _free_world() -> void:
 
 ## Affiche « Chargement… » et laisse une image se dessiner avant la construction d'une carte (qui fige l'écran).
 func _loading_on() -> void:
-	_loading.visible = true
+	_set_loading(true)
 	await get_tree().process_frame
 
 
+func _set_loading(on: bool) -> void:
+	_loading.visible = on
+	_spinner.visible = on
+
+
 func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, attract: bool) -> void:
+	Sprites.bg_pause = true   # pendant la construction, les fils d'arrière-plan laissent le processeur au chargement
 	_free_world()
 	world = World.new()
 	world.name = "World"
+	world.process_mode = Node.PROCESS_MODE_DISABLED   # le monde ne tourne pas tant qu'il n'est pas construit
 	add_child(world)
 	move_child(world, 0)
-	world.setup(map_id, spawn_id, pos, facing, attract)
+	# étalé sur plusieurs images sous le fondu ; la carte du titre (décor du menu) se construit d'un seul tenant
+	await world.setup(map_id, spawn_id, pos, facing, attract, not attract)
+	world.process_mode = Node.PROCESS_MODE_INHERIT
+	Sprites.bg_pause = false
 	Music.play(Music.default("title") if attract else Music.for_map(world.map))
 	world.warp_requested.connect(change_map)
 	world.interact_requested.connect(_on_interact)
 	world.trigger_fired.connect(_on_trigger)
 	world.encounter_requested.connect(_on_encounter)
-	_loading.visible = false
+	_set_loading(false)
 
 
 func show_title() -> void:
@@ -203,7 +233,7 @@ func show_title() -> void:
 	GameState.playing = false
 	mode = Mode.TITLE
 	hud.clear()
-	_load_world(str(Database.game.get("title_map", "bittebourg")), "", [], "", true)
+	await _load_world(str(Database.game.get("title_map", "bittebourg")), "", [], "", true)
 	title.open()
 	await _fade_to(0.0, 0.8)
 	busy = false
@@ -260,7 +290,7 @@ func _begin_play(pos: Array, facing: String) -> void:
 	mode = Mode.PLAY
 	GameState.playing = true
 	await _loading_on()
-	_load_world(map_id, GameState.spawn_id, pos, facing, false)
+	await _load_world(map_id, GameState.spawn_id, pos, facing, false)
 	await _arrive()
 
 
@@ -279,7 +309,7 @@ func change_map(map_id: String, spawn_id: String) -> void:
 	GameState.spawn_id = spawn_id
 	GameState.player_pos = []
 	await _loading_on()
-	_load_world(map_id, spawn_id, [], "", false)
+	await _load_world(map_id, spawn_id, [], "", false)
 	SaveManager.autosave("lieu")   # sauvegarde automatique à chaque changement de lieu
 	await _arrive()
 
@@ -341,7 +371,7 @@ func _refresh_world() -> void:
 	await _fade_to(1.0, 0.25)
 	_sync_state()
 	await _loading_on()
-	_load_world(GameState.map_id, "", GameState.player_pos, GameState.player_facing, false)
+	await _load_world(GameState.map_id, "", GameState.player_pos, GameState.player_facing, false)
 	await get_tree().process_frame
 	await _fade_to(0.0, 0.3)
 	busy = false
@@ -394,6 +424,9 @@ func start_battle(encounter: Dictionary) -> String:
 	var outcome := "retry"
 	while outcome == "retry":
 		RenderingServer.global_shader_parameter_set("focus_world", Vector3(0.0, 0.0, 100000.0)); Music.play(Music.for_encounter(encounter), 0.4)
+		_set_loading(true)
+		Sprites.bg_pause = true
+		await get_tree().process_frame
 		var scene := BattleScene.new()
 		battle = scene
 		scene.name = "Battle"
@@ -403,6 +436,8 @@ func start_battle(encounter: Dictionary) -> String:
 		scene.fast = auto_battles
 		scene.setup(encounter, battle_ui)
 		scene.run()
+		Sprites.bg_pause = false
+		_set_loading(false)
 		await _fade_to(0.0, 0.4)
 		if str(scene.outcome) == "":
 			await scene.finished

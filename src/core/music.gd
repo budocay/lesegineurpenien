@@ -46,6 +46,8 @@ var current := ""               # identifiant du morceau demandé ("" = silence)
 var _enabled := true            # faux sans carte son (tests sans fenêtre) : rien n'est calculé
 var _streams: Dictionary = {}
 var _pending: Dictionary = {}
+var _stopping := false
+var _tasks: Array[int] = []      # tâches de calcul en cours (attendues à la fermeture)
 var _players: Array[AudioStreamPlayer] = []
 var _tweens: Array = [null, null]
 var _active := 0
@@ -185,15 +187,27 @@ func _prepare(id: String) -> void:
 		if old.begins_with(id + "_") and old != file and old.trim_prefix(id + "_").get_basename().is_valid_int():
 			DirAccess.remove_absolute(CACHE_DIR + "/" + old)
 	_pending[id] = true
-	WorkerThreadPool.add_task(_render_task.bind(id, track.duplicate(true), path))
+	_tasks.append(WorkerThreadPool.add_task(_render_task.bind(id, track.duplicate(true), path)))
+
+
+## À la fermeture du jeu : on attend la fin des morceaux en cours de calcul (sinon le calcul tourne sur des
+## objets déjà détruits et le jeu plante en se fermant).
+func _exit_tree() -> void:
+	_stopping = true   # les tâches pas encore commencées s'arrêtent aussitôt
+	for t: int in _tasks:
+		WorkerThreadPool.wait_for_task_completion(t)
+	_tasks.clear()
 
 
 func _render_task(id: String, track: Dictionary, path: String) -> void:
+	if _stopping:
+		return
 	var bytes := render(track)
-	var f := FileAccess.open(path, FileAccess.WRITE)
+	var f := FileAccess.open(path + ".tmp", FileAccess.WRITE)   # écrit puis renommé : jamais de fichier à moitié écrit
 	if f != null:
 		f.store_buffer(bytes)
 		f.close()
+		DirAccess.rename_absolute(path + ".tmp", path)
 	_store.call_deferred(id, bytes)
 
 
