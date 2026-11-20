@@ -182,6 +182,7 @@ func _ready() -> void:
 	await _test_annonce_cues()
 	_test_decors_restes()
 	_test_decors_9()
+	_test_noms2()
 	_test_help_texts()
 	await _test_horizon()
 	if not OS.has_environment("GLAN_QUICK"):
@@ -9008,3 +9009,19 @@ func _test_all_encounters_staging() -> void:
 			scene.queue_free()
 			layer.queue_free()
 	win.size = old_size
+
+
+## Passe sur les noms (docs/NOMS.md) : les anciens noms renommés ont disparu, les nouveaux sont en place.
+func _test_noms2() -> void:
+	print("== Noms : jeux de mots autour du Seigneur des Anneaux ==")
+	var all_text := ""
+	for dir: String in ["res://data", "res://data/dialogues", "res://data/maps"]:
+		for f: String in DirAccess.get_files_at(dir):
+			if f.ends_with(".json"):
+				all_text += FileAccess.get_file_as_string(dir + "/" + f).to_lower() + "\n"
+	for old: String in ["caradras", "elendil", "pain elfique", "mont brouillard", "montagne du fatal", "terre du milieu", "fripon", "besace", "pépine", "légolasse", "gimlette"]:
+		check(not all_text.contains(old), "plus aucune trace de « %s » dans les données" % old)
+	for new: String in ["caradure", "élendur", "lentbas elfique", "montagne du festin", "terre du mi-lieu"]:
+		check(all_text.contains(new), "le nom « %s » est en place" % new)
+	check(str(Database.get_item("pain_elfique").get("name", "")) == "Lentbas elfique", "l'objet pain_elfique s'affiche « Lentbas elfique » (identifiant inchangé)")
+	check(FileAccess.file_exists("res://docs/NOMS.md"), "docs/NOMS.md existe")

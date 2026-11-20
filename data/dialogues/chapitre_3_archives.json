@@ -48,7 +48,7 @@
 			],
 			"else": [
 				{
-					"text": "Dans un tiroir de chêne, derrière une pile de circulaires, un petit sac de pièces et un pain elfique oublié depuis la dernière réforme."
+					"text": "Dans un tiroir de chêne, derrière une pile de circulaires, un petit sac de pièces et un lentbas elfique oublié depuis la dernière réforme."
 				},
 				{
 					"give": "pain_elfique"

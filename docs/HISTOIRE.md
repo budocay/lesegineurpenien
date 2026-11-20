@@ -867,3 +867,7 @@ l'auteur arrivées entre-temps. Aucun identifiant n'a changé : seuls des textes
   rebaptisées : Gros calibre de cuisine, Salaison bien serrée, Bélier ferré (entrée en force), Rouleau
   enfoncé jusqu'au gond, Cor au long cours, Jabot gonflé à bloc, Plumes dressées, Piétinement à pleine
   masse, Coup de défense à l'ivoire. Aucun personnage ne remarque le jeu de mots.
+
+### Passe sur les noms (20 novembre 2026)
+
+Inventaire complet des noms, règle de l'auteur (jeux de mots subliminaux autour du Seigneur des Anneaux) et propositions dans `docs/NOMS.md`. Noms ajustés : le père d'Isidur s'appelle **Élendur** (famille en « dur ») ; le col du chapitre 4 est le **col de Caradure** ; le pain de voyage elfique est le **lentbas** ; la montagne de Sauron est toujours la **Montagne du Festin** (le Grand Four) ; la Terre du **Mi-Lieu** s'écrit ainsi partout.
