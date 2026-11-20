@@ -7553,7 +7553,8 @@ func _test_chapter_7() -> void:
 	GameState.party = ["glandoulf", "sam", "froton", "aragrogne"]
 	GameState.bench = ["merri", "pepin", "digoulasse", "grimli"]
 	for who: String in GameState.party + GameState.bench:
-		GameState.member(who)["level"] = 40
+		GameState.member(who)["level"] = 50
+		_spend(who, 0)
 	for f: String in ["chapitre_5_fini", "sarumale_vaincu", "terrasse_vue", "chapitre_6_fini"]:
 		GameState.set_flag(f)
 	GameState.chapter = "chapitre_7"
@@ -7578,7 +7579,7 @@ func _test_chapter_7() -> void:
 	await _c4_say(main, "marais_regard")
 	await _c4_say(main, "marais_peche")
 	await _c4_say(main, "marais_louche")
-	check(GameState.item_count("louche_a_glaner") == 1 and GameState.worn_by("louche_a_glaner").size() == 1, "Sam porte la Louche à Glaner")
+	check(GameState.worn_by("louche_a_glaner").size() == 1 and str(GameState.worn_by("louche_a_glaner")[0]["who"]) == "sam", "Sam porte la Louche à Glaner")
 	await _c4_say(main, "noyes_face", [], 240.0)
 	check(GameState.has_flag("combat_noyes_planches"), "les Noyés sont renvoyés sous l'eau")
 	await _c4_say(main, "marais_fin")

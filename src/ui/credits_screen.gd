@@ -24,6 +24,7 @@ var _opened := 0
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_ALL
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	z_index = 200

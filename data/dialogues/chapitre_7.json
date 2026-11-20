@@ -948,7 +948,7 @@
 			"text": "Glandoulf charge Froton sur son dos, avec le soupir d'un homme qui compte à l'avance les marches. Il en reste quatre mille. Il se plaindra de chacune, et il aura raison."
 		},
 		{
-			"set": "marches_vues"
+			"set": "marches_vue"
 		}
 	],
 	"marches_plainte_1": [
