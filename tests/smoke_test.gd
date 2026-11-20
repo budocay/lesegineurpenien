@@ -4420,7 +4420,7 @@ func _test_chapter_3() -> void:
 	for wp: Dictionary in main.world.warps:
 		if str(wp["map"]) == "archives":
 			to_arch = true
-	check(to_arch, "la porte des Archives s'ouvre avec la clef")
+	check(to_arch, "la porte des Archives s'ouvre avec la clef (carte %s, %d passages)" % [main.world.map_id, main.world.warps.size()])
 	main.change_map("archives", "entree")
 	await _wait_idle(main)
 	check(main.world.map_id == "archives" and GameState.has_flag("archives_vues"), "dans les Archives")
@@ -4459,7 +4459,7 @@ func _test_chapter_3() -> void:
 	for n: Node3D in main.world.npcs:
 		if n.name == "Npc_bromure":
 			bromure_there = true
-	check(bromure_there, "Bromure attend en ville, invité")
+	check(bromure_there, "Bromure attend en ville, invité (carte %s, %d personnages)" % [main.world.map_id, main.world.npcs.size()])
 	main.queue_free()
 	await get_tree().process_frame
 
@@ -4514,7 +4514,7 @@ func _test_chapter_4() -> void:
 	# Fondue-Combe mène à la porte de Morbier une fois le chapitre 3 fini
 	main.change_map("fondue_combe", "conseil_porte")
 	await _wait_idle(main)
-	check(_c4_has_warp(main, "porte_morbier"), "Fondue-Combe : la sortie ouest mène aux Monts de Morbier")
+	check(_c4_has_warp(main, "porte_morbier"), "Fondue-Combe : la sortie ouest mène aux Monts de Morbier (carte %s, %d passages)" % [main.world.map_id, main.world.warps.size()])
 	main.change_map("porte_morbier", "vallee")
 	await _wait_idle(main)
 	check(main.world.map_id == "porte_morbier" and GameState.has_flag("porte_vue"), "la porte de Morbier")
@@ -9099,7 +9099,7 @@ func _test_fluidity() -> void:
 	DirAccess.remove_absolute(Sprites._decor_path("test:abime"))
 	# 3. la construction étalée donne la même carte que la construction d'un seul tenant ; sol relu du disque identique
 	var slow: Array = []
-	for id: String in ["brie", "morbier_halle", "minas_citadelle"]:
+	for id: String in ["brie", "morbier_halle", "minas_citadelle", "fondue_combe"]:   # Fondue-Combe : la carte qui a révélé une construction rendue avant sa fin
 		if Database.get_map(id).is_empty():
 			continue
 		var sp: String = str(Database.get_map(id).get("spawns", {}).keys()[0])

@@ -197,7 +197,7 @@ func _due() -> void:
 
 func build(p_world: Node3D, p_map: Dictionary) -> void:
 	var t_start := Time.get_ticks_usec()
-	_build(p_world, p_map)
+	await _build(p_world, p_map)   # construction étalée : sans cette attente, la carte est rendue à moitié construite
 	if OS.get_environment("GLAN_FPS") != "":
 		print("CONSTRUCTION ", p_map.get("id", "?"), " : ", (Time.get_ticks_usec() - t_start) / 1000, " ms")
 
