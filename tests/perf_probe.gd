@@ -65,6 +65,7 @@ func _measure_map(id: String) -> Dictionary:
 		await get_tree().process_frame
 	var total := (Time.get_ticks_usec() - t0) / 1000.0
 	var w: Node = main.world
+	var got := [w.npcs.size(), w.warps.size(), w.get_child_count()]   # état au moment où le fondu s'est levé
 	var pf: Dictionary = w.get("perf") if w.get("perf") != null else {}   # absent sur une copie d'avant les mesures
 	var extra := {"builder": float(pf.get("builder", 0)), "horizon": float(pf.get("horizon", 0)),
 		"rest": float(pf.get("rest", 0)), "paint": (_paint_usec() - p0) / 1000.0}
@@ -76,7 +77,17 @@ func _measure_map(id: String) -> Dictionary:
 			print("      %7.0f ms  %s" % [Sprites.paint_log[k], k])
 	if Sprites.get("paint_log") != null:
 		Sprites.paint_log.clear()
-	return _stats(from, total, extra)
+	var res := _stats(from, total, extra)
+	# complétude : la carte rendue au joueur doit égaler une construction synchrone de référence
+	var ref: Node3D = preload("res://src/world/world.gd").new()
+	add_child(ref)
+	await ref.setup(id, "")
+	var want := [ref.npcs.size(), ref.warps.size(), ref.get_child_count() - 1]   # sans le joueur
+	ref.queue_free()
+	var same: bool = got[0] == want[0] and got[1] == want[1] and absi(int(got[2]) - 1 - int(want[2])) <= 2
+	res["complete"] = same
+	print("   complétude %s : personnages %d/%d, passages %d/%d, nœuds %d/%d -> %s" % [id, got[0], want[0], got[1], want[1], got[2], want[2] + 1, "OK" if same else "INCOMPLETE"])
+	return res
 
 
 func _measure_battle(enc: Dictionary) -> Dictionary:

@@ -67,6 +67,47 @@ Colonnes : `total` (fondus fixes de 0,8 s compris), `noir` (temps sous le noir c
 caméra). La ligne « Lancement » donne l'instant où l'écran-titre est prêt. Sur un Mac chargé par d'autres
 programmes les chiffres bougent de 20 à 30 % : refaire une mesure suspecte.
 
+## Mesures du 20 novembre 2026
+
+Relevées APRÈS le correctif de `MapBuilder.build` (commit ee52116) : fenêtre, vsync coupé, HOME séparé,
+`GLAN_PERF_IDLE=40`, trois lancements à la suite (le premier « vierge », les deux autres avec caches
+remplis ; le tableau donne le troisième, le deuxième est équivalent). Le défaut (`build` appelait `_build`
+sans `await`) est né de la FUSION (0cb637d) : le wrapper `_build` venait de la branche principale (print
+`GLAN_FPS`), la branche fluidité n'en avait pas et sa construction était attendue. Ses mesures « après »
+n'étaient donc pas faussées ; seul le jeu fusionné l'était, et les chiffres ci-dessous le confirment.
+La sonde vérifie maintenant, à la levée du fondu, que la carte est COMPLÈTE : personnages, passages et
+nombre de nœuds égaux à ceux d'une construction synchrone de référence (ligne « complétude » ; 24 cartes sur
+24 : OK, dont Fondue-Combe 5/5 personnages, 4/4 passages, et Minas Croute 9/9, 1/1).
+
+| Carte (ms)         | noir froid | pire visible froid | noir chaud | pire visible chaud |
+|--------------------|-----------:|-------------------:|-----------:|-------------------:|
+| bittebourg         | 147 | 37 | 150 | 16 |
+| brie               | 365 | 16 | 119 | 17 |
+| fondue_combe       | 329 | 27 | 169 | 22 |
+| morbier_halle      | 127 | 19 |  71 | 22 |
+| morbier_galeries   | 142 | 35 |  95 | 28 |
+| minas_rues         | 317 | 19 | 175 | 23 |
+| minas_croute       | 464 | 16 |  89 | 24 |
+| minas_citadelle    | 164 | 20 | 112 | 21 |
+| isengarde          | 158 | 23 |  87 | 25 |
+| port_sale          | 253 | 18 | 134 | 84 (*) |
+| chutes_gratin      | 146 | 19 | 109 | 29 |
+| poney_flagada      | 102 | 17 |  83 | 25 |
+
+(*) Pic isolé : 12 ms dans le lancement précédent, probablement le Mac. Pire image tout compris (noir
+inclus) : au plus 170 ms (Minas Croute), l'arc de chargement ne se fige donc jamais plus de 0,2 s une fois
+les caches remplis.
+
+Combats (ms, caches remplis) : normal, noir 84 / visible 26 (froid) et 474 / 38 (chaud) ; boss 404 / 28 et
+368 / 29 ; effets 781 / 19 et 681 / 18. Pire image du combat sous le noir : 70 à 230 ms.
+
+Cibles : pire image visible sous 50 ms (tenue, sauf le pic de 84 ms ci-dessus), changement de carte à froid
+sous 1,5 s (tenu : 0,9 à 1,3 s, fondus fixes de 0,8 s compris), arc de chargement (tenu, voir ci-dessus).
+Lancement vierge (caches et shaders vides) : écran-titre à 11 s, Minas Croute 22 s sous le noir (11,5 s
+sans rendre la main : monstres gouda, voir « Limites »), Port-Saumure 11 s : ces visites très précoces
+restent hors cibles tant que les fils d'arrière-plan n'ont pas rempli les caches. Lancement habituel :
+écran-titre à 3,4 s, préchauffage 0,25 s.
+
 ## Limites connues
 
 - **Caches disque vides** (tout premier lancement, ou après la retouche d'un peintre de `src/gfx` : l'empreinte
