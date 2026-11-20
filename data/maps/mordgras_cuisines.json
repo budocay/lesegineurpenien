@@ -220,6 +220,55 @@
 			"color": "#ff9a50",
 			"energy": 2.0,
 			"range": 10
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				20,
+				20
+			]
+		},
+		{
+			"type": "mor_marmite",
+			"pos": [
+				8,
+				20
+			]
+		},
+		{
+			"type": "mor_marmite",
+			"pos": [
+				35,
+				10
+			]
+		},
+		{
+			"type": "mor_broche",
+			"pos": [
+				5,
+				10
+			]
+		},
+		{
+			"type": "mor_garde_manger",
+			"pos": [
+				4,
+				20.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				3.2,
+				5.2
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				40.5,
+				5.2
+			]
 		}
 	]
 }

@@ -396,6 +396,118 @@
 			"color": "#ff9a50",
 			"energy": 1.5,
 			"range": 8
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.6,
+				9
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30.4,
+				11
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.6,
+				14
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30.4,
+				16
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.6,
+				19
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30.4,
+				21
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.6,
+				24
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30.4,
+				26
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.6,
+				29
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30.4,
+				31
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				20.5,
+				14.5
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				27.5,
+				18.5
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				22,
+				27.5
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				26.5,
+				11.5
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				18.4,
+				21.5
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				29.6,
+				13.5
+			]
 		}
 	]
 }

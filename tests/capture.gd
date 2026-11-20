@@ -620,6 +620,7 @@ func _idle() -> void:
 
 
 func _goto(p: Vector3, facing: String) -> void:
+	main.world.encounter_zones = []   # pas de rencontre au milieu d'une prise de vue
 	main.world.player.position = p
 	main.world.player.set_facing(facing)
 	await _frames(150)
@@ -812,6 +813,7 @@ func _mordgras_shots() -> void:
 	await _shot("308_col_toile")
 	await _goto(Vector3(43.0, 0.0, 13.0), "right")
 	await _shot("309_col_arachnee")
+	GameState.set_flag("goulum_parti")
 	main.change_map("mordgras_cuisines", "soupirail")
 	await _frames(150)
 	await _idle()
@@ -820,6 +822,7 @@ func _mordgras_shots() -> void:
 	await _shot("311_cuisines_marmite")
 	await _goto(Vector3(36.0, 0.0, 20.0), "right")
 	await _shot("312_cuisines_froid")
+	GameState.set_flag("banquet_servi")
 	main.change_map("mordgras_banquet", "ouest")
 	await _frames(150)
 	await _idle()
@@ -848,6 +851,7 @@ func _mordgras_shots() -> void:
 	await _idle()
 	await _goto(Vector3(22.0, 0.0, 14.0), "up")
 	await _shot("321_four_sauron_endormi")
+	GameState.party = ["glandoulf"]
 	main.change_map("bittebourg_epilogue", "arrivee")
 	await _frames(150)
 	await _idle()
