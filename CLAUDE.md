@@ -147,7 +147,24 @@ Restent : silhouette de Minas Tartine invisible (caméra trop plongeante, à dé
 l'auteur), torses trapus de monstres du chapitre 6, Chantecler et Balourd durs pour un
 débutant, brèche trop facile. Suite : chapitre 7, relief jouable.
 
+19 et 20 novembre (décisions 164 à 171) : horizon et caméra par carte (`horizon.gd`,
+`horizon_layers.gd`, `gouda_tower.gd`, cache `user://cache_horizon/`), murs estompés
+localement (clé `local` des occulteurs), boss dominants et repeints (`boss_painter.gd`),
+coups annoncés (`next`, état `annonce`), passe générale des décors des chapitres 1 à 5,
+manette réelle (`jouer.command`, écran de diagnostic `pad_screen.gd`, `docs/MANETTE.md`),
+build de release (version 0.6.0, `release.sh`, `docs/RELEASE.md`, workflow GitHub). Jamais
+essayés : manette et scripts de build sous Windows, workflow GitHub. Suite : chapitre 7,
+relief jouable.
+
 ## Pièges connus
+
+- Manette sur Mac : lancer le jeu par `jouer.command` ou en ligne de commande, pas dans la
+  fenêtre intégrée de l'éditeur (une manette ne parle qu'à l'application au premier plan).
+- Éditeur Godot ouvert pendant le travail : il réécrit `project.godot` (lignes réordonnées) ;
+  le restaurer par `git checkout -- project.godot` avant de fusionner.
+- Une branche d'agent arrêté n'est pas fusionnée sans son test complet, lancé dans son dossier.
+- Le numéro de version ne se change qu'à un endroit (`application/config/version`), par
+  `./release.sh <version>`.
 
 - Un test de déroulé qui échoue en chaîne après un combat : d'abord relancer, c'est souvent
   un combat perdu par hasard ; alors monter le niveau de l'équipe de test, pas toucher au jeu.

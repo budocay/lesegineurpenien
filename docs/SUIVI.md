@@ -934,6 +934,58 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      de la suie ; terrasse des Chutes et enclos de la plaine plats ; aucune capture de Brie ne
      montre l'écurie, donc l'enseigne en potence n'a été vue que par l'agent qui l'a faite.
 
+### Décisions des 19 et 20 novembre 2026 (« corrige tous les défauts », manette réelle, release)
+
+164. **Horizon et caméra par carte** : au lieu de relever la caméra partout (ce qui aurait
+     aplati tout le jeu), chaque carte peut déclarer des zones de caméra (`camera.zones`,
+     `camera.bounds`), une mise au point (`near_start`, `far_start`) et un horizon peint
+     (`horizon`, `skyline`, `siege`, `belvedere`). Minas Tartine a ainsi sa silhouette, sa
+     Tour Blanche en volume (`gouda_tower.gd`, étendard, oiseaux), sa rue habillée et son
+     siège animé (fumées, braises, machines, armée en rangs). Les plans d'horizon sont mis en
+     cache sur disque (`user://cache_horizon/`) et préparés par un fil d'arrière-plan joint à
+     la fermeture du jeu.
+165. **Murs qui s'estompent localement** : un rempart entier devenait vitreux dès que le
+     héros passait derrière. Les remparts du style `gouda` sont taillés en tronçons de 2 m,
+     marqués `local` : seul le tronçon qui cache le héros s'estompe, à 72 % au plus. Sans la
+     clé, rien ne change pour les autres cartes (deux lignes dans `world.gd`).
+166. **Boss dominants et repeints** (`boss_painter.gd`, champ `boss` des rencontres) : un boss
+     fait environ trois fois la taille d'un héros ; Grimace, le Naze suprême, le pétrisseur et
+     Saumure ont un vrai dessin. Les héros restent à 80 % de leur taille libre face à un boss,
+     plutôt que de rétrécir davantage, pour rester lisibles.
+167. **Coups annoncés** (champ `next` de l'IA, état `annonce`) : Chantecler, Uglouk, le
+     pétrisseur et Goulûm préparent leur gros coup un tour à l'avance ; un triangle rouge, un
+     bandeau et un conseil de jeu le disent, et briser le bouclier l'interrompt. Raison : un
+     boss dur doit se lire, pas surprendre. `pierce` (ignore la provocation) et `ignore_guard`
+     (passe la parade) existent pour Goulûm.
+168. **Décors des chapitres 1 à 5, passe générale** : ombre portée des lanternes coupée par
+     défaut (elle dessinait un rectangle sombre autour de chaque lampe) ; objet `balustrade` ;
+     clôtures des plateaux ; bornes de caméra remises dans l'ordre sur six intérieurs (le héros
+     collait au bas de l'écran) ; plan noir `InteriorVoid` qui ferme le vide derrière les murs ;
+     objet `bed` et étage du Poney meublé ; bords de chemin irréguliers ; `near_start` à 0,70
+     sur les 37 cartes pour que le héros soit toujours net.
+169. **Manette réelle** : la manette Xbox de l'auteur « non reconnue » marchait en fait : sur
+     Mac, une manette ne parle qu'à l'application au premier plan, et le jeu lancé dans la
+     fenêtre intégrée de l'éditeur n'y est jamais. D'où `jouer.command` (double-clic, jeu dans
+     sa propre fenêtre). Essai fait le 19 novembre sur ce Mac, manette en Bluetooth : boutons,
+     croix et sticks arrivent bien aux commandes du jeu. Ajoutés pour le PC Windows, jamais
+     essayé : écran de diagnostic (`pad_screen.gd`, ligne « Manette » du titre et des
+     paramètres, fichier `user://manette.txt`), messages de connexion, mapping de repli pour
+     une manette inconnue de SDL, répétition des directions dans les menus (Godot ne répète pas
+     les directions d'une manette : le curseur ne faisait qu'un pas), vibration réglable.
+     Mode d'emploi : `docs/MANETTE.md`.
+170. **Build de release** : version unique dans `application/config/version` (0.6.0, six
+     chapitres sur sept), affichée sur l'écran-titre ; icône et écran de démarrage du jeu ;
+     métadonnées Windows écrites par Godot 4.7 sans `rcedit` ; exe et `.pck` séparés (moins de
+     fausses alertes d'antivirus chez les amis de l'auteur) ; archives par plateforme avec
+     LISEZMOI et sommes SHA-256 ; `release.sh` et workflow GitHub sur un tag `v*` ; journal de
+     fichiers activé. `assets/music/` (musiques personnelles de l'auteur) est exclu de
+     l'export pour ne pas diffuser de morceaux sous droits : à confirmer par l'auteur. Jamais
+     essayés : scripts Windows, workflow GitHub, exe Windows, binaire Linux. Signature macOS
+     ad hoc jugée invalide par `codesign --verify`, cause non trouvée. Voir `docs/RELEASE.md`.
+171. **Arrêt et reprise des agents** : un agent arrêté en cours de route laisse une branche
+     dont le test complet n'a pas forcément tourné. À la reprise, lancer le test complet de
+     chaque branche dans son dossier avant toute fusion (le 20 novembre : une verte sur trois).
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :
