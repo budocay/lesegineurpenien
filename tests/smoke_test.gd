@@ -616,7 +616,7 @@ func _test_map(id: String, state: Array = [], label: String = "") -> void:
 	var spawns: Dictionary = map.get("spawns", {})
 	check(not spawns.is_empty(), "carte %s : au moins un point d'arrivée" % id)
 	var t0 := Time.get_ticks_msec()
-	world.setup(id, str(spawns.keys()[0]))
+	await world.setup(id, str(spawns.keys()[0]))
 	var build_ms := Time.get_ticks_msec() - t0
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -2169,7 +2169,7 @@ func _test_gated(id: String) -> void:
 		GameState.set_flag(f)
 	var world: Node3D = World.new()
 	add_child(world)
-	world.setup(id, str((Database.get_map(id).get("spawns", {}) as Dictionary).keys()[0]))
+	await world.setup(id, str((Database.get_map(id).get("spawns", {}) as Dictionary).keys()[0]))
 	await get_tree().process_frame
 	var step := 0.25
 	var gw := int(world.grid_w / step) + 1
@@ -2926,7 +2926,7 @@ func _test_relief() -> void:
 		var world: Node3D = World.new()
 		add_child(world)
 		var spawns: Dictionary = map["spawns"]
-		world.setup(id, str(spawns.keys()[0]))
+		await world.setup(id, str(spawns.keys()[0]))
 		check(world.has_relief, "relief %s : le monde l'a chargé" % id)
 
 		# chaque bout de rampe se raccorde au sol voisin
@@ -4893,7 +4893,7 @@ func _test_dwarven_scenery() -> void:
 		GameState.new_game()
 		var world: Node3D = World.new()
 		add_child(world)
-		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
 		await get_tree().process_frame
 		var interior := bool(Database.get_map(id).get("interior", false))
 		if interior:
@@ -4967,7 +4967,7 @@ func _test_rider_scenery() -> void:
 		GameState.new_game()
 		var world: Node3D = World.new()
 		add_child(world)
-		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
 		await get_tree().process_frame
 		check(world.player != null, "carte %s : construite dans son style" % id)
 		if bool(Database.get_map(id).get("interior", false)):
@@ -5125,7 +5125,7 @@ func _test_elven_scenery() -> void:
 		GameState.new_game()
 		var world: Node3D = World.new()
 		add_child(world)
-		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
 		await get_tree().process_frame
 		var interior := bool(Database.get_map(id).get("interior", false))
 		if interior:
@@ -6190,7 +6190,7 @@ func _test_interior_dress() -> void:
 			GameState.new_game()
 			var world: Node3D = World.new()
 			add_child(world)
-			world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
+			await world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
 			var sur := world.get_node_or_null("Surround") as MeshInstance3D
 			check(sur != null and sur.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "habillage %s : hors-carte posé, sans ombre" % id)
 			var dress := world.get_node_or_null("InteriorDress")
@@ -6269,7 +6269,7 @@ func _test_houses() -> void:
 		var world: Node3D = World.new()
 		add_child(world)
 		var t0 := Time.get_ticks_msec()
-		world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
+		await world.setup(id, str((map.get("spawns", {}) as Dictionary).keys()[0]))
 		var ms := Time.get_ticks_msec() - t0
 		var nodes: Array = []
 		for n: Node in world.get_children():
@@ -7072,7 +7072,7 @@ func _test_gouda_scenery() -> void:
 		GameState.new_game()
 		var world: Node3D = World.new()
 		add_child(world)
-		world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
 		await get_tree().process_frame
 		check(world.player != null, "carte %s : construite dans son style" % id)
 		if bool(Database.get_map(id).get("interior", false)):
@@ -8393,7 +8393,7 @@ func _test_horizon() -> void:
 		GameState.new_game()
 		var world: Node3D = World.new()
 		add_child(world)
-		world.setup(id, str(mp2.get("spawns", {}).keys()[0]))
+		await world.setup(id, str(mp2.get("spawns", {}).keys()[0]))
 		await get_tree().process_frame
 		await get_tree().process_frame
 		var has_zones: bool = not (mp2.get("camera", {}) as Dictionary).get("zones", []).is_empty()
