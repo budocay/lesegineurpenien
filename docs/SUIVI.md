@@ -985,6 +985,40 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
 171. **Arrêt et reprise des agents** : un agent arrêté en cours de route laisse une branche
      dont le test complet n'a pas forcément tourné. À la reprise, lancer le test complet de
      chaque branche dans son dossier avant toute fusion (le 20 novembre : une verte sur trois).
+172. **Derniers défauts de décor et de boss** (branches decors9 et boss5) : eau et cascade
+     refaites, Mines accordées, salle du Conseil, étal d'Ursule déplacé (il bouchait le quai),
+     plaques de combat jamais posées sur leur propre ennemi, Uglouk repeint, poses de sort et
+     de KO des boss, Guetteur du lac et Garde-Manger rééquilibrés par les chiffres plutôt que
+     par les bornes du test.
+173. **Noms** : l'auteur a rappelé que lieux et personnages doivent porter un jeu de mots
+     discret autour du Seigneur des Anneaux. Inventaire complet dans `docs/NOMS.md`. Appliqués
+     sans demander, parce qu'ils ne touchent aucun identifiant ni aucune sauvegarde : Caradure,
+     Élendur, Lentbas elfique, Montagne du Festin, Terre du Mi-Lieu, Grand Four. Laissés à
+     l'auteur, parce qu'ils changent un nom qu'il a déjà lu cent fois : Sauronfle, Col du Mont
+     Vantard, Tour d'Ortolan, Odilon Fièrebitte, Cabédoras, Rôt-Gratin.
+174. **Packs d'images gratuits essayés puis écartés** (The Fan-tasy Tileset, Tiny Pixel
+     Fantasy, site freegamesprites.com). Essai réel de la végétation du premier dans une copie
+     du jeu, captures avant et après : arbres vus de dessus, lisses, tous pareils ; l'auteur a
+     tranché, « l'existant a l'air plus sympa ». Le second a des pixels deux fois plus gros que
+     les nôtres. Raison de fond, valable pour tout pack futur : le dépôt GitHub est public, et
+     ces licences (« non-commercial », « You may not resell or redistribute the assets ») y
+     interdisent le dépôt des fichiers. Règle retenue : n'entre dans le dépôt que du CC0, du
+     CC BY crédité, de l'OFL pour les polices, du MIT ou Apache pour le code.
+175. **Ressources libres** : une seule piste retenue, une police embarquée (Alegreya pour le
+     texte, Cinzel pour le titre, licence OFL), surtout pour avoir le même rendu sur Mac et
+     sur Windows ; elle attend le choix de l'auteur sur captures et n'est pas intégrée.
+     Sons Kenney (CC0) : mécanisme « fichier de `assets/sfx/` s'il existe, sinon son généré »
+     prototypé, à faire écouter avant tout remplacement. Écartés : invites de manette Kenney
+     (plus criardes que les nôtres), particules lisses, shaders à la licence non vérifiée.
+176. **Fluidité** : le gel à l'entrée d'une carte venait de la peinture d'images par code sur
+     le fil principal, pas des shaders. Construction étalée sous le fondu (`staged`), arc de
+     chargement, cache disque des sols, fils d'arrière-plan lancés après le titre et mis en
+     pause pendant les chargements, fermeture sans plantage. Voir `docs/PERFORMANCE.md`.
+     Défaut trouvé à la fusion : `MapBuilder.build` appelait `_build` sans `await` (enveloppe
+     de mesure venue d'une autre branche), la carte était rendue à moitié construite ; trois
+     échecs du test complet sur Fondue-Combe l'ont montré, corrigé, mesures à refaire. Restent
+     lents : le premier lancement d'une version (caches vides, plusieurs secondes sur Minas
+     Croute et Port-Saumure) ; Windows jamais mesuré.
 
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 

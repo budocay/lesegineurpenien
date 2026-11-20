@@ -156,6 +156,13 @@ build de release (version 0.6.0, `release.sh`, `docs/RELEASE.md`, workflow GitHu
 essayés : manette et scripts de build sous Windows, workflow GitHub. Suite : chapitre 7,
 relief jouable.
 
+20 novembre, suite (décisions 172 à 176) : derniers défauts de décor et de boss, noms à jeu
+de mots (`docs/NOMS.md`, six propositions attendent l'auteur), packs d'images gratuits essayés
+puis écartés (l'existant plaît davantage, et leurs licences interdisent le dépôt public),
+fluidité des changements de carte (`staged`, `prewarm.gd`, `loading_spinner.gd`,
+`docs/PERFORMANCE.md`). En attente de l'auteur : police embarquée (Alegreya, Cinzel) et essai
+des sons Kenney. Suite : captures à refaire, chapitre 7, relief jouable.
+
 ## Pièges connus
 
 - Manette sur Mac : lancer le jeu par `jouer.command` ou en ligne de commande, pas dans la
@@ -165,6 +172,12 @@ relief jouable.
 - Une branche d'agent arrêté n'est pas fusionnée sans son test complet, lancé dans son dossier.
 - Le numéro de version ne se change qu'à un endroit (`application/config/version`), par
   `./release.sh <version>`.
+- Une fonction devenue asynchrone (`World.setup`, `MapBuilder.build`, `_load_world`) doit
+  être attendue par `await` partout : sans lui, la carte est rendue à moitié construite et
+  seul le test complet le voit (personnages et passages manquants à l'arrivée).
+- Le dépôt GitHub est public : n'y entre que du CC0, du CC BY crédité, de l'OFL (polices), du
+  MIT ou Apache. Un pack « gratuit » d'itch.io interdit presque toujours la redistribution :
+  l'essayer dans une copie du jeu hors de git, jamais dans le dossier principal.
 
 - Un test de déroulé qui échoue en chaîne après un combat : d'abord relancer, c'est souvent
   un combat perdu par hasard ; alors monter le niveau de l'équipe de test, pas toucher au jeu.
