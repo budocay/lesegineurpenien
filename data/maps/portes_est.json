@@ -239,6 +239,86 @@
 			"on": [
 				"nain_neige"
 			]
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_sapin",
+			"rect": [
+				0,
+				6,
+				36,
+				3.5
+			],
+			"count": 9,
+			"min_dist": 2.4,
+			"seed": 201,
+			"on": [
+				"nain_neige"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_sapin",
+			"rect": [
+				0,
+				14.6,
+				36,
+				3.5
+			],
+			"count": 9,
+			"min_dist": 2.4,
+			"seed": 202,
+			"on": [
+				"nain_neige"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_neige_tas",
+			"rect": [
+				0,
+				8,
+				36,
+				2
+			],
+			"count": 6,
+			"min_dist": 2.6,
+			"seed": 203,
+			"on": [
+				"nain_neige"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "nain_neige_tas",
+			"rect": [
+				0,
+				14,
+				36,
+				2
+			],
+			"count": 6,
+			"min_dist": 2.6,
+			"seed": 204,
+			"on": [
+				"nain_neige"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "deadtree",
+			"rect": [
+				0,
+				4,
+				36,
+				16
+			],
+			"count": 4,
+			"min_dist": 4,
+			"seed": 205,
+			"on": [
+				"nain_neige"
+			]
 		}
 	]
 }

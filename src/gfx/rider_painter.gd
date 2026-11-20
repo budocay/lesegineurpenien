@@ -59,7 +59,7 @@ static func paint_tile(kind: String) -> Image:
 		"ent_racines": return _roots()
 		"isen_dalle": return TP._stones(["#3a3844", "#33313d", "#42404e", "#2e2c38"], Color("#17151e"), 16, 12)
 		"isen_fonte": return _cast_iron()
-		"isen_farine": return _noise(["#cfc9bc", "#c0baae", "#dcd6ca", "#b0aa9e"], 1121, 70, Color("#f6f2e8"))
+		"isen_farine": return _flour_slabs()
 		"isen_fosse": return _pit()
 		"isen_mur": return _tower_wall()
 		"chu_roche": return TP._rock_strata(["#4a5a62", "#3c4a52", "#586a72", "#2e3c44", "#6a7c84"], 1131, 1)
@@ -95,6 +95,15 @@ static func paint_prop(kind: String, v: int) -> Image:
 		"chu_ecume": return _foam()
 	var img := PA.new_image(16, 16)
 	img.fill(Color.MAGENTA)
+	return img
+
+
+## Dalles saupoudrées de farine : les mêmes pierres que le sol de l'Isengarde, mais blanchies, avec de la poussière claire dans les joints
+## (l'ancien aplat de taches pâles faisait un rectangle de camouflage sur le sol sombre).
+static func _flour_slabs() -> Image:
+	var img: Image = TP._stones(["#8c887c", "#807c72", "#97938a", "#767268"], Color("#3b3830"), 16, 12)
+	_specks_in(img, 1127, 64, Color("#e8e2d4"))
+	_specks_in(img, 1128, 30, Color("#f6f2e8"))
 	return img
 
 

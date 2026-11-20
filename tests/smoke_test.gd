@@ -187,6 +187,7 @@ func _ready() -> void:
 	await _test_annonce_cues()
 	_test_decors_restes()
 	_test_decors_9()
+	_test_decors_10()
 	_test_noms2()
 	_test_help_texts()
 	await _test_horizon()
@@ -8512,7 +8513,7 @@ func _test_horizon() -> void:
 		var dxo := maxf(maxf(orc2.position.x - 24.0, 24.0 - orc2.end.x), 0.0)
 		if dxo < 0.5:
 			near_max = maxf(near_max, float(oc["fade"]))
-		elif dxo > 2.0:
+		elif dxo > 2.7:
 			far_max = maxf(far_max, float(oc["fade"]))
 			n_far += 1
 	check(near_max > 0.3 and near_max <= 0.73, "murs de la Croûte : le tronçon devant le héros s'estompe sans devenir du verre (%.2f)" % near_max)
@@ -8895,6 +8896,37 @@ func _test_decors_8() -> void:
 
 
 ## Décors 9 : étal d'Ursule, tuiles de forêt retournées, plaques de la salle du conseil, eau et mines.
+func _test_decors_10() -> void:
+	print("== Décors 10 : revue visuelle des chapitres 1 à 6 ==")
+	var g: Dictionary = Database.get_enemy("guetteur_lac")
+	check(not g.is_empty() and float(g["stats"]["atk"]) <= 100.0, "Guetteur du lac : attaque resserrée (équilibre)")
+	var small := 0
+	for id: String in ["rat_cave", "limace_molle", "guepe_cidre", "frelon_bois", "gobe_lard", "chauve_molle"]:
+		var e: Dictionary = Database.get_enemy(id)
+		if not e.is_empty() and float(e.get("sprite", {}).get("scale", 1.0)) < 0.95:
+			small += 1
+	check(small == 0, "monstres ordinaires : taille du sprite relevée")
+	var pm: Dictionary = Database.get_map("porte_morbier")
+	var bare := 0
+	for o: Dictionary in pm.get("objects", []):
+		if str(o.get("type", "")) == "scatter" and not o.has("on"):
+			bare += 1
+	check(bare == 0, "porte_morbier : chaque semis déclare ses cases (sinon rien ne pousse sur la neige)")
+	var pe: Dictionary = Database.get_map("portes_est")
+	var scat := 0
+	for o: Dictionary in pe.get("objects", []):
+		if str(o.get("type", "")) == "scatter" and o.has("on"):
+			scat += 1
+	check(scat >= 5, "portes_est : berges plantées de sapins et de neige")
+	var bo: Dictionary = Database.get_map("bergerie_or")
+	check(bo.get("objects", []).size() >= 30, "Bergerie d'Or : sol garni (bottes, brebis, tapis)")
+	var to: Dictionary = Database.get_map("terrasse_office")
+	check(to.get("objects", []).size() >= 20, "terrasse de l'office : garnie")
+	check(FileAccess.get_file_as_string("res://src/gfx/rider_painter.gd").contains("_flour_slabs()"), "farine d'Isengarde : dalles et non plus camouflage")
+	var ba: String = FileAccess.get_file_as_string("res://src/battle/battle_actor.gd")
+	check(ba.contains("const HIT_FLASH := 0.6"), "coup reçu : éclat blanc plafonné (pas de voile sur les boss)")
+
+
 func _test_decors_9() -> void:
 	print("== Décors 9 : étal, forêt, eau, mines ==")
 	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")

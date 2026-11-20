@@ -215,6 +215,137 @@
 			"color": "#ffc870",
 			"energy": 1.4,
 			"range": 9.0
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				4.5,
+				6.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				6.5,
+				6.4
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				35.5,
+				5.6
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				33.6,
+				6.2
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				4.0,
+				11.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				36.0,
+				12.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				8.0,
+				17.0
+			]
+		},
+		{
+			"type": "cav_botte",
+			"pos": [
+				31.0,
+				17.4
+			]
+		},
+		{
+			"type": "cav_brebis",
+			"pos": [
+				11.0,
+				13.0
+			]
+		},
+		{
+			"type": "cav_brebis",
+			"pos": [
+				30.0,
+				10.4
+			]
+		},
+		{
+			"type": "cav_brebis",
+			"pos": [
+				13.2,
+				16.2
+			]
+		},
+		{
+			"type": "cav_ratelier",
+			"pos": [
+				6.0,
+				9.0
+			]
+		},
+		{
+			"type": "cav_ratelier",
+			"pos": [
+				34.0,
+				9.0
+			]
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				15.0,
+				9.0
+			]
+		},
+		{
+			"type": "cav_etendard",
+			"pos": [
+				25.0,
+				9.0
+			]
+		},
+		{
+			"type": "rug",
+			"rect": [
+				18.4,
+				5.8,
+				3.2,
+				12.4
+			],
+			"color": "#7a2a22"
+		},
+		{
+			"type": "scatter",
+			"prop": "haystack",
+			"rect": [
+				3,
+				4,
+				34,
+				14
+			],
+			"count": 4,
+			"min_dist": 3.0,
+			"seed": 301,
+			"on": [
+				"cav_planches"
+			]
 		}
 	]
 }

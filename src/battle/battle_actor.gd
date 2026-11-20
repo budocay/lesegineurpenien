@@ -19,6 +19,7 @@ var _sheet: Dictionary = {}
 var _hover := 0.0
 var _time := 0.0
 var _frame := -1
+const HIT_FLASH := 0.6   # intensité de l'éclair d'un coup reçu (1,0 voilait le sprite entier)
 var _flash := 0.0
 var charge := 0              # points d'élan engagés : le héros se charge (halo qui pulse)
 var stunned := false         # bouclier brisé : l'ennemi vacille
@@ -211,7 +212,7 @@ func _animate(delta: float) -> void:
 	if charge > 0 and not down:
 		aura = (0.1 + 0.06 * float(charge)) * (0.65 + 0.35 * sin(_time * 9.0))
 	if _flash > 0.0 or aura > 0.0 or _aura_on:
-		_flash = maxf(0.0, _flash - delta * 4.0)
+		_flash = maxf(0.0, _flash - delta * 6.0)
 		_quad.set_instance_shader_parameter("flash", maxf(_flash, aura))
 		_aura_on = aura > 0.0
 	if down:
@@ -468,8 +469,8 @@ func set_stunned(on: bool) -> void:
 
 ## Coup reçu : éclair blanc, recul et bascule en arrière (plus marqués si le coup est fort).
 func play_hit(strong: bool = false) -> void:
-	_flash = 1.0
-	_quad.set_instance_shader_parameter("flash", 1.0)
+	_flash = HIT_FLASH   # (un éclair plein blanchissait tout un boss : on garde le dessin lisible sous l'éclair)
+	_quad.set_instance_shader_parameter("flash", HIT_FLASH)
 	if fast or down or posing():
 		return
 	if _hit_tw != null and _hit_tw.is_valid():
