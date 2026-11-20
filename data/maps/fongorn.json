@@ -6,6 +6,7 @@
 		56,
 		30
 	],
+	"ground_variation": 0.16,
 	"ambiance": "fongorn",
 	"music": "fongorn",
 	"arena": "fongorn",

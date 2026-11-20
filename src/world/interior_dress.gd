@@ -244,7 +244,7 @@ static func _material(kind: String, v: int) -> StandardMaterial3D:
 			m.emission = Color.WHITE
 			m.emission_operator = BaseMaterial3D.EMISSION_OP_ADD
 			m.emission_texture = t["emission"]
-			m.emission_energy_multiplier = 0.9
+			m.emission_energy_multiplier = 0.65
 		return m)
 
 

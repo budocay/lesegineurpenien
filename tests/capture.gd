@@ -163,8 +163,8 @@ func _ready() -> void:
 	main.change_map("bittebourg", "route_est")
 	await _frames(60)
 	await _idle()
-	# Ursule est en (20,3 ; 23,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
-	await _goto(Vector3(22.8, 0.0, 26.0), "up")
+	# Ursule est en (19,1 ; 22,2) : on se place deux cases plus bas, sur le ponton, pour la voir avec son étal
+	await _goto(Vector3(20.4, 0.0, 26.2), "up")
 	# on attend que le titre du lieu et les bandeaux de quête s'effacent : la vue ne montre que l'étal
 	await get_tree().create_timer(8.0).timeout
 	await _shot("24_etal_ursule")

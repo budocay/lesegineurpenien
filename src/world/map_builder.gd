@@ -378,7 +378,10 @@ func _build_relief() -> void:
 		world.add_child(wall_node)
 		var lip_node := MeshKit.finish(lips, MeshKit.ground_material(Sprites.tile_texture("cliff_lip"), 0.05), false)
 		lip_node.name = "ReliefLips"
-		world.add_child(lip_node)
+		if bool(map.get("relief_lip", true)):   # `relief_lip` : faux, pas de liseré d'herbe au bord des estrades (salle de trône)
+			world.add_child(lip_node)
+		else:
+			lip_node.free()
 		var sm := StandardMaterial3D.new()
 		sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -1232,7 +1235,11 @@ func _build_water() -> void:
 	mat.set_shader_parameter("shore_rect", Vector4(0.0, 0.0, float(w), float(h)))
 	_water_reflections(mat)
 	var st := MeshKit.begin()
-	MeshKit.quad(st, Vector3(-80, 0, -10), Vector3(w + 80, 0, -10), Vector3(w + 80, 0, h + 80), Vector3(-80, 0, h + 80))
+	if bool(map.get("interior", false)):
+		# dans une salle, l'eau s'arrête aux murs : au-delà, le plan noir (sinon elle se voit de l'autre côté des parois)
+		MeshKit.quad(st, Vector3(0, 0, 0), Vector3(w, 0, 0), Vector3(w, 0, h), Vector3(0, 0, h))
+	else:
+		MeshKit.quad(st, Vector3(-80, 0, -10), Vector3(w + 80, 0, -10), Vector3(w + 80, 0, h + 80), Vector3(-80, 0, h + 80))
 	var node := MeshKit.finish(st, mat, false)
 	node.position.y = -0.22
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

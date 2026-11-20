@@ -1,8 +1,7 @@
 shader_type spatial;
 // Cascade en pixels : une nappe d'eau qui tombe. Trois couches de coulées verticales douces défilent à des
 // vitesses différentes (plus claires au centre, plus sombres et plus minces vers les bords), des filets brillants
-// les traversent, la nappe devient transparente vers les bords (transparence tramée : on voit la roche mouillée
-// derrière), un liseré d'écume la coiffe au seuil et une brume d'écume l'enveloppe au pied.
+// les traversent, bord franc ondulé avec liseré sombre, crêtes qui dévalent, un liseré d'écume la coiffe au seuil et une brume d'écume l'enveloppe au pied.
 // Opaque (découpe franche) pour ne pas être floutée par le flou de profondeur. À poser sur un quad vertical ;
 // `size` est sa taille en unités.
 render_mode unshaded, cull_disabled, depth_draw_opaque;
@@ -45,9 +44,9 @@ void fragment() {
 	// bord : la nappe s'amincit et se troue ; plus large au pied où elle s'étale
 	float spread = smoothstep(size.y - 1.6, size.y, p.y) * 0.12;
 	float wob = vnoise(vec2(p.y * 0.8 - t * 0.35, 3.0 + side)) - 0.5;
-	float cover = 1.0 - smoothstep(0.74, 1.0 - spread, ex + wob * 0.12);
-	if (cover < 0.5 + dith * 0.85) {
-		discard;
+	float edge = 0.92 + spread * 0.12 + wob * 0.05;
+	if (ex > edge) {
+		discard;   // bord franc, légèrement ondulé : pas de trame sur les côtés
 	}
 
 	// trois couches de coulées : fines et rapides, moyennes, larges et lentes
@@ -56,18 +55,24 @@ void fragment() {
 	float s3 = vnoise(vec2(p.x * 1.5 + 23.0, p.y * 0.28 - t * 1.5));
 	float flow = s1 * 0.38 + s2 * 0.27 + s3 * 0.35;
 	float mid = 1.0 - ex;
-	float tone = clamp((flow - 0.4) * 1.7 + mid * 0.25 + 0.42 + dith * 0.14, 0.0, 1.0);
+	float tone = clamp((flow - 0.45) * 2.8 + mid * 0.3 + 0.38 + dith * 0.16, 0.0, 1.0);
 	float tq = floor(tone * 5.0) / 4.0;
-	vec3 c = mix(deep * 0.62, body, clamp(tq, 0.0, 1.0));
+	vec3 c = mix(deep * 0.5, body, clamp(tq, 0.0, 1.0));
 	c = mix(c, body * 1.12, smoothstep(0.7, 1.0, tq) * 0.4);
 	// vers les bords l'eau s'amincit et fonce
 	c *= mix(1.0, 0.7, smoothstep(0.5, 1.0, ex));
 
 	// filets brillants : de longs traits verticaux plus clairs
-	float fil = smoothstep(0.62, 0.78, vnoise(vec2(p.x * 12.0 + 5.0, p.y * 0.33 - t * 4.4)));
-	float fil2 = smoothstep(0.74, 0.88, vnoise(vec2(p.x * 6.0 + 40.0, p.y * 0.45 - t * 3.0)));
-	float shine = max(fil, fil2 * 0.7) * (0.35 + 0.65 * mid);
-	c = mix(c, mix(body, foam, 0.7), step(0.5, shine + dith * 0.25) * 0.75);
+	float fil = smoothstep(0.55, 0.7, vnoise(vec2(p.x * 12.0 + 5.0, p.y * 0.33 - t * 4.4)));
+	float fil2 = smoothstep(0.66, 0.8, vnoise(vec2(p.x * 6.0 + 40.0, p.y * 0.45 - t * 3.0)));
+	float shine = max(fil, fil2 * 0.7) * (0.5 + 0.5 * mid);
+	c = mix(c, mix(body, foam, 0.85), step(0.5, shine + dith * 0.25) * 0.9);
+
+	// crêtes de vagues qui dévalent : donnent le sens de la chute
+	float crest = vnoise(vec2(p.x * 2.4 + 7.0, p.y * 1.3 - t * 6.5));
+	c = mix(c, body * 1.15, step(0.7, crest) * 0.3 * (0.4 + 0.6 * mid));
+	// liseré sombre le long des bords : l'eau s'épaissit et se détache de la roche
+	c = mix(c, deep * 0.4, smoothstep(edge - 0.09, edge, ex) * 0.75);
 
 	// seuil : liseré d'écume qui déborde, tramé vers le bas
 	float lip = 1.0 - smoothstep(0.0, 0.5, p.y);
