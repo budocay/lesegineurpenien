@@ -168,7 +168,8 @@ func _ready() -> void:
 		_set_loading(true)
 		await Prewarm.run(self)
 		_set_loading(false)
-	show_title()
+	await show_title()
+	Sprites.start_background()   # caches de personnages et de monstres remplis en arrière-plan, titre affiché
 
 
 # ----------------------------------------------------------------- transitions
@@ -199,6 +200,7 @@ func _set_loading(on: bool) -> void:
 
 
 func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, attract: bool) -> void:
+	Sprites.bg_pause = true   # pendant la construction, les fils d'arrière-plan laissent le processeur au chargement
 	_free_world()
 	world = World.new()
 	world.name = "World"
@@ -208,6 +210,7 @@ func _load_world(map_id: String, spawn_id: String, pos: Array, facing: String, a
 	# étalé sur plusieurs images sous le fondu ; la carte du titre (décor du menu) se construit d'un seul tenant
 	await world.setup(map_id, spawn_id, pos, facing, attract, not attract)
 	world.process_mode = Node.PROCESS_MODE_INHERIT
+	Sprites.bg_pause = false
 	Music.play(Music.default("title") if attract else Music.for_map(world.map))
 	world.warp_requested.connect(change_map)
 	world.interact_requested.connect(_on_interact)
@@ -422,6 +425,7 @@ func start_battle(encounter: Dictionary) -> String:
 	while outcome == "retry":
 		RenderingServer.global_shader_parameter_set("focus_world", Vector3(0.0, 0.0, 100000.0)); Music.play(Music.for_encounter(encounter), 0.4)
 		_set_loading(true)
+		Sprites.bg_pause = true
 		await get_tree().process_frame
 		var scene := BattleScene.new()
 		battle = scene
@@ -432,6 +436,7 @@ func start_battle(encounter: Dictionary) -> String:
 		scene.fast = auto_battles
 		scene.setup(encounter, battle_ui)
 		scene.run()
+		Sprites.bg_pause = false
 		_set_loading(false)
 		await _fade_to(0.0, 0.4)
 		if str(scene.outcome) == "":

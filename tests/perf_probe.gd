@@ -8,7 +8,8 @@ extends Node
 ##   pire     : pire image pendant tout le changement ; visible : pire image HORS fondu noir complet
 ##   script   : construction du décor par MapBuilder ; horiz : Horizon ; peint : temps de peinture
 ##              d'images par code (Sprites) ; reste : joueur, PNJ, caméra.
-## Variables : GLAN_PERF_MAPS=a,b,c (cartes), GLAN_PERF_OUT=fichier.json (écrit les chiffres).
+## Variables : GLAN_PERF_MAPS=a,b,c (cartes), GLAN_PERF_OUT=fichier.json (écrit les chiffres), GLAN_PERF_IDLE=s
+## (attente avant les mesures, pour laisser les fils d'arrière-plan remplir les caches), GLAN_PERF_LOG=1.
 ## Pour un vrai « froid », lancer avec un autre HOME (caches disque et de shaders vides) :
 ##   HOME=/tmp/perfhome GLAN_ONLY_PERF=1 Godot --path . res://tests/smoke_test.tscn
 
@@ -26,6 +27,11 @@ func _process(_d: float) -> void:
 	if _last != 0 and main != null:
 		_frames.append([(now - _last) / 1000.0, (main._fade.color.a if main._fade != null else 0.0)])
 	_last = now
+
+
+func _paint_usec() -> int:
+	var v: Variant = Sprites.get("paint_usec")   # absent sur une copie d'avant les mesures
+	return 0 if v == null else int(v)
 
 
 func _wait(n: int) -> void:
@@ -52,22 +58,24 @@ func _stats(from: int, total_ms: float, extra: Dictionary) -> Dictionary:
 func _measure_map(id: String) -> Dictionary:
 	await _wait(20)
 	var from := _frames.size()
-	var p0: int = Sprites.paint_usec
+	var p0: int = _paint_usec()
 	var t0 := Time.get_ticks_usec()
 	main.change_map(id, "")
 	while main.busy or main.world == null or main.world.map_id != id:
 		await get_tree().process_frame
 	var total := (Time.get_ticks_usec() - t0) / 1000.0
 	var w: Node = main.world
-	var extra := {"builder": float(w.perf.get("builder", 0)), "horizon": float(w.perf.get("horizon", 0)),
-		"rest": float(w.perf.get("rest", 0)), "paint": (Sprites.paint_usec - p0) / 1000.0}
+	var pf: Dictionary = w.get("perf") if w.get("perf") != null else {}   # absent sur une copie d'avant les mesures
+	var extra := {"builder": float(pf.get("builder", 0)), "horizon": float(pf.get("horizon", 0)),
+		"rest": float(pf.get("rest", 0)), "paint": (_paint_usec() - p0) / 1000.0}
 	await _wait(20)
-	if OS.has_environment("GLAN_PERF_LOG"):
+	if OS.has_environment("GLAN_PERF_LOG") and Sprites.get("paint_log") != null:
 		var items: Array = Sprites.paint_log.keys()
 		items.sort_custom(func(a: String, b: String) -> bool: return Sprites.paint_log[a] > Sprites.paint_log[b])
 		for k: String in items.slice(0, 8):
 			print("      %7.0f ms  %s" % [Sprites.paint_log[k], k])
-	Sprites.paint_log.clear()
+	if Sprites.get("paint_log") != null:
+		Sprites.paint_log.clear()
 	return _stats(from, total, extra)
 
 
@@ -86,6 +94,40 @@ func _line(name: String, r: Dictionary) -> String:
 		name, r.total, r.black, r.worst, r.visible, r.get("builder", 0.0), r.get("horizon", 0.0), r.get("paint", 0.0), r.get("rest", 0.0)]
 
 
+## Robustesse : changements de carte enchaînés, combat lancé pendant un chargement, chargement d'une sauvegarde.
+## Aucune erreur ne doit apparaître dans le journal (le test automatique ne voit que les « SCRIPT ERROR »).
+func _stress() -> void:
+	main.auto_battles = true
+	await _wait(10)
+	var ok := true
+	# 1. un deuxième changement de carte pendant le premier est ignoré (busy)
+	main.change_map("brie", "")
+	await _wait(3)
+	main.change_map("fondue_combe", "")
+	main._on_encounter("inconnue")
+	while main.busy or main.world == null:
+		await get_tree().process_frame
+	ok = ok and main.world.map_id == "brie"
+	print("robustesse : deux changements de carte enchaînés -> %s" % main.world.map_id)
+	# 2. un combat lancé pendant le chargement d'une carte (fondu en cours)
+	main.change_map("morbier_halle", "")
+	await _wait(5)
+	var res: String = await main.start_battle({"enemies": ["limace_molle"], "arena": "pre"})
+	while main.busy:
+		await get_tree().process_frame
+	print("robustesse : combat pendant un chargement -> %s, carte %s" % [res, main.world.map_id if main.world != null else "aucune"])
+	# 3. sauvegarde puis chargement pendant que le monde est en place
+	GameState.map_id = main.world.map_id
+	SaveManager.save_game("perf_stress")
+	main.continue_game("perf_stress")
+	while main.busy or main.world == null:
+		await get_tree().process_frame
+	print("robustesse : chargement de sauvegarde -> %s (joueur %s)" % [main.world.map_id, str(main.world.player != null)])
+	ok = ok and main.world.player != null
+	SaveManager.delete_slot("perf_stress")
+	print("robustesse : %s" % ("OK" if ok else "ECHEC"))
+
+
 func run(host: Node) -> Dictionary:
 	host.add_child(self)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
@@ -94,20 +136,28 @@ func run(host: Node) -> Dictionary:
 	SaveManager.delete_save()
 	main = MAIN.instantiate()
 	add_child(main)
+	await _wait(2)
+	while main.mode != 1 or main.busy:   # 1 = écran-titre prêt
+		await get_tree().process_frame
+	var launch_ms := Time.get_ticks_msec()
+	print("Lancement : écran-titre prêt %d ms après le démarrage du processus" % launch_ms)
 	await _wait(120)
 	GameState.new_game()
 	GameState.playing = true
 	main.mode = 2
 	main.title.close()
 	await _wait(20)
+	if OS.has_environment("GLAN_PERF_IDLE"):   # attend N secondes sous le titre : laisse les fils d'arrière-plan préparer les caches
+		await get_tree().create_timer(float(OS.get_environment("GLAN_PERF_IDLE"))).timeout
 	var maps: Array = DEFAULT_MAPS
 	if OS.has_environment("GLAN_PERF_MAPS"):
 		maps = Array(OS.get_environment("GLAN_PERF_MAPS").split(","))
-	var out := {}
-	var Prewarm := preload("res://src/gfx/prewarm.gd")
+	var out := {"launch_ms": launch_ms}
+	var Prewarm = load("res://src/gfx/prewarm.gd") if ResourceLoader.exists("res://src/gfx/prewarm.gd") else null
 	print("== Mesures de fluidité (ms) : première entrée (froid), seconde (chaud) ==")
-	print("Préchauffage des shaders au lancement : %.0f ms (%d shaders)" % [Prewarm.last_ms, Prewarm.covered.size()])
-	out["prewarm_ms"] = Prewarm.last_ms
+	if Prewarm != null:
+		print("Préchauffage des shaders au lancement : %.0f ms (%d shaders)" % [Prewarm.last_ms, Prewarm.covered.size()])
+		out["prewarm_ms"] = Prewarm.last_ms
 	for pass_name in ["froid", "chaud"]:
 		for id: String in maps:
 			if not Database.has_map(id):
@@ -115,6 +165,8 @@ func run(host: Node) -> Dictionary:
 			var r := await _measure_map(id)
 			out["%s:%s" % [pass_name, id]] = r
 			print(_line("%s %s" % [pass_name, id], r))
+	if not OS.has_environment("GLAN_PERF_NOSTRESS"):
+		await _stress()
 	main.auto_battles = true
 	var all: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json")).get("encounters", {})
 	var cases := {"normal": {"enemies": ["limace_molle"], "arena": "pre"}, "boss": all.get("chantecler", {}),

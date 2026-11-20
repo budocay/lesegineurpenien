@@ -506,7 +506,7 @@ func _soft_class(t: String) -> int:
 func _paint_ground() -> ImageTexture:
 	var disk_key := "ground:%s:%dx%d:%s" % [str(map.get("id", "")), w, h, ("\n".join(cells) + JSON.stringify(map)).md5_text()]
 	var from_disk := Sprites.disk_load(disk_key)   # cache disque (fluidité) : la peinture dure de 0,1 à 1 s
-	if from_disk != null:
+	if from_disk != null and from_disk.get_width() == w * PPU and from_disk.get_height() == h * PPU:   # sinon : fichier abîmé, on repeint
 		return PA.texture(from_disk)
 	var img := PA.new_image(w * PPU, h * PPU)
 	var noise := FastNoiseLite.new()

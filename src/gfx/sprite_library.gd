@@ -27,10 +27,12 @@ var paint_usec := 0          # mesure : temps passé à peindre (hors cache), po
 var _paint_depth := 0
 var paint_log: Dictionary = {}   # mesure : clé -> ms de peinture (inclusif)
 var _warm_stop := false
+var bg_pause := false             # vrai pendant un chargement (Main) : les fils d'arrière-plan n'attaquent rien de neuf
 var _char_thread: Thread = null
 var _char_mutex := Mutex.new()
 var _want: Array[String] = []     # personnages à préparer d'abord (voir prefetch_neighbors)
 var _want_mutex := Mutex.new()
+var _mon_mutex := Mutex.new()     # le peintre de monstres d'origine (gouda, boss) n'a qu'un état : un seul fil à la fois
 
 
 ## Préchauffage du cache des monstres : un fil d'arrière-plan peint, du plus petit au plus
@@ -38,8 +40,17 @@ var _want_mutex := Mutex.new()
 ## secondes). Le jeu n'attend jamais : si le fil principal a besoin d'un monstre, il le peint
 ## lui-même (ou attend la fin de celui en cours).
 func _ready() -> void:
+	# Les fils d'arrière-plan ne partent pas ici mais de start_background(), appelé par Main une fois l'écran-titre
+	# prêt : sur un premier lancement (shaders à compiler) ils volaient du temps de calcul au démarrage.
+	if OS.has_environment("GLAN_WARM") and DisplayServer.get_name() == "headless":
+		start_background()
+
+
+func start_background() -> void:
 	if DisplayServer.get_name() == "headless" and not OS.has_environment("GLAN_WARM"):
 		return   # les tests peignent à la demande
+	if _warm_thread != null:
+		return
 	_warm_thread = Thread.new()
 	_warm_thread.start(_warm_monsters)
 	_char_thread = Thread.new()
@@ -58,6 +69,11 @@ func _exit_tree() -> void:
 ## peint celles qui manquent (une demi-seconde chacune), pour que l'entrée sur une carte les relise au lieu
 ## de les peindre. Le peintre de personnages n'a qu'un état : `_char_mutex` l'accorde à un seul fil.
 ## Attente d'un fil d'arrière-plan, interrompue dès que le jeu se ferme (pas de fil à attendre à la sortie).
+func _wait_if_paused() -> void:
+	while bg_pause and not _warm_stop:
+		OS.delay_msec(30)
+
+
 func _sleep(ms: int) -> void:
 	var left := ms
 	while left > 0 and not _warm_stop:
@@ -69,6 +85,7 @@ func _warm_characters() -> void:
 	_sleep(2500)
 	var done := {}
 	while not _warm_stop:
+		_wait_if_paused()
 		var id := ""
 		_want_mutex.lock()
 		while not _want.is_empty() and id == "":
@@ -129,24 +146,40 @@ func _warm_monsters() -> void:
 	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
 	if painter.reload() != OK:
 		return
+	var originals: Array = (load("res://src/gfx/gouda_monsters.gd").KINDS as Array).duplicate()
+	originals.append_array(load("res://src/gfx/boss_painter.gd").KINDS as Array)
 	var kinds: Array = MonsterPainter.SIZES.keys()
 	kinds.sort_custom(func(a: String, b: String) -> bool:
 		var sa: Vector2i = MonsterPainter.SIZES[a]
 		var sb: Vector2i = MonsterPainter.SIZES[b]
 		return sa.x * sa.y < sb.x * sb.y)
 	for kind: String in kinds:
+		_wait_if_paused()
 		if _warm_stop:
 			return
 		if ResourceLoader.exists(ASSET_DIR + "monsters/%s.png" % kind):
 			continue
-		# les monstres de gouda_monsters.gd passent par l'état statique du peintre d'origine, pas par la
-		# copie du fil : ils se peignent à la demande, sur le fil principal
-		if (load("res://src/gfx/gouda_monsters.gd").KINDS as Array).has(kind) or (load("res://src/gfx/boss_painter.gd").KINDS as Array).has(kind):
+		# les monstres de gouda_monsters.gd et les boss passent par l'état statique du peintre d'origine, pas
+		# par la copie du fil : ils sont peints après les autres, sous `_mon_mutex` (voir plus bas)
+		if kind in originals:
 			continue
 		_monster_stamp_init()
 		var path := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
 		if not FileAccess.file_exists(path):
 			_store_monster(kind, path, painter.call("paint_hd", kind))
+	_monster_stamp_init()
+	for kind: String in originals:
+		_wait_if_paused()
+		if _warm_stop:
+			return
+		if ResourceLoader.exists(ASSET_DIR + "monsters/%s.png" % kind):
+			continue
+		var path2 := "user://cache_monstres/%s_%s.png" % [kind, _monster_stamp]
+		if not FileAccess.file_exists(path2):
+			_mon_mutex.lock()   # le fil principal prend le même verrou s'il a besoin d'un de ces monstres
+			if not FileAccess.file_exists(path2):
+				_store_monster(kind, path2, MonsterPainter.paint_hd(kind))
+			_mon_mutex.unlock()
 
 
 # ------------------------------------------------------------------ fichiers
@@ -364,7 +397,16 @@ func _monster_hd(kind: String) -> Image:
 		if cached.load(path) == OK:
 			cached.convert(Image.FORMAT_RGBA8)
 			return cached
-	return _store_monster(kind, path, MonsterPainter.paint_hd(kind))
+	_mon_mutex.lock()   # un monstre peint par le fil d'arrière-plan avec le peintre d'origine : on attend sa fin
+	if FileAccess.file_exists(path):
+		var again := Image.new()
+		if again.load(path) == OK:
+			_mon_mutex.unlock()
+			again.convert(Image.FORMAT_RGBA8)
+			return again
+	var hd := _store_monster(kind, path, MonsterPainter.paint_hd(kind))
+	_mon_mutex.unlock()
+	return hd
 
 
 ## Écrit la planche en cache sous un nom provisoire puis la renomme : le fil principal ne lit
@@ -512,8 +554,11 @@ func disk_load(key: String) -> Image:
 	var path := _decor_path(key)
 	if not FileAccess.file_exists(path):
 		return null
+	var bytes := FileAccess.get_file_as_bytes(path)
+	if bytes.size() < 8 or bytes[0] != 0x89 or bytes[1] != 0x50 or bytes[2] != 0x4E or bytes[3] != 0x47:
+		return null   # pas un PNG (fichier abîmé) : ignoré sans bruit, la carte repeindra
 	var img := Image.new()
-	if img.load(path) != OK:
+	if img.load_png_from_buffer(bytes) != OK:
 		return null
 	img.convert(Image.FORMAT_RGBA8)
 	return img

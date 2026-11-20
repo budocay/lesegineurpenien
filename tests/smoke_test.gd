@@ -8871,6 +8871,22 @@ func _test_fluidity() -> void:
 	for path in all:
 		check(covered.has(path), "préchauffage : %s est dans la liste de préchauffage (un nouveau shader doit aller dans src/gfx/shaders)" % path)
 	check(covered.size() == all.size(), "préchauffage : %d shaders préchauffés pour %d dans src" % [covered.size(), all.size()])
+	# 1 bis. la phase « ambiances » du préchauffage dépend du marqueur du premier lancement (restauré ensuite)
+	var marker_before := FileAccess.get_file_as_string(Prewarm.MARKER) if FileAccess.file_exists(Prewarm.MARKER) else ""
+	DirAccess.remove_absolute(Prewarm.MARKER)
+	check(not Prewarm.seen_before(), "préchauffage : sans marqueur, c'est un premier lancement")
+	Prewarm._write_marker()
+	check(Prewarm.seen_before(), "préchauffage : après un lancement, le marqueur est reconnu")
+	var mk := FileAccess.open(Prewarm.MARKER, FileAccess.WRITE)
+	mk.store_string("autre machine")
+	mk.close()
+	check(not Prewarm.seen_before(), "préchauffage : un marqueur d'une autre machine est ignoré")
+	if marker_before == "":
+		DirAccess.remove_absolute(Prewarm.MARKER)
+	else:
+		var mr := FileAccess.open(Prewarm.MARKER, FileAccess.WRITE)
+		mr.store_string(marker_before)
+		mr.close()
 	# 2. cache disque : l'image relue est identique
 	var img := Image.create_empty(7, 5, false, Image.FORMAT_RGBA8)
 	img.fill(Color("#336699"))
@@ -8880,6 +8896,13 @@ func _test_fluidity() -> void:
 	check(back != null and back.get_data() == img.get_data(), "cache disque : l'image relue est identique")
 	DirAccess.remove_absolute(Sprites._decor_path("test:fluidite"))
 	check(Sprites.disk_load("test:fluidite") == null, "cache disque : une clé inconnue ne renvoie rien")
+	# un fichier abîmé (tronqué, ou pas une image) est ignoré, jamais une erreur
+	DirAccess.make_dir_recursive_absolute(Sprites.DECOR_CACHE)
+	var bad := FileAccess.open(Sprites._decor_path("test:abime"), FileAccess.WRITE)
+	bad.store_string("ceci n'est pas un PNG")
+	bad.close()
+	check(Sprites.disk_load("test:abime") == null, "cache disque : un fichier abîmé est ignoré")
+	DirAccess.remove_absolute(Sprites._decor_path("test:abime"))
 	# 3. la construction étalée donne la même carte que la construction d'un seul tenant ; sol relu du disque identique
 	var slow: Array = []
 	for id: String in ["brie", "morbier_halle", "minas_citadelle"]:

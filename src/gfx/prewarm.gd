@@ -19,6 +19,13 @@ const AMBIANCES := ["crepuscule", "mines", "chutes", "col_neige", "grand_four", 
 static var covered: PackedStringArray = PackedStringArray()   # shaders effectivement dessinés
 static var last_ms := 0.0
 static var done := false
+static var _live: SubViewport = null   # la scène de dessin en cours (libérée si le jeu se ferme pendant le préchauffage)
+
+
+static func _release() -> void:
+	if _live != null and is_instance_valid(_live):
+		_live.free()
+	_live = null
 
 
 ## Chemins de tous les shaders du jeu. `ResourceLoader.list_directory` (et non DirAccess) : dans un jeu
@@ -36,6 +43,28 @@ static func shader_paths() -> PackedStringArray:
 	return out
 
 
+const MARKER := "user://cache_prewarm.txt"
+
+
+## Empreinte de la machine : version du moteur, pilote, carte graphique. Si elle change, les caches de shaders sont à refaire.
+static func machine_stamp() -> String:
+	return "%s|%s|%s" % [Engine.get_version_info().get("string", ""), RenderingServer.get_current_rendering_driver_name(), RenderingServer.get_video_adapter_name()]
+
+
+## Vrai si un lancement précédent a déjà préchauffé sur cette machine : le cache de shaders de Godot est alors
+## rempli et la phase des ambiances est quasi gratuite (0,3 s). Au tout premier lancement elle coûterait plus de
+## 10 s de compilation que la carte du titre paie de toute façon : on ne la fait pas deux fois.
+static func seen_before() -> bool:
+	return FileAccess.file_exists(MARKER) and FileAccess.get_file_as_string(MARKER) == machine_stamp()
+
+
+static func _write_marker() -> void:
+	var f := FileAccess.open(MARKER, FileAccess.WRITE)
+	if f != null:
+		f.store_string(machine_stamp())
+		f.close()
+
+
 ## Dessine tout une fois. `host` : un nœud dans l'arbre. `force` : même sans rendu (tests).
 static func run(host: Node, force: bool = false) -> void:
 	if done and not force:
@@ -50,7 +79,14 @@ static func run(host: Node, force: bool = false) -> void:
 	vp.msaa_3d = host.get_viewport().msaa_3d
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	host.add_child(vp)
+	# fermeture du jeu en plein préchauffage : la coroutine ne reprendra jamais, on libère la scène de dessin
+	_live = vp
+	host.tree_exiting.connect(_release, CONNECT_ONE_SHOT)
 	covered = PackedStringArray()
+	# Phase 2 (ambiances) seulement si ce n'est pas le tout premier lancement sur cette machine (voir seen_before).
+	var full := seen_before() or OS.has_environment("GLAN_PREWARM_FULL")
+	if OS.has_environment("GLAN_PERF_LOG"):
+		print("   préchauffage : cache de shaders %s, ambiances %s" % ["déjà préchauffé" if full else "premier lancement", "oui" if full else "non"])
 
 	# 1. chaque shader, dans une grille devant la caméra
 	var stage := Node3D.new()
@@ -112,15 +148,20 @@ static func run(host: Node, force: bool = false) -> void:
 				pass
 		covered.append(path)
 		i += 1
+	var t_a := Time.get_ticks_usec()
 	for _k in 3:
 		await tree.process_frame
+	if OS.has_environment("GLAN_PERF_LOG"):
+		print("   préchauffage : shaders %.0f ms, trois images %.0f ms" % [(t_a - t0) / 1000.0, (Time.get_ticks_usec() - t_a) / 1000.0])
 	stage.queue_free()
 	await tree.process_frame
 
 	# 2. les ambiances types : environnement, ombres, brouillard, rayons, particules
-	for id: String in AMBIANCES:
+	for id: String in (AMBIANCES if full else []):
 		if not Database.ambiances.has(id):
 			continue
+		if OS.has_environment("GLAN_PERF_LOG"):
+			print("   préchauffage : ambiance %s à %.0f ms" % [id, (Time.get_ticks_usec() - t0) / 1000.0])
 		var s2 := Node3D.new()
 		vp.add_child(s2)
 		var c2 := Camera3D.new()
@@ -141,6 +182,9 @@ static func run(host: Node, force: bool = false) -> void:
 		await tree.process_frame
 
 	vp.queue_free()
+	_live = null
 	await tree.process_frame
 	last_ms = (Time.get_ticks_usec() - t0) / 1000.0
+	if DisplayServer.get_name() != "headless":   # les essais sans fenêtre ne touchent pas au marqueur du joueur
+		_write_marker()
 	done = true
