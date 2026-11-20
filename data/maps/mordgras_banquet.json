@@ -1,0 +1,249 @@
+{
+	"id": "mordgras_banquet",
+	"name": "La salle du banquet",
+	"region": "Le pays ennemi",
+	"size": [
+		56,
+		30
+	],
+	"ambiance": "festin_mor",
+	"music": "festin",
+	"arena": "banquet_mor",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "festin",
+	"interior": true,
+	"wall_height": 5.0,
+	"wall_tile": "mor_mur",
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "mor_parquet",
+				"rect": [
+					2,
+					3,
+					52,
+					24
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.5,
+				15.0
+			],
+			"facing": "right"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "banquet_arrivee",
+			"unless": "banquet_vu"
+		}
+	],
+	"objects": [
+		{
+			"type": "mor_table",
+			"pos": [
+				14,
+				7
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				14,
+				8.6
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				28,
+				7
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				28,
+				8.6
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				42,
+				7
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				42,
+				8.6
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				14,
+				22
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				14,
+				20.4
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				28,
+				22
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				28,
+				20.4
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				42,
+				22
+			]
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				42,
+				20.4
+			]
+		},
+		{
+			"type": "npc",
+			"id": "convive",
+			"pos": [
+				15.5,
+				9.2
+			],
+			"facing": "up",
+			"reach": 1.8,
+			"dialogue": "banquet_convive_1"
+		},
+		{
+			"type": "npc",
+			"id": "convive",
+			"pos": [
+				29.0,
+				20.0
+			],
+			"facing": "down",
+			"reach": 1.8,
+			"dialogue": "banquet_convive_2"
+		},
+		{
+			"type": "npc",
+			"id": "convive",
+			"pos": [
+				42.5,
+				9.2
+			],
+			"facing": "up",
+			"reach": 1.8,
+			"dialogue": "banquet_convive_1"
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				48,
+				15
+			],
+			"dialogue": "banquet_plan",
+			"label": "Lire le plan",
+			"reach": 2.0
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				12,
+				2,
+				6
+			],
+			"dialogue": "banquet_service",
+			"unless": "banquet_servi"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				54.0,
+				13,
+				0.8,
+				4
+			],
+			"to": {
+				"map": "quatre_mille_marches",
+				"spawn": "bas"
+			},
+			"if": "banquet_servi"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				6,
+				9,
+				44,
+				12
+			],
+			"table": "banquet"
+		},
+		{
+			"type": "light",
+			"pos": [
+				14,
+				14
+			],
+			"height": 2.4,
+			"color": "#ffd890",
+			"energy": 1.8,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				28,
+				14
+			],
+			"height": 2.4,
+			"color": "#ffd890",
+			"energy": 1.8,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				42,
+				14
+			],
+			"height": 2.4,
+			"color": "#ffd890",
+			"energy": 1.8,
+			"range": 10
+		}
+	]
+}

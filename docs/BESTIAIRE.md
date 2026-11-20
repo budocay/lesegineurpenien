@@ -214,23 +214,23 @@ Les hommes du lointain Sud, qui ont rallié Sauron, montent des **éléphants de
 
 *Le décor d'origine : un marais où flottent les visages des morts, une immense porte noire que l'on ne force pas, un col étroit avec une grotte-toile où vit une araignée géante, une plaine de cendres sous une tour surmontée d'un œil, une montagne de feu au bout de milliers de marches.* Ici le Ramollissement s'inverse : autour de Sauron, tout est **raide**, surchauffé, rentable. Les créatures sont donc **dures et infatigables**, jamais molles : elles ne dorment pas.
 
-### Les Noyés du Bouillon d'Onze Heures `[À CRÉER]`
+### Les Noyés du Bouillon d'Onze Heures `[EN JEU, chapitre 7]`
 
 Les visages de morts qui flottent dans le marais, sous la surface, aux yeux ouverts : ils ont voulu rejoindre leurs morts de la guerre ancienne et s'y noient encore. *Où :* marais, chapitre 7, début ; les héros les croisent en suivant Goulûm sur des planches. *À peindre :* visages bleu-verdâtre, sous l'eau, cheveux d'algues, yeux fixes ; seule une main émerge pour saisir. Détail drôle : leur « bouillon » est un potage de poireaux qui bout, de loin, à feu doux. *Combat :* ils ne se montrent que si l'on **regarde** l'eau (l'équipe doit marcher sans lever les yeux : choix du joueur) ; *Regard trouble* (endort), *Main qui prend* (englue, retire un héros du combat tant qu'on ne l'a pas libéré), *Appel de la soupe* (drain de mana) ; faiblesse feu, foudre ; état : sommeil. *Bestiaire :* « Ils ne méritent pas un nom : ils s'en sont perdu un dans la soupe. Autant les appeler comme elle. » *Double sens :* *bouillon d'onze heures* est l'ancien nom d'une boisson empoisonnée ; elle appelle ici les morts à boire. *Noms :* 1. **les Noyés du Bouillon** ; 2. **les Visages de la Soupe** ; 3. **les Défunts du Marécage**.
 
-### La Bouche du Maître `[À CRÉER]`
+### La Bouche du Maître `[EN JEU, chapitre 7]`
 
 Le porte-parole de Sauron, qui parlemente à la Porte Noire. Dans le récit d'origine il n'est plus qu'une bouche : il ne dit rien de lui-même. Ici : le **maître d'hôtel** du Grand Œil. *Où :* le Passe-Plat (la Porte Noire), chapitre 7 ; boss de parlementaire. *À peindre :* grande silhouette sombre dont le visage disparaît sous un capuchon à bords noirs ; seules ses **lèvres** (pleines, souriantes, très luisantes) sortent, avec une serviette blanche sur le bras et un plateau d'argent. Détail drôle : il présente les conditions de reddition comme une carte de restaurant. *Combat :* **boss de parole** ; *Menu du jour* (trois offres de reddition ; refuser les trois suffit), *Addition* (dégâts proportionnels à l'argent que porte l'équipe : on peut les réduire en payant un **pourboire** de 100 écus), *Suggestion du chef* (confond), *Dessert* (coup final : une assiette qui explose) ; faiblesse torpeur, tranchant ; état : démoralisé. *Bestiaire :* « Il ne dit que ce qu'on lui a écrit. Il le dit si bien qu'on se demande qui l'a écrit. » *Double sens :* le *maître* est le maître de Sauron et le *maître d'hôtel* : la bouche d'un maître de maison. *Noms :* 1. **la Bouche du Maître** (maître d'hôtel de Sauron) ; 2. **le Chef de Rang** ; 3. **la Grande Gueule** (le moins élégant).
 
-### Les Ologrills `[À CRÉER]`
+### Les Ologrills `[EN JEU, chapitre 7]`
 
 Les trolls d'élite de Sauron : plus grands, plus noirs, qui supportent le soleil que craignent les autres trolls. *Où :* Passe-Plat et plaine de Gorgonzola, chapitre 7. *À peindre :* peau noire et luisante, comme croûtée à la poêle, des traces de quadrillage sur les épaules (le détail drôle : on y voit les barreaux d'un gril), une fourchette de cuisine géante à la ceinture. *Combat :* massifs, 6 000 PV ; *Saisie* (une attaque de feu à une cible, qui brûle ensuite), *Retournement* (comme le Troll Affineur) ; ils sont **insensibles au feu** ; faiblesse foudre, torpeur ; état : ébranlé. **Le Grand Ologrill** est le chef de l'armée devant la Porte, couvert de piques de fer. *Bestiaire :* « Les trolls ordinaires se changent en pierre au soleil. Les Ologrills n'y voient qu'une cuisson supplémentaire. » *Double sens :* *olog* + *grill* ; on les cuit pour les rendre solides. *Noms :* 1. **Ologrills** ; 2. **Trolls Saisis** ; 3. **Trolls Rôtis**.
 
-### L'Arachnée `[À CRÉER, nom fixé par la bible]`
+### L'Arachnée `[EN JEU, chapitre 7]`
 
 L'araignée géante du col, gardienne de la grotte-toile qui précède les cuisines. *Où :* col de l'Arachnée, chapitre 7. La bible : elle « tisse sans jamais s'arrêter et n'a pas dormi depuis des siècles ». *À peindre :* araignée énorme, velue, brun et vert sombre, huit yeux cernés de cernes mauves, trop de fils autour d'elle, un lacet de ruban dans chaque patte ; elle porte un petit bonnet de dentelle sur le cou (détail drôle : elle l'a tricoté). *Combat :* boss à deux phases ; *Toile sans fin* (englue toute l'équipe), *Piqûre de rappel* (poison en trois temps), *Point de croix* (frappe en croix, deux cibles), *Couture serrée* (immobilise un héros pour deux tours). **Mécanique :** elle est **immunisée contre le sommeil** tant que sa jauge de **Fatigue (nouveau)** n'est pas pleine ; chaque action qu'elle fait la remplit un peu ; à pleine jauge, la berceuse de Sam (*Chant de Sam* : quatre couplets, un par tour) l'endort pour de bon. On ne la tue pas : on l'endort, et elle dort enfin. Faiblesse feu, tranchant ; état : englué. *Bestiaire :* « Elle n'a pas fermé l'œil depuis la fin de l'autre monde. On l'a longtemps prise pour méchante. Elle est seulement fatiguée. » *Double sens :* *l'arachnée* (arachnide) *tisse* ; la *piqûre de rappel* est un vaccin, ici un poison qui revient. Nom déjà fixé. *Autres :* **les Fileuses**, ses petites araignées de col (*Fil à la patte* : englue ; très petites, très nombreuses ; faiblesse feu).
 
-### Les Nazes du Service `[À CRÉER]`
+### Les Nazes du Service `[EN JEU, chapitre 7]`
 
 Les cinq Nazes qui restent sont, au banquet perpétuel, **employés** : les anciens rois sont devenus la brigade de salle. *Où :* Salle du Banquet, chapitre 7, après les cuisines ; combat de brigade. *À peindre :* capes noires de leur grade, mais **en livrée** : nœud papillon blanc au col, tablier de grande maison, gants blancs, plateau à la main. Chacun porte, à l'annulaire gauche, son petit anneau qui le serre ; sur la livrée, une plaque porte le titre. Détail drôle : ils se saluent en s'inclinant exactement du même angle. *Combat :* cinq adversaires, combattus à la suite ou ensemble selon la difficulté :
 
@@ -242,15 +242,15 @@ Les cinq Nazes qui restent sont, au banquet perpétuel, **employés** : les anci
 
 *Bestiaire :* « Ils servent le Maître depuis le jour où il leur a promis qu'ils ne serviraient plus. » *Double sens :* le titre de **maître de salle** et le service de table, pris avec un sérieux de haute cuisine ; la mécanique du Naze (le petit anneau qui serre) devient une plaque de nom. *Noms :* 1. **Nazes du Service** ; 2. **Nazes de Salle** ; 3. **Nazes en Livrée**.
 
-### Les Convives Insatiables `[À CRÉER]`
+### Les Convives Insatiables `[EN JEU, chapitre 7]`
 
 Les invités du banquet perpétuel de Sauron, qui mangent depuis des siècles et ne sont jamais rassasiés : des gloutons au faciès creux, vêtements de fête en lambeaux. *Où :* Salle du Banquet, chapitre 7. *À peindre :* joues pendantes, bavoir de dentelle, couvert dans chaque main, le ventre énorme et la peau d'un blanc de cierge. Détail drôle : ils ont tous le même air satisfait et affamé à la fois. *Combat :* *Bouchée double* (vole un objet du sac et le mange), *Pas de dessert pour vous* (démoralise), *Faim de loup* (galvanise : le plus vorace passe devant) ; **on les neutralise en les nourrissant** : un objet de nourriture lancé les endort (sommeil, très efficace : Sam, *Plat de résistance*, fait même dormir toute une table) ; faiblesse torpeur, feu. *Bestiaire :* « Ils mangent pour oublier qu'ils n'ont plus faim. Ils ont oublié depuis longtemps. » *Double sens :* *convive* est un mot de bonne compagnie : c'est le nom de ceux qui partagent la table, et l'on n'en partage plus rien.
 
-### Les Marcheurs Infatigables `[À CRÉER]`
+### Les Marcheurs Infatigables `[EN JEU, chapitre 7]`
 
 Les pèlerins de l'escalier, qui montent sans fin vers la Montagne du Festin et n'ont jamais pu se reposer. *Où :* les Quatre Mille Marches, chapitre 7. *À peindre :* silhouettes grises, dos courbé, bâton à la main, qui grimpent en rond sur les paliers sans jamais avancer ; ils ont des chaussures usées à la corde. Détail drôle : chacun porte un petit panneau « Encore un peu ». *Combat :* ils ne veulent pas se battre : ils veulent qu'on **monte avec eux** ; *Encouragement* (galvanise les ennemis proches), *Encore un peu* (démoralise). On les apaise en **leur faisant s'asseoir** (voir la quête « Les Marcheurs infatigables »). Faiblesse torpeur ; état : sonné. *Bestiaire :* « Ils vont jusqu'au bout, c'est la seule chose qu'ils savent. Le bout n'a jamais l'air de se rapprocher. » *Noms :* 1. **Marcheurs Infatigables** ; 2. **Montagnards sans Pause** ; 3. **Pèlerins de la Marche**.
 
-### Le Grand Œil et Sauron en pleine Vigueur `[EN JEU pour Sauron ; À CRÉER pour l'Œil]`
+### Le Grand Œil et Sauron en pleine Vigueur `[EN JEU, chapitre 7]`
 
 *Où :* le Grand Four, boss final, deux phases (voir `docs/HISTOIRE.md`). **Phase 1, le Grand Œil :** il n'a pas de corps ; il voit tout et ne peut rien. *À peindre :* un œil immense, de flamme et de fer, au centre d'un cercle de braise, une paupière qui bat ; il tourne lentement comme une broche (détail drôle : on le voit se tourner pour se faire dorer de l'autre côté). *Combat :* il **ne frappe pas** ; ses attaques sont des regards : *Regard insistant* (démoralise), *Mate-tout* (l'équipe voit ses points faibles révélés, ce qui augmente ses dégâts subis tout en augmentant les siens), *Rayon de veille* (dégâts de feu, ne dort jamais) ; immunisé contre le sommeil (le prologue le dit : sa faiblesse est la torpeur, pas le sommeil). **Phase 2, Sauron en pleine Vigueur :** l'armure du prologue, mais pleine, flamboyante : *Heures supplémentaires* (se redonne un tour), *Coup de masse*, *Regard insistant*, *Vigueur éternelle* (gagne un point d'élan par tour). Faiblesse : **torpeur** (le grand bâillement de Glandoulf, la berceuse de Sam), état : sommeil possible après trois assauts de torpeur ; il s'endort **à la fin du combat**, au lieu de mourir. *Bestiaire :* « Il travaille depuis trois mille ans. Il est le seul à ne pas s'en rendre compte. »
 
@@ -298,3 +298,15 @@ Ces choix sont tranchés ; ils priment sur tout ce qui précède dans ce fichier
 8. **L'armée des morts : les Éveillés**, dormeurs maudits par Isidur.
 9. **Le Raidissement** autour de Sauron (Ramollissement inversé) : accepté.
 10. **Merri, Écuyer Tranchant** du roi endormi : accepté.
+
+### Chapitre 7 : ce qui a été construit (20 novembre 2026)
+
+Identifiants et peintres : `noye`, `ologrill`, `grand_ologrill`, `fileuse`, `arachnee`, `convive`,
+`marcheur`, `naze_service` et `grand_oeil` (`src/gfx/mordgras_monsters.gd`), `boss_bouche` (la Bouche du
+Maître) et `boss_sauron_vigueur` (`src/gfx/boss_painter.gd`). Ennemis dans `data/enemies.json` : `noye`,
+`ologrill`, `fileuse`, `convive`, `marcheur`, `naze_service`, `bouche_du_maitre`, `grand_ologrill`,
+`arachnee`, `maitre_de_salle` (un Naze du Service agrandi), `grand_oeil`, `sauron_final`.
+Écarts avec les fiches ci-dessus : la jauge de Fatigue de l'Arachnée est remplacée par une faiblesse à la
+torpeur et la Berceuse de Sam (compétence de la Louche à Glaner) ; les Noyés se rencontrent sur les
+planches sans la mécanique du regard ; le Maître de Salle est seul à représenter les cinq Nazes du Service ;
+le Grand Œil et Sauron sont deux combats à la suite (coups annoncés : « Œil grand ouvert », « Masse levée »).

@@ -1,0 +1,532 @@
+{
+	"id": "col_arachnee",
+	"name": "Le col de l'Arachnée",
+	"region": "Le pays ennemi",
+	"size": [
+		56,
+		26
+	],
+	"ambiance": "toile_mor",
+	"music": "eveilles",
+	"arena": "col_arachnee",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "toile",
+	"ground": {
+		"default": "mor_roche",
+		"fills": [
+			{
+				"type": "mor_toile",
+				"rect": [
+					2,
+					6,
+					52,
+					14
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.5,
+				13.0
+			],
+			"facing": "right"
+		}
+	},
+	"on_enter": [],
+	"objects": [
+		{
+			"type": "trigger",
+			"rect": [
+				2,
+				10,
+				2,
+				6
+			],
+			"dialogue": "col_arrivee",
+			"unless": "col_vu"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				22,
+				8,
+				2,
+				10
+			],
+			"dialogue": "col_trahison",
+			"unless": "goulum_trahi"
+		},
+		{
+			"type": "monster",
+			"id": "arachnee",
+			"pos": [
+				47,
+				13
+			],
+			"dialogue": "arachnee_face",
+			"solid": 1.1,
+			"label": "Affronter",
+			"reach": 3.0,
+			"if": "goulum_trahi",
+			"unless": "arachnee_endormie"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				53.4,
+				11,
+				1.2,
+				4
+			],
+			"to": {
+				"map": "mordgras_cuisines",
+				"spawn": "soupirail"
+			},
+			"if": "arachnee_endormie"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				4,
+				7,
+				44,
+				12
+			],
+			"table": "col_arachnee"
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				51.7,
+				6.2
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				47.0,
+				1.0
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				22.0,
+				2.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				24.0,
+				1.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				43.9,
+				6.3
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				7.7,
+				3.3
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				55.4,
+				5.8
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				39.6,
+				7.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				19.0,
+				1.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				5.2,
+				2.6
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				31.0,
+				3.1
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				16.5,
+				6.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				54.4,
+				0.7
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				10.2,
+				5.3
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				47.6,
+				4.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				28.8,
+				3.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				5.0,
+				0.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				52.5,
+				4.4
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				4.7,
+				6.0
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				14.8,
+				0.9
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				19.0,
+				3.9
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				34.8,
+				0.3
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				29.7,
+				1.4
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				41.1,
+				3.9
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				28.8,
+				20.7
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				6.0,
+				24.7
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				36.8,
+				22.8
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				54.3,
+				21.2
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				46.6,
+				23.9
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				22.7,
+				21.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				46.9,
+				19.1
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				24.1,
+				19.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				48.8,
+				23.7
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				33.5,
+				23.8
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				53.9,
+				25.8
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				13.7,
+				25.8
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				12.2,
+				20.3
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				14.8,
+				19.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				32.9,
+				21.8
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				17.0,
+				20.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				49.2,
+				21.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				40.4,
+				22.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				2.5,
+				24.8
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				41.1,
+				24.7
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				51.0,
+				24.3
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				38.8,
+				20.6
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				1.1,
+				22.7
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				27.4,
+				19.0
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				35.9,
+				13.0
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				32.4,
+				8.7
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				16.1,
+				8.7
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				15.4,
+				15.6
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				35.6,
+				17.8
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				39.8,
+				8.8
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				11.9,
+				10.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				25.3,
+				12.9
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				12,
+				13
+			],
+			"height": 2.4,
+			"color": "#b0b8ff",
+			"energy": 1.2,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				26,
+				13
+			],
+			"height": 2.4,
+			"color": "#b0b8ff",
+			"energy": 1.2,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				40,
+				13
+			],
+			"height": 2.4,
+			"color": "#b0b8ff",
+			"energy": 1.2,
+			"range": 9
+		}
+	],
+	"lantern": true
+}

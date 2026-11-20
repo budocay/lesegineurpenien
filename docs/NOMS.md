@@ -302,3 +302,14 @@ Des noms que le joueur voit souvent, ou des lieux que l'auteur connaît déjà :
 | Mûmak, Haradrim, Uruk-hai (faits) | Mammou, Cassoulétains, Ouroukouilles | — |
 
 À retenir : tout nouveau nom passe par la recette (reconnaissable, déformé, sous-entendu, jamais cru), se note dans ce fichier, et ne change jamais d'identifiant technique.
+
+## Chapitre 7 : noms employés (20 novembre 2026)
+
+Noyés au garde-à-vous, la Bouche du Maître, Ologrills, le Grand Ologrill dit Gorgonzola, Fileuses,
+l'Arachnée (nom de la bible), Nazes du Service, le Maître de Salle, Convives insatiables, Marcheurs
+infatigables, le Grand Œil de la Barbaque, Sauron « Seigneur des Anneaux ». Lieux : Marais du Bouillon
+d'Onze Heures, le Passe-Plat (Porte Noire), col de l'Arachnée, Tour de la Barbaque, les Quatre Mille
+Marches, le Grand Four. Objets : la Louche à Glaner, la Serviette de l'Ordre du Garde-à-Vous, le Plan du
+Banquet, l'Anneau Annulaire, la Louche d'Ologrill, la Toque de dentelle, les Gants blancs, le Manteau bleu
+nuit. Jeux de mots dits sans sourire : « Il est à point », « Prière de ne pas se tromper de dessert »,
+« registre des siestes », « on ne vous mangera pas immédiatement ».

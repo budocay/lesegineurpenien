@@ -29,6 +29,9 @@ func _ready() -> void:
 	if args.size() > 1 and args[1] == "chap6":
 		await _gouda_only(args.size() > 2 and args[2] == "arenes")
 		return
+	if args.size() > 1 and args[1] == "chap7":
+		await _mordgras_only(args.size() > 2 and args[2] == "arenes")
+		return
 	if args.size() > 1 and args[1] == "vues":
 		await _vues_only()
 		return
@@ -746,6 +749,119 @@ func _gouda_arenas() -> void:
 		["sentier_insomniaques", ["roi_eveille"]], ["port_sale", ["saumure", "boucanier", "boucanier"]], ["minas_remparts", ["grondine", "morfale_siege"]],
 		["minas_remparts", ["gothmoque", "morfale_siege", "morfale_siege"]], ["pelle_a_tarte", ["dindon_farce", "cassouletain"]], ["pelle_a_tarte", ["naze_supreme"]]]
 	var n := 230
+	for c: Array in cases:
+		main.start_battle({"enemies": c[1], "arena": c[0], "flee": true})
+		await _until_menu()
+		await _frames(50)
+		await _shot("%d_arene_%s_%s" % [n, str(c[0]), str(c[1][0])])
+		n += 1
+		await _flee()
+		main.battle_ui._on_end("ok")
+		await _frames(120)
+
+
+## Chapitre 7 : le pays ennemi, de l'épilogue aux arènes (mode « chap7 » seul ; « arenes » en troisième argument :
+## les arènes et les grands ennemis).
+func _mordgras_only(arenas_only: bool) -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["froton", "sam", "merri", "glandoulf"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 27
+	for f: String in ["chapitre_5_fini", "chapitre_6_fini", "chapitre_7_debut", "marais_vu", "passe_vu", "col_vu", "cuisines_vu", "banquet_vu", "marches_vue", "epilogue_vu", "goulum_guide", "louche_trouvee"]:
+		GameState.set_flag(f)
+	GameState.map_id = "marais_bouillon"
+	GameState.spawn_id = "ouest"
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	if arenas_only:
+		await _mordgras_arenas()
+	else:
+		await _mordgras_shots()
+	SaveManager.delete_save()
+	print("CAPTURES CHAP7 OK : ", out_dir)
+	get_tree().quit()
+
+
+func _mordgras_shots() -> void:
+	await _shot("300_marais_arrivee")
+	await _goto(Vector3(20.0, 0.0, 11.5), "right")
+	await _shot("301_marais_planches")
+	await _goto(Vector3(36.0, 0.0, 11.5), "right")
+	await _shot("302_marais_milieu")
+	await _goto(Vector3(47.0, 0.0, 11.5), "right")
+	await _shot("303_marais_noyes")
+	GameState.set_flag("combat_bouche_du_maitre")
+	main.change_map("passe_plat", "sud")
+	await _frames(150)
+	await _idle()
+	await _shot("304_passe_arrivee")
+	await _goto(Vector3(24.0, 0.0, 17.0), "up")
+	await _shot("305_passe_milieu")
+	await _goto(Vector3(24.0, 0.0, 10.0), "up")
+	await _shot("306_passe_porte")
+	GameState.set_flag("goulum_trahi")
+	main.change_map("col_arachnee", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("307_col_arrivee")
+	await _goto(Vector3(26.0, 0.0, 13.0), "right")
+	await _shot("308_col_toile")
+	await _goto(Vector3(43.0, 0.0, 13.0), "right")
+	await _shot("309_col_arachnee")
+	main.change_map("mordgras_cuisines", "soupirail")
+	await _frames(150)
+	await _idle()
+	await _shot("310_cuisines_arrivee")
+	await _goto(Vector3(21.0, 0.0, 12.0), "up")
+	await _shot("311_cuisines_marmite")
+	await _goto(Vector3(36.0, 0.0, 20.0), "right")
+	await _shot("312_cuisines_froid")
+	main.change_map("mordgras_banquet", "ouest")
+	await _frames(150)
+	await _idle()
+	await _shot("313_banquet_arrivee")
+	await _goto(Vector3(28.0, 0.0, 14.0), "right")
+	await _shot("314_banquet_tables")
+	await _goto(Vector3(47.0, 0.0, 15.0), "right")
+	await _shot("315_banquet_dessert")
+	main.change_map("quatre_mille_marches", "bas")
+	await _frames(150)
+	await _idle()
+	await _shot("316_marches_bas")
+	await _goto(Vector3(12.0, 0.0, 34.0), "up")
+	await _shot("317_marches_milieu")
+	await _goto(Vector3(12.0, 0.0, 8.0), "up")
+	await _shot("318_marches_haut")
+	main.change_map("grand_four", "bas")
+	await _frames(150)
+	await _idle()
+	await _shot("319_four_arrivee")
+	await _goto(Vector3(22.0, 0.0, 17.0), "up")
+	await _shot("320_four_sauron")
+	GameState.set_flag("sauron_endormi")
+	main.change_map("grand_four", "bas")
+	await _frames(150)
+	await _idle()
+	await _goto(Vector3(22.0, 0.0, 14.0), "up")
+	await _shot("321_four_sauron_endormi")
+	main.change_map("bittebourg_epilogue", "arrivee")
+	await _frames(150)
+	await _idle()
+	await _shot("322_epilogue_arrivee")
+	await _goto(Vector3(20.0, 0.0, 17.0), "right")
+	await _shot("323_epilogue_place")
+
+
+func _mordgras_arenas() -> void:
+	var cases := [["marais_bouillon", ["noye", "noye", "noye"]], ["passe_plat", ["bouche_du_maitre", "ologrill", "ologrill"]], ["gorgonzola", ["grand_ologrill", "ologrill"]],
+		["col_arachnee", ["fileuse", "fileuse", "fileuse"]], ["col_arachnee", ["arachnee", "fileuse"]], ["cuisines_mor", ["naze_service", "naze_service", "naze_service"]],
+		["banquet_mor", ["convive", "convive", "naze_service"]], ["banquet_mor", ["maitre_de_salle", "naze_service", "naze_service"]], ["marches_mor", ["marcheur", "marcheur", "naze_service"]],
+		["arena_oeil", ["grand_oeil"]], ["arena_oeil", ["sauron_final"]]]
+	var n := 330
 	for c: Array in cases:
 		main.start_battle({"enemies": c[1], "arena": c[0], "flee": true})
 		await _until_menu()

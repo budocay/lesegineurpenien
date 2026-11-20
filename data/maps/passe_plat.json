@@ -1,0 +1,401 @@
+{
+	"id": "passe_plat",
+	"name": "Le Passe-Plat",
+	"region": "Le pays ennemi",
+	"size": [
+		48,
+		32
+	],
+	"ambiance": "mordgras_mor",
+	"music": "menace",
+	"arena": "passe_plat",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "mordgras",
+	"ground": {
+		"default": "mor_cendre",
+		"fills": [
+			{
+				"type": "mor_roche",
+				"rect": [
+					17,
+					2,
+					14,
+					28
+				]
+			}
+		]
+	},
+	"spawns": {
+		"sud": {
+			"pos": [
+				24.0,
+				29.0
+			],
+			"facing": "up"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "passe_arrivee",
+			"unless": "passe_vu"
+		}
+	],
+	"objects": [
+		{
+			"type": "mor_porte",
+			"pos": [
+				24,
+				3.2
+			],
+			"width": 10,
+			"height": 7.0
+		},
+		{
+			"type": "mor_tour",
+			"pos": [
+				14,
+				3.5
+			],
+			"size": [
+				4,
+				4
+			],
+			"height": 9.0
+		},
+		{
+			"type": "mor_tour",
+			"pos": [
+				34,
+				3.5
+			],
+			"size": [
+				4,
+				4
+			],
+			"height": 9.0
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				19,
+				10,
+				10,
+				2
+			],
+			"dialogue": "passe_offres",
+			"unless": "combat_bouche_du_maitre"
+		},
+		{
+			"type": "monster",
+			"id": "grand_ologrill",
+			"pos": [
+				24,
+				7.5
+			],
+			"dialogue": "passe_gorgonzola",
+			"solid": 1.1,
+			"label": "Affronter",
+			"reach": 3.0,
+			"if": "combat_bouche_du_maitre",
+			"unless": "combat_grand_ologrill"
+		},
+		{
+			"type": "mor_ecriteau",
+			"pos": [
+				19.0,
+				25.0
+			],
+			"dialogue": "passe_ecriteau",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				29.0,
+				22.0
+			],
+			"dialogue": "passe_os",
+			"label": "Examiner",
+			"reach": 1.6
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				16,
+				13,
+				16,
+				15
+			],
+			"table": "passe_plat"
+		},
+		{
+			"type": "rock",
+			"pos": [
+				7.4,
+				28.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				13.5,
+				13.5
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				3.2,
+				16.2
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				4.5,
+				20.2
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				7.8,
+				21.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				12.0,
+				7.1
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				11.4,
+				23.5
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				9.6,
+				6.3
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				7.6,
+				23.3
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				3.5,
+				7.9
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				11.9,
+				29.5
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				3.9,
+				18.3
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				2.2,
+				29.2
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				11.9,
+				9.5
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				36.6,
+				17.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				37.1,
+				14.9
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				34.7,
+				23.2
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				41.9,
+				25.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				43.9,
+				26.8
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				40.4,
+				17.6
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				44.5,
+				24.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				43.3,
+				7.9
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				39.7,
+				22.9
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				35.3,
+				18.6
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				36.3,
+				5.1
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				39.3,
+				19.9
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				42.3,
+				15.8
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				40.1,
+				10.4
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				17,
+				10
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				31,
+				10
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				17,
+				18
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				31,
+				18
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				17,
+				26
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				31,
+				26
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 8
+		}
+	]
+}

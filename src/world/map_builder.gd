@@ -12,6 +12,7 @@ const DwarvenBuilder = preload("res://src/world/dwarven_builder.gd")
 const HouseBuilder = preload("res://src/world/house_builder.gd")
 const RiderBuilder = preload("res://src/world/rider_builder.gd")
 const GoudaBuilder = preload("res://src/world/gouda_builder.gd")
+const MordgrasBuilder = preload("res://src/world/mordgras_builder.gd")
 const InteriorDress = preload("res://src/world/interior_dress.gd")
 const WATER_SHADER = preload("res://src/gfx/shaders/water.gdshader")
 
@@ -39,6 +40,10 @@ const GROUND := {
 	"chu_roche": {"hard": true, "puddles": true}, "chu_gravier": {}, "chu_dalle": {"hard": true, "puddles": true},
 	# styles du chapitre 6 : gouda, veille, port, champ (voir docs/FORMAT_DONNEES.md)
 	"gou_pave": {"hard": true}, "gou_dalle": {"hard": true}, "gou_marbre": {"hard": true}, "gou_rempart": {"hard": true}, "gou_mur": {"hard": true},
+	# style du chapitre 7 : marais, mordgras, toile, festin
+	"mor_planches": {"hard": true}, "mor_vase": {"puddles": true}, "mor_cendre": {}, "mor_fonte": {"hard": true}, "mor_toile": {},
+	"mor_roche": {"hard": true}, "mor_carreau": {"hard": true}, "mor_parquet": {"hard": true}, "mor_marche": {"hard": true},
+	"mor_mur": {"hard": true}, "mor_mur_cuisine": {"hard": true}, "mor_braise": {"hard": true},
 	"gou_herbe": {}, "gou_boue": {"puddles": true}, "gou_veille": {"hard": true}, "gou_mur_veille": {"hard": true}, "gou_quai": {"hard": true}, "gou_ardoise": {"hard": true},
 }
 
@@ -67,6 +72,14 @@ const MOTTLE := {
 	"gou_pave": ["#e2d8c2", "#fffaee", 0.4, 0.06, [24, 12]],
 	"gou_dalle": ["#e8dfca", "#fffaf0", 0.4, 0.06, [24, 24]],
 	"gou_marbre": ["#ece6d8", "#fffcf4", 0.35, 0.05, [48, 48]],
+	# chapitre 7
+	"mor_vase": ["#141c14", "#4a5e3c", 0.6, 0.1],
+	"mor_cendre": ["#201c28", "#5a5666", 0.55, 0.1],
+	"mor_planches": ["#3a3426", "#8a8264", 0.5, 0.1, [48, 12]],
+	"mor_fonte": ["#1a1822", "#4a465a", 0.5, 0.08, [24, 24]],
+	"mor_parquet": ["#1a0e10", "#4a2a2e", 0.5, 0.08, [16, 8]],
+	"mor_carreau": ["#4a3a2e", "#e8dcc4", 0.4, 0.06, [12, 12]],
+	"mor_braise": ["#1a0a0e", "#6a2a1e", 0.6, 0.12],
 }
 
 ## Accessoires affichés comme des sprites debout.
@@ -164,7 +177,12 @@ const PROPS := {
 	"gou_creneau": {"solid": 0.3}, "gou_banniere": {"variants": 2, "solid": 0.3, "sway": 0.015}, "gou_trebuchet": {"solid": 1.2},
 	"gou_poirier": {"solid": 0.5, "sway": 0.01, "glow": 0.2}, "gou_lit_pierre": {"variants": 2, "solid": 0.6}, "gou_voile": {"variants": 2, "solid": 0.3, "sway": 0.02},
 	"gou_baril": {"solid": 0.4}, "gou_boulets": {"solid": 0.4}, "gou_fontaine": {"solid": 1.0}, "gou_statue": {"solid": 0.5}, "gou_echelle": {"solid": 0.2},
-	"gou_etal": {"variants": 2, "solid": 0.8}, "gou_pieux": {"solid": 0.5}, "gou_tente": {"variants": 2, "solid": 0.9}, "gou_brasier": {"solid": 0.3, "glow": 0.5}, "gou_ancre": {"solid": 0.3},
+	"gou_etal": {"variants": 2, "solid": 0.8}, "mor_roseau": {"variants": 2, "solid": 0.0, "sway": 0.02}, "mor_ecriteau": {"variants": 3, "solid": 0.3},
+	"mor_toile": {"variants": 2, "solid": 0.0, "sway": 0.01}, "mor_fourneau": {"solid": 1.2, "glow": 0.5}, "mor_marmite": {"variants": 2, "solid": 0.5},
+	"mor_table": {"solid": 1.4}, "mor_chandelier": {"solid": 0.0, "glow": 0.5}, "mor_cheminee": {"solid": 0.8, "glow": 0.3},
+	"mor_lanterne": {"solid": 0.2, "glow": 0.6}, "mor_os": {"solid": 0.0}, "mor_cocon": {"variants": 2, "solid": 0.3, "sway": 0.01},
+	"mor_pique": {"solid": 0.2}, "mor_broche": {"solid": 1.0, "glow": 0.5}, "mor_garde_manger": {"solid": 0.8},
+	"gou_pieux": {"solid": 0.5}, "gou_tente": {"variants": 2, "solid": 0.9}, "gou_brasier": {"solid": 0.3, "glow": 0.5}, "gou_ancre": {"solid": 0.3},
 	"cav_ratelier": {"solid": 0.3}, "cav_abreuvoir": {"solid": 0.3}, "cav_cheval_bois": {"solid": 0.35}, "cav_brasero": {"solid": 0.25, "glow": 0.4},
 }
 
@@ -249,6 +267,8 @@ func _build(p_world: Node3D, p_map: Dictionary) -> void:
 		RiderBuilder.restyle(self)
 	elif GoudaBuilder.is_gouda(self):
 		GoudaBuilder.restyle(self)
+	elif MordgrasBuilder.is_mordgras(self):
+		MordgrasBuilder.restyle(self)
 	await _due()
 
 	var spawns: Dictionary = map.get("spawns", {})
@@ -289,7 +309,7 @@ func _build_relief() -> void:
 	var hs: Array = map.get("heights", [])
 	var ss: Array = map.get("stairs", [])
 	world.has_relief = false
-	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self)) or (hs.is_empty() and ss.is_empty()):
+	if (bool(map.get("interior", false)) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self) and not MordgrasBuilder.is_mordgras(self)) or (hs.is_empty() and ss.is_empty()):
 		return
 	world.cell_h = PackedFloat32Array()
 	world.cell_h.resize(w * h)
@@ -1046,7 +1066,7 @@ func _build_outskirts() -> void:
 	node.name = "Outskirts"
 	world.add_child(node)
 	var side_z := z_end - 1.5
-	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self)   # les styles elfe et nain plantent les leurs
+	var rustic := not ElvenBuilder.is_elven(self) and not DwarvenBuilder.is_dwarven(self) and not RiderBuilder.is_rider(self) and not GoudaBuilder.is_gouda(self) and not MordgrasBuilder.is_mordgras(self)   # les styles elfe et nain plantent les leurs
 	for i in (120 if rustic else 0):
 		var p := Vector3.ZERO
 		if i < 76:
@@ -1446,7 +1466,7 @@ func _object(o: Dictionary) -> void:
 		_:
 			if PROPS.has(type):
 				_prop(type, o, _p(o))
-			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o) or RiderBuilder.object(self, type, o) or GoudaBuilder.object(self, type, o):
+			elif ElvenBuilder.object(self, type, o) or DwarvenBuilder.object(self, type, o) or RiderBuilder.object(self, type, o) or GoudaBuilder.object(self, type, o) or MordgrasBuilder.object(self, type, o):
 				pass
 			else:
 				push_warning("Type d'objet inconnu dans la carte %s : %s" % [str(map.get("id", "")), type])

@@ -2,20 +2,362 @@
 	"title": "Le Seigneur des Anneaux Péniens",
 	"player": "glandoulf",
 	"title_map": "bittebourg",
-	"music": {"title": "titre", "battle": "combat", "victory": "victoire"},
+	"music": {
+		"title": "titre",
+		"battle": "combat",
+		"victory": "victoire"
+	},
 	"start": {
 		"chapter": "chapitre_1",
 		"prologue": "prologue",
 		"map": "bittebourg",
 		"spawn": "route_est",
-		"party": ["glandoulf"],
+		"party": [
+			"glandoulf"
+		],
 		"money": 0,
-		"inventory": {"tisane": 2, "cidre": 1}
+		"inventory": {
+			"tisane": 2,
+			"cidre": 1
+		}
 	},
 	"item_types": {
-		"baton": "Bâton", "ustensile": "Ustensile", "dague": "Dague", "serpe": "Serpe", "rapiere": "Rapière", "epee": "Épée", "arc": "Arc", "hache": "Hache",
-		"robe": "Robe", "cuir": "Cuir", "mailles": "Mailles", "plates": "Plates",
-		"chapeau": "Chapeau", "casque": "Casque"
+		"baton": "Bâton",
+		"ustensile": "Ustensile",
+		"dague": "Dague",
+		"serpe": "Serpe",
+		"rapiere": "Rapière",
+		"epee": "Épée",
+		"arc": "Arc",
+		"hache": "Hache",
+		"robe": "Robe",
+		"cuir": "Cuir",
+		"mailles": "Mailles",
+		"plates": "Plates",
+		"chapeau": "Chapeau",
+		"casque": "Casque"
 	},
-	"progression": {"xp_base": 16, "xp_power": 1.5, "talent_points_per_level": 1}
+	"progression": {
+		"xp_base": 16,
+		"xp_power": 1.5,
+		"talent_points_per_level": 1
+	},
+	"credits": [
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"LE SEIGNEUR DES ANNEAUX PÉNIENS",
+			40,
+			"#e8c050"
+		],
+		[
+			"",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"Un jeu où personne ne dit rien de cru,",
+			22,
+			"#a89c8c"
+		],
+		[
+			"et tout le monde comprend.",
+			22,
+			"#a89c8c"
+		],
+		[
+			"",
+			60,
+			"#f2ecdc"
+		],
+		[
+			"LA COMPAGNIE DE LA CUISINE",
+			28,
+			"#e8c050"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Glandoulf le Gris",
+			24,
+			"#f2ecdc"
+		],
+		[
+			"qui a menti, puis fait la sieste",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			14,
+			"#f2ecdc"
+		],
+		[
+			"Sam Gamelle",
+			24,
+			"#f2ecdc"
+		],
+		[
+			"qui a bercé une araignée",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			14,
+			"#f2ecdc"
+		],
+		[
+			"Froton Salfait",
+			24,
+			"#f2ecdc"
+		],
+		[
+			"qui n'a pas lâché, puis a lâché",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			14,
+			"#f2ecdc"
+		],
+		[
+			"Merri Brandemou",
+			24,
+			"#f2ecdc"
+		],
+		[
+			"qui avait rempli le formulaire",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"L'ARMÉE DE L'OUEST",
+			28,
+			"#e8c050"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Aragrogne, qui signe",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"Digoulasse, qui tient la porte",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"Grimli, qui tient l'autre",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"Pépin Bontabac, qui sert la tisane",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"ET AUSSI",
+			28,
+			"#e8c050"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Goulûm, dit Trempette",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"« Il est à point. »",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Sauron, Seigneur des Anneaux",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"qui dort enfin",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Isidur",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"qui avait gardé l'anneau",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Bromure du Gouda",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"que l'on regrette",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Sarumâle le Blanc-Cassé",
+			22,
+			"#f2ecdc"
+		],
+		[
+			"registre des siestes de Bittebourg",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"Les Noyés, les Ologrills, les Fileuses,",
+			18,
+			"#a89c8c"
+		],
+		[
+			"les Convives, les Marcheurs et les Nazes du Service,",
+			18,
+			"#a89c8c"
+		],
+		[
+			"qui n'ont fait que leur travail.",
+			18,
+			"#a89c8c"
+		],
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"L'ESPRIT DU JEU",
+			28,
+			"#e8c050"
+		],
+		[
+			"",
+			12,
+			"#f2ecdc"
+		],
+		[
+			"Un monde construit session après session,",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"entièrement peint et composé par du code :",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"pas une image, pas une note enregistrée.",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"",
+			14,
+			"#f2ecdc"
+		],
+		[
+			"Moteur : Godot 4",
+			20,
+			"#a89c8c"
+		],
+		[
+			"Pas un seul mot cru n'a été utilisé",
+			20,
+			"#a89c8c"
+		],
+		[
+			"(c'est le plus difficile).",
+			20,
+			"#a89c8c"
+		],
+		[
+			"",
+			40,
+			"#f2ecdc"
+		],
+		[
+			"Merci d'avoir joué.",
+			28,
+			"#e8c050"
+		],
+		[
+			"",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"Et si quelqu'un a besoin de Glandoulf,",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"il est sur le banc. Il est ailleurs.",
+			20,
+			"#f2ecdc"
+		],
+		[
+			"",
+			80,
+			"#f2ecdc"
+		]
+	],
+	"credits_music": "village"
 }
