@@ -1,10 +1,13 @@
 extends Node
-## Petits sons d'interface synthétisés par code (aucun fichier audio requis).
+## Sons d'interface et de combat. Chacun existe en version synthétisée par code (aucun fichier requis) ;
+## si assets/sfx/<identifiant>.wav (ou .ogg) existe, il remplace le son généré tant que le réglage
+## « Sons » vaut « enregistrés » (voir Settings). Le réglage se prend en compte à chaque son joué.
 
 const RATE := 22050
 const VOICES := 6
 
-var _streams: Dictionary = {}
+var _streams: Dictionary = {}   # sons générés par code
+var _files: Dictionary = {}     # sons enregistrés trouvés dans assets/sfx/
 var _players: Array[AudioStreamPlayer] = []
 var _next := 0
 
@@ -62,11 +65,39 @@ func _ready() -> void:
 	_streams["elan"] = _tone(420.0, 760.0, 0.16, 0.13, true, 0.0, 14.0)   # l'élan qui monte : joué plus aigu à chaque point engagé
 	_streams["elan_off"] = _tone(640.0, 380.0, 0.08, 0.1, true)
 	_streams["shatter"] = _tone(2400.0, 200.0, 0.3, 0.2, false, 1.0, 45.0)   # bouclier en éclats
+	_load_files()
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
 		p.bus = Settings.BUS_EFFECTS
 		add_child(p)
 		_players.append(p)
+
+
+## Cherche assets/sfx/<identifiant>.ogg ou .wav pour chaque son généré (les autres restent synthétisés).
+func _load_files() -> void:
+	_files.clear()
+	for id: String in _streams.keys():
+		for ext in ["ogg", "wav"]:
+			var path := "res://assets/sfx/%s.%s" % [id, ext]
+			var res: Variant = null
+			if ResourceLoader.exists(path):
+				res = load(path)
+			elif ext == "wav" and FileAccess.file_exists(path):   # fichier posé sans avoir été importé
+				res = AudioStreamWAV.load_from_file(path)
+			if res is AudioStream:
+				_files[id] = res
+				break
+
+
+## Le son à jouer : le fichier si le réglage le veut et s'il existe, sinon le son généré.
+func stream_for(sound: String) -> AudioStream:
+	if _files.has(sound) and str(Settings.get_value("sons")) == "enregistres":
+		return _files[sound]
+	return _streams.get(sound)
+
+
+func is_recorded(sound: String) -> bool:
+	return _files.has(sound)
 
 
 func has(sound: String) -> bool:
@@ -78,7 +109,7 @@ func play(sound: String, pitch: float = 1.0) -> void:
 		return
 	var p := _players[_next]
 	_next = (_next + 1) % VOICES
-	p.stream = _streams[sound]
+	p.stream = stream_for(sound)
 	p.pitch_scale = pitch
 	p.play()
 

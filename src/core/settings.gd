@@ -34,6 +34,7 @@ const DEFAULTS: Dictionary = {
 	"general": ["son", 100],
 	"musique": ["son", 100],
 	"effets": ["son", 100],
+	"sons": ["son", "enregistres"],
 	"compteur": ["divers", false],
 	"conseils": ["divers", true],
 	"repere": ["divers", true],
@@ -76,6 +77,7 @@ const ROWS: Array = [
 	{"id": "general", "label": "Volume général", "gauge": true},
 	{"id": "musique", "label": "Musique", "gauge": true},
 	{"id": "effets", "label": "Effets sonores", "gauge": true},
+	{"id": "sons", "label": "Sons de l'interface et des coups"},
 	{"section": "Divers"},
 	{"id": "compteur", "label": "Compteur d'images par seconde"},
 	{"section": "Aide au jeu"},
@@ -107,6 +109,7 @@ const HELP: Dictionary = {
 	"general": "Le volume de tout le jeu.",
 	"musique": "Le volume de la musique.",
 	"effets": "Le volume des bruitages.",
+	"sons": "Enregistrés : de vrais bruitages pour les menus, les coups et les portes. Synthétisés : les sons fabriqués par le jeu lui-même, comme avant. La magie, les soins, le feu et les cris restent synthétisés dans les deux cas.",
 	"compteur": "Affiche discrètement le nombre d'images par seconde dans un coin.",
 	"repere": "Une petite marque dorée au-dessus de ce que vise l'étape de quête en cours, et le sens à prendre quand c'est dans une autre carte.",
 	"vibration": "Une légère vibration de la manette quand un coup est reçu, sur un coup critique et à la victoire. Sans effet sans manette.",
@@ -243,6 +246,8 @@ func choices(id: String) -> Array:
 			return [[0, "Aucune"], [1, "Basse"], [2, "Moyenne"], [3, "Haute"]]
 		"particules":
 			return [[0, "Aucune"], [1, "Réduites"], [2, "Normales"]]
+		"sons":
+			return [["enregistres", "Enregistrés"], ["synthetises", "Synthétisés"]]
 		"general", "musique", "effets":
 			return range(0, 11).map(func(i: int) -> Array: return [i * 10, "%d %%" % (i * 10)])
 	return []

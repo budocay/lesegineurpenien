@@ -161,6 +161,8 @@ func _step(id: String, dir: int) -> void:
 		return
 	Settings.set_value(id, (opts[j] as Array)[0])
 	Sfx.play("blip")
+	if id == "sons":
+		Sfx.play("hit")   # pour entendre la différence tout de suite
 	_refresh()
 
 
