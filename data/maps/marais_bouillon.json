@@ -1,0 +1,612 @@
+{
+	"id": "marais_bouillon",
+	"name": "Marais du Bouillon d'Onze Heures",
+	"region": "Le pays ennemi",
+	"size": [
+		60,
+		24
+	],
+	"ambiance": "marais_mor",
+	"music": "marais",
+	"arena": "marais_bouillon",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "marais",
+	"ground": {
+		"default": "mor_vase",
+		"fills": [
+			{
+				"type": "mor_planches",
+				"rect": [
+					2,
+					10,
+					56,
+					3
+				]
+			},
+			{
+				"type": "mor_planches",
+				"rect": [
+					14,
+					6,
+					3,
+					5
+				]
+			},
+			{
+				"type": "mor_planches",
+				"rect": [
+					30,
+					13,
+					3,
+					5
+				]
+			},
+			{
+				"type": "mor_planches",
+				"rect": [
+					44,
+					7,
+					3,
+					4
+				]
+			}
+		]
+	},
+	"spawns": {
+		"ouest": {
+			"pos": [
+				3.5,
+				11.5
+			],
+			"facing": "right"
+		}
+	},
+	"on_enter": [
+		{
+			"dialogue": "marais_arrivee",
+			"unless": "marais_vu"
+		}
+	],
+	"objects": [
+		{
+			"type": "npc",
+			"id": "goulum",
+			"pos": [
+				6.5,
+				11.8
+			],
+			"facing": "right",
+			"reach": 2.0,
+			"dialogue": "marais_goulum",
+			"label": "Parler"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				2,
+				9,
+				2,
+				6
+			],
+			"dialogue": "marais_arrivee",
+			"unless": "marais_vu"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				22,
+				9,
+				2,
+				6
+			],
+			"dialogue": "marais_regard",
+			"unless": "marais_regarde"
+		},
+		{
+			"type": "crate",
+			"pos": [
+				16.5,
+				6.6
+			],
+			"dialogue": "marais_louche",
+			"label": "Ouvrir",
+			"turn": 6
+		},
+		{
+			"type": "mor_ecriteau",
+			"pos": [
+				33.0,
+				9.4
+			],
+			"dialogue": "marais_peche",
+			"label": "Lire",
+			"reach": 1.8
+		},
+		{
+			"type": "monster",
+			"id": "noye",
+			"pos": [
+				50.5,
+				11.5
+			],
+			"dialogue": "noyes_face",
+			"solid": 1.1,
+			"label": "Affronter",
+			"reach": 3.0,
+			"unless": "combat_noyes_planches"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				55,
+				9,
+				2,
+				6
+			],
+			"dialogue": "marais_fin",
+			"unless": "marais_traverse",
+			"if": "combat_noyes_planches"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				4,
+				9,
+				48,
+				6
+			],
+			"table": "marais_bouillon"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				1.2,
+				9,
+				0.8,
+				6
+			],
+			"to": {
+				"map": "pelle_a_tarte",
+				"spawn": "est"
+			}
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				18.8,
+				1.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				4.2,
+				4.3
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				33.8,
+				7.3
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				2.2,
+				3.5
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				14.0,
+				4.4
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				48.0,
+				1.0
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				36.6,
+				4.7
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				33.5,
+				3.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				2.7,
+				6.9
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				24.3,
+				4.3
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				32.5,
+				5.5
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				21.6,
+				4.4
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				28.8,
+				4.3
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				27.0,
+				7.4
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				17.4,
+				6.4
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				9.6,
+				2.7
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				24.5,
+				7.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				44.3,
+				4.6
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				28.8,
+				6.4
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				48.7,
+				7.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				40.4,
+				0.5
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				37.5,
+				7.9
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				16.5,
+				3.1
+			]
+		},
+		{
+			"type": "mor_toile",
+			"pos": [
+				7.5,
+				2.0
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				53.2,
+				4.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				51.2,
+				6.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				41.0,
+				22.9
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				51.3,
+				22.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				4.8,
+				17.1
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				13.5,
+				19.4
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				10.6,
+				18.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				24.3,
+				18.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				18.5,
+				16.9
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				55.1,
+				20.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				3.1,
+				22.3
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				46.3,
+				18.7
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				57.1,
+				19.1
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				0.0,
+				17.1
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				21.8,
+				20.4
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				34.9,
+				19.3
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				49.2,
+				23.0
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				27.9,
+				18.2
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				15.4,
+				21.8
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				29.9,
+				17.4
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				53.0,
+				21.3
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				56.8,
+				22.0
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				49.0,
+				19.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				20.6,
+				17.6
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				12.9,
+				21.7
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				46.8,
+				21.7
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				28.6,
+				21.1
+			]
+		},
+		{
+			"type": "mor_roseau",
+			"pos": [
+				11.2,
+				20.2
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				10,
+				9.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				20,
+				9.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				30,
+				9.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				40,
+				9.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				50,
+				9.0
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				14,
+				11.5
+			],
+			"height": 2.4,
+			"color": "#a8e0b0",
+			"energy": 1.1,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				28,
+				11.5
+			],
+			"height": 2.4,
+			"color": "#a8e0b0",
+			"energy": 1.1,
+			"range": 8
+		},
+		{
+			"type": "light",
+			"pos": [
+				44,
+				11.5
+			],
+			"height": 2.4,
+			"color": "#a8e0b0",
+			"energy": 1.1,
+			"range": 8
+		}
+	]
+}

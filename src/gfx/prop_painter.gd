@@ -52,6 +52,9 @@ static func paint(kind: String, variant: int = 0) -> Image:
 	var rider: GDScript = load("res://src/gfx/rider_painter.gd")
 	if rider.has_prop(kind):
 		return rider.paint_prop(kind, variant)
+	var mordgras: GDScript = load("res://src/gfx/mordgras_painter.gd")
+	if mordgras.has_prop(kind):
+		return mordgras.paint_prop(kind, variant)
 	var gouda: GDScript = load("res://src/gfx/gouda_painter.gd")
 	if gouda.has_prop(kind):
 		return gouda.paint_prop(kind, variant)

@@ -155,6 +155,8 @@ func describe(d: Dictionary) -> Dictionary:
 			if Database.characters.has(str(id)):
 				faces.append(str(id))
 	var chapter := str(d.get("chapter", "chapitre_1")).replace("_", " ")
+	if str(d.get("chapter", "")) == "partie_terminee":
+		chapter = "partie terminée"
 	return {
 		"map_name": str(map.get("name", "?")),
 		"chapter": chapter.substr(0, 1).to_upper() + chapter.substr(1),

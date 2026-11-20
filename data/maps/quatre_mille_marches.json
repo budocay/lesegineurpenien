@@ -1,0 +1,516 @@
+{
+	"id": "quatre_mille_marches",
+	"name": "Les Quatre Mille Marches",
+	"region": "Le pays ennemi",
+	"size": [
+		24,
+		64
+	],
+	"ambiance": "mordgras_mor",
+	"music": "menace",
+	"arena": "marches_mor",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "mordgras",
+	"ground": {
+		"default": "mor_cendre",
+		"fills": [
+			{
+				"type": "mor_marche",
+				"rect": [
+					7,
+					1,
+					10,
+					62
+				]
+			}
+		]
+	},
+	"spawns": {
+		"bas": {
+			"pos": [
+				12.0,
+				61.0
+			],
+			"facing": "up"
+		}
+	},
+	"objects": [
+		{
+			"type": "trigger",
+			"rect": [
+				9,
+				58,
+				6,
+				3
+			],
+			"dialogue": "marches_depart",
+			"unless": "marches_vue"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				47,
+				8,
+				2
+			],
+			"dialogue": "marches_plainte_1",
+			"unless": "plainte_1"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				35,
+				8,
+				2
+			],
+			"dialogue": "marches_plainte_2",
+			"unless": "plainte_2"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				23,
+				8,
+				2
+			],
+			"dialogue": "marches_plainte_3",
+			"unless": "plainte_3"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				11,
+				8,
+				2
+			],
+			"dialogue": "marches_plainte_4",
+			"unless": "plainte_4"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				8,
+				3,
+				8,
+				2
+			],
+			"dialogue": "marches_haut",
+			"unless": "marches_finies"
+		},
+		{
+			"type": "npc",
+			"id": "marcheur",
+			"pos": [
+				11,
+				52
+			],
+			"facing": "up",
+			"reach": 1.8,
+			"dialogue": "marcheur_1"
+		},
+		{
+			"type": "npc",
+			"id": "marcheur",
+			"pos": [
+				13,
+				30
+			],
+			"facing": "up",
+			"reach": 1.8,
+			"dialogue": "marcheur_2"
+		},
+		{
+			"type": "npc",
+			"id": "marcheur",
+			"pos": [
+				11,
+				16
+			],
+			"facing": "up",
+			"reach": 1.8,
+			"dialogue": "marcheur_3"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				8,
+				0.4,
+				8,
+				1.2
+			],
+			"to": {
+				"map": "grand_four",
+				"spawn": "bas"
+			},
+			"if": "marches_finies"
+		},
+		{
+			"type": "encounter_zone",
+			"rect": [
+				8,
+				8,
+				8,
+				48
+			],
+			"table": "marches"
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				12,
+				24
+			],
+			"dialogue": "mor_repos",
+			"label": "Se reposer",
+			"reach": 2.0
+		},
+		{
+			"type": "rock",
+			"pos": [
+				4.8,
+				41.2
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				5.0,
+				18.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				3.3,
+				8.9
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				2.2,
+				7.0
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				0.1,
+				28.6
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				7.0,
+				24.4
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				2.5,
+				37.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				6.2,
+				42.8
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				3.5,
+				52.8
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				0.2,
+				2.2
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				4.8,
+				25.5
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				2.9,
+				23.8
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				22.9,
+				2.1
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				22.9,
+				9.0
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				22.0,
+				54.3
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				18.8,
+				5.8
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				24.0,
+				36.2
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				23.5,
+				45.8
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				21.6,
+				38.8
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				18.7,
+				17.4
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				18.3,
+				23.7
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				23.2,
+				49.1
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				23.4,
+				56.6
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				22.0,
+				4.9
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				12,
+				55
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				12,
+				42
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				12,
+				28
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 9
+		},
+		{
+			"type": "light",
+			"pos": [
+				12,
+				14
+			],
+			"height": 2.4,
+			"color": "#ff9a50",
+			"energy": 1.5,
+			"range": 9
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				6
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				10
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				14
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				18
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				22
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				26
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				30
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				34
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				38
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				42
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				46
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				50
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				6.6,
+				54
+			]
+		},
+		{
+			"type": "mor_lanterne",
+			"pos": [
+				17.4,
+				58
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				4.5,
+				18
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				19.5,
+				26
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				5,
+				42
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				20,
+				50
+			]
+		}
+	]
+}

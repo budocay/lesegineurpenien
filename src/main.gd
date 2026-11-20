@@ -14,6 +14,7 @@ const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const SaveScreen = preload("res://src/ui/save_screen.gd")
 const SettingsScreen = preload("res://src/ui/settings_screen.gd")
 const PadScreen = preload("res://src/ui/pad_screen.gd")
+const CreditsScreen = preload("res://src/ui/credits_screen.gd")
 const ConfirmBox = preload("res://src/ui/confirm_box.gd")
 const LoadingUI = preload("res://src/ui/ui_kit.gd")
 const LoadingSpinner = preload("res://src/ui/loading_spinner.gd")
@@ -41,6 +42,8 @@ var _talents_from := ""         # "pause" ou "team" : où revenir quand il se fe
 var saves: Control             # liste des sauvegardes (charger, sauvegarder)
 var settings_screen: Control    # écran des paramètres
 var pad_screen: Control         # diagnostic de la manette
+var credits: Control            # générique de fin (chapitre 7)
+var _credits_pending := false   # action « generique » : jouée à la fin du dialogue
 var confirm: Control            # « Quitter le jeu ? », « Retour au titre ? » : Non par défaut
 var _fade: ColorRect
 var _loading: Label
@@ -85,6 +88,8 @@ func _ready() -> void:
 	ui.add_child(settings_screen)
 	pad_screen = PadScreen.new()
 	ui.add_child(pad_screen)
+	credits = CreditsScreen.new()
+	ui.add_child(credits)
 	confirm = ConfirmBox.new()
 	ui.add_child(confirm)
 
@@ -351,6 +356,10 @@ func run_dialogue(dialogue_id: String) -> void:
 		await dialogue.finished
 	if _abort_flow:
 		return
+	if _credits_pending:
+		_credits_pending = false
+		await play_credits()
+		return
 	if _jump.size() == 2:
 		# action `va:<carte>:<arrivée>` : changement de lieu demandé par un dialogue (chapitre 5)
 		var to: Array = _jump
@@ -363,6 +372,23 @@ func run_dialogue(dialogue_id: String) -> void:
 			await _refresh_world()
 		else:
 			current.set_input(true)
+
+
+## Fin du jeu : la partie est marquée terminée et sauvegardée, le générique défile, puis retour à l'écran-titre.
+func play_credits() -> void:
+	GameState.set_flag("partie_terminee")
+	GameState.chapter = "partie_terminee"
+	SaveManager.save_game()
+	busy = true
+	await _fade_to(1.0, 1.2)
+	if world != null:
+		world.set_input(false)
+	Music.play(str(Database.game.get("credits_music", "village")))
+	var lines: Array = Database.game.get("credits", [])
+	credits.play(lines)
+	await credits.finished
+	busy = false
+	await show_title()
 
 
 ## Reconstruit la carte sur place quand un drapeau a fait apparaître ou disparaître un objet.
@@ -546,6 +572,8 @@ func _on_dialogue_action(action: String) -> void:
 			Sfx.play("heal")
 			hud.toast("L'équipe est reposée")
 			Tutorial.fire("rest")
+		"generique":
+			_credits_pending = true   # joué à la fin du dialogue : voir `play_credits`
 		_:
 			if action.begins_with("va:"):
 				var dest := action.substr(3).split(":")

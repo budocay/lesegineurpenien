@@ -148,6 +148,7 @@ func _warm_monsters() -> void:
 		return
 	var originals: Array = (load("res://src/gfx/gouda_monsters.gd").KINDS as Array).duplicate()
 	originals.append_array(load("res://src/gfx/boss_painter.gd").KINDS as Array)
+	originals.append_array(load("res://src/gfx/mordgras_monsters.gd").KINDS as Array)
 	var kinds: Array = MonsterPainter.SIZES.keys()
 	kinds.sort_custom(func(a: String, b: String) -> bool:
 		var sa: Vector2i = MonsterPainter.SIZES[a]
@@ -382,7 +383,8 @@ func _monster_stamp_init() -> void:
 		_monster_stamp = (FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
 			+ FileAccess.get_file_as_string("res://src/gfx/pixel_art.gd")
 			+ FileAccess.get_file_as_string("res://src/gfx/gouda_monsters.gd")
-			+ FileAccess.get_file_as_string("res://src/gfx/boss_painter.gd")).md5_text()
+			+ FileAccess.get_file_as_string("res://src/gfx/boss_painter.gd")
+			+ FileAccess.get_file_as_string("res://src/gfx/mordgras_monsters.gd")).md5_text()
 
 
 ## Planche HD d'un monstre peint par code (MonsterPainter.paint_hd), avec cache disque

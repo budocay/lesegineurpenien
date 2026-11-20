@@ -118,6 +118,13 @@
 				15.0
 			],
 			"facing": "right"
+		},
+		"est": {
+			"pos": [
+				57.5,
+				15.0
+			],
+			"facing": "left"
 		}
 	},
 	"style": "champ",
@@ -692,6 +699,32 @@
 			"color": "#ffc890",
 			"energy": 1.4,
 			"range": 12
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				58,
+				10,
+				2,
+				12
+			],
+			"dialogue": "pelle_depart",
+			"unless": "chapitre_7_debut",
+			"if": "chapitre_6_fini"
+		},
+		{
+			"type": "warp",
+			"rect": [
+				60.4,
+				10,
+				0.8,
+				12
+			],
+			"to": {
+				"map": "marais_bouillon",
+				"spawn": "ouest"
+			},
+			"if": "chapitre_7_debut"
 		}
 	]
 }

@@ -868,6 +868,47 @@ l'auteur arrivées entre-temps. Aucun identifiant n'a changé : seuls des textes
   enfoncé jusqu'au gond, Cor au long cours, Jabot gonflé à bloc, Plumes dressées, Piétinement à pleine
   masse, Coup de défense à l'ivoire. Aucun personnage ne remarque le jeu de mots.
 
+### Chapitre 7 (construit) — La Montagne du Festin, la fin du jeu (20 novembre 2026)
+
+- **Parcours.** Pelle-à-Tarte (départ à l'est), Marais du Bouillon d'Onze Heures (Compagnie de la
+  Cuisine : Froton, Sam, Merri, Glandoulf ; Goulûm guide ; la Louche à Glaner ; les Noyés), Passe-Plat
+  (l'Armée de l'Ouest : Aragrogne, Digoulasse, Grimli, Pépin ; les trois offres de la Bouche du Maître ;
+  le Grand Ologrill devant la Porte Noire), col de l'Arachnée (Goulûm trahit, Fileuses, l'Arachnée que
+  l'on endort), cuisines de la Tour de la Barbaque (Goulûm « à point », Nazes du Service, Serviette de
+  l'Ordre du Garde-à-Vous), salle du banquet (service, Maître de Salle, plan, sortie derrière le
+  dessert), Quatre Mille Marches (Glandoulf porte Froton et se plaint), Grand Four (Sauron seul, le
+  Grand Œil, Sauron en pleine Vigueur qui s'endort, les vingt pas, l'anneau jeté, les Aigles), Bittebourg
+  quelque temps plus tard (registre des siestes de Sarumâle, sieste de Glandoulf, générique).
+- **Cartes.** marais_bouillon, passe_plat, col_arachnee, mordgras_cuisines, mordgras_banquet,
+  quatre_mille_marches, grand_four, bittebourg_epilogue ; styles `marais`, `mordgras`, `toile`, `festin`.
+- **Inventions (à valider).**
+  - Le départ : un conseil de guerre sous la tente, deux groupes. L'Armée fait du bruit au Passe-Plat
+    pendant que la Compagnie passe par le marais ; Glandoulf pense à son mensonge sans le dire.
+  - Les Noyés « sont encore au garde-à-vous, sous l'eau, par habitude » ; l'appel est à onze heures.
+  - La Bouche du Maître est un maître d'hôtel : trois offres (reddition avec thé tiède, ralliement avec
+    couvert en argent, ultimatum « on ne vous mangera pas immédiatement »), à refuser dans l'ordre.
+  - Le Grand Ologrill, « dit Gorgonzola par ses amis, c'est-à-dire par personne », demande qu'on réserve.
+  - L'Arachnée est épuisée, pas méchante : on la berce (la Louche à Glaner donne la Berceuse de Sam). Le
+    jeu n'a pas d'état Fatigue : la berceuse est une compétence de torpeur, l'Arachnée est faible à la
+    torpeur et se rendort à la fin du combat.
+  - Goulûm trahit au col par réflexe puis se sacrifie aux cuisines : il saute dans la marmite en criant
+    « Il est à point ! » pour détourner les Nazes, et laisse une cuillère et un poisson cru.
+  - Les Nazes du Service sont des serveurs en tablier ; le Maître de Salle respecte la Serviette de
+    l'Ordre du Garde-à-Vous (club des serveurs, inventé).
+  - Le plus gros poisson du monde pend dans la chambre froide des cuisines (annexe de Sam).
+  - Les Marcheurs Infatigables marchent sur place par ordre ; il suffit de leur dire de s'asseoir
+    (annexe, récompense : l'Anneau Annulaire, « qui ne sert à rien »).
+  - Sauron offre à Froton de devenir seul « Seigneur des Anneaux » et dit ne plus dormir depuis trois mille
+    ans ; vaincu, il demande le manteau gris de Glandoulf et s'endort contre le Four. Il ne meurt pas.
+  - Les « vingt pas » de Glandoulf : il avoue son mensonge (Isidur gardait l'anneau, il le savait). Froton le
+    savait depuis Fondue-Combe (Glandoulf regarde ses pieds quand il ment) et le pardonne « en bas ».
+  - Merri avait rempli d'avance le formulaire des Aigles.
+  - Épilogue : Aragrogne règne en signant sans lire, Pépin tient un salon de thé, Digoulasse tient le
+    trou où serait la porte, Grimli ouvre une forge sans ennemis, Sam plante un rosier pour Goulûm,
+    Sarumâle tient le registre des siestes. Glandoulf y inscrit la sienne : générique, puis neuf petits anneaux.
+- **Écarts avec la bible.** Pas d'inversion du Ramollissement (le moteur borne le champ à 0 ou plus ;
+  le pays ennemi est dur par ses statistiques) ; Sauron n'a pas de seconde forme au-delà des deux combats.
+
 ### Passe sur les noms (20 novembre 2026)
 
 Inventaire complet des noms, règle de l'auteur (jeux de mots subliminaux autour du Seigneur des Anneaux) et propositions dans `docs/NOMS.md`. Noms ajustés : le père d'Isidur s'appelle **Élendur** (famille en « dur ») ; le col du chapitre 4 est le **col de Caradure** ; le pain de voyage elfique est le **lentbas** ; la montagne de Sauron est toujours la **Montagne du Festin** (le Grand Four) ; la Terre du **Mi-Lieu** s'écrit ainsi partout.

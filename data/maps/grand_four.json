@@ -1,0 +1,231 @@
+{
+	"id": "grand_four",
+	"name": "Le Grand Four",
+	"region": "Le pays ennemi",
+	"size": [
+		44,
+		34
+	],
+	"ambiance": "four_mor",
+	"music": "menace",
+	"arena": "arena_oeil",
+	"camera": {
+		"near_start": 0.7,
+		"distance": 24,
+		"pitch": 32,
+		"fov": 24,
+		"dof": 0.1
+	},
+	"style": "mordgras",
+	"interior": true,
+	"wall_height": 8.0,
+	"wall_tile": "mor_mur",
+	"wall_glow": 0.3,
+	"ground": {
+		"default": "void",
+		"fills": [
+			{
+				"type": "mor_fonte",
+				"rect": [
+					2,
+					3,
+					40,
+					28
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					14,
+					2,
+					16,
+					7
+				]
+			}
+		]
+	},
+	"spawns": {
+		"bas": {
+			"pos": [
+				22.0,
+				29.5
+			],
+			"facing": "up"
+		}
+	},
+	"objects": [
+		{
+			"type": "mor_four",
+			"pos": [
+				22,
+				4.5
+			],
+			"width": 12,
+			"height": 9.0
+		},
+		{
+			"type": "mor_chandelier",
+			"pos": [
+				6,
+				27
+			],
+			"dialogue": "mor_repos",
+			"label": "Se reposer",
+			"reach": 2.0
+		},
+		{
+			"type": "npc",
+			"id": "sauron",
+			"pos": [
+				22,
+				9.5
+			],
+			"facing": "down",
+			"reach": 2.2,
+			"dialogue": "sauron_pnj"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				17,
+				22,
+				10,
+				2
+			],
+			"dialogue": "four_sauron",
+			"unless": "sauron_endormi"
+		},
+		{
+			"type": "trigger",
+			"rect": [
+				17,
+				12,
+				10,
+				2
+			],
+			"dialogue": "four_anneau",
+			"unless": "anneau_jete",
+			"if": "sauron_endormi"
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				4.9,
+				26.4
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				9.5,
+				15.1
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				14.3,
+				22.3
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				7.6,
+				20.2
+			]
+		},
+		{
+			"type": "mor_cheminee",
+			"pos": [
+				10.9,
+				25.9
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				12.3,
+				9.8
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				33.8,
+				10.4
+			]
+		},
+		{
+			"type": "mor_cheminee",
+			"pos": [
+				31.5,
+				15.1
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				35.2,
+				8.0
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				33.9,
+				27.3
+			]
+		},
+		{
+			"type": "mor_cheminee",
+			"pos": [
+				4.2,
+				21.6
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				39.8,
+				16.8
+			]
+		},
+		{
+			"type": "mor_cheminee",
+			"pos": [
+				17.9,
+				26.4
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				39.9,
+				11.5
+			]
+		},
+		{
+			"type": "light",
+			"pos": [
+				8,
+				14
+			],
+			"height": 2.4,
+			"color": "#ff6a30",
+			"energy": 2.0,
+			"range": 11
+		},
+		{
+			"type": "light",
+			"pos": [
+				36,
+				14
+			],
+			"height": 2.4,
+			"color": "#ff6a30",
+			"energy": 2.0,
+			"range": 11
+		}
+	]
+}

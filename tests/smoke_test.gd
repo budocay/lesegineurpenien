@@ -61,6 +61,18 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_C7"):   # essai ciblé du chapitre 7
+		_test_chapter_7_data()
+		await _test_chapter_7()
+		await _test_mordgras_scenery()
+		print("%d vérifications, %d échec(s) (chapitre 7 seul)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_MEASURE_C7"):   # tableau d'équilibre du chapitre 7
+		_measure_ch7()
+		get_tree().quit(0)
+		return
 	if OS.has_environment("GLAN_ONLY_C6"):   # essai ciblé du chapitre 6
 		_test_chapter_6_data()
 		await _test_chapter_6()
@@ -166,6 +178,7 @@ func _ready() -> void:
 	_test_chapter_4_data()
 	_test_chapter_5_data()
 	_test_chapter_6_data()
+	_test_chapter_7_data()
 	await _test_saves()
 	_test_names_and_merri()
 	await _test_tutorials()
@@ -240,6 +253,7 @@ func _ready() -> void:
 	await _test_chapter_4()
 	await _test_chapter_5()
 	await _test_chapter_6()
+	await _test_chapter_7()
 	print("== Décors elfiques (style de Fondue-Combe) ==")
 	await _test_elven_scenery()
 	print("== Décors nains (Mines de Morbier) ==")
@@ -247,6 +261,7 @@ func _ready() -> void:
 	print("== Décors des cavaliers, de Fongorn, de l'Isengarde et des chutes ==")
 	await _test_rider_scenery()
 	await _test_gouda_scenery()
+	await _test_mordgras_scenery()
 	SaveManager.delete_save()
 	print("")
 	print("%d vérifications, %d échec(s)." % [checks, failures])
@@ -5802,6 +5817,8 @@ func _test_arena_by_place() -> void:
 		"isengarde": "petrins", "terrasse_office": "terrasse_office",
 		"minas_croute": "minas_remparts", "minas_rues": "minas_rues", "minas_citadelle": "citadelle", "minas_intendance": "citadelle",
 		"sentier_insomniaques": "sentier_insomniaques", "port_sale": "port_sale", "pelle_a_tarte": "pelle_a_tarte",
+		"marais_bouillon": "marais_bouillon", "passe_plat": "passe_plat", "col_arachnee": "col_arachnee", "mordgras_cuisines": "cuisines_mor",
+		"mordgras_banquet": "banquet_mor", "quatre_mille_marches": "marches_mor", "grand_four": "arena_oeil", "bittebourg_epilogue": "quai",
 	}
 	for map_id: String in Database.list_maps():
 		var map := Database.get_map(map_id)
@@ -7340,6 +7357,408 @@ func _test_chapter_6() -> void:
 	GameState.new_game()
 
 
+# ------------------------------------------------- chapitre 7 : le pays de la Barbaque, jusqu'au générique
+
+const C7_MAPS := ["marais_bouillon", "passe_plat", "col_arachnee", "mordgras_cuisines", "mordgras_banquet", "quatre_mille_marches", "grand_four", "bittebourg_epilogue"]
+const C7_STYLES := {"marais_bouillon": "marais", "passe_plat": "mordgras", "col_arachnee": "toile", "mordgras_cuisines": "festin", "mordgras_banquet": "festin", "quatre_mille_marches": "mordgras", "grand_four": "mordgras"}
+const C7_MONSTERS := ["noye", "ologrill", "grand_ologrill", "fileuse", "arachnee", "convive", "marcheur", "naze_service", "grand_oeil", "bouche_du_maitre", "maitre_de_salle", "sauron_final"]
+const C7_COMP := ["froton", "sam", "merri", "glandoulf"]
+const C7_ARMEE := ["aragrogne", "digoulasse", "grimli", "pepin"]
+const C7_MIN_TABLE := 0.85
+const C7_MIN_BOSS := 0.6
+
+
+func _c7_cases() -> Array:
+	return [
+		["7 Noyés", C7_COMP, 24, Database.get_encounter("noyes_planches"), "ordinaire"],
+		["7 Bouche du Maître", C7_ARMEE, 25, Database.get_encounter("bouche_du_maitre"), "boss"],
+		["7 Grand Ologrill", C7_ARMEE, 25, Database.get_encounter("grand_ologrill"), "boss"],
+		["7 Fileuses", C7_COMP, 25, Database.get_encounter("col_fileuses"), "ordinaire"],
+		["7 Arachnée", C7_COMP, 25, Database.get_encounter("arachnee"), "boss"],
+		["7 Brigade des cuisines", C7_COMP, 26, Database.get_encounter("cuisines_brigade"), "ordinaire"],
+		["7 Maître de Salle", C7_COMP, 26, Database.get_encounter("brigade_des_nazes"), "boss"],
+		["7 Grand Œil", C7_COMP, 27, Database.get_encounter("grand_oeil"), "boss"],
+		["7 Sauron", C7_COMP, 27, Database.get_encounter("sauron_final"), "boss"],
+		["7 Arachnée sans soigneur", ["glandoulf", "froton", "merri", "sam"], 25, Database.get_encounter("arachnee"), "sans_soigneur"],
+		["7 Sauron sans soigneur", ["glandoulf", "froton", "merri", "aragrogne"], 27, Database.get_encounter("sauron_final"), "sans_soigneur"],
+	]
+
+
+func _c7_gear(case: Array) -> void:
+	for who: String in case[1]:
+		var piece := ""
+		if who == "sam":
+			piece = "louche_a_glaner"
+		elif who == "aragrogne":
+			piece = "decret_de_la_lignee"
+		if piece != "":
+			GameState.add_item(piece)
+			GameState.equip(who, piece)
+
+
+func _c7_rate(case: Array) -> float:
+	var wins := 0
+	var runs := 40
+	for s in runs:
+		GameState.new_game()
+		GameState.party = []
+		for id: String in case[1]:
+			GameState.add_to_party(id)
+			GameState.member(id)["level"] = int(case[2])
+			_spend(id, 0)
+		_c7_gear(case)
+		GameState.heal_party()
+		var e := _fight(case[3], 100 + s)
+		if str(e.result) == "victory":
+			wins += 1
+	print("  taux : %s niv. %d contre %s : %d %%" % [str(case[1]), int(case[2]), str((case[3].get("enemies", []) as Array).slice(0, 3)), int(100.0 * wins / runs)])
+	return float(wins) / runs
+
+
+func _measure_ch7() -> void:
+	var runs := int(OS.get_environment("GLAN_RUNS")) if OS.has_environment("GLAN_RUNS") else 60
+	var filter := OS.get_environment("GLAN_FILTER")
+	print("  %-36s %-9s %5s %5s %6s" % ["combat", "type", "sans", "avecA", "tours"])
+	for case: Array in _c7_cases():
+		if filter != "" and not str(case[0]).contains(filter):
+			continue
+		var rates := []
+		var rounds := 0.0
+		for talents in [-1, 0]:
+			var wins := 0
+			var total_rounds := 0.0
+			for s in runs:
+				GameState.new_game()
+				GameState.party = []
+				for id: String in case[1]:
+					GameState.add_to_party(id)
+					GameState.member(id)["level"] = int(OS.get_environment("GLAN_LEVEL")) if OS.has_environment("GLAN_LEVEL") else int(case[2])
+					if talents >= 0:
+						_spend(id, talents)
+				_c7_gear(case)
+				GameState.heal_party()
+				var e: RefCounted = BattleEngine.new()
+				e.setup(case[3], 100 + s)
+				var guard := 0
+				var hero_turns := 0
+				while str(e.result) == "" and guard < 800:
+					guard += 1
+					var actor: RefCounted = e.next_actor()
+					if actor == null:
+						break
+					e.start_turn(actor)
+					if str(e.result) == "" and bool(e.can_act):
+						if str(actor.side) != "enemy":
+							hero_turns += 1
+						e.perform(actor, e.ai_action(actor) if str(actor.side) == "enemy" else e.auto_action(actor))
+					if str(e.result) == "":
+						e.end_turn(actor)
+				if str(e.result) == "victory":
+					wins += 1
+				total_rounds += float(hero_turns) / float(maxi(1, (case[1] as Array).size()))
+			rates.append(int(100.0 * wins / runs))
+			rounds = total_rounds / runs
+		print("  %-36s %-9s %4d%% %4d%% %6.1f" % [str(case[0]), str(case[4]), int(rates[0]), int(rates[1]), rounds])
+	GameState.new_game()
+
+
+func _test_chapter_7_data() -> void:
+	print("== Chapitre 7 : données et équilibre ==")
+	for id: String in C7_MAPS:
+		check(Database.has_map(id), "carte %s existe" % id)
+		var map := Database.get_map(id)
+		check(map.has("music") and Database.music.has(str(map["music"])), "carte %s : musique connue" % id)
+		if C7_STYLES.has(id):
+			check(str(map.get("style", "")) == str(C7_STYLES[id]), "carte %s : style %s" % [id, C7_STYLES[id]])
+		check(Database.arenas.has(str(map.get("arena", ""))), "carte %s : arène déclarée" % id)
+		check(Database.ambiances.has(str(map.get("ambiance", ""))), "carte %s : ambiance connue" % id)
+	for kind: String in C7_MONSTERS:
+		var sprite: String = str((Database.enemies.get(kind, {}) as Dictionary).get("sprite", {}).get("monster", ""))
+		check(MonsterPainter.has(sprite), "monstre %s : espèce %s connue" % [kind, sprite])
+		var img: Image = MonsterPainter.paint(sprite)
+		var magenta := 0
+		var filled := 0
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a > 0.5:
+					filled += 1
+					if c.r > 0.95 and c.g < 0.05 and c.b > 0.95:
+						magenta += 1
+		check(magenta == 0 and filled > 200, "monstre %s : dessiné, sans magenta (%d px)" % [sprite, filled])
+		check(Database.enemies.has(kind), "ennemi %s décrit" % kind)
+		check(Database.animations.has(str((Database.enemies.get(kind, {}) as Dictionary).get("attack_anim", "?"))), "ennemi %s : animation d'attaque" % kind)
+	for q: String in ["mordgras", "plan_banquet", "marcheurs", "gros_poisson"]:
+		check(not Database.get_quest(q).is_empty(), "quête %s décrite" % q)
+	check(Database.get_quest("mordgras").get("kind") == "principale", "La Montagne du Festin est la quête principale")
+	for st: Variant in Database.get_quest("mordgras")["steps"]:
+		check((st as Dictionary).has("target"), "mordgras : « %s » a un repère" % str((st as Dictionary)["text"]))
+	for ch: String in ["convive", "marcheur", "goulum", "sauron", "sarumale"]:
+		check(Database.characters.has(ch), "personnage %s décrit" % ch)
+	for it: String in ["louche_a_glaner", "serviette_garde_a_vous", "plan_du_banquet", "anneau_annulaire", "ecaille_geante", "toque_de_dentelle", "louche_d_ologrill", "gants_blancs", "manteau_de_sauron", "bouillon_onze_heures"]:
+		check(Database.items.has(it), "objet %s décrit" % it)
+	check("berceuse_de_sam" in (Database.items["louche_a_glaner"].get("skills", []) as Array), "la Louche à Glaner donne la Berceuse de Sam")
+	check(Database.skills.has("berceuse_de_sam") and Database.animations.has("berceuse_de_sam"), "la Berceuse de Sam a sa compétence et son animation")
+	for sk: String in Database.skills.keys():
+		if sk in ["berceuse_de_sam", "etreinte_noyee", "grande_louche", "morsure_de_la_veuve", "rayon_de_onze_heures", "masse_pleine_vigueur", "second_service", "coup_de_plateau"]:
+			check(Database.animations.has(sk), "compétence %s : animation" % sk)
+	for e: String in ["noyes_planches", "bouche_du_maitre", "grand_ologrill", "col_fileuses", "arachnee", "cuisines_brigade", "brigade_des_nazes", "grand_oeil", "sauron_final"]:
+		var enc := Database.get_encounter(e)
+		check(not enc.is_empty(), "rencontre %s" % e)
+		check(Database.arenas.has(str(enc.get("arena", ""))), "rencontre %s : arène connue" % e)
+		if str(enc.get("music", "")) != "":
+			check(Database.music.has(str(enc["music"])), "rencontre %s : musique connue" % e)
+		if ["bouche_du_maitre", "grand_ologrill", "arachnee", "brigade_des_nazes", "grand_oeil", "sauron_final"].has(e):
+			check(enc.has("boss") and Database.enemies.has(str(enc["boss"])), "rencontre %s : boss déclaré" % e)
+	for ar: String in ["marais_bouillon", "passe_plat", "gorgonzola", "col_arachnee", "cuisines_mor", "banquet_mor", "marches_mor", "arena_oeil"]:
+		check(Database.arenas.has(ar), "arène %s décrite" % ar)
+	check(Database.music.has("mordgras") and Database.music.has("festin"), "chapitre 7 : deux morceaux neufs")
+	# des mots de l'ancien temps ne reviennent pas
+	var text := FileAccess.get_file_as_string("res://data/dialogues/chapitre_7.json") + str(Database.game.get("credits", []))
+	for bad: String in ["Fripon", "Besace", "Pépine", "Légolasse", "Gimlette"]:
+		check(not text.contains(bad), "chapitre 7 : pas de « %s »" % bad)
+	# l'accès depuis le Pelle-à-Tarte
+	var pt := Database.get_map("pelle_a_tarte")
+	var door := false
+	for o: Variant in pt.get("objects", []):
+		if o is Dictionary and str((o as Dictionary).get("type", "")) == "warp" and str(((o as Dictionary).get("to", {}) as Dictionary).get("map", "")) == "marais_bouillon":
+			door = true
+	check(door, "le Pelle-à-Tarte mène au Marais du Bouillon d'Onze Heures")
+	# le générique
+	var credits: Array = Database.game.get("credits", [])
+	check(credits.size() > 20, "générique : %d lignes" % credits.size())
+	for l: Variant in credits:
+		check(l is Array and (l as Array).size() == 3, "générique : ligne [texte, taille, couleur]")
+	check(Database.music.has(str(Database.game.get("credits_music", ""))), "générique : musique connue")
+	# tables et combats
+	for t: Array in [["marais_bouillon", 24, C7_COMP], ["passe_plat", 25, C7_ARMEE], ["col_arachnee", 25, C7_COMP], ["cuisines", 26, C7_COMP], ["banquet", 26, C7_COMP], ["marches", 27, C7_COMP]]:
+		check(Database.encounter_tables.has(str(t[0])), "table %s" % str(t[0]))
+		var r := _c5_table_rate(t[2], str(t[0]), int(t[1]))
+		check(float(r[0]) >= 0.7, "table %s, niv. %d : pire groupe %d %% (%s)" % [str(t[0]), int(t[1]), int(float(r[0]) * 100.0), str(r[1])])
+		print("  table %-14s pire groupe %3d %%  (%s)" % [str(t[0]), int(float(r[0]) * 100.0), str(r[1])])
+	for case: Array in _c7_cases():
+		var a := _c7_rate(case)
+		var lo := C7_MIN_TABLE if str(case[4]) == "ordinaire" else (0.45 if str(case[4]) == "sans_soigneur" else C7_MIN_BOSS)
+		var hi := 1.0 if str(case[4]) != "boss" else 0.85
+		check(a >= lo and a <= hi, "%s, équipe niv. %d : %d %% (visé %d à %d %%)" % [str(case[0]), int(case[2]), int(a * 100.0), int(lo * 100.0), int(hi * 100.0)])
+	GameState.new_game()
+
+
+## Style du pays ennemi : tuiles, accessoires, objets et styles documentés ; cartes construites.
+func _test_mordgras_scenery() -> void:
+	var Mor: GDScript = load("res://src/gfx/mordgras_painter.gd")
+	var MorBuilder: GDScript = load("res://src/world/mordgras_builder.gd")
+	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")
+	var docs := FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md")
+	for kind: String in Mor.TILES:
+		var img: Image = Sprites.tile_image(kind)
+		check(img != null and img.get_width() >= 48, "style mordgras : la tuile %s est peinte" % kind)
+		check(not img.get_pixel(3, 3).is_equal_approx(Color(1, 0, 1)), "style mordgras : la tuile %s n'est pas le magenta de secours" % kind)
+		check(docs.contains(kind), "style mordgras : la tuile %s est documentée" % kind)
+	for kind: String in Mor.PROP_VARIANTS:
+		check(MapBuilder.PROPS.has(kind) or Mor.has_prop(kind), "style mordgras : %s est un accessoire déclaré" % kind)
+		check(docs.contains(kind), "style mordgras : %s est documenté" % kind)
+		for v in int(Mor.PROP_VARIANTS[kind]):
+			var tex: Texture2D = Sprites.prop(kind, v)
+			check(tex != null and tex.get_width() > 4 and tex.get_height() > 4, "style mordgras : %s variante %d peint" % [kind, v])
+	for kind: String in MorBuilder.OBJECTS:
+		check(docs.contains(kind), "style mordgras : l'objet %s est documenté" % kind)
+	for st: String in MorBuilder.STYLES:
+		check(docs.contains("\"%s\"" % st) or docs.contains("`%s`" % st), "style %s : documenté" % st)
+	check(docs.contains("generique") and docs.contains("credits_music"), "le générique de fin est documenté")
+	for id: String in C7_MAPS:
+		var map := Database.get_map(id)
+		for f: Dictionary in (map.get("ground", {}) as Dictionary).get("fills", []):
+			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
+		for o: Dictionary in map.get("objects", []):
+			var t := str(o.get("type", ""))
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "scatter", "house", "lantern", "fence", "tree", "table", "rug"] \
+					or MapBuilder.PROPS.has(t) or MorBuilder.OBJECTS.has(t)
+			check(known, "carte %s : objet « %s » connu" % [id, t])
+			if t == "scatter":
+				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
+			if o.has("dialogue"):
+				check(Database.has_dialogue(str(o["dialogue"])), "carte %s : dialogue « %s » existe" % [id, str(o["dialogue"])])
+			if t == "monster":
+				check(Database.enemies.has(str(o.get("id", ""))), "carte %s : monstre « %s » décrit" % [id, str(o.get("id", ""))])
+	for id: String in C7_MAPS:
+		GameState.new_game()
+		var world: Node3D = World.new()
+		add_child(world)
+		await world.setup(id, str(Database.get_map(id)["spawns"].keys()[0]))
+		await get_tree().process_frame
+		check(world.player != null, "carte %s : construite dans son style" % id)
+		if bool(Database.get_map(id).get("interior", false)):
+			check(world.get_node_or_null("Walls") != null, "carte %s : murs construits" % id)
+		world.queue_free()
+		await get_tree().process_frame
+	GameState.new_game()
+	var village: Node3D = World.new()
+	add_child(village)
+	village.setup("brie", str(Database.get_map("brie")["spawns"].keys()[0]))
+	await get_tree().process_frame
+	var any := false
+	for n: Node in village.get_children():
+		if n.name.begins_with("Mordgras"):
+			any = true
+	check(not any, "Brie : aucun décor du pays ennemi (le style se choisit par les données)")
+	village.queue_free()
+	await get_tree().process_frame
+
+
+## Chapitre 7, joué dans le vrai jeu : du Pelle-à-Tarte au générique et au retour à l'écran-titre.
+func _test_chapter_7() -> void:
+	print("== Chapitre 7 : déroulé complet ==")
+	await _test_map("marais_bouillon", [], "marais")
+	await _test_map("marais_bouillon", ["goulum_guide", "combat_noyes_planches"], "marais, Noyés couchés")
+	await _test_map("passe_plat", [], "passe")
+	await _test_map("passe_plat", ["combat_bouche_du_maitre"], "passe, Bouche réduite au silence")
+	await _test_map("col_arachnee", [], "col")
+	await _test_map("col_arachnee", ["goulum_trahi"], "col, Arachnée éveillée")
+	await _test_map("col_arachnee", ["goulum_trahi", "arachnee_endormie"], "col, Arachnée endormie")
+	await _test_map("mordgras_cuisines", [], "cuisines")
+	await _test_map("mordgras_cuisines", ["combat_cuisines_brigade"], "cuisines, brigade battue")
+	await _test_map("mordgras_banquet", [], "banquet")
+	await _test_map("mordgras_banquet", ["banquet_servi"], "banquet, service fait")
+	await _test_map("quatre_mille_marches", [], "marches")
+	await _test_map("quatre_mille_marches", ["marches_finies"], "marches, sommet")
+	await _test_map("grand_four", [], "four")
+	await _test_map("grand_four", ["sauron_endormi"], "four, Sauron endormi")
+	await _test_map("bittebourg_epilogue", [], "épilogue")
+
+	GameState.new_game()
+	GameState.party = ["glandoulf", "sam", "froton", "aragrogne"]
+	GameState.bench = ["merri", "pepin", "digoulasse", "grimli"]
+	for who: String in GameState.party + GameState.bench:
+		GameState.member(who)["level"] = 50
+		_spend(who, 0)
+	for f: String in ["chapitre_5_fini", "sarumale_vaincu", "terrasse_vue", "chapitre_6_fini"]:
+		GameState.set_flag(f)
+	GameState.chapter = "chapitre_7"
+	GameState.money = 800
+	GameState.map_id = "pelle_a_tarte"
+	GameState.spawn_id = "entree"
+	GameState.heal_party()
+	check(SaveManager.save_game(), "sauvegarde au départ du chapitre 7")
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	await _c4_say(main, "pelle_depart")
+	check(GameState.has_flag("chapitre_7_debut") and main.world.map_id == "marais_bouillon", "le départ mène au marais (%s)" % main.world.map_id)
+	check(GameState.party == C7_COMP, "la Compagnie de la Cuisine (%s)" % str(GameState.party))
+	check(GameState.quest_state("mordgras") != "", "la quête principale du chapitre 7 est lancée")
+	await _c4_say(main, "marais_arrivee")
+	await _c4_say(main, "marais_goulum")
+	check(GameState.has_flag("goulum_guide"), "Goulûm guide la Compagnie")
+	await _c4_say(main, "marais_regard")
+	await _c4_say(main, "marais_peche")
+	await _c4_say(main, "marais_louche")
+	check(GameState.worn_by("louche_a_glaner").size() == 1 and str(GameState.worn_by("louche_a_glaner")[0]["who"]) == "sam", "Sam porte la Louche à Glaner")
+	await _c4_say(main, "noyes_face", [], 240.0)
+	check(GameState.has_flag("combat_noyes_planches"), "les Noyés sont renvoyés sous l'eau")
+	await _c4_say(main, "marais_fin")
+	check(main.world.map_id == "passe_plat" and GameState.party == C7_ARMEE, "l'Armée de l'Ouest au Passe-Plat (%s, %s)" % [main.world.map_id, str(GameState.party)])
+	await _c4_say(main, "passe_offres", [0, 0, 0], 300.0)
+	check(GameState.has_flag("combat_bouche_du_maitre"), "trois offres refusées, la Bouche est vaincue")
+	await _c4_say(main, "passe_gorgonzola", [], 400.0)
+	check(GameState.has_flag("combat_grand_ologrill") and GameState.has_flag("passe_tenu"), "le Passe-Plat est tenu")
+	check(main.world.map_id == "col_arachnee" and GameState.party == C7_COMP, "retour à la Compagnie au col (%s, %s)" % [main.world.map_id, str(GameState.party)])
+	await _c4_say(main, "col_arrivee")
+	await _c4_say(main, "col_trahison", [], 300.0)
+	check(GameState.has_flag("goulum_trahi") and GameState.has_flag("combat_col_fileuses"), "Goulûm trahit, les Fileuses descendent")
+	GameState.heal_party()
+	await _c4_say(main, "arachnee_face", [], 500.0)
+	check(GameState.has_flag("combat_arachnee") and GameState.has_flag("arachnee_endormie"), "l'Arachnée s'endort")
+	main.change_map("col_arachnee", "ouest")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "mordgras_cuisines"), "le soupirail mène aux cuisines")
+	main.change_map("mordgras_cuisines", "soupirail")
+	await _wait_idle(main)
+	await _c4_say(main, "cuisines_arrivee")
+	await _c4_say(main, "cuisines_serviette")
+	check(GameState.item_count("serviette_garde_a_vous") == 1, "la Serviette de l'Ordre du Garde-à-Vous")
+	await _c4_say(main, "cuisines_poisson")
+	check(GameState.has_flag("poisson_pris") and GameState.quest_state("gros_poisson") == "done", "le plus gros poisson du monde (%s)" % GameState.quest_state("gros_poisson"))
+	GameState.heal_party()
+	await _c4_say(main, "cuisines_goulum", [], 400.0)
+	check(GameState.has_flag("goulum_parti") and GameState.has_flag("combat_cuisines_brigade"), "Goulûm est à point, la brigade est battue")
+	main.change_map("mordgras_cuisines", "soupirail")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "mordgras_banquet"), "les cuisines mènent au banquet")
+	main.change_map("mordgras_banquet", "ouest")
+	await _wait_idle(main)
+	await _c4_say(main, "banquet_arrivee")
+	await _c4_say(main, "banquet_plan")
+	check(GameState.item_count("plan_du_banquet") == 1 and GameState.quest_state("plan_banquet") == "done", "le plan du banquet")
+	GameState.heal_party()
+	await _c4_say(main, "banquet_service", [0], 400.0)
+	check(GameState.has_flag("banquet_servi") and GameState.has_flag("combat_brigade_des_nazes"), "le service est fait, le Maître de Salle est battu")
+	main.change_map("mordgras_banquet", "ouest")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "quatre_mille_marches"), "la sortie derrière le dessert")
+	main.change_map("quatre_mille_marches", "bas")
+	await _wait_idle(main)
+	await _c4_say(main, "marches_depart")
+	for n in [1, 2, 3, 4]:
+		await _c4_say(main, "marches_plainte_%d" % n)
+		check(GameState.has_flag("plainte_%d" % n), "Glandoulf se plaint de la marche (%d)" % n)
+	for n in [1, 2, 3]:
+		await _c4_say(main, "marcheur_%d" % n, [0])
+	check(GameState.has_flag("marcheurs_assis") and GameState.quest_state("marcheurs") == "done", "les Marcheurs sont assis (%s)" % GameState.quest_state("marcheurs"))
+	check(GameState.item_count("anneau_annulaire") == 1, "l'Anneau Annulaire récompense les Marcheurs")
+	await _c4_say(main, "marches_haut")
+	check(GameState.has_flag("marches_finies"), "le sommet est atteint")
+	main.change_map("quatre_mille_marches", "bas")
+	await _wait_idle(main)
+	check(_c4_has_warp(main, "grand_four"), "le sommet ouvre sur le Grand Four")
+	main.change_map("grand_four", "bas")
+	await _wait_idle(main)
+	GameState.heal_party()
+	await _c4_say(main, "four_sauron", [0], 900.0)
+	check(GameState.has_flag("combat_grand_oeil") and GameState.has_flag("combat_sauron_final") and GameState.has_flag("sauron_endormi"), "le Grand Œil, puis Sauron, sont vaincus : Sauron dort")
+	await _c4_say(main, "four_anneau")
+	check(GameState.has_flag("anneau_jete") and GameState.has_flag("chapitre_7_fini"), "l'anneau est jeté dans le Grand Four")
+	check(main.world.map_id == "bittebourg_epilogue", "retour à Bittebourg (%s)" % main.world.map_id)
+	for d: String in ["epilogue_aragrogne", "epilogue_digoulasse", "epilogue_pepin", "epilogue_sam", "epilogue_froton", "epilogue_merri", "epilogue_quai"]:
+		await _c4_say(main, d)
+	# la sieste de Glandoulf : le générique, à la manette
+	main.run_dialogue("epilogue_sarumale")
+	pick_queue = [1]
+	var t0 := Time.get_ticks_msec()
+	while not main.credits.is_playing() and Time.get_ticks_msec() - t0 < 60000:
+		await get_tree().process_frame
+		if main.dialogue.active and not main.dialogue.waiting:
+			if main.dialogue._choosing:
+				var buttons: Array = main.dialogue._choice_list.get_children()
+				if not buttons.is_empty():
+					var pick: int = int(pick_queue.pop_front()) if not pick_queue.is_empty() else 0
+					(buttons[clampi(pick, 0, buttons.size() - 1)] as Button).pressed.emit()
+			elif main.dialogue._typing:
+				main.dialogue._finish_typing()
+			else:
+				main.dialogue._advance()
+	pick_queue = []
+	check(main.credits.is_playing(), "le générique défile")
+	check(GameState.chapter == "partie_terminee" and GameState.has_flag("partie_terminee") and GameState.has_flag("registre_signe"), "la partie est marquée terminée (%s)" % GameState.chapter)
+	check(GameState.quest_state("mordgras") == "done", "la quête principale est terminée (%s)" % GameState.quest_state("mordgras"))
+	check(SaveManager.has_save(), "la sauvegarde de fin existe")
+	await get_tree().create_timer(1.0).timeout
+	await _pb(JOY_BUTTON_B)   # saute le défilement
+	await get_tree().create_timer(0.3).timeout
+	check(main.credits.is_playing() and main.credits._phase == "rings", "la manette (B) passe aux petits anneaux")
+	await _pb(JOY_BUTTON_B)
+	await get_tree().create_timer(0.3).timeout
+	check(not main.credits.is_playing(), "la manette (B) ferme le générique")
+	await _wait_idle(main, 30.0)
+	check(main.mode == main.Mode.TITLE, "retour à l'écran-titre")
+	main.queue_free()
+	await get_tree().process_frame
+	GameState.new_game()
+
+
 # ------------------------------------------------- manette de bout en bout (interface 5)
 
 const PAD_DEV := 3   # numéro de manette volontairement différent de 0 (un clavier « de jeu » prend souvent le 0 sous Windows)
@@ -8327,7 +8746,7 @@ func _test_warm_matches_demand() -> void:
 	var painter := GDScript.new()
 	painter.source_code = FileAccess.get_file_as_string("res://src/gfx/monster_painter.gd")
 	check(painter.reload() == OK, "copie du peintre : se recharge")
-	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS + load("res://src/gfx/boss_painter.gd").KINDS
+	var gouda: Array = load("res://src/gfx/gouda_monsters.gd").KINDS + load("res://src/gfx/boss_painter.gd").KINDS + load("res://src/gfx/mordgras_monsters.gd").KINDS
 	var kinds: Array = []
 	for k: String in mp.SIZES.keys():
 		if not gouda.has(k):

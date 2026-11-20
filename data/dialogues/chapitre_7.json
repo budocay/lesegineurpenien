@@ -1,0 +1,1759 @@
+{
+	"pelle_depart": [
+		{
+			"text": "La nuit est tombée sur les champs. Le vent noir souffle toujours de l'est. Sous la tente de commandement, on déplie une carte : elle est en mauvais état, et le pays qu'elle montre l'est encore plus."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Deux routes. Le Passe-Plat, la grande porte noire, que l'on ne prend pas, sauf pour qu'on nous regarde la prendre. Et le marais, derrière, que personne ne regarde, parce qu'on n'y voit rien."
+		},
+		{
+			"who": "digoulasse",
+			"text": "Je prends la porte. Je n'ai jamais rien fait d'autre, et je sais très bien le faire."
+		},
+		{
+			"who": "grimli",
+			"text": "Je prends la porte aussi. À deux, nous ferons plus de bruit qu'un."
+		},
+		{
+			"who": "aragrogne",
+			"text": "L'Armée de l'Ouest marchera sur le Passe-Plat. Nous ferons semblant d'attaquer la Porte Noire, et nous le ferons avec conviction. Pendant ce temps, vous passerez par le marais. Froton. Les Nazes ne cherchent pas les anneaux sur les chemins : ils les cherchent là où l'on entend des armées."
+		},
+		{
+			"who": "froton",
+			"text": "Je crois qu'il est lourd. Je veux dire : il ne l'était pas. Il l'est devenu en regardant le pays."
+		},
+		{
+			"who": "sam",
+			"text": "On le portera à tour de rôle, monsieur Froton. À tour de rôle, ça n'a pas de poids."
+		},
+		{
+			"who": "merri",
+			"text": "Je prends le plan de la Montagne du Festin. Il est dessiné par un cuisinier, donc il est précis et il sent le persil."
+		},
+		{
+			"who": "pepin",
+			"text": "Je reste avec l'Armée. Quelqu'un doit servir la tisane aux blessés, et quelqu'un d'autre doit les empêcher de la boire."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Alors voilà. Deux groupes. Une montagne. Un anneau. Et un mensonge, que je n'ai pas encore trouvé le moment de raconter."
+		},
+		{
+			"text": "(Glandoulf n'a dit que la première moitié à voix haute. La seconde, il se l'est dite à lui-même, en regardant ses chaussons.)"
+		},
+		{
+			"text": "(La Compagnie de la Cuisine part : Froton, Sam, Merri, Glandoulf. L'Armée de l'Ouest attend sur le banc, et retrouvera le jeu au Passe-Plat.)"
+		},
+		{
+			"set": "chapitre_7_debut"
+		},
+		{
+			"action": "groupe:froton,sam,merri,glandoulf"
+		},
+		{
+			"action": "save"
+		},
+		{
+			"action": "va:marais_bouillon:ouest"
+		}
+	],
+	"marais_arrivee": [
+		{
+			"text": "Le Marais du Bouillon d'Onze Heures. Il s'appelle ainsi parce qu'il est toujours onze heures, et que le bouillon est toujours en train de bouillir, doucement, depuis trois cents ans, sans que personne l'ait commandé."
+		},
+		{
+			"text": "Des planches ont été posées sur la vase, par quelqu'un de patient. Elles sont humides. Elles croquent un peu. Au loin, entre les roseaux, rougeoie l'horizon."
+		},
+		{
+			"who": "sam",
+			"text": "Je n'aime pas ce marais. Il sent le bouillon. Et ce n'est pas un bon bouillon : il n'a pas été écumé."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Il y a bien pire qu'un bouillon mal écumé. Il y a un bouillon bien écumé, et la personne qui l'a fait."
+		},
+		{
+			"set": "marais_vu"
+		}
+	],
+	"marais_goulum": [
+		{
+			"if": "goulum_guide",
+			"then": [
+				{
+					"who": "goulum",
+					"text": "Par ici, précieux. Les planches, toujours les planches. Les planches sont nos amies. Elles ne disent rien. Elles craquent."
+				}
+			],
+			"else": [
+				{
+					"text": "Il est assis sur une planche, les pieds dans la vase, et il pêche, avec un fil, un hameçon et une grande lassitude. Il lève les yeux. Ses yeux, très pâles, regardent Froton un peu trop longtemps."
+				},
+				{
+					"who": "goulum",
+					"text": "Gentils, gentils. Trempette vous attendait. Il connaît le marais : il l'a traversé deux fois, une en barque, une en pensant à autre chose."
+				},
+				{
+					"who": "froton",
+					"text": "Goulûm. C'est bien lui. Il ne m'a rien fait. Je crois qu'il a même essayé de m'aider, à Bittebourg."
+				},
+				{
+					"who": "goulum",
+					"text": "Oui, oui. Trempette aide. Il guide, il guide. Il ne demande qu'une chose, une toute petite : qu'on ne le laisse pas seul avec le Maître. Et un poisson. Un petit. Cru."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Il nous guide, et il nous suit. Je ne sais pas lequel des deux me rassure le moins."
+				},
+				{
+					"who": "goulum",
+					"text": "Surtout : sur les planches. Et surtout, surtout : ne pas regarder dans l'eau. Elle regarde en retour."
+				},
+				{
+					"set": "goulum_guide"
+				}
+			]
+		}
+	],
+	"marais_regard": [
+		{
+			"text": "Un peu plus loin, l'eau est très calme. Si calme qu'elle est plate. Et dans cette platitude, quelque chose d'immobile flotte, à quelques pouces sous la surface : un visage. Puis deux. Puis une dizaine, tous tournés vers le ciel, tous fatigués."
+		},
+		{
+			"who": "goulum",
+			"text": "Ne pas regarder, ne pas regarder ! Ce sont les Noyés. Ils sont tombés d'une armée, il y a longtemps, la dernière qui a perdu. Ils sont encore au garde-à-vous, sous l'eau, par habitude."
+		},
+		{
+			"who": "merri",
+			"text": "On dirait qu'ils nous reconnaissent."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Ils reconnaissent surtout les vivants. C'est une affaire de ressemblance."
+		},
+		{
+			"who": "sam",
+			"text": "Ne regardez pas. Je regarde pour vous, et je vous préviens quand c'est fini."
+		},
+		{
+			"set": "marais_regarde"
+		}
+	],
+	"marais_louche": [
+		{
+			"if": "louche_trouvee",
+			"then": [
+				{
+					"text": "Le coffre est vide. Il reste une odeur de bouillon, et une étiquette : « Prière de remettre la louche à sa place. »"
+				}
+			],
+			"else": [
+				{
+					"text": "Une caisse à moitié enfoncée dans la vase, cerclée de fer, marquée au fer rouge d'un mot : « Cuisine ». Dedans, enveloppée d'un torchon sec (un miracle), une louche."
+				},
+				{
+					"text": "Pas une louche ordinaire. Un manche noir, long, lisse ; un creux profond, patiné par des siècles de glanage. Elle a été faite pour recueillir, au fond des marmites, ce qu'il reste : les derniers grains, les derniers espoirs."
+				},
+				{
+					"who": "sam",
+					"text": "La Louche à Glaner. Ma grand-mère en parlait. Elle disait qu'elle ne sert pas à servir, mais à retrouver ce qu'on a oublié au fond. C'est une louche de rêve."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Prends-la. Elle est à toi depuis que tu as lu l'étiquette."
+				},
+				{
+					"who": "sam",
+					"text": "Elle est plus lourde que la poêle, et plus douce. Elle chante, quand on la fait tourner : une berceuse. Toujours la même. Ma mère la chantait aux chaudrons pour qu'ils ne brûlent pas."
+				},
+				{
+					"give": "louche_a_glaner"
+				},
+				{
+					"set": "louche_trouvee"
+				},
+				{
+					"action": "equipe:sam:louche_a_glaner"
+				},
+				{
+					"text": "(Sam équipe la Louche à Glaner. Elle lui donne la Berceuse de Sam : une compétence qui peut endormir ses adversaires.)"
+				}
+			]
+		}
+	],
+	"marais_peche": [
+		{
+			"text": "Une planche en saillie, un seau, une ligne à pêche abandonnée depuis des années. Sur l'écriteau : « Prière de ne pas pêcher. Cet étang est réservé. Il y a plus gros ailleurs. »"
+		},
+		{
+			"who": "sam",
+			"text": "Plus gros ailleurs ? C'est un défi. Vous savez ce que c'est que de rêver, toute sa vie, du plus gros poisson du monde ?"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Non. Je rêve de sieste."
+		},
+		{
+			"who": "sam",
+			"text": "Je le trouverai. Il y en a un, quelque part, dans ce pays. Un poisson tellement gros qu'il faut deux marmites pour le cuire, et trois pour en parler."
+		},
+		{
+			"set": "peche_vue"
+		}
+	],
+	"noyes_face": [
+		{
+			"text": "Au bout des planches, l'eau se soulève. Une, deux, six silhouettes en sortent, en rang, au pas. Elles ont le teint d'un navet à l'eau. Elles tiennent des lances qui ont déjà servi à autre chose."
+		},
+		{
+			"who": "goulum",
+			"text": "Trempette n'a rien vu ! Trempette a les yeux fermés ! Surtout, qu'on ne le mette pas dans le bouillon."
+		},
+		{
+			"text": "Un Noyé s'avance. Il salue, mécaniquement, de la main qui reste. Il parle, avec un gargouillis."
+		},
+		{
+			"text": "Noyé : « Vous êtes en retard. L'appel était à onze heures. Il est onze heures. Il sera onze heures. »"
+		},
+		{
+			"battle": "noyes_planches"
+		},
+		{
+			"if": "combat_noyes_planches",
+			"then": [
+				{
+					"text": "Les Noyés se laissent glisser sous l'eau, très calmement, avec le sentiment du devoir accompli. Il reste un grand silence, quelques bulles, et un casque."
+				},
+				{
+					"who": "merri",
+					"text": "Je n'ai pas cherché à les comprendre. C'est le début d'une bonne santé."
+				}
+			]
+		}
+	],
+	"marais_fin": [
+		{
+			"text": "Les planches se terminent. Devant, entre les roseaux, la vase se durcit en route et la route en ouest se perd : au loin, très loin, s'élève un grondement de tambours, de portes qu'on ferme et de gens qui chantent faux."
+		},
+		{
+			"who": "goulum",
+			"text": "L'armée ! L'armée ! Ils attaquent la Porte. Ils font du bruit. Les Nazes regardent par là. Bien, bien. Trempette connaît un col, derrière, où personne ne va, sauf les araignées."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Les araignées. Évidemment."
+		},
+		{
+			"text": "Les cors de l'Ouest retentissent, étouffés par la distance. Pendant que la Compagnie traverse le marais, l'Armée de l'Ouest arrive au Passe-Plat."
+		},
+		{
+			"set": "marais_traverse"
+		},
+		{
+			"action": "groupe:aragrogne,digoulasse,grimli,pepin"
+		},
+		{
+			"action": "save"
+		},
+		{
+			"action": "va:passe_plat:sud"
+		}
+	],
+	"passe_arrivee": [
+		{
+			"text": "Le Passe-Plat. Une gorge de basalte noir, large comme une rue et haute comme un reproche, qui monte en pente douce vers une porte. La Porte Noire."
+		},
+		{
+			"text": "Elle est énorme. Elle est de fonte, battants fermés, flanquée de deux tours qui fument des deux côtés, avec un guichet rougeoyant en son milieu, à hauteur d'œil. Un écriteau, au-dessous : « Sonner une fois. Attendre. Ne pas insister. »"
+		},
+		{
+			"who": "digoulasse",
+			"text": "Elle a un guichet. Je n'ai jamais aimé les portes qui regardent."
+		},
+		{
+			"who": "grimli",
+			"text": "Voilà. Nous sommes arrivés. Nous allons être vus. Il faut maintenant qu'on nous voie bien."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Merci d'être venus. Aucun de vous n'aurait dû y être, mais aucun ne s'en est plaint, et cela fait de vous les gens les plus polis de l'Ouest."
+		},
+		{
+			"set": "passe_vu"
+		}
+	],
+	"passe_offres": [
+		{
+			"text": "Le guichet s'ouvre. Une bouche en sort. Seulement une bouche : large, lisse, pourvue de trop de dents, qui parle par le trou comme on parle par un tuyau."
+		},
+		{
+			"text": "C'est la Bouche du Maître. Elle ne porte pas de visage ; elle porte un message, et le message a de bonnes manières."
+		},
+		{
+			"text": "La Bouche : « Aragrogne, héritier d'Isidur. Au nom du Maître, nous vous faisons trois offres. Vous voudrez bien les refuser dans l'ordre. »"
+		},
+		{
+			"text": "La Bouche : « Première offre. Reddition. Vous déposez les armes, nous vous servons du thé. Le thé est tiède, les armes seront rangées par ordre de calibre, tout se passe sans douleur. »"
+		},
+		{
+			"choice": [
+				{
+					"text": "« Refusé. »",
+					"then": [
+						{
+							"who": "aragrogne",
+							"text": "Refusé. J'ai déjà un thé, et il est meilleur."
+						}
+					]
+				},
+				{
+					"text": "« Le thé est vraiment tiède ? »",
+					"then": [
+						{
+							"who": "aragrogne",
+							"text": "Je me renseignais. Non, merci."
+						},
+						{
+							"text": "La Bouche : « Tiède, à cœur. Et quatre sucres, sans supplément. Il est toujours possible de refuser plus fermement. »"
+						}
+					]
+				}
+			]
+		},
+		{
+			"text": "La Bouche : « Deuxième offre. Rallier le Maître. Il vous donne une place à table, un titre, et un couvert en argent. Il y a toujours de la place pour un roi de plus : on met une rallonge. »"
+		},
+		{
+			"choice": [
+				{
+					"text": "« Refusé. »",
+					"then": [
+						{
+							"who": "aragrogne",
+							"text": "Refusé. Je règne déjà. On me l'a fait signer."
+						}
+					]
+				},
+				{
+					"text": "« Quel titre ? »",
+					"then": [
+						{
+							"who": "digoulasse",
+							"text": "Aragrogne !"
+						},
+						{
+							"who": "aragrogne",
+							"text": "Je demandais pour savoir ce que je refuse."
+						},
+						{
+							"text": "La Bouche : « Roi-Convive. Il y a un couvert. »"
+						}
+					]
+				}
+			]
+		},
+		{
+			"text": "La Bouche : « Troisième offre. L'ultime. Vos têtes, votre armée, et l'anneau, contre une promesse : on ne vous mangera pas immédiatement. »"
+		},
+		{
+			"who": "grimli",
+			"text": "Trois offres. Trois refus. Il est temps."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Refusé. Trois fois. Nous n'avons pas l'anneau, et vous le savez : sinon vous ne seriez pas aussi aimable."
+		},
+		{
+			"text": "La Bouche : « Dommage. Le Maître sera contrarié. Il déteste qu'on refuse de dîner. Qu'on apporte les Ologrills ! »"
+		},
+		{
+			"battle": "bouche_du_maitre"
+		},
+		{
+			"if": "combat_bouche_du_maitre",
+			"then": [
+				{
+					"text": "La Bouche se referme, d'un claquement sec, comme un livre. Le guichet reste ouvert une seconde, puis un battant s'abat. Une voix, derrière, très grave, très lasse, se plaint d'avoir été interrompue."
+				},
+				{
+					"who": "pepin",
+					"text": "Les gens sont tellement mal élevés quand ils ont faim."
+				},
+				{
+					"text": "Sur la plaine du Passe-Plat, la fonte tremble. Quelque chose de très grand, de très gros et de très affamé s'approche de la porte, de l'autre côté."
+				}
+			]
+		}
+	],
+	"passe_gorgonzola": [
+		{
+			"text": "Le battant de droite s'ouvre d'un cran. Un cuisinier en sort. Pas un cuisinier : un Ologrill. Il est large comme un fourneau, vert comme une soupe aux orties, et il porte à la ceinture une louche à faire peur à un forgeron."
+		},
+		{
+			"text": "C'est le Grand Ologrill, chef de brigade de la Porte, dit « Gorgonzola » par ses amis, c'est-à-dire par personne."
+		},
+		{
+			"text": "Le Grand Ologrill : « On passe pas. Ici, c'est la cuisine. Les clients passent par devant, et ils ne repassent pas. Vous voulez entrer ? Faut réserver. »"
+		},
+		{
+			"who": "digoulasse",
+			"text": "Réserver pour combien ?"
+		},
+		{
+			"text": "Le Grand Ologrill : « Un siècle. Mais pour vous, je ferai un geste. »"
+		},
+		{
+			"battle": "grand_ologrill"
+		},
+		{
+			"if": "combat_grand_ologrill",
+			"then": [
+				{
+					"text": "Le Grand Ologrill s'assoit, lourdement, sur un baril. Il se tamponne le front avec un torchon. Il sourit, d'un sourire de cuisinier qui a perdu, mais qui a appris quelque chose."
+				},
+				{
+					"text": "Le Grand Ologrill : « Soit. La porte ne s'ouvre pas, mais elle ne ferme plus bien. Vous avez fait assez de bruit pour trois armées. On vous a vus. Le Maître regarde par ici, et pas par là. »"
+				},
+				{
+					"who": "aragrogne",
+					"text": "C'était l'idée. Nous avons fait ce que nous pouvions : le bruit. Au col, maintenant, ils doivent y arriver."
+				},
+				{
+					"who": "grimli",
+					"text": "Qu'ils passent. Nous, nous tenons la porte, et nous ne la franchissons pas. Il faut bien que quelqu'un reste en bas."
+				},
+				{
+					"who": "pepin",
+					"text": "Je soignerai les blessés. Et le Grand Ologrill, s'il veut, il peut s'asseoir avec."
+				},
+				{
+					"text": "(La suite se passe au col de l'Arachnée, où la Compagnie de la Cuisine, guidée par Goulûm, avance sans se douter de rien.)"
+				},
+				{
+					"set": "passe_tenu"
+				},
+				{
+					"action": "groupe:froton,sam,merri,glandoulf"
+				},
+				{
+					"action": "save"
+				},
+				{
+					"action": "va:col_arachnee:ouest"
+				}
+			]
+		}
+	],
+	"passe_ecriteau": [
+		{
+			"text": "Un écriteau, planté dans la cendre, en lettres noires sur fond noir (on les lit au toucher) : « Passe-Plat. Plat du jour : invités. Prière de ne pas servir les cuisiniers. »"
+		}
+	],
+	"passe_os": [
+		{
+			"text": "Un tas d'os très propres, rangés par taille, avec un petit mot : « Ne pas jeter. Pour le fond de sauce. »"
+		}
+	],
+	"col_arrivee": [
+		{
+			"text": "Le col de l'Arachnée. Une faille entre deux dents de roche, où le vent n'entre pas. Il y a des fils, très fins, tendus partout, d'un mur à l'autre, et ils vibrent, doucement, comme si quelqu'un les écoutait."
+		},
+		{
+			"text": "Goulûm marche devant, un sac sur l'épaule, très à l'aise. Il tient un fil entre deux doigts, comme on tient une bride."
+		},
+		{
+			"who": "goulum",
+			"text": "Par ici. Un raccourci. Un petit raccourci. Il passe par le milieu, qui est le seul endroit où les araignées ne dorment pas."
+		},
+		{
+			"who": "merri",
+			"text": "Pourquoi voudriez-vous passer par le seul endroit où elles ne dorment pas ?"
+		},
+		{
+			"who": "goulum",
+			"text": "Parce que c'est le plus court. Et parce que c'est là que Trempette a laissé quelque chose."
+		},
+		{
+			"set": "col_vu"
+		}
+	],
+	"col_trahison": [
+		{
+			"text": "Le sol change : la roche devient grise, puis blanche, puis soyeuse. On marche sur une couche de fils si serrés qu'ils portent. Autour de la Compagnie, des cocons pendent, longs, immobiles, et l'un d'eux porte encore une botte."
+		},
+		{
+			"who": "sam",
+			"text": "Monsieur Goulûm. Il n'y a rien ici. Il y a seulement beaucoup de choses qui ressemblent à quelqu'un."
+		},
+		{
+			"text": "Goulûm s'est arrêté. Il ne se retourne pas. Dans le silence, il murmure, très bas, quelque chose qui n'est pas pour eux."
+		},
+		{
+			"who": "goulum",
+			"text": "Il l'a. Il l'a, il l'a, il l'a. Il le porte au cou, sur la chaîne, et il le cache à tout le monde, sauf à Trempette."
+		},
+		{
+			"who": "froton",
+			"text": "Goulûm. Que dites-vous ?"
+		},
+		{
+			"who": "goulum",
+			"text": "Rien, rien. Trempette parle tout seul. Il le fait depuis trois cents ans. Il dit : « Les gentils hobbits. Ils sont fatigués. Ils s'endorment. Une petite sieste, dans la soie. » Et la petite sieste fait vingt ans."
+		},
+		{
+			"text": "Il lâche le fil. Au-dessus d'eux, dans la brume, huit yeux s'ouvrent. Goulûm saute de côté, sur une corde qu'il connaît, et disparaît dans la toile en riant, d'un rire étranglé de pêcheur qui a enfin touché au poisson."
+		},
+		{
+			"who": "goulum",
+			"text": "On se retrouve à la cuisine, précieux ! Si vous passez ! Si vous passez !"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une trahison. Il y a tellement de gens qui préviennent, pour finir. Je trouve cela très civil."
+		},
+		{
+			"text": "Les fils se tendent. Des Fileuses descendent, une à une, très lentement, comme des invités en retard."
+		},
+		{
+			"battle": "col_fileuses"
+		},
+		{
+			"set": "goulum_trahi"
+		}
+	],
+	"arachnee_face": [
+		{
+			"text": "Au fond du col, une cavité immense, tendue de soie de la voûte au sol, comme un salon de réception où personne n'a osé s'asseoir. Au milieu, un fauteuil de fils blancs. Et dans le fauteuil, très grosse, très noire, couronnée d'une toque de dentelle, l'Arachnée."
+		},
+		{
+			"text": "Elle est fatiguée. Elle l'est depuis longtemps : ses huit paupières sont lourdes, ses huit pattes pendent, elle bâille. Elle a tissé toute la nuit, et la nuit d'avant, et celle d'encore avant."
+		},
+		{
+			"text": "L'Arachnée : « Un peu de silence, s'il vous plaît. Je n'ai pas dormi depuis la Troisième Ère. Le Maître me demande de tisser, de tisser, de tisser. Je ne fais que cela. »"
+		},
+		{
+			"who": "sam",
+			"text": "Elle est épuisée. Ça se voit à la façon dont elle tient ses fils : elle les serre trop fort, comme une mère qui n'en peut plus."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une araignée qui ne dort pas. Voilà qui est contre nature, et c'est mon rayon."
+		},
+		{
+			"who": "merri",
+			"text": "On ne peut pas passer sans la réveiller, ni la réveiller sans se battre. Qu'est-ce qu'on fait ?"
+		},
+		{
+			"who": "sam",
+			"text": "On la fatigue d'abord. Une araignée fatiguée finit par bâiller. Et quand elle bâille, une berceuse peut faire le reste."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Une berceuse. Évidemment : c'est du rêve, c'est ton rayon, Sam."
+		},
+		{
+			"if": "louche_trouvee",
+			"then": [
+				{
+					"text": "Sam serre la Louche à Glaner. Elle chauffe dans sa main, comme si elle se souvenait des mille marmites qu'elle a bercées."
+				},
+				{
+					"battle": "arachnee"
+				},
+				{
+					"if": "combat_arachnee",
+					"then": [
+						{
+							"text": "L'Arachnée s'affaisse dans son fauteuil. Ses huit paupières se ferment, l'une après l'autre. Elle ronfle, très légèrement, d'un ronflement de toile qui frémit."
+						},
+						{
+							"who": "sam",
+							"text": "Dors, dors. Un fil, deux fils, trois fils. Le reste, on le fera demain."
+						},
+						{
+							"text": "Dans un coin du fauteuil, derrière la dentelle, une porte de soie. Elle s'ouvre, à l'est, sur une odeur de friture. C'est un soupirail."
+						},
+						{
+							"who": "glandoulf",
+							"text": "La cuisine. Je n'ai jamais été aussi content d'avoir peur."
+						},
+						{
+							"set": "arachnee_endormie"
+						},
+						{
+							"action": "save"
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "(Sam sent qu'il lui manque quelque chose : une louche. Les Noyés du marais en gardaient une, dans une caisse.)"
+				}
+			]
+		}
+	],
+	"cuisines_arrivee": [
+		{
+			"text": "La Tour de la Barbaque, par le soupirail. D'abord une chaleur : une chaleur grasse, qui rend les joues luisantes. Puis une odeur : mille repas, dont aucun n'est fini. Puis un bruit : des casseroles, très loin, comme une pluie de fer."
+		},
+		{
+			"text": "Les cuisines du Maître. Des fourneaux alignés à perte de vue, des marmites grandes comme des chambres, des broches où tournent des choses dont on préfère ignorer l'origine. Et partout, en tablier noir, silencieux : les Nazes du Service."
+		},
+		{
+			"who": "merri",
+			"text": "Les Nazes en tablier. Je crois que c'est le plus effrayant que j'aie jamais vu."
+		},
+		{
+			"who": "sam",
+			"text": "Les Nazes cuisent. Je n'aurais jamais imaginé. Ils épluchent avec une application que je ne leur connaissais pas."
+		},
+		{
+			"set": "cuisines_vu"
+		}
+	],
+	"cuisines_goulum": [
+		{
+			"text": "Au centre de la cuisine, une marmite plus grande que les autres, large comme une mare, d'où monte une vapeur qui sent le souvenir. Un escabeau permet d'en voir le fond. Goulûm y est monté. Il est penché au-dessus du bouillon, sa chaîne à la main."
+		},
+		{
+			"who": "froton",
+			"text": "Goulûm. Vous êtes là."
+		},
+		{
+			"text": "Goulûm se retourne. Dans ses yeux, on lit quelque chose de nouveau : non plus la convoitise. Quelque chose comme de la honte, et en dessous, comme de la tendresse."
+		},
+		{
+			"who": "goulum",
+			"text": "Trempette est désolé. Désolé, désolé. Il vous a menés à l'Araignée. Il pensait que vous seriez pris, qu'il pourrait enfin tenir le précieux. Et puis… vous avez chanté. Vous avez chanté une berceuse à une araignée. Personne n'avait fait cela pour Trempette."
+		},
+		{
+			"who": "sam",
+			"text": "Goulûm…"
+		},
+		{
+			"text": "Des pas. Des tabliers noirs, au fond, en file : une brigade de Nazes du Service. Ils ont entendu, ou senti. Ils se rangent, sans un mot, sans un geste de trop, avec une efficacité de salle à manger."
+		},
+		{
+			"who": "goulum",
+			"text": "Allez, allez. Trempette connaît la cuisine. Il y a une porte, au fond, qui donne sur la grande salle. Les Nazes ne regardent que ce qui bouge. Trempette va bouger beaucoup."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Ne faites pas ça."
+		},
+		{
+			"who": "goulum",
+			"text": "Il faut que quelqu'un serve de plat de résistance. Ce sera Trempette. Il a de l'expérience : il a déjà été mangé, en esprit, mille fois."
+		},
+		{
+			"text": "Il se retourne vers les Nazes, grimpe sur le bord de la marmite, écarte les bras, et crie, d'une voix qui ressemble enfin à celle d'un homme."
+		},
+		{
+			"who": "goulum",
+			"text": "Il est à point !"
+		},
+		{
+			"text": "Il saute. Un grand plouf. Une vapeur monte, dorée, très haute, qui sent la sauge et le sel. Les Nazes se précipitent vers la marmite, en désordre, pour la première fois de leur existence. Pendant ce temps, quelqu'un tire Froton par la manche : c'est le moment."
+		},
+		{
+			"text": "Une cuillère en bois flotte à la surface, très droite, comme un salut."
+		},
+		{
+			"who": "froton",
+			"text": "Il avait un poisson cru dans la poche. Je crois qu'il l'a laissé pour nous."
+		},
+		{
+			"who": "glandoulf",
+			"text": "C'est ce qu'il a fait de mieux. Il aura été un très bon plat."
+		},
+		{
+			"set": "goulum_parti"
+		},
+		{
+			"battle": "cuisines_brigade"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"cuisines_serviette": [
+		{
+			"if": "serviette_prise",
+			"then": [
+				{
+					"text": "La caisse est vide, à part une pile de tabliers noirs, parfaitement repassés."
+				}
+			],
+			"else": [
+				{
+					"text": "Une caisse de linge, rangée au carré. Sur le dessus, pliée en trois, une serviette de table blanche brodée d'un blason : une fourchette sur champ de gueules, et la devise « Garde-à-vous ! » en lettres d'argent."
+				},
+				{
+					"who": "merri",
+					"text": "L'Ordre du Garde-à-Vous. C'est le club des serveurs. Tout le monde le connaît, personne n'y est entré, et les Nazes n'y ont jamais été admis."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Si on la porte, on passe pour un serveur. C'est la seule façon d'entrer dans une salle à manger sans être invité."
+				},
+				{
+					"give": "serviette_garde_a_vous"
+				},
+				{
+					"set": "serviette_prise"
+				},
+				{
+					"text": "(Merri glisse la Serviette de l'Ordre du Garde-à-Vous sur son bras. Elle ne protège de rien, sauf du regard des domestiques.)"
+				}
+			]
+		}
+	],
+	"cuisines_poisson": [
+		{
+			"if": "peche_vue",
+			"then": [
+				{
+					"if": "poisson_pris",
+					"then": [
+						{
+							"text": "La chambre froide est vide. Il reste une trace de nageoire, sur le givre."
+						}
+					],
+					"else": [
+						{
+							"text": "Dans la chambre froide, pendu à un crochet, un poisson. Un poisson immense : il a la longueur d'une barque, l'œil d'un bouclier, et une expression de reproche profond. Une étiquette est cousue à sa queue : « Pour le banquet. Ne pas servir avant l'heure. »"
+						},
+						{
+							"who": "sam",
+							"text": "C'est lui. C'est le plus gros poisson du monde. Il est là, il m'attendait. Je le savais."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Il est mort, Sam."
+						},
+						{
+							"who": "sam",
+							"text": "C'est ce qui le rend si calme. Je ne peux pas le prendre. Il pèse comme une marmite. Mais je peux le toucher, et lui dire que je l'ai trouvé."
+						},
+						{
+							"text": "Sam pose la main sur le flanc glacé du poisson, très doucement, avec le respect que l'on doit aux grandes choses. Il ressort avec une écaille, grande comme une assiette."
+						},
+						{
+							"give": "ecaille_geante"
+						},
+						{
+							"set": "poisson_pris"
+						}
+					]
+				}
+			],
+			"else": [
+				{
+					"text": "Une chambre froide. Au fond, pendu à un crochet, quelque chose de très grand, sous une bâche. L'étiquette dit : « Ne pas toucher. »"
+				}
+			]
+		}
+	],
+	"banquet_arrivee": [
+		{
+			"text": "La salle du banquet. Une nef, plus qu'une salle : des tables à perte de vue, des nappes blanches, des lustres d'où pendent des bougies grosses comme des jambons. Et sur les tables, tout. Un rôti en forme de rôti, un pâté en forme de pâté, un pudding en forme d'une chose qui ne devrait pas être servie."
+		},
+		{
+			"text": "Aux tables, des Convives, rangés de part et d'autre : maigres, immobiles, serviette au cou, qui attendent. Ils ne mangent pas encore. Ils sont insatiables : la faim est, pour eux, un état d'âme."
+		},
+		{
+			"who": "merri",
+			"text": "La sortie est derrière le dessert, selon le plan. Il faut traverser la salle, passer les tables, et franchir la brigade des Nazes."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Nous avons une serviette. C'est un début. J'ai déjà pris des armées avec moins."
+		},
+		{
+			"set": "banquet_vu"
+		}
+	],
+	"banquet_service": [
+		{
+			"text": "Un grand Naze en gants blancs, la serviette sur le bras, vient au-devant de vous. Un grand Naze, mais plus grand que les autres : le Maître de Salle. Il vous toise, de son vide de capuche."
+		},
+		{
+			"text": "Le Maître de Salle : « Le personnel arrive en retard. Il est dix-neuf heures. Le premier service commence. Vous prendrez la table sept, et vous vous tiendrez droit. »"
+		},
+		{
+			"if": "serviette_prise",
+			"then": [
+				{
+					"text": "Il remarque la serviette de l'Ordre du Garde-à-Vous. Il s'immobilise, très raide, comme s'il saluait un général."
+				},
+				{
+					"text": "Le Maître de Salle : « … Garde-à-vous. Membre de l'Ordre. Je ne savais pas que l'Ordre envoyait du renfort. Je vous demande pardon. »"
+				}
+			],
+			"else": [
+				{
+					"text": "Le Maître de Salle : « Pas de serviette ? Pas d'Ordre ? Un faux serveur, dans ma salle ? Cela ne s'est jamais vu. Cela ne se reverra pas. »"
+				}
+			]
+		},
+		{
+			"text": "Un grand dîner se prépare. Il faut servir. Il ne s'agit pas de se battre, pas encore : il s'agit d'être, pendant quelques instants, de bons serveurs."
+		},
+		{
+			"choice": [
+				{
+					"text": "Servir le vin, avec le geste.",
+					"then": [
+						{
+							"who": "merri",
+							"text": "Je verse le vin comme on enterre un secret : lentement, et sans en répandre."
+						},
+						{
+							"text": "Le Maître de Salle : « Très bien. Un peu moins de grâce. Les Convives n'aiment pas être regardés. »"
+						}
+					]
+				},
+				{
+					"text": "Servir la soupe, très chaude.",
+					"then": [
+						{
+							"who": "sam",
+							"text": "Je la sers comme chez ma grand-mère : trop, et brûlante, pour que personne ne puisse parler."
+						},
+						{
+							"text": "Les Convives, la bouche cuite, hochent la tête, ravis."
+						}
+					]
+				},
+				{
+					"text": "Servir le dessert à l'avance.",
+					"then": [
+						{
+							"who": "glandoulf",
+							"text": "Je sers le dessert d'abord. C'est la seule façon de ne pas en manquer."
+						},
+						{
+							"text": "Le Maître de Salle ouvre la bouche, la referme. Un Convive, au fond, se met à applaudir, très lentement."
+						}
+					]
+				}
+			]
+		},
+		{
+			"text": "Le Maître de Salle : « Vous servez mieux que les Nazes. Bien mieux. C'est vexant. Je ne l'ai jamais dit à personne : vous êtes de très bons serveurs. »"
+		},
+		{
+			"who": "froton",
+			"text": "Merci. J'aurais voulu être un meilleur invité."
+		},
+		{
+			"text": "Le Maître de Salle : « Hélas. Je dois aussi, malgré cela, vérifier vos titres. L'Ordre le veut. La brigade ! »"
+		},
+		{
+			"battle": "brigade_des_nazes"
+		},
+		{
+			"if": "combat_brigade_des_nazes",
+			"then": [
+				{
+					"text": "Le Maître de Salle s'incline, très bas, très lentement, et son capuchon tombe : dessous, il n'y a rien, mais cela fait un petit bruit de nappe."
+				},
+				{
+					"text": "Le Maître de Salle : « Le service est terminé. Je n'ai plus rien à dire. J'ai à peine de quoi débarrasser. »"
+				},
+				{
+					"who": "merri",
+					"text": "Je crois qu'on vient de gagner un banquet."
+				},
+				{
+					"set": "banquet_servi"
+				},
+				{
+					"action": "save"
+				}
+			]
+		}
+	],
+	"banquet_plan": [
+		{
+			"if": "plan_lu",
+			"then": [
+				{
+					"text": "Sur la table, il reste un rond de verre, et la place où le plan était posé."
+				}
+			],
+			"else": [
+				{
+					"text": "Sur la table du maître d'hôtel, un grand plan, déplié, tenu aux quatre coins par des salières. C'est le plan du banquet : les tables, les services, les sorties. Une annotation, à l'encre rouge : « SORTIE PRINCIPALE : derrière le dessert. Prière de ne pas se tromper de dessert. »"
+				},
+				{
+					"who": "merri",
+					"text": "Là. Derrière le dessert, à l'est : l'escalier des Quatre Mille Marches. C'est par là que montent les plats, pour le Grand Four."
+				},
+				{
+					"who": "glandoulf",
+					"text": "Quatre mille marches. Je n'ai jamais rien eu de moins pressé que de les monter."
+				},
+				{
+					"give": "plan_du_banquet"
+				},
+				{
+					"set": "plan_lu"
+				}
+			]
+		}
+	],
+	"banquet_convive_1": [
+		{
+			"text": "Un Convive, la serviette au cou, le couteau et la fourchette dressés comme deux lances. Il vous regarde avec une immense, une douloureuse, une insatiable attention."
+		},
+		{
+			"text": "Le Convive : « Quand est-ce qu'on mange ? On ne nous dit jamais quand. On nous dit : bientôt. Bientôt, c'est depuis trois siècles. »"
+		}
+	],
+	"banquet_convive_2": [
+		{
+			"text": "Un Convive remue, avec gravité, un verre vide. Il le porte à ses lèvres, avale, repose. Il recommence."
+		},
+		{
+			"text": "Le Convive : « C'est un très bon vin. Je le bois depuis longtemps. Je ne sais plus de quoi il est fait, mais il ne finit jamais. »"
+		}
+	],
+	"marches_depart": [
+		{
+			"text": "L'escalier des Quatre Mille Marches. Il monte, très droit, taillé dans le flanc noir de la Montagne du Festin, par paliers de plus en plus étroits, jusqu'à une lueur rouge, très haut, au-dessus des nuages."
+		},
+		{
+			"text": "Froton s'est assis, au pied de la première marche, très pâle. L'anneau pèse. Il le tient dans sa main fermée. Il ne se plaint pas, et c'est cela qui est inquiétant."
+		},
+		{
+			"who": "froton",
+			"text": "Je peux marcher. Je vous assure que je peux marcher. Je vais seulement… m'asseoir un instant. Encore un instant."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je te porte."
+		},
+		{
+			"who": "sam",
+			"text": "Monsieur Glandoulf ! Vous ne portez jamais rien."
+		},
+		{
+			"who": "glandoulf",
+			"text": "C'est une exception. Je la fais valoir une fois, pour que ce soit noté."
+		},
+		{
+			"text": "Glandoulf charge Froton sur son dos, avec le soupir d'un homme qui compte à l'avance les marches. Il en reste quatre mille. Il se plaindra de chacune, et il aura raison."
+		},
+		{
+			"set": "marches_vue"
+		}
+	],
+	"marches_plainte_1": [
+		{
+			"who": "glandoulf",
+			"text": "Première marche. Elle est basse. Je la déplore, par principe."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Deuxième marche. Elle est identique. Je déplore l'identité."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Troisième… il y en a donc vraiment quatre mille ? Je croyais que c'était une expression."
+		},
+		{
+			"who": "sam",
+			"text": "Courage, monsieur. Ce n'est qu'un petit escalier de quatre mille marches. Ma grand-mère montait ça tous les dimanches, pour aller à la messe."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Elle habitait où, ta grand-mère ?"
+		},
+		{
+			"who": "sam",
+			"text": "Au rez-de-chaussée."
+		},
+		{
+			"set": "plainte_1"
+		}
+	],
+	"marches_plainte_2": [
+		{
+			"who": "glandoulf",
+			"text": "Huit cent quarante-deux. Ou quatre-vingt-quatre, je perds le fil. Je me plains d'avoir perdu le fil."
+		},
+		{
+			"who": "froton",
+			"text": "Glandoulf. Vous n'avez pas à vous plaindre pour moi."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je ne me plains pas pour toi. Je me plains devant toi, ce qui est tout à fait différent : c'est une forme de présence."
+		},
+		{
+			"who": "merri",
+			"text": "Il parle, donc il respire. C'est une bonne nouvelle."
+		},
+		{
+			"set": "plainte_2"
+		}
+	],
+	"marches_plainte_3": [
+		{
+			"who": "glandoulf",
+			"text": "Deux mille. Je crois que j'ai atteint le milieu. Je tiens à ce qu'on m'accorde un titre : Glandoulf le Mi-Chemin."
+		},
+		{
+			"who": "sam",
+			"text": "Je le note. Vous aurez un diplôme à la fin."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je ne veux pas de diplôme à la fin. Je veux un fauteuil, et une personne pour me dire que j'ai raison."
+		},
+		{
+			"who": "froton",
+			"text": "Vous avez raison."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Merci, Froton. Voilà ce que j'appelle un fauteuil."
+		},
+		{
+			"set": "plainte_3"
+		}
+	],
+	"marches_plainte_4": [
+		{
+			"who": "glandoulf",
+			"text": "Trois mille neuf cent quatre-vingt-dix-neuf. Je ne me plains plus : je n'ai plus de souffle. Cela se confirme : la plainte est un luxe de l'oxygène."
+		},
+		{
+			"who": "froton",
+			"text": "Encore une. Une seule. C'est la dernière."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Qu'est-ce que tu en sais ?"
+		},
+		{
+			"who": "froton",
+			"text": "Je le sens. L'anneau. Il sait qu'on arrive. Il est content. Il voudrait qu'on soit là."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Alors, justement, je me plains : c'est mauvais signe, un anneau content."
+		},
+		{
+			"set": "plainte_4"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"marcheur_1": [
+		{
+			"text": "Un Marcheur Infatigable, immobile sur une marche, les genoux raides, les pieds dans des sandales à moitié fondues. Il marche sur place, très lentement, depuis des siècles. Ses yeux disent : « Je voudrais m'asseoir. Je ne peux pas. L'ordre est l'ordre. »"
+		},
+		{
+			"if": "marcheur_1",
+			"then": [
+				{
+					"text": "Le Marcheur est assis. Il pleure d'aise, sans bruit, très calmement."
+				}
+			],
+			"else": [
+				{
+					"who": "sam",
+					"text": "Vous êtes fatigué, n'est-ce pas ? Vous avez l'air d'un homme qui n'a pas dormi depuis la Quatrième Ère."
+				},
+				{
+					"text": "Le Marcheur : « Je dois marcher. L'ordre du Maître : la marche ne s'arrête jamais. Les Quatre Mille Marches doivent être montées, descendues, remontées. »"
+				},
+				{
+					"choice": [
+						{
+							"text": "« Asseyez-vous. Un instant. »",
+							"then": [
+								{
+									"text": "Le Marcheur hésite, immobile, les yeux écarquillés. Puis, très lentement, comme un arbre, il plie les genoux. Il s'assoit sur la marche, tout doucement. Il soupire."
+								},
+								{
+									"text": "Le Marcheur : « Merci. Je n'ai jamais osé. Si vous croisez mes camarades, dites-leur que c'est permis. »"
+								},
+								{
+									"set": "marcheur_1"
+								}
+							]
+						},
+						{
+							"text": "« Continuez. Ne vous dérangez pas. »",
+							"then": [
+								{
+									"text": "Le Marcheur : « Merci de votre compréhension. Je n'ai pas le choix. »"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"if": "marcheur_1",
+			"then": [
+				{
+					"if": "marcheur_2",
+					"then": [
+						{
+							"if": "marcheur_3",
+							"then": [
+								{
+									"set": "marcheurs_assis"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"marcheur_2": [
+		{
+			"text": "Un Marcheur Infatigable, immobile sur une marche, les genoux raides, les pieds dans des sandales à moitié fondues. Il marche sur place, très lentement, depuis des siècles. Ses yeux disent : « Je voudrais m'asseoir. Je ne peux pas. L'ordre est l'ordre. »"
+		},
+		{
+			"if": "marcheur_2",
+			"then": [
+				{
+					"text": "Le Marcheur est assis. Il pleure d'aise, sans bruit, très calmement."
+				}
+			],
+			"else": [
+				{
+					"who": "sam",
+					"text": "Vous êtes fatigué, n'est-ce pas ? Vous avez l'air d'un homme qui n'a pas dormi depuis la Quatrième Ère."
+				},
+				{
+					"text": "Le Marcheur : « Je dois marcher. L'ordre du Maître : la marche ne s'arrête jamais. Les Quatre Mille Marches doivent être montées, descendues, remontées. »"
+				},
+				{
+					"choice": [
+						{
+							"text": "« Asseyez-vous. Un instant. »",
+							"then": [
+								{
+									"text": "Le Marcheur hésite, immobile, les yeux écarquillés. Puis, très lentement, comme un arbre, il plie les genoux. Il s'assoit sur la marche, tout doucement. Il soupire."
+								},
+								{
+									"text": "Le Marcheur : « Merci. Je n'ai jamais osé. Si vous croisez mes camarades, dites-leur que c'est permis. »"
+								},
+								{
+									"set": "marcheur_2"
+								}
+							]
+						},
+						{
+							"text": "« Continuez. Ne vous dérangez pas. »",
+							"then": [
+								{
+									"text": "Le Marcheur : « Merci de votre compréhension. Je n'ai pas le choix. »"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"if": "marcheur_1",
+			"then": [
+				{
+					"if": "marcheur_2",
+					"then": [
+						{
+							"if": "marcheur_3",
+							"then": [
+								{
+									"set": "marcheurs_assis"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"marcheur_3": [
+		{
+			"text": "Un Marcheur Infatigable, immobile sur une marche, les genoux raides, les pieds dans des sandales à moitié fondues. Il marche sur place, très lentement, depuis des siècles. Ses yeux disent : « Je voudrais m'asseoir. Je ne peux pas. L'ordre est l'ordre. »"
+		},
+		{
+			"if": "marcheur_3",
+			"then": [
+				{
+					"text": "Le Marcheur est assis. Il pleure d'aise, sans bruit, très calmement."
+				}
+			],
+			"else": [
+				{
+					"who": "sam",
+					"text": "Vous êtes fatigué, n'est-ce pas ? Vous avez l'air d'un homme qui n'a pas dormi depuis la Quatrième Ère."
+				},
+				{
+					"text": "Le Marcheur : « Je dois marcher. L'ordre du Maître : la marche ne s'arrête jamais. Les Quatre Mille Marches doivent être montées, descendues, remontées. »"
+				},
+				{
+					"choice": [
+						{
+							"text": "« Asseyez-vous. Un instant. »",
+							"then": [
+								{
+									"text": "Le Marcheur hésite, immobile, les yeux écarquillés. Puis, très lentement, comme un arbre, il plie les genoux. Il s'assoit sur la marche, tout doucement. Il soupire."
+								},
+								{
+									"text": "Le Marcheur : « Merci. Je n'ai jamais osé. Si vous croisez mes camarades, dites-leur que c'est permis. »"
+								},
+								{
+									"set": "marcheur_3"
+								}
+							]
+						},
+						{
+							"text": "« Continuez. Ne vous dérangez pas. »",
+							"then": [
+								{
+									"text": "Le Marcheur : « Merci de votre compréhension. Je n'ai pas le choix. »"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"if": "marcheur_1",
+			"then": [
+				{
+					"if": "marcheur_2",
+					"then": [
+						{
+							"if": "marcheur_3",
+							"then": [
+								{
+									"set": "marcheurs_assis"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"marches_haut": [
+		{
+			"text": "Le sommet. Quatre mille et une marches : la dernière est plus haute que les autres, par plaisanterie ou par cruauté. Glandoulf la monte à genoux, avec Froton sur le dos, et le souffle d'un soufflet crevé."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je ne me plaindrai pas. Je le ferai plus tard, par écrit."
+		},
+		{
+			"text": "Devant eux, au bout d'une plate-forme de basalte, la montagne s'ouvre : une immense gueule rouge, d'où monte un vent brûlant. Le Grand Four."
+		},
+		{
+			"who": "merri",
+			"text": "On y est. On est arrivés. C'est beaucoup plus grand que sur le plan."
+		},
+		{
+			"who": "sam",
+			"text": "Ça sent bon. Cela me fait peur."
+		},
+		{
+			"set": "marches_finies"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"mor_repos": [
+		{
+			"text": "Un brasier, un abri, un peu de silence. Le temps de reprendre son souffle."
+		},
+		{
+			"action": "rest"
+		},
+		{
+			"action": "save"
+		}
+	],
+	"four_sauron": [
+		{
+			"text": "Le Grand Four. Une caverne ronde, haute comme une cathédrale, dont le sol est de braise et le plafond de fumée. Au fond, un four : une bouche de fonte, qui souffle, sans arrêt, un air de pain brûlé. Et devant, immobile, très grand, drapé d'un manteau bleu nuit, un homme."
+		},
+		{
+			"text": "Sauron. Seul « Seigneur des Anneaux », par un titre qui lui revient, et qu'il porte avec une lassitude de contremaître. Il ne dit rien. Il laisse la chaleur parler."
+		},
+		{
+			"music": "menace"
+		},
+		{
+			"who": "sauron",
+			"text": "Vous êtes venus. Je vous attendais depuis le dernier chapitre. Entrez, entrez : le four est chaud. Il est toujours chaud. C'est tout le problème."
+		},
+		{
+			"who": "froton",
+			"text": "Sauron."
+		},
+		{
+			"who": "sauron",
+			"text": "Froton Salfait. Vous portez mon anneau. Cela me touche. On ne me rend pas souvent les choses que je prête."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Nous ne l'avons pas apporté pour vous le rendre. Nous l'avons apporté pour le jeter."
+		},
+		{
+			"who": "sauron",
+			"text": "Pourquoi pas ? Mais il y a une autre solution, que personne n'a essayée : me le donner. Je ne vous demande pas de me croire. Je vous demande de réfléchir : que sera le monde, avec un seul Seigneur des Anneaux, un seul, bienveillant, fatigué, à l'heure ?"
+		},
+		{
+			"who": "sauron",
+			"text": "Plus de listes. Plus de Nazes. Plus d'armées. Je dormirais, moi aussi, de temps en temps. Vous avez devant vous un homme qui ne dort plus depuis trois mille ans."
+		},
+		{
+			"who": "sam",
+			"text": "Il est sincère. Il a les yeux d'un homme qui voudrait une tisane."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Les gens les plus dangereux, Sam, ont toujours besoin d'une tisane."
+		},
+		{
+			"who": "sauron",
+			"text": "Un seul geste. Froton. Donnez-le-moi. Je ferai de Bittebourg le plus beau village de l'Ère. Je ne mange pas les villages : je les range."
+		},
+		{
+			"choice": [
+				{
+					"text": "Froton le donne (il hésite, il tend la main).",
+					"then": [
+						{
+							"text": "Froton tend la main. Sa paume tremble. L'anneau brille. Pendant une seconde, très longue, il semble que tout est fini."
+						},
+						{
+							"who": "froton",
+							"text": "Je… non."
+						},
+						{
+							"text": "Il referme les doigts. Sa voix, très faible, très nette, dit : « Il est à moi. Je l'ai porté. Il m'a coûté assez. Je ne vous le donne pas, Sauron. Je ne le donne à personne. »"
+						}
+					]
+				},
+				{
+					"text": "Froton refuse tout de suite.",
+					"then": [
+						{
+							"who": "froton",
+							"text": "Non. Il est lourd, je n'en dormirai plus, mais il est à moi. Je l'ai porté. Je ne le lâche pas."
+						}
+					]
+				}
+			]
+		},
+		{
+			"who": "glandoulf",
+			"text": "Froton ne le lâche pas. Je le sais : c'est le problème. S'il ne le lâche pas, il ne pourra pas le jeter."
+		},
+		{
+			"who": "froton",
+			"text": "Je sais. Je sais."
+		},
+		{
+			"who": "sauron",
+			"text": "Alors, un moment. Voici ce que je propose : nous règlerons cela à l'ancienne."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Un duel ? Je n'en ai jamais fait. Je me suis toujours esquivé, par la sieste."
+		},
+		{
+			"who": "glandoulf",
+			"text": "C'est le moment de le dire, à tous. Pas de ruse. Pas de sieste. Vingt pas : c'est ce que j'ai à faire. Vingt pas, jusqu'à la gueule du Four, avec Froton, avec l'anneau, et je le jette. Vingt pas, et c'est fini."
+		},
+		{
+			"text": "Il pose Froton à terre. Il le soutient par le coude. Ensemble, très lentement, ils font un pas, puis un autre. L'air tremble, le sol rougeoie, des étincelles montent des rainures."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Un. Deux. Trois. Je compte pour ne pas penser. Ça marche très mal."
+		},
+		{
+			"text": "Au dixième pas, une voix, très calme, derrière eux, se met à parler. Non plus celle d'un seigneur. Celle d'un portier."
+		},
+		{
+			"who": "sauron",
+			"text": "Messieurs. Vous ne sortirez pas du Four sans payer. Il y a une consommation minimale."
+		},
+		{
+			"text": "L'air se déchire. Au-dessus du Four, très haut, dans la fumée, quelque chose s'ouvre : une immense paupière de fonte, puis, dessous, un œil. Le Grand Œil de la Barbaque, qui veille sur le Four, et sur les plats, et sur les convives."
+		},
+		{
+			"battle": "grand_oeil"
+		},
+		{
+			"if": "combat_grand_oeil",
+			"then": [
+				{
+					"text": "Le Grand Œil se ferme, très lentement, comme un client qui n'a pas aimé. La fumée retombe. Sauron, en silence, le regarde partir. Il serre les poings. Pour la première fois, il a l'air fatigué."
+				},
+				{
+					"who": "sauron",
+					"text": "Vous avez abîmé mon Œil. Je n'avais que celui-là. Tant pis : je ferai le reste à la main."
+				},
+				{
+					"text": "Il lève le bras. Un manteau noir, bordé de feu, tombe de ses épaules. Dessous, l'armure ne brille plus : elle ronfle, très bas, comme une cuisine qui s'éveille."
+				},
+				{
+					"who": "sauron",
+					"text": "Pleine Vigueur."
+				},
+				{
+					"battle": "sauron_final"
+				},
+				{
+					"if": "combat_sauron_final",
+					"then": [
+						{
+							"text": "Sauron vacille. Ses genoux plient, une fois, deux fois. Il pose la masse, très lentement. Il regarde ses mains, puis le Four, puis Glandoulf."
+						},
+						{
+							"who": "sauron",
+							"text": "C'est drôle. J'ai tout, et je n'ai pas sommeil. Il faut que cela cesse. Est-ce que… vous me prêtez votre manteau ?"
+						},
+						{
+							"who": "glandoulf",
+							"text": "Mon manteau ? Le gris ? Celui qui sent la sieste ?"
+						},
+						{
+							"who": "sauron",
+							"text": "Il sent la paix. Cela fait trois mille ans que je ne l'ai pas respirée."
+						},
+						{
+							"text": "Glandoulf hésite. Il ôte son manteau gris, usé, plein de miettes et de rêves. Il le pose sur les épaules de Sauron. Sauron ferme les yeux. Il s'assoit, très lentement, le dos contre le Four, comme un client épuisé après un banquet."
+						},
+						{
+							"text": "Il s'endort. Son souffle est profond, régulier, très lent. Les braises, autour de lui, baissent d'un ton. Sauron n'est pas mort : il dort. C'est pire pour le Mal, et mieux pour tout le monde."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Voilà. J'ai dit « pas de sieste » à tout le monde, et je viens d'en inventer une pour lui. Je suis un hypocrite et un bienfaiteur : cela s'appelle un mage."
+						},
+						{
+							"set": "sauron_endormi"
+						},
+						{
+							"action": "save"
+						}
+					]
+				}
+			]
+		}
+	],
+	"four_anneau": [
+		{
+			"text": "Il reste dix pas. Il reste l'anneau. Froton, debout au bord du Four, la main tendue au-dessus de la braise, ne lâche pas. Ses doigts tremblent. L'anneau brille, comme une petite promesse."
+		},
+		{
+			"who": "froton",
+			"text": "Je ne peux pas. Je ne veux pas. Je sais que je dois."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Froton. Je t'ai menti."
+		},
+		{
+			"text": "Un silence. Le Four souffle. Froton se tourne, très lentement."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Quand Isidur a gardé l'anneau, je l'ai laissé faire. J'aurais pu l'arrêter. J'ai préféré une sieste. Quand on m'a demandé, j'ai dit : « Il l'a perdu. » Il ne l'avait pas perdu. Je savais qu'il le gardait. Tout ce voyage, c'est ma faute."
+		},
+		{
+			"who": "froton",
+			"text": "Je le savais."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Tu le savais ?"
+		},
+		{
+			"who": "froton",
+			"text": "Depuis Fondue-Combe. Vous avez une manière de ne pas regarder les gens, quand vous mentez. Vous regardez vos pieds. Je n'ai rien dit. Je ne voulais pas que vous arrêtiez de m'accompagner."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Alors… tu me pardonnes ?"
+		},
+		{
+			"who": "froton",
+			"text": "Je vous le dirai en bas. Maintenant, aidez-moi."
+		},
+		{
+			"text": "Glandoulf lui prend la main. Il ne tire pas : il tient, simplement, la main qui tient l'anneau. Et il compte, à voix haute, les vingt pas qu'il n'a jamais faits : le dix-neuvième, le vingtième."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Vingt."
+		},
+		{
+			"text": "Les doigts de Froton s'ouvrent. L'anneau, tout petit, tombe. Il tourne une fois, deux fois, dans la lumière rouge, et il fait : « tic ». Puis il disparaît dans la braise, sans bruit, comme une pièce dans un bouillon."
+		},
+		{
+			"text": "Un instant, rien. Puis la montagne gronde. Le Four se ferme, bouche de fonte qui claque comme une porte. Des fissures courent dans la voûte. La plate-forme tremble. Un morceau du plafond se détache, et tombe sur la table où Sauron, sans le voir, dort d'un sommeil paisible."
+		},
+		{
+			"who": "merri",
+			"text": "La montagne s'effondre ! Elle s'effondre ! Je le savais, j'ai lu le plan, il y avait un chapitre là-dessus !"
+		},
+		{
+			"who": "sam",
+			"text": "Courons ! Monsieur Froton, tenez-vous à moi !"
+		},
+		{
+			"who": "glandoulf",
+			"text": "Courir. Voilà ce que je déteste le plus. Je vais le faire une seule fois. Après, je me mets en grève."
+		},
+		{
+			"text": "Ils courent. Le plafond croule. Les marches s'effondrent derrière eux, une à une, quatre mille, dans un grondement qui n'en finit pas. Au bord du précipice, ils s'arrêtent, essoufflés, entourés de poussière rouge."
+		},
+		{
+			"text": "Et dans le ciel, très haut, quelque chose de grand, de gris, d'ailes très larges, descend en spirale."
+		},
+		{
+			"who": "merri",
+			"text": "Les Aigles ! J'ai rempli le formulaire en avance. Il y a un mois. Je l'ai posté à Bittebourg, en cas de besoin."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Tu as pensé à tout, Merri."
+		},
+		{
+			"who": "merri",
+			"text": "Pas du tout. J'ai pensé aux formulaires. C'est différent."
+		},
+		{
+			"text": "Les Aigles, avec une politesse de transporteurs, saisissent la Compagnie dans leurs serres : l'un Froton, l'autre Sam, le troisième Merri, le quatrième Glandoulf, qui ronchonne en s'envolant. La Montagne du Festin s'enfonce, sous eux, dans un nuage de fumée, tandis que le soleil se lève, pour la première fois depuis longtemps, sans que personne le lui ait demandé."
+		},
+		{
+			"banner": "Chapitre 7 terminé",
+			"sub": "La Montagne du Festin"
+		},
+		{
+			"set": "anneau_jete"
+		},
+		{
+			"set": "chapitre_7_fini"
+		},
+		{
+			"action": "save"
+		},
+		{
+			"action": "va:bittebourg_epilogue:arrivee"
+		}
+	],
+	"epilogue_arrivee": [
+		{
+			"text": "Bittebourg. Quelque temps plus tard. Le village a repris sa place : sur le coteau, entre la rivière et la route, comme un chat qui se rendort."
+		},
+		{
+			"text": "Les bittes, ces gros piquets d'amarrage que l'invasion avait tordus, sont redressées, une à une, avec soin. Quelqu'un a fait des nœuds propres. Le quai sent la peinture fraîche et le poisson."
+		},
+		{
+			"who": "sam",
+			"text": "On est rentrés. Il y a même la table de ma grand-mère. Elle sent le persil."
+		},
+		{
+			"who": "merri",
+			"text": "Je n'ai jamais été aussi content d'un village sans histoire."
+		},
+		{
+			"who": "froton",
+			"text": "Je ne pensais pas revoir la Comté. Je le pensais vraiment, à chaque marche."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je vais maintenant m'asseoir. Je suggère à chacun d'en faire autant. Dans l'ordre que vous voudrez, mais tout de suite."
+		},
+		{
+			"set": "epilogue_vu"
+		},
+		{
+			"action": "groupe:glandoulf"
+		}
+	],
+	"epilogue_aragrogne": [
+		{
+			"text": "Aragrogne est assis au milieu de la place, à une table de bistrot. Il porte la Couronne en Remplacement, un peu de travers. Devant lui, une pile de papiers. Il signe, sans lire, un par un."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Cela fait trois semaines que je règne. Je signe. C'est l'essentiel du métier : on signe, on sourit, on ne lit pas. Dénigror me l'a appris."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Ma signature s'améliore. Hier, un clerc m'a dit qu'elle était presque lisible."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Vous régnez bien."
+		},
+		{
+			"who": "aragrogne",
+			"text": "Je règne en signant. Je ne sais pas faire autre chose, mais personne ne s'en est aperçu."
+		}
+	],
+	"epilogue_digoulasse": [
+		{
+			"who": "digoulasse",
+			"text": "On me demande ce que je fais, maintenant. Je dis que je tiens la porte du village. Il n'y a pas de porte, alors je tiens le trou où elle serait."
+		},
+		{
+			"who": "grimli",
+			"text": "Il y a eu un monde, avant, où il fallait se battre. Je m'y habitue mal. Je crois que je vais ouvrir une forge, et fabriquer des choses qui n'ont pas d'ennemis."
+		}
+	],
+	"epilogue_pepin": [
+		{
+			"who": "pepin",
+			"text": "J'ai ouvert un salon de thé, au bout du quai. On y vient pour la tisane, et on y reste pour les histoires. J'ai déjà quatre habitués. Le cinquième est mort, mais il revient."
+		},
+		{
+			"who": "pepin",
+			"text": "Je vous garde une tasse. Elle est tiède, par principe. Il ne faut jamais brûler un héros."
+		}
+	],
+	"epilogue_sam": [
+		{
+			"who": "sam",
+			"text": "J'ai planté mon jardin devant la maison. Les roses, pour l'œil. Les choux, pour la soupe. Et un rosier, tout au bout, pour la mémoire de monsieur Goulûm. Il pousse mal. Il pousse quand même."
+		},
+		{
+			"if": "poisson_pris",
+			"then": [
+				{
+					"who": "sam",
+					"text": "Et j'ai accroché l'écaille géante au-dessus de la cheminée. Les gens me demandent de quel poisson elle vient. Je réponds : du plus gros. Ils ne me croient pas. C'est ce qui est bon, dans une vérité."
+				}
+			]
+		}
+	],
+	"epilogue_froton": [
+		{
+			"who": "froton",
+			"text": "Je dors bien, maintenant. Je me réveille parfois en cherchant l'anneau, à mon doigt, du côté de la main gauche. Il n'y est plus. J'ai un petit blanc, à la place, qui bronze avec le reste."
+		},
+		{
+			"who": "froton",
+			"text": "Glandoulf m'a pardonné. Je l'ai fait en bas, comme prévu, au pied de la montagne. Il a répondu : « Tant mieux. » Puis il s'est endormi. Je crois que c'est sa façon de dire « de rien »."
+		}
+	],
+	"epilogue_merri": [
+		{
+			"who": "merri",
+			"text": "J'ai rempli le formulaire de retour des Aigles : une page, trois tampons, deux pièces jointes. Ils m'ont répondu qu'on n'avait jamais vu un tel soin. Ils m'ont proposé un poste."
+		},
+		{
+			"who": "merri",
+			"text": "Je refuse. Je préfère rester ici, remplir des formulaires pour d'autres, et les envoyer quand même à personne."
+		}
+	],
+	"epilogue_quai": [
+		{
+			"text": "Au bord du quai, les bittes dressées en rang, comme des soldats de bois. Quelqu'un a gravé, sur la plus grande : « Redressée en l'an un de la Paix. À ne pas retordre. »"
+		}
+	],
+	"epilogue_sarumale": [
+		{
+			"text": "À la porte de la Capitainerie, un homme en robe blanche, très raide, tient un grand registre relié de cuir. C'est Sarumâle, qui n'est plus tout à fait directeur de l'Office, et qui n'est pas encore tout à fait en retraite."
+		},
+		{
+			"who": "sarumale",
+			"text": "Glandoulf. Je vous attendais. Je tiens le registre des siestes de Bittebourg. Un projet personnel. Chaque habitant y inscrit la sienne : date, durée, qualité. Je trouve cela très apaisant, d'avoir enfin des chiffres."
+		},
+		{
+			"who": "glandoulf",
+			"text": "Je n'ai pas de chiffres. J'ai seulement un manteau à reprendre, et une grande envie d'oublier tout ce qui s'est passé."
+		},
+		{
+			"who": "sarumale",
+			"text": "C'est précisément pour cela que le registre existe. Vous êtes, d'après mes calculs, le seul homme du Comté à n'avoir jamais rempli sa ligne. Je vous demande, avec tout le respect de la profession, de bien vouloir inscrire une sieste."
+		},
+		{
+			"choice": [
+				{
+					"text": "« Je préfère attendre un peu. »",
+					"then": [
+						{
+							"who": "sarumale",
+							"text": "Je comprends. Prenez le temps de la réflexion. Il est toujours temps. Le registre n'a pas de date limite : seulement des marges."
+						}
+					]
+				},
+				{
+					"text": "« Inscrivez-moi. Début : maintenant. Durée : jusqu'à ce qu'on me réveille. »",
+					"then": [
+						{
+							"who": "sarumale",
+							"text": "Parfait. J'inscris : « Glandoulf, sieste du Retour, début immédiat, durée indéterminée. Qualité : à vérifier. »"
+						},
+						{
+							"text": "Glandoulf s'assoit sur le banc devant la Capitainerie. Le soleil est bas, doux, la rivière clapote, une bitte craque, très doucement, comme une vieille chaise. Il ferme les yeux."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Le monde est sauvé. Il tient debout. Si quelqu'un a besoin de moi, il me trouvera ici. Je serai ailleurs."
+						},
+						{
+							"text": "Sam étend sur lui, avec précaution, un vieux manteau gris, que les Aigles ont rapporté, après de longues négociations. Froton s'assoit à côté, très calme. Merri note l'heure."
+						},
+						{
+							"text": "Et le village, tout entier, se tait, par politesse, pour ne pas troubler le sommeil de celui qui, en secret, lui a tout sauvé."
+						},
+						{
+							"banner": "Le Seigneur des Anneaux Péniens",
+							"sub": "Fin"
+						},
+						{
+							"set": "registre_signe"
+						},
+						{
+							"chapter": "partie_terminee"
+						},
+						{
+							"action": "generique"
+						}
+					]
+				}
+			]
+		}
+	],
+	"sauron_pnj": [
+		{
+			"if": "sauron_endormi",
+			"then": [
+				{
+					"text": "Sauron dort, le dos contre le Four, sous un manteau gris qui n'est pas le sien. Il a l'air d'un contremaître en retraite. Il ronfle très bas, avec une régularité de soufflet."
+				}
+			],
+			"else": [
+				{
+					"who": "sauron",
+					"text": "Avancez. Je n'aime pas qu'on reste sur le seuil du four. La chaleur s'échappe."
+				}
+			]
+		}
+	]
+}

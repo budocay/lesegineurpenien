@@ -1477,3 +1477,51 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
   généré. Supprimer le fichier rend le son généré. Magie, soins, feu, cris, rots restent synthétisés.
   Crédits : `docs/CREDITS.md`.
 - `tests/_dump_sfx.gd` écrit les sons générés en .wav (pour mesurer durée et niveau avant de remplacer).
+
+## Styles du chapitre 7 : le pays ennemi (Mordgras)
+
+Quatre styles, servis par un seul constructeur (`src/world/mordgras_builder.gd`, peintres dans
+`src/gfx/mordgras_painter.gd`). Le style se choisit par le champ `style` de la carte ; les cartes des
+chapitres précédents ne les touchent pas.
+
+| `style` | Lieu | Sol des abords | Falaises et parois | Décor planté autour |
+|---|---|---|---|---|
+| `"marais"` | Marais du Bouillon d'Onze Heures : vase, planches, roseaux | `mor_vase` | `mor_roche` | arbres morts, roseaux |
+| `"mordgras"` | Passe-Plat, Quatre Mille Marches, Grand Four : basalte noir, cendre, braise | `mor_cendre` | `mor_roche` | piques, lanternes, os |
+| `"toile"` | Col de l'Arachnée : roche grise voilée de soie | `mor_roche` | `mor_roche` | cocons, arbres morts |
+| `"festin"` | Cuisines et salle du banquet de la Tour de la Barbaque | `mor_roche` | `mor_mur_cuisine` | cheminées, marmites |
+
+Dans les intérieurs (`"interior": true`), les murs prennent `wall_tile` (`mor_mur` ou `mor_mur_cuisine`).
+
+**Sols et tuiles (`ground.fills[].type`) :** `mor_planches` (planches mouillées du marais), `mor_vase`,
+`mor_cendre`, `mor_fonte` (dalles de fonte du Grand Four), `mor_toile` (sol de soie), `mor_roche`,
+`mor_carreau` (carrelage des cuisines), `mor_parquet` (parquet du banquet), `mor_marche` (volée de
+marches), `mor_mur`, `mor_mur_cuisine`, `mor_braise`.
+
+**Accessoires (par leur nom, comme tout `PROPS` ; avec `dialogue` ils s'examinent) :** `mor_roseau`
+(2 variantes), `mor_ecriteau` (3), `mor_toile` (2), `mor_fourneau`, `mor_marmite` (2), `mor_table`,
+`mor_chandelier` (lumineux), `mor_cheminee`, `mor_lanterne`, `mor_os`, `mor_cocon` (2), `mor_pique`,
+`mor_broche`, `mor_garde_manger`.
+
+**Objets propres aux styles :**
+
+| `type` | Champs | Rôle |
+|---|---|---|
+| `mor_tour` | `pos`, `size` (4), `height` (9) | tour de basalte aux meurtrières rougeoyantes |
+| `mor_porte` | `pos`, `width` (10), `height` (7), `open` (faux) | la Porte Noire : deux battants de fonte, un guichet rouge |
+| `mor_four` | `pos`, `width` (12), `height` (9) | la gueule du Grand Four : braise, escarbilles, lumière vacillante |
+
+## Fin du jeu : le générique
+
+- Action de dialogue `{"action": "generique"}` : à la fin du dialogue, la partie est marquée
+  terminée (drapeau `partie_terminee`, `chapter` = `"partie_terminee"`), sauvegardée, puis le
+  générique défile sur fond noir.
+- `data/game.json` : `"credits"` est une liste de lignes `[texte, taille, couleur]` (texte vide = espace),
+  `"credits_music"` le morceau joué pendant le défilement.
+- Commandes : le bouton d'action accélère le défilement ; annuler ou menu saute au dernier écran
+  (neuf petits anneaux qui roulent, puis « Fin ») ; au bout, retour à l'écran-titre. Tout se fait à
+  la manette comme au clavier.
+- Les sauvegardes d'une partie finie s'affichent « partie terminée » dans la liste.
+- Un dialogue peut poser `{"chapter": "partie_terminee"}` avant l'action `generique`.
+- Quatre-vingt-dix pour cent de la route du chapitre 7 passe par des actions de dialogue déjà décrites
+  (`groupe:`, `va:`, `save`, `battle`) : voir « Groupe scindé » plus haut.
