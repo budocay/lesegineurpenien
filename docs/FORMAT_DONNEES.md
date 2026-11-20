@@ -188,7 +188,7 @@ par le test `_test_boss_presence`, pour tous les boss des chapitres 1 à 6 : `BO
 plus grande taille qui tient (dichotomie sur `boss_mul`, jusqu'à `BOSS_MUL_MAX`) et, pour chacune, la place
 (décalage vers la caméra et vers le bord) où tout le camp tient, où un passage de `MENU_GAP` px reste libre entre
 le boss et l'équipe pour le menu, et où aucune plaque ne tombe sur le bandeau des touches ; face à un boss, les héros
-sont plus petits (`BOSS_HERO_K`). Une flaque de lumière à la couleur de l'élément du boss (`Actor.set_boss`,
+sont plus petits (`BOSS_HERO_K` au mieux, puis par crans de 0,06 jusqu'à `BOSS_HERO_K_MIN`, 0,62, tant que le boss n'atteint pas 3,0 héros de haut : `boss_present` n'accepte plus d'exception). Une flaque de lumière à la couleur de l'élément du boss (`Actor.set_boss`,
 additive, au sol) souligne sa stature, aussi pour un boss de taille humaine.
 Le bandeau d'annonce du haut passe à la ligne au lieu de passer sous les fiches de l'équipe. Le camp du boss est composé à part (`BattleScene._boss_spots`) : le boss
 se tient en retrait (`BOSS_BACK`), au centre de son camp et jamais collé au bord (`BOSS_AIR`) ; ses
@@ -201,8 +201,11 @@ fois plus gros que ceux des héros. `scale` d'un ennemi (`data/enemies.json`) re
 taille relative aux autres monstres.
 Autres réglages calculés : le pas en avant de
 chaque combattant est réduit au besoin pour ne recouvrir aucun voisin ; les plaques des
-ennemis se placent sous leur sprite visible puis s'écartent entre elles et des sprites
-voisins ; le menu et la liste du héros qui joue cherchent la place libre la plus proche de
+ennemis se placent sous leur sprite visible : sans boss et à deux ennemis ou plus, en une rangée sur une même ligne
+sous le plus bas des pieds (`BattleUI._plates_in_row`), sinon plaque par plaque (`_spread_plates`) ; jamais à moins de
+`PLATE_MARGIN` (12 px) d'un bord, ni sur une autre plaque, un sprite d'ennemi ou un héros ; une plaque écartée de son
+ennemi lui est reliée par un trait fin (`_draw_plate_links`). Le test `_test_all_encounters_staging` (`GLAN_ONLY_PLATES=1`) le
+vérifie pour toutes les rencontres et tous les groupes des tables, à 1280x720 et 1600x900 ; le menu et la liste du héros qui joue cherchent la place libre la plus proche de
 leur position préférée, hors combattants, plaques, fiches, frise, bandeau, aide et premier plan.
 
 Champ facultatif `particles` (liste, vide par défaut) : particules d'ambiance du combat
@@ -665,15 +668,20 @@ ennemis à `sprite.character`.
 ### Boss humains peints en grand (`sprite.monster` = `boss_*`, champ `sprite.portrait`)
 
 Un boss de taille humaine garde sa planche de personnage pour l'exploration, mais en combat il
-reçoit sa propre planche HD (`src/gfx/boss_painter.gd`, quatre poses : repos, respiration,
-attaque, coup reçu) : `boss_sarumale`, `boss_froton`, `boss_grimace`, `boss_gardien`,
-`boss_sauron`, `boss_naze`, `boss_naze_est`, `boss_naze_ouest`, `boss_goulum`. Sur la fiche
+reçoit sa propre planche HD (`src/gfx/boss_painter.gd`, six poses : repos, respiration,
+attaque, coup reçu, sort lancé, à terre ; les monstres à `HD_K` = 6 de `monster_painter.gd` ont ces
+six colonnes, `MonsterPainter.columns_of` et `poses_of`, et la planche annonce ses poses dans `poses` ; les autres en gardent quatre) : `boss_sarumale`, `boss_froton`, `boss_grimace`, `boss_gardien`,
+`boss_sauron`, `boss_naze`, `boss_naze_est`, `boss_naze_ouest`, `boss_goulum`, `boss_uglouk`. Sur la fiche
 d'ennemi : `"sprite": {"monster": "boss_froton", "portrait": "froton_anneaute", "scale": 1.0}` ;
 `portrait` est l'identifiant de personnage dont on affiche le visage dans la frise des tours et
 les plaques (la planche de combat est trop grande pour y être rognée). Chaque pose est dessinée
 dans une case dont les bords restent vides (marge `PAD` ajoutée par `MonsterPainter._render`, et
 `SHIFTX` pour les monstres dont le dessin d'origine débordait) : le test vérifie qu'aucun pixel
 opaque ne touche le bord, pour chaque pose de chaque monstre.
+
+La pose « sort » (colonne 4 : le dessin d'attaque soulevé, entouré d'étoiles) et la pose « à terre » (colonne 5 : le dessin couché, assombri, pieds sur la ligne de sol ; une bête plus large que haute bascule à peine) sont tirées de la pose de repos par `MonsterPainter._cast_fx` et `_slump`. En combat, `Actor._set_pose` les emploie si la planche les annonce, sinon il retombe sur « attaque » et « coup reçu » ; à sa défaite un boss reste à terre une seconde environ avant de s'effacer.
+
+Le shader des sprites (`sprite.gdshader`) a un paramètre d'instance `tame` (1 pour les combattants, réglé par `Actor.set_light`) : il retient les pixels très clairs (`hot`) pour qu'une arène sur-exposée (la lumière forte de l'arène des Pétrins) ne brûle plus la pâte blanche ou les flammes d'un monstre.
 
 ### Coups annoncés (champ `next` d'une entrée de `ai`, état `annonce`)
 

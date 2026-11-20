@@ -58,6 +58,9 @@ var _last_list := {}        # "skill"/"item" -> dernier identifiant choisi
 var _last_enemy := ""
 var _target_frame := -1
 var _time := 0.0
+var _plate_links: Control        # trait de rappel entre une plaque écartée et les pieds de son ennemi
+var _link_pairs: Array = []      # [[pied, plaque (haut, milieu)], ...] à tracer
+const PLATE_MARGIN := 12.0       # une plaque ne s'approche jamais à moins de tant de pixels d'un bord de l'écran
 var _plate_in_sig := 0           # signature des entrées du placement des plaques
 var _plate_spots: Dictionary = {}   # dernières places trouvées
 var _plate_sig := 0           # signature des places de plaques au dernier réglage du premier plan
@@ -275,6 +278,12 @@ func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 	visible = true
 	for c: RefCounted in engine.party:
 		_rows[c.key] = _make_row(c)
+	_plate_links = Control.new()   # (derrière les plaques : le trait qui relie une plaque écartée à son ennemi)
+	_plate_links.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_plate_links.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_plate_links.draw.connect(_draw_plate_links)
+	_overlay.add_child(_plate_links)
+	_link_pairs = []
 	for c: RefCounted in engine.enemies:
 		_plates[c.key] = _make_plate(c)
 	for _i in 8:
@@ -1431,7 +1440,7 @@ func _layout_plates() -> void:
 	# les ennemis les plus proches de la caméra choisissent d'abord ; chaque plaque prend la place libre la plus
 	# proche de son point d'attache (sous les pieds) : ni sur une plaque déjà posée, ni sur un sprite, ni sous le
 	# bandeau des rappels de touches (recherche refaite seulement quand les entrées changent)
-	var isig := hash([keys, rects.values(), own.values(), view])
+	var isig := hash([keys, rects.values(), own.values(), view, _menu_home(view)])
 	if isig != _plate_in_sig:
 		_plate_in_sig = isig
 		_plate_spots = _spread_plates(keys, rects, own, view)
@@ -1439,9 +1448,19 @@ func _layout_plates() -> void:
 		if _plate_spots.has(k):
 			rects[k] = _plate_spots[k]
 	var placed: Array[Rect2] = []
+	var pairs: Array = []
 	for k: String in keys:
 		((_plates[k] as Dictionary)["root"] as Control).position = (rects[k] as Rect2).position.round()
-		placed.append(Rect2((rects[k] as Rect2).position.round(), (rects[k] as Rect2).size))
+		var pr := Rect2((rects[k] as Rect2).position.round(), (rects[k] as Rect2).size)
+		placed.append(pr)
+		var body: Rect2 = own[k]
+		var foot := Vector2(body.get_center().x, body.end.y + 2.0)
+		if absf(pr.get_center().x - foot.x) > 40.0 or pr.position.y - foot.y > 26.0:   # plaque écartée : un trait la relie à son ennemi
+			pairs.append([foot, Vector2(clampf(foot.x, pr.position.x + 10.0, pr.end.x - 10.0), pr.position.y + 1.0)])
+	if pairs != _link_pairs:
+		_link_pairs = pairs
+		if _plate_links != null:
+			_plate_links.queue_redraw()
 	# le premier plan flou se range autour des plaques, jamais dessus (refait quand elles bougent)
 	var sig := hash(placed.map(func(r: Rect2) -> Vector2i: return Vector2i(r.position)))
 	if sig != _plate_sig:
@@ -1449,16 +1468,87 @@ func _layout_plates() -> void:
 		scene.refit_foreground(placed)
 
 
+## Trait fin entre les pieds d'un ennemi et sa plaque quand elle n'est pas juste dessous.
+func _draw_plate_links() -> void:
+	for pair: Array in _link_pairs:
+		var a: Vector2 = pair[0]
+		var b: Vector2 = pair[1]
+		_plate_links.draw_line(a, b, Color(0.04, 0.03, 0.07, 0.8), 4.0, true)
+		_plate_links.draw_line(a, b, Color(0.92, 0.88, 0.78, 0.85), 1.5, true)
+		_plate_links.draw_circle(a, 3.0, Color(0.92, 0.88, 0.78, 0.9))
+
+
+## Plaques en rangée : sans boss, les plaques de tous les ennemis se posent sur une même ligne sous le plus bas des
+## pieds, dans l'ordre de gauche à droite de leurs ennemis (au plus près de chacun, jamais à moins de PLATE_MARGIN d'un
+## bord). Renvoie {} si la rangée ne tient pas (trop large, trop basse, sur une pose d'un héros) : on cherche alors
+## plaque par plaque (_spread_plates).
+func _plates_in_row(keys: Array, rects: Dictionary, own: Dictionary, view: Vector2) -> Dictionary:
+	var order: Array = keys.duplicate()
+	order.sort_custom(func(a: String, b: String) -> bool: return (own[a] as Rect2).get_center().x < (own[b] as Rect2).get_center().x)
+	var y := 0.0
+	var y_min := INF
+	var h := 0.0
+	for k: String in order:
+		y = maxf(y, (own[k] as Rect2).end.y + 8.0)
+		y_min = minf(y_min, (own[k] as Rect2).end.y + 8.0)
+		h = maxf(h, (rects[k] as Rect2).size.y)
+	if y - y_min > 60.0:
+		return {}   # des ennemis étagés en profondeur : une rangée ferait des traits de rappel longs et obliques
+	if y + h > view.y - PLATE_MARGIN:
+		return {}
+	var gap := 16.0
+	var xs: Array[float] = []
+	var prev_end := PLATE_MARGIN - gap
+	for k: String in order:
+		var r: Rect2 = rects[k]
+		var x := maxf((own[k] as Rect2).get_center().x - r.size.x * 0.5, prev_end + gap)
+		xs.append(x)
+		prev_end = x + r.size.x
+	var next_x := view.x - PLATE_MARGIN + gap   # (passe arrière : ce qui dépasse à droite se décale vers la gauche)
+	for i in range(order.size() - 1, -1, -1):
+		var w: float = (rects[order[i]] as Rect2).size.x
+		xs[i] = minf(xs[i], next_x - gap - w)
+		next_x = xs[i]
+	if xs[0] < PLATE_MARGIN - 0.5:
+		return {}
+	var out: Dictionary = {}
+	var zone: Rect2 = scene.keys_band(view)
+	for i in order.size():
+		var r := Rect2(Vector2(xs[i], y), (rects[order[i]] as Rect2).size)
+		if r.intersects(zone):
+			return {}
+		for hh: RefCounted in engine.party:
+			if r.intersects(scene._play_rect(hh)):
+				return {}
+		out[order[i]] = r
+	return out
+
+
+## Rectangle où le menu de l'acteur courant s'ouvre en premier (à sa gauche, à hauteur de son centre) ; vide sans menu.
+func _menu_home(view: Vector2) -> Rect2:
+	if _menu_box == null or not _menu_box.visible or _actor == null or scene == null:
+		return Rect2()
+	var c: Vector2 = scene.screen_point(_actor, "center")
+	var stepped: Rect2 = scene.screen_rect(_actor, true)
+	var rs := _root_panel.size
+	return Rect2(Vector2(stepped.position.x - 24.0 - rs.x, c.y - 96.0), Vector2(rs.x, rs.y + 14.0)).grow(6.0)
+
+
 ## Place les plaques des ennemis (voir _layout_plates) : recherche sur une grille de la place libre la plus proche.
 func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vector2) -> Dictionary:
+	if scene.boss == null and keys.size() >= 2 and keys.size() <= 4:
+		var row := _plates_in_row(keys, rects, own, view)
+		if not row.is_empty():
+			return row
 	var order: Array = keys.duplicate()
 	order.sort_custom(func(a: String, b: String) -> bool: return (own[a] as Rect2).end.y > (own[b] as Rect2).end.y)
 	var heroes: Array[Rect2] = []
 	for h: RefCounted in engine.party:
-		heroes.append(scene.screen_rect(h))
+		heroes.append(scene._play_rect(h))   # (dans toutes ses poses : le pas en avant et les coups compris)
 	var keys_zone: Rect2 = scene.keys_band(view)
 	var out: Dictionary = {}
 	var taken: Array[Rect2] = []
+	var menu_home := _menu_home(view)   # la place où le menu de l'acteur s'ouvre d'abord : les plaques la laissent libre
 	for k: String in order:
 		var base: Rect2 = rects[k]
 		var best := base
@@ -1469,7 +1559,7 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 				var cost := float(dx * dx) * 0.6 + float(dy * dy) * (0.5 if dy < 0 else 1.0)
 				if cost >= best_cost:
 					continue
-				if r.position.x < 6.0 or r.end.x > view.x - 6.0 or r.position.y < 6.0 or r.end.y > view.y - 6.0 or r.intersects(keys_zone):
+				if r.position.x < PLATE_MARGIN or r.end.x > view.x - PLATE_MARGIN or r.position.y < PLATE_MARGIN or r.end.y > view.y - PLATE_MARGIN or r.intersects(keys_zone):
 					continue
 				var bad := false
 				for t: Rect2 in taken:
@@ -1481,10 +1571,12 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 				for o: String in keys:
 					var orect: Rect2 = own[o]
 					if minf(orect.size.x, orect.size.y) > 8.0:
-						orect = orect.grow(-4.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
-					if o != k and r.intersects(orect):
+						orect = orect.grow(-3.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
+					if r.intersects(orect):   # (le sprite de la plaque compris : une plaque ne remonte pas sur son propre ennemi)
 						bad = true
 						break
+				if menu_home.size.x > 0.0 and r.intersects(menu_home):
+					continue
 				if bad:
 					continue
 				for hr: Rect2 in heroes:
@@ -1495,8 +1587,8 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 					continue
 				best = r
 				best_cost = cost
-		best.position.x = clampf(best.position.x, 6.0, maxf(6.0, view.x - best.size.x - 6.0))
-		best.position.y = clampf(best.position.y, 6.0, maxf(6.0, view.y - best.size.y - 6.0))
+		best.position.x = clampf(best.position.x, PLATE_MARGIN, maxf(PLATE_MARGIN, view.x - best.size.x - PLATE_MARGIN))
+		best.position.y = clampf(best.position.y, PLATE_MARGIN, maxf(PLATE_MARGIN, view.y - best.size.y - PLATE_MARGIN))
 		out[k] = best
 		taken.append(best)
 	return out

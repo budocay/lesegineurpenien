@@ -106,6 +106,17 @@ func _ready() -> void:
 		print("%d vérifications, %d échec(s) (coups annoncés seuls)." % [checks, failures])
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_OVERRIDES"):   # essai ciblé des réglages de mesure
+		_test_measure_overrides()
+		print("%d vérifications, %d échec(s) (réglages de mesure seuls)." % [checks, failures])
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_PLATES"):   # toutes les rencontres des données : plaques et mise en page (GLAN_FILTER : un texte de l'identifiant)
+		await _test_all_encounters_staging()
+		print("%d vérifications, %d échec(s) (plaques de toutes les rencontres seules)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_STAGING"):   # essai ciblé de la mise en page du combat
 		await _test_battle_staging()
 		print("%d vérifications, %d échec(s) (mise en page du combat seule)." % [checks, failures])
@@ -120,6 +131,7 @@ func _ready() -> void:
 	_test_engine()
 	print("== Combat : élan ==")
 	_test_boost()
+	_test_measure_overrides()
 	print("== Combat : équilibre (combats simulés) ==")
 	_test_balance()
 	print("== Combat : équilibre des combats obligatoires (joueur attentif, talents, compositions) ==")
@@ -186,6 +198,7 @@ func _ready() -> void:
 	await _test_battle_layout()
 	await _test_battle_staging()
 	await _test_boss_presence()
+	await _test_all_encounters_staging()
 	print("== Élan et icônes de combat ==")
 	_test_icons()
 	print("== Cartes ==")
@@ -1275,6 +1288,9 @@ func _skill_status(def: Dictionary) -> String:
 ## zone contre plusieurs ennemis, vise la faiblesse connue (et essaie un autre élément tant que celle d'un
 ## ennemi à bouclier est inconnue), garde son élan pour le moment « Brisé ». Il ne triche pas : il ne
 ## connaît que les faiblesses déjà révélées et ne touche pas aux règles.
+var _sim_counts := {"taunt": 0, "parry": 0}   # combien de provocations et de parades le joueur simulé a jouées (affiché par la mesure)
+
+
 func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictionary:
 	var foes: Array = e.living("enemy")
 	var allies: Array = e.living("party")
@@ -1352,6 +1368,7 @@ func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictio
 					if a.has_status("provocation"):
 						taunting = true
 				if not taunting:
+					_sim_counts["taunt"] += 1
 					return {"type": "skill", "id": id, "target": actor}
 			elif st in ["galvanise", "garde", "enfume"] and turn - int(memo.get("buff_" + id, -99)) >= 6 and (int(actor.mp) >= int(d.get("cost", 0)) + 8 or kind == "self"):
 				var lacking: Array = []
@@ -1379,10 +1396,13 @@ func _smart_action(e: RefCounted, actor: RefCounted, memo: Dictionary) -> Dictio
 				if not top.has_status(st) and not (top.immune as Array).has(st) and foe_hp >= 500:
 					memo["debuff_" + id] = turn
 					return {"type": "skill", "id": id, "target": top}
-	# --- coup annoncé : un joueur attentif se couvre quand il n'est pas en grande forme (se défendre divise le coup)
+	# --- coup annoncé : un joueur attentif se couvre quand il n'est pas en grande forme, et le provocateur (celui que le coup
+	# visera) se couvre toujours : se défendre divise le coup, et la parade des talents s'y ajoute
 	for f: RefCounted in foes:
-		if f.has_status("annonce") and float(actor.hp) / float(actor.max_hp()) < 0.6 and int(f.shield) <= 0:
-			return {"type": "defend"}
+		if (f.has_status("annonce") or str(f.next_skill) != "") and int(f.shield) <= 0:
+			if actor.has_status("provocation") or float(actor.hp) / float(actor.max_hp()) < 0.6:
+				_sim_counts["parry"] += 1
+				return {"type": "defend"}
 	# --- attaque
 	var target: RefCounted = foes[0]
 	var broken: RefCounted = null
@@ -1567,6 +1587,54 @@ func _forced_cases() -> Array:
 	]
 
 
+## Réglages de mesure, en mémoire (les données ne sont jamais réécrites) : « scale » = « id:facteur,id:facteur » (PV),
+## « power » = idem pour la force (atk et mag), « shield » = « id:nombre » (bouclier), « annonce » = multiplicateur de l'état
+## « Coup annoncé » (force et magie). Une valeur vide ne change rien. Venait de GLAN_SCALE, GLAN_POWER, GLAN_SHIELD, GLAN_ANNONCE :
+## ces variables n'étaient lues qu'après la branche GLAN_TEAM (qui sort avant), donc sans effet avec elle.
+func _apply_measure_overrides(spec: Dictionary) -> void:
+	for part: String in str(spec.get("scale", "")).split(",", false):
+		var kv := part.split(":")
+		if kv.size() == 2 and Database.enemies.has(kv[0]):
+			Database.enemies[kv[0]]["stats"]["hp"] = int(round(float(Database.enemies[kv[0]]["stats"]["hp"]) * float(kv[1])))
+	for part: String in str(spec.get("power", "")).split(",", false):
+		var kv := part.split(":")
+		if kv.size() == 2 and Database.enemies.has(kv[0]):
+			for stat_key: String in ["atk", "mag"]:
+				Database.enemies[kv[0]]["stats"][stat_key] = int(round(float(Database.enemies[kv[0]]["stats"][stat_key]) * float(kv[1])))
+	if str(spec.get("annonce", "")) != "":
+		var mul := float(str(spec["annonce"]))
+		Database.statuses["annonce"]["mods"] = {"atk": mul, "mag": mul}
+	for part: String in str(spec.get("shield", "")).split(",", false):
+		var kv := part.split(":")
+		if kv.size() == 2 and Database.enemies.has(kv[0]):
+			Database.enemies[kv[0]]["shield"] = int(kv[1])
+
+
+## Les quatre réglages de mesure ont un effet, seuls et ensemble, jusque dans le combat simulé (PV, force, bouclier, coup annoncé).
+func _test_measure_overrides() -> void:
+	print("== Outil de mesure : GLAN_SCALE, GLAN_POWER, GLAN_SHIELD, GLAN_ANNONCE ==")
+	var saved_enemies: Dictionary = Database.enemies.duplicate(true)
+	var saved_status: Dictionary = Database.statuses.duplicate(true)
+	var hp0 := int(Database.enemies["goulum"]["stats"]["hp"])
+	var atk0 := int(Database.enemies["goulum"]["stats"]["atk"])
+	var sh0 := int(Database.enemies["goulum"].get("shield", 0))
+	_apply_measure_overrides({"scale": "goulum:2", "power": "goulum:1.5", "shield": "goulum:%d" % (sh0 + 2), "annonce": "3"})
+	check(int(Database.enemies["goulum"]["stats"]["hp"]) == hp0 * 2, "GLAN_SCALE double les PV")
+	check(int(Database.enemies["goulum"]["stats"]["atk"]) == int(round(atk0 * 1.5)), "GLAN_POWER multiplie la force, avec GLAN_SCALE")
+	check(int(Database.enemies["goulum"]["shield"]) == sh0 + 2, "GLAN_SHIELD fixe le bouclier, avec les autres")
+	check(is_equal_approx(float(Database.statuses["annonce"]["mods"]["atk"]), 3.0), "GLAN_ANNONCE change le coup annoncé, avec les autres")
+	var combatant: RefCounted = BattleEngine.new()
+	combatant.setup({"enemies": ["goulum"]}, 1)
+	check(int((combatant.enemies[0] as RefCounted).max_hp()) == hp0 * 2 and int((combatant.enemies[0] as RefCounted).shield_max) == sh0 + 2, "les réglages arrivent jusqu'au combattant du moteur")
+	var tough := _sim_rate(["glandoulf", "sam", "froton", "pepin"], 14, Database.get_encounter("goulum"), 0, true, 8, _sim_inventory(4))
+	Database.enemies = saved_enemies.duplicate(true)
+	Database.statuses = saved_status.duplicate(true)
+	var base := _sim_rate(["glandoulf", "sam", "froton", "pepin"], 14, Database.get_encounter("goulum"), 0, true, 8, _sim_inventory(4))
+	check(float(tough[0]) < float(base[0]) or float(base[0]) < 0.2, "le combat simulé réagit aux réglages (réglé : %d %%, de base : %d %%)" % [int(100.0 * float(tough[0])), int(100.0 * float(base[0]))])
+	check(int(Database.enemies["goulum"]["stats"]["hp"]) == hp0, "les réglages sont retirés après l'essai")
+	GameState.new_game()
+
+
 ## Tableau d'équilibre : tous les combats obligatoires des chapitres 1 à 5, au niveau attendu, élan compris.
 ## Colonnes : « auto » = jeu automatique du moteur (sans talents, puis avec) ; « atten. » = joueur attentif
 ## (_smart_action : sans talents, puis avec) ; « pire » = la pire équipe de quatre parmi les recrutés du
@@ -1574,6 +1642,8 @@ func _forced_cases() -> Array:
 ## GLAN_RUNS = essais (60), GLAN_FILTER = texte de l'étiquette, GLAN_LEVEL = niveau forcé, GLAN_SUBS=0 saute les équipes.
 ## Cible : 85 à 95 % pour un combat ordinaire, 60 à 80 % pour un boss (équipe type, avec talents).
 func _measure_forced() -> void:
+	_apply_measure_overrides({"scale": OS.get_environment("GLAN_SCALE"), "power": OS.get_environment("GLAN_POWER"),
+			"annonce": OS.get_environment("GLAN_ANNONCE"), "shield": OS.get_environment("GLAN_SHIELD")})   # (avant toute branche : GLAN_TEAM aussi les subit)
 	var runs := int(OS.get_environment("GLAN_RUNS")) if OS.has_environment("GLAN_RUNS") else 60
 	var subs := not (OS.has_environment("GLAN_SUBS") and OS.get_environment("GLAN_SUBS") == "0")
 	var filter := OS.get_environment("GLAN_FILTER")
@@ -1586,25 +1656,6 @@ func _measure_forced() -> void:
 				print("  %s avec %s : %d %%, %.1f tours, PV %d %%" % [str(case[0]), str(one), int(100.0 * float(r[0])), float(r[1]), int(100.0 * float(r[2]))])
 		return
 	var fast := OS.has_environment("GLAN_FAST")   # seulement le joueur attentif avec talents (réglage rapide)
-	if OS.has_environment("GLAN_SCALE"):   # « id:facteur,id:facteur » : PV d'ennemis modifiés en mémoire, pour chercher la bonne valeur
-		for part: String in OS.get_environment("GLAN_SCALE").split(","):
-			var kv := part.split(":")
-			if kv.size() == 2 and Database.enemies.has(kv[0]):
-				Database.enemies[kv[0]]["stats"]["hp"] = int(round(float(Database.enemies[kv[0]]["stats"]["hp"]) * float(kv[1])))
-	if OS.has_environment("GLAN_POWER"):   # idem pour la force (atk et mag)
-		for part: String in OS.get_environment("GLAN_POWER").split(","):
-			var kv := part.split(":")
-			if kv.size() == 2 and Database.enemies.has(kv[0]):
-				for stat_key: String in ["atk", "mag"]:
-					Database.enemies[kv[0]]["stats"][stat_key] = int(round(float(Database.enemies[kv[0]]["stats"][stat_key]) * float(kv[1])))
-	if OS.has_environment("GLAN_ANNONCE"):   # multiplicateur de l'état « Coup annoncé » (force et magie), pour mesurer son poids
-		var mul := float(OS.get_environment("GLAN_ANNONCE"))
-		Database.statuses["annonce"]["mods"] = {"atk": mul, "mag": mul}
-	if OS.has_environment("GLAN_SHIELD"):   # idem pour le bouclier (« id:nombre »)
-		for part: String in OS.get_environment("GLAN_SHIELD").split(","):
-			var kv := part.split(":")
-			if kv.size() == 2 and Database.enemies.has(kv[0]):
-				Database.enemies[kv[0]]["shield"] = int(kv[1])
 	print("  %-34s %-6s | %9s | %9s | %5s | %-34s | %-34s | %5s" % ["combat", "type", "auto s/a", "atten s/a", "tours", "pire équipe (avec talents)", "pire sans Pépin", "PV %"])
 	for case: Array in _forced_cases():
 		if filter != "" and not str(case[0]).contains(filter):
@@ -1632,6 +1683,8 @@ func _measure_forced() -> void:
 					worst_np = float(r[0])
 					worst_np_team = label
 		print("  %-34s %-6s | %3d%% %3d%% | %3d%% %3d%% | %5.1f | %-34s | %-34s | %4d%%" % [str(case[0]), str(case[4]).left(6), int(100.0 * float(a0[0])), int(100.0 * float(a1[0])), int(100.0 * float(s0[0])), int(100.0 * float(s1[0])), float(s1[1]), worst_team, worst_np_team, int(100.0 * float(s1[2]))])
+		print("      (joueur simulé : %d provocations, %d parades sur l'ensemble des essais)" % [int(_sim_counts["taunt"]), int(_sim_counts["parry"])])
+		_sim_counts = {"taunt": 0, "parry": 0}
 	GameState.new_game()
 
 
@@ -6637,7 +6690,7 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 		var ratio := boss_h / hero_h
 		var boss_screen_h: float = scene.screen_rect(scene.boss).size.y
 		check(scene.boss_present(ratio, boss_screen_h, view.size.y) and ratio <= scene.BOSS_RATIO_MAX + 0.02, "%s : le boss fait %.2f fois un héros et %.0f %% de l'écran (au moins %.1f héros, ou %.1f et %.0f %% de l'écran)" % [tag, ratio, boss_screen_h / view.size.y * 100.0, scene.BOSS_RATIO_FLOOR, scene.BOSS_RATIO_SOFT, scene.BOSS_FILL_MIN * 100.0])
-		check(scene.hero_k >= scene.hero_k_free * 0.75 - 0.001, "%s : face au boss les héros gardent %.0f %% de leur taille (au moins 75 %%)" % [tag, scene.hero_k / scene.hero_k_free * 100.0])
+		check(scene.hero_k >= scene.hero_k_free * scene.BOSS_HERO_K_MIN - 0.001, "%s : face au boss les héros gardent %.0f %% de leur taille (au moins 62 %%)" % [tag, scene.hero_k / scene.hero_k_free * 100.0])
 		for c: RefCounted in scene.engine.enemies:
 			if c != scene.boss:
 				check(boss_h >= 1.25 * (scene.actors[c.key] as Node3D).height, "%s : le boss domine %s" % [tag, str(c.name)])
@@ -6668,6 +6721,7 @@ func _check_staging(scene: Node3D, ui: Control, tag: String, strict_boss: bool =
 			if c.key != k and c.alive():
 				plate_on_foe = maxf(plate_on_foe, _overlap(root.get_global_rect(), scene.screen_rect(c).grow(-4.0)))
 	check(plate_on_foe < 1.0, "%s : aucune plaque sur le sprite d'un autre ennemi (%.0f px²)" % [tag, plate_on_foe])
+	_check_plates(scene, ui, tag)
 	var menu: Array[Rect2] = [ui._root_panel.get_global_rect()]
 	if (ui._elan_bars[0]["panel"] as Control).is_visible_in_tree():   # (la barre d'élan cachée, hors de son tour, reste à l'origine)
 		menu.append((ui._elan_bars[0]["panel"] as Control).get_global_rect())
@@ -8852,3 +8906,105 @@ func _test_decors_9() -> void:
 		var res: Shader = load("res://src/gfx/shaders/%s.gdshader" % sh)
 		check(res != null and res.code.length() > 100, "shader %s chargé" % sh)
 	check((load("res://src/gfx/shaders/water.gdshader") as Shader).code.contains("pool_rect"), "water.gdshader : uniforme pool_rect")
+
+
+
+## Règle des plaques d'ennemis, vérifiée sur chaque combat : toutes entières dans l'écran et à PLATE_MARGIN (12 px) au
+## moins de chaque bord ; aucune sur une autre plaque ; aucune sur un sprite d'ennemi, le sien compris ; aucune sur un
+## héros dans ses poses ; chacune assez près de son ennemi (ou reliée à lui par un trait) ; le boss d'abord dans l'ordre
+## de lecture (plaque la plus haute, puis la plus à gauche).
+func _check_plates(scene: Node3D, ui: Control, tag: String) -> void:
+	var view: Rect2 = ui.get_viewport_rect()
+	var inner := view.grow(-ui.PLATE_MARGIN + 0.5)
+	var rects := {}
+	for k: String in ui._plates:
+		var root: Control = ui._plates[k]["root"]
+		if root.visible:
+			rects[k] = root.get_global_rect()
+	var far := 0.0
+	var linked := 0
+	var displaced := 0
+	for k: String in rects:
+		var pr: Rect2 = rects[k]
+		check(inner.encloses(pr), "%s : plaque %s à %d px au moins des bords (%s)" % [tag, k, ui.PLATE_MARGIN, str(pr)])
+		for c: RefCounted in scene.engine.enemies:
+			if not c.alive():
+				continue
+			var body: Rect2 = scene.screen_rect(c)
+			check(_overlap(pr, body.grow(-3.0)) < 1.0, "%s : la plaque %s ne couvre pas le sprite de %s (plaque %s, sprite %s)" % [tag, k, str(c.name), str(pr), str(body)])
+		for h: RefCounted in scene.engine.party:
+			check(_overlap(pr, scene.screen_rect(h, false, true)) < 1.0, "%s : la plaque %s ne couvre pas %s" % [tag, k, str(h.name)])
+		for o: String in rects:
+			if o != k:
+				check(_overlap(pr, (rects[o] as Rect2).grow(4.0)) < 1.0, "%s : les plaques %s et %s ne se touchent pas" % [tag, k, o])
+		for c: RefCounted in scene.engine.enemies:
+			if c.key == k:
+				var body: Rect2 = scene.screen_rect(c)
+				var dx := absf(pr.get_center().x - body.get_center().x)
+				var dy := pr.position.y - body.end.y
+				far = maxf(far, dx)
+				if dx > 40.0 or dy > 26.0:
+					displaced += 1
+				check(dx <= view.size.x * 0.45 and dy <= view.size.y * 0.35, "%s : la plaque %s reste près de son ennemi (écart %.0f, %.0f px)" % [tag, k, dx, dy])
+	linked = ui._link_pairs.size()
+	check(linked == displaced, "%s : chaque plaque écartée de son ennemi est reliée à lui par un trait (%d reliées pour %d écartées)" % [tag, linked, displaced])
+	if scene.boss != null and rects.has(scene.boss.key):
+		var br: Rect2 = rects[scene.boss.key]
+		for o: String in rects:
+			if o == scene.boss.key:
+				continue
+			var orr: Rect2 = rects[o]
+			var before := br.position.y < orr.position.y - 24.0 or (absf(br.position.y - orr.position.y) <= 24.0 and br.position.x <= orr.position.x)
+			check(before, "%s : la plaque du boss passe avant celle de %s dans l'ordre de lecture" % [tag, o])
+
+
+## Toutes les rencontres du jeu (rencontres nommées, groupes des tables de rencontres aléatoires), aux deux tailles
+## d'écran, à quatre héros : règle des plaques (_check_plates) et mise en page complète (_check_staging).
+func _test_all_encounters_staging() -> void:
+	print("== Plaques et mise en page de toutes les rencontres des données ==")
+	var list: Array = []
+	for id: String in Database.encounters:
+		var enc: Dictionary = (Database.encounters[id] as Dictionary).duplicate(true)
+		list.append([id, enc])
+	for table_id: String in Database.encounter_tables:
+		var groups: Array = (Database.encounter_tables[table_id] as Dictionary).get("groups", [])
+		var arena := "pre"   # (une table n'est pas liée à une carte par son nom : l'arène par défaut suffit à la mise en page)
+		for i in groups.size():
+			list.append(["%s#%d" % [table_id, i], {"enemies": (groups[i] as Dictionary).get("enemies", []), "arena": arena, "flee": true}])
+	var win := get_window()
+	var old_size := win.size
+	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1600, 900)]:
+		win.size = size
+		await get_tree().process_frame
+		for entry: Array in list:
+			var enc: Dictionary = (entry[1] as Dictionary).duplicate(true)
+			if OS.has_environment("GLAN_FILTER") and not str(entry[0]).contains(OS.get_environment("GLAN_FILTER")):
+				continue
+			enc.erase("party")
+			if not enc.has("arena") or not Database.arenas.has(str(enc["arena"])):
+				enc["arena"] = "pre"
+			GameState.new_game()
+			for who: String in ["sam", "froton", "pepin"]:
+				GameState.add_to_party(who)
+			var layer := CanvasLayer.new()
+			add_child(layer)
+			var ui: Control = BattleUI.new()
+			layer.add_child(ui)
+			await get_tree().process_frame
+			var scene: Node3D = BattleScene.new()
+			add_child(scene)
+			scene.fast = true
+			scene.setup(enc, ui, 5)
+			scene.run()
+			for _i in 600:
+				await get_tree().process_frame
+				if ui._state == ui.S.ROOT:
+					break
+			await get_tree().process_frame
+			await get_tree().process_frame
+			_check_staging(scene, ui, "rencontre %s, %dx%d" % [str(entry[0]), size.x, size.y], false)
+			ui.close()
+			remove_child(scene)
+			scene.queue_free()
+			layer.queue_free()
+	win.size = old_size

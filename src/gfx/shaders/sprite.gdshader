@@ -14,6 +14,7 @@ instance uniform float sway_phase = 0.0;
 instance uniform float flash = 0.0;   // éclair blanc quand un combattant est touché
 instance uniform float rim = 0.0;     // liseré clair de contre-jour (combat seulement ; 0 = aucun effet)
 instance uniform float lift = 0.0;    // part de la couleur ajoutée en lumière propre (combat : les arènes sombres gardent leurs combattants lisibles)
+instance uniform float tame = 0.0;    // combat : retient les blancs et les clairs, pour qu'une arène très éclairée ne les brûle pas (0 = aucun effet)
 instance uniform float dim = 1.0;     // assombrissement (premier plan de combat : 1 = aucun)
 // Point à ne jamais cacher (le héros) : un sprite placé devant lui s'ajoure autour de lui.
 global uniform vec3 focus_world;
@@ -60,8 +61,11 @@ void fragment() {
 		float gap_r = 1.0 - step(0.5, texture(sheet, at + vec2(ts.x, 0.0)).a);
 		rim_light = vec3(1.0, 0.93, 0.78) * max(gap_up, 0.45 * max(gap_l, gap_r)) * rim;
 	}
-	ALBEDO = mix(grounded, vec3(1.0), flash * 0.5) * dim;
-	EMISSION = c.rgb * (glow + lift) * (1.0 - flash) + vec3(flash * 0.25) + rim_light * 0.5;
+	// les clairs (blancs, crèmes, fer poli) sont assombris quand « tame » le demande : sous la lumière d'une arène ils
+	// dépasseraient 1 et feraient une tache blanche entourée de lueur
+	float hot = smoothstep(0.42, 0.9, dot(c.rgb, vec3(0.299, 0.587, 0.114))) * tame;
+	ALBEDO = mix(grounded, vec3(1.0), flash * 0.5) * dim * (1.0 - 0.52 * hot);
+	EMISSION = c.rgb * (glow + lift) * (1.0 - flash) * (1.0 - 0.95 * hot) + vec3(flash * 0.25) + rim_light * 0.5 * (1.0 - 0.5 * hot);
 	ROUGHNESS = 1.0;
 }
 

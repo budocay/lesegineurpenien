@@ -12,6 +12,13 @@ const COLUMNS := 4
 const PAD := 2   # marge vide, en pixels logiques, autour de chaque pose de la planche
 const IDLE := [0, 1]
 const POSES := {"attack": 2, "hit": 3}
+## Les boss et les vedettes ont six poses : repos, respiration, attaque, coup reçu, sort (lévitation, bras levés,
+## étincelles) et KO (effondré). Voir columns_of et poses_of.
+const POSES6 := {"attack": 2, "hit": 3, "cast": 4, "ko": 5}
+## Étincelles du sort, par espèce (la couleur de leur magie) ; « défaut » pour les autres.
+const CAST_TINT := {"boss_sarumale": "#fff0a0", "boss_gardien": "#c8c8ff", "boss_grimace": "#c8a0ff", "boss_sauron": "#ff8a4a",
+	"boss_naze": "#c8d0ff", "boss_naze_est": "#ff8a5a", "boss_naze_ouest": "#9aff8a", "boss_froton": "#fff0a0", "boss_goulum": "#9ad8f0",
+	"naze_supreme": "#c8a0ff", "balourd": "#ff8a3a", "boss_uglouk": "#ffd070", "guetteur": "#9ad8f0", "gothmoque": "#ffb070"}
 
 ## Visage de chaque famille, en pixels dans la case : yeux [x, y, largeur, hauteur] et bouche.
 const FACES := {
@@ -107,6 +114,7 @@ const SIZES := {
 	"boss_naze": Vector2i(72, 108),
 	"boss_naze_est": Vector2i(72, 108),
 	"boss_naze_ouest": Vector2i(72, 108),
+	"boss_uglouk": Vector2i(92, 108),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -121,6 +129,15 @@ static func has(kind: String) -> bool:
 
 static func paint(kind: String) -> Image:
 	return _render(kind, 1)
+
+
+## Nombre de poses de la planche d'une espèce : six pour un boss ou une vedette (celles de HD_K à 6), quatre sinon.
+static func columns_of(kind: String) -> int:
+	return 6 if HD_K.get(kind, 0) == 6 else COLUMNS
+
+
+static func poses_of(kind: String) -> Dictionary:
+	return POSES6 if columns_of(kind) > COLUMNS else POSES
 
 
 ## Même peinture à la définition des héros : les formes sont dessinées directement sur une
@@ -148,9 +165,11 @@ static func _render(kind: String, k: int) -> Image:
 	_ga = float(gr[0]) if k > 1 else 0.0
 	_gs = float(gr[1]) * k / 4.0
 	_gseed = kind.hash() & 0xffff
-	var img := PA.new_image(ws * k * COLUMNS, size.y * k)
-	for col in COLUMNS:
-		var f := col if col < 2 else 0
+	var ncols := columns_of(kind)
+	var img := PA.new_image(ws * k * ncols, size.y * k)
+	for col in ncols:
+		var pc := 2 if col == 4 else (3 if col == 5 else col)   # le sort se peint comme l'attaque (bras levés), le KO comme le coup reçu
+		var f := pc if pc < 2 else 0
 		var ox := col * ws + shx + ex
 		var inner := Vector2i(size.x - 2 * shx, size.y)
 		match kind:
@@ -176,42 +195,46 @@ static func _render(kind: String, k: int) -> Image:
 			"chamois": _chamois(img, ox, f)
 			"parchemin": _scroll(img, ox, f)
 			"tampon": _stamp(img, ox, f)
-			"gobelin": _goblin(img, ox, f, col, 0)
-			"gobelin_pic": _goblin(img, ox, f, col, 1)
-			"gobelin_chef": _goblin(img, ox, f, col, 2)
-			"chauve": _bat(img, ox, f, col)
-			"troll": _troll(img, ox, f, col)
-			"guetteur": _watcher(img, ox, f, col)
-			"goulum": _gollum(img, ox, f, col)
-			"balourd": _balrog(img, ox, f, col)
-			"ouroukouille": _orc(img, ox, f, col, 0)
-			"ouroukouille_brocheur": _orc(img, ox, f, col, 1)
-			"ouroukouille_petrisseur": _orc(img, ox, f, col, 2)
-			"ouroukouille_chef": _orc(img, ox, f, col, 3)
-			"paton": _dough(img, ox, f, col)
-			"ouargue": _warg(img, ox, f, col)
-			"corbeau": _crow(img, ox, f, col)
-			"hirsute": _hillman(img, ox, f, col)
-			"hors_oeuvre": _canape(img, ox, f, col)
+			"gobelin": _goblin(img, ox, f, pc, 0)
+			"gobelin_pic": _goblin(img, ox, f, pc, 1)
+			"gobelin_chef": _goblin(img, ox, f, pc, 2)
+			"chauve": _bat(img, ox, f, pc)
+			"troll": _troll(img, ox, f, pc)
+			"guetteur": _watcher(img, ox, f, pc)
+			"goulum": _gollum(img, ox, f, pc)
+			"balourd": _balrog(img, ox, f, pc)
+			"ouroukouille": _orc(img, ox, f, pc, 0)
+			"ouroukouille_brocheur": _orc(img, ox, f, pc, 1)
+			"ouroukouille_petrisseur": _orc(img, ox, f, pc, 2)
+			"ouroukouille_chef": _orc(img, ox, f, pc, 3)
+			"paton": _dough(img, ox, f, pc)
+			"ouargue": _warg(img, ox, f, pc)
+			"corbeau": _crow(img, ox, f, pc)
+			"hirsute": _hillman(img, ox, f, pc)
+			"hors_oeuvre": _canape(img, ox, f, pc)
 			"eveille", "eveille_veilleur", "roi_eveille", "boucanier", "saumure", "cassouletain", "gothmoque", "naze_supreme", "mammou", "dindon_farce", "grondine":
-				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, col, inner)
-			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum":
-				load("res://src/gfx/boss_painter.gd").paint(kind, img, ox, f, col, inner)
+				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, pc, inner)
+			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk":
+				load("res://src/gfx/boss_painter.gd").paint(kind, img, ox, f, pc, inner)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
+		if col == 4:
+			_cast_fx(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k), kind)
+		elif col == 5:
+			_slump(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k))
 		if not PAINTED.has(kind):
 			_volume(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k))
-		if col >= 2:
-			_mood(img, ox, kind, col == 2)
+		if pc >= 2:
+			_mood(img, ox, kind, pc == 2)
 		if k > 1:
 			_marks(img, Rect2i(ox * k, 0, inner.x * k, inner.y * k), kind)
-			_finish_hd(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k), kind, col)
+			_finish_hd(img, Rect2i((ox - shx - ex) * k, 0, ws * k, size.y * k), kind, pc)
 	# marge de PAD pixels logiques autour de chaque pose, puis le contour : un dessin qui touche le bord de sa
 	# case n'est plus coupé net (et aucun pixel opaque ne reste à moins d'un pixel du bord : voir le test)
 	var pad := PAD * k
 	var fw := (size.x + 2 * PAD) * k
-	var out := PA.new_image(fw * COLUMNS, (size.y + 2 * PAD) * k)
-	for col in COLUMNS:
+	var out := PA.new_image(fw * ncols, (size.y + 2 * PAD) * k)
+	for col in ncols:
 		var cell := img.get_region(Rect2i(col * ws * k, 0, ws * k, size.y * k))
 		var at := Vector2i(col * fw + pad, pad)
 		if ex > 0:   # case de travail trop large : on la ramène à la largeur de la case (même rapport), les pieds en bas
@@ -223,6 +246,98 @@ static func _render(kind: String, k: int) -> Image:
 	K = 1
 	_ga = 0.0
 	return out
+
+
+## Pose de sort : le dessin d'attaque (bras levés) soulevé du sol, entouré d'étincelles de la couleur de la magie de
+## l'espèce (CAST_TINT). Tout reste à trois pixels logiques du bord de la case.
+static func _cast_fx(img: Image, region: Rect2i, kind: String) -> void:
+	var src := img.get_region(region)
+	var b := PA.opaque_bounds(src, Rect2i(0, 0, region.size.x, region.size.y))
+	var lift := clampi(int(round(float(region.size.y) * 0.035)), 0, maxi(0, b.position.y - 3 * K))
+	for y in region.size.y:
+		for x in region.size.x:
+			img.set_pixel(region.position.x + x, region.position.y + y, Color(0, 0, 0, 0))
+	img.blit_rect(src, Rect2i(0, 0, region.size.x, region.size.y), Vector2i(region.position.x, region.position.y - lift))
+	var tint := _c(str(CAST_TINT.get(kind, "#d8c8ff")))
+	var lw := float(region.size.x) / float(K)
+	var lh := float(region.size.y) / float(K)
+	var o := Vector2(float(region.position.x) / float(K), 0.0)
+	var bx0 := float(b.position.x) / float(K)
+	var bx1 := float(b.end.x) / float(K)
+	var by0 := float(b.position.y - lift) / float(K)
+	var by1 := float(b.end.y - lift) / float(K)
+	var bw := bx1 - bx0
+	var bh := by1 - by0
+	var spots := [[bx0 - 0.02 * bw, by0 + 0.22 * bh, 4.2], [bx1 + 0.02 * bw, by0 + 0.12 * bh, 5.0], [bx0 + 0.1 * bw, by0 + 0.02 * bh, 3.0],
+		[bx1 - 0.05 * bw, by0 + 0.46 * bh, 3.4], [bx0 + 0.02 * bw, by0 + 0.56 * bh, 2.8], [bx0 + 0.5 * bw, by0 - 0.01 * bh, 3.6]]
+	for sp: Array in spots:
+		var cx := clampf(float(sp[0]), 4.0, lw - 4.0)
+		var cy := clampf(float(sp[1]), 4.0, lh - 4.0)
+		var r := float(sp[2])
+		var at := o + Vector2(cx, cy)
+		_tri(img, at + Vector2(-r * 0.3, 0), at + Vector2(r * 0.3, 0), at + Vector2(0, -r), tint)
+		_tri(img, at + Vector2(-r * 0.3, 0), at + Vector2(r * 0.3, 0), at + Vector2(0, r), tint)
+		_tri(img, at + Vector2(0, -r * 0.3), at + Vector2(0, r * 0.3), at + Vector2(-r, 0), tint)
+		_tri(img, at + Vector2(0, -r * 0.3), at + Vector2(0, r * 0.3), at + Vector2(r, 0), tint)
+		_ellipse(img, at.x, at.y, r * 0.22, r * 0.22, Color.WHITE)
+	for i in 5:   # petits points qui montent
+		var px := o.x + lerpf(bx0, bx1, _hash(i * 3 + 1, 41)) 
+		var py := lerpf(by0 + 0.1 * bh, by1 - 0.2 * bh, _hash(i * 5 + 2, 43))
+		_ellipse(img, clampf(px, o.x + 4.0, o.x + lw - 4.0), clampf(py, 4.0, lh - 4.0), 0.7, 0.7, tint.lightened(0.3))
+
+
+## Pose de KO : le dessin de coup reçu, tassé puis basculé en arrière (vers la gauche : le monstre regarde à droite),
+## pieds au sol, ramené à la taille de la case, un peu assombri. Rotation autour des pieds, échantillonnage au plus proche
+## (pixel art) ou lissé (HD) sur l'alpha.
+const KO_ANGLE := 1.25   # radians (54 degrés)
+const KO_SQUASH := 0.8
+
+static func _slump(img: Image, region: Rect2i) -> void:
+	var w := region.size.x
+	var h := region.size.y
+	var src := img.get_region(Rect2i(region.position.x, region.position.y, w, h))
+	var b := PA.opaque_bounds(src, Rect2i(0, 0, w, h))
+	var pivot := Vector2(float(b.position.x + b.end.x) * 0.5, float(b.end.y))
+	var angle := KO_ANGLE if float(b.size.x) < float(b.size.y) * 1.2 else 0.26   # une bête plus large que haute (limace) bascule à peine : couchée à la verticale elle ne serait plus qu'une tranche
+	var ca := cos(angle)
+	var sa := sin(angle)
+	var squash := KO_SQUASH if angle > 0.5 else 0.9   # (la bête large garde sa taille : elle penche à peine, presque sans se tasser)
+	# les coins du dessin, tassé puis tourné, donnent la place qu'il prend : on le réduit pour qu'il tienne dans la case
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for corner: Vector2 in [Vector2(b.position), Vector2(b.end.x, b.position.y), Vector2(b.position.x, b.end.y), Vector2(b.end)]:
+		var d := corner - pivot
+		d.y *= squash
+		var q := Vector2(d.x * ca + d.y * sa, -d.x * sa + d.y * ca)   # rotation vers la gauche (anti-horaire à l'écran)
+		lo = Vector2(minf(lo.x, q.x), minf(lo.y, q.y))
+		hi = Vector2(maxf(hi.x, q.x), maxf(hi.y, q.y))
+	var margin := float(3 * K)
+	var fit := minf(1.0, minf((float(w) - 2.0 * margin) / (hi.x - lo.x), (float(h) - 2.0 * margin) / (hi.y - lo.y)))
+	# destination : le corps couché, pieds au bas de la case (même ligne de sol), centré
+	var dest_base := Vector2(float(w) * 0.5 - (lo.x + hi.x) * 0.5 * fit, float(h) - margin - hi.y * fit)
+	for y in h:
+		for x in w:
+			var d := (Vector2(x, y) - dest_base) / fit
+			var sx := d.x * ca - d.y * sa   # rotation inverse
+			var sy := d.x * sa + d.y * ca
+			sy /= squash
+			var p := pivot + Vector2(sx, sy)
+			var c := Color(0, 0, 0, 0)
+			if p.x >= 0.0 and p.y >= 0.0 and p.x < float(w) and p.y < float(h):
+				c = src.get_pixel(int(p.x), int(p.y))
+			if c.a >= 0.5:
+				c = PA.shade(Color(c.r, c.g, c.b, 1.0), -0.12)
+			else:
+				c = Color(0, 0, 0, 0)
+			img.set_pixel(region.position.x + x, region.position.y + y, c)
+	# le plus bas pixel réel (et non le coin du cadre tourné) pose sur la ligne de sol : le corps couché ne flotte pas
+	var laid := img.get_region(Rect2i(region.position.x, region.position.y, w, h))
+	var lb := PA.opaque_bounds(laid, Rect2i(0, 0, w, h))
+	var drop := (h - int(margin)) - lb.end.y
+	if lb.size.x > 0 and drop > 0:
+		var clear := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		img.blit_rect(clear, Rect2i(0, 0, w, h), region.position)
+		img.blit_rect(laid, Rect2i(0, 0, w, h - drop), region.position + Vector2i(0, drop))
 
 
 ## Réduit une pose (couleur étalée sous la transparence voisine avant, pour qu'aucun liseré sombre ne naisse au bord).
@@ -265,12 +380,12 @@ const UPSCALE := 3
 const HD := 4
 ## Les gros monstres (boss, vedettes) sont affichés très agrandis : finesse supérieure.
 const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur": 6, "balourd": 6, "crapaud": 6,
-	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
+	"solitaire": 6, "coq": 6, "ouroukouille_chef": 6, "ouroukouille_petrisseur": 6, "gobelin_chef": 6, "hirsute": 6, "ouargue": 6,
 	# chapitre 6 (gouda_monsters.gd)
 	"eveille": 6, "eveille_veilleur": 6, "roi_eveille": 6, "boucanier": 6, "saumure": 6, "cassouletain": 6,
 	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6,
 	"boss_sarumale": 6, "boss_froton": 6, "boss_grimace": 6, "boss_gardien": 6, "boss_sauron": 6, "boss_naze": 6,
-	"boss_naze_est": 6, "boss_naze_ouest": 6, "boss_goulum": 6}
+	"boss_naze_est": 6, "boss_naze_ouest": 6, "boss_goulum": 6, "boss_uglouk": 6}
 static var K := 1                # facteur de la peinture en cours
 static var _ga := 0.0            # amplitude du grain de matière (0 : aucun)
 static var _gs := 3.0            # taille du grain, en pixels de la grille fine
@@ -282,7 +397,7 @@ const GRAIN := {"limace": [0.1, 5.0], "baveuse": [0.1, 5.0], "sangsue": [0.1, 5.
 	"sanglier": [0.22, 2.0], "solitaire": [0.22, 2.0], "ouargue": [0.22, 2.0], "hirsute": [0.22, 2.0],
 	"troll": [0.24, 4.0], "balourd": [0.24, 4.0], "paton": [0.14, 5.0],
 	"boss_sarumale": [0.05, 6.0], "boss_froton": [0.1, 5.0], "boss_grimace": [0.08, 5.0], "boss_gardien": [0.07, 6.0],
-	"boss_sauron": [0.12, 5.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0], "boss_goulum": [0.1, 5.0]}
+	"boss_sauron": [0.12, 5.0], "boss_uglouk": [0.14, 4.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0], "boss_goulum": [0.1, 5.0]}
 ## Espèces luisantes : petits reflets mouillés dans les tons clairs.
 const SHINY := ["limace", "baveuse", "sangsue", "grenouille", "crapaud", "asticot", "vacherin", "paton", "moisi"]
 
@@ -805,6 +920,7 @@ const MARKS := {
 	"dindon_farce": [["hair", 40, 5.0], ["fleck", 8, 1.0]], "grondine": [["crack", 5, 6.0], ["fleck", 12, 1.0]],
 	"boss_sarumale": [["fleck", 5, 1.0]], "boss_froton": [["fleck", 6, 1.0]], "boss_grimace": [["fleck", 6, 1.0]],
 	"boss_gardien": [["fleck", 6, 1.0]], "boss_sauron": [["crack", 2, 4.0], ["fleck", 6, 1.0]],
+	"boss_uglouk": [["wart", 5, 1.8], ["fleck", 8, 1.0]],
 }
 
 

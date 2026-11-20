@@ -214,8 +214,8 @@ func monster(kind: String) -> Dictionary:
 	var key := "monster:" + kind
 	if _cache.has(key):
 		return _cache[key]
-	var sheet := {"columns": MonsterPainter.COLUMNS, "ppu": MONSTER_PPU, "foot": 1, "fps": 2.2,
-		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.POSES}
+	var sheet := {"columns": MonsterPainter.columns_of(kind), "ppu": MONSTER_PPU, "foot": 1, "fps": 2.2,
+		"idle": MonsterPainter.IDLE, "poses": MonsterPainter.poses_of(kind)}
 	var img := _load_override("monsters/%s.png" % kind)
 	var overridden: Image = img
 	if img != null:
