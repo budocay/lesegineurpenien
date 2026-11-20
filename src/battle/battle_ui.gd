@@ -1553,6 +1553,8 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 		var base: Rect2 = rects[k]
 		var best := base
 		var best_cost := INF
+		var fallback := base
+		var fallback_cost := INF
 		for dy in range(-30, 170, 6):
 			for dx in range(-380, 381, 10):
 				var r := Rect2(base.position + Vector2(dx, dy), base.size)
@@ -1585,8 +1587,28 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 						break
 				if bad:
 					continue
+				# le trait de rappel (pieds -> plaque) ne traverse ni une autre plaque ni un autre ennemi
+				var obody: Rect2 = own[k]
+				var f0 := Vector2(obody.get_center().x, obody.end.y + 2.0)
+				var f1 := Vector2(clampf(f0.x, r.position.x + 10.0, r.end.x - 10.0), r.position.y + 1.0)
+				if absf(r.get_center().x - f0.x) > 40.0 or r.position.y - f0.y > 26.0:
+					for s in range(1, 9):
+						var pt := f0.lerp(f1, float(s) / 9.0)
+						for t2: Rect2 in taken:
+							if t2.grow(3.0).has_point(pt):
+								bad = true
+						for o2: String in keys:
+							if o2 != k and (own[o2] as Rect2).grow(-3.0).has_point(pt):
+								bad = true
+					if bad:
+						if cost < fallback_cost:   # (repli : si aucune place ne laisse un trait propre, on garde la plus proche)
+							fallback = r
+							fallback_cost = cost
+						continue
 				best = r
 				best_cost = cost
+		if best_cost == INF and fallback_cost < INF:
+			best = fallback
 		best.position.x = clampf(best.position.x, PLATE_MARGIN, maxf(PLATE_MARGIN, view.x - best.size.x - PLATE_MARGIN))
 		best.position.y = clampf(best.position.y, PLATE_MARGIN, maxf(PLATE_MARGIN, view.y - best.size.y - PLATE_MARGIN))
 		out[k] = best

@@ -10,11 +10,11 @@
 	"music": "minas_haut",
 	"arena": "citadelle",
 	"camera": {
-		"distance": 19,
-		"pitch":0,"fov":64,"near_start": 0.55,
+		"distance": 16,
+		"pitch":5,"fov":62,"near_start": 0.55,
 		"dof": 0.05,
 		"far_start": 9,
-		"zones":[{"rect":[4,17,28,9],"pitch":0.5,"fov":64,"distance":19,"feather":5}]
+		"zones":[{"rect":[4,17,28,9],"pitch":5,"fov":62,"distance":16,"feather":5}]
 	},
 	"ground": {
 		"default": "void",
@@ -51,7 +51,7 @@
 		}
 	},
 	"style": "gouda",
-	"white_tower":{"x":31.5,"z":-42,"base":-12,"height":35,"scale":0.8},
+	"white_tower":{"x":31.5,"z":-42,"base":-12,"height":26,"scale":0.8},
 	"horizon": {"preset": "belvedere", "prepare": ["minas_croute", "minas_rues"]},
 	"apron": {"from": 22, "depth": 10, "x0": 3, "x1": 33},
 	"belvedere": {"z": 2.5, "terraces": {"rings": 3, "step": 3.0, "gap": 9.0, "scale": 1.7}},
@@ -383,6 +383,17 @@
 		{"type": "gou_deco", "kind": "gou_lampadaire", "pos": [32.4, 8.4], "glow": 0.5, "scale": 1.2},
 		{"type": "gou_deco", "kind": "gou_lampadaire", "pos": [27.4, 13.6], "glow": 0.5, "scale": 1.2},
 		{"type": "gou_deco", "kind": "gou_lampadaire", "pos": [32.4, 17.8], "glow": 0.5, "scale": 1.2},
+		{"type": "rug", "rect": [15.4, 11.4, 5.2, 10.2], "color": "#26366a", "border": "#d8c070"},
+		{"type": "gou_deco", "kind": "gou_lampadaire", "pos": [13.6, 16.8], "glow": 0.5, "scale": 1.2},
+		{"type": "gou_deco", "kind": "gou_lampadaire", "pos": [22.4, 16.8], "glow": 0.5, "scale": 1.2},
+		{"type": "gou_deco", "kind": "gou_banc", "pos": [9.4, 21.0]},
+		{"type": "gou_deco", "kind": "gou_banc", "pos": [26.6, 21.2]},
+		{"type": "gou_deco", "kind": "gou_buisson", "pos": [12.0, 21.4]},
+		{"type": "gou_deco", "kind": "gou_buisson", "pos": [24.2, 21.4]},
+		{"type": "gou_deco", "kind": "gou_pots", "pos": [7.6, 20.4], "variant": 1},
+		{"type": "gou_deco", "kind": "gou_pots", "pos": [29.2, 20.6], "variant": 2},
+		{"type": "gou_banniere", "pos": [14.6, 21.2]},
+		{"type": "gou_banniere", "pos": [21.4, 21.2]},
 		{"type": "gou_pavage", "seed": 9, "wear": 0.4, "moss": true}
 	]
 }

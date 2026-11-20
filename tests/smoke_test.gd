@@ -8925,6 +8925,31 @@ func _test_decors_10() -> void:
 	check(FileAccess.get_file_as_string("res://src/gfx/rider_painter.gd").contains("_flour_slabs()"), "farine d'Isengarde : dalles et non plus camouflage")
 	var ba: String = FileAccess.get_file_as_string("res://src/battle/battle_actor.gd")
 	check(ba.contains("const HIT_FLASH := 0.6"), "coup reçu : éclat blanc plafonné (pas de voile sur les boss)")
+	# deuxième passe : cour de la citadelle, enclos, clairière de Fongorn, Mines, plaques de combat
+	var cit: Dictionary = Database.get_map("minas_citadelle")
+	var cz: Array = cit.get("camera", {}).get("zones", [])
+	check(float(cit["camera"]["pitch"]) >= 5.0 and cz.size() > 0 and float((cz[0] as Dictionary)["pitch"]) >= 5.0 and float(cit["camera"]["distance"]) <= 16.0,
+			"citadelle : caméra rapprochée et moins rasante (plus de dallage vide au premier plan)")
+	var has_rug := false
+	for o: Dictionary in cit.get("objects", []):
+		if str(o.get("type", "")) == "rug":
+			has_rug = true
+	check(has_rug, "citadelle : tapis d'apparat sur l'allée")
+	var counts := {"fongorn": 0, "plaine_roquefort": 0, "porte_morbier": 0}
+	for mid: String in counts:
+		for o: Dictionary in Database.get_map(mid).get("objects", []):
+			if str(o.get("type", "")) == "scatter" and o.has("on") and (o["on"] as Array).size() > 0:
+				counts[mid] += 1
+	check(counts["fongorn"] >= 17, "Fongorn : la clairière des racines a ses semis (%d)" % counts["fongorn"])
+	check(counts["plaine_roquefort"] >= 8, "plaine du Roquefort : l'enclos a ses brebis et ses bottes (%d)" % counts["plaine_roquefort"])
+	check(counts["porte_morbier"] >= 14, "porte de Morbier : sapins au milieu du champ (%d)" % counts["porte_morbier"])
+	for mid2: String in ["morbier_profondeurs", "morbier_antre"]:
+		var n_deco := 0
+		for o: Dictionary in Database.get_map(mid2).get("objects", []):
+			if str(o.get("type", "")) in ["nain_cristal", "nain_gravats", "nain_torche", "nain_squelette"]:
+				n_deco += 1
+		check(n_deco >= 14, "%s : sol garni de cristaux et de gravats (%d)" % [mid2, n_deco])
+	check(FileAccess.get_file_as_string("res://src/battle/battle_ui.gd").contains("le trait de rappel (pieds -> plaque) ne traverse"), "plaques : le trait de rappel ne traverse ni plaque ni ennemi")
 
 
 func _test_decors_9() -> void:

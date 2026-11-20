@@ -102,8 +102,8 @@ static func paint_prop(kind: String, v: int) -> Image:
 ## (l'ancien aplat de taches pâles faisait un rectangle de camouflage sur le sol sombre).
 static func _flour_slabs() -> Image:
 	var img: Image = TP._stones(["#8c887c", "#807c72", "#97938a", "#767268"], Color("#3b3830"), 16, 12)
-	_specks_in(img, 1127, 64, Color("#e8e2d4"))
-	_specks_in(img, 1128, 30, Color("#f6f2e8"))
+	_specks_in(img, 1127, 30, Color("#e8e2d4"))
+	_specks_in(img, 1128, 12, Color("#f6f2e8"))
 	return img
 
 

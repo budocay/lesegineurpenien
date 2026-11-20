@@ -306,7 +306,19 @@
 			"type": "nain_torche",
 			"pos": [
 				34.0,
-				11.2
+				11.2,
+		{"type": "nain_cristal", "pos": [5.6, 14.8]},
+		{"type": "nain_cristal", "pos": [17.6, 20.6]},
+		{"type": "nain_cristal", "pos": [34.6, 19.4]},
+		{"type": "nain_cristal", "pos": [24.0, 13.0]},
+		{"type": "nain_gravats", "pos": [14.0, 14.2]},
+		{"type": "nain_gravats", "pos": [7.0, 19.8]},
+		{"type": "nain_gravats", "pos": [19.6, 22.8]},
+		{"type": "nain_gravats", "pos": [31.4, 16.0]},
+		{"type": "nain_gravats", "pos": [35.4, 22.6]},
+		{"type": "nain_gravats", "pos": [9.4, 12.8]},
+		{"type": "nain_squelette", "pos": [16.4, 16.6]},
+		{"type": "scatter", "prop": "rock", "rect": [3, 12, 34, 12], "count": 8, "min_dist": 2.6, "seed": 122, "on": ["nain_roche_humide"]}
 			]
 		},
 		{

@@ -406,6 +406,118 @@
 			"on": [
 				"ent_mousse"
 			]
+		},
+		{
+			"type": "scatter",
+			"prop": "mushrooms",
+			"rect": [
+				34,
+				3,
+				18,
+				10
+			],
+			"count": 12,
+			"min_dist": 1.3,
+			"seed": 91,
+			"on": [
+				"ent_racines"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "fern",
+			"rect": [
+				34,
+				3,
+				18,
+				10
+			],
+			"count": 16,
+			"min_dist": 1.2,
+			"seed": 92,
+			"on": [
+				"ent_racines"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "ent_souche",
+			"rect": [
+				34,
+				3,
+				18,
+				10
+			],
+			"count": 4,
+			"min_dist": 2.6,
+			"seed": 93,
+			"on": [
+				"ent_racines"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				34,
+				3,
+				18,
+				10
+			],
+			"count": 4,
+			"min_dist": 2.2,
+			"seed": 94,
+			"on": [
+				"ent_racines"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "log",
+			"rect": [
+				34,
+				3,
+				18,
+				10
+			],
+			"count": 2,
+			"min_dist": 3.0,
+			"seed": 95,
+			"on": [
+				"ent_racines"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "fern",
+			"rect": [
+				20,
+				12,
+				36,
+				6
+			],
+			"count": 22,
+			"min_dist": 1.2,
+			"seed": 96,
+			"on": [
+				"ent_mousse"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "mushrooms",
+			"rect": [
+				0,
+				12,
+				56,
+				6
+			],
+			"count": 8,
+			"min_dist": 1.6,
+			"seed": 97,
+			"on": [
+				"ent_mousse"
+			]
 		}
 	]
 }
