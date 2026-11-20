@@ -8756,7 +8756,7 @@ func _check_plates(scene: Node3D, ui: Control, tag: String) -> void:
 			if not c.alive():
 				continue
 			var body: Rect2 = scene.screen_rect(c)
-			check(_overlap(pr, body.grow(-3.0)) < 1.0, "%s : la plaque %s ne couvre pas le sprite de %s" % [tag, k, str(c.name)])
+			check(_overlap(pr, body.grow(-3.0)) < 1.0, "%s : la plaque %s ne couvre pas le sprite de %s (plaque %s, sprite %s)" % [tag, k, str(c.name), str(pr), str(body)])
 		for h: RefCounted in scene.engine.party:
 			check(_overlap(pr, scene.screen_rect(h, false, true)) < 1.0, "%s : la plaque %s ne couvre pas %s" % [tag, k, str(h.name)])
 		for o: String in rects:

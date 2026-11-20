@@ -1440,7 +1440,7 @@ func _layout_plates() -> void:
 	# les ennemis les plus proches de la caméra choisissent d'abord ; chaque plaque prend la place libre la plus
 	# proche de son point d'attache (sous les pieds) : ni sur une plaque déjà posée, ni sur un sprite, ni sous le
 	# bandeau des rappels de touches (recherche refaite seulement quand les entrées changent)
-	var isig := hash([keys, rects.values(), own.values(), view])
+	var isig := hash([keys, rects.values(), own.values(), view, _menu_home(view)])
 	if isig != _plate_in_sig:
 		_plate_in_sig = isig
 		_plate_spots = _spread_plates(keys, rects, own, view)
@@ -1524,6 +1524,16 @@ func _plates_in_row(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 	return out
 
 
+## Rectangle où le menu de l'acteur courant s'ouvre en premier (à sa gauche, à hauteur de son centre) ; vide sans menu.
+func _menu_home(view: Vector2) -> Rect2:
+	if _menu_box == null or not _menu_box.visible or _actor == null or scene == null:
+		return Rect2()
+	var c: Vector2 = scene.screen_point(_actor, "center")
+	var stepped: Rect2 = scene.screen_rect(_actor, true)
+	var rs := _root_panel.size
+	return Rect2(Vector2(stepped.position.x - 24.0 - rs.x, c.y - 96.0), Vector2(rs.x, rs.y + 14.0)).grow(6.0)
+
+
 ## Place les plaques des ennemis (voir _layout_plates) : recherche sur une grille de la place libre la plus proche.
 func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vector2) -> Dictionary:
 	if scene.boss == null and keys.size() >= 2 and keys.size() <= 4:
@@ -1534,10 +1544,11 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 	order.sort_custom(func(a: String, b: String) -> bool: return (own[a] as Rect2).end.y > (own[b] as Rect2).end.y)
 	var heroes: Array[Rect2] = []
 	for h: RefCounted in engine.party:
-		heroes.append(scene.screen_rect(h))
+		heroes.append(scene._play_rect(h))   # (dans toutes ses poses : le pas en avant et les coups compris)
 	var keys_zone: Rect2 = scene.keys_band(view)
 	var out: Dictionary = {}
 	var taken: Array[Rect2] = []
+	var menu_home := _menu_home(view)   # la place où le menu de l'acteur s'ouvre d'abord : les plaques la laissent libre
 	for k: String in order:
 		var base: Rect2 = rects[k]
 		var best := base
@@ -1560,10 +1571,12 @@ func _spread_plates(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 				for o: String in keys:
 					var orect: Rect2 = own[o]
 					if minf(orect.size.x, orect.size.y) > 8.0:
-						orect = orect.grow(-4.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
-					if o != k and r.intersects(orect):
+						orect = orect.grow(-3.0)   # (un sprite minuscule garde sa taille : pas de rectangle négatif)
+					if r.intersects(orect):   # (le sprite de la plaque compris : une plaque ne remonte pas sur son propre ennemi)
 						bad = true
 						break
+				if menu_home.size.x > 0.0 and r.intersects(menu_home):
+					continue
 				if bad:
 					continue
 				for hr: Rect2 in heroes:
