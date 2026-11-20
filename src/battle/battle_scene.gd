@@ -702,7 +702,7 @@ func _boss_spots(list: Array, shift: Vector2) -> Array[Vector3]:
 		var hm := _half_width(c)
 		var rank := n / 2
 		var inner := n % 2 == 0
-		var dx := maxf(hb * 0.62 + hm * 0.8, plate_half + hm) + rank * (2.0 * hm + 0.1)
+		var dx := maxf(hb * 0.74 + hm * 0.8, plate_half + hm) + rank * (2.0 * hm + 0.1)
 		var zf := zb + BOSS_FRONT + (0.5 if rank % 2 == 1 else 0.0) + rank * 0.15
 		var lim := tan(deg_to_rad(CAM_FOV * 0.5)) * vw * (_cam_home.z - zf) - 0.15 - hm
 		var x := xb + (dx if inner else -dx)

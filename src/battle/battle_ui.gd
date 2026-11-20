@@ -1486,10 +1486,14 @@ func _plates_in_row(keys: Array, rects: Dictionary, own: Dictionary, view: Vecto
 	var order: Array = keys.duplicate()
 	order.sort_custom(func(a: String, b: String) -> bool: return (own[a] as Rect2).get_center().x < (own[b] as Rect2).get_center().x)
 	var y := 0.0
+	var y_min := INF
 	var h := 0.0
 	for k: String in order:
 		y = maxf(y, (own[k] as Rect2).end.y + 8.0)
+		y_min = minf(y_min, (own[k] as Rect2).end.y + 8.0)
 		h = maxf(h, (rects[k] as Rect2).size.y)
+	if y - y_min > 60.0:
+		return {}   # des ennemis étagés en profondeur : une rangée ferait des traits de rappel longs et obliques
 	if y + h > view.y - PLATE_MARGIN:
 		return {}
 	var gap := 16.0

@@ -298,15 +298,16 @@ static func _slump(img: Image, region: Rect2i) -> void:
 	var src := img.get_region(Rect2i(region.position.x, region.position.y, w, h))
 	var b := PA.opaque_bounds(src, Rect2i(0, 0, w, h))
 	var pivot := Vector2(float(b.position.x + b.end.x) * 0.5, float(b.end.y))
-	var angle := KO_ANGLE if float(b.size.x) < float(b.size.y) * 1.2 else 0.45   # une bête plus large que haute (limace) bascule à peine : couchée à la verticale elle ne serait plus qu'une tranche
+	var angle := KO_ANGLE if float(b.size.x) < float(b.size.y) * 1.2 else 0.26   # une bête plus large que haute (limace) bascule à peine : couchée à la verticale elle ne serait plus qu'une tranche
 	var ca := cos(angle)
 	var sa := sin(angle)
+	var squash := KO_SQUASH if angle > 0.5 else 0.9   # (la bête large garde sa taille : elle penche à peine, presque sans se tasser)
 	# les coins du dessin, tassé puis tourné, donnent la place qu'il prend : on le réduit pour qu'il tienne dans la case
 	var lo := Vector2(INF, INF)
 	var hi := Vector2(-INF, -INF)
 	for corner: Vector2 in [Vector2(b.position), Vector2(b.end.x, b.position.y), Vector2(b.position.x, b.end.y), Vector2(b.end)]:
 		var d := corner - pivot
-		d.y *= KO_SQUASH
+		d.y *= squash
 		var q := Vector2(d.x * ca + d.y * sa, -d.x * sa + d.y * ca)   # rotation vers la gauche (anti-horaire à l'écran)
 		lo = Vector2(minf(lo.x, q.x), minf(lo.y, q.y))
 		hi = Vector2(maxf(hi.x, q.x), maxf(hi.y, q.y))
@@ -319,7 +320,7 @@ static func _slump(img: Image, region: Rect2i) -> void:
 			var d := (Vector2(x, y) - dest_base) / fit
 			var sx := d.x * ca - d.y * sa   # rotation inverse
 			var sy := d.x * sa + d.y * ca
-			sy /= KO_SQUASH
+			sy /= squash
 			var p := pivot + Vector2(sx, sy)
 			var c := Color(0, 0, 0, 0)
 			if p.x >= 0.0 and p.y >= 0.0 and p.x < float(w) and p.y < float(h):
