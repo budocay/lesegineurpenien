@@ -10,17 +10,31 @@
 	"music": "menace",
 	"arena": "arena_oeil",
 	"camera": {
-		"near_start": 0.7,
+		"near_start": 0.6,
 		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
-		"dof": 0.1
+		"pitch": 30,
+		"fov": 28,
+		"dof": 0.08,
+		"zones": [
+			{
+				"rect": [
+					0,
+					0,
+					44,
+					24
+				],
+				"pitch": 14,
+				"fov": 38,
+				"distance": 28,
+				"feather": 8
+			}
+		]
 	},
 	"style": "mordgras",
 	"interior": true,
-	"wall_height": 8.0,
+	"wall_height": 13.0,
 	"wall_tile": "mor_mur",
-	"wall_glow": 0.3,
+	"wall_glow": 0.04,
 	"ground": {
 		"default": "void",
 		"fills": [
@@ -36,10 +50,28 @@
 			{
 				"type": "mor_braise",
 				"rect": [
-					14,
-					2,
-					16,
-					7
+					8,
+					3,
+					28,
+					9
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					3,
+					13,
+					3,
+					16
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					38,
+					13,
+					3,
+					16
 				]
 			}
 		]
@@ -58,10 +90,10 @@
 			"type": "mor_four",
 			"pos": [
 				22,
-				4.5
+				3.6
 			],
-			"width": 12,
-			"height": 9.0
+			"width": 22,
+			"height": 11
 		},
 		{
 			"type": "mor_chandelier",
@@ -78,7 +110,7 @@
 			"id": "sauron",
 			"pos": [
 				22,
-				9.5
+				10
 			],
 			"facing": "down",
 			"reach": 2.2,
@@ -136,13 +168,6 @@
 			]
 		},
 		{
-			"type": "mor_cheminee",
-			"pos": [
-				10.9,
-				25.9
-			]
-		},
-		{
 			"type": "mor_pique",
 			"pos": [
 				12.3,
@@ -192,13 +217,6 @@
 			]
 		},
 		{
-			"type": "mor_cheminee",
-			"pos": [
-				17.9,
-				26.4
-			]
-		},
-		{
 			"type": "mor_pique",
 			"pos": [
 				39.9,
@@ -227,5 +245,6 @@
 			"energy": 2.0,
 			"range": 11
 		}
-	]
+	],
+	"wall_tint": "#7a463e"
 }

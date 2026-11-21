@@ -49,6 +49,10 @@ static func paint(kind: String, sd: int, opts: Dictionary = {}) -> Image:
 			_hills(img, sd, float(opts.get("peak", 0.5)), int(opts.get("trees", 1)))
 		"ridge":
 			_ridge(img, sd, float(opts.get("peak", 0.4)))
+		"massif":
+			_massif(img, sd, int(opts.get("off", 0)), float(opts.get("peak", 0.6)), bool(opts.get("tower", true)))
+		"horde":
+			_horde(img, sd, int(opts.get("fires", 14)), float(opts.get("scale", 1.0)))
 	return img
 
 
@@ -693,3 +697,120 @@ static func _ram(img: Image, x: int, y: int, sc: float) -> void:
 	_r(img, x - int(20.0 * sc), y - 7 - h / 3, int(6.0 * sc), maxi(4, int(7.0 * sc)), Color("#6a6a74"))
 	_wheel(img, x + 6, y - 3, maxi(3, int(5.0 * sc)), c)
 	_wheel(img, x + w - 6, y - 3, maxi(3, int(5.0 * sc)), c)
+
+
+# ============================================================== le pays ennemi
+
+## Massif de basalte noir et rouge (Montagne du Festin) : facettes éclairées par la droite, coulées de braise
+## qui descendent de la crête (pixels vifs : le shader les fait briller) et, au sommet, la Tour de la Barbaque,
+## son Œil fendu, ses fenêtres et son panache de fumée.
+static func _massif(img: Image, sd: int, off: int, peak: float, tower: bool) -> void:
+	var cx := W / 2 + off
+	var rock: Array[Color] = []
+	for i in 5:
+		rock.append(Color("#170a10").lerp(Color("#7c3c3c"), float(i) / 4.0))
+	var valley := Color("#3a1418")
+	var tops: Array[int] = []
+	for x in W:
+		var h := _ridge_h(x, sd, cx, peak)
+		var top := H - int(h)
+		tops.append(top)
+		var slope := (_ridge_h(x + 36, sd, cx, peak) - _ridge_h(x - 36, sd, cx, peak)) * 0.5
+		var l0 := clampf(0.42 - slope * 0.012, 0.05, 0.85)
+		var per := 46.0
+		for y in range(maxi(top, 0), H):
+			var d := y - top
+			var u := float(x) + float(d) * 1.35
+			var f := fposmod(u / per + _vn(u / 150.0, 11, sd) * 1.6 + _vn(float(d) / 60.0, 12, sd) * 0.5, 1.0)
+			var tri := 1.0 - absf(f * 2.0 - 1.0)
+			var facet := 0.24 if f < 0.5 else -0.24
+			facet *= clampf(0.35 + tri, 0.0, 1.0)
+			var q := int(floorf(clampf(l0 + facet, 0.0, 1.0) * 4.0 + 0.5))
+			var c: Color = rock[q]
+			var foot := clampf(float(y - (H - 110)) / 110.0, 0.0, 1.0)
+			img.set_pixel(x, y, c.lerp(valley, 0.1 + foot * 0.4))
+		if top >= 0 and top < H:
+			img.set_pixel(x, top, rock[4].lightened(0.1))
+	# coulées de braise : des fils sinueux qui partent de la crête
+	for k in 9:
+		var x0 := cx + int((float(k) - 4.0) * 70.0 + (_n(k, 3, sd) - 0.5) * 50.0)
+		var ph := _n(k, 5, sd) * 6.0
+		var y0 := H - int(_ridge_h(clampi(x0, 0, W - 1), sd, cx, peak)) + 6
+		var len := 70 + int(_n(k, 7, sd) * 120.0)
+		for j in len:
+			var y := y0 + j
+			var px := x0 + int(sin(float(j) * 0.09 + ph) * 8.0) + j / 5
+			if px < 1 or px >= W - 1 or y >= H or y < 0 or y < tops[px]:
+				continue
+			var hot := Color("#ff9a30") if j % 7 < 5 else Color("#ffd060")
+			var wd := 2 if j % 11 < 7 else 1
+			_r(img, px, y, wd, 1, hot)
+	if tower:
+		var low := 0
+		for xx in range(cx - 30, cx + 31):
+			low = maxi(low, tops[clampi(xx, 0, W - 1)])
+		for r in 40:   # socle de roche : la tour pousse sur l'arête, pas dans le vide
+			var hw := 40 + r
+			_r(img, cx - hw, low + 8 - 6 + r, hw * 2, 1, rock[1 + (r / 14) % 2])
+		_barbaque(img, cx, low + 8, sd)
+
+
+## La Tour de la Barbaque : trois étages de basalte, créneaux, fenêtres de braise, l'Œil fendu tout en haut.
+static func _barbaque(img: Image, cx: int, base: int, sd: int) -> void:
+	var dark := Color("#0c060a")
+	var lit := Color("#3c1c26")
+	var edge := Color("#5a2a30")
+	var tiers: Array = [[46, 30], [34, 28], [24, 24], [14, 18]]   # [largeur, hauteur]
+	var y := base
+	for ti: Array in tiers:
+		var wd: int = ti[0]
+		var hg: int = ti[1]
+		_r(img, cx - wd / 2, y - hg, wd, hg, dark)
+		_r(img, cx + wd / 2 - 5, y - hg, 5, hg, lit)
+		_r(img, cx - wd / 2 - 2, y - hg - 3, wd + 4, 3, edge)
+		for m in range(cx - wd / 2 - 2, cx + wd / 2 + 2, 6):
+			_r(img, m, y - hg - 7, 3, 4, dark)
+		# fenêtres de braise
+		for fx in range(cx - wd / 2 + 5, cx + wd / 2 - 7, 11):
+			var fy := y - hg + 8 + int(_n(fx, y, sd) * 10.0)
+			_r(img, fx, fy, 3, 5, Color("#ff9a30"))
+			_r(img, fx + 1, fy + 1, 1, 3, Color("#ffd878"))
+		y -= hg + 3
+	# pointes
+	for sx: int in [-6, -2, 2, 6]:
+		_r(img, cx + sx, y - 10 - abs(sx), 2, 10 + abs(sx), dark)
+	# l'Œil : une amande de feu fendue d'une pupille noire
+	var ey := y + 26
+	for dx in range(-9, 10):
+		var hh := int(sqrt(maxf(0.0, 1.0 - pow(float(dx) / 9.5, 2.0))) * 6.0)
+		_r(img, cx + dx, ey - hh, 1, hh * 2 + 1, Color("#ff7a1a") if absi(dx) > 4 else Color("#ffc040"))
+	_r(img, cx - 1, ey - 5, 3, 11, Color("#140608"))
+	# panache de fumée qui dérive vers la gauche
+	for i in 9:
+		var px := cx - 4 - i * 14
+		var py := y + 6 + int(sin(float(i) * 0.8) * 5.0) + i * 2
+		_puff(img, px, py, 7 + i, Color("#2a1618"), Color("#6a4038"))
+
+
+## Armée du pays ennemi, de loin : rangs de lances, tentes noires, feux de camp et fanions rouges.
+static func _horde(img: Image, sd: int, nfires: int, scale: float) -> void:
+	var ground := H - 38
+	_r(img, 0, ground, W, H - ground, Color("#2a1210"))
+	for i in 150:
+		var x := int(_n(i, 1, sd) * float(W))
+		var hg := 10 + int(_n(i, 2, sd) * 14.0 * scale)
+		var wd := 8 + int(_n(i, 3, sd) * 12.0)
+		var c := Color("#1a0a0e").lerp(Color("#3c1a20"), _n(i, 4, sd))
+		var gy := ground - int(_n(i, 5, sd) * 22.0)
+		for r in hg:   # tente en pointe
+			var hw := int(float(wd) * 0.5 * (1.0 - float(r) / float(hg)))
+			_r(img, x - hw, gy - r, hw * 2 + 1, 1, c)
+		if _n(i, 6, sd) < 0.3:
+			_r(img, x, gy - hg - 12, 1, 12, Color("#1a0a0e"))
+			_r(img, x + 1, gy - hg - 12, 6, 4, Color("#a01a1a"))
+	for i in nfires:
+		var fx := int(_n(i, 9, sd) * float(W - 20)) + 10
+		var fy := ground - 4 - int(_n(i, 10, sd) * 24.0)
+		_r(img, fx - 3, fy - 3, 7, 3, Color("#ff7a14"))
+		_r(img, fx - 1, fy - 7, 4, 5, Color("#ffd24a"))
+		fires.append(Vector2(fx, fy - 4))
