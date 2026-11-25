@@ -553,7 +553,8 @@
 				"tombe_visitee",
 				"tombe_vue"
 			],
-			"main_quest": "morbier"
+			"main_quest": "isengarde",
+			"quest_state": ""
 		},
 		{
 			"id": "chapitre_6",

@@ -61,6 +61,7 @@ static func apply(gs: Node, id: String) -> bool:
 	gs.inventory = {}
 	gs.chapter = str(e.get("chapter", id))
 	# l'équipe, dans l'ordre : les quatre premiers se battent, les autres attendent en réserve
+	gs.party = []
 	for who: Variant in e.get("party", []):
 		gs.add_to_party(str(who))
 	gs.bench = []
@@ -90,7 +91,11 @@ static func apply(gs: Node, id: String) -> bool:
 	gs.spawn_id = str(e.get("spawn", ""))
 	gs.player_pos = []
 	gs.player_facing = "down"
-	gs.heal_party()
+	for who: Variant in everyone:   # aussi la réserve, le banc et les absents
+		var hurt: Dictionary = gs.member(str(who))
+		var stats: Dictionary = gs.member_stats(str(who))
+		hurt["hp"] = int(stats["hp"])
+		hurt["mp"] = int(stats["mp"])
 	gs.playtime = 0.0
 	return true
 

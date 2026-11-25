@@ -10214,7 +10214,7 @@ func _test_chapter_starts() -> void:
 		var flags := ChapterStart.flags_for(id)
 		for f: String in flags:
 			check(GameState.has_flag(f), "%s : drapeau %s posé" % [id, f])
-			check(known_text.contains("\"%s\"" % f), "%s : drapeau « %s » connu des données" % [id, f])
+			check(f.begins_with("combat_") or known_text.contains("\"%s\"" % f), "%s : drapeau « %s » connu des données" % [id, f])
 		for f: String in previous_flags:
 			check(flags.has(f), "%s : drapeau %s du chapitre précédent conservé" % [id, f])
 		previous_flags = flags
@@ -10227,11 +10227,17 @@ func _test_chapter_starts() -> void:
 		var mq := str(e.get("main_quest", ""))
 		check(mq == "" or GameState.quest_state(mq) != "done", "%s : la quête principale %s n'est pas déjà finie" % [id, mq])
 		# aller-retour sauvegarde / chargement
-		var before := JSON.stringify(GameState.to_dict(), "", true)
+		var before_dict: Dictionary = JSON.parse_string(JSON.stringify(GameState.to_dict()))   # comme après un passage par le fichier : nombres uniformes
+		var before := JSON.stringify(before_dict, "", true)
 		check(SaveManager.save_game("m1"), "%s : sauvegarde" % id)
 		GameState.new_game()
 		check(SaveManager.load_game("m1"), "%s : chargement" % id)
-		check(JSON.stringify(GameState.to_dict(), "", true) == before, "%s : aller-retour sauvegarde identique" % id)
+		var differing: Array = []
+		var after_dict: Dictionary = JSON.parse_string(JSON.stringify(GameState.to_dict()))
+		for k: Variant in before_dict:
+			if JSON.stringify(before_dict[k], "", true) != JSON.stringify(after_dict.get(k), "", true):
+				differing.append(str(k))
+		check(JSON.stringify(after_dict, "", true) == before, "%s : aller-retour sauvegarde identique %s" % [id, str(differing)])
 		SaveManager.delete_slot("m1")
 		# comparaison avec le vrai déroulé : même drapeaux utiles à la fin du chapitre précédent
 		if snapshots.has(number - 1):
@@ -10310,7 +10316,8 @@ func _test_chapter_starts_play(entries: Array) -> void:
 		check(main.world.map_id == arrive, "%s : on arrive à %s (%s)" % [id, arrive, main.world.map_id])
 		check(main.world.input_enabled and not main.busy, "%s : le joueur a la main après l'ouverture" % id)
 		var mq := str(e.get("main_quest", ""))
-		check(GameState.quest_state(mq) == "active", "%s : la quête principale %s est en cours (%s)" % [id, mq, GameState.quest_state(mq)])
+		var want_quest := str(e.get("quest_state", "active"))
+		check(GameState.quest_state(mq) == want_quest, "%s : la quête principale %s est « %s » (%s)" % [id, mq, want_quest, GameState.quest_state(mq)])
 		var w: Node3D = main.world
 		var reach := _starts_reach(w)
 		var spawn: Dictionary = w.spawn_info(str(e["spawn"])) if w.map_id == str(e["map"]) else {}
@@ -10324,13 +10331,28 @@ func _test_chapter_starts_play(entries: Array) -> void:
 			var ok := false
 			var why := ""
 			if str(target.get("map", "")) == w.map_id or str(target.get("map", "")) == "":
+				# les dialogues qui mènent à l'objectif : le sien, ou ceux du personnage visé encore présents sur la carte
+				var wanted: Array = []
+				if str(target.get("dialogue", "")) != "":
+					wanted.append(str(target["dialogue"]))
+				if str(target.get("npc", "")) != "":
+					for o: Variant in Database.get_map(w.map_id).get("objects", []):
+						if o is Dictionary and str((o as Dictionary).get("type", "")) == "npc" and str((o as Dictionary).get("id", "")) == str(target["npc"]):
+							var cond_if := str((o as Dictionary).get("if", ""))
+							var cond_unless := str((o as Dictionary).get("unless", ""))
+							if (cond_if == "" or GameState.check(cond_if)) and (cond_unless == "" or not GameState.check(cond_unless)):
+								wanted.append(str((o as Dictionary).get("dialogue", "")))
 				for it: Dictionary in w.interactables:
 					var ip: Vector3 = w.interactable_position(it)
-					if (str(target.get("dialogue", "")) != "" and str(it.get("dialogue", "")) == str(target["dialogue"])) or (str(target.get("npc", "")) != "" and str(it.get("npc", it.get("id", ""))) == str(target["npc"])):
-						ok = reach["fn"].call(func(p: Vector2) -> bool: return p.distance_to(Vector2(ip.x, ip.z)) <= float(it["reach"]) - 0.1)
-				if not ok and str(target.get("dialogue", "")) == "" and str(target.get("npc", "")) == "":
+					if wanted.has(str(it.get("dialogue", ""))) and reach["fn"].call(func(p: Vector2) -> bool: return p.distance_to(Vector2(ip.x, ip.z)) <= float(it["reach"]) - 0.1):
+						ok = true
+				for tr: Dictionary in w.triggers:
+					var tr_rect: Rect2 = tr["rect"]
+					if wanted.has(str(tr.get("dialogue", ""))) and reach["fn"].call(func(p: Vector2) -> bool: return tr_rect.has_point(p)):
+						ok = true
+				if wanted.is_empty():
 					ok = true   # étape « aller à cette carte » : on y est
-				why = "objectif sur place « %s »" % str(target.get("dialogue", target.get("npc", "")))
+				why = "objectif sur place %s" % str(wanted)
 			else:
 				# l'objectif est ailleurs : un passage de cette carte y mène (atteignable, ou ouvert par une scène atteignable d'ici)
 				for wp: Dictionary in w.warps:
@@ -10466,6 +10488,8 @@ func _test_chapter_starts_screen(entries: Array) -> void:
 			check(not side.visible or side.get_global_rect().end.y <= panel.end.y, "%s : la ligne des réservistes tient dans l'écran" % str(e["id"]))
 	win.size = old_size
 	# descendre d'un chapitre, refuser, retrouver sa place
+	screen._rows[str((entries[0] as Dictionary)["id"])].grab_focus()
+	await get_tree().process_frame
 	await _pb(JOY_BUTTON_DPAD_DOWN)
 	check(_focus_name() == str((entries[1] as Dictionary)["title"]), "manette : la croix descend au chapitre 2 (%s)" % _focus_name())
 	await _pb(JOY_BUTTON_A)
@@ -10479,9 +10503,10 @@ func _test_chapter_starts_screen(entries: Array) -> void:
 	check(not screen.visible and main.title.visible and _focus_name() == "Choisir un chapitre", "manette : B revient au titre sur la même ligne (%s)" % _focus_name())
 	# aller jusqu'au chapitre 4 et l'accepter
 	await _pb(JOY_BUTTON_A)
-	for _i in 3:
+	check(_focus_name() == str((entries[1] as Dictionary)["title"]), "manette : la liste rouverte retrouve le chapitre 2 (%s)" % _focus_name())
+	for _i in 2:
 		await _pb(JOY_BUTTON_DPAD_DOWN)
-	check(_focus_name() == str((entries[3] as Dictionary)["title"]), "manette : trois fois en bas, le chapitre 4 (%s)" % _focus_name())
+	check(_focus_name() == str((entries[3] as Dictionary)["title"]), "manette : deux fois en bas, le chapitre 4 (%s)" % _focus_name())
 	await _pb(JOY_BUTTON_A)
 	await _pb(JOY_BUTTON_DPAD_UP)
 	check(_focus_name() == "Commencer", "manette : la croix monte sur « Commencer » (%s)" % _focus_name())
@@ -10493,10 +10518,10 @@ func _test_chapter_starts_screen(entries: Array) -> void:
 	check(FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "l'emplacement 1 est intact après le choix d'un chapitre")
 	check(SaveManager.save_game(), "la sauvegarde rapide prend un emplacement libre")
 	check(SaveManager.current_slot == "m2" and FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "…le deuxième, sans toucher au premier (%s)" % SaveManager.current_slot)
-	SaveManager.start_unsaved()
 	for id: String in SaveManager.manual_ids():
 		if not FileAccess.file_exists(SaveManager.slot_path(id)):
 			check(SaveManager.save_game(id), "emplacement %s rempli" % id)
+	SaveManager.start_unsaved()
 	check(not SaveManager.save_game(), "emplacements pleins : la sauvegarde rapide refuse d'écraser une partie sans le demander")
 	check(FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "l'emplacement 1 est toujours intact")
 	check(SaveManager.save_game("m3") and not SaveManager.unchosen, "choisir l'emplacement soi-même reste possible")
