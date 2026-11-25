@@ -16,6 +16,8 @@ const SettingsScreen = preload("res://src/ui/settings_screen.gd")
 const PadScreen = preload("res://src/ui/pad_screen.gd")
 const CreditsScreen = preload("res://src/ui/credits_screen.gd")
 const ConfirmBox = preload("res://src/ui/confirm_box.gd")
+const ChapterScreen = preload("res://src/ui/chapter_screen.gd")
+const ChapterStart = preload("res://src/core/chapter_start.gd")
 const LoadingUI = preload("res://src/ui/ui_kit.gd")
 const LoadingSpinner = preload("res://src/ui/loading_spinner.gd")
 const Prewarm = preload("res://src/gfx/prewarm.gd")
@@ -45,6 +47,7 @@ var pad_screen: Control         # diagnostic de la manette
 var credits: Control            # générique de fin (chapitre 7)
 var _credits_pending := false   # action « generique » : jouée à la fin du dialogue
 var confirm: Control            # « Quitter le jeu ? », « Retour au titre ? » : Non par défaut
+var chapters_screen: Control    # « Choisir un chapitre » (écran-titre)
 var _fade: ColorRect
 var _loading: Label
 var _spinner: Control
@@ -92,6 +95,9 @@ func _ready() -> void:
 	ui.add_child(credits)
 	confirm = ConfirmBox.new()
 	ui.add_child(confirm)
+	chapters_screen = ChapterScreen.new()
+	ui.add_child(chapters_screen)
+	ui.move_child(chapters_screen, confirm.get_index())   # la confirmation passe par-dessus la liste
 
 	var top := CanvasLayer.new()
 	top.layer = 10
@@ -134,6 +140,9 @@ func _ready() -> void:
 	title.load_requested.connect(func() -> void: _open_saves("load", "title"))
 	saves.finished.connect(_on_saves_finished)
 	settings_screen.closed.connect(_on_settings_closed)
+	title.add_entry("Choisir un chapitre", func() -> void: chapters_screen.open())
+	chapters_screen.chosen.connect(_on_chapter_chosen)
+	chapters_screen.closed.connect(_on_chapters_closed)
 	title.add_entry("Manette", func() -> void: pad_screen.open("title"))
 	title.add_entry("Paramètres", func() -> void: settings_screen.open("title"))
 	pad_screen.closed.connect(_on_pad_closed)
@@ -266,6 +275,42 @@ func start_new_game() -> void:
 		busy = true
 		await _fade_to(1.0, 0.8)
 	await _begin_play([], "")
+
+
+## « Choisir un chapitre » : une partie neuve au début du chapitre `id` (voir src/core/chapter_start.gd).
+## Le chapitre 1 est la nouvelle partie ordinaire, prologue compris. Aucune sauvegarde n'est touchée.
+func start_chapter(id: String) -> void:
+	if busy:
+		return
+	if ChapterStart.is_new_game(id):
+		await start_new_game()
+		return
+	busy = true
+	await _fade_to(1.0)
+	title.close()
+	if not ChapterStart.apply(GameState, id):
+		push_error("Début de chapitre inconnu : " + id)
+		GameState.new_game()
+	SaveManager.start_unsaved()   # la partie n'a pas d'emplacement : rien ne s'écrase sans que le joueur le choisisse
+	await _begin_play([], "")
+	var opening := str(ChapterStart.entry(id).get("opening", ""))   # scène d'ouverture qui n'est pas à l'arrivée sur la carte
+	if opening != "" and mode == Mode.PLAY and not busy:
+		await run_dialogue(opening)
+
+
+func _on_chapter_chosen(id: String) -> void:
+	var e := ChapterStart.entry(id)
+	var ask := "Commencer ici ?\n%s\n%s" % [str(e.get("title", id)), str(e.get("place", ""))]
+	if await confirm.ask(ask, "Commencer"):
+		chapters_screen.close(true)
+		start_chapter(id)
+	else:
+		chapters_screen.refocus()
+
+
+func _on_chapters_closed() -> void:
+	if mode == Mode.TITLE and not busy:
+		title.refocus()
 
 
 ## Reprend une partie : la plus récente, ou l'emplacement `slot` ("m1", "a2"...).
@@ -568,6 +613,8 @@ func _on_dialogue_action(action: String) -> void:
 				Sfx.play("save")
 				hud.toast("Partie sauvegardée (%s)" % SaveManager.slot_label(SaveManager.current_slot).to_lower())
 				Tutorial.fire("save")
+			elif SaveManager.unchosen:
+				hud.toast("Pas d'emplacement libre : sauvegardez par la pause, en choisissant celui à remplacer.")
 		"rest":
 			GameState.heal_party()
 			Sfx.play("heal")

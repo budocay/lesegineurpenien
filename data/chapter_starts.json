@@ -1,0 +1,901 @@
+{
+	"chapters": [
+		{
+			"id": "chapitre_1",
+			"title": "1. Bittebourg",
+			"place": "Bittebourg, dans le Comté",
+			"summary": "Le commencement : Glandoulf le Gris, mage de petite stature et de grande sieste, apprend qu'un anneau fort encombrant attend d'être porté très loin. Le prologue se joue en entier.",
+			"new_game": true,
+			"level": 1
+		},
+		{
+			"id": "chapitre_2",
+			"title": "2. Brie",
+			"place": "Brie, auberge du Poney Flagada",
+			"summary": "Le voyage a fait ses premiers pas : la route de Brie est derrière, les genoux déjà fatigués. À Brie, tout tient debout, mais personne ne sait trop pourquoi.",
+			"chapter": "chapitre_2",
+			"map": "brie",
+			"spawn": "route",
+			"party": [
+				"glandoulf",
+				"pepin",
+				"sam",
+				"froton"
+			],
+			"bench": [],
+			"away": [],
+			"level": 7,
+			"money": 350,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2
+			},
+			"gear": {
+				"glandoulf": {
+					"weapon": "baton_noueux",
+					"head": "chapeau_paille_renforce",
+					"armor": "robe_rapiecee",
+					"trinket": "anneau_force_serre",
+					"trinket2": "medaille_anti_sieste"
+				},
+				"pepin": {
+					"weapon": "serpe_argent",
+					"head": "chapeau_paille_renforce",
+					"armor": "justaucorps_contrebande",
+					"trinket": "anneau_force_serre",
+					"trinket2": "medaille_anti_sieste"
+				},
+				"sam": {
+					"weapon": "poele_bords_hauts",
+					"head": "chapeau_paille_renforce",
+					"armor": "justaucorps_contrebande",
+					"trinket": "anneau_force_serre",
+					"trinket2": "medaille_anti_sieste"
+				},
+				"froton": {
+					"weapon": "lame_contrebande",
+					"head": "chapeau_paille_renforce",
+					"armor": "justaucorps_contrebande",
+					"trinket": "anneau_force_serre",
+					"trinket2": "medaille_anti_sieste"
+				}
+			},
+			"talents": {
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				]
+			},
+			"flags": [
+				"auberge_vue",
+				"baveuse_vaincue",
+				"chapitre_1_fini",
+				"combat_grande_baveuse",
+				"combat_morfales_auberge",
+				"combat_morfales_potager",
+				"combat_morfales_quai",
+				"combat_morfales_route",
+				"combat_naze",
+				"combat_prologue_sauron",
+				"fete_commencee",
+				"intro_vue",
+				"invasion",
+				"morfales_chasses",
+				"naze_arrive",
+				"naze_vaincu",
+				"pepin_equipe",
+				"pepin_vue",
+				"potager_soigne",
+				"pre_couche_vu",
+				"prologue_vu",
+				"racines_prises",
+				"route_ouverte",
+				"route_vue",
+				"sam_vu",
+				"source_trouvee",
+				"ursule_vue"
+			],
+			"main_quest": "brie"
+		},
+		{
+			"id": "chapitre_3",
+			"title": "3. Fondue-Combe",
+			"place": "Le col des Biscottes, aux portes de Fondue-Combe",
+			"summary": "Brie a livré ses fromages et ses secrets. Il faut maintenant gravir le col pour comparaître devant le Conseil des Elfes, qui décident à plusieurs de ce qui revient à un seul.",
+			"chapter": "chapitre_3",
+			"map": "col_biscottes",
+			"spawn": "est",
+			"party": [
+				"glandoulf",
+				"pepin",
+				"sam",
+				"froton",
+				"merri",
+				"aragrogne"
+			],
+			"bench": [],
+			"away": [],
+			"level": 9,
+			"money": 1000,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2,
+				"tisane_corsee": 3
+			},
+			"gear": {
+				"glandoulf": {
+					"weapon": "baton_pelerin",
+					"head": "chapeau_gris",
+					"armor": "robe_chambre",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				},
+				"pepin": {
+					"weapon": "serpe_argent",
+					"head": "chapeau_paille_renforce",
+					"armor": "justaucorps_contrebande",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				},
+				"sam": {
+					"weapon": "casserole_fonte",
+					"head": "salade_garde",
+					"armor": "cotte_reprisee",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				},
+				"froton": {
+					"weapon": "surin_foire",
+					"head": "chapeau_paille_renforce",
+					"armor": "justaucorps_contrebande",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				},
+				"merri": {
+					"weapon": "estoc_de_marche",
+					"head": "salade_garde",
+					"armor": "cotte_reprisee",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				},
+				"aragrogne": {
+					"weapon": "epee_voyageur",
+					"head": "salade_garde",
+					"armor": "plastron_cabosse",
+					"trinket": "bourse_double_fond",
+					"trinket2": "bracelet_soupe"
+				}
+			},
+			"talents": {
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				],
+				"merri": [
+					"stratege",
+					"estoc"
+				],
+				"aragrogne": [
+					"rodeur",
+					"roi_malgre_lui"
+				]
+			},
+			"flags": [
+				"aragrogne_equipe",
+				"aragrogne_vu",
+				"brie_vue",
+				"cave_ouverte",
+				"cave_vue",
+				"chambre_prise",
+				"chantecler_vaincu",
+				"chapitre_2_fini",
+				"combat_chantecler",
+				"combat_duel_gaston",
+				"combat_duel_veuve",
+				"combat_nazes_nuit",
+				"combat_vacherin",
+				"concours_gagne",
+				"concours_inscrit",
+				"convocation_recue",
+				"ferme_vue",
+				"merri_equipe",
+				"nazes_vaincu",
+				"persille_paye",
+				"persille_vu",
+				"poney_couche_vu",
+				"poney_leve",
+				"poney_vu",
+				"sidonie_vue",
+				"vacherin_vaincu"
+			],
+			"main_quest": "fondue"
+		},
+		{
+			"id": "chapitre_4",
+			"title": "4. Mines de Morbier",
+			"place": "Porte de Morbier, entre deux montagnes très sérieuses",
+			"summary": "Le Conseil s'est éternisé, puis il a tranché. La compagnie compte huit membres, dont une naine qui connaît le chemin et plusieurs qui ne connaissent que le mot « raccourci ».",
+			"chapter": "chapitre_4",
+			"map": "porte_morbier",
+			"spawn": "vallee",
+			"party": [
+				"glandoulf",
+				"pepin",
+				"sam",
+				"froton",
+				"merri",
+				"aragrogne",
+				"digoulasse",
+				"grimli"
+			],
+			"bench": [],
+			"away": [],
+			"level": 11,
+			"money": 1500,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2,
+				"tisane_corsee": 3,
+				"pain_elfique": 2
+			},
+			"gear": {
+				"glandoulf": {
+					"weapon": "baton_sylvestre",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_soie",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"pepin": {
+					"weapon": "serpe_lune",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"sam": {
+					"weapon": "sauteuse_elfique",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"froton": {
+					"weapon": "stylet_elfique",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"merri": {
+					"weapon": "rapiere_conseil",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"aragrogne": {
+					"weapon": "lame_combe",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"digoulasse": {
+					"weapon": "arc_long_combe",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"grimli": {
+					"weapon": "hache_deux_barbes",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				}
+			},
+			"talents": {
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				],
+				"merri": [
+					"stratege",
+					"estoc"
+				],
+				"aragrogne": [
+					"rodeur",
+					"roi_malgre_lui"
+				],
+				"digoulasse": [
+					"tir_de_precision",
+					"mepris_elfique"
+				],
+				"grimli": [
+					"hache_furieuse",
+					"tete_dure"
+				]
+			},
+			"flags": [
+				"archives_ouvertes",
+				"archives_vues",
+				"bromure_invite",
+				"chant_fini",
+				"chant_soigne",
+				"chant_vu",
+				"chapitre_3_fini",
+				"clairefontaine_vue",
+				"col_vu",
+				"combat_gardien_archives",
+				"combat_guetteur_du_lac",
+				"conseil_1_fait",
+				"digoulasse_equipe",
+				"fondue_vue",
+				"formulaire_pret",
+				"gardien_vaincu",
+				"greffier_vu",
+				"grimli_equipe",
+				"haie_1_taillee",
+				"haie_2_taillee",
+				"haie_3_taillee",
+				"haie_finie",
+				"haie_vue",
+				"haies_taillees",
+				"merri_elrond",
+				"merri_elrond_ami",
+				"sylvanor_vu",
+				"tampon_1_pris",
+				"tampon_2_pris",
+				"tampon_3_pris",
+				"tampon_4_pris",
+				"tampons_rendus",
+				"tampons_vus"
+			],
+			"main_quest": "morbier"
+		},
+		{
+			"id": "chapitre_5",
+			"title": "5. L'Isengarde-Manger",
+			"place": "Les portes de l'Est, au sortir des Mines",
+			"summary": "Glandoulf est tombé dans les profondeurs, et l'on a marché sans se retourner. La compagnie, endeuillée mais pas dégarnie, débouche à l'air libre. Elle ignore encore qui l'attend en bas, au frais.",
+			"chapter": "chapitre_4",
+			"map": "portes_est",
+			"spawn": "pont",
+			"party": [
+				"sam",
+				"pepin",
+				"froton",
+				"merri",
+				"aragrogne",
+				"digoulasse",
+				"grimli"
+			],
+			"bench": [],
+			"away": [
+				"glandoulf"
+			],
+			"level": 16,
+			"money": 3200,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2,
+				"tisane_corsee": 3,
+				"pain_elfique": 2,
+				"tomme_de_cave": 3
+			},
+			"gear": {
+				"sam": {
+					"weapon": "pic_de_morbier",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"pepin": {
+					"weapon": "marteau_de_forge",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"froton": {
+					"weapon": "marteau_de_forge",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"merri": {
+					"weapon": "rapiere_conseil",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"aragrogne": {
+					"weapon": "lame_combe",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"digoulasse": {
+					"weapon": "arc_long_combe",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"grimli": {
+					"weapon": "pic_de_morbier",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				},
+				"glandoulf": {
+					"weapon": "baton_de_cendre",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_soie",
+					"trinket": "medaille_assiduite",
+					"trinket2": "bourse_double_fond"
+				}
+			},
+			"talents": {
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				],
+				"merri": [
+					"stratege",
+					"estoc"
+				],
+				"aragrogne": [
+					"rodeur",
+					"roi_malgre_lui"
+				],
+				"digoulasse": [
+					"tir_de_precision",
+					"mepris_elfique"
+				],
+				"grimli": [
+					"hache_furieuse",
+					"tete_dure"
+				],
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				]
+			},
+			"flags": [
+				"anneau_repris",
+				"balourd_fait",
+				"camp_vaincu",
+				"coffre_camp_pris",
+				"coffre_galerie_1_pris",
+				"coffre_galerie_2_pris",
+				"coffre_halle_pris",
+				"coffre_prof_1_pris",
+				"coffre_prof_2_pris",
+				"coffre_tombe_pris",
+				"combat_balourd",
+				"combat_gobelins_du_camp",
+				"combat_goulum",
+				"combat_gros_bleu",
+				"comptes_rendus",
+				"devinette_1",
+				"devinette_2",
+				"froton_porte_anneau",
+				"galeries_vues",
+				"glandoulf_tombe",
+				"goulum_rencontre",
+				"gros_bleu_vaincu",
+				"halle_vue",
+				"meule_livree",
+				"pioche_prise",
+				"pioche_rendue",
+				"pont_vu",
+				"porte_essai",
+				"porte_ouverte",
+				"porte_vue",
+				"profondeurs_vues",
+				"rondin_vu",
+				"tombe_visitee",
+				"tombe_vue"
+			],
+			"main_quest": "isengarde",
+			"quest_state": ""
+		},
+		{
+			"id": "chapitre_6",
+			"title": "6. Minas Tartine",
+			"place": "Minas Tartine, ville blanche assiégée",
+			"summary": "Le Roquefort a cédé, l'Isengarde-Manger aussi, et le groupe est reconstitué. Reste à tenir la porte d'une cité qui monte en étages, pendant que le siège s'étire et que les provisions se raidissent.",
+			"chapter": "chapitre_6",
+			"map": "minas_croute",
+			"spawn": "aigle",
+			"party": [
+				"glandoulf",
+				"sam",
+				"froton",
+				"aragrogne"
+			],
+			"bench": [
+				"merri",
+				"pepin",
+				"digoulasse",
+				"grimli"
+			],
+			"away": [],
+			"level": 18,
+			"money": 2500,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2,
+				"tisane_corsee": 3,
+				"pain_elfique": 2,
+				"tomme_de_cave": 3,
+				"brioche_du_cavalier": 3
+			},
+			"gear": {
+				"glandoulf": {
+					"weapon": "baton_de_cendre",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_soie",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"sam": {
+					"weapon": "louche_de_concours",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"froton": {
+					"weapon": "canif_du_gratin",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"aragrogne": {
+					"weapon": "epee_du_cavalier_servant",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"merri": {
+					"weapon": "rapiere_conseil",
+					"head": "heaume_naine",
+					"armor": "haubert_marche",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"pepin": {
+					"weapon": "serpe_de_plaine",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"digoulasse": {
+					"weapon": "arc_des_trois_cents_pas",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				},
+				"grimli": {
+					"weapon": "hache_a_raclette",
+					"head": "heaume_naine",
+					"armor": "plates_naines",
+					"trinket": "fer_a_cheval_dore",
+					"trinket2": "pince_de_service"
+				}
+			},
+			"talents": {
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				],
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				],
+				"aragrogne": [
+					"rodeur",
+					"roi_malgre_lui"
+				],
+				"merri": [
+					"stratege",
+					"estoc"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"digoulasse": [
+					"tir_de_precision",
+					"mepris_elfique"
+				],
+				"grimli": [
+					"hache_furieuse",
+					"tete_dure"
+				]
+			},
+			"flags": [
+				"bergerie_vue",
+				"bilan_fait",
+				"breche_lancee",
+				"bromure_mort",
+				"bromure_revenu",
+				"cabecou_vu",
+				"chapitre_4_fini",
+				"chapitre_5_fini",
+				"coffre_bergerie_pris",
+				"coffre_fongorn_pris",
+				"coffre_garde_pris",
+				"coffre_isengarde_pris",
+				"coffre_plaine_pris",
+				"combat_ambuscade_chutes",
+				"combat_breche",
+				"combat_breche_avant",
+				"combat_froton_anneaute",
+				"combat_grimace",
+				"combat_sarumale",
+				"combat_uglouk_garde",
+				"embuscade_faite",
+				"eolaine_demande",
+				"fongorn_vu",
+				"fosses_inondees",
+				"fours_eteints",
+				"froton_libere",
+				"garde_vu",
+				"glandoulf_revenu",
+				"grimace_vaincue",
+				"isengarde_vu",
+				"merri_ecuyer",
+				"nouvelle_ecorce",
+				"nouvelle_mousse",
+				"nouvelle_rejet",
+				"nouvelles_demandees",
+				"nouvelles_rendues",
+				"nuit_plaine_faite",
+				"plaine_vue",
+				"portes_vues",
+				"reunion_faite",
+				"roi_ecoute",
+				"roi_reveille",
+				"sarumale_vaincu",
+				"terrasse_vue"
+			],
+			"main_quest": "minas_tartine"
+		},
+		{
+			"id": "chapitre_7",
+			"title": "7. La Montagne du Festin",
+			"place": "Pelle-à-Tarte, aux portes du Mordgras",
+			"summary": "Le siège est levé. Il reste une montagne, et elle est chaude. Les héros se séparent en deux cortèges : l'un cherche le chemin, l'autre cherche ce qu'il y a à manger sur le chemin.",
+			"chapter": "chapitre_7",
+			"map": "pelle_a_tarte",
+			"spawn": "est",
+			"party": [
+				"aragrogne",
+				"merri",
+				"glandoulf",
+				"pepin"
+			],
+			"bench": [
+				"sam",
+				"grimli",
+				"digoulasse",
+				"froton"
+			],
+			"away": [],
+			"level": 23,
+			"money": 3500,
+			"items": {
+				"tisane": 3,
+				"cidre": 2,
+				"remontant": 2,
+				"tisane_corsee": 3,
+				"pain_elfique": 2,
+				"tomme_de_cave": 3,
+				"brioche_du_cavalier": 3,
+				"remontant_du_gouda": 3,
+				"pain_de_siege": 2
+			},
+			"gear": {
+				"aragrogne": {
+					"weapon": "epee_de_la_garde_dressee",
+					"head": "heaume_de_la_garde_dressee",
+					"armor": "cuirasse_de_croute",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"merri": {
+					"weapon": "canif_de_la_poterne",
+					"head": "heaume_de_la_garde_dressee",
+					"armor": "cotte_de_pain_d_epices",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"glandoulf": {
+					"weapon": "baton_du_garde_a_vous",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_de_chantilly",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"pepin": {
+					"weapon": "serpe_du_poirier",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_de_chantilly",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"sam": {
+					"weapon": "louche_de_remparts",
+					"head": "heaume_de_la_garde_dressee",
+					"armor": "cotte_de_pain_d_epices",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"grimli": {
+					"weapon": "hache_a_raclette",
+					"head": "heaume_de_la_garde_dressee",
+					"armor": "cuirasse_de_croute",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"digoulasse": {
+					"weapon": "arc_des_trois_cents_pas",
+					"head": "chapeau_plume_elfe",
+					"armor": "robe_de_chantilly",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				},
+				"froton": {
+					"weapon": "canif_de_la_poterne",
+					"head": "chapeau_plume_elfe",
+					"armor": "cuir_souple_elfe",
+					"trinket": "medaille_du_garde_a_vous",
+					"trinket2": "doigt_de_gant"
+				}
+			},
+			"talents": {
+				"aragrogne": [
+					"rodeur",
+					"roi_malgre_lui"
+				],
+				"merri": [
+					"stratege",
+					"estoc"
+				],
+				"glandoulf": [
+					"pyrotechnicien",
+					"maitre_sieste"
+				],
+				"pepin": [
+					"herboriste",
+					"fumeuse"
+				],
+				"sam": [
+					"poele_de_fer",
+					"cuistot"
+				],
+				"grimli": [
+					"hache_furieuse",
+					"tete_dure"
+				],
+				"digoulasse": [
+					"tir_de_precision",
+					"mepris_elfique"
+				],
+				"froton": [
+					"pickpocket",
+					"embrouilleur"
+				]
+			},
+			"flags": [
+				"accueil_fait",
+				"bromure_annonce",
+				"chapitre_6_fini",
+				"coffre_citadelle_pris",
+				"coffre_intendance_1_pris",
+				"coffre_intendance_2_pris",
+				"combat_dindon_farce",
+				"combat_eveilles_1",
+				"combat_eveilles_2",
+				"combat_eveilles_3",
+				"combat_eveilles_4",
+				"combat_gothmoque",
+				"combat_grondine",
+				"combat_naze_supreme",
+				"combat_pelle_cassouletains",
+				"combat_pelle_mammous",
+				"combat_roi_eveille",
+				"combat_saumure",
+				"compliment_defie",
+				"compliment_obtenu",
+				"farine_1_prise",
+				"farine_2_prise",
+				"farine_3_prise",
+				"m_braise",
+				"m_couvercle",
+				"m_echelle",
+				"m_huile",
+				"m_soupe",
+				"manoeuvres_ok",
+				"minas_vu",
+				"nuit_vue",
+				"pain_demande",
+				"pain_fait",
+				"poirier_demande",
+				"porte_tenue",
+				"sentier_envoye",
+				"tuteur_essaye"
+			],
+			"main_quest": "mordgras",
+			"opening": "pelle_depart",
+			"arrives_in": "marais_bouillon"
+		}
+	]
+}

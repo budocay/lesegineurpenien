@@ -21,6 +21,7 @@ const Hud = preload("res://src/ui/hud.gd")
 const TalentScreen = preload("res://src/ui/talent_screen.gd")
 const BattleFx = preload("res://src/battle/battle_fx.gd")
 const FxPainter = preload("res://src/gfx/fx_painter.gd")
+const ChapterStart = preload("res://src/core/chapter_start.gd")
 
 var failures := 0
 var checks := 0
@@ -58,6 +59,25 @@ func _ready() -> void:
 		await _test_flow()
 		await _test_chapter_4()
 		print("%d vérifications, %d échec(s) (déroulés seuls)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_FLOWDUMP"):   # déroulés 1 à 7 à la suite, et relevé de l'état à chaque fin de chapitre (user://flow_dump/)
+		_arm_flow_dump()
+		await _test_flow()
+		await _test_chapter_2()
+		await _test_chapter_3()
+		await _test_chapter_4()
+		await _test_chapter_5()
+		await _test_chapter_6()
+		await _test_chapter_7()
+		print("%d vérifications, %d échec(s) (déroulés et relevés)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
+	if OS.has_environment("GLAN_ONLY_STARTS"):   # essai ciblé de « Choisir un chapitre » (comparaison au vrai déroulé si un relevé existe)
+		await _test_chapter_starts()
+		print("%d vérifications, %d échec(s) (débuts de chapitre seuls)." % [checks, failures])
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
@@ -258,6 +278,7 @@ func _ready() -> void:
 	print("== Écran de talents ==")
 	await _test_talent_screen()
 	print("== Déroulé complet ==")
+	_arm_flow_dump()
 	await _test_flow()
 	await _test_chapter_2()
 	await _test_chapter_3()
@@ -265,6 +286,7 @@ func _ready() -> void:
 	await _test_chapter_5()
 	await _test_chapter_6()
 	await _test_chapter_7()
+	await _test_chapter_starts()
 	print("== Décors elfiques (style de Fondue-Combe) ==")
 	await _test_elven_scenery()
 	print("== Décors nains (Mines de Morbier) ==")
@@ -2624,6 +2646,21 @@ func _wait_idle(main: Node, seconds: float = 40.0) -> void:
 	print("    entrée %s, mode %d, menus %s, pause %s, banc %s" % [str(main.world.input_enabled) if main.world else "-", int(main.mode), str(main.menus.visible), str(main.pause.visible), str(main._abort_flow)])
 	if main.battle != null:
 		print("    combat : issue « %s », résultat moteur « %s », état interface %d" % [str(main.battle.outcome), str(main.battle.engine.result), int(main.battle_ui._state)])
+
+
+## Relevé de l'état réel à la fin de chaque chapitre joué par les tests de déroulé : sert à régler et à
+## vérifier data/chapter_starts.json (GLAN_DUMP_FLOW=1 ou GLAN_ONLY_FLOWDUMP).
+func _arm_flow_dump() -> void:
+	DirAccess.make_dir_recursive_absolute("user://flow_dump")
+	for old_file: String in DirAccess.get_files_at("user://flow_dump"):
+		DirAccess.remove_absolute("user://flow_dump/" + old_file)
+	GameState.flag_changed.connect(func(flag: String, _v: Variant) -> void:
+		if flag.begins_with("chapitre_") and flag.ends_with("_fini") and not FileAccess.file_exists("user://flow_dump/%s.json" % flag):   # le premier relevé est le vrai : les tests suivants refabriquent l'état
+			var f := FileAccess.open("user://flow_dump/%s.json" % flag, FileAccess.WRITE)
+			f.store_string(JSON.stringify({"flags": GameState.flags, "quests": GameState.quests, "party": GameState.party, "bench": GameState.bench,
+				"inventory": GameState.inventory, "money": GameState.money, "map": GameState.map_id, "chapter": GameState.chapter,
+				"roster": GameState.roster}, "\t"))
+			f.close())
 
 
 func _test_flow() -> void:
@@ -10121,3 +10158,375 @@ func _test_pad_carnet(main: Node) -> void:
 	check(not main.menus.visible and main.pause.visible, "carnet : B revient à la pause")
 	await _pb(JOY_BUTTON_B)
 	check(not main.pause.visible and main.world.input_enabled, "pause : B referme")
+
+
+# ----------------------------------------------------------------- débuts de chapitre
+
+## « Choisir un chapitre » : chaque début fabriqué est crédible (équipe, niveaux, équipement, quêtes,
+## drapeaux), se charge et se rejoue, et ne contredit pas l'état que produit le vrai déroulé.
+func _test_chapter_starts() -> void:
+	print("== Débuts de chapitre ==")
+	ChapterStart.reload()
+	var entries := ChapterStart.entries()
+	var total_before := checks
+	check(entries.size() == 7, "sept débuts de chapitre dans les données (%d)" % entries.size())
+	for i in entries.size():
+		var e: Dictionary = entries[i]
+		check(str(e.get("id", "")) == "chapitre_%d" % (i + 1), "début %d : identifiant chapitre_%d (%s)" % [i + 1, i + 1, str(e.get("id", ""))])
+		var problems := ChapterStart.problems(e)
+		check(problems.is_empty(), "début %s : données valides %s" % [str(e.get("id", "")), str(problems)])
+		if i > 0:
+			check(int(e.get("level", 1)) >= int((entries[i - 1] as Dictionary).get("level", 1)), "début %s : niveau jamais en recul" % str(e.get("id", "")))
+	var known_text := _starts_data_text()
+	var snapshots := _starts_snapshots()
+	var previous_flags: Array = []
+	for e: Dictionary in entries:
+		if bool(e.get("new_game", false)):
+			continue
+		var id := str(e["id"])
+		var number := int(id.trim_prefix("chapitre_"))
+		GameState.new_game()
+		check(ChapterStart.apply(GameState, id), "%s : la partie se fabrique" % id)
+		# équipe : actifs, réserve, banc, absents
+		var party: Array = e.get("party", [])
+		check(GameState.party == party, "%s : équipe %s (%s)" % [id, str(party), str(GameState.party)])
+		check(GameState.active_party() == party.slice(0, 4) and GameState.reserve_party() == party.slice(4), "%s : quatre combattants, le reste en réserve" % id)
+		check(GameState.bench == e.get("bench", []), "%s : banc %s (%s)" % [id, str(e.get("bench", [])), str(GameState.bench)])
+		check(GameState.chapter == str(e.get("chapter", id)) and GameState.map_id == str(e["map"]) and GameState.spawn_id == str(e["spawn"]), "%s : chapitre, carte et arrivée" % id)
+		var levels: Dictionary = e.get("levels", {}) if e.get("levels") is Dictionary else {}
+		var everyone: Array = party + e.get("bench", []) + e.get("away", [])
+		for who: String in everyone:
+			var want := int(levels.get(who, e.get("level", 1)))
+			var m := GameState.member(who)
+			check(int(m["level"]) == want and int(m["xp"]) == 0, "%s : %s au niveau %d (%d)" % [id, who, want, int(m["level"])])
+			check(int(m["hp"]) == int(GameState.member_stats(who)["hp"]) and int(m["hp"]) > 0, "%s : %s en pleine forme" % [id, who])
+			for slot: String in (e.get("gear", {}) as Dictionary).get(who, {}):
+				check(GameState.equipped(who, slot) == str(((e["gear"] as Dictionary)[who] as Dictionary)[slot]), "%s : %s porte %s" % [id, who, slot])
+			var spent := GameState.talent_points_spent(who)
+			check((spent > 0 or want < 3) and GameState.talent_points(who) >= 0, "%s : %s a dépensé ses points de talents (%d dépensés, %d restants)" % [id, who, spent, GameState.talent_points(who)])
+			check(not Rules.skills_at(who, want).is_empty(), "%s : %s a des compétences" % [id, who])
+		check(GameState.money == int(e.get("money", 0)), "%s : or" % id)
+		for item: String in e.get("items", {}):
+			check(GameState.item_count(item) >= int((e["items"] as Dictionary)[item]), "%s : %s dans le sac" % [id, item])
+		for item: String in GameState.inventory:
+			check(not Database.get_item(item).is_empty() and int(GameState.inventory[item]) > 0, "%s : objet du sac connu (%s)" % [id, item])
+		# drapeaux : posés, connus de la base, et l'histoire n'a pas déjà fini ce chapitre
+		var flags := ChapterStart.flags_for(id)
+		for f: String in flags:
+			check(GameState.has_flag(f), "%s : drapeau %s posé" % [id, f])
+			check(f.begins_with("combat_") or known_text.contains("\"%s\"" % f), "%s : drapeau « %s » connu des données" % [id, f])
+		for f: String in previous_flags:
+			check(flags.has(f), "%s : drapeau %s du chapitre précédent conservé" % [id, f])
+		previous_flags = flags
+		check(not GameState.has_flag("chapitre_%d_fini" % number), "%s : le chapitre n'est pas déjà fini" % id)
+		# quêtes : fermées seulement si leurs drapeaux le disent ; la principale n'est pas finie
+		for qid: String in GameState.quests:
+			var complete := str(Database.get_quest(qid).get("complete", ""))
+			if str(GameState.quests[qid]) == "done":
+				check(complete == "" or GameState.check(complete) or (e.get("quests_done", []) as Array).has(qid), "%s : la quête %s n'est finie que si l'histoire l'est" % [id, qid])
+		var mq := str(e.get("main_quest", ""))
+		check(mq == "" or GameState.quest_state(mq) != "done", "%s : la quête principale %s n'est pas déjà finie" % [id, mq])
+		# aller-retour sauvegarde / chargement
+		var before_dict: Dictionary = JSON.parse_string(JSON.stringify(GameState.to_dict()))   # comme après un passage par le fichier : nombres uniformes
+		var before := JSON.stringify(before_dict, "", true)
+		check(SaveManager.save_game("m1"), "%s : sauvegarde" % id)
+		GameState.new_game()
+		check(SaveManager.load_game("m1"), "%s : chargement" % id)
+		var differing: Array = []
+		var after_dict: Dictionary = JSON.parse_string(JSON.stringify(GameState.to_dict()))
+		for k: Variant in before_dict:
+			if JSON.stringify(before_dict[k], "", true) != JSON.stringify(after_dict.get(k), "", true):
+				differing.append(str(k))
+		check(JSON.stringify(after_dict, "", true) == before, "%s : aller-retour sauvegarde identique %s" % [id, str(differing)])
+		SaveManager.delete_slot("m1")
+		# comparaison avec le vrai déroulé : même drapeaux utiles à la fin du chapitre précédent
+		if snapshots.has(number - 1):
+			var real: Array = snapshots[number - 1]
+			var missing: Array = []
+			var extra: Array = []
+			for f: String in real:
+				if not flags.has(f) and _starts_is_condition(f, known_text):
+					missing.append(f)
+			for f: String in flags:
+				if not real.has(f) and _starts_is_condition(f, known_text):
+					extra.append(f)
+			if id == "chapitre_5":
+				missing.erase("portes_vues")   # fin du chapitre 4 : la scène du deuil se joue à l'ouverture
+				missing.erase("chapitre_4_fini")
+			check(missing.is_empty(), "%s : aucun drapeau utile du vrai déroulé ne manque %s" % [id, str(missing)])
+			if real.size() >= int(flags.size() * 0.8):   # relevé complet (les relevés des chapitres 3 et 4 mêlent parfois plusieurs tests)
+				check(extra.is_empty(), "%s : aucun drapeau utile en trop par rapport au vrai déroulé %s" % [id, str(extra)])
+		else:
+			print("  %s : pas de relevé du vrai déroulé pour comparer (jouer GLAN_ONLY_FLOWDUMP ou le test complet)" % id)
+	SaveManager.delete_save()
+	GameState.new_game()
+	await _test_chapter_starts_play(entries)
+	await _test_chapter_starts_screen(entries)
+	print("  %d vérifications sur les débuts de chapitre" % (checks - total_before))
+
+
+## Texte de toutes les données où un drapeau peut apparaître (dialogues, cartes, quêtes, boutiques).
+func _starts_data_text() -> String:
+	var text := ""
+	for dir: String in ["res://data/dialogues", "res://data/maps"]:
+		for f: String in Database.list_files(dir):
+			text += FileAccess.get_file_as_string("%s/%s" % [dir, f])
+	for f: String in ["quests", "shops", "encounters", "items"]:
+		text += FileAccess.get_file_as_string("res://data/%s.json" % f)
+	return text
+
+
+## Vrai si le drapeau intervient dans une condition (si, sauf, début ou fin de quête, étape) et pas seulement dans un « set ».
+func _starts_is_condition(flag: String, text: String) -> bool:
+	var rx := RegEx.new()
+	rx.compile("\"(if|unless|start|complete|done|when|require|requires)\"\\s*:\\s*\"[^\"]*\\b" + flag + "\\b")
+	return rx.search(text) != null
+
+
+## Relevés du vrai déroulé (user://flow_dump) : numéro de chapitre fini -> drapeaux posés à ce moment.
+func _starts_snapshots() -> Dictionary:
+	var out := {}
+	for n in range(1, 7):
+		var path := "user://flow_dump/chapitre_%d_fini.json" % n
+		if FileAccess.file_exists(path):
+			var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+			if d is Dictionary and (d as Dictionary).get("flags") is Dictionary:
+				out[n] = ((d as Dictionary)["flags"] as Dictionary).keys()
+	return out
+
+
+## Joue chaque début pour de bon : ouverture comprise, la carte se construit, l'arrivée est dégagée, la
+## quête principale démarre, et son premier passage est atteignable à pied.
+func _test_chapter_starts_play(entries: Array) -> void:
+	for e: Dictionary in entries:
+		if bool(e.get("new_game", false)):
+			continue
+		var id := str(e["id"])
+		var main: Node = MAIN.instantiate()
+		main.auto_battles = true
+		add_child(main)
+		await _wait_idle(main)
+		main.start_chapter(id)
+		await _wait_idle(main, 120.0)
+		var arrive := str(e.get("arrives_in", e["map"]))
+		check(main.mode == main.Mode.PLAY and main.world != null, "%s : la partie démarre (%d)" % [id, int(main.mode)])
+		if main.world == null:
+			main.queue_free()
+			continue
+		check(main.world.map_id == arrive, "%s : on arrive à %s (%s)" % [id, arrive, main.world.map_id])
+		check(main.world.input_enabled and not main.busy, "%s : le joueur a la main après l'ouverture" % id)
+		var mq := str(e.get("main_quest", ""))
+		var want_quest := str(e.get("quest_state", "active"))
+		check(GameState.quest_state(mq) == want_quest, "%s : la quête principale %s est « %s » (%s)" % [id, mq, want_quest, GameState.quest_state(mq)])
+		var w: Node3D = main.world
+		var reach := _starts_reach(w)
+		var spawn: Dictionary = w.spawn_info(str(e["spawn"])) if w.map_id == str(e["map"]) else {}
+		if not spawn.is_empty():
+			var sp: Vector3 = spawn["pos"]
+			check(w.is_free(Vector2(sp.x, sp.z), 0.28, w.player), "%s : l'arrivée %s est dégagée" % [id, str(e["spawn"])])
+		check(reach["cells"] > 400, "%s : le joueur a de la place pour marcher (%d cases)" % [id, int(reach["cells"])])
+		var step := _starts_first_step(mq)
+		if not step.is_empty():
+			var target: Dictionary = step.get("target", {}) if step.get("target") is Dictionary else {}
+			var ok := false
+			var why := ""
+			if str(target.get("map", "")) == w.map_id or str(target.get("map", "")) == "":
+				# les dialogues qui mènent à l'objectif : le sien, ou ceux du personnage visé encore présents sur la carte
+				var wanted: Array = []
+				if str(target.get("dialogue", "")) != "":
+					wanted.append(str(target["dialogue"]))
+				if str(target.get("npc", "")) != "":
+					for o: Variant in Database.get_map(w.map_id).get("objects", []):
+						if o is Dictionary and str((o as Dictionary).get("type", "")) == "npc" and str((o as Dictionary).get("id", "")) == str(target["npc"]):
+							var cond_if := str((o as Dictionary).get("if", ""))
+							var cond_unless := str((o as Dictionary).get("unless", ""))
+							if (cond_if == "" or GameState.check(cond_if)) and (cond_unless == "" or not GameState.check(cond_unless)):
+								wanted.append(str((o as Dictionary).get("dialogue", "")))
+				for it: Dictionary in w.interactables:
+					var ip: Vector3 = w.interactable_position(it)
+					if wanted.has(str(it.get("dialogue", ""))) and reach["fn"].call(func(p: Vector2) -> bool: return p.distance_to(Vector2(ip.x, ip.z)) <= float(it["reach"]) - 0.1):
+						ok = true
+				for tr: Dictionary in w.triggers:
+					var tr_rect: Rect2 = tr["rect"]
+					if wanted.has(str(tr.get("dialogue", ""))) and reach["fn"].call(func(p: Vector2) -> bool: return tr_rect.has_point(p)):
+						ok = true
+				if wanted.is_empty():
+					ok = true   # étape « aller à cette carte » : on y est
+				why = "objectif sur place %s" % str(wanted)
+			else:
+				# l'objectif est ailleurs : un passage de cette carte y mène (atteignable, ou ouvert par une scène atteignable d'ici)
+				for wp: Dictionary in w.warps:
+					var r: Rect2 = wp["rect"]
+					if reach["fn"].call(func(p: Vector2) -> bool: return r.has_point(p)):
+						ok = true
+				if not ok:
+					ok = _starts_gate_reachable(w, reach)
+				why = "passage vers %s" % str(target.get("map", ""))
+			check(ok, "%s : premier objectif de « %s » atteignable (%s)" % [id, mq, why])
+		main.queue_free()
+		await get_tree().process_frame
+		await get_tree().process_frame
+	SaveManager.delete_save()
+	GameState.new_game()
+
+
+## Première étape non faite de la quête principale `qid` ({} si elle n'existe pas ou est finie).
+func _starts_first_step(qid: String) -> Dictionary:
+	for s: Variant in Database.get_quest(qid).get("steps", []):
+		if s is Dictionary and not GameState.check(str((s as Dictionary).get("done", ""))):
+			return s
+	return {}
+
+
+## Remplissage par diffusion depuis le joueur : {"cells", "fn": appel(test) -> vrai si une case atteignable satisfait le test}.
+func _starts_reach(world: Node3D) -> Dictionary:
+	var step := 0.25
+	var gw := int(world.grid_w / step) + 1
+	var gh := int(world.grid_h / step) + 1
+	var seen := PackedByteArray()
+	seen.resize(gw * gh)
+	var start := Vector2i(int(round(world.player.position.x / step)), int(round(world.player.position.z / step)))
+	var queue: Array[Vector2i] = [start]
+	seen[start.y * gw + start.x] = 1
+	var head := 0
+	while head < queue.size():
+		var c := queue[head]
+		head += 1
+		for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n := c + d
+			if n.x < 0 or n.y < 0 or n.x >= gw or n.y >= gh or seen[n.y * gw + n.x] != 0:
+				continue
+			if world.is_free(Vector2(n.x * step, n.y * step), 0.28, world.player):
+				seen[n.y * gw + n.x] = 1
+				queue.append(n)
+	var fn := func(test: Callable) -> bool:
+		for c: Vector2i in queue:
+			if test.call(Vector2(c.x * step, c.y * step)):
+				return true
+		return false
+	return {"cells": queue.size(), "fn": fn}
+
+
+## Vrai si une interaction atteignable de la carte pose le drapeau qui ouvre un de ses passages encore fermés.
+func _starts_gate_reachable(world: Node3D, reach: Dictionary) -> bool:
+	for o: Variant in Database.get_map(world.map_id).get("objects", []):
+		if not (o is Dictionary) or str((o as Dictionary).get("type", "")) != "warp":
+			continue
+		var gate := str((o as Dictionary).get("if", ""))
+		if gate == "" or GameState.check(gate):
+			continue
+		for it: Dictionary in world.interactables:
+			var ip: Vector3 = world.interactable_position(it)
+			var near: bool = reach["fn"].call(func(p: Vector2) -> bool: return p.distance_to(Vector2(ip.x, ip.z)) <= float(it["reach"]) - 0.1)
+			if near and _starts_dialogue_sets(str(it.get("dialogue", "")), gate, 0):
+				return true
+	return false
+
+
+func _starts_dialogue_sets(id: String, flag: String, depth: int) -> bool:
+	if id == "" or depth > 3:
+		return false
+	return _starts_nodes_set(Database.get_dialogue(id), flag)
+
+
+func _starts_nodes_set(node: Variant, flag: String) -> bool:
+	if node is Array:
+		for n: Variant in node:
+			if _starts_nodes_set(n, flag):
+				return true
+	elif node is Dictionary:
+		if str((node as Dictionary).get("set", "")) == flag:
+			return true
+		for k: Variant in node:
+			if _starts_nodes_set((node as Dictionary)[k], flag):
+				return true
+	return false
+
+
+## L'écran « Choisir un chapitre », à la manette seule, aux deux tailles de fenêtre ; aucune sauvegarde touchée.
+func _test_chapter_starts_screen(entries: Array) -> void:
+	print("== Choisir un chapitre : écran, manette, tailles ==")
+	var pad_before := Controls.pad
+	Controls.set_pad(true)
+	SaveManager.delete_save()
+	# un emplacement occupé, et un titre prêt
+	GameState.new_game()
+	GameState.set_flag("temoin_sauvegarde")
+	GameState.money = 77
+	check(SaveManager.save_game("m1"), "emplacement 1 occupé par une partie témoin")
+	var witness := FileAccess.get_file_as_string(SaveManager.slot_path("m1"))
+	GameState.new_game()
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	var win := get_window()
+	var old_size := win.size
+	check(await _pad_to("Choisir un chapitre", 8), "manette : la croix mène à « Choisir un chapitre » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	var screen: Control = main.chapters_screen
+	check(screen.visible, "manette : A ouvre « Choisir un chapitre »")
+	check(_focus_name() == str((entries[0] as Dictionary)["title"]), "manette : le curseur est sur le premier chapitre (%s)" % _focus_name())
+	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1600, 900)]:
+		win.size = size
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var view: Rect2 = screen.get_viewport_rect()
+		for e: Dictionary in entries:
+			var b: Button = screen._rows[str(e["id"])]
+			b.grab_focus()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			check(screen._title.text == str(e["title"]) and screen._summary.text == str(e["summary"]), "%s : le détail suit le curseur (%dx%d)" % [str(e["id"]), size.x, size.y])
+			var panel: Rect2 = (screen._panel as Control).get_global_rect()
+			check(view.grow(1.0).encloses(panel), "%s : l'écran tient dans la fenêtre %dx%d (%s dans %s)" % [str(e["id"]), size.x, size.y, str(panel), str(view)])
+			var fit: Font = screen._summary.get_theme_font("font")
+			var need: float = fit.get_multiline_string_size(screen._summary.text, HORIZONTAL_ALIGNMENT_LEFT, screen._summary.size.x, 18).y
+			check(need <= screen._summary.size.y + 2.0, "%s : le résumé tient dans son cadre (%.0f sur %.0f)" % [str(e["id"]), need, screen._summary.size.y])
+			var side: Control = screen._others
+			check(not side.visible or side.get_global_rect().end.y <= panel.end.y, "%s : la ligne des réservistes tient dans l'écran" % str(e["id"]))
+	win.size = old_size
+	# descendre d'un chapitre, refuser, retrouver sa place
+	screen._rows[str((entries[0] as Dictionary)["id"])].grab_focus()
+	await get_tree().process_frame
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == str((entries[1] as Dictionary)["title"]), "manette : la croix descend au chapitre 2 (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await get_tree().process_frame
+	check(main.confirm.visible and _focus_name() == "Non", "manette : A demande confirmation, « Non » par défaut (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	await get_tree().process_frame
+	check(not main.confirm.visible and screen.visible and _focus_name() == str((entries[1] as Dictionary)["title"]), "manette : B refuse, le curseur retrouve le chapitre (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_B)
+	await get_tree().process_frame
+	check(not screen.visible and main.title.visible and _focus_name() == "Choisir un chapitre", "manette : B revient au titre sur la même ligne (%s)" % _focus_name())
+	# aller jusqu'au chapitre 4 et l'accepter
+	await _pb(JOY_BUTTON_A)
+	check(_focus_name() == str((entries[1] as Dictionary)["title"]), "manette : la liste rouverte retrouve le chapitre 2 (%s)" % _focus_name())
+	for _i in 2:
+		await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(_focus_name() == str((entries[3] as Dictionary)["title"]), "manette : deux fois en bas, le chapitre 4 (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await _pb(JOY_BUTTON_DPAD_UP)
+	check(_focus_name() == "Commencer", "manette : la croix monte sur « Commencer » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	await _wait_idle(main, 120.0)
+	check(main.mode == main.Mode.PLAY and GameState.chapter == "chapitre_4" and main.world.map_id == "porte_morbier", "manette : le chapitre 4 démarre (%s, %s)" % [GameState.chapter, main.world.map_id if main.world else "-"])
+	check(GameState.party.size() == 8 and GameState.has_flag("porte_vue"), "manette : l'ouverture du chapitre 4 s'est jouée")
+	# aucune sauvegarde touchée ; la sauvegarde rapide ne remplace jamais un emplacement occupé
+	check(FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "l'emplacement 1 est intact après le choix d'un chapitre")
+	check(SaveManager.save_game(), "la sauvegarde rapide prend un emplacement libre")
+	check(SaveManager.current_slot == "m2" and FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "…le deuxième, sans toucher au premier (%s)" % SaveManager.current_slot)
+	for id: String in SaveManager.manual_ids():
+		if not FileAccess.file_exists(SaveManager.slot_path(id)):
+			check(SaveManager.save_game(id), "emplacement %s rempli" % id)
+	SaveManager.start_unsaved()
+	check(not SaveManager.save_game(), "emplacements pleins : la sauvegarde rapide refuse d'écraser une partie sans le demander")
+	check(FileAccess.get_file_as_string(SaveManager.slot_path("m1")) == witness, "l'emplacement 1 est toujours intact")
+	check(SaveManager.save_game("m3") and not SaveManager.unchosen, "choisir l'emplacement soi-même reste possible")
+	main.queue_free()
+	await get_tree().process_frame
+	SaveManager.delete_save()
+	Controls.set_pad(pad_before)
+	GameState.new_game()

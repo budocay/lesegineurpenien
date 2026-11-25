@@ -17,6 +17,9 @@ const AUTO_SLOTS := 3
 
 var save_path: String = "user://sauvegarde.json"
 var current_slot: String = ""   # dernier emplacement manuel utilisé (sauvegarde rapide)
+## Vrai pour une partie fabriquée (« Choisir un chapitre ») tant que le joueur n'a pas choisi son emplacement :
+## la sauvegarde rapide n'écrase alors jamais un emplacement occupé.
+var unchosen: bool = false
 
 
 # ------------------------------------------------------------------ chemins
@@ -205,6 +208,7 @@ func load_game(id: String = "") -> bool:
 		return false
 	if id.begins_with("m"):
 		current_slot = id
+	unchosen = false
 	return true
 
 
@@ -246,13 +250,25 @@ func save_game(id: String = "") -> bool:
 	if not _write_file(slot_path(id), _snapshot()):
 		return false
 	current_slot = id
+	unchosen = false
 	saved.emit()
 	return true
+
+
+## Partie sans emplacement : l'ancien emplacement courant est oublié.
+func start_unsaved() -> void:
+	current_slot = ""
+	unchosen = true
 
 
 func _quick_slot() -> String:
 	if current_slot in manual_ids():
 		return current_slot
+	if unchosen:
+		for e: Dictionary in list_slots(false):
+			if bool(e["empty"]):
+				return str(e["id"])
+		return ""
 	var oldest := "m1"
 	var oldest_stamp := INF
 	for e: Dictionary in list_slots(false):

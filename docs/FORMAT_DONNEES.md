@@ -1572,3 +1572,31 @@ Un `npc` accepte `scale` (taille du sprite et de la zone d'interaction). Le plan
 - `BattleEngine.commit()` renvoie en plus `progress` (niveau et XP avant/après par héros), `records`, `new`, `first_win`.
 - Audit : `python3 tests/audit_economie.py [--aleatoires N]` (or par chapitre face aux prix, XP face au niveau attendu).
   Mesure de difficulté : `GLAN_DIFFICULTE=promenade|aventure|epreuve GLAN_ONLY_MEASURE=1 ...`.
+
+## `chapter_starts.json` : « Choisir un chapitre »
+
+Chaque entrée de `chapters` décrit une partie neuve, fabriquée à la demande au début d'un chapitre
+(`src/core/chapter_start.gd`, écran `src/ui/chapter_screen.gd`). Aucune sauvegarde figée : ajouter un
+chapitre, c'est ajouter une entrée. La partie fabriquée n'a pas d'emplacement : le premier emplacement
+libre est pris à la première sauvegarde, jamais un emplacement occupé sans demander.
+
+| Champ | Sens |
+|---|---|
+| `id`, `title`, `place`, `summary` | identifiant (`chapitre_N`), titre court de la liste, lieu, résumé « où on en est » |
+| `new_game` | vrai pour le chapitre 1 : passe par « Nouvelle partie », prologue compris (les autres champs sont inutiles) |
+| `chapter` | valeur de `GameState.chapter` à l'arrivée (le chapitre 5 commence encore dans le 4 : la scène du deuil le fait passer au 5) |
+| `map`, `spawn` | carte et arrivée (la scène d'arrivée de la carte, `on_enter`, se joue) |
+| `opening` | dialogue joué après l'arrivée quand l'ouverture est un déclencheur et non un `on_enter` ; `arrives_in` : la carte où ce dialogue envoie |
+| `party`, `bench`, `away` | équipe dans l'ordre (quatre premiers actifs, le reste en réserve) ; groupes scindés (`GameState.bench`) ; absents (leur fiche existe) |
+| `level`, `levels` | niveau commun, et exceptions `{personnage: niveau}` ; atteints par gain d'expérience |
+| `money`, `items` | or ; sac `{objet: nombre}` |
+| `gear` | `{personnage: {emplacement: objet}}`, passé par le sac et `GameState.equip` |
+| `talents` | `{personnage: [branches]}` : points dépensés dans cet ordre (`ChapterStart.spend_talent_points`, seule fonction à adapter si le système de talents change) |
+| `flags` | drapeaux **nouveaux** par rapport aux chapitres précédents (cumulés automatiquement) |
+| `quests_done` | quêtes closes en plus de celles que les drapeaux closent |
+| `main_quest`, `quest_state` | quête à suivre et son état attendu après l'ouverture (`active` par défaut, `""` si elle ne démarre qu'un peu plus loin) |
+
+Le test `_test_chapter_starts` (`GLAN_ONLY_STARTS=1`) vérifie chaque entrée (données, équipe, niveaux,
+équipement, drapeaux connus, quêtes, aller-retour de sauvegarde), la compare au vrai déroulé quand un
+relevé existe (`GLAN_ONLY_FLOWDUMP=1`), joue chaque début et vérifie que la quête principale peut être
+suivie à pied, puis pilote l'écran à la manette en 1280x720 et 1600x900.
