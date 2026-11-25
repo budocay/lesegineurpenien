@@ -180,6 +180,13 @@ carte ; horizon `marsh` ; `scale` des personnages de carte ; rayons renforcés),
 chapitre 7 (`longuevue`, boutique `dernier_etal`). Outil : `GLAN_FLAGS=drapeau,drapeau` pour
 les captures en mode `vues`. En cours : arbre d'anneaux (équilibre, expérience, Épreuve).
 
+25 novembre, fin (décision 189) : « Choisir un chapitre » à l'écran titre
+(`data/chapter_starts.json`, `src/core/chapter_start.gd`, `src/ui/chapter_screen.gd`, test
+`GLAN_ONLY_STARTS=1`). Tout changement d'histoire, d'équipe ou de drapeau d'un chapitre se
+reporte dans `data/chapter_starts.json` (le test le compare au vrai déroulé). Lancer tests et
+captures avec `HOME` détourné vers un dossier temporaire : sinon ils écrivent dans les
+sauvegardes de l'auteur.
+
 ## Pièges connus
 
 - Manette sur Mac : lancer le jeu par `jouer.command` ou en ligne de commande, pas dans la

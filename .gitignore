@@ -16,3 +16,7 @@ tools/godot/
 /installation_journal.txt
 /journal.txt
 __pycache__/
+
+# réglages locaux de l'assistant et fichiers du Finder
+.claude/
+.DS_Store

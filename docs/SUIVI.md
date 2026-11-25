@@ -1090,6 +1090,19 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      puis mal peint au tout premier combat lancé directement par l'outil de capture ; pas
      reproduit en passant par la carte. Erreurs « Rect2 size is negative » de
      `battle_ui.gd` (`_spread_plates`) dans le journal, sans échec de test.
+189. **Choisir un chapitre** (demande de l'auteur : « des sauvegardes pour tester chaque début
+     de chapitre »). Pas de fichiers de sauvegarde figés : ils casseraient à chaque évolution
+     du format (l'arbre d'anneaux le change) et ne passeraient pas du Mac au PC. À la place,
+     une entrée de l'écran titre fabrique une partie neuve au vrai début du chapitre choisi,
+     depuis `data/chapter_starts.json` (`src/core/chapter_start.gd`, `src/ui/chapter_screen.gd`) :
+     équipe et réserve de la bible, niveaux attendus (7, 9, 11, 16, 18, 23 pour les chapitres 2
+     à 7), meilleur équipement des boutiques précédentes, or, quêtes, drapeaux. Le test compare
+     chaque début à l'état réel relevé à la fin du chapitre précédent (`GLAN_ONLY_FLOWDUMP`).
+     La partie fabriquée n'a pas d'emplacement (`SaveManager.unchosen`) : sa première
+     sauvegarde prend un emplacement libre, jamais celui d'une partie existante. Le chapitre 5
+     commence à la scène du deuil (champ `chapter` encore au 4, comme en vrai). Restent : pas
+     d'épilogue, réserve au même niveau que l'équipe, relevés des chapitres 3 et 4 mêlés,
+     `ChapterStart.spend_talent_points` à adapter à l'arbre d'anneaux.
 
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
