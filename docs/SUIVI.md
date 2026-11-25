@@ -1069,6 +1069,27 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      ont perdu leur lien git ; seul le travail commité a survécu. Depuis : les agents commitent
      souvent, et une branche reprise repasse son test complet avant fusion (les deux reprises
      échouaient).
+186. **Décors 11** (trois agents, deux interruptions). Remparts de la Croûte : le voile
+     venait de la transparence de Godot sur des boîtes fermées (faces arrière, tri) ; les
+     occulteurs `local` percent désormais un trou tramé autour du héros (`occluder.gdshader`),
+     jamais de transparence. Marais du Bouillon (horizon `marsh`, passerelles, reflets, feux
+     follets), Grand Four (sol `mor_sol`, ustensiles, chaînes, Sauron agrandi : le champ
+     `scale` vaut pour les personnages de carte), Porte Noire du Passe-Plat (herse, caméra plus
+     ouverte), Isengarde (garde-corps, fumées), tombe et Profondeurs de Morbier. Rayons de
+     lumière : force multipliée par 2,4 et densité par 1,5 (ils étaient invisibles), bornes du
+     test relevées à 0,2 et 0,03. Caves de Brie : hors-carte en roche brune. Limace molle à 1,0.
+     Restent vers 7 : caves de Brie, marais, chancellerie et auberge elfique un peu vides,
+     torses des monstres du chapitre 6 (regardés, non repeints), tombe et Isengarde non revues
+     après retouche.
+187. **Marchand du chapitre 7** : Hubert Longuevue, colporteur du Dernier Étal, sur la
+     dernière planche du Marais du Bouillon (après le Noyé des planches). Raison : l'or du
+     chapitre ne servait à rien, et tout RPG classique offre un dernier ravitaillement avant
+     la fin. Douze équipements et une ration ; l'audit donne 67 % de l'équipement du chapitre
+     achetable avec son or. Boutique jamais jouée à la main.
+188. **À surveiller** : un monstre jamais préchauffé (Mammouth de guerre) est apparu invisible
+     puis mal peint au tout premier combat lancé directement par l'outil de capture ; pas
+     reproduit en passant par la carte. Erreurs « Rect2 size is negative » de
+     `battle_ui.gd` (`_spread_plates`) dans le journal, sans échec de test.
 
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 

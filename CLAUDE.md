@@ -174,6 +174,12 @@ compétences en réseau d'anneaux façon Final Fantasy XIII, décors faibles (re
 Croûte, Marais du Bouillon, Grand Four, Passe-Plat). Restent : Épreuve trop dure, expérience
 trop généreuse, marchand du chapitre 7, version 1.0.0 après essai de la fin par l'auteur.
 
+25 novembre, suite (décisions 186 à 188) : décors 11 fusionnés (occulteurs `local` en trou
+tramé, jamais de transparence ; objets `mor_*` de `mordgras_decor.gd` utilisables dans toute
+carte ; horizon `marsh` ; `scale` des personnages de carte ; rayons renforcés), marchand du
+chapitre 7 (`longuevue`, boutique `dernier_etal`). Outil : `GLAN_FLAGS=drapeau,drapeau` pour
+les captures en mode `vues`. En cours : arbre d'anneaux (équilibre, expérience, Épreuve).
+
 ## Pièges connus
 
 - Manette sur Mac : lancer le jeu par `jouer.command` ou en ligne de commande, pas dans la
