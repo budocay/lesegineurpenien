@@ -12,7 +12,7 @@
 	"veuve_poignet": {"name": "La Veuve Poignet", "sprite": {"character": "veuve", "scale": 1.1}, "stats": {"hp": 600, "atk": 23, "def": 7, "mag": 3, "res": 8, "spd": 7}, "element": "contondant", "attack_name": "Étreinte patiente", "attack_anim": "coup_de_masse", "weak": ["tranchant", "torpeur"], "shield": 4, "immune": ["sommeil"], "ai": [{"skill": "attack", "weight": 3}, {"skill": "poigne_de_fer", "weight": 2}, {"skill": "regard_insistant", "weight": 1}], "xp": 90, "money": 30},
 	"limace_molle": {
 		"name": "Limace molle",
-		"sprite": {"monster": "limace", "scale": 1.1},
+		"sprite": {"monster": "limace", "scale": 1.0},
 		"stats": {"hp": 44, "atk": 6, "def": 2, "mag": 3, "res": 2, "spd": 5},
 		"element": "contondant", "attack_name": "Coup de tête mou", "attack_anim": "tete_molle",
 		"weak": ["feu", "tranchant"], "shield": 2,
