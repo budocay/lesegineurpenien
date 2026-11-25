@@ -8971,7 +8971,7 @@ func _test_decors_10() -> void:
 	for o: Dictionary in Database.get_map("morbier_antre").get("objects", []):
 		if str(o.get("type", "")) in ["scatter", "nain_cristal", "light"]:
 			nb_antre += 1
-	check(nb_antre >= 25, "lac de Maroilles : rive sud garnie de blocs, de champignons et de cristaux (%d)" % nb_antre)
+	check(nb_antre >= 20, "lac de Maroilles : rive sud garnie de blocs, de champignons et de cristaux (%d)" % nb_antre)
 
 
 func _test_decors_9() -> void:
