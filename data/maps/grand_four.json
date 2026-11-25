@@ -186,7 +186,7 @@
 			"facing": "down",
 			"reach": 2.2,
 			"dialogue": "sauron_pnj",
-			"scale": 2.0
+			"scale": 3.4
 		},
 		{
 			"type": "trigger",
@@ -491,66 +491,66 @@
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				9.5,
-				25
+				12.0,
+				24.0
 			],
 			"kind": "louche",
-			"scale": 1.3,
+			"scale": 0.85,
 			"yaw": 0,
 			"lean": 10
 		},
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				34.5,
-				20
+				32.5,
+				19.5
 			],
 			"kind": "fourchette",
-			"scale": 1.3,
+			"scale": 0.9,
 			"yaw": 0,
 			"lean": -8
 		},
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				13.5,
-				12
+				14.5,
+				12.5
 			],
 			"kind": "couperet",
-			"scale": 1.2,
+			"scale": 0.85,
 			"yaw": 20,
 			"lean": 0
 		},
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				31,
+				30.5,
 				12.5
 			],
 			"kind": "entonnoir",
-			"scale": 1.1,
+			"scale": 0.9,
 			"yaw": 0,
 			"lean": 0
 		},
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				33.5,
-				27
+				31.5,
+				26.0
 			],
 			"kind": "marmite",
-			"scale": 1.1,
+			"scale": 0.6,
 			"yaw": 0,
 			"lean": 0
 		},
 		{
 			"type": "mor_ustensile",
 			"pos": [
-				9.5,
-				15
+				11.0,
+				16.5
 			],
 			"kind": "fourchette",
-			"scale": 1.1,
+			"scale": 0.8,
 			"yaw": 0,
 			"lean": 8
 		},
@@ -597,8 +597,8 @@
 		{
 			"type": "mor_chaine",
 			"pos": [
-				22,
-				26
+				19.0,
+				27
 			],
 			"to": 8,
 			"top": 13.0,
