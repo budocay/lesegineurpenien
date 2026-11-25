@@ -65,7 +65,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 6)
 	_detail_scroll.add_child(column)
 	_art = TextureRect.new()
-	_art.custom_minimum_size = Vector2(0, 150)
+	_art.custom_minimum_size = Vector2(0, 120)
 	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -1029,7 +1029,7 @@ static func _creature_detail(id: String) -> String:
 
 
 ## Une jauge en BBCode : `ratio` de 0 à 1, sur `cells` cases.
-static func gauge_markup(ratio: float, cells: int = 30, color: Color = UI.GOLD) -> String:
+static func gauge_markup(ratio: float, cells: int = 44, color: Color = UI.GOLD) -> String:
 	var full := clampi(int(round(ratio * cells)), 0, cells)
 	return "[bgcolor=#%s]%s[/bgcolor][bgcolor=#2b2631]%s[/bgcolor]" % [color.to_html(false), " ".repeat(full), " ".repeat(cells - full)]
 
@@ -1127,7 +1127,12 @@ func _sheet_summary(who: String) -> String:
 
 func _stat_markup(who: String, key: String, src: Dictionary) -> String:
 	var name := str(GameState.STAT_NAMES.get(key, key))
-	var lines: Array = [_help_text(key), ""]
+	var help := _help_text(key)
+	var cut := help.find(" : ")   # le titre dit déjà le nom de la caractéristique
+	if cut > 0 and cut < 24:
+		help = help.substr(cut + 3)
+		help = help.substr(0, 1).to_upper() + help.substr(1)
+	var lines: Array = [help, ""]
 	lines.append("Total : %s" % _fmt(key, int(src["total"])))
 	lines.append("Niveau %d : %s" % [int(GameState.member(who)["level"]), _fmt(key, int(src["base"]))])
 	for g: Dictionary in src["gear"]:

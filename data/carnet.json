@@ -4,17 +4,17 @@
 	"difficulties": {
 		"promenade": {
 			"name": "Promenade",
-			"desc": "L'histoire avant tout. Les ennemis ont un tiers de PV en moins et frappent un quart moins fort, et l'expérience vient un peu plus vite. Pour ceux qui veulent surtout voir ce que Glandoulf va encore trouver à dire.",
+			"desc": "L'histoire avant tout : ennemis à 70 % de PV, coups réduits d'un quart, expérience en hausse d'un cinquième.",
 			"enemy_hp": 0.7, "enemy_dmg": 0.75, "xp": 1.2, "money": 1.0
 		},
 		"aventure": {
 			"name": "Aventure",
-			"desc": "Le réglage voulu par le jeu : des combats qui demandent d'écouter ses compagnons et de viser les faiblesses, sans jamais s'acharner. C'est celui qu'on a mesuré.",
+			"desc": "Le réglage voulu par le jeu : rien n'est changé, tout a été mesuré ainsi.",
 			"enemy_hp": 1.0, "enemy_dmg": 1.0, "xp": 1.0, "money": 1.0
 		},
 		"epreuve": {
 			"name": "Épreuve",
-			"desc": "Pour ceux qui trouvent que la vie manque de sérieux. Les ennemis ont un quart de PV en plus et frappent un cinquième plus fort. On s'y fait vite des amis : ses boucliers de talent, ses tisanes, ses faiblesses bien étudiées.",
+			"desc": "Pour ceux qui trouvent la vie trop calme : ennemis avec un quart de PV en plus, coups plus forts d'un cinquième.",
 			"enemy_hp": 1.25, "enemy_dmg": 1.2, "xp": 1.0, "money": 1.0
 		}
 	},
