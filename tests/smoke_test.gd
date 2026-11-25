@@ -2644,7 +2644,7 @@ func _wait_idle(main: Node, seconds: float = 40.0) -> void:
 func _arm_flow_dump() -> void:
 	DirAccess.make_dir_recursive_absolute("user://flow_dump")
 	GameState.flag_changed.connect(func(flag: String, _v: Variant) -> void:
-		if flag.begins_with("chapitre_") and flag.ends_with("_fini"):
+		if flag.begins_with("chapitre_") and flag.ends_with("_fini") and not FileAccess.file_exists("user://flow_dump/%s.json" % flag):   # le premier relevé est le vrai : les tests suivants refabriquent l'état
 			var f := FileAccess.open("user://flow_dump/%s.json" % flag, FileAccess.WRITE)
 			f.store_string(JSON.stringify({"flags": GameState.flags, "quests": GameState.quests, "party": GameState.party, "bench": GameState.bench,
 				"inventory": GameState.inventory, "money": GameState.money, "map": GameState.map_id, "chapter": GameState.chapter,
