@@ -429,12 +429,57 @@
 				13.2
 			]
 		},
-		{"type": "nain_statue", "pos": [12.6, 5.0]},
-		{"type": "nain_wagonnet", "pos": [6.4, 10.9]},
-		{"type": "nain_gravats", "pos": [10.8, 10.6]},
-		{"type": "nain_gravats", "pos": [2.6, 10.4]},
-		{"type": "nain_cristal", "pos": [5.2, 4.6]},
-		{"type": "scatter", "prop": "rock", "rect": [1, 4, 14, 8], "count": 3, "min_dist": 2.8, "seed": 125, "on": ["nain_dalle"]},
+		{
+			"type": "nain_statue",
+			"pos": [
+				12.6,
+				5.0
+			]
+		},
+		{
+			"type": "nain_wagonnet",
+			"pos": [
+				6.4,
+				10.9
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				10.8,
+				10.6
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				2.6,
+				10.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				5.2,
+				4.6
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				1,
+				4,
+				14,
+				8
+			],
+			"count": 3,
+			"min_dist": 2.8,
+			"seed": 125,
+			"on": [
+				"nain_dalle"
+			]
+		},
 		{
 			"type": "scatter",
 			"prop": "rock",
@@ -466,6 +511,98 @@
 			"on": [
 				"nain_dalle"
 			]
+		},
+		{
+			"type": "mor_sol",
+			"rect": [
+				1,
+				12,
+				20,
+				12
+			],
+			"seed": 4,
+			"cracks": 8,
+			"glow": 0.0,
+			"soot": 8,
+			"embers": false
+		},
+		{
+			"type": "mor_sol",
+			"rect": [
+				33,
+				9,
+				13,
+				14
+			],
+			"seed": 6,
+			"cracks": 8,
+			"glow": 0.0,
+			"soot": 8,
+			"embers": false
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				21.0,
+				13.0
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				21.0,
+				22.6
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				33.2,
+				16.0
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				10.0,
+				17.6
+			]
+		},
+		{
+			"type": "nain_brasero",
+			"pos": [
+				40.0,
+				16.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				8.6,
+				20.4
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				27.0,
+				10.6
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				42.0,
+				10.4
+			]
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				24.0,
+				16.9
+			],
+			"variant": 0
 		}
 	],
 	"heights": [
