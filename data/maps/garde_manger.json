@@ -87,6 +87,7 @@
 			"facing": "left"
 		}
 	},
+	"relief_lip": false,
 	"heights": [
 		{
 			"rect": [
