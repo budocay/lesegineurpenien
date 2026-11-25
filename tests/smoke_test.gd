@@ -8950,6 +8950,28 @@ func _test_decors_10() -> void:
 				n_deco += 1
 		check(n_deco >= 14, "%s : sol garni de cristaux et de gravats (%d)" % [mid2, n_deco])
 	check(FileAccess.get_file_as_string("res://src/battle/battle_ui.gd").contains("le trait de rappel (pieds -> plaque) ne traverse"), "plaques : le trait de rappel ne traverse ni plaque ni ennemi")
+	# relecture visuelle, reprise : le tapis est un objet de base, les salles de pierre n'ont pas de liseré d'herbe, les salles vides sont garnies
+	var MB10: GDScript = load("res://src/world/map_builder.gd")
+	for mid3: String in Database.list_maps():
+		for o: Dictionary in Database.get_map(mid3).get("objects", []):
+			if str(o.get("type", "")) == "rug":
+				check(o.has("rect") and (o["rect"] as Array).size() == 4, "carte %s : tapis avec son rectangle" % mid3)
+			for key: String in ["pos", "rect"]:
+				if o.has(key):   # un objet glissé par erreur dans le tableau d'un autre est ignoré sans bruit : on le voit ici
+					var ok_nums := true
+					for v: Variant in (o[key] as Array):
+						if not (v is float or v is int):
+							ok_nums = false
+					check(ok_nums, "carte %s : « %s » de %s ne contient que des nombres" % [mid3, key, str(o.get("type", ""))])
+	check(MB10.GROUND.has("cav_planches"), "tuile cav_planches connue (Bergerie d'Or)")
+	for mid4: String in ["garde_manger", "isengarde"]:
+		check(Database.get_map(mid4).get("relief_lip", true) == false, "%s : pas de liseré d'herbe sur les estrades de pierre" % mid4)
+	check(Database.get_map("bergerie_or").get("objects", []).size() >= 40, "Bergerie d'Or : l'entrée aussi est garnie")
+	var nb_antre := 0
+	for o: Dictionary in Database.get_map("morbier_antre").get("objects", []):
+		if str(o.get("type", "")) in ["scatter", "nain_cristal", "light"]:
+			nb_antre += 1
+	check(nb_antre >= 25, "lac de Maroilles : rive sud garnie de blocs, de champignons et de cristaux (%d)" % nb_antre)
 
 
 func _test_decors_9() -> void:
