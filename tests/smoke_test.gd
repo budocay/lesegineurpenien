@@ -61,6 +61,19 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_FLOWDUMP"):   # déroulés 1 à 7 à la suite, et relevé de l'état à chaque fin de chapitre (user://flow_dump/)
+		_arm_flow_dump()
+		await _test_flow()
+		await _test_chapter_2()
+		await _test_chapter_3()
+		await _test_chapter_4()
+		await _test_chapter_5()
+		await _test_chapter_6()
+		await _test_chapter_7()
+		print("%d vérifications, %d échec(s) (déroulés et relevés)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_C7"):   # essai ciblé du chapitre 7
 		_test_chapter_7_data()
 		await _test_chapter_7()
@@ -2624,6 +2637,19 @@ func _wait_idle(main: Node, seconds: float = 40.0) -> void:
 	print("    entrée %s, mode %d, menus %s, pause %s, banc %s" % [str(main.world.input_enabled) if main.world else "-", int(main.mode), str(main.menus.visible), str(main.pause.visible), str(main._abort_flow)])
 	if main.battle != null:
 		print("    combat : issue « %s », résultat moteur « %s », état interface %d" % [str(main.battle.outcome), str(main.battle.engine.result), int(main.battle_ui._state)])
+
+
+## Relevé de l'état réel à la fin de chaque chapitre joué par les tests de déroulé : sert à régler et à
+## vérifier data/chapter_starts.json (GLAN_DUMP_FLOW=1 ou GLAN_ONLY_FLOWDUMP).
+func _arm_flow_dump() -> void:
+	DirAccess.make_dir_recursive_absolute("user://flow_dump")
+	GameState.flag_changed.connect(func(flag: String, _v: Variant) -> void:
+		if flag.begins_with("chapitre_") and flag.ends_with("_fini"):
+			var f := FileAccess.open("user://flow_dump/%s.json" % flag, FileAccess.WRITE)
+			f.store_string(JSON.stringify({"flags": GameState.flags, "quests": GameState.quests, "party": GameState.party, "bench": GameState.bench,
+				"inventory": GameState.inventory, "money": GameState.money, "map": GameState.map_id, "chapter": GameState.chapter,
+				"roster": GameState.roster}, "\t"))
+			f.close())
 
 
 func _test_flow() -> void:
