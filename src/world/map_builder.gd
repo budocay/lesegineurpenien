@@ -1812,7 +1812,7 @@ func _npc(o: Dictionary) -> void:
 	var data := o.duplicate()
 	if not data.has("dialogue"):
 		data["dialogue"] = id
-	_interactable(pos, data, "Parler", node, float(node.sprite.height) * 0.72)
+	_interactable(pos, data, "Parler", node, float(node.sprite.height) * 0.72 * float(o.get("scale", 1.0)))
 
 
 ## Monstre visible sur la carte (gardien, boss) : première pose de sa planche, qui respire.

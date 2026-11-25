@@ -28,6 +28,9 @@ func setup(p_world: Node3D, o: Dictionary, pos: Vector3) -> void:
 	add_child(sprite)
 	sprite.setup(Sprites.character(str(o.get("id", ""))))
 	sprite.facing = str(o.get("facing", "down"))
+	var sc := float(o.get("scale", 1.0))
+	if sc != 1.0:
+		sprite.scale = Vector3(sc, sc, sc)   # personnage hors norme (Sauron) : plus haut que ses voisins
 
 
 func face_towards(target: Vector3) -> void:

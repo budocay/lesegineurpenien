@@ -13,6 +13,7 @@ extends RefCounted
 const PA = preload("res://src/gfx/pixel_art.gd")
 const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
+const Decor = preload("res://src/world/mordgras_decor.gd")
 
 const OBJECTS: Array[String] = ["mor_tour", "mor_porte", "mor_four", "mor_mur", "mor_banniere", "mor_pilier", "mor_lustre"]
 
@@ -125,7 +126,7 @@ static func object(b, type: String, o: Dictionary) -> bool:
 		"mor_banniere": _banner(b, o)
 		"mor_pilier": _pillar(b, o)
 		"mor_lustre": _chandelier(b, o)
-		_: return false
+		_: return Decor.object(b, type, o)
 	return true
 
 
@@ -232,7 +233,21 @@ static func _gate(b, o: Dictionary) -> void:
 		gl.position = p + Vector3(0.0, hgt * 0.6, depth * 0.5 + 4.0)
 		b.world.add_child(gl)
 	var iron := MeshKit.flat_material(Color("#26222e"))
-	if not bool(o.get("open", false)):
+	if bool(o.get("portcullis", false)):
+		# herse de fonte : des barreaux à pointes et trois traverses ; on voit au travers (l'armée, au loin) mais on ne passe pas
+		var nb := int(wd / 0.9)
+		for k in nb + 1:
+			var bx := -wd * 0.5 + wd * float(k) / float(nb)
+			_box_in(parent, p + Vector3(bx, hgt * 0.5, 0.2), Vector3(0.22, hgt, 0.22), iron)
+			for tt in 3:
+				_box_in(parent, p + Vector3(bx, 0.35 - float(tt) * 0.02, 0.2), Vector3(0.12, 0.8, 0.12), rim)
+		for k in 5:
+			_box_in(parent, p + Vector3(0.0, hgt * (0.12 + 0.2 * float(k)), 0.22), Vector3(wd, 0.2, 0.14), rim)
+		# chaînes de la herse
+		for sx2: float in [-0.42, 0.42]:
+			_box_in(parent, p + Vector3(wd * sx2, hgt + lh * 0.5, depth * 0.5 + 0.05), Vector3(0.12, lh, 0.12), rim)
+		b.world.rects.append(Rect2(p.x - wd * 0.5, p.z - 0.3, wd, 0.6))
+	elif not bool(o.get("open", false)):
 		_box_in(parent, p + Vector3(0.0, hgt * 0.5, 0.0), Vector3(wd, hgt, 0.3), iron)
 		# traverses de fonte, clous et guichet de braise
 		var ribs := int(hgt / 1.6)
