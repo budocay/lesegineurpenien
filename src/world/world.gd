@@ -10,6 +10,7 @@ signal encounter_requested(table_id: String)
 const MapBuilder = preload("res://src/world/map_builder.gd")
 const Player = preload("res://src/world/player.gd")
 const Horizon = preload("res://src/world/horizon.gd")
+const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 
 var map_id: String = ""
 var map: Dictionary = {}
@@ -387,9 +388,21 @@ func _fade_occluders(delta: float) -> void:
 		if is_equal_approx(fade, float(oc["fade"])):
 			continue
 		oc["fade"] = fade
+		if oc.has("local") and not oc.has("cut_ready"):
+			oc["cut_ready"] = true   # remparts, tours, portes : trame autour du héros plutôt que transparence (voir occluder.gdshader)
+			for n: Variant in oc["nodes"]:
+				var mi := n as MeshInstance3D
+				if is_instance_valid(mi):
+					var cm: ShaderMaterial = MeshKit.occluder_material(mi.material_override)
+					if cm != null:
+						mi.material_override = cm
+						oc["cut"] = true
 		for n: GeometryInstance3D in oc["nodes"]:
 			if is_instance_valid(n):
-				n.transparency = fade
+				if oc.has("cut") and n is MeshInstance3D and (n as MeshInstance3D).material_override is ShaderMaterial:
+					n.set_instance_shader_parameter("cut", clampf(fade / 0.55, 0.0, 1.0))
+				else:
+					n.transparency = fade
 
 
 func screen_position(world_pos: Vector3) -> Vector2:

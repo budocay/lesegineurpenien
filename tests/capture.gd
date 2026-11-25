@@ -17,6 +17,7 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	SaveManager.save_path = "user://test_capture.json"
 	SaveManager.delete_save()
+	Settings.values["repere"] = false   # le repère de quête ne figure pas sur les captures (sans le retirer du jeu)
 	main = MAIN.instantiate()
 	add_child(main)
 	await _frames(150)
