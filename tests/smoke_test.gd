@@ -4956,7 +4956,7 @@ func _test_rider_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree", "rug"] \
 					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
