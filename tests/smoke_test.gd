@@ -1679,6 +1679,9 @@ func _test_measure_overrides() -> void:
 ## GLAN_RUNS = essais (60), GLAN_FILTER = texte de l'étiquette, GLAN_LEVEL = niveau forcé, GLAN_SUBS=0 saute les équipes.
 ## Cible : 85 à 95 % pour un combat ordinaire, 60 à 80 % pour un boss (équipe type, avec talents).
 func _measure_forced() -> void:
+	if OS.has_environment("GLAN_DIFFICULTE"):   # mesurer un niveau de difficulté (promenade, aventure, epreuve)
+		Settings.set_value("difficulte", OS.get_environment("GLAN_DIFFICULTE"), false)
+		print("  difficulté mesurée : %s" % str(Settings.get_value("difficulte")))
 	_apply_measure_overrides({"scale": OS.get_environment("GLAN_SCALE"), "power": OS.get_environment("GLAN_POWER"),
 			"annonce": OS.get_environment("GLAN_ANNONCE"), "shield": OS.get_environment("GLAN_SHIELD")})   # (avant toute branche : GLAN_TEAM aussi les subit)
 	var runs := int(OS.get_environment("GLAN_RUNS")) if OS.has_environment("GLAN_RUNS") else 60
