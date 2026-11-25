@@ -293,6 +293,9 @@ func start_chapter(id: String) -> void:
 		GameState.new_game()
 	SaveManager.start_unsaved()   # la partie n'a pas d'emplacement : rien ne s'écrase sans que le joueur le choisisse
 	await _begin_play([], "")
+	var opening := str(ChapterStart.entry(id).get("opening", ""))   # scène d'ouverture qui n'est pas à l'arrivée sur la carte
+	if opening != "" and mode == Mode.PLAY and not busy:
+		await run_dialogue(opening)
 
 
 func _on_chapter_chosen(id: String) -> void:
