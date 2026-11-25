@@ -439,7 +439,7 @@ static func _wisp(b, o: Dictionary) -> void:
 	node.name = "MorFeuFollet"
 	node.position = p + Vector3(0.0, float(o.get("height", 0.9)), 0.0)
 	b.world.add_child(node)
-	var core := _box_in(node, Vector3.ZERO, Vector3(0.16, 0.22, 0.16), _glow_mat(col.lightened(0.5), 3.2))
+	var core := _box_in(node, Vector3.ZERO, Vector3(0.09, 0.13, 0.09), _glow_mat(col.lightened(0.2), 2.4))
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var halo := Atmosphere.make_particles("fireflies")
 	if halo != null:
