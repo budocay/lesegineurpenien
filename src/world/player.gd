@@ -60,6 +60,8 @@ func _process(delta: float) -> void:
 		elif absf(step.y) > 0.0001 and world.is_free(p + Vector2(0.0, step.y), RADIUS, self):
 			p.y += step.y
 			moved = true
+		if moved:
+			GameState.stats["pas"] = float(GameState.stats.get("pas", 0.0)) + p.distance_to(Vector2(position.x, position.z)) / 0.7   # compteur de pas du Carnet
 		position.x = p.x
 		position.z = p.y
 	# la hauteur suit le sol (rampes, plateaux) en douceur
