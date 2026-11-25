@@ -1424,7 +1424,7 @@ Cartes réglées : `minas_croute` (plaine), `minas_rues` et `minas_citadelle` (c
   À la fermeture du jeu, `Horizon.shutdown_prepare()` interrompt et joint ce fil (aucune erreur à la sortie).
 - Remparts, portes, tours et maisons du style `gouda` : chaque rempart est taillé en tronçons de 2 m, chacun son
   propre cache dans `world.occluders` avec la clé `"local": true`. Une entrée « locale » ne s'estompe que si le
-  héros est à moins de 1,6 m de son étendue en x, et au plus à 72 % de transparence ; sans la clé, le comportement
+  héros est à moins de 1,6 m de son étendue en x, et ne perce qu'un trou tramé (disque discard, jamais de transparence alpha : plus de voile) sous le héros, par les shaders `src/gfx/shaders/occluder.gdshader` et `occluder_2s.gdshader` (paramètre d'instance `cut`, converti par `MeshKit.occluder_material` depuis `World._fade_occluders`) ; sans la clé, le comportement
   est celui d'avant (estompage entier). Les cartes des autres styles ne sont pas touchées.
 - Cartes à caméra basse : `camera.bounds` (`[x0, z0, x1, z1]`) borne la cible de la caméra ; `camera.zones` règle
   inclinaison et champ par zone. `white_tower.scale` réduit la Tour Blanche pour que son étendard reste dans le cadre.
@@ -1529,6 +1529,27 @@ marches), `mor_mur`, `mor_mur_cuisine`, `mor_braise`.
 - Un dialogue peut poser `{"chapter": "partie_terminee"}` avant l'action `generique`.
 - Quatre-vingt-dix pour cent de la route du chapitre 7 passe par des actions de dialogue déjà décrites
   (`groupe:`, `va:`, `save`, `battle`) : voir « Groupe scindé » plus haut.
+
+## Décors 11 : objets `mor_*` et PNJ agrandis
+
+Objets utilisables dans toute carte (aiguillés par `MordgrasBuilder.object` vers `src/world/mordgras_decor.gd`) :
+
+| `type` | Champs | Rôle |
+|---|---|---|
+| `mor_sol` | `rect` [x, z, l, p], `seed`, `cracks`, `glow`, `soot`, `embers`, `rivers` ([x0, z0, x1, z1, largeur]...) | décalque de sol : fissures, suie, filets de braise |
+| `mor_ustensile` | `pos`, `kind` (`louche`, entonnoir...), `scale`, `yaw`, `lean` | ustensile géant planté dans le sol, solide |
+| `mor_chaine` | `pos`, `top`, `to`, `scale`, `hang` | chaîne pendue |
+| `mor_brasero` | `pos`, `scale`, `color`, `energy` | brasero de fer allumé |
+| `mor_passerelle` | `from`, `to`, `step`, `height`, `gap` | passerelle de planches sur pilotis |
+| `mor_reflet` | `pos`, `length`, `width`, `color`, `phase` | reflet de lanterne sur l'eau |
+| `mor_feu_follet` | `pos`, `color`, `height`, `drift` | feu follet flottant |
+| `mor_fumee` | `pos`, `height`, `scale` | colonne de fumée (particules `smoke`) |
+
+Boutique du chapitre 7 : `dernier_etal` (marchand `longuevue`, PNJ de `marais_bouillon` visible après `combat_noyes_planches`), uniquement par les données ; `tests/audit_economie.py` la compte au chapitre 7. `tests/capture.gd` en mode `vues` accepte `GLAN_FLAGS=drapeau,drapeau` pour poser des drapeaux avant la prise.
+
+`mor_porte` accepte `"portcullis": true` : herse de fer (barreaux à pointes, chaînes) qui bloque le passage.
+Un `npc` accepte `scale` (taille du sprite et de la zone d'interaction). Le plan d'horizon `"kind": "marsh"`
+(options `peak`, `trees`, `fires`) peint des arbres morts en silhouettes, roseaux et lueurs de feux follets.
 
 ## Carnet, difficulté et aperçu des coups — `data/carnet.json`, `src/core/carnet.gd`
 

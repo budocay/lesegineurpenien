@@ -53,6 +53,8 @@ static func paint(kind: String, sd: int, opts: Dictionary = {}) -> Image:
 			_massif(img, sd, int(opts.get("off", 0)), float(opts.get("peak", 0.6)), bool(opts.get("tower", true)))
 		"horde":
 			_horde(img, sd, int(opts.get("fires", 14)), float(opts.get("scale", 1.0)))
+		"marsh":
+			_marsh(img, sd, float(opts.get("peak", 0.6)), int(opts.get("trees", 1)), int(opts.get("fires", 6)))
 	return img
 
 
@@ -814,3 +816,83 @@ static func _horde(img: Image, sd: int, nfires: int, scale: float) -> void:
 		_r(img, fx - 3, fy - 3, 7, 3, Color("#ff7a14"))
 		_r(img, fx - 1, fy - 7, 4, 5, Color("#ffd24a"))
 		fires.append(Vector2(fx, fy - 4))
+
+
+# ===================================================================== le marais
+
+## Trait épais de `t` pixels (diagonales comprises).
+static func _pline(img: Image, x0: float, y0: float, x1: float, y1: float, c: Color, t: int) -> void:
+	var n := int(maxf(absf(x1 - x0), absf(y1 - y0))) + 1
+	for i in n + 1:
+		var f := float(i) / float(n)
+		_r(img, int(lerpf(x0, x1, f)) - t / 2, int(lerpf(y0, y1, f)), t, 1, c)
+
+
+## Arbre mort : un tronc qui se fourche, des branches sans feuilles qui retombent, un peu de mousse pendante.
+static func _dead_tree(img: Image, x: int, base: int, hgt: int, sd: int, col: Color, rim: Color) -> void:
+	var th := maxi(2, hgt / 22)
+	_r(img, x - th, base - hgt * 3 / 10, th * 2 + 1, hgt * 3 / 10 + 2, col)
+	_r(img, x + th, base - hgt * 3 / 10, 1, hgt * 3 / 10 + 2, rim)
+	_r(img, x - th - 2, base - 4, th * 2 + 5, 5, col)   # empattement
+	var forks := 3 + int(_n(x, 1, sd) * 3.0)
+	for k in forks:
+		var dirx := -1.0 if k % 2 == 0 else 1.0
+		var by := float(base - hgt * 3 / 10)
+		var bx := float(x)
+		var ang := dirx * (0.35 + _n(x, k + 3, sd) * 0.8)
+		var len := float(hgt) * (0.35 + _n(x, k + 9, sd) * 0.4)
+		var t := maxi(1, th - 1)
+		for seg in 4:
+			var step := len / 4.0
+			var nx := bx + sin(ang) * step
+			var ny := by - cos(ang) * step * (1.0 - 0.12 * float(seg))
+			_pline(img, bx, by, nx, ny, col, t)
+			if seg >= 1 and _n(x + seg, k, sd) < 0.8:   # brindille
+				var a2 := ang + dirx * (0.7 + _n(seg, k, sd) * 0.6)
+				_pline(img, nx, ny, nx + sin(a2) * step * 0.8, ny - cos(a2) * step * 0.6, col, 1)
+			if seg == 2 and _n(x, k + 20, sd) < 0.6:   # mousse qui pend
+				var mh := 6 + int(_n(x, k, sd) * 12.0)
+				_r(img, int(nx), int(ny), 1, mh, col.lerp(Color("#3a5a40"), 0.4))
+				_r(img, int(nx) + 1, int(ny), 1, mh * 2 / 3, col.lerp(Color("#3a5a40"), 0.4))
+			bx = nx
+			by = ny
+			ang += dirx * 0.12 * float(seg)
+			t = maxi(1, t - (1 if seg == 1 else 0))
+	_pline(img, float(x), float(base - hgt * 3 / 10), float(x) + (_n(x, 5, sd) - 0.5) * 8.0, float(base - hgt), col, th)   # flèche centrale
+
+
+## Marais : roselière et bancs de vase en bas, arbres morts en silhouettes (deux rangées), lueurs pâles de feux
+## follets entre les troncs. `peak` : hauteur relative des arbres, `trees` : densité, `fires` : nombre de lueurs.
+static func _marsh(img: Image, sd: int, peak: float, trees: int, nfires: int) -> void:
+	var ground := H - 10
+	var bank := Color("#1c2e28")
+	var dark := Color("#0f1c18")
+	var rim := Color("#33503f")
+	# banc de vase irrégulier
+	for x in W:
+		var fx := float(x)
+		var hh := 8.0 + sin(fx * 0.011 + float(sd)) * 5.0 + sin(fx * 0.037) * 2.5 + (_n(x / 5, 4, sd) - 0.5) * 3.0
+		_r(img, x, ground - int(hh), 1, int(hh) + 10, bank)
+		_r(img, x, ground - int(hh), 1, 1, bank.lightened(0.15))
+	# arbres morts : une rangée lointaine (claire), une proche (sombre)
+	var rows := 2
+	for row in rows:
+		var n := int(float(W) / (170.0 - 40.0 * float(row)) * float(trees))
+		var col := dark.lerp(bank, 0.55 - 0.45 * float(row))
+		for i in n:
+			var x := int((float(i) + _n(i, row, sd)) * float(W) / float(n))
+			var hgt := int(float(H) * peak * (0.5 + _n(i, row + 7, sd) * 0.5) * (0.78 + 0.22 * float(row)))
+			_dead_tree(img, x, ground - 2, hgt, sd + i + row * 31, col, rim)
+	# roseaux au premier plan
+	for x in W:
+		if _n(x / 2, 11, sd) < 0.22:
+			var rh := 14 + int(_n(x, 12, sd) * 26.0)
+			_r(img, x, ground - rh, 1, rh + 6, dark)
+			if _n(x, 13, sd) < 0.25:
+				_r(img, x - 1, ground - rh - 4, 3, 5, Color("#2a1e14"))   # quenouille
+	# lueurs de feux follets : pâles, cernées de brume (elles brillent par le shader)
+	for i in nfires:
+		var fx2 := int(_n(i, 31, sd) * float(W))
+		var fy := ground - 22 - int(_n(i, 32, sd) * 40.0)
+		_r(img, fx2, fy, 3, 3, Color("#f4f6a8"))
+		fires.append(Vector2(float(fx2) + 1.0, float(fy) + 1.0))

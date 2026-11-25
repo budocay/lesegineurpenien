@@ -4,6 +4,8 @@ extends RefCounted
 
 const TEX_UNITS := 2.0   # une texture répétable de 48 px couvre 2 unités monde
 const GROUND_SHADER = preload("res://src/gfx/shaders/ground.gdshader")
+const OCCLUDER_SHADER = preload("res://src/gfx/shaders/occluder.gdshader")
+const OCCLUDER_SHADER_2S = preload("res://src/gfx/shaders/occluder_2s.gdshader")
 
 
 ## Matériau de sol : texture nette, nuancée par grandes plaques pour casser la répétition.
@@ -104,3 +106,28 @@ static func flat_material(color: Color, emission_energy: float = 0.0) -> Standar
 		m.emission = color
 		m.emission_energy_multiplier = emission_energy
 	return m
+
+
+## Version « ouvrable en trame autour du héros » d'un matériau opaque (voir occluder.gdshader) :
+## même texture, même couleur, même émission. Les matériaux translucides sont rendus tels quels (null).
+static func occluder_material(m: Material) -> ShaderMaterial:
+	if not (m is StandardMaterial3D):
+		return null
+	var sm := m as StandardMaterial3D
+	if sm.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+		return null
+	var out := ShaderMaterial.new()
+	out.shader = OCCLUDER_SHADER_2S if sm.cull_mode == BaseMaterial3D.CULL_DISABLED else OCCLUDER_SHADER
+	if sm.albedo_texture != null:
+		out.set_shader_parameter("albedo_tex", sm.albedo_texture)
+		out.set_shader_parameter("use_tex", 1.0)
+	else:
+		out.set_shader_parameter("use_tex", 0.0)
+	out.set_shader_parameter("albedo_color", sm.albedo_color)
+	if sm.emission_enabled:
+		out.set_shader_parameter("emission_color", sm.emission)
+		out.set_shader_parameter("emission_energy", sm.emission_energy_multiplier)
+		if sm.emission_texture != null:
+			out.set_shader_parameter("emission_tex", sm.emission_texture)
+			out.set_shader_parameter("use_emission_tex", 1.0)
+	return out

@@ -1755,5 +1755,68 @@
 				}
 			]
 		}
+	],
+	"longuevue_etal": [
+		{
+			"if": "!longuevue_vu",
+			"then": [
+				{
+					"who": "longuevue",
+					"text": "Ah ! Des clients. Des vrais, debout, avec des bourses pleines. Hubert Longuevue, colporteur du Dernier Étal : tout ce qu'il faut avant la Porte, en grande taille, et rien que du dressé."
+				},
+				{
+					"who": "sam",
+					"text": "Vous vendez ici ? Dans un marais, devant un noyé, à deux pas de l'armée de l'Est ?"
+				},
+				{
+					"who": "longuevue",
+					"text": "Je vends partout où le client n'a plus le choix. C'est ma devise, et accessoirement ma seule marge. Je suis monté de Brie avec une charrette : plus rien n'est assez long pour moi, sur cette route, alors j'ai tout sorti."
+				},
+				{
+					"who": "froton",
+					"text": "Nous n'avons pas de temps pour..."
+				},
+				{
+					"who": "longuevue",
+					"text": "Tout le monde a le temps d'essayer. C'est l'après qui presse."
+				},
+				{
+					"set": "longuevue_vu"
+				}
+			]
+		},
+		{
+			"choice": [
+				{
+					"text": "Voir le dernier étal",
+					"then": [
+						{
+							"shop": "dernier_etal"
+						},
+						{
+							"who": "longuevue",
+							"text": "Revenez avant la Porte. Après la Porte, je ne reprends rien : ni la marchandise, ni les réclamations, ni le client."
+						}
+					]
+				},
+				{
+					"text": "Un conseil, colporteur ?",
+					"then": [
+						{
+							"who": "longuevue",
+							"text": "Ne gardez rien en réserve. Ce qu'on n'a pas sorti avant la Porte ne sert à personne, et ce qu'on n'a pas tendu sert encore moins."
+						},
+						{
+							"who": "glandoulf",
+							"text": "Merci. Je crois."
+						}
+					]
+				},
+				{
+					"text": "Non, merci",
+					"then": []
+				}
+			]
+		}
 	]
 }

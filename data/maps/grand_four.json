@@ -114,6 +114,50 @@
 	},
 	"objects": [
 		{
+			"type": "mor_sol",
+			"rect": [
+				2,
+				3,
+				40,
+				28
+			],
+			"seed": 11,
+			"cracks": 46,
+			"glow": 0.7,
+			"soot": 18,
+			"embers": true,
+			"rivers": [
+				[
+					10.4,
+					13,
+					10.2,
+					29,
+					1.1
+				],
+				[
+					33.6,
+					13,
+					33.8,
+					29,
+					1.1
+				],
+				[
+					15,
+					8,
+					12,
+					14,
+					0.9
+				],
+				[
+					29,
+					8,
+					32,
+					14,
+					0.9
+				]
+			]
+		},
+		{
 			"type": "mor_four",
 			"pos": [
 				22,
@@ -137,11 +181,12 @@
 			"id": "sauron",
 			"pos": [
 				22,
-				10
+				8.5
 			],
 			"facing": "down",
 			"reach": 2.2,
-			"dialogue": "sauron_pnj"
+			"dialogue": "sauron_pnj",
+			"scale": 3.4
 		},
 		{
 			"type": "trigger",
@@ -442,6 +487,178 @@
 			"color": "#ffb050",
 			"energy": 4.0,
 			"range": 16
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				12.0,
+				24.0
+			],
+			"kind": "louche",
+			"scale": 0.85,
+			"yaw": 0,
+			"lean": 10
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				32.5,
+				19.5
+			],
+			"kind": "fourchette",
+			"scale": 0.9,
+			"yaw": 0,
+			"lean": -8
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				14.5,
+				12.5
+			],
+			"kind": "couperet",
+			"scale": 0.85,
+			"yaw": 20,
+			"lean": 0
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				30.5,
+				12.5
+			],
+			"kind": "entonnoir",
+			"scale": 0.9,
+			"yaw": 0,
+			"lean": 0
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				31.5,
+				26.0
+			],
+			"kind": "marmite",
+			"scale": 0.6,
+			"yaw": 0,
+			"lean": 0
+		},
+		{
+			"type": "mor_ustensile",
+			"pos": [
+				11.0,
+				16.5
+			],
+			"kind": "fourchette",
+			"scale": 0.8,
+			"yaw": 0,
+			"lean": 8
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				14,
+				16
+			],
+			"to": 6.5,
+			"top": 13.0,
+			"hang": true
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				18,
+				22
+			],
+			"to": 5.5,
+			"top": 13.0,
+			"hang": false
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				26,
+				22
+			],
+			"to": 7,
+			"top": 13.0,
+			"hang": true
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				30,
+				16
+			],
+			"to": 6,
+			"top": 13.0,
+			"hang": false
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				19.0,
+				27
+			],
+			"to": 8,
+			"top": 13.0,
+			"hang": true
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				16,
+				10
+			],
+			"to": 9,
+			"top": 13.0,
+			"hang": false
+		},
+		{
+			"type": "mor_chaine",
+			"pos": [
+				28,
+				10
+			],
+			"to": 9,
+			"top": 13.0,
+			"hang": false
+		},
+		{
+			"type": "mor_brasero",
+			"pos": [
+				15,
+				27
+			],
+			"scale": 1.3,
+			"energy": 2.4
+		},
+		{
+			"type": "mor_brasero",
+			"pos": [
+				29,
+				27
+			],
+			"scale": 1.3,
+			"energy": 2.4
+		},
+		{
+			"type": "mor_brasero",
+			"pos": [
+				12,
+				14
+			],
+			"scale": 1.3,
+			"energy": 2.4
+		},
+		{
+			"type": "mor_brasero",
+			"pos": [
+				32,
+				14
+			],
+			"scale": 1.3,
+			"energy": 2.4
 		}
 	],
 	"wall_tint": "#7a463e"

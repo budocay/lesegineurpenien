@@ -19,6 +19,7 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	SaveManager.save_path = "user://test_capture.json"
 	SaveManager.delete_save()
+	Settings.values["repere"] = false   # le repère de quête ne figure pas sur les captures (sans le retirer du jeu)
 	main = MAIN.instantiate()
 	add_child(main)
 	await _frames(150)
@@ -938,6 +939,8 @@ func _vues_only() -> void:
 	GameState.set_flag("chapitre_5_fini")
 	GameState.set_flag("minas_vu")
 	GameState.set_flag("combat_dindon_farce")
+	for fl: String in OS.get_environment("GLAN_FLAGS").split(",", false):
+		GameState.set_flag(fl)   # drapeaux supplémentaires (« combat_noyes_planches »...)
 	# les scènes d'arrivée et les déclencheurs d'histoire sont déjà joués : on veut voir les cartes, pas les combats
 	for map_id: String in Database.list_maps():
 		var md: Dictionary = Database.get_map(map_id)
@@ -999,7 +1002,10 @@ func _vues_only() -> void:
 				await _idle()
 	for part: String in OS.get_environment("GLAN_ARENES").split(";", false):
 		var q := part.split(":")
-		main.start_battle({"enemies": q[1].split(","), "arena": q[0], "flee": true})
+		var foes: Array = []
+		for en: String in q[1].split(","):
+			foes.append(en)
+		main.start_battle({"enemies": foes, "arena": q[0], "flee": true})
 		await _until_menu()
 		await _frames(50)
 		await _shot("a%02d_%s" % [n, q[0]])

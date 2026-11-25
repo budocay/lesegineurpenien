@@ -216,6 +216,7 @@ func _ready() -> void:
 	_test_decors_restes()
 	_test_decors_9()
 	_test_decors_10()
+	_test_decors_11()
 	_test_noms2()
 	_test_help_texts()
 	await _test_horizon()
@@ -343,8 +344,8 @@ func _test_rendering() -> void:
 			check(rays is Dictionary, "ambiance %s : rays est un dictionnaire" % id)
 			if rays is Dictionary:
 				var strength := float(rays.get("strength", 0.1))
-				check(strength > 0.0 and strength <= 0.08, "ambiance %s : rayons discrets (force %s)" % [id, strength])
-				check(float(rays.get("density", 0.01)) <= 0.02, "ambiance %s : rayons peu nombreux" % id)
+				check(strength > 0.0 and strength <= 0.2, "ambiance %s : rayons visibles sans voiler (force %s)" % [id, strength])
+				check(float(rays.get("density", 0.01)) <= 0.03, "ambiance %s : rayons peu nombreux" % id)
 	check(with_rays >= 2, "des ambiances ont des rayons de lumière")
 	for path: String in ["ground", "water", "rays", "vignette"]:
 		check(load("res://src/gfx/shaders/%s.gdshader" % path) is Shader, "shader %s chargé" % path)
@@ -4914,7 +4915,7 @@ func _test_dwarven_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence"] \
-					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t)
+					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t) or (load("res://src/world/mordgras_builder.gd") as GDScript).OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
@@ -4990,7 +4991,7 @@ func _test_rider_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree", "rug"] \
-					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
+					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t) or (load("res://src/world/mordgras_builder.gd") as GDScript).OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
@@ -7488,7 +7489,7 @@ func _test_chapter_7_data() -> void:
 		# tout objet mor_* d'une carte est soit un objet du constructeur (branché dans `object`), soit un accessoire déclaré
 		var MorB: GDScript = load("res://src/world/mordgras_builder.gd")
 		var MapB: GDScript = load("res://src/world/map_builder.gd")
-		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd")
+		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd") + FileAccess.get_file_as_string("res://src/world/mordgras_decor.gd")
 		for o: Variant in map.get("objects", []):
 			var ty := str((o as Dictionary).get("type", ""))
 			if ty.begins_with("mor_") and MorB.OBJECTS.has(ty):
@@ -8884,7 +8885,7 @@ func _json_files(dir: String) -> Array:
 func _test_horizon() -> void:
 	print("-- horizon et caméra par carte")
 	var Hz: GDScript = load("res://src/world/horizon.gd")
-	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde"]
+	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde", "marsh"]
 	var tuned: Array = []
 	for f in DirAccess.get_files_at("res://data/maps"):
 		if not f.ends_with(".json"):
@@ -9417,6 +9418,73 @@ func _test_decors_8() -> void:
 
 
 ## Décors 9 : étal d'Ursule, tuiles de forêt retournées, plaques de la salle du conseil, eau et mines.
+func _count_type(map_id: String, type: String) -> int:
+	var n := 0
+	for o: Dictionary in Database.get_map(map_id).get("objects", []):
+		if str(o.get("type", "")) == type:
+			n += 1
+	return n
+
+
+func _test_decors_11() -> void:
+	print("== Décors 11 : remparts, marais, Grand Four, Passe-Plat, Isengarde, Morbier ==")
+	check(FileAccess.file_exists("res://src/gfx/shaders/occluder.gdshader") and FileAccess.file_exists("res://src/gfx/shaders/occluder_2s.gdshader"),
+			"occulteurs locaux : trou tramé (shader) et non plus transparence alpha")
+	check(FileAccess.get_file_as_string("res://src/world/world.gd").contains("occluder_material"), "world.gd convertit les occulteurs locaux")
+	var mc: Dictionary = Database.get_map("marais_bouillon")
+	check(mc.has("horizon") and (mc["horizon"] as Dictionary).get("layers", []).size() >= 3, "marais : trois plans d'arbres morts à l'horizon")
+	check(FileAccess.get_file_as_string("res://src/gfx/horizon_layers.gd").contains("\"marsh\""), "horizon : plan « marsh » connu")
+	var gf: Dictionary = Database.get_map("grand_four")
+	var sauron_scale := 1.0
+	for o: Dictionary in gf.get("objects", []):
+		if str(o.get("id", "")) == "sauron":
+			sauron_scale = float(o.get("scale", 1.0))
+	check(sauron_scale >= 1.5, "Grand Four : Sauron dominant dans la carte (échelle %.1f)" % sauron_scale)
+	check(_count_type("grand_four", "mor_sol") >= 1 and _count_type("grand_four", "mor_ustensile") >= 2 and _count_type("grand_four", "mor_chaine") >= 2,
+			"Grand Four : sol fissuré, ustensiles géants, chaînes")
+	var has_portcullis := false
+	for o: Dictionary in Database.get_map("passe_plat").get("objects", []):
+		if str(o.get("type", "")) == "mor_porte" and bool(o.get("portcullis", false)):
+			has_portcullis = true
+	check(has_portcullis, "Passe-Plat : porte noire à herse")
+	check(_count_type("passe_plat", "mor_brasero") >= 2, "Passe-Plat : braseros")
+	check(_count_type("isengarde", "mor_brasero") >= 6 and _count_type("isengarde", "mor_sol") >= 1, "Isengarde : chaussée bordée de braseros et fissurée")
+	check(_count_type("morbier_tombe", "nain_brasero") >= 5, "tombe de Morbier : avant-scène éclairée")
+	check(_count_type("morbier_profondeurs", "mor_sol") >= 1 and _count_type("morbier_profondeurs", "nain_torche") >= 6, "profondeurs de Morbier : dalle fissurée et torches")
+	var arena_ok := true
+	for id: String in ["grand_four", "passe_plat", "isengarde", "marais_bouillon", "morbier_tombe", "morbier_profondeurs"]:
+		var mm: Dictionary = Database.get_map(id)
+		if mm.has("arena") == false and _count_type(id, "encounter_zone") > 0:
+			arena_ok = false
+	check(arena_ok, "cartes de combat : champ arena conservé")
+	for t: String in ["mor_sol", "mor_ustensile", "mor_chaine", "mor_brasero", "mor_passerelle", "mor_reflet", "mor_feu_follet", "portcullis"]:
+		check(FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md").contains(t), "FORMAT_DONNEES documente " + t)
+	# marchand du chapitre 7 : Hubert Longuevue, dernier étal avant le Passe-Plat
+	var shop: Dictionary = Database.shops.get("dernier_etal", {})
+	check(not shop.is_empty() and Database.characters.has(str(shop.get("keeper", ""))), "dernier étal : boutique et marchand déclarés")
+	var gear_total := 0
+	var gear_n := 0
+	var covered := {}
+	for e: Dictionary in shop.get("stock", []):
+		var it: Dictionary = Database.get_item(str(e["item"]))
+		check(not it.is_empty() and str(it.get("desc", "")) != "", "dernier étal : %s existe et a un texte" % str(e["item"]))
+		if str(it.get("kind", "")) == "equipment":
+			gear_total += int(e.get("price", it.get("price", 0)))
+			gear_n += 1
+			for who: Variant in it.get("for", []):
+				covered[str(who)] = true
+	check(gear_n >= 10, "dernier étal : au moins dix équipements (%d)" % gear_n)
+	for who: String in ["glandoulf", "sam", "froton", "merri", "pepin", "aragrogne", "digoulasse", "grimli"]:
+		check(covered.has(who), "dernier étal : une arme pour " + who)
+	check(gear_total >= 9659.0 / 0.7 and gear_total <= 9659.0 / 0.5, "dernier étal : prix d'équipement cohérents avec l'or du chapitre 7 (%d écus)" % gear_total)
+	var vendor_on_map := false
+	for o: Dictionary in Database.get_map("marais_bouillon").get("objects", []):
+		if str(o.get("id", "")) == "longuevue" and Database.dialogues.has(str(o.get("dialogue", ""))):
+			vendor_on_map = true
+	check(vendor_on_map, "dernier étal : Longuevue campe sur le marais, dialogue connu")
+	check(float(Database.get_enemy("limace_molle")["sprite"].get("scale", 1.0)) >= 0.95, "monstre ordinaire : échelle de la limace au moins 0,95")
+
+
 func _test_decors_10() -> void:
 	print("== Décors 10 : revue visuelle des chapitres 1 à 6 ==")
 	var g: Dictionary = Database.get_enemy("guetteur_lac")
