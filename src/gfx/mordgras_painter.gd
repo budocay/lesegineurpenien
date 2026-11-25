@@ -130,13 +130,15 @@ static func _plates() -> Image:
 
 
 static func _web_floor() -> Image:
-	var img := RP._noise(["#5a5e68", "#4a4e5a", "#6a6e7a", "#3e424c"], 1851, 24, Color("#d8dce4"))
-	for i in 3:
-		var y := 8 + i * 16
-		PA.line(img, 0, y, T - 1, y + 4 - i * 3, Color("#aeb4c0"))
-		PA.line(img, 6 + i * 14, 0, 18 + i * 8, T - 1, Color("#c4c8d4"))
-	PA.line(img, 0, 0, T - 1, T - 1, Color("#9aa0ae"))
-	PA.line(img, T - 1, 0, 0, T - 1, Color("#9aa0ae"))
+	# sol calme : roche grise à grain fin, quelques fils très peu contrastés (un quadrillage net fait un moiré
+	# à distance sous la caméra inclinée) ; les fils ne touchent pas les bords : la tuile se raccorde sans couture
+	var img := RP._noise(["#484c58", "#40444f", "#50545f", "#383c46"], 1851, 24, Color("#5c606c"))
+	PA.line(img, 4, 10, 30, 22, Color("#585d6b"))
+	PA.line(img, 30, 22, 43, 17, Color("#585d6b"))
+	PA.line(img, 14, 40, 26, 30, Color("#555a68"))
+	PA.line(img, 26, 30, 38, 42, Color("#555a68"))
+	PA.px(img, 30, 22, Color("#70758a"))
+	PA.px(img, 26, 30, Color("#70758a"))
 	return img
 
 
@@ -145,7 +147,7 @@ static func _checker() -> Image:
 	for r in 4:
 		for c in 4:
 			var light := (r + c) % 2 == 0
-			var tone := PA.shade(Color("#d8cfb8") if light else Color("#6a4a3a"), (PA.rnd(c, r, 1861) - 0.5) * 0.08)
+			var tone := PA.shade(Color("#b4a284") if light else Color("#7c5a44"), (PA.rnd(c, r, 1861) - 0.5) * 0.12)
 			PA.rect(img, c * 12, r * 12, 12, 12, tone)
 			PA.rect(img, c * 12, r * 12, 12, 1, PA.shade(tone, 0.12))
 			PA.rect(img, c * 12, r * 12 + 11, 12, 1, PA.shade(tone, -0.22))

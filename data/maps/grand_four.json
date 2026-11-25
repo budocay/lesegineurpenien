@@ -10,17 +10,31 @@
 	"music": "menace",
 	"arena": "arena_oeil",
 	"camera": {
-		"near_start": 0.7,
+		"near_start": 0.6,
 		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
-		"dof": 0.1
+		"pitch": 30,
+		"fov": 28,
+		"dof": 0.08,
+		"zones": [
+			{
+				"rect": [
+					0,
+					0,
+					44,
+					34
+				],
+				"pitch": 12,
+				"fov": 40,
+				"distance": 30,
+				"feather": 8
+			}
+		]
 	},
 	"style": "mordgras",
 	"interior": true,
-	"wall_height": 8.0,
+	"wall_height": 13.0,
 	"wall_tile": "mor_mur",
-	"wall_glow": 0.3,
+	"wall_glow": 0.04,
 	"ground": {
 		"default": "void",
 		"fills": [
@@ -36,10 +50,55 @@
 			{
 				"type": "mor_braise",
 				"rect": [
-					14,
-					2,
+					8,
+					3,
+					28,
+					9
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					3,
+					13,
+					3,
+					16
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					38,
+					13,
+					3,
+					16
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					12,
+					11,
+					1,
+					19
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					31,
+					11,
+					1,
+					19
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
 					16,
-					7
+					24,
+					12,
+					1
 				]
 			}
 		]
@@ -58,10 +117,10 @@
 			"type": "mor_four",
 			"pos": [
 				22,
-				4.5
+				3.6
 			],
-			"width": 12,
-			"height": 9.0
+			"width": 22,
+			"height": 11
 		},
 		{
 			"type": "mor_chandelier",
@@ -78,7 +137,7 @@
 			"id": "sauron",
 			"pos": [
 				22,
-				9.5
+				10
 			],
 			"facing": "down",
 			"reach": 2.2,
@@ -136,13 +195,6 @@
 			]
 		},
 		{
-			"type": "mor_cheminee",
-			"pos": [
-				10.9,
-				25.9
-			]
-		},
-		{
 			"type": "mor_pique",
 			"pos": [
 				12.3,
@@ -192,13 +244,6 @@
 			]
 		},
 		{
-			"type": "mor_cheminee",
-			"pos": [
-				17.9,
-				26.4
-			]
-		},
-		{
 			"type": "mor_pique",
 			"pos": [
 				39.9,
@@ -226,6 +271,178 @@
 			"color": "#ff6a30",
 			"energy": 2.0,
 			"range": 11
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				9
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				10.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				15
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				16.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				21
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				22.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				27
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				28.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				9
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				10.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				15
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				16.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				21
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				22.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				27
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				28.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				22,
+				6
+			],
+			"height": 4.0,
+			"color": "#ffb050",
+			"energy": 4.0,
+			"range": 16
 		}
-	]
+	],
+	"wall_tint": "#7a463e"
 }

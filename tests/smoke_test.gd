@@ -7472,6 +7472,16 @@ func _test_chapter_7_data() -> void:
 			check(str(map.get("style", "")) == str(C7_STYLES[id]), "carte %s : style %s" % [id, C7_STYLES[id]])
 		check(Database.arenas.has(str(map.get("arena", ""))), "carte %s : arène déclarée" % id)
 		check(Database.ambiances.has(str(map.get("ambiance", ""))), "carte %s : ambiance connue" % id)
+		# tout objet mor_* d'une carte est soit un objet du constructeur (branché dans `object`), soit un accessoire déclaré
+		var MorB: GDScript = load("res://src/world/mordgras_builder.gd")
+		var MapB: GDScript = load("res://src/world/map_builder.gd")
+		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd")
+		for o: Variant in map.get("objects", []):
+			var ty := str((o as Dictionary).get("type", ""))
+			if ty.begins_with("mor_") and MorB.OBJECTS.has(ty):
+				check(mor_src.contains("\"%s\": _" % ty), "carte %s : l'objet %s est branché dans le constructeur" % [id, ty])
+			elif ty.begins_with("mor_"):
+				check(MapB.PROPS.has(ty), "carte %s : l'accessoire %s est déclaré" % [id, ty])
 	for kind: String in C7_MONSTERS:
 		var sprite: String = str((Database.enemies.get(kind, {}) as Dictionary).get("sprite", {}).get("monster", ""))
 		check(MonsterPainter.has(sprite), "monstre %s : espèce %s connue" % [kind, sprite])
@@ -7722,6 +7732,7 @@ func _test_chapter_7() -> void:
 	await _c4_say(main, "four_anneau")
 	check(GameState.has_flag("anneau_jete") and GameState.has_flag("chapitre_7_fini"), "l'anneau est jeté dans le Grand Four")
 	check(main.world.map_id == "bittebourg_epilogue", "retour à Bittebourg (%s)" % main.world.map_id)
+	check(GameState.party == ["glandoulf"], "épilogue : Glandoulf seul à l'arrivée, le héros affiché est celui du groupe (%s)" % str(GameState.party))
 	for d: String in ["epilogue_aragrogne", "epilogue_digoulasse", "epilogue_pepin", "epilogue_sam", "epilogue_froton", "epilogue_merri", "epilogue_quai"]:
 		await _c4_say(main, d)
 	# la sieste de Glandoulf : le générique, à la manette
@@ -7742,6 +7753,7 @@ func _test_chapter_7() -> void:
 				main.dialogue._advance()
 	pick_queue = []
 	check(main.credits.is_playing(), "le générique défile")
+	check(main.credits.size.x > 400.0 and main.credits.size.y > 300.0, "le générique occupe tout l'écran (%s)" % str(main.credits.size))
 	check(GameState.chapter == "partie_terminee" and GameState.has_flag("partie_terminee") and GameState.has_flag("registre_signe"), "la partie est marquée terminée (%s)" % GameState.chapter)
 	check(GameState.quest_state("mordgras") == "done", "la quête principale est terminée (%s)" % GameState.quest_state("mordgras"))
 	check(SaveManager.has_save(), "la sauvegarde de fin existe")
@@ -8858,7 +8870,7 @@ func _json_files(dir: String) -> Array:
 func _test_horizon() -> void:
 	print("-- horizon et caméra par carte")
 	var Hz: GDScript = load("res://src/world/horizon.gd")
-	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge"]
+	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde"]
 	var tuned: Array = []
 	for f in DirAccess.get_files_at("res://data/maps"):
 		if not f.ends_with(".json"):

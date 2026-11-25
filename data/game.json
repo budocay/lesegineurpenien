@@ -299,12 +299,12 @@
 			"#f2ecdc"
 		],
 		[
-			"entièrement peint et composé par du code :",
+			"entièrement peint et composé par du code,",
 			20,
 			"#f2ecdc"
 		],
 		[
-			"pas une image, pas une note enregistrée.",
+			"images et musiques comprises.",
 			20,
 			"#f2ecdc"
 		],
@@ -315,6 +315,16 @@
 		],
 		[
 			"Moteur : Godot 4",
+			20,
+			"#a89c8c"
+		],
+		[
+			"Polices : Alegreya et Cinzel (licence SIL OFL)",
+			20,
+			"#a89c8c"
+		],
+		[
+			"Sons d'interface : Kenney (CC0)",
 			20,
 			"#a89c8c"
 		],

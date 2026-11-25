@@ -18,7 +18,7 @@ const POSES6 := {"attack": 2, "hit": 3, "cast": 4, "ko": 5}
 ## Étincelles du sort, par espèce (la couleur de leur magie) ; « défaut » pour les autres.
 const CAST_TINT := {"boss_sarumale": "#fff0a0", "boss_gardien": "#c8c8ff", "boss_grimace": "#c8a0ff", "boss_sauron": "#ff8a4a",
 	"boss_naze": "#c8d0ff", "boss_naze_est": "#ff8a5a", "boss_naze_ouest": "#9aff8a", "boss_froton": "#fff0a0", "boss_goulum": "#9ad8f0",
-	"naze_supreme": "#c8a0ff", "boss_bouche": "#ff8a4a", "boss_sauron_vigueur": "#ff8a4a", "grand_oeil": "#ffd070", "arachnee": "#e8e0ff", "balourd": "#ff8a3a", "boss_uglouk": "#ffd070", "guetteur": "#9ad8f0", "gothmoque": "#ffb070"}
+	"naze_supreme": "#c8a0ff", "boss_bouche": "#ff8a4a", "boss_maitre_salle": "#ffe8a0", "boss_sauron_vigueur": "#ff8a4a", "grand_oeil": "#ffd070", "arachnee": "#e8e0ff", "balourd": "#ff8a3a", "boss_uglouk": "#ffd070", "guetteur": "#9ad8f0", "gothmoque": "#ffb070"}
 
 ## Visage de chaque famille, en pixels dans la case : yeux [x, y, largeur, hauteur] et bouche.
 const FACES := {
@@ -56,7 +56,7 @@ const PAINTED := ["limace", "baveuse", "guepe", "champignon", "sangsue", "frelon
 	"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum",
 	# chapitre 7 : mordgras_monsters.gd et boss_painter.gd
 	"noye", "ologrill", "grand_ologrill", "fileuse", "arachnee", "convive", "marcheur", "naze_service", "grand_oeil",
-	"boss_bouche", "boss_sauron_vigueur"]
+	"boss_bouche", "boss_sauron_vigueur", "boss_maitre_salle"]
 
 const SIZES := {
 	"limace": Vector2i(38, 26),
@@ -121,7 +121,7 @@ const SIZES := {
 	"noye": Vector2i(48, 64), "ologrill": Vector2i(56, 68), "grand_ologrill": Vector2i(96, 108),
 	"fileuse": Vector2i(56, 40), "arachnee": Vector2i(112, 84), "convive": Vector2i(60, 68),
 	"marcheur": Vector2i(48, 70), "naze_service": Vector2i(52, 68), "grand_oeil": Vector2i(92, 100),
-	"boss_bouche": Vector2i(72, 110), "boss_sauron_vigueur": Vector2i(96, 120),
+	"boss_bouche": Vector2i(72, 110), "boss_sauron_vigueur": Vector2i(96, 120), "boss_maitre_salle": Vector2i(84, 116),
 }
 
 const WASP := ["#f2c23c", "#fbe38a", "#3a2420", "#cfe6f4", "#9cc0dc"]
@@ -223,7 +223,7 @@ static func _render(kind: String, k: int) -> Image:
 				load("res://src/gfx/gouda_monsters.gd").paint(kind, img, ox, f, pc, inner)
 			"noye", "ologrill", "grand_ologrill", "fileuse", "arachnee", "convive", "marcheur", "naze_service", "grand_oeil":
 				load("res://src/gfx/mordgras_monsters.gd").paint(kind, img, ox, f, pc, inner)
-			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk", "boss_bouche", "boss_sauron_vigueur":
+			"boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron", "boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk", "boss_bouche", "boss_sauron_vigueur", "boss_maitre_salle":
 				load("res://src/gfx/boss_painter.gd").paint(kind, img, ox, f, pc, inner)
 			_:
 				_rect(img, ox + 4, 4, size.x - 8, size.y - 8, Color.MAGENTA)
@@ -395,7 +395,7 @@ const HD_K := {"vacherin": 6, "baveuse": 6, "goulum": 6, "troll": 6, "guetteur":
 	"gothmoque": 6, "naze_supreme": 6, "mammou": 6, "dindon_farce": 6, "grondine": 6,
 	"boss_sarumale": 6, "boss_froton": 6, "boss_grimace": 6, "boss_gardien": 6, "boss_sauron": 6, "boss_naze": 6,
 	"boss_naze_est": 6, "boss_naze_ouest": 6, "boss_goulum": 6, "boss_uglouk": 6,
-	"arachnee": 6, "grand_ologrill": 6, "grand_oeil": 6, "boss_bouche": 6, "boss_sauron_vigueur": 6}
+	"arachnee": 6, "grand_ologrill": 6, "grand_oeil": 6, "boss_bouche": 6, "boss_sauron_vigueur": 6, "boss_maitre_salle": 6}
 static var K := 1                # facteur de la peinture en cours
 static var _ga := 0.0            # amplitude du grain de matière (0 : aucun)
 static var _gs := 3.0            # taille du grain, en pixels de la grille fine
@@ -408,7 +408,7 @@ const GRAIN := {"limace": [0.1, 5.0], "baveuse": [0.1, 5.0], "sangsue": [0.1, 5.
 	"troll": [0.24, 4.0], "balourd": [0.24, 4.0], "paton": [0.14, 5.0],
 	"boss_sarumale": [0.05, 6.0], "boss_froton": [0.1, 5.0], "boss_grimace": [0.08, 5.0], "boss_gardien": [0.07, 6.0],
 	"boss_sauron": [0.12, 5.0], "boss_uglouk": [0.14, 4.0], "boss_naze": [0.08, 5.0], "boss_naze_est": [0.08, 5.0], "boss_naze_ouest": [0.08, 5.0], "boss_goulum": [0.1, 5.0],
-	"boss_bouche": [0.08, 5.0], "boss_sauron_vigueur": [0.12, 5.0], "arachnee": [0.12, 4.0], "grand_oeil": [0.1, 4.0], "grand_ologrill": [0.2, 3.0]}
+	"boss_bouche": [0.08, 5.0], "boss_maitre_salle": [0.08, 5.0], "boss_sauron_vigueur": [0.12, 5.0], "arachnee": [0.12, 4.0], "grand_oeil": [0.1, 4.0], "grand_ologrill": [0.2, 3.0]}
 ## Espèces luisantes : petits reflets mouillés dans les tons clairs.
 const SHINY := ["limace", "baveuse", "sangsue", "grenouille", "crapaud", "asticot", "vacherin", "paton", "moisi"]
 

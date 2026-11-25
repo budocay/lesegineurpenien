@@ -10,11 +10,48 @@
 	"music": "menace",
 	"arena": "marches_mor",
 	"camera": {
-		"near_start": 0.7,
+		"near_start": 0.55,
 		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
-		"dof": 0.1
+		"pitch": 24,
+		"fov": 28,
+		"dof": 0.08,
+		"far_start": 9,
+		"zones": [
+			{
+				"rect": [
+					0,
+					38,
+					24,
+					26
+				],
+				"pitch": 20,
+				"fov": 30,
+				"feather": 6
+			},
+			{
+				"rect": [
+					0,
+					20,
+					24,
+					18
+				],
+				"pitch": 12,
+				"fov": 34,
+				"feather": 6
+			},
+			{
+				"rect": [
+					0,
+					0,
+					24,
+					20
+				],
+				"pitch": 4,
+				"fov": 40,
+				"distance": 26,
+				"feather": 6
+			}
+		]
 	},
 	"style": "mordgras",
 	"ground": {
@@ -23,9 +60,9 @@
 			{
 				"type": "mor_marche",
 				"rect": [
-					7,
+					8,
 					1,
-					10,
+					8,
 					62
 				]
 			}
@@ -112,7 +149,7 @@
 			"id": "marcheur",
 			"pos": [
 				11,
-				52
+				47
 			],
 			"facing": "up",
 			"reach": 1.8,
@@ -123,7 +160,7 @@
 			"id": "marcheur",
 			"pos": [
 				13,
-				30
+				28
 			],
 			"facing": "up",
 			"reach": 1.8,
@@ -134,7 +171,7 @@
 			"id": "marcheur",
 			"pos": [
 				11,
-				16
+				18
 			],
 			"facing": "up",
 			"reach": 1.8,
@@ -158,9 +195,9 @@
 			"type": "encounter_zone",
 			"rect": [
 				8,
+				5,
 				8,
-				8,
-				48
+				50
 			],
 			"table": "marches"
 		},
@@ -173,174 +210,6 @@
 			"dialogue": "mor_repos",
 			"label": "Se reposer",
 			"reach": 2.0
-		},
-		{
-			"type": "rock",
-			"pos": [
-				4.8,
-				41.2
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				5.0,
-				18.6
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				3.3,
-				8.9
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				2.2,
-				7.0
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				0.1,
-				28.6
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				7.0,
-				24.4
-			]
-		},
-		{
-			"type": "rock",
-			"pos": [
-				2.5,
-				37.0
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				6.2,
-				42.8
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				3.5,
-				52.8
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				0.2,
-				2.2
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				4.8,
-				25.5
-			]
-		},
-		{
-			"type": "mor_pique",
-			"pos": [
-				2.9,
-				23.8
-			]
-		},
-		{
-			"type": "rock",
-			"pos": [
-				22.9,
-				2.1
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				22.9,
-				9.0
-			]
-		},
-		{
-			"type": "rock",
-			"pos": [
-				22.0,
-				54.3
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				18.8,
-				5.8
-			]
-		},
-		{
-			"type": "rock",
-			"pos": [
-				24.0,
-				36.2
-			]
-		},
-		{
-			"type": "mor_pique",
-			"pos": [
-				23.5,
-				45.8
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				21.6,
-				38.8
-			]
-		},
-		{
-			"type": "rock",
-			"pos": [
-				18.7,
-				17.4
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				18.3,
-				23.7
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				23.2,
-				49.1
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				23.4,
-				56.6
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				22.0,
-				4.9
-			]
 		},
 		{
 			"type": "light",
@@ -385,132 +254,165 @@
 			"color": "#ff9a50",
 			"energy": 1.5,
 			"range": 9
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				6
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				10
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				14
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				18
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				22
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				26
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				30
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				34
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				38
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				42
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				46
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				50
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				6.6,
-				54
-			]
-		},
-		{
-			"type": "mor_lanterne",
-			"pos": [
-				17.4,
-				58
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				4.5,
-				18
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				19.5,
-				26
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				5,
-				42
-			]
-		},
-		{
-			"type": "mor_os",
-			"pos": [
-				20,
-				50
-			]
 		}
-	]
+	],
+	"heights": [
+		{
+			"rect": [
+				8,
+				45,
+				8,
+				6
+			],
+			"h": 3.2
+		},
+		{
+			"rect": [
+				8,
+				35,
+				8,
+				6
+			],
+			"h": 6.4
+		},
+		{
+			"rect": [
+				8,
+				25,
+				8,
+				6
+			],
+			"h": 9.6
+		},
+		{
+			"rect": [
+				8,
+				15,
+				8,
+				6
+			],
+			"h": 12.8
+		},
+		{
+			"rect": [
+				8,
+				1,
+				8,
+				10
+			],
+			"h": 16.0
+		}
+	],
+	"stairs": [
+		{
+			"rect": [
+				8,
+				51,
+				8,
+				4
+			],
+			"dir": "up",
+			"from": 0.0,
+			"to": 3.2
+		},
+		{
+			"rect": [
+				8,
+				41,
+				8,
+				4
+			],
+			"dir": "up",
+			"from": 3.2,
+			"to": 6.4
+		},
+		{
+			"rect": [
+				8,
+				31,
+				8,
+				4
+			],
+			"dir": "up",
+			"from": 6.4,
+			"to": 9.6
+		},
+		{
+			"rect": [
+				8,
+				21,
+				8,
+				4
+			],
+			"dir": "up",
+			"from": 9.6,
+			"to": 12.8
+		},
+		{
+			"rect": [
+				8,
+				11,
+				8,
+				4
+			],
+			"dir": "up",
+			"from": 12.8,
+			"to": 16.0
+		}
+	],
+	"horizon": {
+		"sky": {
+			"top": "#10050a",
+			"mid": "#4a1614",
+			"low": "#d8682c",
+			"below": "#3a140c",
+			"sun": [
+				0.3,
+				0.1,
+				0.8
+			],
+			"sun_col": "#ff9a48",
+			"clouds": 0.8,
+			"cloud_lit": "#ff9a60",
+			"cloud_shade": "#3a1418",
+			"speed": 0.01
+		},
+		"layers": [
+			{
+				"kind": "massif",
+				"w": 2400,
+				"z": -300.0,
+				"y": -2.0,
+				"height": 100.0,
+				"k": 0.97,
+				"seed": 31,
+				"off": 0,
+				"peak": 0.62,
+				"haze": "#6a2420",
+				"haze_top": 0.0,
+				"haze_bottom": 0.55
+			},
+			{
+				"kind": "horde",
+				"w": 2400,
+				"z": -110.0,
+				"y": 0.0,
+				"height": 46.0,
+				"k": 0.88,
+				"seed": 8,
+				"fires": 16,
+				"haze": "#5a1e1a",
+				"haze_top": 0.2,
+				"haze_bottom": 0.35
+			}
+		],
+		"ground": {
+			"from": -20.0,
+			"to": -400.0,
+			"y": 0.03,
+			"near": "#2a100e",
+			"far": "#6a2420",
+			"haze": "#6a2420"
+		}
+	}
 }

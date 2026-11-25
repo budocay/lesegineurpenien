@@ -4,6 +4,8 @@ extends Control
 ## (scène d'après-générique), puis le signal `finished` rend la main à main.gd, qui retourne au titre.
 ## Tout se pilote à la manette (A accélère, B ou Start passe) : aucune touche en dur dans le texte.
 
+const UI = preload("res://src/ui/ui_kit.gd")
+
 signal finished
 
 const SPEED := 54.0          # pixels par seconde
@@ -18,11 +20,12 @@ var _phase := "off"          # off, scroll, rings, done
 var _t := 0.0
 var _total_h := 0.0
 var _font: Font = null
+var _title_font: Font = null
 var _opened := 0
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # (et non set_anchors_preset : sous un CanvasLayer la taille resterait nulle, le générique invisible)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
 	visible = false
@@ -33,7 +36,10 @@ func _ready() -> void:
 ## Lignes du générique : [texte, taille, couleur]. Données dans `data/game.json` (champ `credits`) si présentes.
 func play(lines: Array) -> void:
 	_lines = lines
-	_font = ThemeDB.fallback_font
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	size = get_viewport_rect().size
+	_font = UI.font()
+	_title_font = UI.font_title()
 	_total_h = 0.0
 	for l: Variant in _lines:
 		_total_h += float((l as Array)[1]) * 1.9
@@ -89,12 +95,18 @@ func _draw() -> void:
 			var fs := int(row[1])
 			var text := str(row[0])
 			if text != "" and y > -40.0 and y < size.y + 40.0:
-				var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
+				var face: Font = _title_font if fs >= 28 else _font
+				var w := face.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
 				var c := Color(str(row[2]))
 				var fade := clampf(minf(y / 90.0, (size.y - y) / 90.0), 0.0, 1.0)
 				c.a = fade
-				draw_string(_font, Vector2((size.x - w) * 0.5, y + float(fs)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, c)
+				draw_string(face, Vector2((size.x - w) * 0.5, y + float(fs)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, c)
 			y += float(fs) * 1.9
+		# rappel des commandes (clavier ou manette), discret, en bas de l'écran
+		draw_rect(Rect2(0, size.y - 52.0, size.x, 52.0), Color.BLACK)   # le texte passe sous le rappel, jamais dessus
+		var hint := Tutorial.expand("{interact} : accélérer     {cancel} : passer")
+		var hw := _font.get_string_size(hint, HORIZONTAL_ALIGNMENT_CENTER, -1, 17).x
+		draw_string(_font, Vector2((size.x - hw) * 0.5, size.y - 22.0), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(DIM, 0.55))
 	elif _phase == "rings":
 		# neuf petits anneaux qui roulent, l'un derrière l'autre, de gauche à droite
 		var base := size.y * 0.72
@@ -107,8 +119,8 @@ func _draw() -> void:
 			draw_arc(Vector2(x, base), 13.0, 0.0, TAU, 24, GOLD, 4.0)
 			draw_circle(Vector2(x + cos(a) * 13.0, base + sin(a) * 13.0), 2.2, INK)
 		var msg := "Fin"
-		var w2 := _font.get_string_size(msg, HORIZONTAL_ALIGNMENT_CENTER, -1, 44).x
-		draw_string(_font, Vector2((size.x - w2) * 0.5, size.y * 0.42), msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 44, Color(GOLD, clampf(_t * 0.8, 0.0, 1.0)))
+		var w2 := _title_font.get_string_size(msg, HORIZONTAL_ALIGNMENT_CENTER, -1, 44).x
+		draw_string(_title_font, Vector2((size.x - w2) * 0.5, size.y * 0.42), msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 44, Color(GOLD, clampf(_t * 0.8, 0.0, 1.0)))
 		var sub := "Les anneaux roulent encore."
 		var w3 := _font.get_string_size(sub, HORIZONTAL_ALIGNMENT_CENTER, -1, 20).x
 		draw_string(_font, Vector2((size.x - w3) * 0.5, size.y * 0.42 + 40.0), sub, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(DIM, clampf(_t - 1.0, 0.0, 1.0)))
