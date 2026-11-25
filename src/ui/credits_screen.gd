@@ -25,7 +25,7 @@ var _opened := 0
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)   # (et non set_anchors_preset : sous un CanvasLayer la taille resterait nulle, le générique invisible)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
 	visible = false
@@ -36,6 +36,8 @@ func _ready() -> void:
 ## Lignes du générique : [texte, taille, couleur]. Données dans `data/game.json` (champ `credits`) si présentes.
 func play(lines: Array) -> void:
 	_lines = lines
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	size = get_viewport_rect().size
 	_font = UI.font()
 	_title_font = UI.font_title()
 	_total_h = 0.0
@@ -101,6 +103,7 @@ func _draw() -> void:
 				draw_string(face, Vector2((size.x - w) * 0.5, y + float(fs)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, c)
 			y += float(fs) * 1.9
 		# rappel des commandes (clavier ou manette), discret, en bas de l'écran
+		draw_rect(Rect2(0, size.y - 52.0, size.x, 52.0), Color.BLACK)   # le texte passe sous le rappel, jamais dessus
 		var hint := Tutorial.expand("{interact} : accélérer     {cancel} : passer")
 		var hw := _font.get_string_size(hint, HORIZONTAL_ALIGNMENT_CENTER, -1, 17).x
 		draw_string(_font, Vector2((size.x - hw) * 0.5, size.y - 22.0), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(DIM, 0.55))

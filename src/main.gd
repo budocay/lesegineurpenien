@@ -386,6 +386,7 @@ func play_credits() -> void:
 	Music.play(str(Database.game.get("credits_music", "village")))
 	var lines: Array = Database.game.get("credits", [])
 	credits.play(lines)
+	await _fade_to(0.0, 0.8)   # le fond noir du générique est opaque : on lève le voile pour le laisser apparaître
 	await credits.finished
 	busy = false
 	await show_title()

@@ -780,6 +780,8 @@ func _mordgras_only(arenas_only: bool) -> void:
 	await _idle()
 	if arenas_only:
 		await _mordgras_arenas()
+	elif OS.get_cmdline_user_args().has("generique"):
+		await _mordgras_fin()
 	else:
 		await _mordgras_shots()
 	SaveManager.delete_save()
@@ -851,6 +853,11 @@ func _mordgras_shots() -> void:
 	await _idle()
 	await _goto(Vector3(22.0, 0.0, 14.0), "up")
 	await _shot("321_four_sauron_endormi")
+	await _mordgras_fin()
+
+
+## Épilogue et générique (mode « chap7 generique » : seulement cette fin).
+func _mordgras_fin() -> void:
 	# comme dans le jeu : les marqueurs de quête sont posés et le groupe se réduit à Glandoulf AVANT le changement de carte
 	for f: String in ["marais_traverse", "passe_tenu", "arachnee_endormie", "goulum_parti", "banquet_servi", "marches_finies", "sauron_endormi", "anneau_jete", "chapitre_7_fini"]:
 		GameState.set_flag(f)
@@ -864,6 +871,7 @@ func _mordgras_shots() -> void:
 	# le générique à trois moments (début, milieu, anneaux)
 	main.credits.play(Database.game.get("credits", []))
 	await _secs(3.0)
+	print("GENERIQUE : lecture ", main.credits.is_playing(), " visible ", main.credits.visible, " taille ", main.credits.size, " phase ", main.credits._phase, " défilement ", main.credits._scroll_y, " arbre en pause ", get_tree().paused)
 	await _shot("324_generique_debut")
 	await _secs(22.0)
 	await _shot("325_generique_milieu")

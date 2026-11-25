@@ -7753,6 +7753,7 @@ func _test_chapter_7() -> void:
 				main.dialogue._advance()
 	pick_queue = []
 	check(main.credits.is_playing(), "le générique défile")
+	check(main.credits.size.x > 400.0 and main.credits.size.y > 300.0, "le générique occupe tout l'écran (%s)" % str(main.credits.size))
 	check(GameState.chapter == "partie_terminee" and GameState.has_flag("partie_terminee") and GameState.has_flag("registre_signe"), "la partie est marquée terminée (%s)" % GameState.chapter)
 	check(GameState.quest_state("mordgras") == "done", "la quête principale est terminée (%s)" % GameState.quest_state("mordgras"))
 	check(SaveManager.has_save(), "la sauvegarde de fin existe")
