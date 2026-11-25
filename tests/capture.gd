@@ -939,6 +939,8 @@ func _vues_only() -> void:
 	GameState.set_flag("chapitre_5_fini")
 	GameState.set_flag("minas_vu")
 	GameState.set_flag("combat_dindon_farce")
+	for fl: String in OS.get_environment("GLAN_FLAGS").split(",", false):
+		GameState.set_flag(fl)   # drapeaux supplémentaires (« combat_noyes_planches »...)
 	# les scènes d'arrivée et les déclencheurs d'histoire sont déjà joués : on veut voir les cartes, pas les combats
 	for map_id: String in Database.list_maps():
 		var md: Dictionary = Database.get_map(map_id)
