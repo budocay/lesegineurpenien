@@ -1545,6 +1545,8 @@ Objets utilisables dans toute carte (aiguillés par `MordgrasBuilder.object` ver
 | `mor_feu_follet` | `pos`, `color`, `height`, `drift` | feu follet flottant |
 | `mor_fumee` | `pos`, `height`, `scale` | colonne de fumée (particules `smoke`) |
 
+Boutique du chapitre 7 : `dernier_etal` (marchand `longuevue`, PNJ de `marais_bouillon` visible après `combat_noyes_planches`), uniquement par les données ; `tests/audit_economie.py` la compte au chapitre 7. `tests/capture.gd` en mode `vues` accepte `GLAN_FLAGS=drapeau,drapeau` pour poser des drapeaux avant la prise.
+
 `mor_porte` accepte `"portcullis": true` : herse de fer (barreaux à pointes, chaînes) qui bloque le passage.
 Un `npc` accepte `scale` (taille du sprite et de la zone d'interaction). Le plan d'horizon `"kind": "marsh"`
 (options `peak`, `trees`, `fires`) peint des arbres morts en silhouettes, roseaux et lueurs de feux follets.

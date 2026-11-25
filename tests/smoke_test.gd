@@ -9459,6 +9459,30 @@ func _test_decors_11() -> void:
 	check(arena_ok, "cartes de combat : champ arena conservé")
 	for t: String in ["mor_sol", "mor_ustensile", "mor_chaine", "mor_brasero", "mor_passerelle", "mor_reflet", "mor_feu_follet", "portcullis"]:
 		check(FileAccess.get_file_as_string("res://docs/FORMAT_DONNEES.md").contains(t), "FORMAT_DONNEES documente " + t)
+	# marchand du chapitre 7 : Hubert Longuevue, dernier étal avant le Passe-Plat
+	var shop: Dictionary = Database.shops.get("dernier_etal", {})
+	check(not shop.is_empty() and Database.characters.has(str(shop.get("keeper", ""))), "dernier étal : boutique et marchand déclarés")
+	var gear_total := 0
+	var gear_n := 0
+	var covered := {}
+	for e: Dictionary in shop.get("stock", []):
+		var it: Dictionary = Database.get_item(str(e["item"]))
+		check(not it.is_empty() and str(it.get("desc", "")) != "", "dernier étal : %s existe et a un texte" % str(e["item"]))
+		if str(it.get("kind", "")) == "equipment":
+			gear_total += int(e.get("price", it.get("price", 0)))
+			gear_n += 1
+			for who: Variant in it.get("for", []):
+				covered[str(who)] = true
+	check(gear_n >= 10, "dernier étal : au moins dix équipements (%d)" % gear_n)
+	for who: String in ["glandoulf", "sam", "froton", "merri", "pepin", "aragrogne", "digoulasse", "grimli"]:
+		check(covered.has(who), "dernier étal : une arme pour " + who)
+	check(gear_total >= 9659.0 / 0.7 and gear_total <= 9659.0 / 0.5, "dernier étal : prix d'équipement cohérents avec l'or du chapitre 7 (%d écus)" % gear_total)
+	var vendor_on_map := false
+	for o: Dictionary in Database.get_map("marais_bouillon").get("objects", []):
+		if str(o.get("id", "")) == "longuevue" and Database.dialogues.has(str(o.get("dialogue", ""))):
+			vendor_on_map = true
+	check(vendor_on_map, "dernier étal : Longuevue campe sur le marais, dialogue connu")
+	check(float(Database.get_enemy("limace_molle")["sprite"].get("scale", 1.0)) >= 0.95, "monstre ordinaire : échelle de la limace au moins 0,95")
 
 
 func _test_decors_10() -> void:
