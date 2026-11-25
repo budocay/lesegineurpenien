@@ -22,7 +22,7 @@
 	},
 	"guepe_cidre": {
 		"name": "Guêpe à cidre",
-		"sprite": {"monster": "guepe", "hover": 0.95, "scale": 0.85},
+		"sprite": {"monster": "guepe", "hover": 0.95, "scale": 0.95},
 		"stats": {"hp": 20, "atk": 5, "def": 1, "mag": 2, "res": 1, "spd": 13, "eva": 10},
 		"element": "tranchant", "attack_name": "Piqué", "attack_anim": "pique",
 		"weak": ["contondant", "foudre"], "shield": 1,
