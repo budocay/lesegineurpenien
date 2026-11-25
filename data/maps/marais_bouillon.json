@@ -10,11 +10,12 @@
 	"music": "marais",
 	"arena": "marais_bouillon",
 	"camera": {
-		"near_start": 0.7,
-		"distance": 24,
-		"pitch": 32,
-		"fov": 24,
-		"dof": 0.1
+		"near_start": 0.55,
+		"distance": 28,
+		"pitch": 15,
+		"fov": 38,
+		"dof": 0.06,
+		"far_start": 10
 	},
 	"style": "marais",
 	"ground": {
@@ -608,5 +609,81 @@
 			"energy": 1.1,
 			"range": 8
 		}
-	]
+	],
+	"horizon": {
+		"sky": {
+			"top": "#04090b",
+			"mid": "#102420",
+			"low": "#3c6050",
+			"below": "#0c1612",
+			"sun": [
+				-0.35,
+				0.28,
+				0.8
+			],
+			"sun_col": "#a8d0b8",
+			"clouds": 0.55,
+			"cloud_lit": "#6a8a7c",
+			"cloud_shade": "#101c1a",
+			"speed": 0.004
+		},
+		"layers": [
+			{
+				"kind": "marsh",
+				"w": 2400,
+				"z": -210.0,
+				"y": -6.0,
+				"height": 70.0,
+				"k": 0.97,
+				"seed": 3,
+				"peak": 0.7,
+				"trees": 1,
+				"fires": 10,
+				"glow": 0,
+				"haze": "#3a5c4c",
+				"haze_top": 0.1,
+				"haze_bottom": 0.9
+			},
+			{
+				"kind": "marsh",
+				"w": 2400,
+				"z": -110.0,
+				"y": -3.0,
+				"height": 50.0,
+				"k": 0.9,
+				"seed": 8,
+				"peak": 0.8,
+				"trees": 2,
+				"fires": 8,
+				"glow": 0,
+				"haze": "#2a463a",
+				"haze_top": 0.05,
+				"haze_bottom": 0.85
+			},
+			{
+				"kind": "marsh",
+				"w": 2400,
+				"z": -52.0,
+				"y": -2.5,
+				"height": 34.0,
+				"k": 0.8,
+				"seed": 14,
+				"peak": 0.85,
+				"trees": 2,
+				"fires": 5,
+				"glow": 0,
+				"haze": "#1c3028",
+				"haze_top": 0.0,
+				"haze_bottom": 0.8
+			}
+		],
+		"ground": {
+			"from": -16.0,
+			"to": -330.0,
+			"y": -0.04,
+			"near": "#1c3028",
+			"far": "#3a5c4c",
+			"haze": "#3a5c4c"
+		}
+	}
 }
