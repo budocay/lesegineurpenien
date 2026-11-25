@@ -270,8 +270,9 @@ static func absorb(engine: RefCounted) -> Dictionary:
 	for e: RefCounted in engine.enemies:
 		met_here[str(e.source)] = true
 	for id: String in met_here:
-		var before := creature_state(id)
 		var lg := creature_log(id).duplicate(true)
+		var was_met := int(lg.get("seen", 0)) > 0   # (les faiblesses révélées pendant ce combat ne comptent pas : la fiche n'est pas encore écrite)
+		var was_beaten := int(lg.get("beaten", 0)) > 0
 		lg["seen"] = int(lg.get("seen", 0)) + 1
 		if not lg.has("map"):
 			lg["map"] = GameState.map_id
@@ -295,9 +296,9 @@ static func absorb(engine: RefCounted) -> Dictionary:
 			lg["loot"] = loot
 		GameState.bestiary_log[id] = lg
 		var name := str(Database.get_enemy(id).get("name", id))
-		if before == "unknown":
+		if not was_met:
 			(out["new"] as Array).append(name)
-		if res == "victory" and before != "beaten" and int(lg.get("beaten", 0)) > 0:
+		if res == "victory" and not was_beaten and int(lg.get("beaten", 0)) > 0:
 			(out["first_win"] as Array).append(name)
 	return out
 
@@ -321,3 +322,27 @@ static func stat_sources(who: String, key: String) -> Dictionary:
 			gear_sum += int(mods[key])
 	var total := int(GameState.member_stats(who).get(key, 0))
 	return {"base": base, "gear": gear, "other": total - base - gear_sum, "total": total}
+
+
+## Grande image d'une créature ou d'un personnage pour sa fiche (première pose de la planche).
+static var _art: Dictionary = {}
+
+static func art(sprite: Dictionary) -> Texture2D:
+	if sprite.has("character"):
+		return Sprites.portrait(str(sprite["character"]))
+	if sprite.has("portrait"):
+		return Sprites.portrait(str(sprite["portrait"]))
+	var kind := str(sprite.get("monster", ""))
+	if kind == "":
+		return null
+	if _art.has(kind):
+		return _art[kind]
+	var sheet: Dictionary = Sprites.monster(kind)
+	var tex: Texture2D = sheet.get("texture")
+	if tex == null:
+		return null
+	var at := AtlasTexture.new()
+	at.atlas = tex
+	at.region = Rect2(0, 0, tex.get_width() / maxi(1, int(sheet.get("columns", 1))), tex.get_height())
+	_art[kind] = at
+	return at

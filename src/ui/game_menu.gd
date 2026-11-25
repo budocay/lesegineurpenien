@@ -12,12 +12,14 @@ signal talents_requested(who: String)   # la fiche d'un personnage demande l'éc
 
 const UI = preload("res://src/ui/ui_kit.gd")
 const Rules = preload("res://src/battle/rules.gd")
+const Carnet = preload("res://src/core/carnet.gd")
 
 var _title: Label
 var _money: Label
 var _list: VBoxContainer
 var _detail: RichTextLabel
 var _detail_scroll: ScrollContainer
+var _art: TextureRect          # grande image au-dessus du détail (fiches du Carnet)
 var _message: Label
 var _panel: PanelContainer
 var _entries: Array = []
@@ -58,10 +60,21 @@ func _ready() -> void:
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(_detail_scroll)
+	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", 6)
+	_detail_scroll.add_child(column)
+	_art = TextureRect.new()
+	_art.custom_minimum_size = Vector2(0, 150)
+	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_art.visible = false
+	column.add_child(_art)
 	_detail = UI.rich(18)
 	_detail.fit_content = true
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail_scroll.add_child(_detail)
+	column.add_child(_detail)
 
 	_message = UI.label("", 20, UI.GOLD, false, true)
 	_message.custom_minimum_size = Vector2(0, 28)
@@ -77,6 +90,7 @@ func open(which: String) -> void:
 	match which:
 		"team": _team()
 		"inventory": _inventory()
+		"carnet": _carnet()
 		_: _journal()
 
 
@@ -164,7 +178,7 @@ func _page(title: String, entries: Array, back: Callable = Callable(), focus: in
 	_detail.text = ""
 	if not entries.is_empty():
 		var index := clampi(focus, 0, entries.size() - 1)
-		_detail.text = _entry_markup(entries[index] as Dictionary)
+		_show_entry(entries[index] as Dictionary)
 		_focus_row.call_deferred(index)
 
 
@@ -180,8 +194,15 @@ func _focus_row(index: int) -> void:
 func _on_focus(index: int) -> void:
 	if index < _entries.size():
 		_focus_index = index
-		_detail.text = _entry_markup(_entries[index] as Dictionary)
+		_show_entry(_entries[index] as Dictionary)
 		_detail_scroll.scroll_vertical = 0
+
+
+func _show_entry(e: Dictionary) -> void:
+	_detail.text = _entry_markup(e)
+	var art: Variant = e.get("art")
+	_art.texture = art if art is Texture2D else null
+	_art.visible = art is Texture2D
 
 
 ## Détail d'une ligne, en BBCode.
@@ -621,6 +642,11 @@ func _member(who: String, from: int, focus: int = 0) -> void:
 			"detail": ("Prend la place d'un des quatre qui se battent." if reserve else "Cède sa place à un personnage de la réserve.") + "\n\nQuatre personnages au plus se battent en même temps.",
 			"action": _swap_targets.bind(who, from),
 		})
+	entries.append({   # le Carnet : la fiche détaillée, tout au bout pour ne pas déplacer les autres lignes
+		"text": "Fiche détaillée",
+		"detail": "Toutes les caractéristiques, d'où elles viennent, et ce qu'elles font.",
+		"action": _sheet.bind(who, _member.bind(who, from, entries.size())),
+	})
 	_page(Database.get_character_name(who), entries, _team.bind(from), focus)
 
 
@@ -884,3 +910,256 @@ func _sell(item: String, ratio: float, index: int) -> void:
 		return
 	_shop_sell(index)
 	_say("Vendu : %s (+%d %s)." % [_item_name(item), gain, GameState.MONEY_NAME])
+
+
+# ----------------------------------------------------------------------- Carnet
+
+func _carnet(focus: int = 0) -> void:
+	var done := Carnet.completion()
+	var heroes: Array = GameState.party.duplicate()
+	for id: Variant in GameState.bench:
+		if not heroes.has(id):
+			heroes.append(id)
+	var entries: Array = [
+		{
+			"text": "Bestiaire   %d / %d" % [int(done[0]), int(done[2])],
+			"markup_fn": _bestiary_summary,
+			"action": _bestiary,
+		},
+		{"text": "Faits et gestes", "detail": "Le temps passé, les combats, les coups, les écus : tout ce que votre aventure a laissé comme traces.", "action": _deeds},
+	]
+	for id: Variant in heroes:
+		var who := str(id)
+		entries.append({
+			"text": "Fiche de %s" % Database.get_character_name(who),
+			"icon": Sprites.portrait(who),
+			"markup_fn": _member_detail.bind(who),
+			"action": _sheet.bind(who, _carnet.bind(entries.size())),
+		})
+	_page("Carnet", entries, Callable(), focus)
+
+
+func _bestiary_summary() -> String:
+	var done := Carnet.completion()
+	var lines: Array = [
+		"Créatures croisées : %d sur %d" % [int(done[0]), int(done[2])],
+		"Créatures vaincues : %d sur %d" % [int(done[1]), int(done[2])],
+		"",
+		"Une créature se révèle par étapes : son nom quand on la croise, ses statistiques à la première victoire, ses faiblesses quand un coup les a trahies (ou qu'une analyse les a lues), son butin quand elle l'a lâché.",
+	]
+	if int(done[1]) >= int(done[2]) and int(done[2]) > 0:
+		lines.append("")
+		lines.append("Le bestiaire est complet. Il n'y a plus rien à apprendre sur ces malheureux.")
+	return UI.title_markup("Bestiaire", UI.escape_bb("\n".join(lines)))
+
+
+func _bestiary(focus: int = 0) -> void:
+	var entries: Array = []
+	for id: Variant in Carnet.creature_ids():
+		var cid := str(id)
+		var state := Carnet.creature_state(cid)
+		var def := Database.get_enemy(cid)
+		var e := {"markup_fn": _creature_detail.bind(cid), "dim": state == "unknown"}
+		if state == "unknown":
+			e["text"] = "???"
+		else:
+			var beaten := int(Carnet.creature_log(cid).get("beaten", 0))
+			e["text"] = str(def.get("name", cid)) + ("   ×%d" % beaten if beaten > 0 else "")
+			e["icon"] = Sprites.battler_icon(def.get("sprite", {}))
+			e["art"] = Carnet.art(def.get("sprite", {}))
+		entries.append(e)
+	var done := Carnet.completion()
+	_page("Bestiaire   %d / %d" % [int(done[0]), int(done[2])], entries, _carnet.bind(0), focus)
+
+
+static func _place_name(map_id: String) -> String:
+	if map_id == "" or not Database.has_map(map_id):
+		return ""
+	return str(Database.get_map(map_id).get("name", ""))
+
+
+static func _element_name(id: String) -> String:
+	return str(Database.elements.get(id, {}).get("name", id))
+
+
+static func _creature_detail(id: String) -> String:
+	var state := Carnet.creature_state(id)
+	if state == "unknown":
+		return UI.title_markup("???", UI.escape_bb("Vous n'avez encore jamais croisé cette créature. Elle, en revanche, vous attend peut-être."))
+	var def := Database.get_enemy(id)
+	var lg := Carnet.creature_log(id)
+	var lines: Array = []
+	var mood := Carnet.creature_text(id)
+	if mood != "":
+		lines.append(mood)
+		lines.append("")
+	var where := _place_name(str(lg.get("map", "")))
+	if where != "":
+		lines.append("Croisée : %s" % where)
+	lines.append("Vaincue : %s" % (("%d fois" % int(lg["beaten"])) if int(lg.get("beaten", 0)) > 1 else ("1 fois" if int(lg.get("beaten", 0)) == 1 else "pas encore")))
+	var body := UI.escape_bb("\n".join(lines)) + "\n"
+	var stats: Variant = def.get("stats", {})
+	if state == "beaten" and stats is Dictionary:
+		body += "\n" + UI.tint("Statistiques", UI.GOLD_DIM) + "\n" + stats_table(["hp", "atk", "def", "mag", "res", "spd"], stats)
+		var gains := "%d XP   ·   %d %s" % [int(def.get("xp", 0)), int(def.get("money", 0)), GameState.MONEY_NAME]
+		body += "\n" + UI.escape_bb(gains) + "\n"
+	else:
+		body += "\n" + UI.tint("Statistiques : révélées à la première victoire.", UI.INK_FAINT) + "\n"
+	# faiblesses : seulement celles que le joueur a découvertes, les autres en points d'interrogation
+	var weak: Array = def.get("weak", [])
+	var known := Carnet.weak_known(id)
+	var shown: Array = []
+	for w: Variant in weak:
+		shown.append(_element_name(str(w)) if known.has(str(w)) else "?")
+	body += "\n" + UI.tint("Faiblesses", UI.GOLD_DIM) + "\n" + UI.escape_bb(", ".join(shown) if not shown.is_empty() else ("aucune connue" if state != "beaten" else "aucune")) + "\n"
+	var immune_ids: Array = Carnet.immune_known(id)
+	if not immune_ids.is_empty():
+		var names: Array = []
+		for s: Variant in immune_ids:
+			names.append(str(Database.statuses.get(str(s), {}).get("name", s)))
+		body += "\n" + UI.tint("Insensible à", UI.GOLD_DIM) + "\n" + UI.escape_bb(", ".join(names)) + "\n"
+	var loot_names: Array = []
+	for item: Variant in Carnet.loot_known(id):
+		loot_names.append(_item_name(str(item)))
+	for i in Carnet.loot_unknown(id):
+		loot_names.append("?")
+	if not loot_names.is_empty():
+		body += "\n" + UI.tint("Butin", UI.GOLD_DIM) + "\n" + UI.escape_bb(", ".join(loot_names)) + "\n"
+	return UI.title_markup(str(def.get("name", id)), body)
+
+
+## Une jauge en BBCode : `ratio` de 0 à 1, sur `cells` cases.
+static func gauge_markup(ratio: float, cells: int = 30, color: Color = UI.GOLD) -> String:
+	var full := clampi(int(round(ratio * cells)), 0, cells)
+	return "[bgcolor=#%s]%s[/bgcolor][bgcolor=#2b2631]%s[/bgcolor]" % [color.to_html(false), " ".repeat(full), " ".repeat(cells - full)]
+
+
+func _deeds(focus: int = 0) -> void:
+	var st: Dictionary = GameState.stats
+	var chests := Carnet.chests()
+	var quests := Database.quests.size()
+	var chapter_n := str(GameState.chapter).replace("chapitre_", "")
+	var best: Dictionary = st.get("record", {})
+	var record := "Aucun coup d'éclat pour l'instant."
+	if int(best.get("amount", 0)) > 0:
+		record = "%s, « %s » : %d dégâts d'un seul coup, sur %s." % [Database.get_character_name(str(best.get("who", ""))), str(best.get("what", "")), int(best["amount"]), str(best.get("target", "?"))]
+	var heroes: Array = []
+	for id: Variant in GameState.party:
+		var who := str(id)
+		var fav := Carnet.favorite_skill(who)
+		var line := Database.get_character_name(who)
+		line += " : %d KO" % int((st.get("ko", {}) as Dictionary).get(who, 0))
+		if not fav.is_empty():
+			line += ", compétence fétiche « %s » (%d fois)" % [str(Database.get_skill(str(fav["id"])).get("name", fav["id"])), int(fav["count"])]
+		heroes.append(line)
+	var sections: Array = [
+		["Voyage", [
+			"Temps de jeu : %s" % Carnet.playtime_long(),
+			"Chapitre : %s" % chapter_n,
+			"Pas : %d" % int(st.get("pas", 0)),
+			"Coffres ouverts : %d sur %d" % [Carnet.chests_opened(), chests.size()],
+			"Quêtes accomplies : %d sur %d" % [Carnet.quests_done(), quests],
+		]],
+		["Combats", [
+			"Victoires : %d" % int(st.get("combats", 0)),
+			"Fuites : %d" % int(st.get("fuites", 0)),
+			"Défaites : %d" % int(st.get("defaites", 0)),
+			"Créatures vaincues : %d" % int(st.get("vaincus", 0)),
+			"Coups critiques : %d" % int(st.get("critiques", 0)),
+			"Objets utilisés : %d" % int(st.get("objets", 0)),
+		]],
+		["Dégâts et soins", [
+			"Dégâts infligés : %d" % int(st.get("degats_infliges", 0)),
+			"Dégâts subis : %d" % int(st.get("degats_subis", 0)),
+			"PV rendus : %d" % int(st.get("soins", 0)),
+			"Plus gros coup : " + record,
+		]],
+		["Écus", [
+			"Écus gagnés : %d" % int(st.get("or_gagne", 0)),
+			"Écus dépensés : %d" % int(st.get("or_depense", 0)),
+			"En poche : %d" % GameState.money,
+		]],
+		["Les héros", heroes],
+	]
+	var entries: Array = []
+	for sec: Array in sections:
+		entries.append({"text": str(sec[0]), "markup": UI.title_markup(str(sec[0]), UI.escape_bb("\n".join(sec[1])))})
+	_page("Faits et gestes", entries, _carnet.bind(1), focus)
+
+
+# ------------------------------------------------------------ fiche détaillée
+
+func _sheet(who: String, back: Callable, focus: int = 0) -> void:
+	var m := GameState.member(who)
+	var stats := GameState.member_stats(who)
+	var need := Rules.xp_to_next(int(m["level"]))
+	var entries: Array = [{
+		"text": "Niveau %d   ·   XP %d / %d" % [int(m["level"]), int(m["xp"]), need],
+		"markup": _sheet_summary(who),
+		"art": Sprites.portrait(who),
+	}]
+	for key: String in STAT_ROWS:
+		var src := Carnet.stat_sources(who, key)
+		var value := _fmt(key, int(stats.get(key, 0)))
+		entries.append({
+			"text": "%s   %s" % [str(GameState.STAT_NAMES.get(key, key)), value],
+			"markup": _stat_markup(who, key, src),
+		})
+	entries.append({"text": "Résistances", "markup": _resist_markup(who)})
+	_page("Fiche de %s" % Database.get_character_name(who), entries, back, focus)
+
+
+static func _help_text(key: String) -> String:
+	return Tutorial.expand(str((Database.carnet.get("stat_help", {}) as Dictionary).get(key, "")))
+
+
+func _sheet_summary(who: String) -> String:
+	var m := GameState.member(who)
+	var stats := GameState.member_stats(who)
+	var need := maxi(1, Rules.xp_to_next(int(m["level"])))
+	var ratio := float(int(m["xp"])) / float(need)
+	var lines := "%s   ·   Niveau %d\nPV %d/%d      PM %d/%d" % [str(Database.get_character(who).get("role", "")).capitalize(), int(m["level"]), int(m["hp"]), int(stats["hp"]), int(m["mp"]), int(stats["mp"])]
+	var body := UI.escape_bb(lines) + "\n\n" + UI.tint("Expérience", UI.GOLD_DIM) + "\n" + gauge_markup(ratio) + "\n"
+	body += UI.escape_bb("%d / %d  ·  encore %d pour le niveau %d" % [int(m["xp"]), need, need - int(m["xp"]), int(m["level"]) + 1]) + "\n\n"
+	body += UI.escape_bb(_help_text("xp")) + "\n\n" + UI.tint("Choisissez une caractéristique pour voir d'où vient sa valeur.", UI.INK_FAINT)
+	return UI.title_markup(Database.get_character_name(who), body)
+
+
+func _stat_markup(who: String, key: String, src: Dictionary) -> String:
+	var name := str(GameState.STAT_NAMES.get(key, key))
+	var lines: Array = [_help_text(key), ""]
+	lines.append("Total : %s" % _fmt(key, int(src["total"])))
+	lines.append("Niveau %d : %s" % [int(GameState.member(who)["level"]), _fmt(key, int(src["base"]))])
+	for g: Dictionary in src["gear"]:
+		lines.append("%s (%s) : %s" % [_item_name(str(g["item"])), str(GameState.SLOT_NAMES.get(str(g["slot"]), g["slot"])).to_lower(), _fmt(key, int(g["value"]), true)])
+	if int(src["other"]) != 0:
+		lines.append("Talents et autres bonus : %s" % _fmt(key, int(src["other"]), true))
+	return UI.title_markup(name, UI.escape_bb("\n".join(lines)))
+
+
+func _resist_markup(who: String) -> String:
+	var passives := GameState.member_passives(who)
+	var lines: Array = [_help_text("resist"), ""]
+	var res: Dictionary = passives.get("resist", {}) if passives.get("resist") is Dictionary else {}
+	var any := false
+	for el: Variant in Database.elements:
+		var v := float(res.get(str(el), 0.0))
+		if v != 0.0:
+			any = true
+			lines.append("%s : %s %d %% de dégâts" % [_element_name(str(el)), "−" if v > 0.0 else "+", int(round(absf(v) * 100.0))])
+	if not any:
+		lines.append("Aucune résistance élémentaire pour l'instant.")
+	lines.append("")
+	lines.append(_help_text("status"))
+	lines.append("")
+	var sr: Dictionary = passives.get("status_resist", {}) if passives.get("status_resist") is Dictionary else {}
+	var any_status := false
+	for s: Variant in sr:
+		any_status = true
+		lines.append("%s : %d %% de chances en moins" % [str(Database.statuses.get(str(s), {}).get("name", s)), int(round(float(sr[s]) * 100.0))])
+	for s: Variant in (passives.get("immune", []) as Array if passives.get("immune") is Array else []):
+		any_status = true
+		lines.append("%s : insensible" % str(Database.statuses.get(str(s), {}).get("name", s)))
+	if not any_status:
+		lines.append("Aucune protection contre les états pour l'instant.")
+	return UI.title_markup("Résistances", UI.escape_bb("\n".join(lines)))
