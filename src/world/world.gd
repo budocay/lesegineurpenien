@@ -381,7 +381,8 @@ func _fade_occluders(delta: float) -> void:
 		var r: Rect2 = oc["rect"]
 		var target := clampf((r.position.y - _cam_target.z - 0.5) / 2.5, 0.0, 1.0) * 0.88
 		if oc.has("local"):   # n'estompe que ce qui cache le héros (la portion de mur à sa hauteur), jamais tout un rempart
-			target = minf(target, 0.72) * clampf(1.0 - maxf(maxf(r.position.x - _cam_target.x, _cam_target.x - r.end.x), 0.0) / 1.6, 0.0, 1.0)
+			# (au plus 0,55 et un dégradé sur 2,6 cases : un tronçon à 72 % tout seul faisait un rectangle fantôme aux bords nets)
+			target = minf(target, 0.55) * clampf(1.0 - maxf(maxf(r.position.x - _cam_target.x, _cam_target.x - r.end.x), 0.0) / 2.6, 0.0, 1.0)
 		var fade := move_toward(float(oc["fade"]), target, delta * 2.5)
 		if is_equal_approx(fade, float(oc["fade"])):
 			continue

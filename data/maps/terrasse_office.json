@@ -127,6 +127,133 @@
 			"color": "#ffa070",
 			"energy": 1.8,
 			"range": 14.0
+		},
+		{
+			"type": "isen_marmite",
+			"pos": [
+				5.0,
+				5.4
+			]
+		},
+		{
+			"type": "isen_marmite",
+			"pos": [
+				20.0,
+				5.2
+			]
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				11.0,
+				5.0
+			],
+			"variant": 0
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				12.2,
+				5.6
+			],
+			"variant": 1
+		},
+		{
+			"type": "isen_sac",
+			"pos": [
+				26.0,
+				6.0
+			],
+			"variant": 0
+		},
+		{
+			"type": "isen_cage",
+			"pos": [
+				5.2,
+				12.4
+			]
+		},
+		{
+			"type": "isen_cage",
+			"pos": [
+				24.6,
+				12.6
+			]
+		},
+		{
+			"type": "isen_four",
+			"pos": [
+				18.0,
+				4.6
+			],
+			"variant": 1
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				10.0,
+				12.6
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				11.4,
+				13.0
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				20.0,
+				12.8
+			]
+		},
+		{
+			"type": "brazier",
+			"pos": [
+				8.0,
+				9.6
+			]
+		},
+		{
+			"type": "brazier",
+			"pos": [
+				22.0,
+				9.8
+			]
+		},
+		{
+			"type": "rug",
+			"rect": [
+				6.5,
+				8.2,
+				16,
+				1.8
+			],
+			"color": "#5a2418"
+		},
+		{
+			"type": "light",
+			"pos": [
+				8,
+				8
+			],
+			"height": 2.0,
+			"color": "#ff9050",
+			"energy": 1.2,
+			"range": 8.0
+		},
+		{
+			"type": "light",
+			"pos": [
+				22,
+				8
+			],
+			"height": 2.0,
+			"color": "#ff9050",
+			"energy": 1.2,
+			"range": 8.0
 		}
 	],
 	"surround_tile": "isen_dalle",

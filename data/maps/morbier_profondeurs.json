@@ -323,6 +323,149 @@
 				13.4
 			],
 			"height": 4.2
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				3.4,
+				22.2
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				16.6,
+				23.0
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				44.6,
+				21.8
+			]
+		},
+		{
+			"type": "nain_cristal",
+			"pos": [
+				35.2,
+				14.0
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				9.4,
+				14.0
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				3.2,
+				15.2
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				18.4,
+				19.8
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				12.6,
+				22.6
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				38.6,
+				13.4
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				44.2,
+				12.0
+			]
+		},
+		{
+			"type": "nain_gravats",
+			"pos": [
+				36.4,
+				21.6
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				8.0,
+				23.4
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				45.2,
+				17.2
+			]
+		},
+		{
+			"type": "nain_torche",
+			"pos": [
+				34.0,
+				9.6
+			]
+		},
+		{
+			"type": "nain_squelette",
+			"pos": [
+				41.6,
+				13.2
+			]
+		},
+		{"type": "nain_statue", "pos": [12.6, 5.0]},
+		{"type": "nain_wagonnet", "pos": [6.4, 10.9]},
+		{"type": "nain_gravats", "pos": [10.8, 10.6]},
+		{"type": "nain_gravats", "pos": [2.6, 10.4]},
+		{"type": "nain_cristal", "pos": [5.2, 4.6]},
+		{"type": "scatter", "prop": "rock", "rect": [1, 4, 14, 8], "count": 3, "min_dist": 2.8, "seed": 125, "on": ["nain_dalle"]},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				1,
+				12,
+				20,
+				12
+			],
+			"count": 5,
+			"min_dist": 2.6,
+			"seed": 120,
+			"on": [
+				"nain_dalle"
+			]
+		},
+		{
+			"type": "scatter",
+			"prop": "rock",
+			"rect": [
+				33,
+				9,
+				13,
+				14
+			],
+			"count": 4,
+			"min_dist": 2.6,
+			"seed": 121,
+			"on": [
+				"nain_dalle"
+			]
 		}
 	],
 	"heights": [

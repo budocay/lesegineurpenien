@@ -309,6 +309,26 @@
 				11.2
 			]
 		},
+		{"type": "nain_cristal", "pos": [5.6, 14.8]},
+		{"type": "nain_cristal", "pos": [17.6, 20.6]},
+		{"type": "nain_cristal", "pos": [34.6, 19.4]},
+		{"type": "nain_cristal", "pos": [24.0, 13.0]},
+		{"type": "nain_gravats", "pos": [14.0, 14.2]},
+		{"type": "nain_gravats", "pos": [7.0, 19.8]},
+		{"type": "nain_gravats", "pos": [19.6, 22.8]},
+		{"type": "nain_gravats", "pos": [31.4, 16.0]},
+		{"type": "nain_gravats", "pos": [35.4, 22.6]},
+		{"type": "nain_gravats", "pos": [9.4, 12.8]},
+		{"type": "nain_squelette", "pos": [16.4, 16.6]},
+		{"type": "scatter", "prop": "boulder", "rect": [3, 12, 34, 12], "count": 5, "min_dist": 3.4, "seed": 131, "on": ["nain_roche_humide"]},
+		{"type": "scatter", "prop": "mushrooms", "rect": [3, 12, 34, 12], "count": 9, "min_dist": 2.2, "seed": 133, "on": ["nain_roche_humide"]},
+		{"type": "nain_cristal", "pos": [12.0, 13.4]},
+		{"type": "nain_cristal", "pos": [28.6, 14.2]},
+		{"type": "nain_cristal", "pos": [22.4, 21.8]},
+		{"type": "nain_cristal", "pos": [5.2, 21.4]},
+		{"type": "light", "pos": [26, 18], "height": 2.4, "color": "#7ab4ff", "energy": 1.1, "range": 9.0},
+		{"type": "light", "pos": [20, 22], "height": 2.4, "color": "#5ad0c8", "energy": 0.9, "range": 8.0},
+		{"type": "scatter", "prop": "rock", "rect": [3, 12, 34, 12], "count": 8, "min_dist": 2.6, "seed": 122, "on": ["nain_roche_humide"]},
 		{
 			"type": "nain_meule",
 			"pos": [

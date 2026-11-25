@@ -240,8 +240,19 @@ static func _quay() -> Image:
 		PA.rect(img, 4 + r * 9 % 30, y0 + 2, 1, 8, Color("#4a3c2c"))
 		PA.px(img, 3, y0 + 5, Color("#2a2018"))
 		PA.px(img, 44, y0 + 5, Color("#2a2018"))
-	RP._specks_in(img, 1672, 40, Color("#f2f0e8"))   # croûte de sel
-	RP._specks_in(img, 1673, 12, Color("#c8d4d8"))
+	# fil du bois (traits sombres courts) et croûte de sel en petites plaques le long des joints : l'ancien semis de points
+	# blancs isolés faisait des confettis sur tout le quai
+	for g in 22:
+		var gx := int(PA.rnd(g, 3, 1674) * (T - 8))
+		var gy := int(PA.rnd(g, 4, 1674) * 4) * 12 + 2 + int(PA.rnd(g, 5, 1674) * 7)
+		var gl := 3 + int(PA.rnd(g, 6, 1674) * 5)
+		PA.rect(img, gx, gy, gl, 1, PA.shade(Color("#7a6a58"), -0.22))
+	for s in 12:
+		var sx := int(PA.rnd(s, 7, 1675) * (T - 6))
+		var sy := int(PA.rnd(s, 8, 1675) * 4) * 12 + (1 if PA.rnd(s, 9, 1675) < 0.5 else 9)
+		PA.rect(img, sx, sy, 2 + int(PA.rnd(s, 10, 1675) * 3), 1, Color("#cfd0c4"))
+		PA.px(img, sx + 1, sy + 1, Color("#a8a89c"))
+	RP._specks_in(img, 1673, 6, Color("#c8d4d8"))
 	return img
 
 

@@ -206,6 +206,7 @@ func _ready() -> void:
 	await _test_annonce_cues()
 	_test_decors_restes()
 	_test_decors_9()
+	_test_decors_10()
 	_test_noms2()
 	_test_help_texts()
 	await _test_horizon()
@@ -4976,7 +4977,7 @@ func _test_rider_scenery() -> void:
 			check(MapBuilder.GROUND.has(str(f.get("type", ""))), "carte %s : sol « %s » connu" % [id, str(f.get("type", ""))])
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
-			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree"] \
+			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree", "rug"] \
 					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
@@ -9020,7 +9021,7 @@ func _test_horizon() -> void:
 		var dxo := maxf(maxf(orc2.position.x - 24.0, 24.0 - orc2.end.x), 0.0)
 		if dxo < 0.5:
 			near_max = maxf(near_max, float(oc["fade"]))
-		elif dxo > 2.0:
+		elif dxo > 2.7:
 			far_max = maxf(far_max, float(oc["fade"]))
 			n_far += 1
 	check(near_max > 0.3 and near_max <= 0.73, "murs de la Croûte : le tronçon devant le héros s'estompe sans devenir du verre (%.2f)" % near_max)
@@ -9403,6 +9404,84 @@ func _test_decors_8() -> void:
 
 
 ## Décors 9 : étal d'Ursule, tuiles de forêt retournées, plaques de la salle du conseil, eau et mines.
+func _test_decors_10() -> void:
+	print("== Décors 10 : revue visuelle des chapitres 1 à 6 ==")
+	var g: Dictionary = Database.get_enemy("guetteur_lac")
+	check(not g.is_empty() and float(g["stats"]["atk"]) <= 100.0, "Guetteur du lac : attaque resserrée (équilibre)")
+	var small := 0
+	for id: String in ["rat_cave", "limace_molle", "guepe_cidre", "frelon_bois", "gobe_lard", "chauve_molle"]:
+		var e: Dictionary = Database.get_enemy(id)
+		if not e.is_empty() and float(e.get("sprite", {}).get("scale", 1.0)) < 0.95:
+			small += 1
+	check(small == 0, "monstres ordinaires : taille du sprite relevée")
+	var pm: Dictionary = Database.get_map("porte_morbier")
+	var bare := 0
+	for o: Dictionary in pm.get("objects", []):
+		if str(o.get("type", "")) == "scatter" and not o.has("on"):
+			bare += 1
+	check(bare == 0, "porte_morbier : chaque semis déclare ses cases (sinon rien ne pousse sur la neige)")
+	var pe: Dictionary = Database.get_map("portes_est")
+	var scat := 0
+	for o: Dictionary in pe.get("objects", []):
+		if str(o.get("type", "")) == "scatter" and o.has("on"):
+			scat += 1
+	check(scat >= 5, "portes_est : berges plantées de sapins et de neige")
+	var bo: Dictionary = Database.get_map("bergerie_or")
+	check(bo.get("objects", []).size() >= 30, "Bergerie d'Or : sol garni (bottes, brebis, tapis)")
+	var to: Dictionary = Database.get_map("terrasse_office")
+	check(to.get("objects", []).size() >= 20, "terrasse de l'office : garnie")
+	check(FileAccess.get_file_as_string("res://src/gfx/rider_painter.gd").contains("_flour_slabs()"), "farine d'Isengarde : dalles et non plus camouflage")
+	var ba: String = FileAccess.get_file_as_string("res://src/battle/battle_actor.gd")
+	check(ba.contains("const HIT_FLASH := 0.6"), "coup reçu : éclat blanc plafonné (pas de voile sur les boss)")
+	# deuxième passe : cour de la citadelle, enclos, clairière de Fongorn, Mines, plaques de combat
+	var cit: Dictionary = Database.get_map("minas_citadelle")
+	var cz: Array = cit.get("camera", {}).get("zones", [])
+	check(float(cit["camera"]["pitch"]) >= 5.0 and cz.size() > 0 and float((cz[0] as Dictionary)["pitch"]) >= 5.0 and float(cit["camera"]["distance"]) <= 16.0,
+			"citadelle : caméra rapprochée et moins rasante (plus de dallage vide au premier plan)")
+	var has_rug := false
+	for o: Dictionary in cit.get("objects", []):
+		if str(o.get("type", "")) == "rug":
+			has_rug = true
+	check(has_rug, "citadelle : tapis d'apparat sur l'allée")
+	var counts := {"fongorn": 0, "plaine_roquefort": 0, "porte_morbier": 0}
+	for mid: String in counts:
+		for o: Dictionary in Database.get_map(mid).get("objects", []):
+			if str(o.get("type", "")) == "scatter" and o.has("on") and (o["on"] as Array).size() > 0:
+				counts[mid] += 1
+	check(counts["fongorn"] >= 17, "Fongorn : la clairière des racines a ses semis (%d)" % counts["fongorn"])
+	check(counts["plaine_roquefort"] >= 8, "plaine du Roquefort : l'enclos a ses brebis et ses bottes (%d)" % counts["plaine_roquefort"])
+	check(counts["porte_morbier"] >= 14, "porte de Morbier : sapins au milieu du champ (%d)" % counts["porte_morbier"])
+	for mid2: String in ["morbier_profondeurs", "morbier_antre"]:
+		var n_deco := 0
+		for o: Dictionary in Database.get_map(mid2).get("objects", []):
+			if str(o.get("type", "")) in ["nain_cristal", "nain_gravats", "nain_torche", "nain_squelette"]:
+				n_deco += 1
+		check(n_deco >= 14, "%s : sol garni de cristaux et de gravats (%d)" % [mid2, n_deco])
+	check(FileAccess.get_file_as_string("res://src/battle/battle_ui.gd").contains("le trait de rappel (pieds -> plaque) ne traverse"), "plaques : le trait de rappel ne traverse ni plaque ni ennemi")
+	# relecture visuelle, reprise : le tapis est un objet de base, les salles de pierre n'ont pas de liseré d'herbe, les salles vides sont garnies
+	var MB10: GDScript = load("res://src/world/map_builder.gd")
+	for mid3: String in Database.list_maps():
+		for o: Dictionary in Database.get_map(mid3).get("objects", []):
+			if str(o.get("type", "")) == "rug":
+				check(o.has("rect") and (o["rect"] as Array).size() == 4, "carte %s : tapis avec son rectangle" % mid3)
+			for key: String in ["pos", "rect"]:
+				if o.has(key):   # un objet glissé par erreur dans le tableau d'un autre est ignoré sans bruit : on le voit ici
+					var ok_nums := true
+					for v: Variant in (o[key] as Array):
+						if not (v is float or v is int):
+							ok_nums = false
+					check(ok_nums, "carte %s : « %s » de %s ne contient que des nombres" % [mid3, key, str(o.get("type", ""))])
+	check(MB10.GROUND.has("cav_planches"), "tuile cav_planches connue (Bergerie d'Or)")
+	for mid4: String in ["garde_manger", "isengarde"]:
+		check(Database.get_map(mid4).get("relief_lip", true) == false, "%s : pas de liseré d'herbe sur les estrades de pierre" % mid4)
+	check(Database.get_map("bergerie_or").get("objects", []).size() >= 40, "Bergerie d'Or : l'entrée aussi est garnie")
+	var nb_antre := 0
+	for o: Dictionary in Database.get_map("morbier_antre").get("objects", []):
+		if str(o.get("type", "")) in ["scatter", "nain_cristal", "light"]:
+			nb_antre += 1
+	check(nb_antre >= 20, "lac de Maroilles : rive sud garnie de blocs, de champignons et de cristaux (%d)" % nb_antre)
+
+
 func _test_decors_9() -> void:
 	print("== Décors 9 : étal, forêt, eau, mines ==")
 	var MapBuilder: GDScript = load("res://src/world/map_builder.gd")

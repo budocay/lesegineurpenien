@@ -334,6 +334,9 @@
 			"color": "#ffe8b0",
 			"energy": 1.2,
 			"range": 14.0
-		}
+		},
+		{"type": "scatter", "prop": "cav_brebis", "rect": [22, 3, 14, 9], "count": 4, "min_dist": 3.0, "seed": 66, "on": ["cav_chemin"]},
+		{"type": "scatter", "prop": "cav_botte", "rect": [22, 3, 14, 9], "count": 4, "min_dist": 2.6, "seed": 67, "on": ["cav_chemin"]},
+		{"type": "scatter", "prop": "flowers", "rect": [22, 3, 14, 9], "count": 5, "min_dist": 1.8, "seed": 68, "on": ["cav_chemin"]}
 	]
 }
