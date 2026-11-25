@@ -1381,7 +1381,7 @@ accessible des trois cartes de Minas que le joueur reste net.
   `below`, `sun`, `sun_col`, `clouds`, `cloud_lit`, `cloud_shade`, `speed`). Dégradé, nuages
   peints qui dérivent, lueur du soleil bas.
 - `layers` : plans peints dressés au nord, du plus lointain au plus proche. Champs : `kind`
-  (`city`, `terraces` (la cité vue d'en haut, pour un belvédère), `mountain`, `plain`, `hills`, `ridge`), `z` (négatif : au nord), `y` (pied), `height`
+  (`city`, `terraces` (la cité vue d'en haut, pour un belvédère), `mountain`, `plain`, `hills`, `ridge`, `massif` (basalte noir, coulées de braise, Tour de la Barbaque : `off`, `peak`, `tower`), `horde` (armée ennemie : tentes, lances, feux ; `fires`, `scale`)), `z` (négatif : au nord), `y` (pied), `height`
   (mètres), `k` (part du mouvement de la caméra suivie : 1 colle au ciel), `res` (réduction de la
   peinture), `seed`, `w` (largeur de la toile, défaut 1200), `off`, `peak`, `tiers` (cité),
   `fires` (plaine), `scale`, `trees`, `glow` (lueur additive des foyers), `haze`, `haze_top`,
@@ -1510,6 +1510,10 @@ marches), `mor_mur`, `mor_mur_cuisine`, `mor_braise`.
 | `mor_tour` | `pos`, `size` (4), `height` (9) | tour de basalte aux meurtrières rougeoyantes |
 | `mor_porte` | `pos`, `width` (10), `height` (7), `open` (faux) | la Porte Noire : deux battants de fonte, un guichet rouge |
 | `mor_four` | `pos`, `width` (12), `height` (9) | la gueule du Grand Four : braise, escarbilles, lumière vacillante |
+| `mor_mur` | `pos`, `width` (8), `height`, `depth` | mur plein de basalte, solide |
+| `mor_banniere` | `pos` (pied, contre le mur du nord), `width` (1,6), `height` (4), `base` (1,2), `color` | bannière d'étoffe sombre à emblème de braise |
+| `mor_pilier` | `pos`, `height` (6), `width` (1,4) | pilier de basalte à brasero, solide |
+| `mor_lustre` | `pos`, `height` (4,2), `radius` (1,3), `candles` (8) | lustre de fer à bougies, lumière vacillante |
 
 ## Fin du jeu : le générique
 

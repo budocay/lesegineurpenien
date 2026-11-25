@@ -8858,7 +8858,7 @@ func _json_files(dir: String) -> Array:
 func _test_horizon() -> void:
 	print("-- horizon et caméra par carte")
 	var Hz: GDScript = load("res://src/world/horizon.gd")
-	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge"]
+	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde"]
 	var tuned: Array = []
 	for f in DirAccess.get_files_at("res://data/maps"):
 		if not f.ends_with(".json"):
