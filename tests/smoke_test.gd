@@ -4903,7 +4903,7 @@ func _test_dwarven_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence"] \
-					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t)
+					or MapBuilder.PROPS.has(t) or DwarvenBuilder.OBJECTS.has(t) or (load("res://src/world/mordgras_builder.gd") as GDScript).OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
@@ -4979,7 +4979,7 @@ func _test_rider_scenery() -> void:
 		for o: Dictionary in map.get("objects", []):
 			var t := str(o.get("type", ""))
 			var known: bool = t in ["monster", "encounter_zone", "npc", "light", "warp", "trigger", "crate", "market_stall", "scatter", "house", "lantern", "fence", "balustrade", "tree", "rug"] \
-					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t)
+					or MapBuilder.PROPS.has(t) or RiderBuilder.OBJECTS.has(t) or (load("res://src/world/mordgras_builder.gd") as GDScript).OBJECTS.has(t)
 			check(known, "carte %s : objet « %s » connu" % [id, t])
 			if t == "scatter":
 				check(MapBuilder.PROPS.has(str(o.get("prop", ""))), "carte %s : accessoire semé « %s » connu" % [id, str(o.get("prop", ""))])
