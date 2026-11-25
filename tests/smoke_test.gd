@@ -9904,7 +9904,7 @@ func _test_carnet() -> void:
 	var stat_text: String = menu._detail.get_parsed_text()
 	check(stat_text.contains("Total") and stat_text.contains("Niveau") and stat_text.contains("Attaque"), "fiche : l'origine d'une caractéristique est détaillée (%s)" % stat_text.replace("\n", " / ").left(100))
 	menu._on_focus(1)
-	check(menu._detail.get_parsed_text().contains("points de vie") or menu._detail.get_parsed_text().contains("Points de vie"), "fiche : chaque caractéristique est expliquée en une phrase")
+	check(menu._detail.get_parsed_text().contains("on tombe"), "fiche : chaque caractéristique est expliquée en une phrase")
 	menu.close(true)
 	layer.queue_free()
 	Settings.set_value("difficulte", old_level, false)
