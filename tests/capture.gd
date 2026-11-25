@@ -851,13 +851,36 @@ func _mordgras_shots() -> void:
 	await _idle()
 	await _goto(Vector3(22.0, 0.0, 14.0), "up")
 	await _shot("321_four_sauron_endormi")
-	GameState.party = ["glandoulf"]
+	# comme dans le jeu : les marqueurs de quête sont posés et le groupe se réduit à Glandoulf AVANT le changement de carte
+	for f: String in ["marais_traverse", "passe_tenu", "arachnee_endormie", "goulum_parti", "banquet_servi", "marches_finies", "sauron_endormi", "anneau_jete", "chapitre_7_fini"]:
+		GameState.set_flag(f)
+	GameState.set_group(["glandoulf"])
 	main.change_map("bittebourg_epilogue", "arrivee")
 	await _frames(150)
 	await _idle()
 	await _shot("322_epilogue_arrivee")
 	await _goto(Vector3(20.0, 0.0, 17.0), "right")
 	await _shot("323_epilogue_place")
+	# le générique à trois moments (début, milieu, anneaux)
+	main.credits.play(Database.game.get("credits", []))
+	await _secs(3.0)
+	await _shot("324_generique_debut")
+	await _secs(22.0)
+	await _shot("325_generique_milieu")
+	await _secs(26.0)
+	await _shot("326_generique_fin_du_texte")
+	main.credits._phase = "rings"
+	main.credits._t = 0.0
+	await _secs(3.5)
+	await _shot("327_generique_anneaux")
+	main.credits._finish()
+
+
+## Attente en secondes réelles (l'affichage tourne bien plus vite que 120 images par seconde).
+func _secs(t: float) -> void:
+	var until := Time.get_ticks_msec() + int(t * 1000.0)
+	while Time.get_ticks_msec() < until:
+		await get_tree().process_frame
 
 
 func _mordgras_arenas() -> void:

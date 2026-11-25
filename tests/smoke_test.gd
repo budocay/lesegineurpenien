@@ -7472,6 +7472,16 @@ func _test_chapter_7_data() -> void:
 			check(str(map.get("style", "")) == str(C7_STYLES[id]), "carte %s : style %s" % [id, C7_STYLES[id]])
 		check(Database.arenas.has(str(map.get("arena", ""))), "carte %s : arène déclarée" % id)
 		check(Database.ambiances.has(str(map.get("ambiance", ""))), "carte %s : ambiance connue" % id)
+		# tout objet mor_* d'une carte est soit un objet du constructeur (branché dans `object`), soit un accessoire déclaré
+		var MorB: GDScript = load("res://src/world/mordgras_builder.gd")
+		var MapB: GDScript = load("res://src/world/map_builder.gd")
+		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd")
+		for o: Variant in map.get("objects", []):
+			var ty := str((o as Dictionary).get("type", ""))
+			if ty.begins_with("mor_") and MorB.OBJECTS.has(ty):
+				check(mor_src.contains("\"%s\": _" % ty), "carte %s : l'objet %s est branché dans le constructeur" % [id, ty])
+			elif ty.begins_with("mor_"):
+				check(MapB.PROPS.has(ty), "carte %s : l'accessoire %s est déclaré" % [id, ty])
 	for kind: String in C7_MONSTERS:
 		var sprite: String = str((Database.enemies.get(kind, {}) as Dictionary).get("sprite", {}).get("monster", ""))
 		check(MonsterPainter.has(sprite), "monstre %s : espèce %s connue" % [kind, sprite])
@@ -7722,6 +7732,7 @@ func _test_chapter_7() -> void:
 	await _c4_say(main, "four_anneau")
 	check(GameState.has_flag("anneau_jete") and GameState.has_flag("chapitre_7_fini"), "l'anneau est jeté dans le Grand Four")
 	check(main.world.map_id == "bittebourg_epilogue", "retour à Bittebourg (%s)" % main.world.map_id)
+	check(GameState.party == ["glandoulf"], "épilogue : Glandoulf seul à l'arrivée, le héros affiché est celui du groupe (%s)" % str(GameState.party))
 	for d: String in ["epilogue_aragrogne", "epilogue_digoulasse", "epilogue_pepin", "epilogue_sam", "epilogue_froton", "epilogue_merri", "epilogue_quai"]:
 		await _c4_say(main, d)
 	# la sieste de Glandoulf : le générique, à la manette

@@ -1561,6 +1561,9 @@
 			"action": "save"
 		},
 		{
+			"action": "groupe:glandoulf"
+		},
+		{
 			"action": "va:bittebourg_epilogue:arrivee"
 		}
 	],
@@ -1589,9 +1592,6 @@
 		},
 		{
 			"set": "epilogue_vu"
-		},
-		{
-			"action": "groupe:glandoulf"
 		}
 	],
 	"epilogue_aragrogne": [

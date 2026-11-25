@@ -147,7 +147,7 @@ static func _checker() -> Image:
 	for r in 4:
 		for c in 4:
 			var light := (r + c) % 2 == 0
-			var tone := PA.shade(Color("#d8cfb8") if light else Color("#6a4a3a"), (PA.rnd(c, r, 1861) - 0.5) * 0.08)
+			var tone := PA.shade(Color("#b4a284") if light else Color("#7c5a44"), (PA.rnd(c, r, 1861) - 0.5) * 0.12)
 			PA.rect(img, c * 12, r * 12, 12, 12, tone)
 			PA.rect(img, c * 12, r * 12, 12, 1, PA.shade(tone, 0.12))
 			PA.rect(img, c * 12, r * 12 + 11, 12, 1, PA.shade(tone, -0.22))
