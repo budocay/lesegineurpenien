@@ -15,7 +15,7 @@ const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const Decor = preload("res://src/world/mordgras_decor.gd")
 
-const OBJECTS: Array[String] = ["mor_tour", "mor_porte", "mor_four", "mor_mur", "mor_banniere", "mor_pilier", "mor_lustre"]
+const OBJECTS: Array[String] = ["mor_tour", "mor_porte", "mor_four", "mor_mur", "mor_banniere", "mor_pilier", "mor_lustre", "mor_sol", "mor_ustensile", "mor_chaine", "mor_brasero", "mor_passerelle", "mor_reflet", "mor_feu_follet"]
 
 const STYLES := {
 	"marais": {"outer": "mor_vase", "cliff": "mor_roche", "stairs": "mor_planches", "relief": "mor_roche",

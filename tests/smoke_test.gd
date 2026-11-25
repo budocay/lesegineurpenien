@@ -7477,7 +7477,7 @@ func _test_chapter_7_data() -> void:
 		# tout objet mor_* d'une carte est soit un objet du constructeur (branché dans `object`), soit un accessoire déclaré
 		var MorB: GDScript = load("res://src/world/mordgras_builder.gd")
 		var MapB: GDScript = load("res://src/world/map_builder.gd")
-		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd")
+		var mor_src := FileAccess.get_file_as_string("res://src/world/mordgras_builder.gd") + FileAccess.get_file_as_string("res://src/world/mordgras_decor.gd")
 		for o: Variant in map.get("objects", []):
 			var ty := str((o as Dictionary).get("type", ""))
 			if ty.begins_with("mor_") and MorB.OBJECTS.has(ty):
@@ -8872,7 +8872,7 @@ func _json_files(dir: String) -> Array:
 func _test_horizon() -> void:
 	print("-- horizon et caméra par carte")
 	var Hz: GDScript = load("res://src/world/horizon.gd")
-	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde"]
+	var kinds: Array = ["city", "terraces", "mountain", "plain", "hills", "ridge", "massif", "horde", "marsh"]
 	var tuned: Array = []
 	for f in DirAccess.get_files_at("res://data/maps"):
 		if not f.ends_with(".json"):
