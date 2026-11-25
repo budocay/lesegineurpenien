@@ -14,7 +14,21 @@
 		"distance": 24,
 		"pitch": 32,
 		"fov": 24,
-		"dof": 0.1
+		"dof": 0.1,
+		"zones": [
+			{
+				"rect": [
+					0,
+					0,
+					60,
+					24
+				],
+				"pitch": 17,
+				"fov": 34,
+				"distance": 27,
+				"feather": 6
+			}
+		]
 	},
 	"style": "marais",
 	"ground": {
@@ -608,5 +622,61 @@
 			"energy": 1.1,
 			"range": 8
 		}
-	]
+	],
+	"horizon": {
+		"sky": {
+			"top": "#06100e",
+			"mid": "#183028",
+			"low": "#7a3a22",
+			"below": "#0a1a14",
+			"sun": [
+				0.5,
+				0.08,
+				0.7
+			],
+			"sun_col": "#ff8a48",
+			"clouds": 0.6,
+			"cloud_lit": "#c86a48",
+			"cloud_shade": "#10241c",
+			"speed": 0.008
+		},
+		"layers": [
+			{
+				"kind": "massif",
+				"w": 2400,
+				"z": -320.0,
+				"y": -4.0,
+				"height": 120.0,
+				"k": 0.97,
+				"seed": 12,
+				"off": 300,
+				"peak": 0.55,
+				"haze": "#3a2a26",
+				"haze_top": 0.0,
+				"haze_bottom": 0.6
+			},
+			{
+				"kind": "hills",
+				"w": 2400,
+				"z": -90.0,
+				"y": -1.0,
+				"height": 26.0,
+				"k": 0.9,
+				"seed": 5,
+				"peak": 0.4,
+				"trees": 0,
+				"haze": "#1c3a30",
+				"haze_top": 0.1,
+				"haze_bottom": 0.5
+			}
+		],
+		"ground": {
+			"from": -14.0,
+			"to": -400.0,
+			"y": 0.03,
+			"near": "#14281e",
+			"far": "#3a3028",
+			"haze": "#2a3a30"
+		}
+	}
 }

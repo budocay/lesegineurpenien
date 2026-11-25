@@ -14,7 +14,21 @@
 		"distance": 24,
 		"pitch": 32,
 		"fov": 24,
-		"dof": 0.1
+		"dof": 0.1,
+		"zones": [
+			{
+				"rect": [
+					0,
+					0,
+					56,
+					26
+				],
+				"pitch": 19,
+				"fov": 32,
+				"distance": 27,
+				"feather": 6
+			}
+		]
 	},
 	"style": "toile",
 	"ground": {
@@ -526,7 +540,271 @@
 			"color": "#b0b8ff",
 			"energy": 1.2,
 			"range": 9
+		},
+		{
+			"type": "rock",
+			"pos": [
+				44.1,
+				1.9
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				7.3,
+				21.5
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				31.2,
+				22.5
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				26.3,
+				5.2
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				49.7,
+				3.2
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				32.7,
+				3.8
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				26.7,
+				20.7
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				52.7,
+				21.6
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				22.9,
+				5.2
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				46.2,
+				22.2
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				16.1,
+				22.2
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				31.3,
+				5.3
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				29.8,
+				5.3
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				10.2,
+				23.5
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				28.8,
+				24.3
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				43.3,
+				4.8
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				42.5,
+				21.3
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				13.2,
+				4.0
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				47.5,
+				3.2
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				43.3,
+				23.8
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				10.8,
+				3.7
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				40.5,
+				2.1
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				4.4,
+				22.5
+			]
+		},
+		{
+			"type": "mor_cocon",
+			"pos": [
+				30.2,
+				20.7
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				36.1,
+				4.8
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				26.7,
+				22.7
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				31.1,
+				24.1
+			]
+		},
+		{
+			"type": "deadtree",
+			"pos": [
+				25.6,
+				3.6
+			]
+		},
+		{
+			"type": "rock",
+			"pos": [
+				8.6,
+				5.2
+			]
+		},
+		{
+			"type": "mushrooms",
+			"pos": [
+				16.3,
+				23.6
+			]
 		}
 	],
-	"lantern": true
+	"lantern": true,
+	"horizon": {
+		"sky": {
+			"top": "#05050c",
+			"mid": "#141428",
+			"low": "#3a3a5e",
+			"below": "#0a0a14",
+			"sun": [
+				0.7,
+				0.1,
+				0.6
+			],
+			"sun_col": "#aab0ff",
+			"clouds": 0.4,
+			"cloud_lit": "#6a6a9a",
+			"cloud_shade": "#0e0e1c",
+			"speed": 0.006
+		},
+		"layers": [
+			{
+				"kind": "ridge",
+				"w": 2000,
+				"z": -200.0,
+				"y": -3.0,
+				"height": 80.0,
+				"k": 0.96,
+				"seed": 21,
+				"peak": 0.7,
+				"haze": "#202040",
+				"haze_top": 0.0,
+				"haze_bottom": 0.5
+			},
+			{
+				"kind": "ridge",
+				"w": 2000,
+				"z": -60.0,
+				"y": -1.0,
+				"height": 40.0,
+				"k": 0.88,
+				"seed": 22,
+				"peak": 0.5,
+				"haze": "#14142a",
+				"haze_top": 0.05,
+				"haze_bottom": 0.4
+			}
+		],
+		"ground": {
+			"from": -14.0,
+			"to": -300.0,
+			"y": 0.03,
+			"near": "#14142a",
+			"far": "#22223e",
+			"haze": "#22223e"
+		}
+	}
 }

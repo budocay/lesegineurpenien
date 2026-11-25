@@ -15,13 +15,14 @@ const MP = preload("res://src/gfx/monster_painter.gd")
 const GM = preload("res://src/gfx/gouda_monsters.gd")
 
 const KINDS: Array[String] = ["boss_sarumale", "boss_froton", "boss_grimace", "boss_gardien", "boss_sauron",
-		"boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk", "boss_bouche", "boss_sauron_vigueur"]
+		"boss_naze", "boss_naze_est", "boss_naze_ouest", "boss_goulum", "boss_uglouk", "boss_bouche", "boss_sauron_vigueur", "boss_maitre_salle"]
 
 const SIZES := {
 	"boss_sarumale": Vector2i(72, 112), "boss_froton": Vector2i(64, 92), "boss_grimace": Vector2i(72, 104),
 	"boss_gardien": Vector2i(72, 108), "boss_sauron": Vector2i(84, 112), "boss_naze": Vector2i(72, 108),
 	"boss_naze_est": Vector2i(72, 108), "boss_naze_ouest": Vector2i(72, 108), "boss_goulum": Vector2i(64, 76),
 	"boss_uglouk": Vector2i(92, 108), "boss_bouche": Vector2i(72, 110), "boss_sauron_vigueur": Vector2i(96, 120),
+	"boss_maitre_salle": Vector2i(84, 116),
 }
 
 const INK := Color("#1c1222")
@@ -61,6 +62,10 @@ static func paint(kind: String, img: Image, ox: int, f: int, col: int, size: Vec
 			_robed(img, ox, f, col, size, {"robe": "#1c1822", "lining": "#08060c", "trim": "#a82a2a", "skin": "#c8b8b0",
 					"hair": "#0c0a10", "eye": "#ff5a3a", "hat": "helm", "hat_c": "#2a2630", "item": "scroll",
 					"boots": "#0c0a10", "glow": "#ff5a3a", "mustache": "#14101a"})
+		"boss_maitre_salle":
+			_robed(img, ox, f, col, size, {"robe": "#16141c", "lining": "#ece8e0", "trim": "#c8ccd8", "skin": "#2a2634",
+					"hair": "#f2f0ea", "eye": "#ffe8a0", "hat": "toque", "hat_c": "#f4f2ec", "item": "sword",
+					"boots": "#0c0a10", "fat": 1.14, "glow": "#ffe8a0", "mustache": "#f2f0ea"})
 		"boss_sauron_vigueur":
 			_robed(img, ox, f, col, size, {"robe": "#2a1a2a", "lining": "#0e060c", "trim": "#ffb040", "skin": "#c89a8a",
 					"hair": "#17101a", "eye": "#ffd060", "hat": "helm", "hat_c": "#3a2a3e", "item": "mace",

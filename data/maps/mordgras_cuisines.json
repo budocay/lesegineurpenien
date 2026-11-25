@@ -269,6 +269,111 @@
 				40.5,
 				5.2
 			]
+		},
+		{
+			"type": "mor_marmite",
+			"pos": [
+				14,
+				8
+			]
+		},
+		{
+			"type": "mor_marmite",
+			"pos": [
+				34,
+				8.5
+			]
+		},
+		{
+			"type": "mor_marmite",
+			"pos": [
+				33,
+				21
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				14,
+				22
+			]
+		},
+		{
+			"type": "mor_table",
+			"pos": [
+				28,
+				8
+			]
+		},
+		{
+			"type": "crate",
+			"pos": [
+				5.6,
+				6.8
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				3.5,
+				22.5
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				4.8,
+				23.2
+			]
+		},
+		{
+			"type": "barrel",
+			"pos": [
+				41,
+				24
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				17,
+				16
+			]
+		},
+		{
+			"type": "mor_os",
+			"pos": [
+				25,
+				13
+			]
+		},
+		{
+			"type": "mor_garde_manger",
+			"pos": [
+				40.5,
+				17
+			]
+		},
+		{
+			"type": "mor_pique",
+			"pos": [
+				12,
+				18
+			]
+		},
+		{
+			"type": "mor_fourneau",
+			"pos": [
+				24,
+				23.5
+			]
+		},
+		{
+			"type": "mor_fourneau",
+			"pos": [
+				16,
+				23.5
+			]
 		}
 	],
 	"wall_glow": 0.02,

@@ -1510,7 +1510,7 @@ marches), `mor_mur`, `mor_mur_cuisine`, `mor_braise`.
 | `mor_tour` | `pos`, `size` (4), `height` (9) | tour de basalte aux meurtrières rougeoyantes |
 | `mor_porte` | `pos`, `width` (10), `height` (7), `open` (faux) | la Porte Noire : deux battants de fonte, un guichet rouge |
 | `mor_four` | `pos`, `width` (12), `height` (9) | la gueule du Grand Four : braise, escarbilles, lumière vacillante |
-| `mor_mur` | `pos`, `width` (8), `height`, `depth` | mur plein de basalte, solide |
+| `mor_mur` | `pos` (centre), `size` [longueur, épaisseur] (8, 2), `height` (7) | rempart de basalte crénelé, solide |
 | `mor_banniere` | `pos` (pied, contre le mur du nord), `width` (1,6), `height` (4), `base` (1,2), `color` | bannière d'étoffe sombre à emblème de braise |
 | `mor_pilier` | `pos`, `height` (6), `width` (1,4) | pilier de basalte à brasero, solide |
 | `mor_lustre` | `pos`, `height` (4,2), `radius` (1,3), `candles` (8) | lustre de fer à bougies, lumière vacillante |

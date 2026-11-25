@@ -121,6 +121,10 @@ static func object(b, type: String, o: Dictionary) -> bool:
 		"mor_tour": _tower(b, o)
 		"mor_porte": _gate(b, o)
 		"mor_four": _furnace(b, o)
+		"mor_mur": _rampart(b, o)
+		"mor_banniere": _banner(b, o)
+		"mor_pilier": _pillar(b, o)
+		"mor_lustre": _chandelier(b, o)
 		_: return false
 	return true
 

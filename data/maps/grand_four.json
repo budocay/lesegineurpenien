@@ -21,11 +21,11 @@
 					0,
 					0,
 					44,
-					24
+					34
 				],
-				"pitch": 14,
-				"fov": 38,
-				"distance": 28,
+				"pitch": 12,
+				"fov": 40,
+				"distance": 30,
 				"feather": 8
 			}
 		]
@@ -72,6 +72,33 @@
 					13,
 					3,
 					16
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					12,
+					11,
+					1,
+					19
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					31,
+					11,
+					1,
+					19
+				]
+			},
+			{
+				"type": "mor_braise",
+				"rect": [
+					16,
+					24,
+					12,
+					1
 				]
 			}
 		]
@@ -244,6 +271,177 @@
 			"color": "#ff6a30",
 			"energy": 2.0,
 			"range": 11
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				9
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				10.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				15
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				16.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				21
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				22.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				7,
+				27
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				9,
+				28.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				9
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				10.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				15
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				16.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				21
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				22.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "mor_pilier",
+			"pos": [
+				37,
+				27
+			],
+			"height": 14.0,
+			"width": 2.4
+		},
+		{
+			"type": "light",
+			"pos": [
+				35,
+				28.5
+			],
+			"height": 3.0,
+			"color": "#ff7a2a",
+			"energy": 2.4,
+			"range": 10
+		},
+		{
+			"type": "light",
+			"pos": [
+				22,
+				6
+			],
+			"height": 4.0,
+			"color": "#ffb050",
+			"energy": 4.0,
+			"range": 16
 		}
 	],
 	"wall_tint": "#7a463e"
