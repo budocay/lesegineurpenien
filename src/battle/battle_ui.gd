@@ -95,6 +95,7 @@ var _overlay: Control
 var _warn: Dictionary = {}    # clé -> triangle rouge au-dessus d'un ennemi qui prépare un coup annoncé
 var _plates: Dictionary = {}  # clé -> {root, chips, name, bar}
 var _cursors: Array[Node2D] = []   # mains qui désignent les cibles
+var _previews: Array[Label] = []   # un aperçu chiffré (dégâts, faiblesse, chance de toucher) au-dessus de chaque main
 var _elan_commit := 0               # points d'élan engagés pour l'action en cours de choix
 var _elan_bars: Array = []          # {pips, label} : une barre d'élan par panneau de menu
 var _bar_pos: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # place libre trouvée pour chaque barre d'élan
@@ -297,6 +298,13 @@ func open(p_scene: Node3D, p_engine: RefCounted) -> void:
 		hand.visible = false
 		_overlay.add_child(hand)
 		_cursors.append(hand)
+		var tip := UI.label("", 19, UI.INK, true)
+		tip.add_theme_stylebox_override("normal", UI.panel_style(Color(0.04, 0.04, 0.09, 0.9), UI.GOLD_LINE, 4, 1))
+		tip.add_theme_constant_override("outline_size", 0)
+		tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tip.visible = false
+		_overlay.add_child(tip)
+		_previews.append(tip)
 	_intro_slide()
 	refresh()
 
@@ -326,6 +334,7 @@ func close() -> void:
 	_plates = {}
 	_warn = {}
 	_cursors = []
+	_previews = []
 	_elan_commit = 0
 
 
@@ -1371,9 +1380,41 @@ func _cancel_target() -> void:
 		_show_root()
 
 
+## Aperçu honnête d'une action sur une cible : fourchette de dégâts (sans critique), faiblesse seulement si
+## elle est déjà connue, chance de toucher quand elle n'est pas totale. "" s'il n'y a rien à chiffrer.
+func preview_text(action: Dictionary, target: RefCounted) -> String:
+	if engine == null or _actor == null or target == null:
+		return ""
+	var a := action.duplicate()
+	a["elan"] = _elan_commit
+	var est: Dictionary = engine.estimate(_actor, a, target)
+	var kind := str(est.get("kind", ""))
+	if kind == "":
+		return ""
+	var lo := int(est["min"])
+	var hi := int(est["max"])
+	var text := str(lo) if lo == hi else "%d–%d" % [lo, hi]
+	if int(est["hits"]) > 1:
+		text = "%d × %s" % [int(est["hits"]), text]
+	if kind == "heal":
+		return "+%s PV" % text
+	text += " dégâts"
+	if bool(est["weak"]):
+		text += "  ·  Faiblesse"
+	elif bool(est["resist"]):
+		text += "  ·  Résiste"
+	if float(est["hit"]) < 0.995:
+		text += "  ·  %d %% de toucher" % int(round(float(est["hit"]) * 100.0))
+	if bool(est["lethal"]):
+		text += "  ·  Fatal"
+	return text
+
+
 func _hide_cursors() -> void:
 	for a in _cursors:
 		a.visible = false
+	for t in _previews:
+		t.visible = false
 	for key: String in _plates:
 		var plate: Dictionary = _plates[key]
 		(plate["name"] as Control).modulate.a = 0.8
@@ -1390,6 +1431,9 @@ func _update_cursors() -> void:
 		var c: RefCounted = _cands[i]
 		if i < _cursors.size():
 			_cursors[i].visible = true
+			var tip_text := preview_text(_pending, c)
+			_previews[i].text = tip_text
+			_previews[i].visible = tip_text != ""
 		var plate: Dictionary = _plates.get(c.key, {})
 		if not plate.is_empty():
 			(plate["name"] as Control).modulate.a = 1.0
@@ -1418,6 +1462,13 @@ func _process(delta: float) -> void:
 			if p.x > panel.position.x - 20.0 and p.y - 22.0 < panel.end.y + 4.0:
 				p.y = panel.end.y + 28.0
 			_cursors[i].position = p + Vector2(0.0, sin(_time * 7.0) * 4.0 + 6.0)
+			if i < _previews.size() and _previews[i].visible:   # l'aperçu se pose au-dessus de la main, sans sortir de l'écran
+				var tip := _previews[i]
+				tip.reset_size()
+				var want := Vector2(p.x - tip.size.x * 0.5, p.y - 70.0)
+				want.x = clampf(want.x, 8.0, maxf(8.0, size.x - tip.size.x - 8.0))
+				want.y = maxf(8.0, want.y)
+				tip.position = want
 	_place_menu()
 
 
@@ -1805,10 +1856,24 @@ func show_victory(rewards: Dictionary, guest: bool) -> void:
 				var xp_label := UI.label("+%d XP" % gain, 20, Color("#ffd27a"))
 				xp_label.custom_minimum_size = Vector2(110, 0)
 				row.add_child(xp_label)
+				var prog: Dictionary = (rewards.get("progress", {}) as Dictionary).get(str(c.source), {})
+				if not prog.is_empty():   # jauge vers le niveau suivant (pleine à peine entamée : on repart de zéro)
+					var gauge := UI.gauge(UI.GOLD, 120.0, 8.0)
+					gauge.max_value = maxi(1, int(prog.get("need", 1)))
+					gauge.value = int(prog.get("to_xp", 0))
+					row.add_child(gauge)
 				if by_id.has(str(c.source)):
 					var up: Dictionary = by_id[str(c.source)]
 					row.add_child(UI.label("Niveau %d" % int(up.get("to", 1)), 20, UI.GOLD))
 				box.add_child(row)
+		for rec: Variant in rewards.get("records", []):
+			_line(box, str(rec), UI.GOLD, 19)
+		var found: Array = rewards.get("new", [])
+		if not found.is_empty():
+			_line(box, "Au Carnet : %s" % ", ".join(found), Color("#bfe8ff"), 19)
+		var learned: Array = rewards.get("first_win", [])
+		if not learned.is_empty():
+			_line(box, "Fiche complétée : %s" % ", ".join(learned), Color("#bfe8ff"), 19)
 		if not ups.is_empty():
 			Sfx.play("level")
 		for up: Dictionary in ups:

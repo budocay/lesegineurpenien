@@ -5,6 +5,8 @@ extends Node
 ## quelques mesures (luminosité, netteté par bande) pour juger du rendu.
 
 const MAIN = preload("res://scenes/main.tscn")
+const BattleScene = preload("res://src/battle/battle_scene.gd")
+const BattleUI = preload("res://src/battle/battle_ui.gd")
 
 var out_dir := "/tmp/glandoulf_captures"
 var main: Node
@@ -31,6 +33,9 @@ func _ready() -> void:
 		return
 	if args.size() > 1 and args[1] == "chap7":
 		await _mordgras_only(args.size() > 2 and args[2] == "arenes")
+		return
+	if args.size() > 1 and args[1] == "carnet":
+		await _carnet_only()
 		return
 	if args.size() > 1 and args[1] == "vues":
 		await _vues_only()
@@ -1004,3 +1009,150 @@ func _vues_only() -> void:
 		await _frames(120)
 	SaveManager.delete_save()
 	get_tree().quit()
+
+
+## Le Carnet : bestiaire, faits et gestes, fiche détaillée, aperçu des coups, récap, paramètres (mode « carnet » seul),
+## aux deux tailles d'écran (1600 x 900, 1280 x 720).
+func _carnet_only() -> void:
+	GameState.new_game()
+	GameState.party = []
+	for id: String in ["glandoulf", "sam", "froton", "pepin"]:
+		GameState.add_to_party(id)
+		GameState.member(id)["level"] = 9
+	GameState.set_flag("chapitre_1_fini")
+	GameState.map_id = "brie"
+	GameState.spawn_id = "sud"
+	GameState.money = 340
+	var ids: Array = Database.enemies.keys()
+	for i in ids.size():
+		var id := str(ids[i])
+		if i < 14:
+			GameState.bestiary_log[id] = {"seen": 3, "beaten": 2 + i % 4, "map": "route_brie", "loot": []}
+			GameState.bestiary[id] = (Database.get_enemy(id).get("weak", []) as Array).slice(0, 1)
+		elif i < 20:
+			GameState.bestiary_log[id] = {"seen": 1, "beaten": 0, "map": "brie"}
+	GameState.stats = preload("res://src/core/carnet.gd").fresh_stats()
+	GameState.stats.merge({"combats": 31, "fuites": 4, "defaites": 2, "vaincus": 88, "degats_infliges": 15230, "degats_subis": 9120, "soins": 3300, "critiques": 41, "objets": 17, "or_gagne": 2110, "or_depense": 1770, "pas": 18400, "ko": {"glandoulf": 3, "sam": 1}, "competences": {"glandoulf": {"etincelle": 22, "petit_somme": 5}}, "record": {"who": "glandoulf", "what": "Étincelle", "amount": 187, "target": "Limace molle"}}, true)
+	GameState.playtime = 3 * 3600 + 25 * 60
+	GameState.heal_party()
+	SaveManager.save_game()
+	main.continue_game()
+	await _frames(150)
+	await _idle()
+	var win := get_window()
+	var n := 0
+	for size: Vector2i in [Vector2i(1600, 900), Vector2i(1280, 720)]:
+		win.size = size
+		await _frames(30)
+		var tag := "%dx%d" % [size.x, size.y]
+		main.menus.open("carnet")
+		await _frames(20)
+		await _shot("400_carnet_%s" % tag)
+		main.menus.press(0)
+		await _frames(20)
+		main.menus._focus_row(2)
+		main.menus._on_focus(2)
+		await _frames(20)
+		await _shot("401_bestiaire_%s" % tag)
+		main.menus._focus_row(16)
+		main.menus._on_focus(16)
+		await _frames(20)
+		await _shot("402_bestiaire_vu_%s" % tag)
+		main.menus._focus_row(40)
+		main.menus._on_focus(40)
+		await _frames(20)
+		await _shot("403_bestiaire_inconnu_%s" % tag)
+		main.menus.go_back()
+		await _frames(10)
+		main.menus.press(1)
+		await _frames(20)
+		await _shot("404_faits_%s" % tag)
+		main.menus._focus_row(4)
+		main.menus._on_focus(4)
+		await _frames(20)
+		await _shot("405_faits_heros_%s" % tag)
+		main.menus.go_back()
+		await _frames(10)
+		main.menus.press(2)
+		await _frames(20)
+		await _shot("406_fiche_%s" % tag)
+		main.menus._focus_row(3)
+		main.menus._on_focus(3)
+		await _frames(20)
+		await _shot("407_fiche_stat_%s" % tag)
+		main.menus._focus_row(12)
+		main.menus._on_focus(12)
+		await _frames(20)
+		await _shot("408_fiche_resist_%s" % tag)
+		main.menus.close(true)
+		await _frames(10)
+		# paramètres : la difficulté
+		main.settings_screen.open("")
+		await _frames(20)
+		var row: Button = main.settings_screen._rows["difficulte"]
+		row.grab_focus()
+		await _frames(20)
+		await _shot("409_parametres_difficulte_%s" % tag)
+		main.settings_screen.close(true)
+		main.pause.close(true)
+		await _frames(10)
+		n += 1
+	main.queue_free()   # le combat se photographie sans le village derrière
+	await _frames(10)
+	for size: Vector2i in [Vector2i(1600, 900), Vector2i(1280, 720)]:
+		win.size = size
+		await _frames(30)
+		await _carnet_battle("%dx%d" % [size.x, size.y])
+	win.size = Vector2i(1600, 900)
+	SaveManager.delete_save()
+	print("CAPTURES CARNET OK : ", out_dir)
+	get_tree().quit()
+
+
+func _carnet_battle(tag: String) -> void:
+	var enc := {"enemies": ["limace_molle", "limace_molle", "ver_fromage"], "arena": "pre", "flee": true}
+	GameState.bestiary["ver_fromage"] = (Database.get_enemy("ver_fromage").get("weak", []) as Array).slice(0, 1)
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var ui: Control = BattleUI.new()
+	layer.add_child(ui)
+	await _frames(2)
+	var scene: Node3D = BattleScene.new()
+	add_child(scene)
+	scene.setup(enc, ui, 5)
+	scene.run()
+	for _i in 900:
+		await get_tree().process_frame
+		if ui._state == ui.S.ROOT:
+			break
+	await _frames(40)
+	await _shot("410_combat_plaques_%s" % tag)
+	(ui._root_list.get_child(0) as Button).pressed.emit()   # Attaquer : choix de la cible, aperçu chiffré
+	await _frames(30)
+	await _shot("411_combat_apercu_%s" % tag)
+	ui._cancel_target()
+	await _frames(10)
+	(ui._root_list.get_child(1) as Button).pressed.emit()   # Compétences
+	await _frames(20)
+	for b: Button in ui._list_items.get_children():
+		if not b.disabled:
+			b.pressed.emit()
+			break
+	await _frames(30)
+	await _shot("412_combat_apercu_zone_%s" % tag)
+	# récap : victoire fabriquée sur l'instant
+	ui._cancel_target()
+	await _frames(5)
+	for c: RefCounted in scene.engine.enemies:
+		c.hp = 0
+	scene.engine.result = "victory"
+	scene.engine.tally["best"] = {"who": "glandoulf", "what": "Étincelle", "amount": 240, "target": "Limace molle"}
+	scene.engine.tally["dealt"] = 240
+	var rewards: Dictionary = scene.engine.commit()
+	ui.show_victory(rewards, false)
+	await _frames(40)
+	await _shot("413_recap_%s" % tag)
+	ui._end_layer.visible = false
+	scene.queue_free()
+	layer.queue_free()
+	await _frames(10)

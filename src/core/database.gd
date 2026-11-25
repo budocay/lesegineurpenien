@@ -22,6 +22,7 @@ var shops: Dictionary = {}
 var talents: Dictionary = {}
 var animations: Dictionary = {}
 var music: Dictionary = {}
+var carnet: Dictionary = {}   # textes du Carnet (data/carnet.json)
 var _maps: Dictionary = {}
 
 
@@ -44,6 +45,7 @@ func reload() -> void:
 	talents = load_json(DATA_DIR + "talents.json")
 	animations = load_json(DATA_DIR + "animations.json")
 	music = load_json(DATA_DIR + "music.json")
+	carnet = load_json(DATA_DIR + "carnet.json")
 	var enc := load_json(DATA_DIR + "encounters.json")
 	encounters = _section(enc, "encounters")
 	encounter_tables = _section(enc, "tables")
