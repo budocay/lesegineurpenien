@@ -1000,7 +1000,10 @@ func _vues_only() -> void:
 				await _idle()
 	for part: String in OS.get_environment("GLAN_ARENES").split(";", false):
 		var q := part.split(":")
-		main.start_battle({"enemies": q[1].split(","), "arena": q[0], "flee": true})
+		var foes: Array = []
+		for en: String in q[1].split(","):
+			foes.append(en)
+		main.start_battle({"enemies": foes, "arena": q[0], "flee": true})
 		await _until_menu()
 		await _frames(50)
 		await _shot("a%02d_%s" % [n, q[0]])
