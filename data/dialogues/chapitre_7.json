@@ -758,7 +758,7 @@
 	],
 	"banquet_arrivee": [
 		{
-			"text": "La salle du banquet. Une nef, plus qu'une salle : des tables à perte de vue, des nappes blanches, des lustres d'où pendent des bougies grosses comme des jambons. Et sur les tables, tout. Un rôti en forme de rôti, un pâté en forme de pâté, un pudding en forme d'une chose qui ne devrait pas être servie."
+			"text": "La salle du banquet. Une nef, plus qu'une salle : des tables à perte de vue, des nappes blanches, des lustres d'où pendent des bougies grosses comme des jambons. Et sur les tables, tout. Un rôti en forme de rôti, un pâté en forme de pâté, un pudding en forme de chose qui ne devrait pas être servie."
 		},
 		{
 			"text": "Aux tables, des Convives, rangés de part et d'autre : maigres, immobiles, serviette au cou, qui attendent. Ils ne mangent pas encore. Ils sont insatiables : la faim est, pour eux, un état d'âme."
@@ -1373,7 +1373,7 @@
 		},
 		{
 			"who": "sauron",
-			"text": "Alors, un moment. Voici ce que je propose : nous règlerons cela à l'ancienne."
+			"text": "Alors, un moment. Voici ce que je propose : nous réglerons cela à l'ancienne."
 		},
 		{
 			"who": "glandoulf",
@@ -1381,7 +1381,7 @@
 		},
 		{
 			"who": "glandoulf",
-			"text": "C'est le moment de le dire, à tous. Pas de ruse. Pas de sieste. Vingt pas : c'est ce que j'ai à faire. Vingt pas, jusqu'à la gueule du Four, avec Froton, avec l'anneau, et je le jette. Vingt pas, et c'est fini."
+			"text": "Non. Pas de duel, pas de ruse, pas de sieste : je le dis à tous, pour qu'on ne me laisse pas l'oublier. Vingt pas jusqu'à la gueule du Four, avec Froton, avec l'anneau, et on le jette. Vingt pas, et c'est fini."
 		},
 		{
 			"text": "Il pose Froton à terre. Il le soutient par le coude. Ensemble, très lentement, ils font un pas, puis un autre. L'air tremble, le sol rougeoie, des étincelles montent des rainures."
@@ -1512,7 +1512,7 @@
 			"text": "Les doigts de Froton s'ouvrent. L'anneau, tout petit, tombe. Il tourne une fois, deux fois, dans la lumière rouge, et il fait : « tic ». Puis il disparaît dans la braise, sans bruit, comme une pièce dans un bouillon."
 		},
 		{
-			"text": "Un instant, rien. Puis la montagne gronde. Le Four se ferme, bouche de fonte qui claque comme une porte. Des fissures courent dans la voûte. La plate-forme tremble. Un morceau du plafond se détache, et tombe sur la table où Sauron, sans le voir, dort d'un sommeil paisible."
+			"text": "Un instant, rien. Puis la montagne gronde. Le Four se ferme, bouche de fonte qui claque comme une porte. Des fissures courent dans la voûte. La plate-forme tremble. Un morceau du plafond se détache, et tombe à quelques pas de Sauron, qui dort d'un sommeil paisible sous son manteau gris."
 		},
 		{
 			"who": "merri",
@@ -1545,7 +1545,7 @@
 			"text": "Pas du tout. J'ai pensé aux formulaires. C'est différent."
 		},
 		{
-			"text": "Les Aigles, avec une politesse de transporteurs, saisissent la Compagnie dans leurs serres : l'un Froton, l'autre Sam, le troisième Merri, le quatrième Glandoulf, qui ronchonne en s'envolant. La Montagne du Festin s'enfonce, sous eux, dans un nuage de fumée, tandis que le soleil se lève, pour la première fois depuis longtemps, sans que personne le lui ait demandé."
+			"text": "Les Aigles, avec une politesse de transporteurs, saisissent la Compagnie dans leurs serres, Glandoulf en dernier, qui ronchonne en s'envolant. La Montagne du Festin s'enfonce, sous eux, dans la fumée, tandis que le soleil se lève, sans que personne le lui ait demandé."
 		},
 		{
 			"banner": "Chapitre 7 terminé",
