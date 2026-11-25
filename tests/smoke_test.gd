@@ -2454,7 +2454,7 @@ func _test_menus() -> void:
 	check(str(menu._detail.text).contains("Bâton ferré") and str(menu._detail.text).contains("Magie"), "équipe : fiche avec statistiques et équipement")
 	menu.press(0)
 	await get_tree().process_frame
-	check((menu.entry_texts() as Array).size() == 2, "équipe : la fiche propose équipement et talents")
+	check((menu.entry_texts() as Array).size() == 3, "équipe : la fiche propose équipement, talents et fiche détaillée")
 	menu.press(0)
 	await get_tree().process_frame
 	check((menu.entry_texts() as Array).size() == GameState.SLOTS.size(), "équipe : un choix par emplacement")
