@@ -41,6 +41,9 @@ func _ready() -> void:
 	if args.size() > 1 and args[1] == "vues":
 		await _vues_only()
 		return
+	if args.size() > 1 and args[1] == "chapitres":
+		await _chapitres_only()
+		return
 	await _shot("1_titre")
 
 	main.start_new_game()
@@ -1162,3 +1165,50 @@ func _carnet_battle(tag: String) -> void:
 	scene.queue_free()
 	layer.queue_free()
 	await _frames(10)
+
+
+## « Choisir un chapitre » : l'écran à deux tailles (chaque chapitre, la confirmation), puis le premier
+## instant d'une partie lancée de là (chapitres 2, 4 et 6).
+func _chapitres_only() -> void:
+	await _idle()
+	var win := get_window()
+	var ChapterStart := preload("res://src/core/chapter_start.gd")
+	for size: Vector2i in [Vector2i(1600, 900), Vector2i(1280, 720)]:
+		win.size = size
+		await _frames(30)
+		var tag := "%dx%d" % [size.x, size.y]
+		main.chapters_screen.open()
+		await _frames(25)
+		var n := 0
+		for e: Dictionary in ChapterStart.entries():
+			var id := str(e["id"])
+			(main.chapters_screen._rows[id] as Button).grab_focus()
+			await _frames(8)
+			if n % 3 == 0 or id == "chapitre_5":
+				await _shot("600_chapitres_%s_%s" % [tag, id])
+			n += 1
+		(main.chapters_screen._rows["chapitre_6"] as Button).grab_focus()
+		await _frames(8)
+		main.chapters_screen._on_pressed("chapitre_6")
+		await _frames(25)
+		await _shot("601_chapitres_confirmation_%s" % tag)
+		main.confirm._answer(false)
+		await _frames(20)
+		main.chapters_screen.close(true)
+		await _frames(10)
+	win.size = Vector2i(1600, 900)
+	await _frames(20)
+	for id: String in ["chapitre_2", "chapitre_4", "chapitre_6"]:
+		main.start_chapter(id)
+		for _i in 900:
+			await get_tree().process_frame
+			if main.dialogue.active:
+				break
+		await _frames(100)
+		await _shot("602_depart_%s" % id)
+		await _idle()
+		main.show_title()
+		await _frames(200)
+		await _idle()
+	print("captures du choix de chapitre : terminé")
+	get_tree().quit()
