@@ -134,6 +134,13 @@ func _ready() -> void:
 		SaveManager.delete_save()
 		get_tree().quit(1 if failures > 0 else 0)
 		return
+	if OS.has_environment("GLAN_ONLY_CARNET"):   # essai ciblé du Carnet : bestiaire, statistiques, fiche, difficulté, aperçu des coups
+		await _test_carnet()
+		await _test_pad_carnet_alone()
+		print("%d vérifications, %d échec(s) (Carnet seul)." % [checks, failures])
+		SaveManager.delete_save()
+		get_tree().quit(1 if failures > 0 else 0)
+		return
 	if OS.has_environment("GLAN_ONLY_FONTS"):   # essai ciblé de la police embarquée et des sons enregistrés
 		_test_fonts_and_sounds()
 		print("%d vérifications, %d échec(s) (police et sons seuls)." % [checks, failures])
@@ -164,6 +171,8 @@ func _ready() -> void:
 	_test_step4()
 	print("== Talents ==")
 	_test_talents()
+	print("== Carnet : bestiaire, statistiques, fiche, difficulté, aperçu ==")
+	await _test_carnet()
 	print("== Animations de combat : données ==")
 	_test_animations()
 	print("== Musique ==")
@@ -1672,6 +1681,9 @@ func _test_measure_overrides() -> void:
 ## GLAN_RUNS = essais (60), GLAN_FILTER = texte de l'étiquette, GLAN_LEVEL = niveau forcé, GLAN_SUBS=0 saute les équipes.
 ## Cible : 85 à 95 % pour un combat ordinaire, 60 à 80 % pour un boss (équipe type, avec talents).
 func _measure_forced() -> void:
+	if OS.has_environment("GLAN_DIFFICULTE"):   # mesurer un niveau de difficulté (promenade, aventure, epreuve)
+		Settings.set_value("difficulte", OS.get_environment("GLAN_DIFFICULTE"), false)
+		print("  difficulté mesurée : %s" % str(Settings.get_value("difficulte")))
 	_apply_measure_overrides({"scale": OS.get_environment("GLAN_SCALE"), "power": OS.get_environment("GLAN_POWER"),
 			"annonce": OS.get_environment("GLAN_ANNONCE"), "shield": OS.get_environment("GLAN_SHIELD")})   # (avant toute branche : GLAN_TEAM aussi les subit)
 	var runs := int(OS.get_environment("GLAN_RUNS")) if OS.has_environment("GLAN_RUNS") else 60
@@ -2444,7 +2456,7 @@ func _test_menus() -> void:
 	check(str(menu._detail.text).contains("Bâton ferré") and str(menu._detail.text).contains("Magie"), "équipe : fiche avec statistiques et équipement")
 	menu.press(0)
 	await get_tree().process_frame
-	check((menu.entry_texts() as Array).size() == 2, "équipe : la fiche propose équipement et talents")
+	check((menu.entry_texts() as Array).size() == 3, "équipe : la fiche propose équipement, talents et fiche détaillée")
 	menu.press(0)
 	await get_tree().process_frame
 	check((menu.entry_texts() as Array).size() == GameState.SLOTS.size(), "équipe : un choix par emplacement")
@@ -4247,7 +4259,7 @@ func _test_active_party() -> void:
 	menu.press(4)   # Aragrogne
 	await get_tree().process_frame
 	var sub: Array = menu.entry_texts()
-	check(sub.size() == 3 and str(sub[2]) == "Entrer dans l'équipe", "fiche d'un réserviste : Entrer dans l'équipe (%s)" % str(sub))
+	check(sub.size() == 4 and str(sub[2]) == "Entrer dans l'équipe" and str(sub[3]) == "Fiche détaillée", "fiche d'un réserviste : Entrer dans l'équipe (%s)" % str(sub))
 	menu.press(2)
 	await get_tree().process_frame
 	check(str(menu._title.text).begins_with("Échanger Aragrogne") and menu.entry_texts().size() == 4, "choix de celui qui lui cède sa place")
@@ -8489,6 +8501,7 @@ func _test_gamepad_full() -> void:
 	check(GameState.has_flag("combat_prologue_sauron"), "manette : le combat du prologue est gagné par attaques à la manette")
 	await _test_pad_world(main)
 	await _test_pad_menus(main)
+	await _test_pad_carnet(main)
 	await _test_pad_leave(main)
 	await _test_pad_tips(main)
 	main.queue_free()
@@ -9783,3 +9796,304 @@ func _test_fluidity() -> void:
 		check(is_equal_approx(wn._dof_near_k, want), "%s : near_start %.2f (défaut 0,70 si la carte n'en déclare pas)" % [id, want])
 		remove_child(wn)
 		wn.queue_free()
+
+
+# ------------------------------------------------------------------------ Carnet
+
+func _one_enemy_fight(enemy_id: String, seed_value: int = 3) -> RefCounted:
+	var e: RefCounted = BattleEngine.new()
+	e.setup({"enemies": [enemy_id]}, seed_value)
+	return e
+
+
+func _test_carnet() -> void:
+	var Carnet: GDScript = load("res://src/core/carnet.gd")
+	var old_level := str(Settings.get_value("difficulte"))
+	Settings.set_value("difficulte", "aventure", false)
+	# --- données : chaque créature a son texte, les trois niveaux sont décrits
+	var cd: Dictionary = Database.carnet
+	var missing: Array = []
+	for id: String in Database.enemies:
+		if str((cd.get("creatures", {}) as Dictionary).get(id, "")) == "":
+			missing.append(id)
+	check(missing.is_empty(), "carnet : chaque créature a son texte d'humeur (%s)" % str(missing.slice(0, 5)))
+	for lvl: String in ["promenade", "aventure", "epreuve"]:
+		var d: Dictionary = (cd.get("difficulties", {}) as Dictionary).get(lvl, {})
+		check(str(d.get("name", "")) != "" and str(d.get("desc", "")) != "" and d.has("enemy_hp") and d.has("enemy_dmg"), "carnet : le niveau %s est décrit" % lvl)
+	for k: String in ["hp", "mp", "atk", "def", "mag", "res", "spd", "acc", "eva", "crit", "critdmg", "resist", "status", "xp"]:
+		check(str((cd.get("stat_help", {}) as Dictionary).get(k, "")) != "", "carnet : explication de « %s »" % k)
+	var aventure: Dictionary = (cd["difficulties"] as Dictionary)["aventure"]
+	check(is_equal_approx(float(aventure["enemy_hp"]), 1.0) and is_equal_approx(float(aventure["enemy_dmg"]), 1.0) and is_equal_approx(float(aventure["xp"]), 1.0) and is_equal_approx(float(aventure["money"]), 1.0), "carnet : « Aventure » ne change aucun chiffre")
+	check(Settings.default_of("difficulte") == "aventure" and Settings.help("difficulte").contains("Promenade") and Settings.help("difficulte").contains("Épreuve"), "carnet : difficulté réglable, Aventure par défaut, aide qui décrit les trois niveaux")
+	# --- partie neuve : tout à zéro, rien de connu
+	GameState.new_game()
+	var done: Array = Carnet.completion()
+	check(done[0] == 0 and done[1] == 0 and int(done[2]) == Database.enemies.size(), "carnet : bestiaire vide au départ (%s)" % str(done))
+	check(int(GameState.stats["combats"]) == 0 and int(GameState.stats["pas"]) == 0 and int((GameState.stats["record"] as Dictionary).get("amount", 0)) == 0, "carnet : compteurs à zéro au départ")
+	# --- les chiffres de difficulté
+	var hp_of := {}
+	for lvl: String in ["promenade", "aventure", "epreuve"]:
+		Settings.set_value("difficulte", lvl, false)
+		var e := _one_enemy_fight("limace_molle")
+		hp_of[lvl] = int((e.enemies[0] as RefCounted).max_hp())
+	Settings.set_value("difficulte", "aventure", false)
+	var data_hp := int(Database.get_enemy("limace_molle")["stats"]["hp"])
+	check(hp_of["aventure"] == data_hp, "difficulté : Aventure garde les PV des données (%d / %d)" % [hp_of["aventure"], data_hp])
+	check(hp_of["promenade"] < hp_of["aventure"] and hp_of["epreuve"] > hp_of["aventure"], "difficulté : Promenade plus tendre, Épreuve plus coriace (%s)" % str(hp_of))
+	var dmg_of := {}
+	for lvl: String in ["promenade", "aventure", "epreuve"]:
+		Settings.set_value("difficulte", lvl, false)
+		var e := _one_enemy_fight("limace_molle")
+		var foe: RefCounted = e.enemies[0]
+		var hero: RefCounted = e.party[0]
+		dmg_of[lvl] = float(e._expected_damage(foe, hero, {"stat": "atk", "power": 100}, 1.0, 1.0, []))
+	Settings.set_value("difficulte", "aventure", false)
+	check(dmg_of["promenade"] < dmg_of["aventure"] and dmg_of["epreuve"] > dmg_of["aventure"], "difficulté : les coups ennemis suivent le niveau (%s)" % str(dmg_of))
+	# les coups réels suivent l'aperçu, à la difficulté choisie
+	for lvl: String in ["promenade", "epreuve"]:
+		Settings.set_value("difficulte", lvl, false)
+		var e := _one_enemy_fight("limace_molle", 11)
+		var foe: RefCounted = e.enemies[0]
+		var hero: RefCounted = e.party[0]
+		var seen := 0
+		for _i in 30:
+			var before := int(hero.hp)
+			hero.hp = hero.max_hp()
+			var events: Array = e.perform(foe, {"type": "attack", "target": hero})
+			for ev: Dictionary in events:
+				if str(ev.get("type", "")) == "damage" and not bool(ev.get("crit", false)):
+					var lo := int(round(e._expected_damage(foe, hero, {"stat": "atk", "power": 100}, 1.0, 0.9, [])))
+					var hi := int(round(e._expected_damage(foe, hero, {"stat": "atk", "power": 100}, 1.0, 1.1, [])))
+					if int(ev["amount"]) >= maxi(1, lo) - 1 and int(ev["amount"]) <= maxi(1, hi) + 1:
+						seen += 1
+			hero.hp = before
+		check(seen >= 20, "difficulté %s : les coups ennemis réels tombent dans la fourchette calculée (%d/30)" % [lvl, seen])
+	Settings.set_value("difficulte", "aventure", false)
+	# --- aperçu honnête : mêmes règles que le coup, faiblesse cachée tant qu'elle n'est pas découverte
+	var pair := {}
+	for sk: String in Database.skills:
+		for fx: Variant in Database.get_skill(sk).get("effects", []):
+			if fx is Dictionary and str(fx.get("type", "")) == "damage" and str(fx.get("element", "")) != "" and pair.is_empty():
+				for en: String in Database.enemies:
+					if (Database.get_enemy(en).get("weak", []) as Array).has(str(fx["element"])) and int(Database.get_enemy(en).get("shield", 0)) == 0 and int(Database.get_enemy(en)["stats"].get("def", 0)) <= 8 and int(Database.get_enemy(en)["stats"].get("res", 0)) <= 8:
+						pair = {"skill": sk, "enemy": en, "element": str(fx["element"])}
+						break
+	check(not pair.is_empty(), "aperçu : une compétence et un ennemi faible à son élément existent (%s)" % str(pair))
+	if not pair.is_empty():
+		GameState.new_game()
+		GameState.member("glandoulf")["level"] = 12
+		var e := _one_enemy_fight(str(pair["enemy"]))
+		var hero: RefCounted = e.party[0]
+		var foe: RefCounted = e.enemies[0]
+		var act := {"type": "skill", "id": str(pair["skill"]), "target": foe}
+		var hidden: Dictionary = e.estimate(hero, act, foe)
+		check(not bool(hidden["weak"]), "aperçu : une faiblesse non découverte n'est pas trahie")
+		e.revealed[foe.source] = [str(pair["element"])]
+		var shown: Dictionary = e.estimate(hero, act, foe)
+		check(bool(shown["weak"]) and int(shown["max"]) > int(hidden["max"]), "aperçu : la faiblesse découverte est annoncée et chiffrée (%d > %d, %s, atk %d mag %d def %d res %d)" % [shown["max"], hidden["max"], str(pair), hero.stat("atk"), hero.stat("mag"), foe.stat("def"), foe.stat("res")])
+		# les dégâts réels d'un coup sans critique entrent dans la fourchette de l'aperçu
+		var inside := 0
+		var tried := 0
+		for sd in 40:
+			var e2 := _one_enemy_fight(str(pair["enemy"]), 100 + sd)
+			var h2: RefCounted = e2.party[0]
+			var f2: RefCounted = e2.enemies[0]
+			e2.revealed[f2.source] = [str(pair["element"])]
+			h2.mp = 999
+			var est: Dictionary = e2.estimate(h2, {"type": "skill", "id": str(pair["skill"]), "target": f2}, f2)
+			var evs: Array = e2.perform(h2, {"type": "skill", "id": str(pair["skill"]), "target": f2})
+			for ev: Dictionary in evs:
+				if str(ev.get("type", "")) == "damage" and not bool(ev.get("crit", false)) and ev.get("target") == f2:
+					tried += 1
+					if int(ev["amount"]) >= int(est["min"]) - 1 and int(ev["amount"]) <= int(est["max"]) + 1:
+						inside += 1
+					break
+		check(tried >= 20 and inside == tried, "aperçu : le coup réel tombe dans la fourchette annoncée (%d/%d)" % [inside, tried])
+		# l'analyse révèle tout, d'un coup
+		var e3 := _one_enemy_fight(str(pair["enemy"]))
+		e3._apply(e3.party[0], e3.enemies[0], {"type": "analyze"}, [])
+		check((e3.known_weak(e3.enemies[0]) as Array).has(str(pair["element"])), "analyse : les faiblesses sont révélées")
+	# --- un combat gagné remplit le Carnet
+	GameState.new_game()
+	for who: String in GameState.party:
+		GameState.member(who)["level"] = 12
+	var enemy_id := "limace_molle"
+	var fight := _fight({"enemies": [enemy_id]}, 4)
+	check(str(fight.result) == "victory" and int(fight.tally["dealt"]) > 0, "carnet : combat de démonstration gagné, dégâts comptés (%s, %d)" % [str(fight.result), int(fight.tally["dealt"])])
+	var money_before := GameState.money
+	var rewards: Dictionary = fight.commit()
+	check(int(GameState.stats["combats"]) == 1 and int(GameState.stats["vaincus"]) == 1 and int(GameState.stats["degats_infliges"]) == int(fight.tally["dealt"]), "carnet : le combat est compté")
+	check(Carnet.creature_state(enemy_id) == "beaten" and int(Carnet.creature_log(enemy_id).get("beaten", 0)) == 1, "bestiaire : la créature vaincue a sa fiche")
+	check((rewards["new"] as Array).size() == 1 and (rewards["first_win"] as Array).size() == 1, "récap : la nouvelle fiche est annoncée")
+	check(not (rewards["records"] as Array).is_empty() and int((GameState.stats["record"] as Dictionary).get("amount", 0)) > 0, "récap : un record est noté (%s)" % str(rewards["records"]))
+	check(int(GameState.stats["or_gagne"]) == GameState.money - money_before, "carnet : les écus gagnés au combat sont comptés (%d / %d)" % [int(GameState.stats["or_gagne"]), GameState.money - money_before])
+	var prog: Dictionary = rewards["progress"]
+	check(prog.size() == fight.party.size() and int((prog.values()[0] as Dictionary).get("need", 0)) > 0, "récap : progression par héros (%d)" % prog.size())
+	fight.commit()
+	check(int(GameState.stats["combats"]) == 1, "carnet : un combat ne se compte qu'une fois")
+	var ko_total := 0
+	for who: String in (GameState.stats["ko"] as Dictionary):
+		ko_total += int(GameState.stats["ko"][who])
+	check(Carnet.completion()[0] == 1 and Carnet.completion()[1] == 1, "bestiaire : compteur 1 / %d" % Database.enemies.size())
+	# --- une défaite compte aussi, sans rien rapporter
+	var lost: RefCounted = _one_enemy_fight("limace_molle", 5)
+	for c: RefCounted in lost.party:
+		c.hp = 0
+	lost.result = "defeat"
+	var lost_rewards: Dictionary = lost.commit()
+	check(int(GameState.stats["defaites"]) == 1 and int(lost_rewards["xp"]) == 0, "carnet : une défaite est comptée et ne rapporte rien")
+	# --- faiblesses : seulement ce qui a été trouvé ; texte de fiche
+	GameState.new_game()
+	var weak_enemy := ""
+	for en: String in Database.enemies:
+		if (Database.get_enemy(en).get("weak", []) as Array).size() >= 1:
+			weak_enemy = en
+			break
+	var elname := str(Database.elements[(Database.get_enemy(weak_enemy)["weak"] as Array)[0]]["name"])
+	GameState.bestiary_log[weak_enemy] = {"seen": 1, "beaten": 0}
+	var sheet_seen: String = GameMenu._creature_detail(weak_enemy)
+	check(sheet_seen.contains(str(Database.get_enemy(weak_enemy)["name"])) and not sheet_seen.contains(elname + ", ") and sheet_seen.contains("?"), "bestiaire : une créature croisée montre un « ? » à la place de sa faiblesse")
+	check(sheet_seen.contains("première victoire"), "bestiaire : les statistiques attendent la première victoire")
+	GameState.bestiary[weak_enemy] = [(Database.get_enemy(weak_enemy)["weak"] as Array)[0]]
+	var sheet_known: String = GameMenu._creature_detail(weak_enemy)
+	check(sheet_known.contains(elname), "bestiaire : la faiblesse découverte est écrite")
+	GameState.bestiary_log[weak_enemy]["beaten"] = 2
+	var sheet_won: String = GameMenu._creature_detail(weak_enemy)
+	check(sheet_won.contains("Statistiques") and sheet_won.contains("Attaque") and not sheet_won.contains("première victoire"), "bestiaire : les statistiques apparaissent après la victoire")
+	var unmet := ""
+	for en: String in Database.enemies:
+		if en != weak_enemy:
+			unmet = en
+			break
+	var sheet_unmet: String = GameMenu._creature_detail(unmet)
+	check(sheet_unmet.contains("???") and not sheet_unmet.contains(str(Database.get_enemy(unmet)["name"])), "bestiaire : une créature jamais croisée reste « ??? »")
+	var every := true
+	for en: String in Database.enemies:
+		GameState.bestiary_log[en] = {"seen": 1, "beaten": 1}
+		if GameMenu._creature_detail(en).length() < 60 or Database.get_enemy(en).get("sprite") == null:
+			every = false
+	check(every, "bestiaire : les %d créatures ont une fiche lisible" % Database.enemies.size())
+	check(Carnet.completion()[1] == Database.enemies.size(), "bestiaire : complétion à 100 %")
+	# --- sauvegarde : tout survit ; une ancienne sauvegarde repart de zéro
+	GameState.new_game()
+	GameState.stats["pas"] = 1234
+	GameState.stats["combats"] = 7
+	GameState.bestiary_log["limace_molle"] = {"seen": 3, "beaten": 2, "map": "route_brie"}
+	GameState.bestiary["limace_molle"] = ["feu"]
+	var blob: Variant = JSON.parse_string(JSON.stringify(GameState.to_dict()))
+	GameState.new_game()
+	check(GameState.from_dict(blob) and int(GameState.stats["pas"]) == 1234 and int(GameState.stats["combats"]) == 7 and int(Carnet.creature_log("limace_molle")["beaten"]) == 2, "carnet : compteurs et fiches survivent à la sauvegarde")
+	(blob as Dictionary).erase("stats")
+	(blob as Dictionary).erase("bestiary_log")
+	GameState.new_game()
+	check(GameState.from_dict(blob) and int(GameState.stats["pas"]) == 0 and Carnet.creature_state("limace_molle") == "seen", "carnet : une ancienne sauvegarde a des compteurs à zéro et garde ses créatures connues")
+	# --- compteurs divers
+	GameState.new_game()
+	GameState.add_money(25)
+	check(int(GameState.stats["or_gagne"]) == 25, "carnet : écus gagnés comptés")
+	Carnet.walk(7.0)
+	check(int(GameState.stats["pas"]) == 10, "carnet : sept unités font dix pas (%d)" % int(GameState.stats["pas"]))
+	check(Carnet.chests().size() > 10 and Carnet.chests_opened() == 0 and Carnet.quests_done() == 0, "carnet : coffres comptés (%d)" % Carnet.chests().size())
+	# --- d'où vient une caractéristique : la somme tombe toujours juste
+	GameState.new_game()
+	GameState.member("glandoulf")["level"] = 9
+	var sums_ok := true
+	for key: String in ["hp", "mp", "atk", "def", "mag", "res", "spd", "acc", "eva", "crit", "critdmg"]:
+		var src: Dictionary = Carnet.stat_sources("glandoulf", key)
+		var gear_sum := 0
+		for g: Dictionary in src["gear"]:
+			gear_sum += int(g["value"])
+		if int(src["base"]) + gear_sum + int(src["other"]) != int(src["total"]):
+			sums_ok = false
+	check(sums_ok, "fiche : base + équipement + reste = total, pour chaque caractéristique")
+	# --- les écrans : liste du Carnet, bestiaire, faits, fiche
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var menu: Control = GameMenu.new()
+	layer.add_child(menu)
+	await get_tree().process_frame
+	GameState.add_to_party("sam", true)
+	menu.open("carnet")
+	await get_tree().process_frame
+	var rows: Array = menu.entry_texts()
+	check(menu._title.text == "Carnet" and str(rows[0]).begins_with("Bestiaire") and str(rows[1]) == "Faits et gestes" and rows.size() >= 4, "carnet : l'écran liste bestiaire, faits et fiches (%s)" % str(rows))
+	menu.press(0)
+	await get_tree().process_frame
+	check(str(menu._title.text).begins_with("Bestiaire") and menu.entry_texts().size() == Database.enemies.size() and str(menu.entry_texts()[0]) == "???", "bestiaire : une ligne par créature, « ??? » pour l'inconnue")
+	menu.go_back()
+	await get_tree().process_frame
+	menu.press(1)
+	await get_tree().process_frame
+	var deeds: String = menu._detail.get_parsed_text()
+	check(menu._title.text == "Faits et gestes" and menu.entry_texts().size() >= 5 and deeds.contains("Temps de jeu") and deeds.contains("Coffres ouverts"), "faits et gestes : temps, coffres, quêtes (%s)" % deeds.replace("\n", " / ").left(120))
+	menu.go_back()
+	await get_tree().process_frame
+	menu.press(2)
+	await get_tree().process_frame
+	var sheet_rows: Array = menu.entry_texts()
+	check(str(menu._title.text).begins_with("Fiche de") and sheet_rows.size() == 13 and str(sheet_rows[1]).begins_with("PV"), "fiche détaillée : résumé, onze caractéristiques, résistances (%d lignes)" % sheet_rows.size())
+	var summary: String = menu._detail.get_parsed_text()
+	check(summary.contains("Expérience") and summary.contains("pour le niveau"), "fiche : jauge d'expérience et reste à gagner")
+	menu._focus_row(3)
+	menu._on_focus(3)
+	var stat_text: String = menu._detail.get_parsed_text()
+	check(stat_text.contains("Total") and stat_text.contains("Niveau") and stat_text.contains("Attaque"), "fiche : l'origine d'une caractéristique est détaillée (%s)" % stat_text.replace("\n", " / ").left(100))
+	menu._on_focus(1)
+	check(menu._detail.get_parsed_text().contains("on tombe"), "fiche : chaque caractéristique est expliquée en une phrase")
+	menu.close(true)
+	layer.queue_free()
+	Settings.set_value("difficulte", old_level, false)
+
+
+## Le Carnet à la manette seule, dans une partie lancée (essai ciblé).
+func _test_pad_carnet_alone() -> void:
+	var pad_before := Controls.pad
+	GameState.new_game()
+	GameState.map_id = "route_brie"
+	GameState.spawn_id = "est"
+	GameState.player_pos = []
+	SaveManager.save_game()
+	var main: Node = MAIN.instantiate()
+	main.auto_battles = true
+	add_child(main)
+	await _wait_idle(main)
+	main.continue_game()
+	await _wait_idle(main)
+	Controls.set_pad(true)
+	await _test_pad_carnet(main)
+	main.queue_free()
+	await get_tree().process_frame
+	Controls.set_pad(pad_before)
+
+
+func _test_pad_carnet(main: Node) -> void:
+	print("== Manette seule : Carnet ==")
+	await _pb(JOY_BUTTON_START)
+	check(main.pause.visible, "carnet : la pause est ouverte")
+	check(await _pad_to("Carnet", 10), "carnet : la croix mène à « Carnet » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.menus.visible and main.menus._title.text == "Carnet" and not main.pause.visible, "carnet : A ouvre le Carnet")
+	check(_focus_name().begins_with("Bestiaire"), "carnet : le curseur est sur le bestiaire (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).begins_with("Bestiaire"), "carnet : A ouvre le bestiaire (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(main.menus._focus_index == 2, "bestiaire : la croix descend dans la liste (%d)" % main.menus._focus_index)
+	await _pb(JOY_BUTTON_B)
+	check(main.menus._title.text == "Carnet", "bestiaire : B revient au Carnet")
+	check(await _pad_to("Faits", 6), "carnet : la croix mène à « Faits et gestes » (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(main.menus._title.text == "Faits et gestes", "carnet : A ouvre les faits et gestes")
+	await _pb(JOY_BUTTON_B)
+	check(await _pad_to("Fiche de", 8), "carnet : la croix mène à une fiche de héros (%s)" % _focus_name())
+	await _pb(JOY_BUTTON_A)
+	check(str(main.menus._title.text).begins_with("Fiche de"), "carnet : A ouvre la fiche détaillée (%s)" % main.menus._title.text)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	await _pb(JOY_BUTTON_DPAD_DOWN)
+	check(main.menus._detail.get_parsed_text().contains("Total"), "fiche : la croix parcourt les caractéristiques, l'origine s'affiche")
+	await _pb(JOY_BUTTON_B)
+	check(main.menus._title.text == "Carnet", "fiche : B revient au Carnet")
+	await _pb(JOY_BUTTON_B)
+	check(not main.menus.visible and main.pause.visible, "carnet : B revient à la pause")
+	await _pb(JOY_BUTTON_B)
+	check(not main.pause.visible and main.world.input_enabled, "pause : B referme")

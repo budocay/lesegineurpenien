@@ -1547,3 +1547,25 @@ Objets utilisables dans toute carte (aiguillés par `MordgrasBuilder.object` ver
 `mor_porte` accepte `"portcullis": true` : herse de fer (barreaux à pointes, chaînes) qui bloque le passage.
 Un `npc` accepte `scale` (taille du sprite et de la zone d'interaction). Le plan d'horizon `"kind": "marsh"`
 (options `peak`, `trees`, `fires`) peint des arbres morts en silhouettes, roseaux et lueurs de feux follets.
+
+## Carnet, difficulté et aperçu des coups — `data/carnet.json`, `src/core/carnet.gd`
+
+- `difficulties` : `promenade`, `aventure` (défaut, tous les facteurs à 1,0 : rien ne change), `epreuve`.
+  Chacun a `name`, `desc` (affichée dans les paramètres, via `Tutorial.expand`) et les facteurs
+  `enemy_hp` (PV des ennemis à leur création), `enemy_dmg` (dégâts ennemis contre l'équipe), `xp`, `money`
+  (gains de fin de combat). Aucune donnée d'ennemi n'est touchée. Réglage : `Settings` clé `difficulte`.
+- `stat_help` : une phrase par caractéristique (`hp mp atk def mag res spd acc eva crit critdmg resist status xp`),
+  lue par la fiche détaillée.
+- `creatures` : le mot d'humeur de chaque ennemi (fiche du bestiaire), par identifiant d'ennemi.
+- Compteurs : `GameState.stats` (dictionnaire sauvegardé ; clés `temps, combats_gagnes, fuites, degats_infliges,
+  degats_subis, plus_gros_coup, soins, critiques, objets_utilises, or_gagne, or_depense, pas, ko`, `competences`
+  par personnage). Une ancienne sauvegarde repart de zéro. Incrémenter : `Carnet.bump("cle", n)`.
+- Bestiaire : `GameState.bestiary_log[ennemi]` = rencontres, victoires, faiblesses/immunités découvertes,
+  butin vu. Les PV et statistiques se révèlent à la première victoire, les faiblesses à leur découverte
+  (coup efficace ou effet `analyze`), le butin à la première chute.
+- Effet de compétence/objet `{"type": "analyze"}` : révèle faiblesses et immunités de la cible (aucun ne l'emploie encore).
+- `BattleEngine.estimate(acteur, action, cible)` : aperçu honnête (min, max, coups, faiblesse, résistance,
+  chance de toucher, fatal), sans toucher au hasard du combat ; il ne compte que les faiblesses déjà connues.
+- `BattleEngine.commit()` renvoie en plus `progress` (niveau et XP avant/après par héros), `records`, `new`, `first_win`.
+- Audit : `python3 tests/audit_economie.py [--aleatoires N]` (or par chapitre face aux prix, XP face au niveau attendu).
+  Mesure de difficulté : `GLAN_DIFFICULTE=promenade|aventure|epreuve GLAN_ONLY_MEASURE=1 ...`.

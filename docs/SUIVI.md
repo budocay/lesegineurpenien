@@ -1020,6 +1020,56 @@ chevauchaient, Glandoulf trop près du bord droit, plaques du sol d'arène trop 
      lents : le premier lancement d'une version (caches vides, plusieurs secondes sur Minas
      Croute et Port-Saumure) ; Windows jamais mesuré.
 
+### Décisions du 20 au 25 novembre 2026 (l'auteur délègue : « prends les bonnes décisions »)
+
+177. **Police embarquée** : Alegreya pour le texte, Cinzel pour le titre et les bandeaux de
+     lieu (`assets/fonts/`, licence OFL). Raison : un RPG soigné ne dépend pas de la police du
+     système, et le rendu est le même sur Mac et sur Windows. Réglages trouvés à l'œil :
+     interligne −3, pas de hinting, demi-pixel, chiffres alignés, espace d'italique élargie ;
+     repli sur la police système si le fichier manque. Jamais vue sous Windows ; le zéro
+     ressemble à un « o ».
+178. **Sons enregistrés, réversibles** : 13 bruitages Kenney (CC0) pour l'interface, les
+     coups et les portes (`assets/sfx/<identifiant>`), réglage « Sons : enregistrés /
+     synthétisés ». Réversible parce que personne n'a pu les écouter : niveaux alignés par le
+     calcul sur les sons générés. Magie, soins, rugissements et rots restent synthétisés
+     (identité du jeu). Licences sans extension (l'export exclut `*.txt`). Crédits :
+     `docs/CREDITS.md`.
+179. **Chapitre 7 et fin du jeu** : huit cartes (Marais du Bouillon, Passe-Plat, col de
+     l'Arachnée, cuisines et banquet de Mordgras, Quatre Mille Marches, Grand Four, épilogue),
+     quatre styles servis par un seul constructeur (`mordgras_builder.gd`), neuf monstres et
+     trois boss peints, Sauron qui s'endort au lieu de mourir, aveu de Glandoulf, générique
+     (`credits_screen.gd`), sauvegarde « partie terminée ». Inventions listées dans les
+     « Ajouts » de la bible, à valider par l'auteur. La finition a trouvé deux vrais défauts :
+     le générique était invisible en jeu réel (taille nulle, voile jamais levé) et trois objets
+     de décor n'étaient jamais dessinés ; un test vérifie désormais que tout objet `mor_*` est
+     branché. La version reste 0.6.0 tant que l'auteur n'a pas joué la fin.
+180. **Décors 10** : monstres ordinaires agrandis (trois ramenés plus bas ensuite : à cinq,
+     leurs plaques se chevauchaient), lac de Maroilles, Bergerie d'Or, citadelle. Un test
+     vérifie que les `pos` et `rect` de toutes les cartes ne contiennent que des nombres (des
+     objets glissés dans le `pos` d'une torche étaient ignorés sans erreur). Shader d'eau
+     mesuré : coût négligeable.
+181. **Carnet** (`src/core/carnet.gd`, `data/carnet.json`) : bestiaire (statistiques à la
+     première victoire, faiblesses à la découverte, rappelées sur la plaque de l'ennemi),
+     « Faits et gestes », fiche détaillée, aperçu chiffré au curseur (calculé à part : le
+     hasard du combat ne change pas), bilan de victoire. Raison : l'auteur voulait le « côté
+     chiffres » d'un RPG.
+182. **Difficulté** : Promenade, Aventure, Épreuve, par multiplicateurs du moteur ; Aventure
+     ne change rien aux chiffres mesurés. Épreuve est trop dure sur certains boss (15 % contre
+     les Nazes de nuit) et n'est pas mesurée aux chapitres 6 et 7 : à reprendre.
+183. **Économie** : mesurée par `tests/audit_economie.py`. Chapitres 2 et 3 presque
+     inachetables (12 % et 8 %), chapitres 4 et 6 tout achetable : prix et or des quêtes
+     corrigés (24 %, 20 %, 87 %, 70 %). Restent : chapitres 2 et 3 loin de la moitié visée,
+     expérience trop généreuse (niveau 31 au chapitre 6 pour 23 attendu), or du chapitre 7
+     sans usage (marchand prévu avant le Passe-Plat).
+184. **Incident du 20 novembre** : un agent a écrit cinq fichiers dans le dossier principal
+     (outil d'édition appelé avec un chemin relatif). Annulés avec l'accord de l'auteur.
+     Depuis : chemins absolus exigés dans chaque brief, contrôle de `git status` du dossier
+     principal après chaque rapport.
+185. **Redémarrage du 25 novembre** : le dossier temporaire a été nettoyé, les worktrees
+     ont perdu leur lien git ; seul le travail commité a survécu. Depuis : les agents commitent
+     souvent, et une branche reprise repasse son test complet avant fusion (les deux reprises
+     échouaient).
+
 ## Demandes de l'auteur : ce qui reste (18 novembre 2026, nuit)
 
 - **Relecture visuelle complète** par un agent qui voit les images, puis corrections :

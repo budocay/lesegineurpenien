@@ -50,6 +50,7 @@ func _ready() -> void:
 	_talents = add_entry("Talents", func() -> void: screen_requested.emit("talents"), false)
 	add_entry("Inventaire", func() -> void: screen_requested.emit("inventory"), false)
 	add_entry("Quêtes", func() -> void: screen_requested.emit("quests"), false)
+	add_entry("Carnet", func() -> void: screen_requested.emit("carnet"), false)
 	add_entry("Sauvegarder", func() -> void: save_requested.emit(), false)
 	add_entry("Charger", func() -> void: load_requested.emit(), false)
 	add_entry("Plein écran", func() -> void: toggle_fullscreen(), false)

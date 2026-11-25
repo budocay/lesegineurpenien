@@ -39,9 +39,10 @@ L'auteur n'est pas développeur : il appuie sur F5, joue, et dit ce qu'il en pen
 ## Vérifier (obligatoire à la fin de chaque étape)
 
 ```bash
-# test complet, sans fenêtre, environ cinq minutes : doit finir par « RESULTAT : OK »
+# test complet, sans fenêtre, trente à quarante minutes : doit finir par « RESULTAT : OK »
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/smoke_test.tscn
-# passage rapide (règles, équilibre, talents), quelques secondes
+# passage rapide (règles, équilibre, talents), environ cinq minutes ; filtres plus courts :
+# GLAN_ONLY_C7, GLAN_ONLY_CARNET, GLAN_ONLY_FONTS, GLAN_ONLY_STAGING, GLAN_ONLY_PLATES
 GLAN_QUICK=1 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/smoke_test.tscn
 # captures d'écran (ouvre une fenêtre deux à trois minutes, ne pas toucher au clavier)
 /Applications/Godot.app/Contents/MacOS/Godot --path . res://tests/capture.tscn -- "$PWD/docs/captures"
@@ -163,6 +164,16 @@ fluidité des changements de carte (`staged`, `prewarm.gd`, `loading_spinner.gd`
 `docs/PERFORMANCE.md`). En attente de l'auteur : police embarquée (Alegreya, Cinzel) et essai
 des sons Kenney. Suite : captures à refaire, chapitre 7, relief jouable.
 
+20 au 25 novembre (décisions 177 à 185) : police embarquée (`assets/fonts/`, `UI.font()`,
+`UI.font_title()`), sons enregistrés réversibles (`assets/sfx/`, réglage `sons`),
+chapitre 7 jouable jusqu'au générique (`mordgras_builder.gd`, `mordgras_painter.gd`,
+`mordgras_monsters.gd`, `credits_screen.gd` ; le jeu se finit), Carnet (`src/core/carnet.gd`,
+`data/carnet.json` : bestiaire, faits et gestes, fiche détaillée, aperçu des dégâts), trois
+niveaux de difficulté, économie mesurée (`tests/audit_economie.py`). En cours : arbre de
+compétences en réseau d'anneaux façon Final Fantasy XIII, décors faibles (remparts de la
+Croûte, Marais du Bouillon, Grand Four, Passe-Plat). Restent : Épreuve trop dure, expérience
+trop généreuse, marchand du chapitre 7, version 1.0.0 après essai de la fin par l'auteur.
+
 ## Pièges connus
 
 - Manette sur Mac : lancer le jeu par `jouer.command` ou en ligne de commande, pas dans la
@@ -178,6 +189,16 @@ des sons Kenney. Suite : captures à refaire, chapitre 7, relief jouable.
 - Le dépôt GitHub est public : n'y entre que du CC0, du CC BY crédité, de l'OFL (polices), du
   MIT ou Apache. Un pack « gratuit » d'itch.io interdit presque toujours la redistribution :
   l'essayer dans une copie du jeu hors de git, jamais dans le dossier principal.
+
+- Brief d'agent : exiger des chemins ABSOLUS pour tous les outils (un chemin relatif donné à
+  l'outil d'édition écrit dans le dossier principal), et vérifier `git status` du dossier
+  principal après chaque rapport.
+- Le dossier temporaire peut être nettoyé entre deux sessions : seul le travail commité d'un
+  agent survit ; `git worktree prune` puis `git worktree add <dossier> <branche>` pour reprendre.
+- Agrandir un monstre : vérifier `GLAN_ONLY_STAGING=1` et `GLAN_ONLY_PLATES=1` (les groupes de
+  quatre et cinq ennemis sont les premiers à se chevaucher).
+- Un objet de décor déclaré dans une carte mais pas branché dans son constructeur ne s'affiche
+  pas et ne dit rien : le brancher ET le documenter dans `docs/FORMAT_DONNEES.md`.
 
 - Un test de déroulé qui échoue en chaîne après un combat : d'abord relancer, c'est souvent
   un combat perdu par hasard ; alors monter le niveau de l'équipe de test, pas toucher au jeu.

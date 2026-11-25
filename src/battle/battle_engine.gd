@@ -12,6 +12,7 @@ extends RefCounted
 
 const Combatant = preload("res://src/battle/combatant.gd")
 const Rules = preload("res://src/battle/rules.gd")
+const Carnet = preload("res://src/core/carnet.gd")
 
 const WEAK_MULT := 1.5
 const CRIT_MULT := 1.5
@@ -47,10 +48,17 @@ var stolen := 0                 # écus fauchés pendant le combat (effet « ste
 var _countering := false        # une riposte n'appelle pas de riposte
 var _boost := 0                 # points d'élan engagés dans l'action en cours
 var _boost_def: Dictionary = {}  # la compétence qui les reçoit (vide : attaque de base)
+var diff: Dictionary = {}        # niveau de difficulté du combat (data/carnet.json) : PV et dégâts des ennemis, gains
+var tally: Dictionary = {}       # bilan du combat pour le Carnet (dégâts, soins, plus gros coup...) ; voir Carnet.absorb
+var _absorbed := false
+var _cur_name := ""              # nom de l'action en cours (pour « plus gros coup »)
 
 
 func setup(p_encounter: Dictionary, p_seed: int = -1) -> void:
 	encounter = p_encounter
+	diff = Carnet.difficulty_def()
+	tally = {"dealt": 0, "taken": 0, "heal": 0, "crits": 0, "items": 0, "ko": {}, "skills": {}, "best": {}, "immune": {}, "loot": {}, "analyzed": {}}
+	_absorbed = false
 	if p_seed >= 0:
 		rng.seed = p_seed
 	else:
@@ -132,6 +140,9 @@ func _make_enemy(id: String) -> Combatant:
 	c.side = "enemy"
 	var stats: Variant = def.get("stats", {})
 	c.base = (stats as Dictionary).duplicate() if stats is Dictionary else {}
+	var hp_mult := float(diff.get("enemy_hp", 1.0))
+	if hp_mult != 1.0:   # difficulté : les données de l'ennemi ne bougent pas, seul son exemplaire du combat
+		c.base["hp"] = maxi(1, int(round(float(c.base.get("hp", 1)) * hp_mult)))
 	c.hp = c.max_hp()
 	c.mp = 9999
 	c.element = str(def.get("element", "contondant"))
@@ -389,6 +400,7 @@ func perform(actor: Combatant, action: Dictionary) -> Array:
 			def = action_def(actor, {"type": "attack"})
 		elif actor.side == "party":
 			actor.mp -= int(def.get("cost", 0))
+			_tally_skill(actor, str(action.get("id", "")))
 	elif type == "item":
 		var item_id := str(action.get("id", ""))
 		if int(inventory.get(item_id, 0)) <= 0:
@@ -396,7 +408,10 @@ func perform(actor: Combatant, action: Dictionary) -> Array:
 		inventory[item_id] = int(inventory[item_id]) - 1
 		if int(inventory[item_id]) <= 0:
 			inventory.erase(item_id)
+		if actor.side == "party":
+			tally["items"] = int(tally["items"]) + 1
 
+	_cur_name = str(def.get("name", ""))
 	# Élan engagé : seulement pour une attaque ou une compétence qui en tire parti.
 	var elan_n := 0
 	if actor.side == "party" and (type == "attack" or type == "skill"):
@@ -480,6 +495,89 @@ func elan_mult(def: Dictionary, n: int, heal: bool = false) -> float:
 	return float(table[clampi(n, 0, ELAN_COMMIT_MAX)])
 
 
+## Aperçu d'une action de héros sur une cible, sans hasard ni critique (les mêmes règles que `_apply`) :
+## {"kind": "damage"|"heal"|"", "min", "max" (par coup), "hits", "weak" (faiblesse CONNUE du joueur seulement :
+## une faiblesse qu'il n'a pas découverte n'est jamais trahie), "resist", "hit" (chance de toucher, 0..1), "lethal"}.
+## `action` est celle qu'on passerait à perform, avec son élan.
+func estimate(actor: Combatant, action: Dictionary, target: Combatant) -> Dictionary:
+	var out := {"kind": "", "min": 0, "max": 0, "hits": 1, "weak": false, "resist": false, "hit": 1.0, "lethal": false}
+	var def := action_def(actor, action)
+	if def.is_empty() or target == null:
+		return out
+	var type := str(action.get("type", "attack"))
+	var n := 0
+	if actor.side == "party" and (type == "attack" or type == "skill") and elan_kind(actor, {"type": type, "id": str(action.get("id", ""))}) != "":
+		n = clampi(int(action.get("elan", 0)), 0, mini(ELAN_COMMIT_MAX, actor.elan))
+	var boost := elan_mult(def, n) if (n > 0 and type == "skill") else 1.0
+	if type == "attack":
+		out["hits"] = 1 + n
+	var known := known_weak(target) if target.side == "enemy" else target.weak
+	var lo := 0.0
+	var hi := 0.0
+	var chance := 1.0
+	for fx: Variant in def.get("effects", []):
+		if not (fx is Dictionary):
+			continue
+		match str(fx.get("type", "")):
+			"damage":
+				if target.side == actor.side:
+					continue
+				out["kind"] = "damage"
+				var element := str(fx.get("element", actor.element))
+				lo += maxf(1.0, _expected_damage(actor, target, fx, boost, 0.9, known))
+				hi += maxf(1.0, _expected_damage(actor, target, fx, boost, 1.1, known))
+				if known.has(element) and target.weak.has(element):
+					out["weak"] = true
+				if target.passive("guard") > 0.0 or target.passive("resist", element) > 0.0:
+					out["resist"] = true
+				if str(fx.get("stat", "atk")) == "atk":
+					var evade := target.status_value("evade")
+					chance = minf(chance, clampf((actor.stat("acc") - target.stat("eva")) / 100.0, MIN_HIT, 1.0) * (1.0 - evade))
+			"heal":
+				if out["kind"] == "":
+					out["kind"] = "heal"
+					var amount := float(fx.get("power", 0)) + target.max_hp() * float(fx.get("percent", 0.0))
+					if fx.has("stat"):
+						amount += actor.stat(str(fx["stat"])) * 1.5
+					amount *= 1.0 + actor.passive("heal_boost")
+					if n > 0 and actor.side == "party":
+						amount *= elan_mult(def, n, true)
+					var gain := mini(target.max_hp() - target.hp, maxi(1, int(round(amount))))
+					lo = float(gain)
+					hi = float(gain)
+	out["min"] = int(round(lo))
+	out["max"] = int(round(hi))
+	out["hit"] = chance
+	out["lethal"] = out["kind"] == "damage" and int(out["min"]) * int(out["hits"]) >= target.hp and chance >= 1.0
+	return out
+
+
+## Un coup sans hasard : `factor` remplace le tirage de 0,9 à 1,1 ; ni critique ni esquive. `known` : faiblesses prises en compte.
+func _expected_damage(actor: Combatant, target: Combatant, fx: Dictionary, boost: float, factor: float, known: Array) -> float:
+	var stat_key := str(fx.get("stat", "atk"))
+	var element := str(fx.get("element", actor.element))
+	var att := actor.stat(stat_key)
+	var dfn := target.stat("def" if stat_key == "atk" else "res")
+	var amount := (att * 2.0 * float(fx.get("power", 100)) / 100.0 + float(fx.get("flat", 0))) * boost - dfn
+	amount *= factor
+	if stat_key == "atk" and softness > 0.0 and not actor.is_firm():
+		amount *= 1.0 - softness
+	if known.has(element) and target.weak.has(element):
+		amount *= WEAK_MULT
+	amount *= 1.0 + actor.passive("element_boost", element)
+	if target.afflicted():
+		amount *= 1.0 + actor.passive("vs_afflicted")
+	amount *= 1.0 + actor.passive("fury") * (1.0 - float(actor.hp) / actor.max_hp())
+	amount *= maxf(0.2, 1.0 - (0.0 if bool(fx.get("ignore_guard", false)) else target.passive("guard")))
+	amount *= maxf(0.2, 1.0 - target.passive("resist", element))
+	amount *= target.vulnerability()
+	if target.defending:
+		amount *= 0.5
+	if actor.side == "enemy" and target.side == "party":
+		amount *= float(diff.get("enemy_dmg", 1.0))
+	return amount
+
+
 ## Multiplicateur de dégâts dû à l'élan engagé (1 pour l'attaque de base, qui frappe plusieurs fois).
 func _damage_boost(actor: Combatant, _fx: Dictionary) -> float:
 	if _boost <= 0 or actor.side != "party" or _boost_def.is_empty():
@@ -539,8 +637,11 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			amount *= target.vulnerability()
 			if target.defending:
 				amount *= 0.5
+			if actor.side == "enemy" and target.side == "party":
+				amount *= float(diff.get("enemy_dmg", 1.0))   # difficulté
 			var dmg := maxi(1, int(round(amount)))
 			target.hp = maxi(0, target.hp - dmg)
+			_tally_damage(actor, target, dmg, crit)
 			var reveal := false
 			if weak and target.side == "enemy":
 				var known: Array = known_weak(target).duplicate()
@@ -566,10 +667,13 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			if counter > 0.0 and not _countering and stat_key == "atk" and target.side != actor.side and actor.alive() and target.skipping_status() == "" and rng.randf() < counter:
 				_countering = true
 				var kept := _boost
+				var kept_name := _cur_name
+				_cur_name = "Riposte"
 				_boost = 0   # la riposte n'emprunte rien à l'élan de celui qui a frappé
 				events.append({"type": "counter", "actor": target})
 				_apply(target, actor, {"type": "damage", "stat": "atk", "power": 100, "element": target.element}, events)
 				_boost = kept
+				_cur_name = kept_name
 				_countering = false
 		"heal":
 			var amount := float(fx.get("power", 0)) + target.max_hp() * float(fx.get("percent", 0.0))
@@ -580,6 +684,8 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 				amount *= elan_mult(_boost_def, _boost, true)
 			var gain := mini(target.max_hp() - target.hp, maxi(1, int(round(amount))))
 			target.hp += gain
+			if actor.side == "party" and target.side == "party":
+				tally["heal"] = int(tally["heal"]) + gain
 			events.append({"type": "heal", "target": target, "amount": gain})
 		"mana":
 			var gain := mini(target.max_mp() - target.mp, int(fx.get("power", 0)))
@@ -593,6 +699,8 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 			if st.is_empty():
 				return
 			if target.immune.has(id):
+				if target.side == "enemy":
+					_tally_immune(target.source, [id])   # une insensibilité qu'on vient de découvrir
 				events.append({"type": "status", "target": target, "id": id, "applied": false, "immune": true})
 				return
 			var chance := float(fx.get("chance", 1.0))
@@ -623,6 +731,12 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 					target.statuses.erase(id)
 					cured.append(id)
 			events.append({"type": "cure", "target": target, "ids": cured})
+		"analyze":   # révèle tout d'un ennemi : faiblesses, insensibilités, statistiques
+			if target.side == "enemy":
+				revealed[target.source] = (target.weak as Array).duplicate()
+				_tally_immune(target.source, target.immune)
+				(tally["analyzed"] as Dictionary)[target.source] = true
+				events.append({"type": "analyze", "target": target})
 		"steal":
 			if actor.side != "party" or target.side != "enemy":
 				return
@@ -635,6 +749,9 @@ func _apply(actor: Combatant, target: Combatant, fx: Dictionary, events: Array) 
 
 
 func _ko(target: Combatant, events: Array) -> void:
+	if target.side == "party":
+		var kos: Dictionary = tally["ko"]
+		kos[target.source] = int(kos.get(target.source, 0)) + 1
 	target.hp = 0
 	target.statuses.clear()
 	target.defending = false
@@ -761,9 +878,56 @@ static func _has_effect(def: Dictionary, type: String) -> bool:
 # ---------------------------------------------------------------- fin du combat
 
 ## Applique l'issue du combat à l'état de la partie et renvoie le butin à afficher :
-## {"xp", "money", "drops": {id: n}, "levelups": [{"name", "from", "to", "skills": [noms]}]}.
+## {"xp", "money", "drops": {id: n}, "levelups": [{"name", "from", "to", "skills": [noms]}],
+## "gains": {id: xp}, "progress": {id: {from_level, from_xp, to_level, to_xp, need}},
+## "records": [textes], "new": [créatures découvertes], "first_win": [premières victoires]}.
+## Range aussi le bilan dans le Carnet (une seule fois, sauf combat imposé par l'histoire).
 func commit() -> Dictionary:
-	var out := {"xp": 0, "money": 0, "drops": {}, "levelups": [], "gains": {}}
+	var out := _commit_rewards()
+	out["records"] = []
+	out["new"] = []
+	out["first_win"] = []
+	if not guest and result != "" and not _absorbed:
+		_absorbed = true
+		for id: String in (tally["analyzed"] as Dictionary):
+			Carnet.analyze(id, Database.get_enemy(id).get("weak", []), Database.get_enemy(id).get("immune", []))
+		var book := Carnet.absorb(self)
+		out["records"] = book["records"]
+		out["new"] = book["new"]
+		out["first_win"] = book["first_win"]
+	return out
+
+
+func _tally_damage(actor: Combatant, target: Combatant, dmg: int, crit: bool) -> void:
+	if target.side == "party":
+		tally["taken"] = int(tally["taken"]) + dmg
+	elif actor.side == "party":
+		tally["dealt"] = int(tally["dealt"]) + dmg
+		if crit:
+			tally["crits"] = int(tally["crits"]) + 1
+		if dmg > int((tally["best"] as Dictionary).get("amount", 0)):
+			tally["best"] = {"who": actor.source, "what": _cur_name, "amount": dmg, "target": target.name}
+
+
+func _tally_skill(actor: Combatant, skill_id: String) -> void:
+	var per: Dictionary = tally["skills"]
+	if not (per.get(actor.source) is Dictionary):
+		per[actor.source] = {}
+	var mine: Dictionary = per[actor.source]
+	mine[skill_id] = int(mine.get(skill_id, 0)) + 1
+
+
+func _tally_immune(source: String, ids: Array) -> void:
+	var im: Dictionary = tally["immune"]
+	var list: Array = im.get(source, [])
+	for id: Variant in ids:
+		if not list.has(str(id)):
+			list.append(str(id))
+	im[source] = list
+
+
+func _commit_rewards() -> Dictionary:
+	var out := {"xp": 0, "money": 0, "drops": {}, "levelups": [], "gains": {}, "progress": {}}
 	if guest or result == "defeat" or result == "":
 		return out
 	GameState.bestiary = revealed.duplicate(true)
@@ -774,6 +938,7 @@ func commit() -> Dictionary:
 		m["mp"] = c.mp
 	if result != "victory":
 		GameState.money += stolen   # ce qui est fauché reste fauché, même en fuyant
+		Carnet.bump("or_gagne", stolen)
 		return out
 	for e: Combatant in enemies:
 		out["xp"] = int(out["xp"]) + e.xp
@@ -783,16 +948,29 @@ func commit() -> Dictionary:
 				var item := str(d.get("item", ""))
 				if not Database.get_item(item).is_empty():
 					out["drops"][item] = int(out["drops"].get(item, 0)) + int(d.get("count", 1))
+					var found: Array = (tally["loot"] as Dictionary).get(e.source, [])
+					found.append(item)
+					(tally["loot"] as Dictionary)[e.source] = found
+	out["xp"] = int(round(float(int(out["xp"])) * float(diff.get("xp", 1.0))))   # difficulté : gains
+	out["money"] = int(round(float(int(out["money"])) * float(diff.get("money", 1.0))))
 	var money_bonus := 0.0
 	for c: Combatant in party:
 		money_bonus += c.passive("money_bonus")
 	out["money"] = int(round(float(int(out["money"]) + stolen) * (1.0 + money_bonus)))
 	GameState.money += int(out["money"])
+	Carnet.bump("or_gagne", int(out["money"]))
 	for item: String in out["drops"]:
 		GameState.add_item(item, int(out["drops"][item]))
 	for c: Combatant in party:
 		(out["gains"] as Dictionary)[c.source] = int(round(float(out["xp"]) * (1.0 + c.passive("xp_bonus"))))
+		var before := GameState.member(c.source)
+		var prog := {"from_level": int(before["level"]), "from_xp": int(before["xp"])}
 		var up := GameState.grant_xp(c.source, int(round(float(out["xp"]) * (1.0 + c.passive("xp_bonus")))))
+		var after := GameState.member(c.source)
+		prog["to_level"] = int(after["level"])
+		prog["to_xp"] = int(after["xp"])
+		prog["need"] = Rules.xp_to_next(int(after["level"]))
+		(out["progress"] as Dictionary)[c.source] = prog
 		if not up.is_empty():
 			(out["levelups"] as Array).append(up)
 	# la réserve ne se bat pas : elle ne gagne rien tant que RESERVE_XP vaut zéro

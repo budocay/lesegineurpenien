@@ -1130,6 +1130,7 @@ func _finish() -> void:
 			await _wait(0.6)
 			outcome = "fled"
 		_:
+			engine.commit()   # rien à gagner, mais le Carnet note la défaite, les coups donnés et reçus
 			await _wait(0.8)
 			if fast:
 				outcome = "title"

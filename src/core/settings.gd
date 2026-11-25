@@ -39,6 +39,7 @@ const DEFAULTS: Dictionary = {
 	"conseils": ["divers", true],
 	"repere": ["divers", true],
 	"vibration": ["manette", true],
+	"difficulte": ["jeu", "aventure"],
 }
 
 ## Réglages fins pilotés par la « Qualité ». Moyenne = le rendu d'origine.
@@ -80,6 +81,8 @@ const ROWS: Array = [
 	{"id": "sons", "label": "Sons de l'interface et des coups"},
 	{"section": "Divers"},
 	{"id": "compteur", "label": "Compteur d'images par seconde"},
+	{"section": "Jeu"},
+	{"id": "difficulte", "label": "Difficulté"},
 	{"section": "Aide au jeu"},
 	{"id": "conseils", "label": "Conseils de jeu"},
 	{"id": "repere", "label": "Repère de quête"},
@@ -113,6 +116,7 @@ const HELP: Dictionary = {
 	"compteur": "Affiche discrètement le nombre d'images par seconde dans un coin.",
 	"repere": "Une petite marque dorée au-dessus de ce que vise l'étape de quête en cours, et le sens à prendre quand c'est dans une autre carte.",
 	"vibration": "Une légère vibration de la manette quand un coup est reçu, sur un coup critique et à la victoire. Sans effet sans manette.",
+	"difficulte": "Se change à tout moment, et vaut dès le prochain combat.",
 	"conseils": "Explique chaque système une seule fois, au moment où il sert. Les conseils déjà vus restent relisibles dans Pause, « Aide ».",
 }
 
@@ -246,6 +250,8 @@ func choices(id: String) -> Array:
 			return [[0, "Aucune"], [1, "Basse"], [2, "Moyenne"], [3, "Haute"]]
 		"particules":
 			return [[0, "Aucune"], [1, "Réduites"], [2, "Normales"]]
+		"difficulte":
+			return [["promenade", "Promenade"], ["aventure", "Aventure"], ["epreuve", "Épreuve"]]
 		"sons":
 			return [["enregistres", "Enregistrés"], ["synthetises", "Synthétisés"]]
 		"general", "musique", "effets":
@@ -270,6 +276,11 @@ func value_label(id: String) -> String:
 
 func help(id: String) -> String:
 	var text := str(HELP.get(id, ""))
+	if id == "difficulte":   # le texte vient des données (data/carnet.json), un niveau après l'autre
+		for lvl: String in ["promenade", "aventure", "epreuve"]:
+			var d: Dictionary = (Database.carnet.get("difficulties", {}) as Dictionary).get(lvl, {})
+			text += "\n%s : %s" % [str(d.get("name", lvl)), str(d.get("desc", ""))]
+		return Tutorial.expand(text)
 	if Controls.pad:
 		text = text.replace(" La touche F bascule aussi.", "")   # une touche du clavier ne dit rien à la manette
 	var note := _note(id)

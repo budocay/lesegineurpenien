@@ -8,6 +8,7 @@ signal quest_started(id: String)
 signal quest_completed(id: String, reward: Dictionary)
 
 const Rules = preload("res://src/battle/rules.gd")
+const Carnet = preload("res://src/core/carnet.gd")
 
 const SAVE_VERSION := 4
 ## Emplacements d'équipement. Les identifiants weapon, armor et trinket sont ceux des
@@ -28,6 +29,8 @@ var party: Array = []            # ids de tous les personnages recrutés, dans l
 var bench: Array = []            # compagnons séparés du groupe (chapitre 5 : l'équipe se scinde) ; leurs fiches restent dans le registre
 var roster: Dictionary = {}      # id -> {level, xp, hp, mp, equip: {emplacement: objet}, specialization, talents}
 var bestiary: Dictionary = {}    # id d'ennemi -> faiblesses déjà découvertes
+var bestiary_log: Dictionary = {}   # Carnet : id d'ennemi -> {seen, beaten, map, immune, loot, analyzed}
+var stats: Dictionary = {}       # Carnet : compteurs de la partie (voir Carnet.fresh_stats)
 var inventory: Dictionary = {}   # id d'objet -> quantité (l'équipement porté n'y figure pas)
 var money: int = 0
 var map_id: String = ""
@@ -58,6 +61,8 @@ func new_game() -> void:
 			inventory[item] = int(start_inv[item])
 	roster = {}
 	bestiary = {}
+	bestiary_log = {}
+	stats = Carnet.fresh_stats()
 	tutorials_seen = {}
 	party = []
 	bench = []
@@ -439,6 +444,8 @@ func item_count(id: String) -> int:
 
 
 func add_money(amount: int) -> void:
+	if amount > 0:
+		Carnet.bump("or_gagne", amount)
 	money = maxi(0, money + amount)
 	refresh_quests()
 
@@ -448,6 +455,7 @@ func buy(item: String, price: int) -> bool:
 	if price < 0 or money < price or Database.get_item(item).is_empty():
 		return false
 	money -= price
+	Carnet.bump("or_depense", price)
 	add_item(item, 1)
 	return true
 
@@ -763,6 +771,7 @@ func _grant_reward(r: Variant) -> Dictionary:
 	if not (r is Dictionary):
 		return {}
 	var reward: Dictionary = r
+	Carnet.bump("or_gagne", maxi(0, int(reward.get("money", 0))))
 	money += maxi(0, int(reward.get("money", 0)))
 	var items: Variant = reward.get("items", {})
 	if items is Dictionary:
@@ -804,6 +813,8 @@ func to_dict() -> Dictionary:
 		"bench": bench.duplicate(),
 		"roster": roster.duplicate(true),
 		"bestiary": bestiary.duplicate(true),
+		"bestiary_log": bestiary_log.duplicate(true),
+		"stats": stats.duplicate(true),
 		"inventory": inventory.duplicate(true),
 		"money": money,
 		"map_id": map_id,
@@ -827,6 +838,8 @@ func from_dict(d_in: Dictionary) -> bool:
 			quests.erase(id)
 	roster = _dict(d.get("roster"))
 	bestiary = _dict(d.get("bestiary"))
+	bestiary_log = Carnet.upgrade_log(_dict(d.get("bestiary_log")), bestiary)   # ancienne sauvegarde : fiches reconstruites des faiblesses connues
+	stats = Carnet.merge_stats(d.get("stats"))   # ancienne sauvegarde : compteurs à zéro
 	inventory = _dict(d.get("inventory"))
 	party = _array(d.get("party"))
 	bench = _array(d.get("bench"))
