@@ -331,6 +331,16 @@
 			],
 			"color": "#7a2a22"
 		},
+		{"type": "cav_botte", "pos": [14.5, 15.0]},
+		{"type": "cav_botte", "pos": [25.5, 17.6]},
+		{"type": "cav_botte", "pos": [11.0, 17.8]},
+		{"type": "cav_ratelier", "pos": [11.0, 15.0]},
+		{"type": "cav_ratelier", "pos": [29.0, 14.6]},
+		{"type": "cav_brebis", "pos": [26.4, 15.4]},
+		{"type": "cav_brebis", "pos": [16.0, 18.0]},
+		{"type": "cav_etendard", "pos": [14.0, 17.8]},
+		{"type": "cav_etendard", "pos": [26.0, 17.8]},
+		{"type": "light", "pos": [20, 15], "height": 2.6, "color": "#ffc870", "energy": 1.3, "range": 9.0},
 		{
 			"type": "scatter",
 			"prop": "haystack",
