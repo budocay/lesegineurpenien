@@ -88,6 +88,19 @@
 			"label": "Parler"
 		},
 		{
+			"type": "npc",
+			"id": "longuevue",
+			"pos": [
+				53.4,
+				10.7
+			],
+			"facing": "down",
+			"reach": 2.0,
+			"dialogue": "longuevue_etal",
+			"label": "Parler",
+			"if": "combat_noyes_planches"
+		},
+		{
 			"type": "trigger",
 			"rect": [
 				2,

@@ -27,7 +27,7 @@ for chap, names in {1: "pre_couche_nord pre_couche_sud bois_sud bois_nord roseli
     for n in names.split():
         TABLE_CHAPTER[n] = chap
 SHOP_CHAPTER = {"etal_ursule": 1, "marche_sidonie": 2, "fromagerie_persille": 2, "chancellerie": 3,
-                "arsenal_sylvanor": 3, "rondin": 4, "cabecou_marche": 5, "minas_marche": 6, "port_cambuse": 6}
+                "arsenal_sylvanor": 3, "rondin": 4, "cabecou_marche": 5, "minas_marche": 6, "port_cambuse": 6, "dernier_etal": 7}
 QUEST_CHAPTER = {}
 cur = 1
 for qid, q in quests.items():   # l'ordre du fichier suit l'histoire : le chapitre monte quand la quête principale suivante arrive
