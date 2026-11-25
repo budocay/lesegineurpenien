@@ -344,8 +344,8 @@ func _test_rendering() -> void:
 			check(rays is Dictionary, "ambiance %s : rays est un dictionnaire" % id)
 			if rays is Dictionary:
 				var strength := float(rays.get("strength", 0.1))
-				check(strength > 0.0 and strength <= 0.08, "ambiance %s : rayons discrets (force %s)" % [id, strength])
-				check(float(rays.get("density", 0.01)) <= 0.02, "ambiance %s : rayons peu nombreux" % id)
+				check(strength > 0.0 and strength <= 0.2, "ambiance %s : rayons visibles sans voiler (force %s)" % [id, strength])
+				check(float(rays.get("density", 0.01)) <= 0.03, "ambiance %s : rayons peu nombreux" % id)
 	check(with_rays >= 2, "des ambiances ont des rayons de lumière")
 	for path: String in ["ground", "water", "rays", "vignette"]:
 		check(load("res://src/gfx/shaders/%s.gdshader" % path) is Shader, "shader %s chargé" % path)
