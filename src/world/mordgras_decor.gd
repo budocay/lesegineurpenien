@@ -7,7 +7,7 @@ const MeshKit = preload("res://src/gfx/mesh_kit.gd")
 const Atmosphere = preload("res://src/world/atmosphere.gd")
 const PA = preload("res://src/gfx/pixel_art.gd")
 
-const OBJECTS: Array[String] = ["mor_sol", "mor_ustensile", "mor_chaine", "mor_brasero", "mor_passerelle", "mor_reflet", "mor_feu_follet"]
+const OBJECTS: Array[String] = ["mor_sol", "mor_ustensile", "mor_chaine", "mor_brasero", "mor_passerelle", "mor_reflet", "mor_feu_follet", "mor_fumee"]
 
 const PX_PER_M := 12.0
 
@@ -21,6 +21,7 @@ static func object(b, type: String, o: Dictionary) -> bool:
 		"mor_passerelle": _walkway(b, o)
 		"mor_reflet": _reflection(b, o)
 		"mor_feu_follet": _wisp(b, o)
+		"mor_fumee": _smoke(b, o)
 		_: return false
 	return true
 
@@ -455,3 +456,18 @@ static func _wisp(b, o: Dictionary) -> void:
 	var x0 := node.position.x
 	tw.tween_property(node, "position", Vector3(x0 + drift, y0 + 0.3, node.position.z), 2.6)
 	tw.tween_property(node, "position", Vector3(x0 - drift, y0 - 0.1, node.position.z), 3.1)
+
+
+# ======================================================================================= fumées
+
+## Colonne de fumée qui monte d'une cheminée, d'une fosse ou d'une braise. Champs : `pos`, `height` (0,0 : hauteur du
+## départ), `scale` (1,0 : largeur et hauteur du panache).
+static func _smoke(b, o: Dictionary) -> void:
+	var p: Vector3 = b._p(o)
+	var fum := Atmosphere.make_particles("smoke")
+	if fum == null:
+		return
+	fum.name = "MorFumee"
+	fum.position = p + Vector3(0.0, float(o.get("height", 0.0)), 0.0)
+	fum.scale = Vector3.ONE * float(o.get("scale", 1.0))
+	b.world.add_child(fum)

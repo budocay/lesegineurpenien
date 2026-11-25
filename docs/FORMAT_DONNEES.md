@@ -1543,6 +1543,7 @@ Objets utilisables dans toute carte (aiguillés par `MordgrasBuilder.object` ver
 | `mor_passerelle` | `from`, `to`, `step`, `height`, `gap` | passerelle de planches sur pilotis |
 | `mor_reflet` | `pos`, `length`, `width`, `color`, `phase` | reflet de lanterne sur l'eau |
 | `mor_feu_follet` | `pos`, `color`, `height`, `drift` | feu follet flottant |
+| `mor_fumee` | `pos`, `height`, `scale` | colonne de fumée (particules `smoke`) |
 
 `mor_porte` accepte `"portcullis": true` : herse de fer (barreaux à pointes, chaînes) qui bloque le passage.
 Un `npc` accepte `scale` (taille du sprite et de la zone d'interaction). Le plan d'horizon `"kind": "marsh"`
